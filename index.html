@@ -754,7 +754,7 @@
       if (!slider) return;
 
       let autoSlide = null;
-      const intervalTime = 3000;
+      const intervalTime = 2000;
       let isHovered = false;
       let isTouching = false;
 
@@ -781,14 +781,14 @@
         return closestIndex;
       }
 
-      function goToSlide(index) {
+      function goToSlide(index, smooth = true) {
         const cards = getCards();
         if (!cards.length) return;
 
         const safeIndex = (index + cards.length) % cards.length;
         slider.scrollTo({
           left: cards[safeIndex].offsetLeft,
-          behavior: "smooth"
+          behavior: smooth ? "smooth" : "auto"
         });
       }
 
@@ -800,8 +800,13 @@
         if (!cards.length) return;
 
         const currentIndex = getCurrentIndex();
-        const nextIndex = (currentIndex + 1) % cards.length;
-        goToSlide(nextIndex);
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex >= cards.length) {
+          goToSlide(0, false);
+        } else {
+          goToSlide(nextIndex, true);
+        }
       }
 
       function startAutoSlide() {

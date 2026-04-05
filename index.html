@@ -748,145 +748,127 @@
 
   </div>
 
-  <script>
-    (function () {
-      const slider = document.getElementById("nipper-slider");
-      if (!slider) return;
+<script>
+  (function () {
+    const slider = document.getElementById("nipper-slider");
+    if (!slider) return;
 
-      let autoTimer = null;
-      let restartTimer = null;
-      let isHovered = false;
-      let isTouching = false;
+    const cards = Array.from(slider.querySelectorAll("a"));
+    if (cards.length <= 1) return;
 
-      const INTERVAL = 2500;
-      const RESUME_DELAY = 1800;
+    let currentIndex = 0;
+    let autoTimer = null;
+    let restartTimer = null;
+    let isHovered = false;
+    let isTouching = false;
 
-      function getCards() {
-        return Array.from(slider.querySelectorAll("a"));
-      }
+    const INTERVAL = 2500;
+    const RESUME_DELAY = 1500;
 
-      function getCurrentIndex() {
-        const cards = getCards();
-        if (!cards.length) return 0;
-
-        const currentLeft = slider.scrollLeft;
-        let nearestIndex = 0;
-        let nearestDistance = Infinity;
-
-        cards.forEach((card, index) => {
-          const distance = Math.abs(card.offsetLeft - currentLeft);
-          if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearestIndex = index;
-          }
-        });
-
-        return nearestIndex;
-      }
-
-      function goToIndex(index, behavior = "smooth") {
-        const cards = getCards();
-        if (!cards.length) return;
-
-        const safeIndex = (index + cards.length) % cards.length;
-        slider.scrollTo({
-          left: cards[safeIndex].offsetLeft,
-          behavior: behavior
-        });
-      }
-
-      function nextSlide() {
-        if (window.innerWidth <= 768) return;
-        if (isHovered || isTouching) return;
-
-        const cards = getCards();
-        if (!cards.length) return;
-
-        const currentIndex = getCurrentIndex();
-        const nextIndex = (currentIndex + 1) % cards.length;
-
-        goToIndex(nextIndex, "smooth");
-      }
-
-      function stopAuto() {
-        if (autoTimer) {
-          clearInterval(autoTimer);
-          autoTimer = null;
-        }
-      }
-
-      function clearRestartTimer() {
-        if (restartTimer) {
-          clearTimeout(restartTimer);
-          restartTimer = null;
-        }
-      }
-
-      function startAuto() {
-        stopAuto();
-        clearRestartTimer();
-
-        if (window.innerWidth <= 768) return;
-        if (isHovered || isTouching) return;
-
-        autoTimer = setInterval(nextSlide, INTERVAL);
-      }
-
-      function restartAutoWithDelay() {
-        stopAuto();
-        clearRestartTimer();
-
-        if (window.innerWidth <= 768) return;
-        if (isHovered || isTouching) return;
-
-        restartTimer = setTimeout(function () {
-          startAuto();
-        }, RESUME_DELAY);
-      }
-
-      slider.addEventListener("mouseenter", function () {
-        isHovered = true;
-        stopAuto();
-        clearRestartTimer();
+    function goToIndex(index, behavior = "smooth") {
+      currentIndex = index;
+      slider.scrollTo({
+        left: cards[currentIndex].offsetLeft,
+        behavior: behavior
       });
+    }
 
-      slider.addEventListener("mouseleave", function () {
-        isHovered = false;
-        restartAutoWithDelay();
-      });
+    function nextSlide() {
+      if (window.innerWidth <= 768) return;
+      if (isHovered || isTouching) return;
 
-      slider.addEventListener("touchstart", function () {
-        isTouching = true;
-        stopAuto();
-        clearRestartTimer();
-      }, { passive: true });
+      currentIndex = (currentIndex + 1) % cards.length;
+      goToIndex(currentIndex, "smooth");
+    }
 
-      slider.addEventListener("touchend", function () {
-        isTouching = false;
-        restartAutoWithDelay();
-      }, { passive: true });
+    function stopAuto() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+    }
 
-      slider.addEventListener("touchcancel", function () {
-        isTouching = false;
-        restartAutoWithDelay();
-      }, { passive: true });
+    function clearRestartTimer() {
+      if (restartTimer) {
+        clearTimeout(restartTimer);
+        restartTimer = null;
+      }
+    }
 
-      slider.addEventListener("wheel", function () {
-        if (window.innerWidth <= 768) return;
-        restartAutoWithDelay();
-      }, { passive: true });
+    function startAuto() {
+      stopAuto();
+      clearRestartTimer();
 
-      slider.addEventListener("scroll", function () {
-        if (window.innerWidth <= 768) return;
-        if (isHovered || isTouching) return;
-      }, { passive: true });
+      if (window.innerWidth <= 768) return;
+      if (isHovered || isTouching) return;
 
-      window.addEventListener("resize", function () {
+      autoTimer = setInterval(nextSlide, INTERVAL);
+    }
+
+    function restartAutoWithDelay() {
+      stopAuto();
+      clearRestartTimer();
+
+      if (window.innerWidth <= 768) return;
+      if (isHovered || isTouching) return;
+
+      restartTimer = setTimeout(function () {
         startAuto();
+      }, RESUME_DELAY);
+    }
+
+    slider.addEventListener("mouseenter", function () {
+      isHovered = true;
+      stopAuto();
+      clearRestartTimer();
+    });
+
+    slider.addEventListener("mouseleave", function () {
+      isHovered = false;
+      restartAutoWithDelay();
+    });
+
+    slider.addEventListener("touchstart", function () {
+      isTouching = true;
+      stopAuto();
+      clearRestartTimer();
+    }, { passive: true });
+
+    slider.addEventListener("touchend", function () {
+      isTouching = false;
+      restartAutoWithDelay();
+    }, { passive: true });
+
+    slider.addEventListener("touchcancel", function () {
+      isTouching = false;
+      restartAutoWithDelay();
+    }, { passive: true });
+
+    slider.addEventListener("scroll", function () {
+      if (window.innerWidth <= 768) return;
+
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+
+      cards.forEach(function (card, index) {
+        const distance = Math.abs(card.offsetLeft - slider.scrollLeft);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
       });
 
+      currentIndex = nearestIndex;
+    }, { passive: true });
+
+    window.addEventListener("resize", function () {
+      goToIndex(currentIndex, "auto");
       startAuto();
-    })();
-  </script>
+    });
+
+    goToIndex(0, "auto");
+    startAuto();
+  })();
+</script>
 </body>
 </html>

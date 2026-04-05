@@ -753,42 +753,45 @@
       const slider = document.getElementById("nipper-slider");
       if (!slider) return;
 
-      let autoSlide = null;
-      const intervalTime = 2000;
+      let autoTimer = null;
+      let restartTimer = null;
       let isHovered = false;
       let isTouching = false;
 
+      const INTERVAL = 2500;
+      const RESUME_DELAY = 1800;
+
       function getCards() {
-        return slider.querySelectorAll("a");
+        return Array.from(slider.querySelectorAll("a"));
       }
 
       function getCurrentIndex() {
         const cards = getCards();
         if (!cards.length) return 0;
 
-        const sliderLeft = slider.scrollLeft;
-        let closestIndex = 0;
-        let closestDistance = Infinity;
+        const currentLeft = slider.scrollLeft;
+        let nearestIndex = 0;
+        let nearestDistance = Infinity;
 
         cards.forEach((card, index) => {
-          const distance = Math.abs(card.offsetLeft - sliderLeft);
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestIndex = index;
+          const distance = Math.abs(card.offsetLeft - currentLeft);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestIndex = index;
           }
         });
 
-        return closestIndex;
+        return nearestIndex;
       }
 
-      function goToSlide(index, smooth = true) {
+      function goToIndex(index, behavior = "smooth") {
         const cards = getCards();
         if (!cards.length) return;
 
         const safeIndex = (index + cards.length) % cards.length;
         slider.scrollTo({
           left: cards[safeIndex].offsetLeft,
-          behavior: smooth ? "smooth" : "auto"
+          behavior: behavior
         });
       }
 
@@ -800,58 +803,89 @@
         if (!cards.length) return;
 
         const currentIndex = getCurrentIndex();
-        const nextIndex = currentIndex + 1;
+        const nextIndex = (currentIndex + 1) % cards.length;
 
-        if (nextIndex >= cards.length) {
-          goToSlide(0, false);
-        } else {
-          goToSlide(nextIndex, true);
+        goToIndex(nextIndex, "smooth");
+      }
+
+      function stopAuto() {
+        if (autoTimer) {
+          clearInterval(autoTimer);
+          autoTimer = null;
         }
       }
 
-      function startAutoSlide() {
-        stopAutoSlide();
+      function clearRestartTimer() {
+        if (restartTimer) {
+          clearTimeout(restartTimer);
+          restartTimer = null;
+        }
+      }
+
+      function startAuto() {
+        stopAuto();
+        clearRestartTimer();
+
         if (window.innerWidth <= 768) return;
-        autoSlide = setInterval(nextSlide, intervalTime);
+        if (isHovered || isTouching) return;
+
+        autoTimer = setInterval(nextSlide, INTERVAL);
       }
 
-      function stopAutoSlide() {
-        if (autoSlide) {
-          clearInterval(autoSlide);
-          autoSlide = null;
-        }
+      function restartAutoWithDelay() {
+        stopAuto();
+        clearRestartTimer();
+
+        if (window.innerWidth <= 768) return;
+        if (isHovered || isTouching) return;
+
+        restartTimer = setTimeout(function () {
+          startAuto();
+        }, RESUME_DELAY);
       }
 
       slider.addEventListener("mouseenter", function () {
         isHovered = true;
-        stopAutoSlide();
+        stopAuto();
+        clearRestartTimer();
       });
 
       slider.addEventListener("mouseleave", function () {
         isHovered = false;
-        startAutoSlide();
+        restartAutoWithDelay();
       });
 
       slider.addEventListener("touchstart", function () {
         isTouching = true;
-        stopAutoSlide();
+        stopAuto();
+        clearRestartTimer();
       }, { passive: true });
 
       slider.addEventListener("touchend", function () {
         isTouching = false;
-        startAutoSlide();
+        restartAutoWithDelay();
       }, { passive: true });
 
       slider.addEventListener("touchcancel", function () {
         isTouching = false;
-        startAutoSlide();
+        restartAutoWithDelay();
+      }, { passive: true });
+
+      slider.addEventListener("wheel", function () {
+        if (window.innerWidth <= 768) return;
+        restartAutoWithDelay();
+      }, { passive: true });
+
+      slider.addEventListener("scroll", function () {
+        if (window.innerWidth <= 768) return;
+        if (isHovered || isTouching) return;
       }, { passive: true });
 
       window.addEventListener("resize", function () {
-        startAutoSlide();
+        startAuto();
       });
 
-      startAutoSlide();
+      startAuto();
     })();
   </script>
 </body>

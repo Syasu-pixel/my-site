@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLCとは何か？電気工事士向けにやさしく整理｜現場目線の制御入門</title>
+  <meta name="description" content="PLCとは何かを、電気工事士向けにやさしく整理した入門記事です。入力と出力の考え方、リレー回路との違い、ラダー図との関係、GX Works3を見る前に知っておきたい基本まで現場目線で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/plc-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCとは何か？電気工事士向けにやさしく整理">
+  <meta property="og:description" content="PLCとは何かを、電気工事士向けにやさしく整理した入門記事です。入力と出力の考え方、リレー回路との違い、ラダー図との関係、GX Works3を見る前に知っておきたい基本まで現場目線で解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/plc-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/plc-basic/plc-basic-ogp.png">
+  <meta property="og:site_name" content="現場目線の工具ガイド">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLCとは何か？電気工事士向けにやさしく整理">
+  <meta name="twitter:description" content="PLCとは何かを、電気工事士向けにやさしく整理した入門記事です。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/plc-basic/plc-basic-ogp.png">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #5b6777;
+      --line: #d9e0ea;
+      --accent: #1677ff;
+      --accent-soft: #eef5ff;
+      --green: #1f9d55;
+      --green-soft: #eaf8f0;
+      --orange: #f59e0b;
+      --orange-soft: #fff4df;
+      --danger: #e5484d;
+      --danger-soft: #fff1f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --header-h: 78px;
+      --content-w: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--content-w), calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.88);
+      border-bottom: 1px solid rgba(217, 224, 234, 0.9);
+    }
+
+    .site-header-inner {
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand a {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-main {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    main {
+      padding: 22px 0 64px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .breadcrumb span {
+      opacity: 0.7;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fafdff 0%, #eef5ff 100%);
+      border: 1px solid #dbe7ff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4.5vw, 40px);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+
+    .audience-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .audience-card--good {
+      background: var(--green-soft);
+      border-color: #cfead8;
+    }
+
+    .audience-card--notyet {
+      background: var(--orange-soft);
+      border-color: #f7dcaa;
+    }
+
+    .audience-card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .audience-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .summary-box {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .summary-box h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .summary-box p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .jump-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 20px;
+      align-items: start;
+      margin-top: 22px;
+    }
+
+    .article {
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section-anchor {
+      scroll-margin-top: calc(var(--header-h) + 18px);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h2.section-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.45;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      font-size: 15px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f8fbff;
+      padding: 14px 14px 14px 16px;
+      border-radius: 0 14px 14px 0;
+      margin: 14px 0;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .note.caution {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .point-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .point-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .point-card h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .article-figure {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .article-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .article-figure figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .compare-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .compare-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .faq-item + .faq-item {
+      margin-top: 12px;
+    }
+
+    .faq-q {
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 12px);
+    }
+
+    .side-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .toc {
+      display: grid;
+      gap: 10px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .cta-box {
+      border: 1px solid #d7e5ff;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .btn-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border-color: #cfe0ff;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .related-card {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .related-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, #eef5ff 0%, #e7f8ef 100%);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .related-thumb span {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .related-body {
+      padding: 14px;
+    }
+
+    .related-title {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .related-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-nav {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .site-footer {
+      padding: 28px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-link {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(31, 42, 55, 0.92);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --header-h: 72px;
+      }
+
+      .content-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      .brand-main {
+        font-size: 16px;
+      }
+
+      .header-nav {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .header-link {
+        min-height: 36px;
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      main {
+        padding-top: 16px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .audience-grid,
+      .point-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      h2.section-title {
+        font-size: 21px;
+      }
+
+      p, ul, ol {
+        font-size: 14px;
+      }
+
+      .jump-link {
+        width: 100%;
+      }
+
+      .top-link {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <div class="brand">
+        <a href="../index.html">
+          <span class="brand-sub">現場目線の工具ガイド</span>
+          <span class="brand-main">電気工事士の工具・実務メモ</span>
+        </a>
+      </div>
+      <nav class="header-nav" aria-label="主要メニュー">
+        <a class="header-link" href="../index.html">トップ</a>
+        <a class="header-link" href="../index.html#categories">工具カテゴリー一覧</a>
+        <a class="header-link" href="../index.html#tips">使い方・コツ記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">トップ</a>
+        <span>›</span>
+        <a href="../index.html#tips">使い方・コツ記事</a>
+        <span>›</span>
+        <span>PLCとは何か？</span>
+      </nav>
+
+      <section class="hero">
+        <div class="hero-kicker">制御系の入口記事</div>
+        <h1>PLCとは何か？<br>電気工事士向けにやさしく整理</h1>
+        <p class="hero-lead">
+          PLCは、設備や機械の入力を受けて、条件に合わせて出力を動かすための制御機器です。
+          最初は難しく見えますが、考え方の基本はそこまで複雑ではありません。
+          まずは <strong>入力 → PLC → 出力</strong> の流れで見るとかなり理解しやすくなります。
+          ラダー図やGX Works3に入る前に、この全体像をつかんでおくと後がかなり楽です。
+        </p>
+
+        <div class="audience-grid">
+          <section class="audience-card audience-card--good" aria-labelledby="good-for">
+            <h2 id="good-for">向いている人</h2>
+            <ul>
+              <li>制御盤や設備まわりの仕事でPLCを見る機会がある人</li>
+              <li>GX Works3を触る前に全体像を整理したい人</li>
+              <li>入力と出力の違いを現場目線で理解したい人</li>
+              <li>ラダー図や自己保持の記事へ進む前に基礎をつかみたい人</li>
+            </ul>
+          </section>
+
+          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
+            <h2 id="notyet-for">まだ不要な人</h2>
+            <ul>
+              <li>今のところ配線作業だけで制御に関わる予定がほぼない人</li>
+              <li>まずは図面や工具の使い方を優先したい人</li>
+              <li>細かいプログラム命令だけを先に覚えたい人</li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="summary-box">
+          <h2>先に結論</h2>
+          <p>
+            PLCは、<strong>押しボタンやセンサなどの入力を受けて、ランプや電磁弁、モータ接触器などの出力を動かす制御機器</strong>です。
+            リレー回路の考え方を引き継ぎつつ、プログラムで動きを組めるのが大きな特徴です。
+            最初は「難しい機械」よりも、<strong>信号を見て、条件に応じて動かす箱</strong>として考えると分かりやすいです。
+          </p>
+          <div class="jump-links" aria-label="記事内ジャンプ">
+            <a class="jump-link" href="#basic-idea">PLCとは</a>
+            <a class="jump-link" href="#input-output">入力と出力</a>
+            <a class="jump-link" href="#relay-diff">リレー回路との違い</a>
+            <a class="jump-link" href="#gxworks3">GX Works3前に知りたいこと</a>
+          </div>
+        </section>
+      </section>
+
+      <div class="content-wrap">
+        <article class="article">
+          <section id="basic-idea" class="card section-anchor">
+            <div class="section-label">全体像</div>
+            <h2 class="section-title">PLCは「入力を受けて、条件に合わせて出力を動かす」ための制御機器です</h2>
+            <p>
+              PLCは、押しボタン、センサ、リミットスイッチなどから入ってくる信号を見て、
+              その条件に応じてランプ、ブザー、電磁弁、接触器などを動かします。
+            </p>
+            <p>
+              つまり、現場で起きている状態を入力として受け取り、それをもとに設備側へ出力を返す役目です。
+              難しく考えすぎず、まずは<strong>見ている側が入力、動かす側が出力</strong>と考えると整理しやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/plc-basic/plc-basic-overview.png" alt="PLCの全体像。押しボタンやセンサなどの入力機器からPLCへ信号が入り、ランプや電磁弁、モータなどの出力機器へ信号が出る流れを示した図。">
+              <figcaption>図1：PLCの全体イメージ。入力を受けて、条件に合わせて出力を動かすのが基本です。</figcaption>
+            </figure>
+
+            <div class="point-grid">
+              <section class="point-card">
+                <h3>入力を見る</h3>
+                <p>押しボタンやセンサなど、PLCへ状態を伝える側です。</p>
+              </section>
+              <section class="point-card">
+                <h3>PLCで判断する</h3>
+                <p>入ってきた信号をもとに、どの出力を動かすかを決めます。</p>
+              </section>
+              <section class="point-card">
+                <h3>出力を動かす</h3>
+                <p>ランプ、ブザー、電磁弁、接触器などを動かします。</p>
+              </section>
+              <section class="point-card">
+                <h3>ラダー図で組む</h3>
+                <p>PLCの動きは、ラダー図で組まれていることが多いです。</p>
+              </section>
+            </div>
+
+            <div class="note">
+              最初は「PLC」という言葉に引っぱられがちですが、
+              やっていることは <strong>入力を受ける → 条件を見る → 出力を返す</strong> です。
+              この流れだけでもかなり分かりやすくなります。
+            </div>
+          </section>
+
+          <section id="input-output" class="card section-anchor">
+            <div class="section-label">基本の考え方</div>
+            <h2 class="section-title">入力と出力の違いは「PLCへ伝える側」と「PLCから動かす側」で見ると分かりやすいです</h2>
+            <p>
+              制御を見始めると、入力と出力の考え方で少し迷いやすいです。
+              ですが、ここはシンプルに整理できます。
+            </p>
+            <ul>
+              <li><strong>入力（X）</strong>：PLCへ状態を伝える側</li>
+              <li><strong>出力（Y）</strong>：PLCから動かす側</li>
+            </ul>
+            <p>
+              押しボタンやセンサは、今どうなっているかをPLCへ伝えます。
+              逆に、ランプや電磁弁、モータ接触器などは、PLCからの信号で動きます。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/plc-basic/plc-basic-input-output.png" alt="入力と出力の違いを示す図。入力は押しボタンやセンサなどPLCへ状態を伝える側、出力はランプやブザー、電磁弁、接触器などPLCから動かす側。">
+              <figcaption>図2：入力と出力の違い。入力は見る側、出力は動かす側と考えると追いやすいです。</figcaption>
+            </figure>
+
+            <h3>入力でよく見るもの</h3>
+            <ul>
+              <li>押しボタン</li>
+              <li>近接センサ</li>
+              <li>リミットスイッチ</li>
+              <li>フロートスイッチ</li>
+              <li>各種接点信号</li>
+            </ul>
+
+            <h3>出力でよく見るもの</h3>
+            <ul>
+              <li>表示ランプ</li>
+              <li>ブザー</li>
+              <li>電磁弁</li>
+              <li>接触器</li>
+              <li>リレー</li>
+            </ul>
+
+            <div class="note">
+              現場で迷った時は、
+              <strong>「これはPLCへ知らせる側か？」</strong>
+              <strong>「それともPLCから動かされる側か？」</strong>
+              で見ると整理しやすいです。
+            </div>
+          </section>
+
+          <section id="relay-diff" class="card section-anchor">
+            <div class="section-label">混ざりやすい所</div>
+            <h2 class="section-title">リレー回路との違いは「配線中心」か「プログラム中心」かで見ると分かりやすいです</h2>
+            <p>
+              PLCは、リレー回路の考え方を引き継いでいます。
+              だからラダー図も、リレー回路に近い見た目になっています。
+            </p>
+            <p>
+              ただし、違いもあります。
+            </p>
+
+            <div class="compare-list">
+              <div class="compare-item">
+                <strong>リレー回路</strong><br>
+                回路の動きそのものを配線で作る形です。変更するときは配線や機器構成を見直すことが多いです。
+              </div>
+              <div class="compare-item">
+                <strong>PLC</strong><br>
+                配線で入力・出力をつなぎ、内部の動きはプログラムで組む形です。動作変更はプログラム側で対応しやすいです。
+              </div>
+            </div>
+
+            <p>
+              つまり、考え方の元は近いですが、PLCは<strong>制御の中身をソフト側で持てる</strong>のが大きいです。
+            </p>
+
+            <div class="note caution">
+              とはいえ、現場では配線も大事です。
+              プログラムだけ見ても原因が分からないことは多いので、入力機器、出力機器、端子、実機状態も合わせて見ることが大事です。
+            </div>
+          </section>
+
+          <section id="ladder-relation" class="card section-anchor">
+            <div class="section-label">ラダー図との関係</div>
+            <h2 class="section-title">ラダー図は、PLCの動きを追いやすくするための表現です</h2>
+            <p>
+              PLCの制御は、ラダー図で書かれていることが多いです。
+              ラダー図はリレー回路をベースにした見た目なので、電気系の人には流れを追いやすい形になっています。
+            </p>
+            <p>
+              例えば、
+            </p>
+            <ul>
+              <li>押しボタンが入ったら出力を動かす</li>
+              <li>自己保持で動きを続ける</li>
+              <li>インターロックで同時動作を防ぐ</li>
+            </ul>
+            <p>
+              といった動きも、ラダー図の中で表現されます。
+            </p>
+
+            <div class="note">
+              なので、PLCを理解する時は
+              <strong>PLC本体だけを見るより、ラダー図とセットで考える</strong>
+              方が実務ではかなり分かりやすいです。
+            </div>
+          </section>
+
+          <section id="gxworks3" class="card section-anchor">
+            <div class="section-label">実務で大事</div>
+            <h2 class="section-title">GX Works3に入る前は「全部覚える」より「どこを見るか」を知っておく方が大事です</h2>
+            <p>
+              ユーザーさんのように三菱GX Works3を使うなら、最初から機能を全部覚える必要はありません。
+              まずは次の4つが分かるだけでもかなり進めやすいです。
+            </p>
+
+            <ol>
+              <li><strong>入力がどこで入っているか</strong></li>
+              <li><strong>出力がどこで動いているか</strong></li>
+              <li><strong>自己保持やインターロックがどこにあるか</strong></li>
+              <li><strong>今どの信号がONしているか</strong></li>
+            </ol>
+
+            <p>
+              現場では、新しくきれいに組むより、トラブル時に後から見た人でも追えることが大事です。
+              だからこそ、難しく書くより、シンプルで追いやすいラダーの方が役立つ場面が多いです。
+            </p>
+
+            <div class="note">
+              「どこが入力で、どこが出力で、どこで保持して、どこで止めているか」  
+              この見方ができるだけでも、GX Works3はかなり触りやすくなります。
+            </div>
+          </section>
+
+          <section id="remember" class="card section-anchor">
+            <div class="section-label">ここだけ覚える</div>
+            <h2 class="section-title">最初はこの4つを押さえるとかなり入りやすいです</h2>
+            <ol>
+              <li><strong>PLCは入力を受けて出力を動かす制御機器</strong></li>
+              <li><strong>入力はPLCへ伝える側、出力はPLCから動かす側</strong></li>
+              <li><strong>ラダー図で動きを追うことが多い</strong></li>
+              <li><strong>GX Works3では全部覚えるより、どこを見るかが大事</strong></li>
+            </ol>
+          </section>
+
+          <section id="faq" class="card section-anchor">
+            <div class="section-label">よくある疑問</div>
+            <h2 class="section-title">PLCでよくある疑問</h2>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. PLCとシーケンサは同じですか？</div>
+              <p>A. ほぼ同じ意味で使われることが多いです。特に三菱系ではシーケンサという言い方もよく出てきます。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. PLCは難しいですか？</div>
+              <p>A. 最初は難しく見えますが、入力 → PLC → 出力 の流れで見るとかなり理解しやすくなります。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. まず何から覚えるといいですか？</div>
+              <p>A. 入力と出力の違い、ラダー図の見方、自己保持、インターロックあたりを順に押さえると進めやすいです。</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-label">関連記事</div>
+            <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <p>
+              PLCの全体像が見えてきたら、次はラダー図や基本回路の記事へ進むとかなりつながりやすいです。
+            </p>
+
+            <div class="related-grid">
+              <a class="related-card" href="ladder-reading.html">
+                <div class="related-thumb"><span>入口記事</span></div>
+                <div class="related-body">
+                  <p class="related-title">ラダー図の読み方入門</p>
+                  <p class="related-desc">ラダー図をどこから見ればいいか、a接点・b接点・自己保持の基本をやさしく整理した入口記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="self-hold-circuit.html">
+                <div class="related-thumb"><span>基本回路</span></div>
+                <div class="related-body">
+                  <p class="related-title">自己保持回路とは？まず最初に覚えたい基本回路</p>
+                  <p class="related-desc">起動PB・停止PB・Y0自己保持接点の流れを、現場で追いやすい形で整理した記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="interlock-basic.html">
+                <div class="related-thumb"><span>考え方</span></div>
+                <div class="related-body">
+                  <p class="related-title">インターロック回路とは？同時動作を防ぐ考え方</p>
+                  <p class="related-desc">同時にONしてはいけない出力をどう防ぐか、自己保持との違いも含めて整理した記事です。</p>
+                </div>
+              </a>
+            </div>
+
+            <div class="footer-nav">
+              <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
+              <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-card">
+            <h2>この記事の流れ</h2>
+            <nav class="toc" aria-label="目次">
+              <a href="#basic-idea">PLCとは</a>
+              <a href="#input-output">入力と出力</a>
+              <a href="#relay-diff">リレー回路との違い</a>
+              <a href="#ladder-relation">ラダー図との関係</a>
+              <a href="#gxworks3">GX Works3前に知りたいこと</a>
+              <a href="#remember">ここだけ覚える</a>
+              <a href="#faq">よくある疑問</a>
+            </nav>
+          </section>
+
+          <section class="side-card cta-box">
+            <h2>この記事で分かること</h2>
+            <ul>
+              <li>PLCの基本的な役割</li>
+              <li>入力と出力の違い</li>
+              <li>リレー回路との違い</li>
+              <li>ラダー図とのつながり</li>
+            </ul>
+            <div class="btn-group">
+              <a class="btn btn-primary" href="#basic-idea">全体像を見る</a>
+              <a class="btn btn-secondary" href="#input-output">入力と出力を見る</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h2>ひとこと</h2>
+            <p style="margin:0; font-size:14px; color:var(--muted);">
+              PLCは難しく見えますが、まずは「入力を見て、条件で判断して、出力を動かす」と考えるとかなり入りやすいです。
+            </p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+    </div>
+  </footer>
+
+  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
+</body>
+</html>

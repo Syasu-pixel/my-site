@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リードスイッチとは？エアシリンダとの関係も初心者向けに整理</title>
+  <meta name="description" content="リードスイッチとは何かを初心者向けにやさしく整理。基本構造と動作、エアシリンダとの関係、位置検出の考え方、PLC入力とのつながり、現場での確認ポイントまで分かりやすく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/reed-switch-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="リードスイッチとは？エアシリンダとの関係も初心者向けに整理">
+  <meta property="og:description" content="リードスイッチの基本、エアシリンダとの関係、位置検出の見方、PLC入力とのつながりを初心者向けにやさしく整理。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/reed-switch-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/reed-switch-basic/reed-switch-basic-ogp.png">
+  <meta property="og:site_name" content="電気工事士向け工具・実務メディア">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="リードスイッチとは？エアシリンダとの関係も初心者向けに整理">
+  <meta name="twitter:description" content="リードスイッチの基本、エアシリンダとの関係、位置検出の考え方を初心者向けに整理。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/reed-switch-basic/reed-switch-basic-ogp.png">
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#1d2a3a;
+      --muted:#627086;
+      --line:#dbe3ee;
+      --blue:#1f67d2;
+      --blue-soft:#eef5ff;
+      --green:#25a55b;
+      --green-soft:#edf9f1;
+      --orange:#f57c00;
+      --orange-soft:#fff4e9;
+      --navy:#17345f;
+      --shadow:0 10px 28px rgba(20,40,80,.08);
+      --header-offset:84px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.8;
+    }
+
+    img{
+      max-width:100%;
+      height:auto;
+      display:block;
+      border-radius:16px;
+    }
+
+    a{
+      color:var(--blue);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(calc(100% - 28px), var(--max));
+      margin:0 auto;
+    }
+
+    .breadcrumb-wrap{
+      background:#fff;
+      border-bottom:1px solid var(--line);
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      font-size:.92rem;
+      color:var(--muted);
+      padding:14px 0;
+    }
+
+    .breadcrumb span{
+      color:#9aa7ba;
+    }
+
+    .page{
+      padding:24px 0 64px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%, #f6fbff 100%);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      margin-bottom:22px;
+    }
+
+    .hero-labels{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:.9rem;
+      font-weight:700;
+    }
+
+    .pill-green{
+      background:var(--green-soft);
+      color:var(--green);
+      border:1px solid #cfeeda;
+    }
+
+    .pill-blue{
+      background:var(--blue-soft);
+      color:var(--blue);
+      border:1px solid #d6e7ff;
+    }
+
+    .hero h1{
+      font-size:clamp(1.85rem,4.5vw,2.7rem);
+      line-height:1.25;
+      margin:0 0 12px;
+      color:#132e55;
+    }
+
+    .lead{
+      font-size:1.03rem;
+      color:#334155;
+      margin:0;
+    }
+
+    .hero-note{
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:#334155;
+    }
+
+    .quick-boxes{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      margin:22px 0;
+    }
+
+    .quick-box{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .quick-box h2{
+      margin:0 0 10px;
+      font-size:1.1rem;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .quick-box ul{
+      margin:0;
+      padding-left:1.2em;
+    }
+
+    .quick-box li{
+      margin:8px 0;
+    }
+
+    .box-fit h2{color:var(--green);}
+    .box-nope h2{color:var(--orange);}
+    .box-conclusion h2{color:var(--blue);}
+
+    .mini-toc{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:22px;
+    }
+
+    .mini-toc h2{
+      margin:0 0 12px;
+      font-size:1.05rem;
+      color:var(--navy);
+    }
+
+    .mini-toc .toc-links{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#f8fbff;
+      border:1px solid #d9e9ff;
+      color:#214a7f;
+      font-weight:700;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr);
+      gap:22px;
+    }
+
+    .sticky{
+      position:sticky;
+      top:calc(var(--header-offset) + 12px);
+      display:grid;
+      gap:16px;
+    }
+
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .side-card h2,
+    .side-card h3{
+      margin:0 0 12px;
+      font-size:1rem;
+      color:var(--navy);
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:1.15em;
+    }
+
+    .side-card li{
+      margin:8px 0;
+      color:#415165;
+    }
+
+    .article-section{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:22px;
+      margin-bottom:18px;
+      box-shadow:var(--shadow);
+      scroll-margin-top:calc(var(--header-offset) + 18px);
+    }
+
+    .article-section h2{
+      font-size:1.45rem;
+      line-height:1.35;
+      margin:0 0 14px;
+      color:#123158;
+    }
+
+    .article-section h3{
+      font-size:1.12rem;
+      margin:24px 0 10px;
+      color:#20456d;
+    }
+
+    .article-section p{
+      margin:0 0 14px;
+    }
+
+    .article-section p:last-child{
+      margin-bottom:0;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .info-card{
+      border-radius:18px;
+      padding:18px;
+      border:2px solid;
+      background:#fff;
+    }
+
+    .info-card.blue{
+      border-color:#b8d3ff;
+      background:var(--blue-soft);
+    }
+
+    .info-card.green{
+      border-color:#bfe8cd;
+      background:var(--green-soft);
+    }
+
+    .info-card.orange{
+      border-color:#ffd0aa;
+      background:var(--orange-soft);
+    }
+
+    .info-card h3{
+      margin:0 0 10px;
+      font-size:1.15rem;
+    }
+
+    .info-card.blue h3{color:var(--blue);}
+    .info-card.green h3{color:var(--green);}
+    .info-card.orange h3{color:var(--orange);}
+
+    .image-box{
+      margin:18px 0 8px;
+    }
+
+    figure{margin:0;}
+
+    figcaption{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:.94rem;
+    }
+
+    .check-list{
+      padding-left:1.2em;
+      margin:0;
+    }
+
+    .check-list li{
+      margin:8px 0;
+    }
+
+    .tip{
+      border-left:4px solid var(--green);
+      background:var(--green-soft);
+      border-radius:14px;
+      padding:14px 16px;
+      margin:16px 0;
+    }
+
+    .warn{
+      border-left:4px solid var(--orange);
+      background:var(--orange-soft);
+      border-radius:14px;
+      padding:14px 16px;
+      margin:16px 0;
+    }
+
+    .compare-list{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .compare-item{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .compare-item h3{
+      margin:0 0 8px;
+      color:#16345c;
+    }
+
+    .cta-box{
+      background:linear-gradient(135deg,#17345f 0%, #25518d 100%);
+      color:#fff;
+      border-radius:20px;
+      padding:20px;
+      margin-top:14px;
+    }
+
+    .cta-box h2{
+      color:#fff;
+      margin:0 0 10px;
+    }
+
+    .cta-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 16px;
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn-primary{
+      background:#fff;
+      color:#17345f;
+    }
+
+    .btn-secondary{
+      background:transparent;
+      color:#fff;
+      border-color:rgba(255,255,255,.45);
+    }
+
+    .related{
+      margin-top:18px;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    .related-card{
+      display:block;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      transform:translateY(-1px);
+    }
+
+    .related-card .tag{
+      display:inline-block;
+      font-size:.8rem;
+      font-weight:700;
+      color:var(--blue);
+      background:var(--blue-soft);
+      border:1px solid #d8e8ff;
+      border-radius:999px;
+      padding:5px 10px;
+      margin-bottom:10px;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:1.03rem;
+      color:#16345c;
+    }
+
+    .related-card p{
+      margin:0;
+      color:#536377;
+      font-size:.95rem;
+      line-height:1.7;
+    }
+
+    .footer-note{
+      color:var(--muted);
+      font-size:.92rem;
+      text-align:center;
+      margin-top:26px;
+    }
+
+    @media (min-width: 720px){
+      .quick-boxes{
+        grid-template-columns:repeat(3,1fr);
+      }
+
+      .mini-toc .toc-links{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .info-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .compare-list{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .related-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media (min-width: 1024px){
+      .layout{
+        grid-template-columns:minmax(0,1fr) 300px;
+        align-items:start;
+      }
+
+      .hero{
+        padding:28px;
+      }
+
+      .article-section{
+        padding:26px;
+      }
+
+      .mini-toc .toc-links{
+        grid-template-columns:repeat(3,1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="breadcrumb-wrap">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html">制御系記事</a>
+        <span>›</span>
+        <span>リードスイッチとは？</span>
+      </nav>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-labels">
+          <span class="pill pill-green">初心者向け</span>
+          <span class="pill pill-blue">制御・センサ入門</span>
+        </div>
+        <h1>リードスイッチとは？エアシリンダとの関係も初心者向けに整理</h1>
+        <p class="lead">
+          エアシリンダの横に付いている小さいスイッチのような部品が、リードスイッチです。
+          この記事では、リードスイッチの基本構造と動作、エアシリンダとの関係、PLC入力とのつながりを、現場目線でやさしく整理します。
+        </p>
+        <div class="hero-note">
+          <strong>先にひとこと：</strong>
+          リードスイッチは、磁石が近づくとON/OFFが切り替わるスイッチで、エアシリンダの位置検出によく使います。
+        </div>
+      </section>
+
+      <section class="quick-boxes" aria-label="記事の冒頭整理">
+        <div class="quick-box box-fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>エアシリンダに付いているスイッチの意味を知りたい人</li>
+            <li>リードスイッチの基本動作を知りたい人</li>
+            <li>PLC入力とのつながりをイメージしたい人</li>
+          </ul>
+        </div>
+        <div class="quick-box box-nope">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>リードスイッチの配線や選定をすでに問題なくできる人</li>
+            <li>メーカーごとの差まで整理できている人</li>
+            <li>空圧設備の設計・保全に慣れている人</li>
+          </ul>
+        </div>
+        <div class="quick-box box-conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>磁石が近づくとON/OFFが切り替わる</li>
+            <li>エアシリンダの位置検出によく使う</li>
+            <li>原点確認・端点確認・PLC入力でよく使う</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc">
+        <h2>ミニ目次</h2>
+        <div class="toc-links">
+          <a href="#what-is">リードスイッチとは？</a>
+          <a href="#how-it-works">どうやって動くのか</a>
+          <a href="#air-cylinder">エアシリンダとの関係</a>
+          <a href="#check-points">現場で見るポイント</a>
+          <a href="#confusion">よくある混乱</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="layout">
+        <article class="article">
+          <section id="what-is" class="article-section">
+            <h2>リードスイッチとは？</h2>
+            <p>
+              リードスイッチは、<strong>磁力で接点が切り替わるスイッチ</strong>です。
+              中に入っている接点が、磁石が近づくことで動いてON/OFFが切り替わります。
+            </p>
+            <p>
+              現場では単体で使うというより、<strong>エアシリンダの位置検出</strong>で見ることが多いです。
+              設備を見ていると、シリンダの側面や溝の部分に取り付けられていることがあります。
+            </p>
+
+            <div class="image-box">
+              <figure>
+                <img src="../assets/images/reed-switch-basic/reed-switch-basic-01.png" alt="リードスイッチの基本構造と動作を説明した図。磁石が近づくと接点が閉じてONになる。">
+                <figcaption>画像1：リードスイッチの基本構造と動作。磁石が近づくと接点が切り替わります。</figcaption>
+              </figure>
+            </div>
+
+            <div class="tip">
+              <strong>まずはここだけ覚えると分かりやすいです：</strong>
+              リードスイッチは「磁石が近づいたことを検出するスイッチ」です。
+            </div>
+          </section>
+
+          <section id="how-it-works" class="article-section">
+            <h2>どうやって動くのか</h2>
+            <p>
+              リードスイッチの中には、細い接点が入っています。
+              普段は離れていて、磁石が近づくと引き寄せられて接点がつながります。
+            </p>
+
+            <div class="compare-list">
+              <div class="compare-item">
+                <h3>磁石が遠いとき</h3>
+                <ul class="check-list">
+                  <li>接点は離れている</li>
+                  <li>出力はOFF</li>
+                  <li>PLC入力も入らないことが多い</li>
+                </ul>
+              </div>
+              <div class="compare-item">
+                <h3>磁石が近いとき</h3>
+                <ul class="check-list">
+                  <li>接点が切り替わる</li>
+                  <li>出力はON</li>
+                  <li>PLC入力で位置確認しやすい</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="warn">
+              <strong>注意：</strong>
+              リードスイッチにも配線方式や型式違いがありますが、最初は「磁石の近さでON/OFFが変わる」と覚えれば十分です。
+            </div>
+          </section>
+
+          <section id="air-cylinder" class="article-section">
+            <h2>エアシリンダとの関係</h2>
+            <p>
+              エアシリンダの中には、ピストンに<strong>磁石（マグネット）</strong>が入っているタイプがあります。
+              シリンダが動くと、その磁石も一緒に移動します。
+            </p>
+            <p>
+              その外側にリードスイッチを取り付けておくと、ピストンが近づいた位置でONになり、位置確認ができます。
+            </p>
+
+            <div class="image-box">
+              <figure>
+                <img src="../assets/images/reed-switch-basic/reed-switch-basic-02.png" alt="エアシリンダ内部の磁石を外側のリードスイッチで検出している説明図。">
+                <figcaption>画像2：エアシリンダ内部の磁石を、外側のリードスイッチで検出しているイメージです。</figcaption>
+              </figure>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-card green">
+                <h3>よくある用途</h3>
+                <ul class="check-list">
+                  <li>原点確認</li>
+                  <li>端点確認</li>
+                  <li>動作完了確認</li>
+                  <li>PLC入力への取り込み</li>
+                </ul>
+              </div>
+              <div class="info-card blue">
+                <h3>考え方のコツ</h3>
+                <p>
+                  リードスイッチは、<strong>シリンダ内部のピストン位置を直接見ているわけではなく、内蔵磁石を外から検出している</strong> と考えると理解しやすいです。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="check-points" class="article-section">
+            <h2>現場で見るポイント</h2>
+
+            <h3>1. 本当にリードスイッチか確認する</h3>
+            <p>
+              まずは型式や取り付け位置を見て、リードスイッチかどうか確認します。
+              メーカーによって見た目や呼び方が違うことがあります。
+            </p>
+
+            <h3>2. 取り付け位置を見る</h3>
+            <p>
+              位置がずれていると、検出タイミングが変わったり、うまくONしないことがあります。
+              シリンダ端で反応してほしいのか、途中位置で反応してほしいのかも見ます。
+            </p>
+
+            <h3>3. LED表示を見る</h3>
+            <p>
+              多くのリードスイッチは、検出時にLEDが点灯します。
+              動いているのにPLC入力が入らない時は、まずLEDが点くかどうかを見ると切り分けしやすいです。
+            </p>
+
+            <h3>4. PLC入力も確認する</h3>
+            <p>
+              スイッチが反応していても、配線やPLC側入力の問題で入っていないことがあります。
+              GX Works3 で X入力が切り替わるか確認すると追いやすいです。
+            </p>
+
+            <div class="tip">
+              <strong>現場の見方：</strong>
+              「シリンダが動く → リードスイッチLEDが点く → PLC入力Xが入る」
+              この流れで追うとかなり分かりやすいです。
+            </div>
+          </section>
+
+          <section id="confusion" class="article-section">
+            <h2>よくある混乱</h2>
+
+            <h3>近接センサと同じだと思ってしまう</h3>
+            <p>
+              役割は似て見えますが、見ているものが違います。
+              リードスイッチは<strong>磁石</strong>を見ています。
+              近接センサは金属検出で使うことが多いです。
+            </p>
+
+            <h3>リミットスイッチと同じだと思ってしまう</h3>
+            <p>
+              リミットスイッチは、物理的に当たって切り替わることが多いです。
+              一方でリードスイッチは、<strong>磁力で切り替わる</strong>のが大きな違いです。
+            </p>
+
+            <h3>シリンダが動いているのに入力が入らない</h3>
+            <p>
+              この場合は、以下の順で見ると追いやすいです。
+            </p>
+            <ul class="check-list">
+              <li>スイッチ位置が合っているか</li>
+              <li>LEDが点灯するか</li>
+              <li>配線に問題がないか</li>
+              <li>PLC入力が入っているか</li>
+              <li>そもそもシリンダ側が磁石内蔵タイプか</li>
+            </ul>
+          </section>
+
+          <section id="summary" class="article-section">
+            <h2>まとめ</h2>
+            <p>
+              リードスイッチは、<strong>磁石の近さでON/OFFが変わるスイッチ</strong>です。
+              現場では、特に<strong>エアシリンダの位置検出</strong>でよく使います。
+            </p>
+
+            <div class="info-grid">
+              <div class="info-card blue">
+                <h3>基本の覚え方</h3>
+                <ul class="check-list">
+                  <li>シリンダの中に磁石がある</li>
+                  <li>外側のリードスイッチで検出する</li>
+                  <li>PLC入力で位置確認に使う</li>
+                </ul>
+              </div>
+              <div class="info-card orange">
+                <h3>まず押さえたいこと</h3>
+                <ul class="check-list">
+                  <li>取り付け位置</li>
+                  <li>LED点灯</li>
+                  <li>PLC入力の変化</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="cta-box">
+              <h2>次に読むとつながりやすい記事</h2>
+              <p>
+                リードスイッチの次は、NPN / PNP や NO / NC を見ておくと、配線や入力の見方がさらに整理しやすくなります。
+              </p>
+              <div class="cta-buttons">
+                <a class="btn btn-primary" href="../index.html">トップへ戻る</a>
+                <a class="btn btn-secondary" href="../index.html">制御系記事一覧を見る</a>
+              </div>
+            </div>
+
+            <div class="related">
+              <h3>関連記事</h3>
+              <div class="related-grid">
+                <a class="related-card" href="npn-pnp-basic.html">
+                  <span class="tag">関連記事</span>
+                  <h3>NPN / PNP の違いとは？</h3>
+                  <p>センサ出力とPLC入力の関係を整理したい時に相性が良い記事です。</p>
+                </a>
+
+                <a class="related-card" href="no-nc-basic.html">
+                  <span class="tag">関連記事</span>
+                  <h3>NO / NC の違いとは？</h3>
+                  <p>接点の基本を整理したい人向け。リードスイッチの接点理解にもつながります。</p>
+                </a>
+
+                <a class="related-card" href="../index.html">
+                  <span class="tag">関連記事</span>
+                  <h3>制御系記事一覧を見る</h3>
+                  <p>ほかの制御入門記事もまとめて見たい時はこちら。</p>
+                </a>
+              </div>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sticky">
+            <section class="side-card">
+              <h2>このページの要点</h2>
+              <ul>
+                <li>磁石が近づくとON/OFFが切り替わる</li>
+                <li>エアシリンダの位置検出でよく使う</li>
+                <li>原点確認・端点確認に使いやすい</li>
+                <li>LEDとPLC入力を一緒に見ると追いやすい</li>
+              </ul>
+            </section>
+
+            <nav class="side-card" aria-label="記事内目次">
+              <h2>目次</h2>
+              <ul>
+                <li><a href="#what-is">リードスイッチとは？</a></li>
+                <li><a href="#how-it-works">どうやって動くのか</a></li>
+                <li><a href="#air-cylinder">エアシリンダとの関係</a></li>
+                <li><a href="#check-points">現場で見るポイント</a></li>
+                <li><a href="#confusion">よくある混乱</a></li>
+                <li><a href="#summary">まとめ</a></li>
+              </ul>
+            </nav>
+
+            <section class="side-card">
+              <h3>次に読む候補</h3>
+              <ul>
+                <li><a href="npn-pnp-basic.html">NPN / PNP の違いとは？</a></li>
+                <li><a href="no-nc-basic.html">NO / NC の違いとは？</a></li>
+                <li><a href="../index.html">制御系記事一覧</a></li>
+              </ul>
+            </section>
+          </div>
+        </aside>
+      </div>
+
+      <p class="footer-note">
+        この記事は、制御を始めたばかりの人でも現場で追いやすいことを優先して構成しています。
+      </p>
+    </div>
+  </main>
+</body>
+</html>

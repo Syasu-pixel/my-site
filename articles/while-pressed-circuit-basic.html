@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>押している間だけ動く回路とは？｜ボタンを押している間だけONになる基本回路をやさしく解説</title>
+  <meta name="description" content="押している間だけ動く回路とは何かを、電気工事士・制御を始めた人向けにやさしく解説。GX Works3前提で、ボタンを押している間だけ出力がONになり、離すとOFFに戻る基本回路の見方と使いどころを分かりやすくまとめています。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/while-pressed-circuit-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="電気工事士 工具・実務ガイド">
+  <meta property="og:title" content="押している間だけ動く回路とは？｜ボタンを押している間だけONになる基本回路をやさしく解説">
+  <meta property="og:description" content="押している間だけ動く回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、入力ONの間だけ出力ON、離すとOFFに戻る流れを分かりやすく解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/while-pressed-circuit-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="押している間だけ動く回路とは？｜ボタンを押している間だけONになる基本回路をやさしく解説">
+  <meta name="twitter:description" content="押している間だけ動く回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、入力ONの間だけ出力ON、離すとOFFに戻る流れを分かりやすく解説します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ogp.png">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #5b6475;
+      --line: #d9e1ee;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --green: #16a34a;
+      --green-soft: #ecfdf3;
+      --orange: #ea580c;
+      --orange-soft: #fff3eb;
+      --yellow: #f59e0b;
+      --yellow-soft: #fffbeb;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --header-h: 76px;
+      --content-w: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Yu Gothic UI", "Meiryo", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
+      line-height: 1.8;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      opacity: 0.9;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.86);
+      border-bottom: 1px solid rgba(217, 225, 238, 0.9);
+    }
+
+    .site-header-inner {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 12px 16px;
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand a {
+      display: inline-block;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .page-wrap {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 18px 16px 64px;
+    }
+
+    .breadcrumbs {
+      margin: 8px 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .breadcrumbs a {
+      color: var(--muted);
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr);
+      gap: 24px;
+      padding: 28px;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.28;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-points {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 22px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hero-points li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: #f8fbff;
+      border: 1px solid #e2ebfb;
+      font-size: 14px;
+    }
+
+    .hero-points strong {
+      color: var(--text);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.4;
+      border: 1px solid transparent;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .hero-visual {
+      background: linear-gradient(180deg, #eef6ff 0%, #f8fbff 100%);
+      border: 1px solid #d9e8ff;
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .hero-visual-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .hero-visual-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      background: #f2f6fd;
+    }
+
+    .hero-visual-caption {
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .intro-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .intro-card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .intro-card ul,
+    .intro-card p {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .intro-card p {
+      padding-left: 0;
+    }
+
+    .intro-card--fit {
+      background: linear-gradient(180deg, #effcf5 0%, #ffffff 100%);
+      border-color: #ccefd9;
+    }
+
+    .intro-card--wait {
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+      border-color: #fed7aa;
+    }
+
+    .intro-card--conclusion {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-color: #bfdbfe;
+    }
+
+    .mini-toc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .mini-toc h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .mini-toc-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-toc-links a {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      background: #f8fbff;
+      border: 1px solid #dce8fb;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .article {
+      min-width: 0;
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 18px;
+      scroll-margin-top: 100px;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+    }
+
+    .section h3 {
+      margin: 22px 0 10px;
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    .section p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    .section ul {
+      margin: 0 0 14px;
+      padding-left: 20px;
+    }
+
+    .section li {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .point-box {
+      display: grid;
+      gap: 10px;
+      background: #f8fbff;
+      border: 1px solid #dce8fb;
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .point-box strong {
+      color: var(--blue);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .comparison-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .comparison-card h3 {
+      margin-top: 0;
+      font-size: 17px;
+    }
+
+    .comparison-card--manual {
+      background: linear-gradient(180deg, #eef6ff 0%, #ffffff 100%);
+      border-color: #bfdbfe;
+    }
+
+    .comparison-card--hold {
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+      border-color: #fdba74;
+    }
+
+    .figure-card {
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      border: 1px solid #dbeafe;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #eef4ff;
+    }
+
+    .figure-card figcaption {
+      padding: 12px 14px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid #dbeafe;
+    }
+
+    .related-section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-top: 12px;
+    }
+
+    .related-section h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .related-item {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: inherit;
+    }
+
+    .related-thumb-wrap {
+      border-radius: 14px;
+      overflow: hidden;
+      background: #eef4ff;
+      border: 1px solid #dbeafe;
+    }
+
+    .related-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .related-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .related-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .side-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .side-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .side-card li {
+      margin: 0;
+    }
+
+    .side-card a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .note-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff8e8;
+      border: 1px solid #fde7b0;
+      font-size: 13px;
+      color: #6b4f00;
+      line-height: 1.75;
+    }
+
+    .footer-cta {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .footer-cta h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .footer-cta p {
+      margin: 0 auto 16px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.9);
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    @media (max-width: 960px) {
+      :root {
+        --header-h: 72px;
+      }
+
+      .hero-inner,
+      .content-grid,
+      .intro-grid,
+      .comparison-grid,
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        padding: 8px 10px;
+        min-height: 66px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand a {
+        font-size: 14px;
+      }
+
+      .header-nav {
+        width: 100%;
+        gap: 6px;
+      }
+
+      .header-nav a {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .page-wrap {
+        padding: 12px 12px 56px;
+      }
+
+      .hero-inner,
+      .section,
+      .mini-toc,
+      .intro-card,
+      .related-section,
+      .side-card,
+      .footer-cta {
+        padding: 18px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero-lead,
+      .section p,
+      .section li {
+        font-size: 14px;
+      }
+
+      .section h2 {
+        font-size: 22px;
+      }
+
+      .section h3 {
+        font-size: 17px;
+      }
+
+      .related-item {
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .mini-toc-links {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .mini-toc-links a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand">
+        <a href="../index.html">現場目線の工具・実務ガイド<br>電気工事士向け 制御の基本まとめ</a>
+      </div>
+      <nav class="header-nav" aria-label="ページ上部ナビゲーション">
+        <a href="../index.html">トップ</a>
+        <a href="../index.html#categories">カテゴリ一覧</a>
+        <a href="../index.html#tips">使い方・基礎記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <nav class="breadcrumbs" aria-label="パンくずリスト">
+      <a href="../index.html">トップ</a> &gt;
+      <a href="../index.html#tips">使い方・基礎記事</a> &gt;
+      <span>押している間だけ動く回路とは？</span>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="hero-kicker">CONTROL BASIC</span>
+          <h1>押している間だけ動く回路とは？<br>ボタンを押している間だけONになる基本回路をやさしく解説</h1>
+          <p class="hero-lead">
+            押している間だけ動く回路は、ボタンやスイッチを押している間だけ出力がONになり、離すとOFFに戻る基本回路です。
+            GX Works3を前提に、現場で追いやすい見方で整理しました。
+          </p>
+
+          <ul class="hero-points">
+            <li><strong>まず押さえたいこと：</strong> 押している間だけON、離したらOFF、という一番シンプルな手動操作回路です。</li>
+            <li><strong>この記事で分かること：</strong> 押している間だけ動く回路の役割、基本ラダーの見方、自己保持やワンショットとの違い。</li>
+            <li><strong>向いている人：</strong> PLCを始めたばかりの人、手動操作の基本を整理したい人。</li>
+          </ul>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#toc">先に要点を見る</a>
+            <a class="btn btn-secondary" href="#related">関連記事を見る</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-visual-card">
+            <img src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-flow.png" alt="押している間だけ動く回路の基本動作イメージ図" loading="eager" decoding="async">
+            <div class="hero-visual-caption">
+              ボタンを押している間だけ出力がONになり、離すとすぐOFFに戻る。まずはこの流れで見ると追いやすいです。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-grid" aria-label="導入まとめ">
+      <article class="intro-card intro-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>PLCを始めたばかりの人</li>
+          <li>自己保持回路との違いを整理したい人</li>
+          <li>手動操作の基本回路を知りたい人</li>
+          <li>GX Works3でシンプルなa接点回路を読みたい人</li>
+        </ul>
+      </article>
+
+      <article class="intro-card intro-card--wait">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>入力と出力の意味がまだ曖昧な人</li>
+          <li>a接点・b接点の基本がまだ不安な人</li>
+          <li>まずはPLC全体の基本から見たい人</li>
+        </ul>
+      </article>
+
+      <article class="intro-card intro-card--conclusion">
+        <h2>先に結論</h2>
+        <p>
+          押している間だけ動く回路は、<strong>入力がONしている間だけ、そのまま出力もONする基本回路</strong>です。
+          ボタンを離すと入力がOFFになり、出力もすぐOFFに戻ります。
+        </p>
+      </article>
+    </section>
+
+    <section class="mini-toc" id="toc">
+      <h2>この記事の見どころ</h2>
+      <div class="mini-toc-links">
+        <a href="#what">押している間だけ動く回路とは？</a>
+        <a href="#usage">どんな時に使う？</a>
+        <a href="#flow">基本動作</a>
+        <a href="#gxworks3">GX Works3での見方</a>
+        <a href="#difference-start-stop">起動・停止回路との違い</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <article class="article">
+        <section class="section" id="what">
+          <h2>押している間だけ動く回路とは？</h2>
+          <p>
+            押している間だけ動く回路とは、<strong>ボタンやスイッチを押している間だけ出力がONになり、離すとOFFに戻る回路</strong>です。
+          </p>
+          <p>
+            かなりシンプルな回路ですが、現場では意外とよく使います。
+            たとえば、押している間だけブザーを鳴らしたい時や、押している間だけモーターやシリンダを動かしたい時などに使います。
+          </p>
+          <p>
+            自己保持回路のように、一度押したら押し続けなくても動く回路とは違って、<strong>押している間だけ有効</strong>なのがポイントです。
+          </p>
+
+          <div class="point-box">
+            <div><strong>ポイント1：</strong> 入力がONしている間だけ、出力もONします。</div>
+            <div><strong>ポイント2：</strong> ボタンを離すと、出力もすぐOFFに戻ります。</div>
+            <div><strong>ポイント3：</strong> 「一時的な手動操作に向いた基本回路」だと思うと分かりやすいです。</div>
+          </div>
+        </section>
+
+        <section class="section" id="usage">
+          <h2>どんな時に使うのか</h2>
+          <p>
+            現場では、自動運転ではなく<strong>手動で一時的に動かしたい場面</strong>で使いやすいです。
+          </p>
+
+          <h3>押している間だけ動作確認したい時</h3>
+          <p>
+            設備の点検や試運転で、少しだけ動きを見たい時に向いています。
+            押している間だけ動くので、離せばすぐ止まるのも扱いやすいです。
+          </p>
+
+          <h3>手動送りや手動操作をしたい時</h3>
+          <p>
+            手動でワークを少し動かしたい時や、位置合わせのために少しだけ動かしたい時に使います。
+          </p>
+
+          <h3>一時的な出力操作をしたい時</h3>
+          <p>
+            ブザー、ランプ、電磁弁、モーターなどを、一時的にだけ動かしたい時に使います。
+          </p>
+        </section>
+
+        <section class="section" id="flow">
+          <h2>押している間だけ動く回路の基本イメージ</h2>
+          <p>
+            一番基本の形はこれです。
+          </p>
+          <ul>
+            <li>X0を押す</li>
+            <li>X0がONする</li>
+            <li>Y0がONする</li>
+            <li>X0を離す</li>
+            <li>X0がOFFする</li>
+            <li>Y0もOFFする</li>
+          </ul>
+          <p>
+            つまり、<strong>入力の状態がそのまま出力に反映される</strong>形です。
+            ここではタイマーも自己保持も使わず、かなり基本的な回路になります。
+          </p>
+
+          <figure class="figure-card">
+            <img src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-flow.png" alt="押している間だけ動く回路の基本動作イメージ図" loading="lazy" decoding="async">
+            <figcaption>押していない時はOFF、押している間だけON、離すとOFFに戻る流れを初心者向けに見やすく整理した図です。</figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="gxworks3">
+          <h2>GX Works3で見る時の考え方</h2>
+          <p>
+            GX Works3で見る時も、まずは次の3つを見れば分かりやすいです。
+          </p>
+
+          <h3>1. どの入力を見ているか</h3>
+          <p>
+            押しボタンなのか、スイッチなのか、センサなのかを見ます。
+            今回は「押している間だけ」なので、手動ボタンを想定すると分かりやすいです。
+          </p>
+
+          <h3>2. その接点がa接点かどうか</h3>
+          <p>
+            基本形では、入力のa接点をそのまま使うことが多いです。
+            入力がONなら導通して、出力もONになります。
+          </p>
+
+          <h3>3. 出力先が何か</h3>
+          <p>
+            ランプなのか、モーターなのか、バルブなのかを見ると、回路の目的が分かりやすいです。
+          </p>
+
+          <figure class="figure-card">
+            <img src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ladder.png" alt="押している間だけ動く回路の基本ラダー図イメージ" loading="lazy" decoding="async">
+            <figcaption>GX Works3を意識した基本ラダーのイメージ。X0のa接点がつながっている間だけ、Y0がONする見方がポイントです。</figcaption>
+          </figure>
+
+          <div class="point-box">
+            <div><strong>1：</strong> どの入力を使っているかを見る</div>
+            <div><strong>2：</strong> 接点がつながる条件を見る</div>
+            <div><strong>3：</strong> その時に何を動かしているかを見る</div>
+          </div>
+        </section>
+
+        <section class="section" id="basic-ladder">
+          <h2>基本ラダーの見方</h2>
+          <p>
+            基本ラダーはかなりシンプルです。
+          </p>
+          <ul>
+            <li>X0のa接点</li>
+            <li>Y0コイル</li>
+          </ul>
+          <p>
+            これだけでも成立します。
+          </p>
+          <p>
+            見方としては、
+          </p>
+          <ul>
+            <li>X0 ON</li>
+            <li>接点がつながる</li>
+            <li>Y0 ON</li>
+          </ul>
+          <p>
+            です。
+          </p>
+          <p>
+            逆に、
+          </p>
+          <ul>
+            <li>X0 OFF</li>
+            <li>接点が開く</li>
+            <li>Y0 OFF</li>
+          </ul>
+          <p>
+            になります。
+          </p>
+          <p>
+            この形は、PLCのかなり基本に近いので、最初にしっかり見られるようにしておくと後が楽です。
+          </p>
+        </section>
+
+        <section class="section" id="difference-start-stop">
+          <h2>起動・停止回路との違い</h2>
+          <p>
+            似て見える回路ですが、起動・停止回路とは意味が違います。
+          </p>
+
+          <div class="comparison-grid">
+            <article class="comparison-card comparison-card--hold">
+              <h3>押している間だけ動く回路</h3>
+              <ul>
+                <li>押している間だけ出力ON</li>
+                <li>離すとすぐOFF</li>
+                <li>一時操作や手動確認向き</li>
+              </ul>
+            </article>
+
+            <article class="comparison-card comparison-card--manual">
+              <h3>起動・停止回路</h3>
+              <ul>
+                <li>一度押すと自己保持で動作継続</li>
+                <li>停止条件が来るまで動き続ける</li>
+                <li>通常運転向き</li>
+              </ul>
+            </article>
+          </div>
+
+          <p>
+            つまり、
+          </p>
+          <ul>
+            <li><strong>押している間だけ動く回路</strong> → 今その場だけ動かす</li>
+            <li><strong>起動・停止回路</strong> → 一度動かしたら継続運転する</li>
+          </ul>
+          <p>
+            という違いがあります。
+          </p>
+        </section>
+
+        <section class="section" id="difference-oneshot">
+          <h2>ワンショット回路との違い</h2>
+          <p>
+            ワンショット回路とも違います。
+          </p>
+          <ul>
+            <li>押している間だけ動く回路 → 入力がONの間ずっと出力ON</li>
+            <li>ワンショット回路 → 入力が変化した瞬間だけ1回だけ出力</li>
+          </ul>
+          <p>
+            つまり、
+          </p>
+          <ul>
+            <li>押している間だけ動く回路 → <strong>継続してON</strong></li>
+            <li>ワンショット回路 → <strong>瞬間だけON</strong></li>
+          </ul>
+          <p>
+            です。
+            ここを分けて考えると、かなり整理しやすいです。
+          </p>
+        </section>
+
+        <section class="section" id="caution">
+          <h2>注意したいポイント</h2>
+
+          <h3>押しっぱなしだと出力も入りっぱなしになる</h3>
+          <p>
+            この回路は、押している間ずっと出力がONです。
+            そのため、長く押すとその間ずっと動き続けます。
+          </p>
+
+          <h3>自己保持ではない</h3>
+          <p>
+            一度押したら動き続ける回路ではありません。
+            離したら止まる、というのが基本です。
+          </p>
+
+          <h3>手動操作向きか、自動運転向きかを分ける</h3>
+          <p>
+            この回路は手動確認には向いていますが、通常の自動運転にはそのままだと向かないこともあります。
+            使いどころを分けて考えることが大事です。
+          </p>
+        </section>
+
+        <section class="section" id="learn-next">
+          <h2>まずはこう覚えると分かりやすい</h2>
+          <p>
+            最初はこの形だけ覚えるとかなり楽です。
+          </p>
+          <ul>
+            <li>押す</li>
+            <li>ONになる</li>
+            <li>離す</li>
+            <li>OFFに戻る</li>
+          </ul>
+          <p>
+            これが分かると、
+          </p>
+          <ul>
+            <li>起動・停止回路</li>
+            <li>自己保持回路</li>
+            <li>ワンショット回路</li>
+            <li>手動運転回路</li>
+          </ul>
+          <p>
+            との違いも見やすくなります。
+          </p>
+        </section>
+
+        <section class="section" id="summary">
+          <h2>まとめ</h2>
+          <p>
+            押している間だけ動く回路とは、<strong>入力がONしている間だけ、そのまま出力もONする基本回路</strong>です。
+          </p>
+          <p>
+            かなりシンプルですが、
+          </p>
+          <ul>
+            <li>手動操作</li>
+            <li>動作確認</li>
+            <li>一時的な出力操作</li>
+          </ul>
+          <p>
+            でよく使います。
+          </p>
+          <p>
+            GX Works3で見る時も、
+          </p>
+          <ul>
+            <li>どの入力か</li>
+            <li>接点がどう動くか</li>
+            <li>何を出力しているか</li>
+          </ul>
+          <p>
+            この順で追えばかなり分かりやすいです。
+          </p>
+        </section>
+
+        <section class="related-section" id="related">
+          <h2>あわせて見たい関連記事</h2>
+          <div class="related-grid">
+            <a class="related-item" href="start-stop-circuit-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.png" alt="起動・停止回路とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">起動・停止回路とは？</p>
+                <p class="related-desc">一度押したら継続運転する回路との違いを整理したい時に見やすい関連記事です。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="self-hold-circuit.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.png" alt="自己保持回路とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">自己保持回路とは？</p>
+                <p class="related-desc">押している間だけ動く回路と自己保持回路の違いを比べる時に見やすい関連記事です。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="one-shot-circuit-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/one-shot-circuit-basic/one-shot-circuit-basic-ogp.png" alt="ワンショット回路とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">ワンショット回路とは？</p>
+                <p class="related-desc">押している間ずっとONと、瞬間だけONの違いもあわせて整理しやすいです。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="input-output-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いとは？の記事">
+              </div>
+              <div>
+                <p class="related-title">入力と出力の違いとは？</p>
+                <p class="related-desc">PLCを始めたばかりで、XとYの役割がまだ曖昧な人向けです。</p>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section class="footer-cta">
+          <h2>次に見るなら、手動操作と継続運転の違いを並べて覚えるのがおすすめです</h2>
+          <p>
+            押している間だけ動く回路は、起動・停止回路やワンショット回路と並べて見ると役割の違いが分かりやすくなります。
+            1つずつ無理なく増やしていけば、ラダーの見え方がかなり変わってきます。
+          </p>
+          <div class="hero-actions" style="justify-content:center;">
+            <a class="btn btn-primary" href="start-stop-circuit-basic.html">起動・停止回路を見る</a>
+            <a class="btn btn-secondary" href="one-shot-circuit-basic.html">ワンショット回路を見る</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="sidebar" aria-label="右カラム">
+        <section class="side-card">
+          <h2>目次</h2>
+          <ul>
+            <li><a href="#what">押している間だけ動く回路とは？</a></li>
+            <li><a href="#usage">どんな時に使う？</a></li>
+            <li><a href="#flow">基本動作</a></li>
+            <li><a href="#gxworks3">GX Works3での見方</a></li>
+            <li><a href="#difference-start-stop">起動・停止回路との違い</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h2>この記事の要点</h2>
+          <div class="note-list">
+            <div class="note-item">押している間だけ動く回路は「入力がONしている間だけ出力もONする」ための基本回路です。</div>
+            <div class="note-item">離すとすぐOFFに戻るので、一時的な手動操作に向いています。</div>
+            <div class="note-item">自己保持やワンショットとの違いを分けて考えると理解しやすいです。</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <a class="scroll-top" href="#top" aria-label="ページ上部へ戻る" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">↑</a>
+</body>
+</html>

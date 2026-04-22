@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理</title>
+  <meta name="description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。起動PB・停止PB・Y0自己保持接点の流れ、基本回路の見方、自己保持しない時の確認ポイントまで、現場で追いやすい考え方で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/self-hold-circuit.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理">
+  <meta property="og:description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。起動PB・停止PB・Y0自己保持接点の流れ、基本回路の見方、自己保持しない時の確認ポイントまで、現場で追いやすい考え方で解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/self-hold-circuit.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
+  <meta property="og:site_name" content="現場目線の工具ガイド">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理">
+  <meta name="twitter:description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #5b6777;
+      --line: #d9e0ea;
+      --accent: #1677ff;
+      --accent-soft: #eef5ff;
+      --green: #1f9d55;
+      --green-soft: #eaf8f0;
+      --orange: #f59e0b;
+      --orange-soft: #fff4df;
+      --danger: #e5484d;
+      --danger-soft: #fff1f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --header-h: 78px;
+      --content-w: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--content-w), calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.88);
+      border-bottom: 1px solid rgba(217, 224, 234, 0.9);
+    }
+
+    .site-header-inner {
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand a {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-main {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    main {
+      padding: 22px 0 64px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .breadcrumb span {
+      opacity: 0.7;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fafdff 0%, #eef8f2 100%);
+      border: 1px solid #d7e9dd;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4.5vw, 40px);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+
+    .audience-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .audience-card--good {
+      background: var(--green-soft);
+      border-color: #cfead8;
+    }
+
+    .audience-card--notyet {
+      background: var(--orange-soft);
+      border-color: #f7dcaa;
+    }
+
+    .audience-card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .audience-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .summary-box {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .summary-box h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .summary-box p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .jump-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 20px;
+      align-items: start;
+      margin-top: 22px;
+    }
+
+    .article {
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section-anchor {
+      scroll-margin-top: calc(var(--header-h) + 18px);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h2.section-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.45;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      font-size: 15px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .note {
+      border-left: 4px solid var(--green);
+      background: #f7fcf8;
+      padding: 14px 14px 14px 16px;
+      border-radius: 0 14px 14px 0;
+      margin: 14px 0;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .note.caution {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .point-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .point-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .point-card h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .article-figure {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .article-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .article-figure figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .faq-item + .faq-item {
+      margin-top: 12px;
+    }
+
+    .faq-q {
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 12px);
+    }
+
+    .side-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .toc {
+      display: grid;
+      gap: 10px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .cta-box {
+      border: 1px solid #d7e5ff;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .btn-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border-color: #cfe0ff;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .related-card {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .related-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, #eef5ff 0%, #e7f8ef 100%);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .related-thumb span {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .related-body {
+      padding: 14px;
+    }
+
+    .related-title {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .related-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-nav {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .site-footer {
+      padding: 28px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-link {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(31, 42, 55, 0.92);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --header-h: 72px;
+      }
+
+      .content-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      .brand-main {
+        font-size: 16px;
+      }
+
+      .header-nav {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .header-link {
+        min-height: 36px;
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      main {
+        padding-top: 16px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .audience-grid,
+      .point-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      h2.section-title {
+        font-size: 21px;
+      }
+
+      p, ul, ol {
+        font-size: 14px;
+      }
+
+      .jump-link {
+        width: 100%;
+      }
+
+      .top-link {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <div class="brand">
+        <a href="../index.html">
+          <span class="brand-sub">現場目線の工具ガイド</span>
+          <span class="brand-main">電気工事士の工具・実務メモ</span>
+        </a>
+      </div>
+      <nav class="header-nav" aria-label="主要メニュー">
+        <a class="header-link" href="../index.html">トップ</a>
+        <a class="header-link" href="../index.html#categories">工具カテゴリー一覧</a>
+        <a class="header-link" href="../index.html#tips">使い方・コツ記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">トップ</a>
+        <span>›</span>
+        <a href="../index.html#tips">使い方・コツ記事</a>
+        <span>›</span>
+        <span>自己保持回路とは？</span>
+      </nav>
+
+      <section class="hero">
+        <div class="hero-kicker">制御系の基本回路</div>
+        <h1>自己保持回路とは？<br>まず最初に覚えたい基本回路</h1>
+        <p class="hero-lead">
+          自己保持回路は、制御を見始めるとかなり早い段階で出てくる基本回路です。
+          最初は少し分かりにくいですが、考え方はそこまで難しくありません。
+          かんたんに言うと、<strong>起動ボタンで一度動かした出力を、自分の接点でもう一度つなぎ続ける回路</strong>です。
+          モータやポンプ、設備の運転回路でもよく出てきます。
+          現場では、新しく組む時よりも「なぜ保持しないのか」「なぜ止まるのか」を追う時に役立つことが多いです。
+        </p>
+
+        <div class="audience-grid">
+          <section class="audience-card audience-card--good" aria-labelledby="good-for">
+            <h2 id="good-for">向いている人</h2>
+            <ul>
+              <li>ラダー図を少し読み始めた人</li>
+              <li>モータや設備の起動回路を見たい人</li>
+              <li>起動ボタンを離しても動き続ける理由を知りたい人</li>
+              <li>自己保持しない時の見方を知りたい人</li>
+            </ul>
+          </section>
+
+          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
+            <h2 id="notyet-for">まだ不要な人</h2>
+            <ul>
+              <li>まずはラダー図全体の見方から整理したい人</li>
+              <li>細かい命令や応用制御を先に覚えたい人</li>
+              <li>今のところ制御盤や設備制御に触れる予定がほぼない人</li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="summary-box">
+          <h2>先に結論</h2>
+          <p>
+            自己保持回路は、<strong>一度ONした出力を、自分の接点で保持する回路</strong>です。
+            起動のきっかけは起動PBですが、そのあと出力Y0がONすると、Y0の自己保持接点でも回路がつながり、起動PBを離しても運転が続きます。
+            逆に、停止PBや異常条件でその流れが切れると止まります。
+          </p>
+          <div class="jump-links" aria-label="記事内ジャンプ">
+            <a class="jump-link" href="#basic-idea">自己保持回路とは</a>
+            <a class="jump-link" href="#basic-circuit">基本回路の見方</a>
+            <a class="jump-link" href="#flow">動作の流れ</a>
+            <a class="jump-link" href="#trouble">自己保持しない時の見方</a>
+          </div>
+        </section>
+      </section>
+
+      <div class="content-wrap">
+        <article class="article">
+          <section id="basic-idea" class="card section-anchor">
+            <div class="section-label">基本の考え方</div>
+            <h2 class="section-title">自己保持回路とは「一度つながった出力を自分でつなぎ続ける回路」です</h2>
+            <p>
+              自己保持回路は、起動ボタンを押した瞬間だけではなく、<strong>起動ボタンを離したあとも運転を続けたい時</strong>に使う基本回路です。
+            </p>
+            <p>
+              例えば、モータを回す、ポンプを動かす、設備の運転を開始するといった場面では、
+              ボタンをずっと押しっぱなしにしなくても動き続けてほしいことが多いです。
+              そのために使うのが自己保持です。
+            </p>
+
+            <div class="point-grid">
+              <section class="point-card">
+                <h3>起動のきっかけがある</h3>
+                <p>最初は起動PBや入力信号がきっかけになって回路が通ります。</p>
+              </section>
+              <section class="point-card">
+                <h3>出力がONする</h3>
+                <p>条件がそろうとY0などの出力コイルがONします。</p>
+              </section>
+              <section class="point-card">
+                <h3>自分の接点で保持する</h3>
+                <p>Y0が入ると、Y0の自己保持接点も通るようになり、運転を続けます。</p>
+              </section>
+              <section class="point-card">
+                <h3>停止条件で切れる</h3>
+                <p>停止PBや異常条件で流れが切れると、自己保持も解除されます。</p>
+              </section>
+            </div>
+
+            <div class="note">
+              最初は「自己保持」という言葉が難しく見えても、実際は
+              <strong>一度つながった回路を、自分の接点でもう一回つなぎ直している</strong>
+              と考えるとかなり分かりやすくなります。
+            </div>
+          </section>
+
+          <section id="basic-circuit" class="card section-anchor">
+            <div class="section-label">図で見る</div>
+            <h2 class="section-title">基本回路は「停止 → 起動 → 出力 → 自己保持」の流れで見ると追いやすいです</h2>
+            <p>
+              自己保持回路を読む時は、部品をバラバラに覚えるより、まず<strong>どこでつながり、どこで保持しているか</strong>を見ると追いやすいです。
+            </p>
+            <p>
+              下の図では、停止PB、起動PB、Y0コイル、Y0自己保持接点の関係をまとめています。
+              まずはこの形を一つ覚えておくと、他のラダーを見た時もかなり読みやすくなります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/self-hold-circuit/self-hold-circuit-basic-flow.png" alt="自己保持回路の基本図。停止PB、起動PB、Y0コイル、Y0自己保持接点の流れを示した図。">
+              <figcaption>図1：自己保持回路の基本イメージ。起動PBがきっかけになり、Y0が入るとY0自己保持接点でも通るようになります。</figcaption>
+            </figure>
+
+            <h3>基本回路の見方</h3>
+            <ul>
+              <li><strong>X1 停止PB（b接点）</strong>：通常は通っています。押されたり異常条件が入ると切れる側です。</li>
+              <li><strong>X0 起動PB（a接点）</strong>：押した時だけ通ります。最初のきっかけです。</li>
+              <li><strong>Y0 コイル</strong>：条件がそろうとONする出力です。</li>
+              <li><strong>Y0 自己保持接点（a接点）</strong>：Y0がONするとこの接点も通り、起動PBを離しても保持します。</li>
+            </ul>
+
+            <div class="note">
+              最初は「X」「Y」の記号を全部気にしすぎなくても大丈夫です。
+              まずは <strong>停止側 → 起動側 → 出力 → 自己保持</strong> の流れで見れば十分追えます。
+            </div>
+          </section>
+
+          <section id="flow" class="card section-anchor">
+            <div class="section-label">順番で理解</div>
+            <h2 class="section-title">動作の流れを順番で見ると自己保持の意味が分かりやすいです</h2>
+
+            <h3>1. 停止条件がOKの状態</h3>
+            <p>
+              まず、停止PBや異常条件側が問題なく通っている状態です。
+              ここが切れていると、その先へ進めません。
+            </p>
+
+            <h3>2. 起動PBを押す</h3>
+            <p>
+              起動PBを押すと、起動のきっかけが入ります。
+              ここで回路が通り、Y0コイルまで流れがつながります。
+            </p>
+
+            <h3>3. Y0がONする</h3>
+            <p>
+              Y0コイルがONすると、出力が入ります。
+              この段階で設備が運転を始めるイメージです。
+            </p>
+
+            <h3>4. Y0自己保持接点も通る</h3>
+            <p>
+              Y0がONすると、Y0自己保持接点も通るようになります。
+              これで起動PBを離しても、Y0接点側から回路が保持されます。
+            </p>
+
+            <h3>5. 停止PBや異常条件で切れる</h3>
+            <p>
+              停止PBが押されたり、異常条件が入ったりすると、回路のどこかが切れます。
+              そうするとY0がOFFになり、自己保持接点も通らなくなって止まります。
+            </p>
+
+            <div class="note">
+              自己保持を理解する時は、
+              <strong>起動PBは最初のきっかけだけ</strong>、
+              <strong>その後はY0接点が引き継いで保持する</strong>
+              と考えるとかなり整理しやすいです。
+            </div>
+          </section>
+
+          <section id="stuck" class="card section-anchor">
+            <div class="section-label">つまずきやすい所</div>
+            <h2 class="section-title">よくあるつまずきは「どこで保持しているか」が見えていない時です</h2>
+            <p>
+              自己保持回路は基本回路ですが、最初はつまずきやすい所もあります。
+              特に「起動PBを離したらなぜ止まらないのか」「どこが自己保持接点なのか」が分かりにくいことが多いです。
+            </p>
+
+            <div class="checklist">
+              <div class="check-item">
+                <strong>自己保持接点がどれか分からない</strong><br>
+                並列で入っているY0接点が自己保持接点です。ここが保持の役目です。
+              </div>
+              <div class="check-item">
+                <strong>起動PBを離したら止まる理由が分からない</strong><br>
+                自己保持接点が通っていないと、起動PBを離した時点で回路が切れてしまいます。
+              </div>
+              <div class="check-item">
+                <strong>停止側のb接点が見落としやすい</strong><br>
+                停止PBや異常条件側が切れていると、そもそも保持以前に回路が通りません。
+              </div>
+              <div class="check-item">
+                <strong>実機とラダーを結びつけにくい</strong><br>
+                押しボタン、ランプ、リレー、接触器など実際の機器と合わせて見ると分かりやすいです。
+              </div>
+            </div>
+          </section>
+
+          <section id="trouble" class="card section-anchor">
+            <div class="section-label">実務で大事</div>
+            <h2 class="section-title">自己保持しない時は「どこで切れているか」を順番に確認すると追いやすいです</h2>
+            <p>
+              現場で多いのは「自己保持回路を組む」よりも、「自己保持しない」「押している間しか動かない」といった確認です。
+              そういう時は、いきなり全部を読もうとせず、<strong>どこで切れているかを順番に確認</strong>すると見やすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/self-hold-circuit/self-hold-circuit-trouble-check.png" alt="自己保持しない時の確認図。停止条件、起動条件、Y0出力、自己保持接点のどこで切れているかを確認する図。">
+              <figcaption>図2：自己保持しない時の確認ポイント。停止条件、起動条件、Y0出力、自己保持接点の順で見ると追いやすいです。</figcaption>
+            </figure>
+
+            <h3>確認の順番</h3>
+            <ol>
+              <li><strong>停止条件を見る</strong><br>停止PBや異常条件で切れていないか確認します。</li>
+              <li><strong>起動条件を見る</strong><br>起動PBや入力信号がちゃんと入っているか見ます。</li>
+              <li><strong>Y0出力を見る</strong><br>Y0が実際にONしているか、モニタや出力状態で確認します。</li>
+              <li><strong>自己保持接点を見る</strong><br>Y0接点が通っているか、保持の役目を果たしているか見ます。</li>
+            </ol>
+
+            <div class="note caution">
+              「押している間だけ動く」場合は、自己保持接点が通っていない、またはY0自体が入っていないことが多いです。
+              まずは <strong>出力Y0が本当にONしているか</strong> と <strong>Y0接点が通っているか</strong> を見ると絞りやすいです。
+            </div>
+
+            <p>
+              さらに言うと、トラブル時は<strong>動かしたい出力から逆に追う</strong>と見やすいです。
+              モータを回したいなら、そのモータに関係する出力から見て、そこへ来るまでの条件を逆に追っていく方が現場では早いことが多いです。
+            </p>
+          </section>
+
+          <section id="remember" class="card section-anchor">
+            <div class="section-label">ここだけ覚える</div>
+            <h2 class="section-title">最初はこの4つを押さえるとかなり追いやすくなります</h2>
+            <ol>
+              <li><strong>起動PBは最初のきっかけ</strong></li>
+              <li><strong>Y0が入ると、Y0自己保持接点も通る</strong></li>
+              <li><strong>起動PBを離しても、Y0接点で保持する</strong></li>
+              <li><strong>停止PBや異常条件でその流れが切れる</strong></li>
+            </ol>
+            <p>
+              これだけでも、自己保持回路の見方はかなり楽になります。
+              細かい命令や応用回路より先に、この基本形をしっかり見られるようになると後が楽です。
+            </p>
+          </section>
+
+          <section id="faq" class="card section-anchor">
+            <div class="section-label">よくある疑問</div>
+            <h2 class="section-title">自己保持回路でよくある疑問</h2>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. 自己保持は必ず必要ですか？</div>
+              <p>A. 必ずではありません。押している間だけ動けばよい回路なら不要なこともあります。ただ、運転開始後も継続して動かしたい場合はよく使います。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. 自己保持とインターロックは同じですか？</div>
+              <p>A. 同じではありません。自己保持は「動き続けるため」の回路、インターロックは「同時動作を防ぐため」の回路として考えると分かりやすいです。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. 自己保持しない時はどこから見ればいいですか？</div>
+              <p>A. 停止条件、起動条件、Y0出力、Y0自己保持接点の順に見ると整理しやすいです。特にY0が本当にONしているかは早めに確認したいです。</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-label">関連記事</div>
+            <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <p>
+              自己保持回路の基本が見えてきたら、次はラダー全体の見方や、インターロック、PLCの役割へ広げると理解しやすいです。
+            </p>
+
+            <div class="related-grid">
+              <a class="related-card" href="ladder-reading.html">
+                <div class="related-thumb"><span>入口記事</span></div>
+                <div class="related-body">
+                  <p class="related-title">ラダー図の読み方入門</p>
+                  <p class="related-desc">ラダー図をどこから見ればいいか、a接点・b接点・自己保持の基本をやさしく整理した入口記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="interlock-basic.html">
+                <div class="related-thumb"><span>使い分け</span></div>
+                <div class="related-body">
+                  <p class="related-title">インターロック回路とは？同時動作を防ぐ考え方</p>
+                  <p class="related-desc">自己保持と混ざりやすいインターロックの考え方を、初心者向けに整理します。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="plc-basic.html">
+                <div class="related-thumb"><span>基本整理</span></div>
+                <div class="related-body">
+                  <p class="related-title">PLCとは何か？電気工事士向けにやさしく整理</p>
+                  <p class="related-desc">シーケンサの役割やリレー回路との違いを、現場目線で整理した入口記事です。</p>
+                </div>
+              </a>
+            </div>
+
+            <div class="footer-nav">
+              <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
+              <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-card">
+            <h2>この記事の流れ</h2>
+            <nav class="toc" aria-label="目次">
+              <a href="#basic-idea">自己保持回路とは</a>
+              <a href="#basic-circuit">基本回路の見方</a>
+              <a href="#flow">動作の流れ</a>
+              <a href="#stuck">よくあるつまずき</a>
+              <a href="#trouble">自己保持しない時の見方</a>
+              <a href="#remember">ここだけ覚える</a>
+              <a href="#faq">よくある疑問</a>
+            </nav>
+          </section>
+
+          <section class="side-card cta-box">
+            <h2>この記事で分かること</h2>
+            <ul>
+              <li>自己保持回路の基本</li>
+              <li>停止PB・起動PB・Y0の流れ</li>
+              <li>起動後に保持する仕組み</li>
+              <li>自己保持しない時の確認ポイント</li>
+            </ul>
+            <div class="btn-group">
+              <a class="btn btn-primary" href="#basic-circuit">基本回路を見る</a>
+              <a class="btn btn-secondary" href="#trouble">トラブル時の見方を見る</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h2>ひとこと</h2>
+            <p style="margin:0; font-size:14px; color:var(--muted);">
+              制御系は、難しく書くより、後から見た人でも追いやすいことの方が大事です。
+              自己保持もまずは「どこでつながり、どこで切れるか」で見ると理解しやすいです。
+            </p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+    </div>
+  </footer>
+
+  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
+</body>
+</html>

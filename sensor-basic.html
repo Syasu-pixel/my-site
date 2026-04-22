@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>センサとは何か？電気工事士向けにやさしく整理｜現場目線の制御入門</title>
+  <meta name="description" content="センサとは何かを、電気工事士向けにやさしく整理した入門記事です。PLCから見た役割、よくあるセンサの種類、近接センサ・光電センサ・リミットスイッチの違い、現場でどこを見るかまで分かりやすく解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/sensor-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="センサとは何か？電気工事士向けにやさしく整理">
+  <meta property="og:description" content="センサとは何かを、電気工事士向けにやさしく整理した入門記事です。PLCから見た役割、よくあるセンサの種類、近接センサ・光電センサ・リミットスイッチの違い、現場でどこを見るかまで分かりやすく解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/sensor-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/sensor-basic/sensor-basic-ogp.png">
+  <meta property="og:site_name" content="現場目線の工具ガイド">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="センサとは何か？電気工事士向けにやさしく整理">
+  <meta name="twitter:description" content="センサとは何かを、電気工事士向けにやさしく整理した入門記事です。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/sensor-basic/sensor-basic-ogp.png">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #5b6777;
+      --line: #d9e0ea;
+      --accent: #1677ff;
+      --accent-soft: #eef5ff;
+      --green: #1f9d55;
+      --green-soft: #eaf8f0;
+      --orange: #f59e0b;
+      --orange-soft: #fff4df;
+      --danger: #e5484d;
+      --danger-soft: #fff1f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --header-h: 78px;
+      --content-w: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(var(--content-w), calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.88);
+      border-bottom: 1px solid rgba(217,224,234,.9);
+    }
+
+    .site-header-inner {
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .brand a {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .brand-main {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    main { padding: 22px 0 64px; }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .breadcrumb span { opacity: .7; }
+
+    .hero {
+      background: linear-gradient(135deg, #fbfdff 0%, #eef5ff 100%);
+      border: 1px solid #dbe7ff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 290px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4.5vw, 40px);
+      line-height: 1.35;
+      letter-spacing: -.02em;
+    }
+
+    .hero-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-side {
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .hero-side h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .hero-side ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .hero-side li + li { margin-top: 6px; }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+
+    .audience-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .audience-card--good {
+      background: var(--green-soft);
+      border-color: #cfead8;
+    }
+
+    .audience-card--notyet {
+      background: var(--orange-soft);
+      border-color: #f7dcaa;
+    }
+
+    .audience-card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .audience-card ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .summary-box {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .summary-box h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .summary-box p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .jump-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 300px;
+      gap: 20px;
+      align-items: start;
+      margin-top: 22px;
+    }
+
+    .article { min-width: 0; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section-anchor {
+      scroll-margin-top: calc(var(--header-h) + 18px);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h2.section-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.45;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      font-size: 15px;
+    }
+
+    li + li { margin-top: 8px; }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f8fbff;
+      padding: 14px 14px 14px 16px;
+      border-radius: 0 14px 14px 0;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+
+    .note.caution {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .article-figure {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .article-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .article-figure figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .compare-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .compare-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .compare-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .faq-item + .faq-item { margin-top: 12px; }
+    .faq-q { font-weight: 800; margin-bottom: 6px; }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 12px);
+    }
+
+    .side-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .toc {
+      display: grid;
+      gap: 10px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .btn-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border-color: #cfe0ff;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .related-item {
+      display: grid;
+      grid-template-columns: 84px minmax(0,1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .related-item img {
+      width: 84px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #f6f8fb;
+    }
+
+    .related-item-title {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .related-item-desc {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .footer-nav {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .site-footer {
+      padding: 28px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-link {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(31,42,55,.92);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(15,23,42,.25);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      :root { --header-h: 72px; }
+      .hero-grid, .content-wrap { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      .brand-main { font-size: 16px; }
+
+      .header-nav {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .header-link {
+        min-height: 36px;
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      main { padding-top: 16px; }
+
+      .hero {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .audience-grid,
+      .compare-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      h2.section-title { font-size: 21px; }
+
+      p, ul, ol { font-size: 14px; }
+
+      .jump-link { width: 100%; }
+
+      .related-item {
+        grid-template-columns: 72px minmax(0,1fr);
+      }
+
+      .related-item img {
+        width: 72px;
+        height: 48px;
+      }
+
+      .top-link {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <div class="brand">
+        <a href="../index.html">
+          <span class="brand-sub">現場目線の工具ガイド</span>
+          <span class="brand-main">電気工事士の工具・実務メモ</span>
+        </a>
+      </div>
+      <nav class="header-nav" aria-label="主要メニュー">
+        <a class="header-link" href="../index.html">トップ</a>
+        <a class="header-link" href="../index.html#categories">工具カテゴリー一覧</a>
+        <a class="header-link" href="../index.html#tips">使い方・コツ記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">トップ</a>
+        <span>›</span>
+        <a href="../index.html#tips">使い方・コツ記事</a>
+        <span>›</span>
+        <span>センサとは何か？</span>
+      </nav>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-kicker">入力機器の基礎</div>
+            <h1>センサとは何か？<br>電気工事士向けにやさしく整理</h1>
+            <p class="hero-lead">
+              センサは、現場の状態を検知して、その情報をPLCへ伝える入力機器です。
+              最初は種類が多くて難しく見えますが、まずは
+              <strong>「何を見ているか」「どうPLCへ伝えるか」</strong>
+              で整理するとかなり分かりやすくなります。
+              入力と出力の違いを見た次に読むと、かなりつながりやすい内容です。
+            </p>
+          </div>
+          <aside class="hero-side">
+            <h2>この記事で分かること</h2>
+            <ul>
+              <li>センサの基本的な役割</li>
+              <li>PLCから見た時のセンサの位置づけ</li>
+              <li>近接・光電・リミットの違い</li>
+              <li>現場でどこを見ると分かりやすいか</li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="audience-grid">
+          <section class="audience-card audience-card--good" aria-labelledby="good-for">
+            <h2 id="good-for">向いている人</h2>
+            <ul>
+              <li>入力機器としてのセンサを基礎から理解したい人</li>
+              <li>近接センサや光電センサの違いを整理したい人</li>
+              <li>PLCにどんな信号が入っているか知りたい人</li>
+              <li>制御系をこれから学びたい人</li>
+            </ul>
+          </section>
+
+          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
+            <h2 id="notyet-for">まだ不要な人</h2>
+            <ul>
+              <li>制御や設備にまったく関わらない人</li>
+              <li>まずは配線図や工具系の記事を優先したい人</li>
+              <li>個別型番の比較だけを先に知りたい人</li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="summary-box">
+          <h2>先に結論</h2>
+          <p>
+            センサは、<strong>物の有無・位置・状態などを検知して、PLCの入力（X）へ知らせるための機器</strong>です。
+            ランプや電磁弁のようにPLCから動かされる側ではなく、
+            <strong>PLCへ情報を伝える側</strong>として考えると整理しやすいです。
+            迷ったら「これは何を見ていて、何をPLCへ伝えているのか」で考えると分かりやすいです。
+          </p>
+          <div class="jump-links" aria-label="記事内ジャンプ">
+            <a class="jump-link" href="#basic-idea">センサとは</a>
+            <a class="jump-link" href="#flow">PLCとの流れ</a>
+            <a class="jump-link" href="#types">種類の違い</a>
+            <a class="jump-link" href="#point">現場での見方</a>
+          </div>
+        </section>
+      </section>
+
+      <div class="content-wrap">
+        <article class="article">
+          <section id="basic-idea" class="card section-anchor">
+            <div class="section-label">基本の考え方</div>
+            <h2 class="section-title">センサは現場の状態を検知して、PLCへ知らせる入力機器です</h2>
+            <p>
+              センサは、物があるかないか、位置が合っているか、何かが近づいたかなど、
+              現場の状態を検知してPLCへ伝える役目です。
+            </p>
+            <p>
+              つまり、PLCから見ればセンサは「今こうなっています」と知らせてくれる側です。
+              だから、入力機器として扱います。
+            </p>
+            <p>
+              ランプや電磁弁のようにPLCから動かされる機器ではなく、
+              <strong>PLCの判断材料になる信号を送る機器</strong>という見方が大事です。
+            </p>
+
+            <div class="note">
+              センサを理解する時は、
+              <strong>何を検知しているか</strong> と
+              <strong>その結果をPLCへどう伝えるか</strong>
+              の2つで見ると整理しやすいです。
+            </div>
+          </section>
+
+          <section id="flow" class="card section-anchor">
+            <div class="section-label">流れで見る</div>
+            <h2 class="section-title">センサ → PLC入力 → 判断 → 出力の流れで見ると分かりやすいです</h2>
+            <p>
+              センサ単体で見ても大事ですが、実務では
+              <strong>センサの信号がPLCへ入って、その後どんな出力につながるか</strong>
+              をセットで見ることが多いです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/sensor-basic/sensor-basic-overview.png" alt="センサが物や位置を検知し、PLC入力へ信号を送り、PLCが判断し、出力側が動作する流れを示した図。">
+              <figcaption>図1：センサの基本イメージ。センサは現場の状態を検知してPLCへ伝える入力機器です。</figcaption>
+            </figure>
+
+            <ol>
+              <li>物やワークが近づく、位置が変わる</li>
+              <li>センサがそれを検知する</li>
+              <li>センサ信号がPLC入力（X）へ入る</li>
+              <li>PLCが条件に応じて判断する</li>
+              <li>ランプやシリンダなどの出力側が動く</li>
+            </ol>
+
+            <div class="note">
+              なので、センサだけ見て終わりではなく、  
+              <strong>その信号がPLCでどう使われているか</strong> まで追うと実務ではかなり理解しやすいです。
+            </div>
+          </section>
+
+          <section id="types" class="card section-anchor">
+            <div class="section-label">種類の違い</div>
+            <h2 class="section-title">まずは近接センサ・光電センサ・リミットスイッチの違いを押さえると入りやすいです</h2>
+            <p>
+              センサといっても種類はいろいろありますが、最初はこの3つを押さえるとかなり入りやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/sensor-basic/sensor-basic-types.png" alt="近接センサ、光電センサ、リミットスイッチの違いを比較した図。">
+              <figcaption>図2：よくあるセンサの種類と違い。まずは非接触で見るか、接触して取るかで見ると分かりやすいです。</figcaption>
+            </figure>
+
+            <div class="compare-cards">
+              <section class="compare-card">
+                <h3>近接センサ</h3>
+                <p>金属などが近づいたことを非接触で検知します。位置検出や有無検出でよく使います。</p>
+              </section>
+              <section class="compare-card">
+                <h3>光電センサ</h3>
+                <p>光を使って物の有無や通過を検知します。遠めで見たい時や、金属以外も見たい時に使いやすいです。</p>
+              </section>
+              <section class="compare-card">
+                <h3>リミットスイッチ</h3>
+                <p>物が実際に当たって機械的に動くことで検知します。構造が分かりやすく、確実に位置を取りたい時に使います。</p>
+              </section>
+            </div>
+
+            <div class="note">
+              最初は  
+              <strong>非接触で検知するか</strong>  
+              <strong>接触して位置を取るか</strong>  
+              で見ると分かりやすいです。
+            </div>
+          </section>
+
+          <section id="point" class="card section-anchor">
+            <div class="section-label">現場での見方</div>
+            <h2 class="section-title">現場では「何を見たいのか」「どこに付いているか」で考えると整理しやすいです</h2>
+            <p>
+              センサの種類を覚えるだけより、現場で
+              <strong>何を見たくて、どこに付いていて、PLCへ何を伝えているか</strong>
+              を見る方が理解しやすいです。
+            </p>
+
+            <div class="checklist">
+              <div class="check-item">
+                <strong>1. 何を検知したいのか</strong><br>
+                物の有無か、位置か、通過か、液面かをまず見ます。
+              </div>
+              <div class="check-item">
+                <strong>2. 非接触か接触か</strong><br>
+                近づいたことを見たいのか、実際に当てて位置を取りたいのかで分かれます。
+              </div>
+              <div class="check-item">
+                <strong>3. PLCのどの入力に入っているか</strong><br>
+                X0、X1など、どの入力番地へ入っているかを見ると回路が追いやすくなります。
+              </div>
+              <div class="check-item">
+                <strong>4. その後どの出力につながるか</strong><br>
+                センサが入ったあと、何が動くのかまで見たいです。
+              </div>
+            </div>
+
+            <div class="note caution">
+              センサが悪いのか、配線が悪いのか、PLC側の条件が悪いのかは混ざりやすいです。  
+              実機の表示、センサのLED、入力モニタ、ラダーの流れをセットで見ると絞りやすいです。
+            </div>
+          </section>
+
+          <section id="plc-view" class="card section-anchor">
+            <div class="section-label">PLCから見る</div>
+            <h2 class="section-title">PLCから見れば、センサは「判断材料を送ってくる入力側」です</h2>
+            <p>
+              PLCの中で自己保持やインターロック、タイマなどを動かす前提になるのが入力信号です。
+              その入力信号の元になるものの一つがセンサです。
+            </p>
+            <p>
+              だから、センサの記事は「入力と出力の違い」の次に読むとつながりやすいですし、
+              このあと近接センサや光電センサを個別記事に分ける時の入口にもなります。
+            </p>
+          </section>
+
+          <section id="faq" class="card section-anchor">
+            <div class="section-label">よくある疑問</div>
+            <h2 class="section-title">センサでよくある疑問</h2>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. センサは入力ですか？</div>
+              <p>A. 基本的には入力です。センサは現場の状態をPLCへ伝える側だからです。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. リミットスイッチもセンサですか？</div>
+              <p>A. 広い意味では同じく検知機器として扱えます。この記事では、入力機器として比較しやすいように並べています。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. まず何から見分ければいいですか？</div>
+              <p>A. 何を検知したいのか、非接触か接触か、PLCのどの入力へ入るか、この3つから見ると整理しやすいです。</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-label">関連記事</div>
+            <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <p>
+              センサの基本が見えてきたら、次は入力と出力、PLC、ラダー図の見方と合わせて読むとつながりやすいです。
+            </p>
+
+            <div class="footer-nav">
+              <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
+              <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-card">
+            <h2>この記事の流れ</h2>
+            <nav class="toc" aria-label="目次">
+              <a href="#basic-idea">センサとは</a>
+              <a href="#flow">PLCとの流れ</a>
+              <a href="#types">種類の違い</a>
+              <a href="#point">現場での見方</a>
+              <a href="#plc-view">PLCから見た役割</a>
+              <a href="#faq">よくある疑問</a>
+            </nav>
+          </section>
+
+          <section class="side-card">
+            <h2>この記事で分かること</h2>
+            <ul>
+              <li>センサの基本的な役割</li>
+              <li>PLC入力との関係</li>
+              <li>種類ごとの違い</li>
+              <li>現場での見方</li>
+            </ul>
+            <div class="btn-group">
+              <a class="btn btn-primary" href="#types">種類の違いを見る</a>
+              <a class="btn btn-secondary" href="#point">現場での見方を見る</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h2>ひとこと</h2>
+            <p style="margin:0; font-size:14px; color:var(--muted);">
+              センサは入力機器の中でもかなり重要です。  
+              「何を見て、PLCへ何を伝えているか」で見るとかなり整理しやすくなります。
+            </p>
+          </section>
+
+          <section class="side-card">
+            <h2>関連記事</h2>
+            <div class="related-grid">
+              <a class="related-item" href="input-output-basic.html">
+                <img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いの記事">
+                <div>
+                  <p class="related-item-title">入力と出力の違いとは？</p>
+                  <p class="related-item-desc">入力（X）と出力（Y）の違いを基礎から整理した記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-item" href="plc-basic.html">
+                <img src="../assets/images/plc-basic/plc-basic-ogp.png" alt="PLCとは何か？の記事">
+                <div>
+                  <p class="related-item-title">PLCとは何か？</p>
+                  <p class="related-item-desc">PLCの全体像と役割をやさしく整理した入口記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-item" href="ladder-reading.html">
+                <img src="../assets/images/ladder-reading/ladder-reading-ogp.png" alt="ラダー図の読み方入門の記事">
+                <div>
+                  <p class="related-item-title">ラダー図の読み方入門</p>
+                  <p class="related-item-desc">入力信号がラダーでどう使われるかを追いやすく整理した記事です。</p>
+                </div>
+              </a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+    </div>
+  </footer>
+
+  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
+</body>
+</html>

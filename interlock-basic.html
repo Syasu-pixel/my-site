@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インターロック回路とは？同時動作を防ぐ考え方をやさしく整理｜電気工事士向け実務メモ</title>
+  <meta name="description" content="インターロック回路とは何かを、電気工事士向けにやさしく整理した入門記事です。自己保持との違い、正転・逆転での考え方、基本回路の見方、トラブル時の確認ポイントまで現場で追いやすい形で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/interlock-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="インターロック回路とは？同時動作を防ぐ考え方をやさしく整理">
+  <meta property="og:description" content="インターロック回路とは何かを、電気工事士向けにやさしく整理した入門記事です。自己保持との違い、正転・逆転での考え方、基本回路の見方、トラブル時の確認ポイントまで現場で追いやすい形で解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/interlock-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/interlock-basic/interlock-basic-ogp.png">
+  <meta property="og:site_name" content="現場目線の工具ガイド">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="インターロック回路とは？同時動作を防ぐ考え方をやさしく整理">
+  <meta name="twitter:description" content="インターロック回路とは何かを、電気工事士向けにやさしく整理した入門記事です。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/interlock-basic/interlock-basic-ogp.png">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #5b6777;
+      --line: #d9e0ea;
+      --accent: #1677ff;
+      --accent-soft: #eef5ff;
+      --green: #1f9d55;
+      --green-soft: #eaf8f0;
+      --orange: #f59e0b;
+      --orange-soft: #fff4df;
+      --danger: #e5484d;
+      --danger-soft: #fff1f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --header-h: 78px;
+      --content-w: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--content-w), calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.88);
+      border-bottom: 1px solid rgba(217, 224, 234, 0.9);
+    }
+
+    .site-header-inner {
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand a {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-main {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    main {
+      padding: 22px 0 64px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .breadcrumb span {
+      opacity: 0.7;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fbfdff 0%, #f3f8ff 100%);
+      border: 1px solid #d9e6ff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4.5vw, 40px);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+
+    .audience-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .audience-card--good {
+      background: var(--green-soft);
+      border-color: #cfead8;
+    }
+
+    .audience-card--notyet {
+      background: var(--orange-soft);
+      border-color: #f7dcaa;
+    }
+
+    .audience-card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .audience-card ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .summary-box {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .summary-box h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .summary-box p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .jump-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 20px;
+      align-items: start;
+      margin-top: 22px;
+    }
+
+    .article {
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section-anchor {
+      scroll-margin-top: calc(var(--header-h) + 18px);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h2.section-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.45;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      font-size: 15px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f8fbff;
+      padding: 14px 14px 14px 16px;
+      border-radius: 0 14px 14px 0;
+      margin: 14px 0;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .note.caution {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .point-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .point-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .point-card h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .article-figure {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .article-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .article-figure figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .faq-item + .faq-item {
+      margin-top: 12px;
+    }
+
+    .faq-q {
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 12px);
+    }
+
+    .side-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .toc {
+      display: grid;
+      gap: 10px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .cta-box {
+      border: 1px solid #d7e5ff;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .btn-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border-color: #cfe0ff;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .related-card {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .related-thumb {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, #eef5ff 0%, #e7f8ef 100%);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .related-thumb span {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .related-body {
+      padding: 14px;
+    }
+
+    .related-title {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .related-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-nav {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .site-footer {
+      padding: 28px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-link {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(31, 42, 55, 0.92);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --header-h: 72px;
+      }
+
+      .content-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      .brand-main {
+        font-size: 16px;
+      }
+
+      .header-nav {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .header-link {
+        min-height: 36px;
+        padding: 7px 11px;
+        font-size: 12px;
+      }
+
+      main {
+        padding-top: 16px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .audience-grid,
+      .point-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      h2.section-title {
+        font-size: 21px;
+      }
+
+      p, ul, ol {
+        font-size: 14px;
+      }
+
+      .jump-link {
+        width: 100%;
+      }
+
+      .top-link {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <div class="brand">
+        <a href="../index.html">
+          <span class="brand-sub">現場目線の工具ガイド</span>
+          <span class="brand-main">電気工事士の工具・実務メモ</span>
+        </a>
+      </div>
+      <nav class="header-nav" aria-label="主要メニュー">
+        <a class="header-link" href="../index.html">トップ</a>
+        <a class="header-link" href="../index.html#categories">工具カテゴリー一覧</a>
+        <a class="header-link" href="../index.html#tips">使い方・コツ記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">トップ</a>
+        <span>›</span>
+        <a href="../index.html#tips">使い方・コツ記事</a>
+        <span>›</span>
+        <span>インターロック回路とは？</span>
+      </nav>
+
+      <section class="hero">
+        <div class="hero-kicker">制御系の基本</div>
+        <h1>インターロック回路とは？<br>同時動作を防ぐ考え方をやさしく整理</h1>
+        <p class="hero-lead">
+          インターロック回路は、<strong>同時に動いてはいけないものが同時に動かないようにするための回路</strong>です。
+          最初は自己保持回路と混ざって見えやすいですが、役割を分けて考えると整理しやすくなります。
+          現場では、正転・逆転の切り替え、前進・後退の切り替え、上昇・下降の切り替えなどでよく出てきます。
+          「なぜ片方しか入らないのか」「なぜ切り替わらないのか」を追う時にも大事な考え方です。
+        </p>
+
+        <div class="audience-grid">
+          <section class="audience-card audience-card--good" aria-labelledby="good-for">
+            <h2 id="good-for">向いている人</h2>
+            <ul>
+              <li>モータの正転・逆転などの回路を見る人</li>
+              <li>設備の同時動作防止の考え方を知りたい人</li>
+              <li>自己保持との違いを整理したい人</li>
+              <li>トラブル時に「なぜ同時ONにならないのか」を追いたい人</li>
+            </ul>
+          </section>
+
+          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
+            <h2 id="notyet-for">まだ不要な人</h2>
+            <ul>
+              <li>まだラダー図の読み方がよく分からない人</li>
+              <li>制御盤や設備に触れる機会がほとんどない人</li>
+              <li>細かい命令や応用制御を先に覚えたい人</li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="summary-box">
+          <h2>先に結論</h2>
+          <p>
+            インターロック回路は、<strong>正転と逆転のように同時ONにしてはいけない出力を、相手側の接点を使って相互にロックする回路</strong>です。
+            片方がONしている時は、もう片方の回路が通らないようにして、機械や設備を守ります。
+            自己保持が「動き続けるため」の回路なら、インターロックは「同時動作を防ぐため」の回路です。
+          </p>
+          <div class="jump-links" aria-label="記事内ジャンプ">
+            <a class="jump-link" href="#basic-idea">インターロックとは</a>
+            <a class="jump-link" href="#why-needed">なぜ必要か</a>
+            <a class="jump-link" href="#basic-circuit">基本回路の見方</a>
+            <a class="jump-link" href="#trouble">トラブル時の見方</a>
+          </div>
+        </section>
+      </section>
+
+      <div class="content-wrap">
+        <article class="article">
+          <section id="basic-idea" class="card section-anchor">
+            <div class="section-label">基本の考え方</div>
+            <h2 class="section-title">インターロック回路とは「片方が入っている時に、もう片方を入れないための回路」です</h2>
+            <p>
+              インターロックは、同時に動くと危ないもの、壊れやすいもの、動作として成立しないものを守るために使います。
+            </p>
+            <p>
+              代表的なのが、モータの<strong>正転・逆転</strong>です。
+              正転と逆転が同時に入ると、設備や機械に無理がかかることがあります。
+              そのため、正転側が入っている時は逆転側が入れない、逆転側が入っている時は正転側が入れない、という形で相互にロックします。
+            </p>
+
+            <div class="point-grid">
+              <section class="point-card">
+                <h3>同時ONを防ぐ</h3>
+                <p>同時に入ると困る出力を、相手側の接点で止めます。</p>
+              </section>
+              <section class="point-card">
+                <h3>設備を守る</h3>
+                <p>誤動作や無理な切り替えを防ぎ、機械側の負担を減らします。</p>
+              </section>
+              <section class="point-card">
+                <h3>役割を分けて見る</h3>
+                <p>自己保持は保持、インターロックは同時動作防止、と役割で分けると整理しやすいです。</p>
+              </section>
+              <section class="point-card">
+                <h3>トラブル確認に役立つ</h3>
+                <p>なぜ切り替わらないかを見る時も、この考え方を知っていると追いやすいです。</p>
+              </section>
+            </div>
+
+            <div class="note">
+              最初は「何となく片方を止めている回路」に見えても大丈夫です。
+              まずは <strong>相手側の接点を入れて、同時ONを防いでいる</strong> と考えるとかなり見やすくなります。
+            </div>
+          </section>
+
+          <section id="why-needed" class="card section-anchor">
+            <div class="section-label">なぜ必要か</div>
+            <h2 class="section-title">インターロックが必要なのは「片方だけ動いてほしい場面」が多いからです</h2>
+            <p>
+              設備では、片方だけ動けばよい場面がよくあります。
+              たとえば正転・逆転、前進・後退、上昇・下降のような動きです。
+            </p>
+            <p>
+              こうした回路で、両方が同時に入ってしまうと、制御としておかしいだけでなく、実機側にも悪影響が出ることがあります。
+              そのため、最初から片方しか入らないようにしておくのがインターロック回路です。
+            </p>
+
+            <h3>よくある使い方</h3>
+            <ul>
+              <li>モータの正転・逆転</li>
+              <li>シリンダの前進・後退</li>
+              <li>昇降装置の上昇・下降</li>
+              <li>片側動作だけ許可したい切り替え回路</li>
+            </ul>
+
+            <div class="note caution">
+              現場では、配線や接点の入れ方が少し違うだけで「片方が全く動かない」「同時に入りそうになる」などの原因になることがあります。
+              だからこそ、インターロックの役割を言葉で理解しておくと追いやすいです。
+            </div>
+          </section>
+
+          <section id="difference" class="card section-anchor">
+            <div class="section-label">混ざりやすい所</div>
+            <h2 class="section-title">自己保持との違いは「何のための回路か」で分けると分かりやすいです</h2>
+            <p>
+              自己保持とインターロックは、同じラダーの中に一緒に入っていることが多いので混ざって見えやすいです。
+              ですが、役割は違います。
+            </p>
+
+            <ul>
+              <li><strong>自己保持</strong>：一度入った出力を、その後も保持するための回路</li>
+              <li><strong>インターロック</strong>：同時に入ってはいけない出力を、相互に止めるための回路</li>
+            </ul>
+
+            <p>
+              例えば正転回路の中に「正転を保持する自己保持接点」があり、さらに「逆転が入っていたら正転を通さないための逆転側b接点」が入ることがあります。
+              こうすると、1本の回路の中に保持とロックの両方が入ります。
+            </p>
+
+            <div class="note">
+              覚え方としては、
+              <strong>自己保持は“続けるため”</strong>、
+              <strong>インターロックは“止めるため”</strong>
+              と考えると整理しやすいです。
+            </div>
+          </section>
+
+          <section id="basic-circuit" class="card section-anchor">
+            <div class="section-label">図で見る</div>
+            <h2 class="section-title">基本回路は「相手側のb接点が入っているか」を見ると追いやすいです</h2>
+            <p>
+              正転・逆転のようなインターロック回路では、それぞれの回路に<strong>相手側コイルのb接点</strong>を直列に入れている形がよくあります。
+            </p>
+            <p>
+              これにより、正転Y0がONしている時は逆転側の回路が通らず、逆転Y1がONしている時は正転側の回路が通らなくなります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/interlock-basic/interlock-basic-flow.png" alt="正転と逆転のインターロック回路の基本図。相手側のb接点を直列に入れて同時ONを防ぐ図。">
+              <figcaption>図1：インターロック回路の基本イメージ。各回路に相手側コイルのb接点を入れて、同時ONを防ぎます。</figcaption>
+            </figure>
+
+            <h3>見るポイント</h3>
+            <ul>
+              <li><strong>正転回路</strong>：正転起動入力の先に、逆転側Y1のb接点が入っているか</li>
+              <li><strong>逆転回路</strong>：逆転起動入力の先に、正転側Y0のb接点が入っているか</li>
+              <li><strong>出力側</strong>：最終的にY0とY1のどちらが入っているか</li>
+            </ul>
+
+            <p>
+              ここで大事なのは、「自分の接点」ではなく<strong>相手側の接点を見ている</strong>ことです。
+              片方が入ったら、もう片方をブロックする考え方です。
+            </p>
+          </section>
+
+          <section id="flow" class="card section-anchor">
+            <div class="section-label">順番で理解</div>
+            <h2 class="section-title">インターロックの流れは「相手が入っていないから通る」と考えると分かりやすいです</h2>
+
+            <h3>1. 正転を入れたい時</h3>
+            <p>
+              正転起動入力が入り、逆転側Y1がまだ入っていなければ、Y1のb接点は通ります。
+              そのため正転側Y0がONできます。
+            </p>
+
+            <h3>2. 正転Y0がONしている時</h3>
+            <p>
+              正転が入ると、逆転回路側ではY0のb接点が開くため、逆転側Y1は通りません。
+              これで同時ONを防ぎます。
+            </p>
+
+            <h3>3. 逆転を入れたい時も同じ</h3>
+            <p>
+              逆転起動入力が入り、正転Y0が入っていなければ、正転側Y0のb接点が通っているためY1がONできます。
+            </p>
+
+            <h3>4. 切り替え時は停止条件も重要</h3>
+            <p>
+              実際の設備では、すぐ反対側へ切り替える前に、一度止める条件やタイミングを入れていることもあります。
+              単純なインターロックだけでなく、停止条件や自己保持解除も一緒に見ることが大事です。
+            </p>
+          </section>
+
+          <section id="trouble" class="card section-anchor">
+            <div class="section-label">実務で大事</div>
+            <h2 class="section-title">動かない時や切り替わらない時は、相手側のb接点から見ると追いやすいです</h2>
+            <p>
+              インターロック回路のトラブルでは、「片方が動かない」「切り替わらない」「同時に入りそうで不安」という見方が多いです。
+              そういう時は、まず<strong>相手側のb接点でブロックされていないか</strong>を見ます。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/interlock-basic/interlock-basic-check.png" alt="インターロック回路の確認ポイント図。停止条件、起動入力、相手側のb接点、出力状態、自己保持の順で確認する図。">
+              <figcaption>図2：インターロック回路の確認ポイント。停止条件、起動入力、相手側のb接点、出力状態、自己保持の順で見ると整理しやすいです。</figcaption>
+            </figure>
+
+            <h3>確認の順番</h3>
+            <ol>
+              <li><strong>停止条件を見る</strong><br>非常停止や停止スイッチで切れていないか確認します。</li>
+              <li><strong>起動入力を見る</strong><br>正転PB・逆転PBなどの入力がちゃんと入っているか見ます。</li>
+              <li><strong>相手側のb接点を見る</strong><br>相手側の出力が入っていて、ブロックされていないか見ます。</li>
+              <li><strong>出力Y0 / Y1を見る</strong><br>どちらが実際にONしているかで状態を整理します。</li>
+              <li><strong>自己保持も見る</strong><br>自己保持が一緒に入っている回路では、保持状態も確認します。</li>
+            </ol>
+
+            <div class="note caution">
+              「片方が全く動かない」時は、相手側のb接点が開いたままになっていないかをまず見たいです。
+              「押しても切り替わらない」時は、出力状態と自己保持解除の流れも一緒に確認したいです。
+            </div>
+
+            <p>
+              現場では、ラダー図だけでなく、実機のランプ、接触器、入力状態、モニタ画面を合わせて見ると原因を絞りやすくなります。
+            </p>
+          </section>
+
+          <section id="remember" class="card section-anchor">
+            <div class="section-label">ここだけ覚える</div>
+            <h2 class="section-title">最初はこの4つを押さえるとかなり見やすくなります</h2>
+            <ol>
+              <li><strong>インターロックは同時ON防止の回路</strong></li>
+              <li><strong>各回路に相手側のb接点を入れることが多い</strong></li>
+              <li><strong>自己保持とは役割が違う</strong></li>
+              <li><strong>トラブル時は相手側のb接点から見ると追いやすい</strong></li>
+            </ol>
+          </section>
+
+          <section id="faq" class="card section-anchor">
+            <div class="section-label">よくある疑問</div>
+            <h2 class="section-title">インターロック回路でよくある疑問</h2>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. インターロックと自己保持は同じですか？</div>
+              <p>A. 同じではありません。自己保持は動き続けるため、インターロックは同時動作を防ぐための回路です。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. どういう場面で使いますか？</div>
+              <p>A. 正転・逆転、前進・後退、上昇・下降など、片方だけ動けばよい回路でよく使います。</p>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Q. 片方が動かない時はどこを見ればいいですか？</div>
+              <p>A. 停止条件、起動入力、相手側のb接点、出力状態、自己保持の順で見ると整理しやすいです。</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-label">関連記事</div>
+            <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <p>
+              インターロックの基本が見えてきたら、次はラダー全体の見方や自己保持、PLCの役割も合わせて読むとつながりやすいです。
+            </p>
+
+            <div class="related-grid">
+              <a class="related-card" href="ladder-reading.html">
+                <div class="related-thumb"><span>入口記事</span></div>
+                <div class="related-body">
+                  <p class="related-title">ラダー図の読み方入門</p>
+                  <p class="related-desc">ラダー図をどこから見ればいいか、a接点・b接点・自己保持の基本をやさしく整理した入口記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="self-hold-circuit.html">
+                <div class="related-thumb"><span>基本回路</span></div>
+                <div class="related-body">
+                  <p class="related-title">自己保持回路とは？まず最初に覚えたい基本回路</p>
+                  <p class="related-desc">起動PB・停止PB・Y0自己保持接点の流れを、現場で追いやすい形で整理した記事です。</p>
+                </div>
+              </a>
+
+              <a class="related-card" href="plc-basic.html">
+                <div class="related-thumb"><span>基本整理</span></div>
+                <div class="related-body">
+                  <p class="related-title">PLCとは何か？電気工事士向けにやさしく整理</p>
+                  <p class="related-desc">シーケンサの役割やリレー回路との違いを、現場目線で整理した入口記事です。</p>
+                </div>
+              </a>
+            </div>
+
+            <div class="footer-nav">
+              <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
+              <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <section class="side-card">
+            <h2>この記事の流れ</h2>
+            <nav class="toc" aria-label="目次">
+              <a href="#basic-idea">インターロックとは</a>
+              <a href="#why-needed">なぜ必要か</a>
+              <a href="#difference">自己保持との違い</a>
+              <a href="#basic-circuit">基本回路の見方</a>
+              <a href="#flow">動作の流れ</a>
+              <a href="#trouble">トラブル時の見方</a>
+              <a href="#remember">ここだけ覚える</a>
+              <a href="#faq">よくある疑問</a>
+            </nav>
+          </section>
+
+          <section class="side-card cta-box">
+            <h2>この記事で分かること</h2>
+            <ul>
+              <li>インターロック回路の基本</li>
+              <li>自己保持との違い</li>
+              <li>正転・逆転回路の見方</li>
+              <li>トラブル時の確認ポイント</li>
+            </ul>
+            <div class="btn-group">
+              <a class="btn btn-primary" href="#basic-circuit">基本回路を見る</a>
+              <a class="btn btn-secondary" href="#trouble">確認ポイントを見る</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h2>ひとこと</h2>
+            <p style="margin:0; font-size:14px; color:var(--muted);">
+              制御系は、難しく見せるより、現場で追いやすいことの方が大事です。
+              インターロックもまずは「どの接点で相手を止めているか」が見えれば十分進めやすくなります。
+            </p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+    </div>
+  </footer>
+
+  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
+</body>
+</html>

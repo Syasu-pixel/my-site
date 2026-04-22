@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タイマー回路とは？｜一定時間後に動く基本の考え方をやさしく解説</title>
+  <meta name="description" content="タイマー回路とは何かを、電気工事士・制御を始めた人向けにやさしく解説。GX Works3を前提に、一定時間後に動く基本の考え方、タイマー接点の見方、現場での使い方を分かりやすくまとめています。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/timer-circuit-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="電気工事士 工具・実務ガイド">
+  <meta property="og:title" content="タイマー回路とは？｜一定時間後に動く基本の考え方をやさしく解説">
+  <meta property="og:description" content="タイマー回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、入力ON→時間を数える→一定時間後に出力ONの流れを分かりやすく解説します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/timer-circuit-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/timer-circuit-basic/timer-circuit-basic-ogp.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="タイマー回路とは？｜一定時間後に動く基本の考え方をやさしく解説">
+  <meta name="twitter:description" content="タイマー回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、入力ON→時間を数える→一定時間後に出力ONの流れを分かりやすく解説します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/timer-circuit-basic/timer-circuit-basic-ogp.webp">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #5b6475;
+      --line: #d9e1ee;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --green: #16a34a;
+      --green-soft: #ecfdf3;
+      --orange: #ea580c;
+      --orange-soft: #fff3eb;
+      --yellow: #f59e0b;
+      --yellow-soft: #fffbeb;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --header-h: 76px;
+      --content-w: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Yu Gothic UI", "Meiryo", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
+      line-height: 1.8;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      opacity: 0.9;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.86);
+      border-bottom: 1px solid rgba(217, 225, 238, 0.9);
+    }
+
+    .site-header-inner {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 12px 16px;
+      min-height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand a {
+      display: inline-block;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .page-wrap {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 18px 16px 64px;
+    }
+
+    .breadcrumbs {
+      margin: 8px 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .breadcrumbs a {
+      color: var(--muted);
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr);
+      gap: 24px;
+      padding: 28px;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.28;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-lead {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-points {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 22px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .hero-points li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: #f8fbff;
+      border: 1px solid #e2ebfb;
+      font-size: 14px;
+    }
+
+    .hero-points strong {
+      color: var(--text);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.4;
+      border: 1px solid transparent;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .hero-visual {
+      background: linear-gradient(180deg, #eef6ff 0%, #f8fbff 100%);
+      border: 1px solid #d9e8ff;
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .hero-visual-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .hero-visual-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #f2f6fd;
+    }
+
+    .hero-visual-caption {
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .intro-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .intro-card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .intro-card ul,
+    .intro-card p {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .intro-card p {
+      padding-left: 0;
+    }
+
+    .intro-card--fit {
+      background: linear-gradient(180deg, #effcf5 0%, #ffffff 100%);
+      border-color: #ccefd9;
+    }
+
+    .intro-card--wait {
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+      border-color: #fed7aa;
+    }
+
+    .intro-card--conclusion {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-color: #bfdbfe;
+    }
+
+    .mini-toc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .mini-toc h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .mini-toc-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-toc-links a {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      background: #f8fbff;
+      border: 1px solid #dce8fb;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .article {
+      min-width: 0;
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 18px;
+      scroll-margin-top: 100px;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+    }
+
+    .section h3 {
+      margin: 22px 0 10px;
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    .section p {
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+
+    .section ul {
+      margin: 0 0 14px;
+      padding-left: 20px;
+    }
+
+    .section li {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .point-box {
+      display: grid;
+      gap: 10px;
+      background: #f8fbff;
+      border: 1px solid #dce8fb;
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .point-box strong {
+      color: var(--blue);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .info-card h3 {
+      margin-top: 0;
+      font-size: 17px;
+    }
+
+    .figure-card {
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      border: 1px solid #dbeafe;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #eef4ff;
+    }
+
+    .figure-card figcaption {
+      padding: 12px 14px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid #dbeafe;
+    }
+
+    .related-section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-top: 12px;
+    }
+
+    .related-section h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .related-item {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: inherit;
+    }
+
+    .related-thumb-wrap {
+      border-radius: 14px;
+      overflow: hidden;
+      background: #eef4ff;
+      border: 1px solid #dbeafe;
+    }
+
+    .related-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .related-title {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .related-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .side-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .side-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .side-card li {
+      margin: 0;
+    }
+
+    .side-card a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .note-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff8e8;
+      border: 1px solid #fde7b0;
+      font-size: 13px;
+      color: #6b4f00;
+      line-height: 1.75;
+    }
+
+    .footer-cta {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border: 1px solid #bfdbfe;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .footer-cta h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .footer-cta p {
+      margin: 0 auto 16px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.9);
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    @media (max-width: 960px) {
+      :root {
+        --header-h: 72px;
+      }
+
+      .hero-inner,
+      .content-grid,
+      .intro-grid,
+      .info-grid,
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        padding: 8px 10px;
+        min-height: 66px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand a {
+        font-size: 14px;
+      }
+
+      .header-nav {
+        width: 100%;
+        gap: 6px;
+      }
+
+      .header-nav a {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .page-wrap {
+        padding: 12px 12px 56px;
+      }
+
+      .hero-inner,
+      .section,
+      .mini-toc,
+      .intro-card,
+      .related-section,
+      .side-card,
+      .footer-cta {
+        padding: 18px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero-lead,
+      .section p,
+      .section li {
+        font-size: 14px;
+      }
+
+      .section h2 {
+        font-size: 22px;
+      }
+
+      .section h3 {
+        font-size: 17px;
+      }
+
+      .related-item {
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .mini-toc-links {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .mini-toc-links a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand">
+        <a href="../index.html">現場目線の工具・実務ガイド<br>電気工事士向け 制御の基本まとめ</a>
+      </div>
+      <nav class="header-nav" aria-label="ページ上部ナビゲーション">
+        <a href="../index.html">トップ</a>
+        <a href="../index.html#categories">カテゴリ一覧</a>
+        <a href="../index.html#tips">使い方・基礎記事</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <nav class="breadcrumbs" aria-label="パンくずリスト">
+      <a href="../index.html">トップ</a> &gt;
+      <a href="../index.html#tips">使い方・基礎記事</a> &gt;
+      <span>タイマー回路とは？</span>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="hero-kicker">CONTROL BASIC</span>
+          <h1>タイマー回路とは？<br>一定時間後に動く基本の考え方をやさしく解説</h1>
+          <p class="hero-lead">
+            タイマー回路は、入力が入ってすぐではなく、少し待ってから出力させたい時に使う基本回路です。
+            GX Works3を前提に、現場で追いやすい見方で整理しました。
+          </p>
+
+          <ul class="hero-points">
+            <li><strong>まず押さえたいこと：</strong> 入力ON → タイマー開始 → 一定時間後に出力ON、という流れで考えると分かりやすいです。</li>
+            <li><strong>この記事で分かること：</strong> タイマー回路の役割、基本ラダーの見方、現場でよくある使い方。</li>
+            <li><strong>向いている人：</strong> PLCを始めたばかりの人、起動・停止回路の次に覚える内容を探している人。</li>
+          </ul>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#toc">先に要点を見る</a>
+            <a class="btn btn-secondary" href="#related">関連記事を見る</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-visual-card">
+            <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-flow.webp" alt="タイマー回路の基本動作イメージ図" loading="eager" decoding="async">
+            <div class="hero-visual-caption">
+              入力が入ってから一定時間を数え、時間が来たら出力する。まずはこの流れで見ると追いやすいです。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-grid" aria-label="導入まとめ">
+      <article class="intro-card intro-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>PLCを始めたばかりの人</li>
+          <li>GX Works3でタイマー命令が気になる人</li>
+          <li>一定時間後に動く回路を知りたい人</li>
+          <li>ラダーを追いやすく理解したい人</li>
+        </ul>
+      </article>
+
+      <article class="intro-card intro-card--wait">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>入力と出力の意味がまだ曖昧な人</li>
+          <li>a接点・b接点がまだ不安な人</li>
+          <li>まずPLC全体の基本から見たい人</li>
+        </ul>
+      </article>
+
+      <article class="intro-card intro-card--conclusion">
+        <h2>先に結論</h2>
+        <p>
+          タイマー回路は、<strong>条件が成立してから決めた時間を数え、その後で出力させる基本回路</strong>です。
+          まずは「条件成立 → 時間を数える → 時間到達で接点が切り替わる」の順番で見ると分かりやすいです。
+        </p>
+      </article>
+    </section>
+
+    <section class="mini-toc" id="toc">
+      <h2>この記事の見どころ</h2>
+      <div class="mini-toc-links">
+        <a href="#what">タイマー回路とは？</a>
+        <a href="#basic-flow">基本動作</a>
+        <a href="#gxworks3">GX Works3での見方</a>
+        <a href="#usage">よくある使い方</a>
+        <a href="#caution">見る時の注意点</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <article class="article">
+        <section class="section" id="what">
+          <h2>タイマー回路とは？</h2>
+          <p>
+            タイマー回路とは、<strong>入力が入ってすぐに動かすのではなく、少し待ってから出力させる回路</strong>です。
+            現場では、順番に動かしたい時や、一瞬の信号では反応させたくない時などにかなりよく使います。
+          </p>
+          <p>
+            PLCではタイマーデバイスを使って表現できるため、リレー回路よりも整理しやすい場面が多いです。
+            ただ、最初のうちは「タイマー本体」と「タイマー接点」がごちゃごちゃになりやすいので、役割を分けて見ることが大事です。
+          </p>
+
+          <div class="point-box">
+            <div><strong>ポイント1：</strong> タイマー本体は時間を数える部分です。</div>
+            <div><strong>ポイント2：</strong> タイマー接点は、時間が来たことを他の回路へ伝える部分です。</div>
+            <div><strong>ポイント3：</strong> タイマー自体が直接機械を動かすのではなく、接点を通じて出力を動かします。</div>
+          </div>
+        </section>
+
+        <section class="section" id="basic-flow">
+          <h2>タイマー回路の基本動作</h2>
+          <p>
+            一番基本の形は、<strong>X0がONしたらT0が動き始め、設定時間後にT0接点がONし、その接点でY0を動かす</strong>という流れです。
+          </p>
+          <p>
+            たとえば、スタートボタンを押してから3秒後にランプを点灯させる、というような回路です。
+            すぐに出力を入れず、少し待ってから動かしたい時に使います。
+          </p>
+
+          <figure class="figure-card">
+            <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-flow.webp" alt="入力ONからタイマー開始、一定時間後に出力ONする流れ図" loading="lazy" decoding="async">
+            <figcaption>入力が入る → タイマーが時間を数える → 設定時間に到達 → 接点が切り替わって出力ON、という流れで見ると分かりやすいです。</figcaption>
+          </figure>
+
+          <div class="info-grid">
+            <article class="info-card">
+              <h3>入力例</h3>
+              <p>X0 = スタートボタンやセンサ入力など、タイマー開始のきっかけになる条件です。</p>
+            </article>
+            <article class="info-card">
+              <h3>出力例</h3>
+              <p>Y0 = ランプ、モーター、バルブなど、一定時間後に動かしたい対象です。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="gxworks3">
+          <h2>GX Works3で見る時の考え方</h2>
+          <p>
+            GX Works3でタイマー回路を見る時は、まず難しく考えすぎず、
+            <strong>何がきっかけでタイマーが動くか、何秒設定か、時間後に何を動かしているか</strong>の3つを順番に見ると追いやすいです。
+          </p>
+
+          <figure class="figure-card">
+            <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ladder.webp" alt="タイマー回路の基本ラダー図イメージ" loading="lazy" decoding="async">
+            <figcaption>GX Works3を意識した基本ラダーのイメージ。まずはスタート条件、タイマー、出力の順で追うと見やすいです。</figcaption>
+          </figure>
+
+          <div class="point-box">
+            <div><strong>1：</strong> どの入力や条件でタイマーがスタートしているかを見る</div>
+            <div><strong>2：</strong> タイマーの設定時間を見る</div>
+            <div><strong>3：</strong> 時間が来たあとで何を動かしているかを見る</div>
+          </div>
+        </section>
+
+        <section class="section" id="usage">
+          <h2>現場でよくあるタイマー回路の使い方</h2>
+          <h3>モーターを少し遅らせて起動する</h3>
+          <p>
+            複数の機器を同時に動かしたくない時や、順番に起動させたい時によく使います。
+          </p>
+
+          <h3>エアシリンダやバルブのタイミングをずらす</h3>
+          <p>
+            センサ確認のあと、すぐではなく少し待ってからバルブを入れるような使い方です。装置の流れを整えたい時に便利です。
+          </p>
+
+          <h3>一瞬の入力では動かさない</h3>
+          <p>
+            信号が少しだけ入った程度では動作させず、一定時間以上しっかり条件が続いた時だけ動かす考え方にも使えます。
+          </p>
+
+          <h3>表示灯やブザーを遅らせる</h3>
+          <p>
+            異常が出た瞬間にすぐ鳴らすのではなく、少し待ってから知らせたい時に使うことがあります。
+          </p>
+        </section>
+
+        <section class="section" id="caution">
+          <h2>タイマー回路を見る時の注意点</h2>
+          <h3>入力が途中で切れたらどうなるか</h3>
+          <p>
+            基本回路では、入力が途中で切れるとタイマーもリセットされることが多いです。
+            そのため、時間到達前に条件が消えたら出力しない、という動きになります。
+          </p>
+
+          <h3>自己保持と組み合わせるかどうか</h3>
+          <p>
+            スタートボタンを押した瞬間だけでタイマーを最後まで動かしたい場合は、自己保持回路と組み合わせることがあります。
+          </p>
+
+          <h3>a接点・b接点の使い方</h3>
+          <p>
+            時間が来たらONしたいのか、時間が来るまでONしていたいのかで接点の使い方が変わります。
+            ここはa接点・b接点の基本と一緒に見ると理解しやすいです。
+          </p>
+        </section>
+
+        <section class="section" id="summary">
+          <h2>まとめ</h2>
+          <p>
+            タイマー回路は、<strong>時間を使って動作タイミングを作るための基本回路</strong>です。
+          </p>
+          <p>
+            まずは、
+          </p>
+          <ul>
+            <li>条件が成立する</li>
+            <li>タイマーが時間を数える</li>
+            <li>時間が来たら接点が切り替わる</li>
+            <li>その接点で出力する</li>
+          </ul>
+          <p>
+            この流れで見られるようになると、GX Works3のラダーもかなり追いやすくなります。
+            最初は難しい応用より、基本形をしっかり読めるようにしておくのがおすすめです。
+          </p>
+        </section>
+
+        <section class="related-section" id="related">
+          <h2>あわせて見たい関連記事</h2>
+          <div class="related-grid">
+            <a class="related-item" href="start-stop-circuit-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.webp" alt="起動・停止回路とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">起動・停止回路とは？</p>
+                <p class="related-desc">回路の流れをシンプルに追う練習をしたい時に見やすい基本記事です。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="a-b-contact-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/a-b-contact-basic/a-b-contact-basic-ogp.webp" alt="a接点・b接点とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">a接点・b接点とは？</p>
+                <p class="related-desc">タイマー接点の見方とあわせて押さえておくと、回路をかなり追いやすくなります。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="input-output-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いとは？の記事">
+              </div>
+              <div>
+                <p class="related-title">入力と出力の違いとは？</p>
+                <p class="related-desc">PLCを始めたばかりで、XとYの役割がまだ曖昧な人向けです。</p>
+              </div>
+            </a>
+
+            <a class="related-item" href="one-shot-circuit-basic.html">
+              <div class="related-thumb-wrap">
+                <img class="related-thumb" src="../assets/images/common/ogp.jpg" alt="ワンショット回路とは？の記事">
+              </div>
+              <div>
+                <p class="related-title">ワンショット回路とは？</p>
+                <p class="related-desc">一瞬だけ動かす回路も気になる人向け。次に広げやすいテーマです。</p>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section class="footer-cta">
+          <h2>次に見るなら、回路のつながりで覚えるのがおすすめです</h2>
+          <p>
+            タイマー回路は、起動・停止回路、a接点・b接点、ワンショット回路などとつなげて見ると理解しやすくなります。
+            1つずつ無理なく増やしていけば、ラダーの見え方がかなり変わってきます。
+          </p>
+          <div class="hero-actions" style="justify-content:center;">
+            <a class="btn btn-primary" href="start-stop-circuit-basic.html">起動・停止回路を見る</a>
+            <a class="btn btn-secondary" href="a-b-contact-basic.html">a接点・b接点を見る</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="sidebar" aria-label="右カラム">
+        <section class="side-card">
+          <h2>目次</h2>
+          <ul>
+            <li><a href="#what">タイマー回路とは？</a></li>
+            <li><a href="#basic-flow">基本動作</a></li>
+            <li><a href="#gxworks3">GX Works3での見方</a></li>
+            <li><a href="#usage">現場での使い方</a></li>
+            <li><a href="#caution">見る時の注意点</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h2>この記事の要点</h2>
+          <div class="note-list">
+            <div class="note-item">タイマー回路は「少し待ってから動かす」ための基本回路です。</div>
+            <div class="note-item">見る順番は「きっかけ → 時間 → 出力」で十分です。</div>
+            <div class="note-item">タイマー本体とタイマー接点を分けて考えると理解しやすいです。</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <a class="scroll-top" href="#top" aria-label="ページ上部へ戻る" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">↑</a>
+</body>
+</html>

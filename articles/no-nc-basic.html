@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理</title>
+  <meta name="description" content="NO / NC の違いを初心者向けにやさしく整理。Normally Open・Normally Closed の意味、押しボタン・リレー・PLC入力での見方、a接点・b接点との関係まで現場目線で分かりやすく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/no-nc-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理">
+  <meta property="og:description" content="NO / NC の基本、押しボタン・リレー・PLC入力での見方、a接点・b接点との関係を初心者向けにやさしく整理。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/no-nc-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/no-nc-basic/no-nc-basic-ogp.png">
+  <meta property="og:site_name" content="電気工事士向け工具・実務メディア">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理">
+  <meta name="twitter:description" content="NO / NC の違い、押しボタン・リレー・PLC入力での見方を現場目線でやさしく整理。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/no-nc-basic/no-nc-basic-ogp.png">
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#1d2a3a;
+      --muted:#627086;
+      --line:#dbe3ee;
+      --blue:#1f67d2;
+      --blue-soft:#eef5ff;
+      --orange:#f57c00;
+      --orange-soft:#fff4e9;
+      --green:#25a55b;
+      --green-soft:#edf9f1;
+      --navy:#17345f;
+      --shadow:0 10px 28px rgba(20, 40, 80, 0.08);
+      --radius:18px;
+      --header-offset:84px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.8;
+    }
+
+    img{
+      max-width:100%;
+      height:auto;
+      display:block;
+      border-radius:16px;
+    }
+
+    a{
+      color:var(--blue);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(calc(100% - 28px), var(--max));
+      margin:0 auto;
+    }
+
+    .breadcrumb-wrap{
+      background:#fff;
+      border-bottom:1px solid var(--line);
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      font-size:0.92rem;
+      color:var(--muted);
+      padding:14px 0;
+    }
+
+    .breadcrumb span{
+      color:#9aa7ba;
+    }
+
+    .page{
+      padding:24px 0 64px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%, #f6fbff 100%);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      margin-bottom:22px;
+    }
+
+    .hero-labels{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:0.9rem;
+      font-weight:700;
+    }
+
+    .pill-green{
+      background:var(--green-soft);
+      color:var(--green);
+      border:1px solid #cfeeda;
+    }
+
+    .pill-blue{
+      background:var(--blue-soft);
+      color:var(--blue);
+      border:1px solid #d6e7ff;
+    }
+
+    .hero h1{
+      font-size:clamp(1.85rem, 4.5vw, 2.8rem);
+      line-height:1.25;
+      margin:0 0 12px;
+      color:#132e55;
+    }
+
+    .lead{
+      font-size:1.03rem;
+      color:#334155;
+      margin:0;
+    }
+
+    .hero-note{
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:#334155;
+    }
+
+    .quick-boxes{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      margin:22px 0;
+    }
+
+    .quick-box{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .quick-box h2{
+      margin:0 0 10px;
+      font-size:1.1rem;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .quick-box ul{
+      margin:0;
+      padding-left:1.2em;
+    }
+
+    .quick-box li{
+      margin:8px 0;
+    }
+
+    .box-fit h2{color:var(--green);}
+    .box-nope h2{color:var(--orange);}
+    .box-conclusion h2{color:var(--blue);}
+
+    .mini-toc{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:22px;
+    }
+
+    .mini-toc h2{
+      margin:0 0 12px;
+      font-size:1.05rem;
+      color:var(--navy);
+    }
+
+    .mini-toc .toc-links{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#f8fbff;
+      border:1px solid #d9e9ff;
+      color:#214a7f;
+      font-weight:700;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr);
+      gap:22px;
+    }
+
+    .article{
+      min-width:0;
+    }
+
+    .sidebar{
+      min-width:0;
+    }
+
+    .sticky{
+      position:sticky;
+      top:calc(var(--header-offset) + 12px);
+      display:grid;
+      gap:16px;
+    }
+
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .side-card h2,
+    .side-card h3{
+      margin:0 0 12px;
+      font-size:1rem;
+      color:var(--navy);
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:1.15em;
+    }
+
+    .side-card li{
+      margin:8px 0;
+      color:#415165;
+    }
+
+    .article-section{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:22px;
+      margin-bottom:18px;
+      box-shadow:var(--shadow);
+      scroll-margin-top:calc(var(--header-offset) + 18px);
+    }
+
+    .article-section h2{
+      font-size:1.45rem;
+      line-height:1.35;
+      margin:0 0 14px;
+      color:#123158;
+    }
+
+    .article-section h3{
+      font-size:1.12rem;
+      margin:24px 0 10px;
+      color:#20456d;
+    }
+
+    .article-section p{
+      margin:0 0 14px;
+    }
+
+    .article-section p:last-child{
+      margin-bottom:0;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .info-card{
+      border-radius:18px;
+      padding:18px;
+      border:2px solid;
+      background:#fff;
+    }
+
+    .info-card.blue{
+      border-color:#b8d3ff;
+      background:var(--blue-soft);
+    }
+
+    .info-card.orange{
+      border-color:#ffd0aa;
+      background:var(--orange-soft);
+    }
+
+    .info-card h3{
+      margin:0 0 10px;
+      font-size:1.15rem;
+    }
+
+    .info-card.blue h3{color:var(--blue);}
+    .info-card.orange h3{color:var(--orange);}
+
+    .image-box{
+      margin:18px 0 8px;
+    }
+
+    figure{
+      margin:0;
+    }
+
+    figcaption{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:0.94rem;
+    }
+
+    .check-list,
+    .step-list{
+      padding-left:1.2em;
+      margin:0;
+    }
+
+    .check-list li,
+    .step-list li{
+      margin:8px 0;
+    }
+
+    .tip{
+      border-left:4px solid var(--green);
+      background:var(--green-soft);
+      border-radius:14px;
+      padding:14px 16px;
+      margin:16px 0;
+    }
+
+    .warn{
+      border-left:4px solid var(--orange);
+      background:var(--orange-soft);
+      border-radius:14px;
+      padding:14px 16px;
+      margin:16px 0;
+    }
+
+    .compare-list{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .compare-item{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .compare-item h3{
+      margin:0 0 8px;
+    }
+
+    .compare-item.blue{
+      border-color:#d1e3ff;
+      background:#fbfdff;
+    }
+
+    .compare-item.orange{
+      border-color:#ffd8b6;
+      background:#fffaf6;
+    }
+
+    .compare-item.blue h3{color:var(--blue);}
+    .compare-item.orange h3{color:var(--orange);}
+
+    .cta-box{
+      background:linear-gradient(135deg,#17345f 0%, #25518d 100%);
+      color:#fff;
+      border-radius:20px;
+      padding:20px;
+      margin-top:14px;
+    }
+
+    .cta-box h2{
+      color:#fff;
+      margin:0 0 10px;
+    }
+
+    .cta-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 16px;
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn-primary{
+      background:#fff;
+      color:#17345f;
+    }
+
+    .btn-secondary{
+      background:transparent;
+      color:#fff;
+      border-color:rgba(255,255,255,.45);
+    }
+
+    .related{
+      margin-top:18px;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    .related-card{
+      display:block;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      transform:translateY(-1px);
+    }
+
+    .related-card .tag{
+      display:inline-block;
+      font-size:0.8rem;
+      font-weight:700;
+      color:var(--blue);
+      background:var(--blue-soft);
+      border:1px solid #d8e8ff;
+      border-radius:999px;
+      padding:5px 10px;
+      margin-bottom:10px;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:1.03rem;
+      color:#16345c;
+    }
+
+    .related-card p{
+      margin:0;
+      color:#536377;
+      font-size:0.95rem;
+      line-height:1.7;
+    }
+
+    .footer-note{
+      color:var(--muted);
+      font-size:0.92rem;
+      text-align:center;
+      margin-top:26px;
+    }
+
+    @media (min-width: 720px){
+      .quick-boxes{
+        grid-template-columns:repeat(3, 1fr);
+      }
+
+      .mini-toc .toc-links{
+        grid-template-columns:repeat(2, 1fr);
+      }
+
+      .info-grid{
+        grid-template-columns:repeat(2, 1fr);
+      }
+
+      .compare-list{
+        grid-template-columns:repeat(2, 1fr);
+      }
+
+      .related-grid{
+        grid-template-columns:repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px){
+      .layout{
+        grid-template-columns:minmax(0, 1fr) 300px;
+        align-items:start;
+      }
+
+      .hero{
+        padding:28px;
+      }
+
+      .article-section{
+        padding:26px;
+      }
+
+      .mini-toc .toc-links{
+        grid-template-columns:repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="breadcrumb-wrap">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#control">制御系記事</a>
+        <span>›</span>
+        <span>NO / NC の違いとは？</span>
+      </nav>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-labels">
+          <span class="pill pill-green">初心者向け</span>
+          <span class="pill pill-blue">電気工事士・制御入門</span>
+        </div>
+        <h1>NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理</h1>
+        <p class="lead">
+          制御を見始めると、押しボタンやリレー、センサの説明で NO / NC という表記がよく出てきます。
+          この記事では、難しく見せるよりも「通常時にどうなっていて、押した時・動作した時にどう変わるか」が分かるように、現場目線でやさしく整理します。
+        </p>
+        <div class="hero-note">
+          <strong>先にひとこと：</strong>
+          NO = Normally Open（通常開） / NC = Normally Closed（通常閉）。まずはここだけ押さえれば大丈夫です。
+        </div>
+      </section>
+
+      <section class="quick-boxes" aria-label="記事の冒頭整理">
+        <div class="quick-box box-fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>NO / NC の意味を基礎から整理したい人</li>
+            <li>押しボタンやリレーの接点表記で混乱しやすい人</li>
+            <li>PLC入力の見方を現物とセットで理解したい人</li>
+          </ul>
+        </div>
+        <div class="quick-box box-nope">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>NO / NC を現場でほぼ迷わず読めている人</li>
+            <li>補助接点やメーカー記号まで十分理解できている人</li>
+            <li>詳細設計や安全回路を深く扱っている人</li>
+          </ul>
+        </div>
+        <div class="quick-box box-conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li><strong>NO</strong> = Normally Open（通常開）</li>
+            <li><strong>NC</strong> = Normally Closed（通常閉）</li>
+            <li>押した時・動作時の変化で見ると整理しやすい</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc">
+        <h2>ミニ目次</h2>
+        <div class="toc-links">
+          <a href="#what-is">NO / NC とは？</a>
+          <a href="#basic">まずは基本の意味</a>
+          <a href="#use-cases">現場でよくある使い方</a>
+          <a href="#plc-view">PLC入力ではどう見る？</a>
+          <a href="#relation">a接点・b接点との関係</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="layout">
+        <article class="article">
+          <section id="what-is" class="article-section">
+            <h2>NO / NC とは？</h2>
+            <p>
+              NO / NC は、接点の状態を表す英語表記です。
+              NO は <strong>Normally Open</strong>、NC は <strong>Normally Closed</strong> の略です。
+            </p>
+            <p>
+              つまり、<strong>通常時に開いているか、閉じているか</strong> をそのまま表しています。
+              ここでいう通常時は、ボタンを押していない、コイルが入っていない、機器が動作していない状態です。
+            </p>
+
+            <div class="image-box">
+              <figure>
+                <img src="../assets/images/no-nc-basic/no-nc-basic-01.png" alt="NOとNCの基本を比較した図。NOは通常開で押すと閉じ、NCは通常閉で押すと開くことを説明している。">
+                <figcaption>画像1：NO / NC の基本比較。まずは「通常時」と「動作時」の違いだけ見ればOKです。</figcaption>
+              </figure>
+            </div>
+
+            <div class="tip">
+              <strong>ポイント：</strong>
+              英語表記だけで覚えるよりも、「普段どうなっていて、押した時にどう変わるか」で見る方が現場では追いやすいです。
+            </div>
+          </section>
+
+          <section id="basic" class="article-section">
+            <h2>まずは基本の意味</h2>
+
+            <div class="info-grid">
+              <div class="info-card blue">
+                <h3>NO</h3>
+                <p>NO は <strong>Normally Open</strong> です。通常時は<strong>開</strong>で、押したり動作したりすると<strong>閉</strong>になります。</p>
+                <ul class="check-list">
+                  <li>普段は電気が流れない</li>
+                  <li>動作した時に電気が流れる</li>
+                  <li>「普段OFF → 動作でON」と考えると分かりやすい</li>
+                </ul>
+              </div>
+
+              <div class="info-card orange">
+                <h3>NC</h3>
+                <p>NC は <strong>Normally Closed</strong> です。通常時は<strong>閉</strong>で、押したり動作したりすると<strong>開</strong>になります。</p>
+                <ul class="check-list">
+                  <li>普段は電気が流れている</li>
+                  <li>動作した時に電気が切れる</li>
+                  <li>「普段ON → 動作でOFF」と考えると分かりやすい</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="warn">
+              <strong>混乱しやすい点：</strong>
+              ここでいう通常時は、設備全体の運転状態ではなく、接点そのものを操作していない状態を基準に考えます。
+            </div>
+          </section>
+
+          <section id="use-cases" class="article-section">
+            <h2>現場でよくある使い方</h2>
+            <p>
+              現場では、NO / NC は押しボタン、リレー・電磁接触器、PLC入力の見方などでよく出てきます。
+              名前だけで覚えるよりも、実際にどこで見るかを知っておくとかなり追いやすくなります。
+            </p>
+
+            <div class="image-box">
+              <figure>
+                <img src="../assets/images/no-nc-basic/no-nc-basic-02.png" alt="NOとNCがどこで使われるかを説明した図。押しボタン、リレー・電磁接触器、PLC入力の見方が整理されている。">
+                <figcaption>画像2：押しボタン、リレー・電磁接触器、PLC入力での見方をまとめた図です。</figcaption>
+              </figure>
+            </div>
+
+            <h3>1. 押しボタン</h3>
+            <p>
+              押しボタンでは、スタート側に NO、ストップ側に NC が使われることがあります。
+              スタートは押した時に信号を入れたいので NO が分かりやすく、ストップは押した時に切れる考え方になるので NC が使われることがあります。
+            </p>
+            <div class="warn">
+              <strong>注意：</strong>
+              ここは回路の作り方で変わるので、「必ずこの組み合わせ」と決めつけず、現物と回路を確認した方が安心です。
+            </div>
+
+            <h3>2. リレー・電磁接触器</h3>
+            <p>
+              リレーや電磁接触器では、接点に NO / NC の表記が付いていることがあります。
+              コイルがOFFの時は NO が開、NC が閉。コイルがONになると、NO が閉、NC が開に切り替わります。
+            </p>
+
+            <h3>3. PLC入力の見方</h3>
+            <p>
+              現場では、名称だけでなく<strong>押した時にPLC入力がどう変わるか</strong>を見るのが大事です。
+              たとえば、押したら入力がONになるなら NO っぽく、押したら入力がOFFになるなら NC っぽいと考えると整理しやすいです。
+            </p>
+          </section>
+
+          <section id="plc-view" class="article-section">
+            <h2>PLC入力ではどう見る？</h2>
+            <p>
+              PLCで確認する時は、接点の名前だけを追うよりも、<strong>普段の状態 → 操作した時の変化 → 回路と合っているか</strong> の3つをセットで見るのが基本です。
+            </p>
+
+            <div class="compare-list">
+              <div class="compare-item blue">
+                <h3>NOっぽい見方</h3>
+                <ul class="check-list">
+                  <li>普段は入力OFF</li>
+                  <li>押す / 動作する と入力ON</li>
+                  <li>例：スタート側、信号を入れたい入力</li>
+                </ul>
+              </div>
+
+              <div class="compare-item orange">
+                <h3>NCっぽい見方</h3>
+                <ul class="check-list">
+                  <li>普段は入力ON</li>
+                  <li>押す / 動作する と入力OFF</li>
+                  <li>例：停止側、監視側で使うことがある</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="tip">
+              <strong>現場での見方：</strong>
+              画面だけではなく、現物のボタンやリレーの状態も一緒に見てください。画面・現物・配線をセットで見ると切り分けしやすいです。
+            </div>
+          </section>
+
+          <section id="relation" class="article-section">
+            <h2>a接点・b接点との関係</h2>
+            <p>
+              NO / NC は、a接点・b接点とかなり近い考え方です。
+              ざっくり整理すると、次のように考えて大きくは問題ありません。
+            </p>
+
+            <div class="compare-list">
+              <div class="compare-item blue">
+                <h3>NO ≒ a接点</h3>
+                <p>通常開で、動作すると閉じる考え方です。</p>
+              </div>
+
+              <div class="compare-item orange">
+                <h3>NC ≒ b接点</h3>
+                <p>通常閉で、動作すると開く考え方です。</p>
+              </div>
+            </div>
+
+            <p>
+              ただ、最初は無理に全部一気に覚えなくても大丈夫です。
+              まずは <strong>NO / NC 単体で意味が分かること</strong> を優先した方が整理しやすいです。
+            </p>
+
+            <h3>よくある混乱</h3>
+            <ul class="check-list">
+              <li><strong>NO = ON ではない</strong> → NO は通常開です</li>
+              <li><strong>NC = 危ない接点ではない</strong> → 停止や監視でかなり重要です</li>
+              <li><strong>英語表記だけで止まらない</strong> → 通常時と動作時の変化で見る</li>
+            </ul>
+          </section>
+
+          <section id="summary" class="article-section">
+            <h2>まとめ</h2>
+            <p>
+              NO / NC は、制御を触り始めた時にかなりよく出てくる基本表記です。
+              まずは次の2つを押さえるのがおすすめです。
+            </p>
+
+            <div class="info-grid">
+              <div class="info-card blue">
+                <h3>NO</h3>
+                <p><strong>通常開</strong></p>
+              </div>
+              <div class="info-card orange">
+                <h3>NC</h3>
+                <p><strong>通常閉</strong></p>
+              </div>
+            </div>
+
+            <p>
+              そのあとに、押した時どう変わるか、PLC入力がどう変わるか、a接点・b接点とどうつながるかを見ていくとかなり追いやすくなります。
+            </p>
+
+            <div class="cta-box">
+              <h2>次に読むとつながりやすい記事</h2>
+              <p>
+                NO / NC の次は、a接点・b接点と行き来しながら読むとかなり理解しやすくなります。
+                すでにある記事なら、入力と出力、自己保持回路、リミットスイッチも相性が良いです。
+              </p>
+              <div class="cta-buttons">
+                <a class="btn btn-primary" href="../index.html#control">制御系記事一覧を見る</a>
+                <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
+              </div>
+            </div>
+
+            <div class="related">
+              <h3>関連記事</h3>
+              <div class="related-grid">
+                <a class="related-card" href="a-contact-b-contact-basic.html">
+                  <span class="tag">関連記事</span>
+                  <h3>a接点・b接点とは？</h3>
+                  <p>NO / NC とかなり近い考え方の基本。通常時と動作時の変化をやさしく整理した記事です。</p>
+                </a>
+
+                <a class="related-card" href="input-output-basic.html">
+                  <span class="tag">関連記事</span>
+                  <h3>入力と出力の違いとは？</h3>
+                  <p>制御を読む時の基本になる「入力」「出力」の違いを整理した記事です。</p>
+                </a>
+
+                <a class="related-card" href="self-hold-circuit.html">
+                  <span class="tag">関連記事</span>
+                  <h3>自己保持回路とは？</h3>
+                  <p>接点の動きを回路で見る時につながりやすい基本回路です。</p>
+                </a>
+
+                <a class="related-card" href="limit-switch-basic.html">
+                  <span class="tag">関連記事</span>
+                  <h3>リミットスイッチとは？</h3>
+                  <p>接点が切り替わって入力が変わる考え方を、現物寄りに理解しやすい記事です。</p>
+                </a>
+              </div>
+            </div>
+          </section>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sticky">
+            <section class="side-card">
+              <h2>このページの要点</h2>
+              <ul>
+                <li>NO = Normally Open（通常開）</li>
+                <li>NC = Normally Closed（通常閉）</li>
+                <li>押した時にどう変わるかで見る</li>
+                <li>a接点・b接点ともつながる</li>
+              </ul>
+            </section>
+
+            <nav class="side-card" aria-label="記事内目次">
+              <h2>目次</h2>
+              <ul>
+                <li><a href="#what-is">NO / NC とは？</a></li>
+                <li><a href="#basic">まずは基本の意味</a></li>
+                <li><a href="#use-cases">現場でよくある使い方</a></li>
+                <li><a href="#plc-view">PLC入力ではどう見る？</a></li>
+                <li><a href="#relation">a接点・b接点との関係</a></li>
+                <li><a href="#summary">まとめ</a></li>
+              </ul>
+            </nav>
+
+            <section class="side-card">
+              <h3>次に読む候補</h3>
+              <ul>
+                <li><a href="a-contact-b-contact-basic.html">a接点・b接点とは？</a></li>
+                <li><a href="input-output-basic.html">入力と出力の違いとは？</a></li>
+                <li><a href="self-hold-circuit.html">自己保持回路とは？</a></li>
+              </ul>
+            </section>
+          </div>
+        </aside>
+      </div>
+
+      <p class="footer-note">
+        この記事は、電気工事士・制御初心者が現場で追いやすいことを優先して構成しています。
+      </p>
+    </div>
+  </main>
+</body>
+</html>

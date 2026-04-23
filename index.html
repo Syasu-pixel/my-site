@@ -80,6 +80,9 @@
       overflow-x:hidden;
       padding-top:var(--header-h);
     }
+    body.modal-open{
+      overflow:hidden;
+    }
     img{
       display:block;
       max-width:100%;
@@ -866,6 +869,89 @@
       font-weight:900;
       color:#1d4ed8;
       white-space:nowrap;
+      cursor:pointer;
+    }
+    .shelf-more:hover{
+      border-color:#93c5fd;
+      background:#eff6ff;
+    }
+
+    .category-modal{
+      position:fixed;
+      inset:0;
+      z-index:1200;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:rgba(15,23,42,.48);
+    }
+    .category-modal[hidden]{
+      display:none;
+    }
+    .category-modal__panel{
+      width:min(100%,580px);
+      max-height:min(82vh,720px);
+      overflow:auto;
+      background:#fff;
+      border-radius:16px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 24px 50px rgba(15,23,42,.22);
+      padding:18px 18px 16px;
+    }
+    .category-modal__header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .category-modal__title{
+      margin:0;
+      font-size:20px;
+      line-height:1.4;
+      color:#0f172a;
+    }
+    .category-modal__close{
+      border:1px solid #cbd5e1;
+      background:#fff;
+      color:#1e293b;
+      border-radius:999px;
+      min-height:34px;
+      padding:0 14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .category-modal__close:hover{
+      background:#f8fafc;
+    }
+    .category-modal__description{
+      margin:0 0 10px;
+      font-size:14px;
+      color:#475569;
+      line-height:1.6;
+    }
+    .category-modal__list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .category-modal__list a{
+      display:block;
+      padding:10px 12px;
+      border:1px solid #dbeafe;
+      border-radius:10px;
+      background:#f8fbff;
+      color:#1e3a8a;
+      font-weight:700;
+      line-height:1.5;
+    }
+    .category-modal__list a:hover{
+      border-color:#93c5fd;
+      background:#eff6ff;
     }
 
     footer{
@@ -1126,6 +1212,25 @@
       }
     }
 
+    @media (max-width:640px){
+      .category-modal{
+        align-items:flex-end;
+        padding:10px;
+      }
+      .category-modal__panel{
+        width:100%;
+        max-height:86vh;
+        border-radius:14px 14px 10px 10px;
+        padding:16px 14px 14px;
+      }
+      .category-modal__title{
+        font-size:17px;
+      }
+      .category-modal__list a{
+        font-size:14px;
+      }
+    }
+
     @media (max-width:480px){
       body{
         padding-top:72px;
@@ -1367,7 +1472,7 @@
                 <li><a href="articles/a-contact-b-contact-basic.html">a接点・b接点の違いを理解する</a></li>
               </ol>
               <div class="shelf-link-footer">
-                <a href="#shelf-control" class="shelf-more">すべてを見る</a>
+                <button type="button" class="shelf-more" data-modal-target="modal-control" aria-haspopup="dialog" aria-controls="modal-control">すべてを見る</button>
               </div>
             </div>
           </article>
@@ -1395,7 +1500,7 @@
                 <li><a href="articles/alternate-operation-circuit-basic.html">交互運転回路とは？</a></li>
               </ol>
               <div class="shelf-link-footer">
-                <a href="#shelf-circuit" class="shelf-more">すべてを見る</a>
+                <button type="button" class="shelf-more" data-modal-target="modal-circuit" aria-haspopup="dialog" aria-controls="modal-circuit">すべてを見る</button>
               </div>
             </div>
           </article>
@@ -1423,7 +1528,7 @@
                 <li><a href="articles/electrician-knife.html">電工ナイフの選び方と使い分け</a></li>
               </ol>
               <div class="shelf-link-footer">
-                <a href="#shelf-tools" class="shelf-more">すべてを見る</a>
+                <button type="button" class="shelf-more" data-modal-target="modal-tools" aria-haspopup="dialog" aria-controls="modal-tools">すべてを見る</button>
               </div>
             </div>
           </article>
@@ -1451,13 +1556,85 @@
                 <li><a href="articles/proximity-sensor-basic.html">近接センサの特徴と選び分け</a></li>
               </ol>
               <div class="shelf-link-footer">
-                <a href="#shelf-compare" class="shelf-more">すべてを見る</a>
+                <button type="button" class="shelf-more" data-modal-target="modal-compare" aria-haspopup="dialog" aria-controls="modal-compare">すべてを見る</button>
               </div>
             </div>
           </article>
         </div>
       </section>
     </div>
+
+      <div class="category-modal" id="modal-control" role="dialog" aria-modal="true" aria-labelledby="modal-title-control" hidden>
+        <div class="category-modal__panel" role="document">
+          <div class="category-modal__header">
+            <h2 class="category-modal__title" id="modal-title-control">制御の基礎の記事一覧</h2>
+            <button type="button" class="category-modal__close" data-modal-close>閉じる</button>
+          </div>
+          <p class="category-modal__description">制御の基本用語と入出力・センサ理解に役立つ記事です。</p>
+          <ul class="category-modal__list">
+            <li><a href="articles/plc-basic.html">制御とは？ 概要をつかもう</a></li>
+            <li><a href="articles/input-output-basic.html">入力・出力・制御の関係</a></li>
+            <li><a href="articles/sensor-basic.html">ON/OFF制御の基本</a></li>
+            <li><a href="articles/a-contact-b-contact-basic.html">a接点・b接点の違いを理解する</a></li>
+            <li><a href="articles/no-nc-basic.html">NO / NC の違いを押さえる</a></li>
+            <li><a href="articles/interlock-basic.html">インターロック回路の基本をやさしく解説</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="category-modal" id="modal-circuit" role="dialog" aria-modal="true" aria-labelledby="modal-title-circuit" hidden>
+        <div class="category-modal__panel" role="document">
+          <div class="category-modal__header">
+            <h2 class="category-modal__title" id="modal-title-circuit">回路の記事一覧</h2>
+            <button type="button" class="category-modal__close" data-modal-close>閉じる</button>
+          </div>
+          <p class="category-modal__description">回路図の読み方から自己保持・タイマーまで、基礎回路を一覧化しています。</p>
+          <ul class="category-modal__list">
+            <li><a href="articles/self-hold-circuit.html">自己保持回路とは？</a></li>
+            <li><a href="articles/timer-circuit-basic.html">タイマー回路とは？</a></li>
+            <li><a href="articles/one-shot-circuit-basic.html">ワンショット回路とは？</a></li>
+            <li><a href="articles/alternate-operation-circuit-basic.html">交互運転回路とは？</a></li>
+            <li><a href="articles/start-stop-circuit-basic.html">スイッチとランプで簡単な回路を作ってみる</a></li>
+            <li><a href="articles/ladder-reading.html">ラダー図の読み方をやさしく整理</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="category-modal" id="modal-tools" role="dialog" aria-modal="true" aria-labelledby="modal-title-tools" hidden>
+        <div class="category-modal__panel" role="document">
+          <div class="category-modal__header">
+            <h2 class="category-modal__title" id="modal-title-tools">工具の記事一覧</h2>
+            <button type="button" class="category-modal__close" data-modal-close>閉じる</button>
+          </div>
+          <p class="category-modal__description">現場で使う基本工具と周辺ツールの使い方をまとめています。</p>
+          <ul class="category-modal__list">
+            <li><a href="articles/driver.html">ドライバーの正しい選び方</a></li>
+            <li><a href="articles/crimping-tools.html">圧着工具の使い方の基本</a></li>
+            <li><a href="articles/tester.html">テスターの使い方入門</a></li>
+            <li><a href="articles/electrician-knife.html">電工ナイフの選び方と使い分け</a></li>
+            <li><a href="articles/stripper.html">ワイヤーストリッパーの選び方と使い方</a></li>
+            <li><a href="articles/cable-cutter.html">ケーブルカッターの選び方と使い方</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="category-modal" id="modal-compare" role="dialog" aria-modal="true" aria-labelledby="modal-title-compare" hidden>
+        <div class="category-modal__panel" role="document">
+          <div class="category-modal__header">
+            <h2 class="category-modal__title" id="modal-title-compare">比較・使い分けの記事一覧</h2>
+            <button type="button" class="category-modal__close" data-modal-close>閉じる</button>
+          </div>
+          <p class="category-modal__description">特徴の違いと使い分け判断をまとめた比較系記事です。</p>
+          <ul class="category-modal__list">
+            <li><a href="articles/no-nc-basic.html">NO / NC の違いを押さえる</a></li>
+            <li><a href="articles/npn-pnp-basic.html">NPN / PNP の使い分けを理解する</a></li>
+            <li><a href="articles/photoelectric-sensor-basic.html">光電センサの特徴と使い分け</a></li>
+            <li><a href="articles/proximity-sensor-basic.html">近接センサの特徴と選び分け</a></li>
+            <li><a href="articles/crimping-hydraulic-vs-electric.html">油圧式と電動式の圧着工具を比較する</a></li>
+            <li><a href="articles/tepra-vs-lettertwin.html">テプラとレタツインの違いを比較する</a></li>
+          </ul>
+        </div>
+      </div>
 
     <footer>
       現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。
@@ -1468,6 +1645,82 @@
 
   <script>
     const scrollTopBtn = document.getElementById('scrollTopBtn');
+    const modalTriggers = document.querySelectorAll('[data-modal-target]');
+    const modals = document.querySelectorAll('.category-modal');
+    let activeModal = null;
+    let lastFocusedElement = null;
+
+    const closeModal = () => {
+      if (!activeModal) {
+        return;
+      }
+      activeModal.hidden = true;
+      activeModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      if (lastFocusedElement) {
+        lastFocusedElement.focus();
+      }
+      activeModal = null;
+    };
+
+    const openModal = (modalId, trigger) => {
+      const modal = document.getElementById(modalId);
+      if (!modal) {
+        return;
+      }
+      lastFocusedElement = trigger;
+      activeModal = modal;
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      const closeButton = modal.querySelector('[data-modal-close]');
+      if (closeButton) {
+        closeButton.focus();
+      }
+    };
+
+    modalTriggers.forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        openModal(trigger.dataset.modalTarget, trigger);
+      });
+    });
+
+    modals.forEach((modal) => {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+      modal.querySelectorAll('[data-modal-close]').forEach((button) => {
+        button.addEventListener('click', closeModal);
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!activeModal) {
+        return;
+      }
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+      if (event.key === 'Tab') {
+        const focusables = activeModal.querySelectorAll('a[href], button:not([disabled])');
+        if (!focusables.length) {
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
     window.addEventListener('scroll', () => {
       scrollTopBtn.style.display = window.scrollY > 420 ? 'inline-flex' : 'none';
     });

@@ -170,23 +170,56 @@
       border-color:#dbeafe;
     }
 
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
     .header-search{
       flex:0 0 220px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
       min-height:42px;
-      padding:0 14px;
       border-radius:999px;
       border:1px solid var(--line);
       background:#fff;
       color:var(--muted-2);
       box-shadow:var(--shadow-soft);
     }
-    .header-search span{
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
       font-size:12px;
-      color:#94a3b8;
+      color:#334155;
       font-weight:700;
+    }
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
     .header-search-icon{
       width:16px;
@@ -206,6 +239,79 @@
       right:-5px;
       bottom:-2px;
       transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
     }
 
     .container{
@@ -1120,12 +1226,15 @@
         display:none;
       }
       .header-search{
-        flex:0 0 132px;
+        flex:0 0 160px;
         min-height:36px;
-        padding:0 12px;
+        padding:0 10px;
       }
-      .header-search span{
+      .search-box-input{
         font-size:11px;
+      }
+      .search-box-panel{
+        width:min(94vw,420px);
       }
 
       .container{
@@ -1304,9 +1413,9 @@
         font-size:14px;
       }
       .header-search{
-        flex:0 0 112px;
+        flex:0 0 136px;
         min-height:34px;
-        padding:0 10px;
+        padding:0 8px;
       }
       .hero-title{
         font-size:28px;
@@ -1357,10 +1466,17 @@
         <a href="#category" class="header-link">棚一覧</a>
       </nav>
 
-      <div class="header-search" aria-label="検索UI">
-        <span>キーワードで検索</span>
-        <div class="header-search-icon" aria-hidden="true"></div>
-      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
     </div>
   </header>
 
@@ -1779,5 +1895,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
+  <script src="assets/js/site-search.js"></script>
 </body>
 </html>

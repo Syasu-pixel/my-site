@@ -606,22 +606,79 @@
       }
     }
 
+    /* unified fixed header */
+    body { padding-top: var(--header-h); }
+    .site-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 1100; }
+    .site-header .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .site-header .brand-logo { width: 44px; height: 44px; object-fit: contain; border-radius: 8px; flex: 0 0 auto; }
+    .site-header .brand-copy { display: grid; gap: 2px; min-width: 0; }
+    .site-header .brand-main { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.25; }
+    .site-header .brand-sub { margin: 0; font-size: 11px; font-weight: 700; color: var(--muted); line-height: 1.3; }
+    .header-search { position: relative; width: min(320px, 100%); margin-left: auto; }
+    .search-box-input { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; padding: 0 44px 0 14px; font-size: 14px; background: #fff; }
+    .search-box-button { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); width: 32px; height: 32px; border: 0; border-radius: 50%; background: #1d4ed8; cursor: pointer; }
+    .header-search-icon { display: block; width: 14px; height: 14px; margin: 0 auto; border: 2px solid #fff; border-radius: 50%; position: relative; }
+    .header-search-icon::after { content: ""; position: absolute; width: 7px; height: 2px; background: #fff; right: -5px; bottom: -2px; transform: rotate(45deg); }
+    .search-box-panel { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12); padding: 6px; }
+    .search-box-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+    .search-result-item a { display: grid; gap: 2px; padding: 9px 10px; border-radius: 10px; }
+    .search-result-item a:hover, .search-result-item.is-active a { background: #eff6ff; }
+    .search-result-title { margin: 0; font-size: 13px; font-weight: 700; }
+    .search-result-meta, .search-result-description, .search-box-empty { margin: 0; font-size: 12px; color: var(--muted); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 960px) {
+      :root { --header-h: 150px; }
+      .site-header-inner { align-items: flex-start !important; flex-direction: column; gap: 10px; }
+      .header-nav { width: 100%; justify-content: flex-start !important; }
+      .header-search { width: 100%; margin-left: 0; }
+    }
+    @media (max-width: 768px) {
+      :root { --header-h: 118px; }
+      .site-header-inner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+      .site-header .brand-sub { display: none !important; }
+      .header-nav { display: none !important; }
+      .header-search { width: 100% !important; margin-left: 0 !important; }
+      .search-box-input { min-height: 38px !important; font-size: 13px !important; }
+    }
+    @media (max-width: 480px) {
+      :root { --header-h: 112px; }
+    }
+
   </style>
 </head>
 <body id="top">
-  <header class="site-header">
+    <header class="site-header">
     <div class="container site-header-inner">
-      <div class="brand">
-        <a href="../index.html">
-          <span class="brand-sub">現場目線の工具ガイド</span>
-          <span class="brand-main">電気工事士の工具・実務メモ</span>
-        </a>
-      </div>
-      <nav class="header-nav" aria-label="主要メニュー">
-        <a class="header-link" href="../index.html">トップ</a>
-        <a class="header-link" href="../index.html#categories">工具カテゴリー一覧</a>
-        <a class="header-link" href="../index.html#tips">使い方・コツ記事</a>
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-main">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a class="header-link" href="../index.html">ホーム</a>
+        <a class="header-link" href="../index.html#featured">人気記事</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
       </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
     </div>
   </header>
 
@@ -861,8 +918,7 @@
             </p>
 
             <div class="footer-nav">
-              <a class="btn btn-secondary" href="../index.html">トップへ戻る</a>
-              <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
             </div>
           </section>
         </article>
@@ -967,5 +1023,6 @@
   </footer>
 
   <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

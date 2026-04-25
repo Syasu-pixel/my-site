@@ -21,137 +21,314 @@
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/common/ogp.jpg">
 
   <style>
+  :root {
+    --header-h: 78px;
+    --line: #dbe7f3;
+    --text: #0f172a;
+    --muted: #64748b;
+    --bg: #f4f8fc;
+    --bg-soft: #eef5ff;
+    --card: #ffffff;
+    --card-soft: #f8fbff;
+    --brand: #2563eb;
+    --brand-dark: #0ea5e9;
+    --brand-soft: #eff6ff;
+    --accent: #f97316;
+    --accent-dark: #ea580c;
+    --accent-soft: #fff7ed;
+    --dark-outline: #1f2937;
+    --shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+    --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.06);
+    --radius-xl: 24px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --max: 1120px;
+  }
+
+  body {
+    margin: 0;
+    padding-top: var(--header-h);
+  }
+
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    background: #fff;
+    border-bottom: 1px solid #dbe7f3;
+  }
+
+  .site-header-inner {
+    width: min(100% - 32px, 1120px);
+    margin: 0 auto;
+    min-height: var(--header-h);
+    padding: 8px 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(230px, 320px);
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    text-decoration: none;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    flex: 0 0 auto;
+  }
+
+  .brand-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .brand-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--text);
+  }
+
+  .brand-sub {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .header-link:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .header-search,
+  .search-box {
+    position: relative;
+    width: min(320px, 100%);
+    margin-left: auto;
+  }
+
+  .search-box-input {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 44px 0 14px;
+    font-size: 14px;
+    background: #fff;
+    color: #0f172a;
+  }
+
+  .search-box-button {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: #1d4ed8;
+    cursor: pointer;
+  }
+
+  .header-search-icon {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 0 auto;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .header-search-icon::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 2px;
+    background: #fff;
+    right: -5px;
+    bottom: -2px;
+    transform: rotate(45deg);
+  }
+
+  .search-box-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(440px, 92vw);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    padding: 6px;
+    max-height: min(72vh, 640px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .search-box-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .search-box-empty {
+    margin: 0;
+    padding: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .search-result-item {
+    margin: 0;
+  }
+
+  .search-result-item a {
+    display: grid;
+    gap: 2px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    text-decoration: none;
+  }
+
+  .search-result-item.is-active a,
+  .search-result-item a:hover {
+    background: #eff6ff;
+  }
+
+  .search-result-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .search-result-category,
+  .search-result-description {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .card[id] {
+    scroll-margin-top: 108px;
+  }
+
+  @media (max-width: 960px) {
     :root {
-      --bg: #f4f8fc;
-      --bg-soft: #eef5ff;
-      --card: #ffffff;
-      --card-soft: #f8fbff;
-      --text: #1f2937;
-      --muted: #4b5563;
-      --line: #d7e3ee;
-      --brand: #2563eb;
-      --brand-dark: #0ea5e9;
-      --brand-soft: #eff6ff;
-      --accent: #f97316;
-      --accent-dark: #ea580c;
-      --accent-soft: #fff7ed;
-      --dark-outline: #1f2937;
-      --shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
-      --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.06);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --max: 1120px;
-      --header-h: 82px;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-
-    body {
-      margin: 0;
-      min-width: 320px;
-      padding-top: 92px;
-      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Arial, sans-serif;
-      line-height: 1.8;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(15, 118, 110, 0.08) 0, transparent 32%),
-        radial-gradient(circle at top right, rgba(249, 115, 22, 0.08) 0, transparent 24%),
-        linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
-      word-break: break-word;
-      overflow-wrap: break-word;
-      overflow-x: hidden;
-    }
-
-    img { display: block; max-width: 100%; height: auto; }
-    a { color: inherit; text-decoration: none; transition: .2s ease; }
-
-    .site-header {
-      position: fixed;
-      inset: 0 0 auto;
-      width: 100%;
-      z-index: 1000;
-      padding: 8px 10px; background:#fff !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+      --header-h: 100px;
     }
 
     .site-header-inner {
-      width: min(100%, 1160px);
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 12px;
-      min-width: 0;
-      flex: 1 1 auto;
-    }
-
-    .brand {
-      min-width: 0;
-      display: block;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+      min-height: var(--header-h);
       padding: 6px 0;
     }
 
-    .brand-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 800;
-      color: #dcfce7;
-      background: rgba(255, 255, 255, 0.09);
-      border: 1px solid rgba(220, 252, 231, 0.34);
-      border-radius: 999px;
-      padding: 4px 10px;
-      margin-bottom: 6px;
-      letter-spacing: .04em;
-    }
-
-    .brand-title {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.35;
-      color: #fff;
-      font-weight: 900;
-      letter-spacing: .01em;
-      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
-    }
-
     .header-nav {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      flex-shrink: 0;
+      display: none;
     }
 
-    .header-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.25;
-      text-align: center;
-      color: #004d40;
-      background: #e0f2e9;
-      border: 1px solid rgba(220,252,231,0.5);
+    .header-search,
+    .search-box {
+      width: 100%;
+      margin-left: 0;
     }
 
-    .header-link:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.16);
-      filter: brightness(1.02);
+    .card[id] {
+      scroll-margin-top: 102px;
     }
+  }
+
+  @media (max-width: 768px) {
+    :root {
+      --header-h: 92px;
+    }
+
+    .site-header-inner {
+      padding: 6px 0;
+    }
+
+    .brand-sub {
+      display: none;
+    }
+
+    .search-box-panel {
+      width: min(94vw, 420px);
+      max-height: min(68vh, 520px);
+    }
+
+    .search-box-input {
+      min-height: 38px;
+      font-size: 13px;
+    }
+
+    .card[id] {
+      scroll-margin-top: 96px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    :root {
+      --header-h: 86px;
+    }
+  }
 
     .container {
       width: 100%;
@@ -854,131 +1031,6 @@
         grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
       }
     }
-
-    @media (max-width: 768px) {
-      body { padding-top: 84px; }
-
-      .site-header {
-        padding: 6px 6px;
-      }
-
-      .header-top {
-        gap: 8px;
-      }
-
-      .brand-title {
-        font-size: 15px;
-      }
-
-      .brand-label {
-        display: none !important;
-        margin-bottom: 4px;
-      }
-
-      .header-nav {
-        gap: 6px;
-      }
-
-      .header-link {
-        min-height: 36px;
-        padding: 7px 7px;
-        font-size: 11px;
-      }
-
-      .container {
-        padding: 16px 12px 86px;
-      }
-
-      .hero,
-      .summary,
-      .section,
-      .cta-box {
-        padding: 18px;
-        border-radius: 20px;
-      }
-
-      .section h2,
-      .summary h2,
-      .cta-box h2 {
-        font-size: 22px;
-      }
-
-      .tool-title {
-        font-size: 21px;
-      }
-
-      .hero-points {
-        grid-template-columns: 1fr;
-      }
-
-      .mini-toc-links {
-        grid-template-columns: 1fr;
-      }
-
-      .btn {
-        min-height: 50px;
-        width: 100%;
-      }
-
-      .btn-row {
-        flex-direction: column;
-      }
-
-      .tool-image {
-        aspect-ratio: 21 / 9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px 8px 4px;
-      }
-
-      .tool-image img {
-        width: min(100%, 246px);
-        height: auto;
-        max-height: 148px;
-        object-fit: contain;
-        margin: 0 auto;
-      }
-
-      .tool-image--hand-holder {
-        aspect-ratio: 20 / 9;
-      }
-
-      .tool-image--hand-holder img {
-        max-height: 138px;
-        padding: 6px;
-      }
-
-      .related-grid {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        grid-template-columns: none;
-        scroll-snap-type: x proximity;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .related-item {
-        min-width: min(280px, calc(100vw - 56px));
-        flex: 0 0 min(280px, calc(100vw - 56px));
-        scroll-snap-align: start;
-      }
-
-      .related-thumb {
-        height: 100px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body { padding-top: 78px; }
-      .site-header { background:#fff !important; }
-      .header-link { padding: 7px 6px; }
-      .hero { padding: 16px; }
-      h1 { font-size: 28px; }
-      .tool-image img { max-height: 134px; }
-      .tool-image--hand-holder img { max-height: 124px; }
-    }
   </style>
 
   <script type="text/javascript">
@@ -991,19 +1043,34 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="site-header-inner">
-      <div class="header-top">
-        <a class="brand" href="../">
-          <span class="brand-label">GENBA TOOL GUIDE</span>
-          <p class="brand-title">現場目線の工具ガイド / 電気工事士 工具まとめ</p>
-        </a>
-        <nav class="header-nav" aria-label="ヘッダーナビ">
-          <a class="header-link" href="../#category">工具カテゴリー一覧</a>
-          <a class="header-link" href="../#tips">使い方・コツ記事</a>
-        </nav>
+  <div class="site-header-inner">
+    <a href="../index.html" class="brand" aria-label="トップページへ移動">
+      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+      <div class="brand-copy">
+        <p class="brand-title">電気と制御の実務メモ</p>
+        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
       </div>
-    </div>
-  </header>
+    </a>
+
+    <nav class="header-nav" aria-label="グローバルナビゲーション">
+      <a class="header-link" href="../index.html">ホーム</a>
+      <a class="header-link" href="../index.html#featured">人気記事</a>
+      <a class="header-link" href="../index.html#category">カテゴリ</a>
+    </nav>
+
+    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="sr-only" for="site-search-input">サイト内検索</label>
+      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+      <button class="search-box-button" type="submit" aria-label="検索">
+        <span class="header-search-icon" aria-hidden="true"></span>
+      </button>
+      <div class="search-box-panel" id="site-search-panel" hidden>
+        <ul class="search-box-results" id="site-search-results"></ul>
+        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+      </div>
+    </form>
+  </div>
+</header>
 
   <main>
     <div class="container">
@@ -1312,5 +1379,6 @@
   </main>
 
   <button class="scroll-top" type="button" aria-label="ページ上部へ戻る" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</button>
+  <script src="../assets/js/site-search.js" defer></script>
 </body>
 </html>

@@ -412,6 +412,42 @@
       gap:8px;
       margin-bottom:14px;
     }
+    .section-head--with-filter{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .section-title-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    .article-filter{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .article-filter-label{
+      font-size:12px;
+      font-weight:900;
+      color:#475569;
+      white-space:nowrap;
+    }
+    .article-filter select{
+      min-height:36px;
+      border-radius:999px;
+      border:1px solid #c4b5fd;
+      background:#fff;
+      color:#7c3aed;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.2;
+      padding:0 34px 0 12px;
+      cursor:pointer;
+    }
     .section-bar{
       width:4px;
       height:24px;
@@ -589,6 +625,62 @@
       font-size:12px;
       line-height:1.65;
       font-weight:700;
+    }
+
+    #articles .article-row[hidden]{
+      display:none !important;
+    }
+
+    .article-shelf--grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    @media (min-width:744px){
+      .article-shelf--grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:12px;
+      }
+    }
+
+    .article-shelf--grid .article-row{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:8px;
+      min-height:0;
+      height:100%;
+      padding:10px;
+    }
+
+    .article-shelf--grid .article-row h3{
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .article-shelf--grid .article-row p{
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .article-shelf--grid .compare-thumb,
+    .article-shelf--grid .article-thumb-img{
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      padding:0;
+      border-radius:0;
+      overflow:visible;
+    }
+
+    .article-shelf--grid .compare-thumb img,
+    .article-shelf--grid .article-thumb-img img{
+      display:block;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+      object-position:center;
     }
 
     .compare-groups{
@@ -790,6 +882,23 @@
       .brand-sub{
         display:none !important;
       }
+      .section-head--with-filter{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .article-filter{
+        width:100%;
+        justify-content:space-between;
+      }
+
+      .article-filter select{
+        width:100%;
+      }
+
+      .article-shelf--grid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -910,16 +1019,28 @@
         </section>
 
         <section class="section-card" id="articles" aria-labelledby="articles-heading">
-          <div class="section-head">
-            <span class="section-bar" aria-hidden="true"></span>
-            <h2 class="section-title" id="articles-heading">比較・使い分け記事一覧</h2>
+          <div class="section-head section-head--with-filter">
+            <div class="section-title-wrap">
+              <span class="section-bar" aria-hidden="true"></span>
+              <h2 class="section-title" id="articles-heading">比較・使い分け記事一覧</h2>
+            </div>
+            <label class="article-filter">
+              <span class="article-filter-label">表示を絞り込む</span>
+              <select id="comparisonArticleFilter" aria-label="比較・使い分け記事を分類で絞り込む">
+                <option value="all">すべて表示</option>
+                <option value="control">制御用語</option>
+                <option value="tools">工具</option>
+                <option value="measure">測定・表示</option>
+                <option value="device">機器</option>
+              </select>
+            </label>
           </div>
           <p class="section-lead">
             記事が増えても探しやすいように、<span class="mark">制御用語 → 工具 → 測定・表示 → 機器</span> の順で並べます。
           </p>
 
-          <div class="article-shelf">
-            <a class="article-row" href="../articles/no-nc-basic.html">
+          <div class="article-shelf article-shelf--grid">
+            <a class="article-row" href="../articles/no-nc-basic.html" data-comparison-category="control">
               <img class="compare-thumb" src="../assets/images/no-nc-basic/no-nc-basic-ogp.png" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>NO / NC の違いを押さえる</h3>
@@ -927,7 +1048,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/npn-pnp-basic.html">
+            <a class="article-row" href="../articles/npn-pnp-basic.html" data-comparison-category="control">
               <img class="compare-thumb" src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>NPN / PNP の使い分けを理解する</h3>
@@ -935,7 +1056,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/a-contact-b-contact-basic.html">
+            <a class="article-row" href="../articles/a-contact-b-contact-basic.html" data-comparison-category="control">
               <img class="compare-thumb" src="../assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-ogp.png" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>a接点・b接点の違いを理解する</h3>
@@ -943,7 +1064,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/tepra-vs-lettertwin.html">
+            <a class="article-row" href="../articles/tepra-vs-lettertwin.html" data-comparison-category="measure">
               <img class="compare-thumb" src="../assets/images/tepra/tepra.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>テプラとレタツインの違い</h3>
@@ -951,7 +1072,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/crimping-hydraulic-vs-electric.html">
+            <a class="article-row" href="../articles/crimping-hydraulic-vs-electric.html" data-comparison-category="tools">
               <img class="compare-thumb" src="../assets/images/crimp/crimping-hydraulic-electric.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>油圧式と電動式の使い分け</h3>
@@ -959,7 +1080,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/driver.html">
+            <a class="article-row" href="../articles/driver.html" data-comparison-category="tools">
               <img class="compare-thumb" src="../assets/images/driver/driver-main.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>ドライバーの選び方と使い分け</h3>
@@ -967,7 +1088,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/charging-tools.html">
+            <a class="article-row" href="../articles/charging-tools.html" data-comparison-category="tools">
               <img class="compare-thumb" src="../assets/images/charging-tools/charging-main.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>ドリルドライバとインパクトの使い分け</h3>
@@ -975,7 +1096,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/tester.html">
+            <a class="article-row" href="../articles/tester.html" data-comparison-category="measure">
               <img class="compare-thumb" src="../assets/images/tester/tester-main.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>テスターで分かること・分からないこと</h3>
@@ -983,7 +1104,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/mega.html">
+            <a class="article-row" href="../articles/mega.html" data-comparison-category="measure">
               <img class="compare-thumb" src="../assets/images/mega/mega-main.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>テスターとメガーの違い</h3>
@@ -991,7 +1112,7 @@
               </span>
             </a>
 
-            <a class="article-row" href="../articles/cable-cutter.html">
+            <a class="article-row" href="../articles/cable-cutter.html" data-comparison-category="tools">
               <img class="compare-thumb" src="../assets/images/cable-cutter/cable-cutter-main.jpg" alt="" loading="lazy" decoding="async">
               <span>
                 <h3>ケーブルカッターの使い分け</h3>
@@ -1089,5 +1210,20 @@
       <p>電気と制御の実務メモ｜現場で使える考え方を、少しずつ整理しています。</p>
     </footer>
   </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var filter = document.getElementById('comparisonArticleFilter');
+      var cards = document.querySelectorAll('#articles .article-row[data-comparison-category]');
+      if(!filter || !cards.length) return;
+
+      filter.addEventListener('change', function(){
+        var value = filter.value;
+        cards.forEach(function(card){
+          var show = value === 'all' || card.dataset.comparisonCategory === value;
+          card.hidden = !show;
+        });
+      });
+    });
+  </script>
 </body>
 </html>

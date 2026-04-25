@@ -1353,11 +1353,16 @@
       font-weight:800;
       color:#334155;
       white-space:nowrap;
+      cursor:pointer;
     }
     .finder-pill.active{
       color:#fff;
       background:var(--blue);
       border-color:var(--blue);
+    }
+    .category-shelf-hidden,
+    .shelf-row[hidden]{
+      display:none !important;
     }
 
     .mobile-shortcuts{
@@ -3173,11 +3178,11 @@
             </div>
 
             <div class="finder-pills">
-              <a href="#category" class="finder-pill active">すべて</a>
-              <a href="#shelf-control" class="finder-pill">制御の基礎</a>
-              <a href="#shelf-circuit" class="finder-pill">回路</a>
-              <a href="#shelf-tools" class="finder-pill">工具</a>
-              <a href="#shelf-compare" class="finder-pill">比較・使い分け</a>
+              <button class="finder-pill category-filter active" type="button" data-category-filter="all" aria-pressed="true">すべて</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="control" aria-pressed="false">制御の基礎</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="circuit" aria-pressed="false">回路</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="tools" aria-pressed="false">工具</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="compare" aria-pressed="false">比較・使い分け</button>
             </div>
 
             <div class="mobile-shortcuts" aria-label="スマホ用ショートカット">
@@ -3204,7 +3209,7 @@
             <div class="category-layout">
               <div class="category-main">
             <div class="shelf-stack">
-              <article class="shelf-row control" id="shelf-control">
+              <article class="shelf-row control" id="shelf-control" data-category-shelf="control">
             <div class="shelf-label">
               <div class="shelf-label-icon">📘</div>
               <div class="shelf-label-text">制御の基礎</div>
@@ -3236,7 +3241,7 @@
             </div>
               </article>
 
-              <article class="shelf-row circuit" id="shelf-circuit">
+              <article class="shelf-row circuit" id="shelf-circuit" data-category-shelf="circuit">
             <div class="shelf-label">
               <div class="shelf-label-icon">🔁</div>
               <div class="shelf-label-text">回路</div>
@@ -3268,7 +3273,7 @@
             </div>
               </article>
 
-              <article class="shelf-row tools" id="shelf-tools">
+              <article class="shelf-row tools" id="shelf-tools" data-category-shelf="tools">
             <div class="shelf-label">
               <div class="shelf-label-icon">🛠</div>
               <div class="shelf-label-text">工具</div>
@@ -3300,7 +3305,7 @@
             </div>
               </article>
 
-              <article class="shelf-row compare" id="shelf-compare">
+              <article class="shelf-row compare" id="shelf-compare" data-category-shelf="compare">
             <div class="shelf-label">
               <div class="shelf-label-icon">⚖️</div>
               <div class="shelf-label-text">比較・使い分け</div>
@@ -3552,6 +3557,32 @@
         }
       });
     }
+
+    const categoryFilterButtons = document.querySelectorAll('[data-category-filter]');
+    const categoryShelves = document.querySelectorAll('[data-category-shelf]');
+
+    const applyCategoryFilter = (selectedCategory) => {
+      categoryFilterButtons.forEach((button) => {
+        const isSelected = button.dataset.categoryFilter === selectedCategory;
+        button.classList.toggle('active', isSelected);
+        button.classList.toggle('is-active', isSelected);
+        button.setAttribute('aria-pressed', String(isSelected));
+      });
+
+      categoryShelves.forEach((shelf) => {
+        const shouldShow = selectedCategory === 'all' || shelf.dataset.categoryShelf === selectedCategory;
+        shelf.hidden = !shouldShow;
+        shelf.classList.toggle('category-shelf-hidden', !shouldShow);
+      });
+    };
+
+    categoryFilterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        applyCategoryFilter(button.dataset.categoryFilter || 'all');
+      });
+    });
+
+    applyCategoryFilter('all');
   </script>
   <script src="assets/js/site-search.js"></script>
 </body>

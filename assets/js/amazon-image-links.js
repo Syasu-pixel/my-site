@@ -36,6 +36,15 @@
     return null;
   }
 
+  function shouldSkipImage(img) {
+    return Boolean(
+      img.hasAttribute('data-no-amazon-link') ||
+      img.closest('[data-no-amazon-link]') ||
+      img.closest('.lan-article-image') ||
+      img.closest('.lan-guide-visual')
+    );
+  }
+
   function wrapProductImage(img, href) {
     if (!href || img.closest('a')) return;
 
@@ -52,6 +61,8 @@
     const images = Array.from(document.querySelectorAll('img'));
 
     images.forEach((img) => {
+      if (shouldSkipImage(img)) return;
+
       const href = findMatchingAmazonHref(img);
       if (href) {
         wrapProductImage(img, href);

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>マグネットスイッチとは？モーターを動かす制御盤の基本部品をやさしく解説 | 電気と制御の実務メモ</title>
+  <meta name="description" content="マグネットスイッチとは何か、コイル・主接点・補助接点の違い、モーターを動かす基本の流れ、PLCや自己保持回路との関係を初心者にも追いやすく整理します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/magnetic-switch-basic.html">
+
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+
+  <meta property="og:title" content="マグネットスイッチとは？モーターを動かす制御盤の基本部品をやさしく解説">
+  <meta property="og:description" content="電磁石の力で接点を入切するマグネットスイッチの基本を、モーター制御・コイル・主接点・補助接点の関係からやさしく整理します。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/magnetic-switch-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/magnetic-switch-basic/magnetic-switch-overview.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="マグネットスイッチとは？モーターを動かす制御盤の基本部品をやさしく解説">
+  <meta name="twitter:description" content="マグネットスイッチの基本、コイル・主接点・補助接点の違い、自己保持やPLCとの関係を初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/magnetic-switch-basic/magnetic-switch-overview.png">
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E6PXV0D2HS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E6PXV0D2HS');
+  </script>
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --muted-2:#64748b;
+      --line:#dbe7f3;
+      --line-soft:#e7eef7;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --purple:#7c3aed;
+      --red:#dc2626;
+      --shadow:0 18px 42px rgba(15,23,42,.08);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+      scroll-padding-top:104px;
+    }
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%, var(--bg) 100%);
+      line-height:1.75;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img{
+      display:block;
+      max-width:100%;
+      height:auto;
+    }
+    a{
+      color:inherit;
+      text-decoration:none;
+      transition:.2s ease;
+    }
+    button,input{
+      font:inherit;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{
+      min-width:0;
+    }
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .header-link:hover{
+      color:var(--blue);
+      background:#f8fbff;
+      border-color:#dbeafe;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh, 640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item{
+      margin:0;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .page-wrap{
+      width:min(100% - 28px, var(--container));
+      margin:0 auto;
+      padding:16px 0 56px;
+    }
+    .breadcrumbs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:0 0 12px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .breadcrumbs a{
+      color:#1d4ed8;
+    }
+
+    .hero{
+      background:#fff;
+      border:1px solid rgba(203,219,235,.85);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+    .hero-inner{
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(380px,.92fr);
+      gap:22px;
+      padding:30px;
+      align-items:center;
+      background:
+        linear-gradient(90deg, rgba(248,251,255,.98) 0%, rgba(248,251,255,.94) 44%, rgba(248,251,255,.72) 100%);
+    }
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+      margin-bottom:14px;
+    }
+    .hero h1{
+      margin:0;
+      font-size:clamp(28px, 3.8vw, 42px);
+      line-height:1.28;
+      letter-spacing:-.02em;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .hero-lead{
+      margin:16px 0 0;
+      color:#475569;
+      font-size:15px;
+      line-height:1.85;
+      font-weight:700;
+      max-width:48ch;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:22px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:9px 16px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.35;
+      border:1px solid transparent;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,#1d4ed8 0%, #2563eb 100%);
+      box-shadow:0 10px 22px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      color:#1f2937;
+      background:#fff;
+      border-color:#cbd5e1;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+    }
+    .hero-visual{
+      border-radius:24px;
+      overflow:hidden;
+      background:#f8fbff;
+      border:1px solid #dbeafe;
+    }
+    .hero-visual img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+
+    .intro-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .intro-card{
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:20px;
+      box-shadow:0 8px 22px rgba(15,23,42,.04);
+      padding:17px;
+    }
+    .intro-card h2{
+      margin:0 0 8px;
+      font-size:17px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+    }
+    .intro-card p,
+    .intro-card ul{
+      margin:0;
+      color:#64748b;
+      font-size:13px;
+      line-height:1.75;
+      font-weight:700;
+    }
+    .intro-card ul{
+      padding-left:18px;
+    }
+
+    .mini-toc{
+      background:#f8fbff;
+      border:1px solid #dbeafe;
+      border-radius:20px;
+      padding:16px;
+      margin-bottom:18px;
+    }
+    .mini-toc-title{
+      margin:0 0 10px;
+      font-size:15px;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .mini-toc-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .mini-toc-links a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:34px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#fff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.35;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 280px;
+      gap:22px;
+      align-items:start;
+    }
+    .main-flow{
+      min-width:0;
+      display:grid;
+      gap:18px;
+    }
+    .side-rail{
+      position:sticky;
+      top:96px;
+      display:grid;
+      gap:12px;
+      min-width:0;
+    }
+    .section{
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:22px;
+      box-shadow:0 8px 22px rgba(15,23,42,.04);
+      padding:22px;
+      scroll-margin-top:104px;
+    }
+    .section h2{
+      margin:0 0 12px;
+      font-size:24px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+      padding-left:12px;
+      border-left:4px solid var(--blue);
+    }
+    .section h3{
+      margin:22px 0 8px;
+      font-size:18px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+    }
+    .section p,
+    .section li{
+      color:#475569;
+      font-size:14px;
+      line-height:1.9;
+      font-weight:700;
+    }
+    .section p{
+      margin:0 0 12px;
+    }
+    .section ul,
+    .section ol{
+      margin:0 0 12px;
+      padding-left:22px;
+    }
+    .marker{
+      font-weight:900;
+      color:#1e40af;
+      background:linear-gradient(transparent 62%, rgba(191,219,254,.95) 62%);
+      padding:0 .1em;
+    }
+
+    .figure-card{
+      margin:16px 0 4px;
+      border:1px solid #dbeafe;
+      border-radius:20px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .figure-card img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .figure-caption{
+      margin:0;
+      padding:10px 14px;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:700;
+      border-top:1px solid #dbeafe;
+      background:#fff;
+    }
+
+    .note-box{
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      border-radius:18px;
+      padding:15px;
+      margin:14px 0;
+    }
+    .note-box strong{
+      display:block;
+      margin-bottom:6px;
+      color:#1e3a8a;
+      font-size:14px;
+      font-weight:900;
+    }
+    .note-box p{
+      margin:0;
+      color:#334155;
+      font-size:13px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .warning-box{
+      border:1px solid #fecaca;
+      background:#fff7f7;
+      border-radius:18px;
+      padding:15px;
+      margin:14px 0;
+    }
+    .warning-box strong{
+      display:block;
+      margin-bottom:6px;
+      color:#b91c1c;
+      font-size:14px;
+      font-weight:900;
+    }
+    .warning-box p{
+      margin:0;
+      color:#475569;
+      font-size:13px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .dialogue{
+      display:grid;
+      gap:10px;
+      margin:16px 0;
+    }
+    .speech{
+      display:grid;
+      grid-template-columns:58px minmax(0,1fr);
+      gap:10px;
+      align-items:start;
+      border:1px solid #dbeafe;
+      background:#f8fbff;
+      border-radius:18px;
+      padding:12px;
+    }
+    .speech--kouhai{
+      border-color:#e0e7ff;
+      background:#fbfdff;
+    }
+    .speech img{
+      width:58px;
+      height:58px;
+      object-fit:contain;
+      object-position:center bottom;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid #e2e8f0;
+    }
+    .speech-name{
+      display:inline-flex;
+      align-items:center;
+      width:fit-content;
+      min-height:22px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      line-height:1.2;
+      margin-bottom:6px;
+    }
+    .speech--kouhai .speech-name{
+      background:#7c3aed;
+    }
+    .speech p{
+      margin:0;
+      color:#334155;
+      font-size:13px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      margin:14px 0;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:620px;
+      font-size:13px;
+    }
+    th,td{
+      padding:11px 12px;
+      border-bottom:1px solid #e2e8f0;
+      text-align:left;
+      vertical-align:top;
+      line-height:1.65;
+    }
+    th{
+      background:#eff6ff;
+      color:#1e3a8a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    td{
+      color:#475569;
+      font-weight:700;
+    }
+    tr:last-child th,
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .side-box{
+      border:1px solid #dbe7f3;
+      background:#fdfefe;
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 6px 18px rgba(15,23,42,.04);
+    }
+    .side-box h2{
+      margin:0 0 10px;
+      font-size:15px;
+      line-height:1.4;
+      color:#0f172a;
+      font-weight:900;
+      padding-bottom:8px;
+      border-bottom:1px solid #dbe7f3;
+    }
+    .side-box ul{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+    }
+    .side-box a{
+      display:block;
+      color:#334155;
+      font-size:12px;
+      line-height:1.5;
+      font-weight:800;
+      padding-left:12px;
+      position:relative;
+    }
+    .side-box a::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.72em;
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#1d4ed8;
+    }
+
+    .related-section{
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:22px;
+      box-shadow:0 8px 22px rgba(15,23,42,.04);
+      padding:20px;
+    }
+    .related-section h2{
+      margin:0 0 14px;
+      font-size:20px;
+      line-height:1.45;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .related-card{
+      border:1px solid #e2e8f0;
+      border-radius:18px;
+      background:#fbfdff;
+      padding:14px;
+      display:grid;
+      gap:6px;
+      min-height:100%;
+    }
+    .related-card:hover{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      transform:translateY(-1px);
+    }
+    .related-card strong{
+      color:#0f172a;
+      font-size:14px;
+      line-height:1.5;
+      font-weight:900;
+    }
+    .related-card span{
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .footer-cta{
+      background:linear-gradient(135deg,#eff6ff 0%, #fff 100%);
+      border:1px solid #bfdbfe;
+      border-radius:22px;
+      padding:22px;
+      text-align:center;
+    }
+    .footer-cta h2{
+      margin:0 0 8px;
+      font-size:22px;
+      line-height:1.45;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .footer-cta p{
+      margin:0 auto 16px;
+      max-width:52ch;
+      color:#475569;
+      font-size:14px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .footer{
+      margin-top:30px;
+      padding:24px 0 0;
+      border-top:1px solid #dbe7f3;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+      .hero-inner{
+        grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);
+        padding:24px;
+      }
+    }
+
+    @media (max-width:768px){
+      :root{--header-h:74px;}
+      body{padding-top:var(--header-h);}
+      .site-header{padding:6px 8px;}
+      .site-header-inner{align-items:flex-start;gap:8px;}
+      .brand-logo{height:40px;}
+      .brand-title{font-size:15px;line-height:1.22;}
+      .brand-sub{display:none;}
+      .header-nav{display:none;}
+      .header-search{flex:0 0 160px;min-height:36px;padding:0 10px;}
+      .search-box-input{font-size:11px;}
+      .search-box-panel{
+        max-height:min(68vh, 520px);
+        overflow-y:auto;
+      }
+      .page-wrap{
+        width:min(100% - 18px, var(--container));
+        padding:12px 0 44px;
+      }
+      .hero{
+        border-radius:22px;
+      }
+      .hero-inner{
+        grid-template-columns:1fr;
+        gap:16px;
+        padding:18px;
+      }
+      .hero h1{
+        font-size:28px;
+      }
+      .hero-lead{
+        font-size:14px;
+      }
+      .hero-visual{
+        border-radius:18px;
+      }
+      .intro-grid,
+      .related-grid,
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+      .section{
+        padding:18px;
+        border-radius:20px;
+      }
+      .section h2{
+        font-size:22px;
+      }
+      .mini-toc-links{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+      }
+      .mini-toc-links a{
+        width:100%;
+      }
+    }
+
+    @media (max-width:480px){
+      :root{--header-h:72px;}
+      .site-header{padding:5px 6px;}
+      .brand{gap:8px;}
+      .brand-logo{height:32px;}
+      .brand-title{font-size:14px;}
+      .header-search{flex:0 0 136px;min-height:34px;padding:0 8px;}
+      .mini-toc-links{
+        grid-template-columns:1fr;
+      }
+      .btn{
+        width:100%;
+      }
+      .speech{
+        grid-template-columns:48px minmax(0,1fr);
+      }
+      .speech img{
+        width:48px;
+        height:48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="トップページへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ">
+        <span class="brand-copy">
+          <span class="brand-title">電気と制御の実務メモ</span>
+          <span class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a class="header-link" href="../index.html">ホーム</a>
+        <a class="header-link" href="../index.html#featured">人気記事</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+      </nav>
+
+      <form id="siteSearch" class="header-search search-box" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索する">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事が見つかりませんでした。</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <nav class="breadcrumbs" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>マグネットスイッチとは？</span>
+    </nav>
+
+    <article>
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <span class="hero-kicker">CONTROL BASICS</span>
+            <h1>マグネットスイッチとは？<br>モーターを動かす制御盤の基本部品をやさしく解説</h1>
+            <p class="hero-lead">
+              マグネットスイッチは、モーター制御でよく使う基本部品です。ボタンやPLCの出力で直接大きな負荷を動かすのではなく、電磁石の力で接点を動かして主回路を入切します。
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#conclusion">先に結論を見る</a>
+              <a class="btn btn-secondary" href="#flow">動き方を見る</a>
+            </div>
+          </div>
+          <figure class="hero-visual">
+            <img src="../assets/images/magnetic-switch-basic/magnetic-switch-overview.png" alt="マグネットスイッチの概要を先輩と後輩キャラが説明している図" loading="eager" decoding="async">
+          </figure>
+        </div>
+      </section>
+
+      <section class="intro-grid" aria-label="この記事の対象">
+        <div class="intro-card">
+          <h2>向いている人</h2>
+          <ul>
+            <li>制御盤の中の部品名を覚えたい人</li>
+            <li>モーター制御の入口を知りたい人</li>
+            <li>自己保持回路と部品の関係をつなげたい人</li>
+          </ul>
+        </div>
+        <div class="intro-card">
+          <h2>まだ不要な人</h2>
+          <p>
+            まだ入力・出力や接点の考え方があいまいな場合は、先にPLCの入出力やNO/NCの記事から読むと追いやすいです。
+          </p>
+        </div>
+        <div class="intro-card">
+          <h2>先に結論</h2>
+          <p>
+            マグネットスイッチは、<strong>小さな制御信号で大きな主回路を入切するための部品</strong>と考えると理解しやすいです。
+          </p>
+        </div>
+      </section>
+
+      <nav class="mini-toc" aria-label="記事内目次">
+        <p class="mini-toc-title">この記事でわかること</p>
+        <div class="mini-toc-links">
+          <a href="#conclusion">先に結論</a>
+          <a href="#what">マグネットスイッチとは</a>
+          <a href="#flow">基本の動き</a>
+          <a href="#parts">コイル・接点の違い</a>
+          <a href="#plc">PLCとの関係</a>
+          <a href="#check">現場で見る注意点</a>
+        </div>
+      </nav>
+
+      <div class="layout">
+        <div class="main-flow">
+          <section class="section" id="conclusion">
+            <h2>先に結論：マグネットスイッチは「大きな電気を入切する役」</h2>
+            <p>
+              マグネットスイッチは、制御盤の中でモーターなどの負荷を動かすときによく使われる部品です。正式には<strong class="marker">電磁開閉器</strong>と呼ばれることもあります。
+            </p>
+            <p>
+              イメージとしては、押しボタンやPLC出力が「動け」という指示を出し、マグネットスイッチがその指示を受けて、モーターへ行く主回路を入切する役です。
+            </p>
+
+            <div class="dialogue">
+              <div class="speech">
+                <img src="../assets/images/guide-characters/senpai-explain-lightblue.png" alt="先輩キャラ">
+                <div>
+                  <span class="speech-name">先輩</span>
+                  <p>ボタンやPLCが直接モーターを動かすというより、間にマグネットスイッチを入れて大きな電気を入切するイメージだよ。</p>
+                </div>
+              </div>
+              <div class="speech speech--kouhai">
+                <img src="../assets/images/guide-characters/kouhai-question.png" alt="後輩キャラ">
+                <div>
+                  <span class="speech-name">後輩</span>
+                  <p>つまり、PLCの出力は指示役で、マグネットスイッチが実際に電気を通す役みたいな感じですか？</p>
+                </div>
+              </div>
+              <div class="speech">
+                <img src="../assets/images/guide-characters/senpai-tablet-guide-lightblue.png" alt="先輩キャラ">
+                <div>
+                  <span class="speech-name">先輩</span>
+                  <p>そう。その考え方ができると、自己保持回路やモーター制御もかなり追いやすくなるよ。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="what">
+            <h2>マグネットスイッチとは？</h2>
+            <p>
+              マグネットスイッチは、<strong class="marker">コイルに電気を流すことで内部の接点を動かす部品</strong>です。コイルに電気が流れると電磁石の力が働き、主接点が閉じます。主接点が閉じると、モーターなどの主回路に電気が流れます。
+            </p>
+            <p>
+              反対に、コイルへの電気が切れると電磁石の力がなくなり、接点が戻ります。これにより主回路が切れ、モーターが止まります。
+            </p>
+
+            <div class="note-box">
+              <strong>覚え方</strong>
+              <p>コイルは「動かすための部分」、主接点は「大きな電気を通す部分」、補助接点は「制御や確認に使う部分」と分けて考えると整理しやすいです。</p>
+            </div>
+
+            <h3>どんな場所で使う？</h3>
+            <ul>
+              <li>モーターの起動・停止</li>
+              <li>ポンプやファンの運転</li>
+              <li>コンベアなど設備の駆動</li>
+              <li>制御盤内での主回路の入切</li>
+            </ul>
+          </section>
+
+          <section class="section" id="flow">
+            <h2>マグネットスイッチの基本の動き</h2>
+            <p>
+              まずは、細かい型式や配線よりも「何が起きると、どこが動くのか」を押さえると理解しやすいです。
+            </p>
+
+            <figure class="figure-card">
+              <img src="../assets/images/magnetic-switch-basic/magnetic-switch-operation-flow.png" alt="押しボタンONからコイル励磁、主接点ON、モーター運転までの流れ">
+              <figcaption class="figure-caption">押しボタンON → コイルに電気が流れる → 電磁石の力で主接点が閉じる → モーターが回る、という流れで考えると追いやすいです。</figcaption>
+            </figure>
+
+            <h3>基本の流れ</h3>
+            <ol>
+              <li>押しボタンやPLC出力から「ON」の指示が出る</li>
+              <li>マグネットスイッチのコイルに電気が流れる</li>
+              <li>電磁石の力で内部の接点が動く</li>
+              <li>主接点が閉じて、モーターへ電気が流れる</li>
+              <li>コイルがOFFになると接点が戻り、モーターが止まる</li>
+            </ol>
+
+            <p>
+              ここで大事なのは、<strong class="marker">制御回路と主回路を分けて考えること</strong>です。ボタンやPLC出力が扱うのは制御側、モーターに流れる大きな電気は主回路側です。
+            </p>
+          </section>
+
+          <section class="section" id="parts">
+            <h2>コイル・主接点・補助接点の違い</h2>
+            <p>
+              マグネットスイッチで初心者が混乱しやすいのが、コイル・主接点・補助接点の違いです。名前は似ていますが、役割はかなり違います。
+            </p>
+
+            <figure class="figure-card">
+              <img src="../assets/images/magnetic-switch-basic/magnetic-switch-coil-contact.png" alt="コイル、主接点、補助接点の違いを整理した図">
+              <figcaption class="figure-caption">コイルは動かす部分、主接点は主回路を入切する部分、補助接点は自己保持や信号取り出しに使う部分です。</figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>部品</th>
+                    <th>役割</th>
+                    <th>見るポイント</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>コイル</th>
+                    <td>電気が流れると磁力を発生させ、接点を動かす部分。</td>
+                    <td>AC100V、AC200V、DC24Vなど、コイル電圧を間違えない。</td>
+                  </tr>
+                  <tr>
+                    <th>主接点</th>
+                    <td>モーターなどの主回路を入切する部分。</td>
+                    <td>負荷容量、接点の焼け、摩耗、異音を確認する。</td>
+                  </tr>
+                  <tr>
+                    <th>補助接点</th>
+                    <td>自己保持や信号確認、PLC入力への取り出しなどに使う部分。</td>
+                    <td>a接点・b接点、使用目的、配線先を確認する。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="dialogue">
+              <div class="speech speech--kouhai">
+                <img src="../assets/images/guide-characters/kouhai-question-point.png" alt="後輩キャラ">
+                <div>
+                  <span class="speech-name">後輩</span>
+                  <p>主接点と補助接点って、どちらも接点ですよね？何が違うんですか？</p>
+                </div>
+              </div>
+              <div class="speech">
+                <img src="../assets/images/guide-characters/senpai-thinking-lightblue.png" alt="先輩キャラ">
+                <div>
+                  <span class="speech-name">先輩</span>
+                  <p>主接点はモーターなど大きな電気を通すところ。補助接点は自己保持や信号確認など、制御側で使うところ。まずはそこを分けて見るといいよ。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="plc">
+            <h2>PLCと組み合わせるときの考え方</h2>
+            <p>
+              PLCを使う場合でも、PLC出力で大きなモーターを直接動かすとは考えません。基本は、PLC出力でマグネットスイッチのコイルを動かし、主接点でモーター側の電気を入切します。
+            </p>
+
+            <div class="note-box">
+              <strong>ざっくりした流れ</strong>
+              <p>PLC出力 → マグネットスイッチのコイル → 主接点ON → モーター運転、という流れで見ると理解しやすいです。</p>
+            </div>
+
+            <h3>PLC側で確認したいこと</h3>
+            <ul>
+              <li>PLC出力の種類と容量</li>
+              <li>マグネットスイッチのコイル電圧</li>
+              <li>間にリレーを入れる必要があるか</li>
+              <li>サージ対策や保護部品の有無</li>
+              <li>PLC入力へ運転確認信号を返す場合の補助接点</li>
+            </ul>
+
+            <p>
+              現場では、PLC出力から直接コイルを動かしている場合もあれば、間にリレーを入れている場合もあります。設備ごとに考え方が違うので、図面と盤内の配線を照らし合わせて見ることが大切です。
+            </p>
+          </section>
+
+          <section class="section" id="selfhold">
+            <h2>自己保持回路との関係</h2>
+            <p>
+              マグネットスイッチは、自己保持回路とセットで出てくることが多いです。押しボタンを一瞬押しただけでも運転状態を保持したい場合、補助接点を使って自己保持を作ります。
+            </p>
+            <p>
+              つまり、マグネットスイッチを理解すると、自己保持回路の見え方もかなり変わります。「なぜボタンを離しても動き続けるのか」が、補助接点の働きとして見えてきます。
+            </p>
+
+            <div class="note-box">
+              <strong>つながりで覚える</strong>
+              <p>マグネットスイッチ単体で覚えるより、自己保持回路・停止ボタン・サーマルリレー・補助接点と一緒に見ると、現場の回路に近い理解になります。</p>
+            </div>
+          </section>
+
+          <section class="section" id="check">
+            <h2>現場で見るときの注意点</h2>
+            <p>
+              マグネットスイッチは制御盤の中でよく見る部品ですが、主回路には大きな電気が流れることがあります。確認するときは、必ず安全を優先してください。
+            </p>
+
+            <div class="warning-box">
+              <strong>注意</strong>
+              <p>制御盤内の確認や交換作業は、電源状態・残留電圧・ロックアウトなどを確認したうえで行います。慣れていない場合は、無理に触らず、分かる人と一緒に確認してください。</p>
+            </div>
+
+            <h3>確認ポイント</h3>
+            <ul>
+              <li>コイル電圧が合っているか</li>
+              <li>主接点容量が負荷に合っているか</li>
+              <li>サーマルリレーが付いているか</li>
+              <li>接点の焼けや変色がないか</li>
+              <li>動作時に異音やチャタリングがないか</li>
+              <li>補助接点が自己保持や信号確認に使われているか</li>
+            </ul>
+
+            <p>
+              トラブル時は、コイルに電気が来ているのか、接点が動いているのか、サーマルが落ちていないか、補助接点の信号が返っているかなどを順番に見ていきます。
+            </p>
+          </section>
+
+          <section class="section" id="confusing">
+            <h2>初心者が混乱しやすいポイント</h2>
+
+            <h3>マグネットスイッチとリレーの違い</h3>
+            <p>
+              どちらもコイルと接点を持つ部品ですが、マグネットスイッチはモーターなどの主回路を入切する用途で使われることが多く、リレーは制御信号の切り替えや中継で使われることが多いです。
+            </p>
+
+            <h3>マグネットスイッチとサーマルリレーの違い</h3>
+            <p>
+              マグネットスイッチは主回路を入切する部品です。サーマルリレーは過負荷を検出して、モーターを保護するための部品です。セットで取り付けられていることが多いので、同じものと勘違いしないようにします。
+            </p>
+
+            <h3>主回路と制御回路の違い</h3>
+            <p>
+              主回路はモーターなどに電気を送る回路です。制御回路は、押しボタン・PLC・補助接点などで動作を指示する回路です。マグネットスイッチは、この2つをつなぐ役として見ると分かりやすいです。
+            </p>
+          </section>
+
+          <section class="section" id="summary">
+            <h2>まとめ：マグネットスイッチはモーター制御の入口になる部品</h2>
+            <p>
+              マグネットスイッチは、制御盤やモーター制御を理解するうえでかなり大事な部品です。
+            </p>
+            <ul>
+              <li>コイルに電気が流れると接点が動く</li>
+              <li>主接点でモーターなどの主回路を入切する</li>
+              <li>補助接点は自己保持や信号確認に使う</li>
+              <li>PLCや押しボタンは、マグネットスイッチを動かす指示役になる</li>
+              <li>自己保持回路と一緒に覚えると理解しやすい</li>
+            </ul>
+
+            <div class="dialogue">
+              <div class="speech speech--kouhai">
+                <img src="../assets/images/guide-characters/kouhai-understand.png" alt="後輩キャラ">
+                <div>
+                  <span class="speech-name">後輩</span>
+                  <p>マグネットスイッチって、ただの部品名じゃなくて、制御信号とモーター側の電気をつなぐ役なんですね。</p>
+                </div>
+              </div>
+              <div class="speech">
+                <img src="../assets/images/guide-characters/senpai-explain-lightblue.png" alt="先輩キャラ">
+                <div>
+                  <span class="speech-name">先輩</span>
+                  <p>そう。そこが分かると、自己保持回路やモーター回路の図面もかなり読みやすくなるよ。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="related-section" aria-label="関連記事">
+            <h2>あわせて読みたい関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="self-hold-circuit.html">
+                <strong>自己保持回路の基本と注意点</strong>
+                <span>ボタンを離しても動き続ける回路の考え方を整理します。</span>
+              </a>
+              <a class="related-card" href="input-output-basic.html">
+                <strong>PLCの入力・出力の基礎</strong>
+                <span>PLCが何を受け取り、何を動かすのかを最初に押さえます。</span>
+              </a>
+              <a class="related-card" href="no-nc-basic.html">
+                <strong>NO / NC の違い</strong>
+                <span>接点の考え方を理解すると、補助接点も追いやすくなります。</span>
+              </a>
+              <a class="related-card" href="timer-circuit-basic.html">
+                <strong>タイマー回路の使い方</strong>
+                <span>モーター制御でもよく使う時間差動作の基本を整理します。</span>
+              </a>
+              <a class="related-card" href="interlock-basic.html">
+                <strong>インターロック回路の基本</strong>
+                <span>同時に動かしたくない動作を防ぐ考え方を整理します。</span>
+              </a>
+              <a class="related-card" href="../categories/control-basics.html">
+                <strong>制御の基礎カテゴリへ</strong>
+                <span>入力・出力・センサ・接点など、制御の入口記事をまとめています。</span>
+              </a>
+            </div>
+          </section>
+
+          <section class="footer-cta">
+            <h2>次は自己保持回路とつなげて読むと理解しやすいです</h2>
+            <p>
+              マグネットスイッチのコイル・主接点・補助接点が分かると、自己保持回路やモーター制御の流れが追いやすくなります。
+            </p>
+            <a class="btn btn-primary" href="self-hold-circuit.html">自己保持回路の記事へ進む</a>
+          </section>
+        </div>
+
+        <aside class="side-rail" aria-label="サイドメニュー">
+          <section class="side-box">
+            <h2>記事内メニュー</h2>
+            <ul>
+              <li><a href="#conclusion">先に結論</a></li>
+              <li><a href="#what">マグネットスイッチとは</a></li>
+              <li><a href="#flow">基本の動き</a></li>
+              <li><a href="#parts">コイル・主接点・補助接点</a></li>
+              <li><a href="#plc">PLCとの関係</a></li>
+              <li><a href="#check">現場で見る注意点</a></li>
+              <li><a href="#summary">まとめ</a></li>
+            </ul>
+          </section>
+
+          <section class="side-box">
+            <h2>関連カテゴリ</h2>
+            <ul>
+              <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+              <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+              <li><a href="../categories/comparison-guide.html">比較・使い分け</a></li>
+            </ul>
+          </section>
+
+          <section class="side-box">
+            <h2>先に読むと分かりやすい記事</h2>
+            <ul>
+              <li><a href="input-output-basic.html">PLCの入力・出力の基礎</a></li>
+              <li><a href="no-nc-basic.html">NO / NC の違い</a></li>
+              <li><a href="self-hold-circuit.html">自己保持回路の基本</a></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </article>
+
+    <footer class="footer">
+      <p>© 電気と制御の実務メモ</p>
+    </footer>
+  </main>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

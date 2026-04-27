@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>モーターブレーカとは？モーターを守る遮断器の基本をやさしく解説</title>
+  <meta name="description" content="モーターブレーカとは何かを初心者向けにやさしく整理。モーターや配線を過電流・短絡から守る役割、トリップの流れ、サーマルリレーとの違いまで現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/motor-breaker-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="モーターブレーカとは？モーターを守る遮断器の基本をやさしく解説">
+  <meta property="og:description" content="モーターブレーカの役割、過電流・短絡でトリップする流れ、サーマルリレーとの違いをやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/motor-breaker-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/motor-breaker-basic/motor-breaker-overview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --header-h:78px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      inset:0 0 auto 0;
+      z-index:1000;
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(209,220,234,.9);
+    }
+    .site-header-inner{
+      width:min(1180px,calc(100% - 24px));
+      margin:0 auto;
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:10px 0;
+    }
+    .brand{
+      min-width:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+    .brand-copy{display:flex;flex-direction:column;min-width:0}
+    .brand-title{
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.02em;
+      line-height:1.25;
+    }
+    .brand-sub{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+    }
+    .header-nav{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .header-nav a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .header-nav a:hover{
+      background:#f8fbff;
+      border-color:#dbe7f3;
+    }
+    .header-search{
+      flex:0 0 260px;
+      position:relative;
+      margin-left:8px;
+    }
+    .search-box-input{
+      width:100%;
+      height:44px;
+      padding:0 50px 0 16px;
+      border-radius:999px;
+      border:1px solid #cfdbeb;
+      background:#fff;
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      outline:none;
+    }
+    .search-box-input:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .search-box-button{
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:0;
+      border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+    }
+    .search-box-button:hover{background:#1e40af}
+    .header-search-icon{
+      display:block;
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-radius:50%;
+      position:relative;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#fff;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/motor-breaker-basic/motor-breaker-overview.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:37ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:620px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header-inner{gap:8px}
+      .brand-logo{width:40px;height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+      .header-search{margin-left:auto;flex:0 0 168px}
+      .search-box-input{height:40px;font-size:12px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/motor-breaker-basic/motor-breaker-overview.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
+      .talk-bubble{
+        max-width:none;
+      }
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/motor-breaker-basic/motor-breaker-overview.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{
+        font-size:34px;
+      }
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/motor-breaker-basic/motor-breaker-overview.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .header-search{flex:0 0 150px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="トップページへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ">
+        <span class="brand-copy">
+          <span class="brand-title">電気と制御の実務メモ</span>
+          <span class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a href="../index.html">ホーム</a>
+        <a href="../index.html#popular">人気記事</a>
+        <a href="../index.html#categories">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>モーターブレーカとは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御の基礎</span>
+        <h1 id="page-title">モーターブレーカとは？<br>モーターを守る遮断器の基本をやさしく解説</h1>
+        <p class="hero-lead">
+          モーターブレーカは、モーターや配線を過電流・短絡などの異常から守るための保護機器です。
+          サーマルリレーとの違いも含めて、現場で追いやすいように整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#overview">基本を順番に見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>制御盤の中でモーターブレーカが何をしているか整理したい人</li>
+          <li>サーマルリレーとの違いを分かりやすく押さえたい人</li>
+          <li>過電流・短絡・トリップの流れを図で追えるようにしたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まずは入力・出力や接点の基本から押さえたい人</li>
+          <li>マグネットスイッチの役割がまだ曖昧な人</li>
+          <li>モーター制御より先にラダーの読み方だけを整理したい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>モーターブレーカは<span class="mark">主回路を遮断してモーターを守る保護機器</span>です。</li>
+          <li>過電流や短絡などを検知すると、<span class="mark">トリップして電源を遮断</span>します。</li>
+          <li>サーマルリレーは制御側を止める役で、モーターブレーカとは守り方が違います。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#overview">モーターブレーカとは</a>
+        <a href="#flow">基本の動き</a>
+        <a href="#thermal">サーマルリレーとの違い</a>
+        <a href="#attention">現場で見る注意点</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>先に結論：モーターブレーカは「主回路を遮断して守る役」</h2>
+          <p>
+            モーターブレーカは、モーターに異常な電流が流れたときに、
+            <span class="mark">主回路側を遮断してモーターや配線を守るための保護機器</span>です。
+          </p>
+          <p>
+            サーマルリレーもモーター保護に関係しますが、見方は少し違います。
+            サーマルリレーは過負荷を検知してマグネットスイッチの制御側を止めるイメージ、
+            モーターブレーカは異常時に主回路を直接遮断するイメージです。
+          </p>
+
+          <div class="talk-thread" aria-label="会話でポイント整理">
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span> モーターブレーカは、モーターや配線に異常が起きたときに、<strong>電源側を遮断して守る部品</strong>だよ。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span> サーマルリレーみたいにマグネットを止めるというより、ブレーカ自体が回路を切る感じですね。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span> そう。だから、<strong>短絡や大きな過電流の保護</strong>として見ると役割が分かりやすいね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>モーターブレーカとは？</h2>
+          <p>
+            モーターブレーカは、モーターを使う回路でよく出てくる保護機器です。
+            制御盤の中では、電源側からモーターへ行く主回路上に入り、
+            異常な電流を検知したときに回路を遮断します。
+          </p>
+          <p>
+            モーター保護というとサーマルリレーも出てきますが、
+            モーターブレーカは主回路を遮断するブレーカとしての役割が強く、
+            短絡や過電流の保護を考えるときに重要になります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/motor-breaker-basic/motor-breaker-overview.png" alt="モーターブレーカとは何かを示す制御盤内の図解" loading="lazy" decoding="async">
+            <figcaption>
+              モーターブレーカは、モーターや配線を異常な電流から守るために、主回路側で使われる保護機器です。
+            </figcaption>
+          </figure>
+
+          <div class="point-box">
+            <h3>「モーター専用の保護を意識したブレーカ」と見ると分かりやすい</h3>
+            <p>
+              普通のブレーカと似た見た目でも、モーターブレーカはモーター回路で使うことを意識した保護機能や設定が入っています。
+              制御盤では、モーターを安全に使うための保護役として見ます。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>モーターブレーカの基本の動き</h2>
+          <p>
+            モーターブレーカの動きは、ざっくり言うと
+            <span class="mark">通常運転 → 過電流や短絡 → トリップ → 電源遮断 → モーター停止</span>
+            という流れです。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/motor-breaker-basic/motor-breaker-trip-flow.png" alt="モーターブレーカが過電流や短絡でトリップする流れ" loading="lazy" decoding="async">
+            <figcaption>
+              過電流や短絡などの異常を検知すると、モーターブレーカがトリップして電源を遮断します。
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>1. 通常運転</h3>
+              <p>定格内の電流であれば、モーターは通常通り運転します。</p>
+            </div>
+            <div class="check-item">
+              <h3>2. 過電流・短絡が発生</h3>
+              <p>負荷の異常やショートなどで、設定以上の電流が流れることがあります。</p>
+            </div>
+            <div class="check-item">
+              <h3>3. ブレーカがトリップ</h3>
+              <p>異常を検知すると、モーターブレーカがトリップ動作します。</p>
+            </div>
+            <div class="check-item">
+              <h3>4. 電源を遮断して停止</h3>
+              <p>主回路が遮断され、モーターへの電源供給が止まります。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>トリップしたら原因確認が先</h3>
+            <p>
+              モーターブレーカが落ちたときは、すぐに入れ直すのではなく、
+              過負荷、短絡、配線異常、機械側の固着などがないかを先に確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="thermal">
+          <h2>モーターブレーカとサーマルリレーの違い</h2>
+          <p>
+            モーターブレーカとサーマルリレーは、どちらもモーター保護に関係します。
+            ただし、止め方と役割の見方が違います。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/motor-breaker-basic/motor-breaker-vs-thermal-relay.png" alt="モーターブレーカとサーマルリレーの違いを比較する図解" loading="lazy" decoding="async">
+            <figcaption>
+              モーターブレーカは主回路を直接遮断する保護機器、サーマルリレーは過負荷を検知してマグネットを止める保護機器として整理できます。
+            </figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>部品</th>
+                  <th>主な役割</th>
+                  <th>現場での見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>モーターブレーカ</td>
+                  <td>過電流や短絡などを検知し、主回路を遮断する</td>
+                  <td>モーターや配線を異常電流から守る電源側の保護機器</td>
+                </tr>
+                <tr>
+                  <td>サーマルリレー</td>
+                  <td>モーターの過負荷を検知し、マグネットスイッチをOFFにする</td>
+                  <td>過負荷を見て、制御側を止める保護部品</td>
+                </tr>
+                <tr>
+                  <td>マグネットスイッチ</td>
+                  <td>モーターへ行く主回路を入切する</td>
+                  <td>PLCや押しボタンの指示で、実際にモーターを動かす役</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="talk-thread" aria-label="サーマルリレーとの違いを会話で整理">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span> モーターブレーカは主回路を切る。サーマルリレーはマグネットのコイル側を止める。こういう分け方でいいですか？</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span> その見方でかなり追いやすくなるよ。どちらもモーターを守るけど、<strong>どこを切って止めるか</strong>が違うんだ。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="attention">
+          <h2>現場で見るときの注意点</h2>
+          <p>
+            モーターブレーカは、ただON/OFFを見るだけではなく、
+            容量、設定、トリップ原因、負荷側の状態もセットで見る必要があります。
+          </p>
+
+          <ul class="simple-list">
+            <li>モーターブレーカの容量や設定値がモーターに合っているか</li>
+            <li>トリップ原因が過負荷なのか、短絡なのか、瞬時的な異常なのか</li>
+            <li>配線のゆるみ、端子の発熱、絶縁不良がないか</li>
+            <li>機械側が固着してモーターに無理がかかっていないか</li>
+            <li>同じトリップが何度も繰り返されていないか</li>
+          </ul>
+
+          <div class="danger-box">
+            <h3>落ちたブレーカを原因確認なしで何度も入れ直さない</h3>
+            <p>
+              モーターブレーカがトリップした場合、どこかに異常がある可能性があります。
+              原因を確認せずに何度も復帰させると、配線や機器を傷めるおそれがあります。
+            </p>
+          </div>
+
+          <div class="note-box">
+            <h3>設定値は「落ちないように上げる」ものではない</h3>
+            <p>
+              過負荷で頻繁に落ちるからといって、原因を見ずに設定だけ上げるのは危険です。
+              モーター定格、負荷条件、配線状態を確認してから判断します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：モーターブレーカは主回路側でモーターを守る保護機器</h2>
+          <p>
+            モーターブレーカは、過電流や短絡などの異常を検知して、主回路を遮断するための保護機器です。
+            モーターや配線を守る役として、制御盤の中ではとても重要な部品です。
+          </p>
+          <p>
+            サーマルリレーは過負荷を検知してマグネットを止める役、
+            モーターブレーカは主回路を直接遮断する役、と分けて考えると整理しやすくなります。
+          </p>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎も見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="thermal-relay-basic.html">
+              <h3>サーマルリレーとは？</h3>
+              <p>モーターの過負荷を検知して、マグネットを止める保護部品です。</p>
+            </a>
+            <a class="related-card" href="magnetic-switch-basic.html">
+              <h3>マグネットスイッチとは？</h3>
+              <p>モーターを動かす基本部品。モーターブレーカやサーマルリレーと一緒に理解したい内容です。</p>
+            </a>
+            <a class="related-card" href="self-hold-circuit.html">
+              <h3>自己保持回路の基本</h3>
+              <p>押しボタンやマグネットを使った基本回路の考え方を整理します。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#overview">モーターブレーカとは</a></li>
+            <li><a href="#flow">基本の動き</a></li>
+            <li><a href="#thermal">サーマルリレーとの違い</a></li>
+            <li><a href="#attention">現場で見る注意点</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/comparison-guide.html">比較・使い分け</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="magnetic-switch-basic.html">マグネットスイッチとは？</a></li>
+            <li><a href="thermal-relay-basic.html">サーマルリレーとは？</a></li>
+            <li><a href="input-output-basic.html">PLCの入力・出力の基礎</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

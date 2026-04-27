@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>タイマーリレーとは？ハード回路で使うONディレー・OFFディレーの違いをやさしく解説</title>
+  <meta name="description" content="タイマーリレーとは、時間を条件に接点を切り替えるハード回路用の部品です。ONディレー・OFFディレーの違い、制御盤での見方、PLCのソフトタイマーとの違い、トラブル時の確認ポイントを初心者向けにやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/timer-relay-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="タイマーリレーとは？ハード回路で使うONディレー・OFFディレーの違いをやさしく解説">
+  <meta property="og:description" content="制御盤に取り付けるハードタイマーリレーの基本、ONディレー・OFFディレーの違い、現場での確認ポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/timer-relay-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/timer-relay-basic/timer-relay-overview.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --paper: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --line: #dbeafe;
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --blue-soft: #eff6ff;
+      --green: #16a34a;
+      --green-dark: #166534;
+      --green-soft: #ecfdf5;
+      --orange: #ea580c;
+      --orange-dark: #9a3412;
+      --orange-soft: #fff7ed;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --slate: #334155;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+      --header-height: 74px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 96px;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 32%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 45%, #eef6ff 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      letter-spacing: 0.01em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .site-header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.90);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    .site-header-inner {
+      width: min(1120px, calc(100% - 32px));
+      min-height: var(--header-height);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 255px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .header-nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.06);
+    }
+
+    .header-search {
+      position: relative;
+      width: min(260px, 30vw);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .search-box-input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 0 14px;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+    }
+
+    .search-box-button {
+      min-width: 38px;
+      height: 38px;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .search-box-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(380px, 88vw);
+      max-height: 420px;
+      overflow: auto;
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid #dbeafe;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .search-box-results {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .search-box-results a {
+      display: block;
+      min-height: auto;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 0;
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: none;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .search-box-results a:hover {
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+    }
+
+    .search-box-empty {
+      margin: 0;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .page {
+      padding-top: calc(var(--header-height) + 26px);
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .breadcrumb a {
+      color: #2563eb;
+      font-weight: 800;
+    }
+
+    .article-hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 390px;
+      border-radius: 30px;
+      border: 1px solid #dbeafe;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+    }
+
+    .article-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("../assets/images/timer-relay-basic/timer-relay-overview.png");
+      background-repeat: no-repeat;
+      background-size: min(48%, 520px) auto;
+      background-position: right 26px center;
+      opacity: 0.26;
+      pointer-events: none;
+    }
+
+    .article-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.96) 42%, rgba(255, 255, 255, 0.78) 63%, rgba(255, 255, 255, 0.28) 100%),
+        radial-gradient(circle at 12% 20%, rgba(37, 99, 235, 0.08), transparent 28%);
+      pointer-events: none;
+    }
+
+    .article-hero-copy {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 650px);
+      padding: 42px;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #0f172a;
+      font-size: clamp(29px, 4vw, 46px);
+      line-height: 1.23;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-lead {
+      margin: 16px 0 0;
+      color: #334155;
+      font-size: 15.5px;
+      line-height: 1.9;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 15px;
+      border-radius: 14px;
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 1.35;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.20);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--blue-dark);
+      border-color: #bfdbfe;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .top-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 26px;
+    }
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid #dbeafe;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .summary-card h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #0f172a;
+    }
+
+    .summary-card ul {
+      margin: 0;
+      padding-left: 1.2em;
+      color: #334155;
+      font-size: 13.5px;
+      line-height: 1.75;
+    }
+
+    .summary-card li {
+      margin: 5px 0;
+    }
+
+    .page-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 292px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .main-column {
+      min-width: 0;
+    }
+
+    .side-rail {
+      position: sticky;
+      top: calc(var(--header-height) + 18px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-card,
+    .side-card,
+    .mini-toc-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid #dbeafe;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .section-card {
+      border-radius: var(--radius);
+      padding: 28px;
+      margin: 0 0 18px;
+    }
+
+    .section-card h2 {
+      margin: 0 0 16px;
+      color: #0f172a;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.35;
+      letter-spacing: -0.03em;
+    }
+
+    .section-card h3 {
+      margin: 24px 0 10px;
+      color: #0f172a;
+      font-size: 19px;
+      line-height: 1.45;
+    }
+
+    .section-card p {
+      margin: 0 0 14px;
+      color: #334155;
+      font-size: 15px;
+    }
+
+    .section-card ul {
+      margin: 10px 0 0;
+      padding-left: 1.25em;
+    }
+
+    .section-card li {
+      margin: 7px 0;
+      color: #334155;
+    }
+
+    .mini-toc-card {
+      border-radius: 20px;
+      padding: 20px;
+      margin: 18px 0 0;
+    }
+
+    .mini-toc-card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #0f172a;
+    }
+
+    .mini-toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini-toc a {
+      display: flex;
+      align-items: center;
+      min-height: 46px;
+      padding: 10px 13px;
+      border-radius: 14px;
+      background: var(--blue-soft);
+      border: 1px solid #dbeafe;
+      color: #1e40af;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .key-highlight,
+    .field-highlight {
+      border-radius: 18px;
+      padding: 17px 18px;
+      margin: 18px 0;
+      border: 1px solid;
+    }
+
+    .key-highlight {
+      background: var(--blue-soft);
+      border-color: #bfdbfe;
+    }
+
+    .field-highlight {
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .highlight-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 6px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .highlight-title::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    .field-highlight .highlight-title::before {
+      background: var(--green);
+    }
+
+    .highlight-text {
+      margin: 0 !important;
+      font-size: 14.5px !important;
+    }
+
+    .article-figure {
+      margin: 20px 0;
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid #dbeafe;
+      background: #ffffff;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.07);
+    }
+
+    .article-figure img {
+      width: 100%;
+      background: #f8fafc;
+    }
+
+    .article-figure figcaption {
+      padding: 13px 16px 15px;
+      color: #475569;
+      background: #ffffff;
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 18px 0;
+      border: 1px solid #dbeafe;
+      border-radius: 18px;
+      background: #ffffff;
+    }
+
+    .table-wrap table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 640px;
+      font-size: 14px;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+      padding: 12px 13px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .table-wrap th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 900;
+    }
+
+    .table-wrap tr:last-child th,
+    .table-wrap tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .cell-blue {
+      background: #eff6ff !important;
+      color: #1e3a8a !important;
+      font-weight: 900;
+    }
+
+    .cell-green {
+      background: #ecfdf5 !important;
+      color: #166534 !important;
+      font-weight: 900;
+    }
+
+    .cell-orange {
+      background: #fff7ed !important;
+      color: #9a3412 !important;
+      font-weight: 900;
+    }
+
+    .check-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .check-item {
+      border-radius: 17px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      padding: 15px;
+    }
+
+    .check-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .check-item p {
+      margin: 0;
+      color: #475569;
+      font-size: 13.5px;
+    }
+
+    .check-item--important {
+      background: var(--blue-soft);
+      border-color: #bfdbfe;
+    }
+
+    .check-item--field {
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .check-item--warning {
+      background: var(--orange-soft);
+      border-color: #fed7aa;
+    }
+
+    .talk-thread {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .talk-row {
+      display: grid;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .talk-row--left {
+      grid-template-columns: 76px minmax(0, 1fr);
+    }
+
+    .talk-row--right {
+      grid-template-columns: minmax(0, 1fr) 76px;
+    }
+
+    .talk-avatar {
+      width: 76px;
+      height: auto;
+      align-self: end;
+    }
+
+    .talk-row--right .talk-avatar {
+      order: 2;
+    }
+
+    .talk-bubble {
+      position: relative;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid #dbeafe;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+      color: #334155;
+      font-size: 14.5px;
+      line-height: 1.75;
+    }
+
+    .talk-row--right .talk-bubble {
+      background: #f8fbff;
+    }
+
+    .talk-name {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .talk-name--senpai {
+      color: var(--blue-dark);
+    }
+
+    .talk-name--kouhai {
+      color: var(--green-dark);
+    }
+
+    .side-card {
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .side-card h2 {
+      margin: 0 0 12px;
+      color: #0f172a;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .side-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .side-card a {
+      display: block;
+      padding: 9px 10px;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      color: #1e40af;
+      font-size: 12.5px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .related-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .related-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
+    }
+
+    .related-card .tag {
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 9px;
+    }
+
+    .related-card strong {
+      color: #0f172a;
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .related-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .back-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .back-links a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 13px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .site-footer {
+      margin-top: 32px;
+      padding: 26px 0 40px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (min-width: 744px) and (max-width: 1100px) {
+      .site-header-inner,
+      .container {
+        width: min(100% - 28px, 980px);
+      }
+
+      .brand {
+        min-width: 220px;
+      }
+
+      .brand-sub {
+        white-space: normal;
+      }
+
+      .article-hero {
+        min-height: 360px;
+        align-items: center;
+      }
+
+      .article-hero::before {
+        background-size: min(50%, 430px) auto;
+        background-position: right 18px center;
+        opacity: 0.20;
+      }
+
+      .article-hero-copy {
+        width: min(100%, 600px);
+      }
+
+      .top-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-rail {
+        position: static;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .header-search {
+        width: 220px;
+      }
+    }
+
+    @media (max-width: 743px) {
+      :root {
+        --header-height: 66px;
+      }
+
+      html {
+        scroll-padding-top: 86px;
+      }
+
+      .site-header {
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .site-header-inner {
+        width: calc(100% - 16px);
+        min-height: var(--header-height);
+        gap: 6px;
+      }
+
+      .brand {
+        min-width: 0;
+        gap: 7px;
+      }
+
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+      }
+
+      .brand-title {
+        font-size: 12.5px;
+      }
+
+      .brand-sub {
+        display: none;
+      }
+
+      .header-nav {
+        gap: 5px;
+      }
+
+      .header-nav a {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+
+      .header-search {
+        width: 38px;
+      }
+
+      .search-box-input {
+        width: 38px;
+        padding: 0;
+        color: transparent;
+        font-size: 0;
+      }
+
+      .search-box-input::placeholder {
+        color: transparent;
+      }
+
+      .search-box-input:focus {
+        position: absolute;
+        right: 44px;
+        top: 0;
+        width: min(250px, calc(100vw - 112px));
+        padding: 0 12px;
+        color: var(--text);
+        font-size: 13px;
+      }
+
+      .search-box-button {
+        width: 38px;
+        min-width: 38px;
+        padding: 0;
+        font-size: 0;
+      }
+
+      .search-box-button::before {
+        content: "🔍";
+        font-size: 14px;
+      }
+
+      .page {
+        padding-top: 82px;
+      }
+
+      .container {
+        width: calc(100% - 20px);
+      }
+
+      .breadcrumb {
+        font-size: 11px;
+      }
+
+      .article-hero {
+        min-height: auto;
+        border-radius: 24px;
+      }
+
+      .article-hero::before {
+        background-size: 96% auto;
+        background-position: center bottom 4px;
+        opacity: 0.13;
+      }
+
+      .article-hero::after {
+        background:
+          linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.94) 72%, rgba(255, 255, 255, 0.78) 100%);
+      }
+
+      .article-hero-copy {
+        padding: 28px 20px 24px;
+      }
+
+      .hero-label {
+        font-size: 11px;
+      }
+
+      .hero-lead {
+        font-size: 14px;
+      }
+
+      .hero-actions {
+        display: grid;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .top-summary {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .section-card {
+        padding: 22px 18px;
+        border-radius: 20px;
+      }
+
+      .section-card p,
+      .section-card li {
+        font-size: 14px;
+      }
+
+      .mini-toc {
+        grid-template-columns: 1fr;
+      }
+
+      .check-list {
+        grid-template-columns: 1fr;
+      }
+
+      .talk-row--left,
+      .talk-row--right {
+        grid-template-columns: 54px minmax(0, 1fr);
+      }
+
+      .talk-row--right .talk-avatar {
+        order: 0;
+      }
+
+      .talk-avatar {
+        width: 54px;
+      }
+
+      .talk-bubble {
+        font-size: 13.5px;
+        padding: 12px 13px;
+      }
+
+      .side-rail {
+        position: static;
+      }
+
+      .related-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ">
+        <span class="brand-copy">
+          <span class="brand-title">電気と制御の実務メモ</span>
+          <span class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a href="../index.html">ホーム</a>
+        <a href="../index.html#popular">人気記事</a>
+        <a href="../index.html#categories">カテゴリ</a>
+
+        <form class="header-search search-box" id="siteSearch" role="search">
+          <input id="site-search-input" class="search-box-input" type="search" name="q" placeholder="サイト内検索" autocomplete="off" aria-label="サイト内検索">
+          <button class="search-box-button" type="submit" aria-label="検索">検索</button>
+          <div class="search-box-panel" id="site-search-panel" hidden>
+            <ul class="search-box-results" id="site-search-results"></ul>
+            <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+          </div>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../categories/control-basics.html">制御の基礎</a>
+        <span>›</span>
+        <span>タイマーリレーとは？</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎 / ハード回路</span>
+          <h1>タイマーリレーとは？</h1>
+          <p class="hero-lead">
+            ハード回路で使うONディレー・OFFディレーの違いをやさしく解説します。
+            今回扱うのは、PLC内のソフトタイマーではなく、制御盤の中に取り付ける実物のタイマーリレーです。
+            「入力が入る」「時間を数える」「接点が切り替わる」を分けて見ると、現場でも追いやすくなります。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#summary">先に結論から読む</a>
+            <a class="btn btn-secondary" href="#basic">基本を順番に見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の概要">
+        <article class="summary-card">
+          <h2>向いている人</h2>
+          <ul>
+            <li>制御盤の中にあるタイマーリレーを理解したい人</li>
+            <li>ONディレー・OFFディレーの違いが混ざりやすい人</li>
+            <li>ハード回路側のタイマーを現場目線で見たい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>まずリレーのコイルと接点がかなり不安な人</li>
+            <li>PLC内のタイマー命令だけを知りたい人</li>
+            <li>細かい型式選定を先に調べたい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card">
+          <h2>先に結論</h2>
+          <ul>
+            <li>タイマーリレーは時間で接点を切り替える部品</li>
+            <li>ONディレーは「入ってから遅れる」</li>
+            <li>OFFディレーは「切れてから遅れる」</li>
+          </ul>
+        </article>
+      </section>
+
+      <div class="page-layout">
+        <main class="main-column">
+          <section class="section-card" id="summary">
+            <h2>先に結論：タイマーリレーは「時間で接点を切り替えるハード部品」</h2>
+            <p>
+              タイマーリレーは、制御盤の中で使う時間制御用のリレーです。
+              入力が入ってから一定時間後に接点を切り替えたり、入力が切れてから一定時間だけ状態を保ったりできます。
+            </p>
+            <p>
+              普通のリレーは、コイルに電気が入るとすぐ接点が切り替わります。
+              それに対してタイマーリレーは、コイルや入力条件が入ってから設定時間を数え、その後で接点を切り替えるのが特徴です。
+            </p>
+
+            <div class="key-highlight">
+              <p class="highlight-title">今回の記事はPLC内のソフトタイマーではなく、ハード回路のタイマーリレーです</p>
+              <p class="highlight-text">
+                GX Works3上で使うタイマー命令ではなく、制御盤に取り付ける実物のタイマーリレーとして説明します。
+                本体の電源端子、設定時間ダイヤル、出力接点、端子番号を見ながら追う内容です。
+              </p>
+            </div>
+
+            <div class="mini-toc-card">
+              <h2>この記事でわかること</h2>
+              <nav class="mini-toc" aria-label="記事内ミニ目次">
+                <a href="#summary">先に結論</a>
+                <a href="#basic">タイマーリレーとは</a>
+                <a href="#operation">基本の動き</a>
+                <a href="#delay">ON/OFFディレー</a>
+                <a href="#software">ソフトタイマーとの違い</a>
+                <a href="#panel">制御盤での見方</a>
+                <a href="#trouble">トラブル時の確認</a>
+                <a href="#wrap-up">まとめ</a>
+              </nav>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--left">
+                <img class="talk-avatar" src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--senpai">先輩</span>
+                  タイマーリレーは、ざっくり言うと「時間を待ってから接点を切り替えるリレー」だよ。
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--right">
+                <img class="talk-avatar" src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--kouhai">新人</span>
+                  PLCの中のタイマーではなく、盤の中に実物として付いている部品なんですね。
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--left">
+                <img class="talk-avatar" src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--senpai">先輩</span>
+                  そう。だから「入力が来ているか」「時間を数えているか」「接点が切り替わったか」を分けて見るのが大事だね。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="basic">
+            <h2>タイマーリレーとは？</h2>
+            <p>
+              タイマーリレーとは、時間を条件にして接点を切り替える部品です。
+              制御盤の中では、すぐに動かしたくない回路や、少し遅らせて停止させたい回路で使われます。
+            </p>
+            <p>
+              たとえば、スタート信号が入ってから5秒後にランプを点灯させたい。
+              停止信号が切れても、しばらくファンを回し続けたい。
+              こうした「少し待ってから動かす」「少し遅らせて戻す」場面で使います。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/timer-relay-basic/timer-relay-overview.png" alt="タイマーリレーとは何かを示す制御盤内の図解" loading="lazy" decoding="async">
+              <figcaption>
+                タイマーリレーは、電源端子・入力・設定時間ダイヤル・出力接点を持ち、設定した時間を条件に接点を切り替えるハード回路用の部品です。
+              </figcaption>
+            </figure>
+
+            <h3>普通のリレーとの違い</h3>
+            <p>
+              普通のリレーは、コイルに電気が入るとすぐ接点が切り替わります。
+              タイマーリレーは、その間に「設定時間」が入ります。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>部品</th>
+                    <th>基本の動き</th>
+                    <th>現場での見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>リレー</th>
+                    <td>コイルONで、すぐ接点が切り替わる</td>
+                    <td>コイルが入っているか、接点が返っているかを見る</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-blue">タイマーリレー</th>
+                    <td>入力後、設定時間を待ってから接点が切り替わる</td>
+                    <td>入力、カウント、接点切替を分けて見る</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <p class="highlight-title">現場では「本体が動いた」と「接点が使えている」を分けて見る</p>
+              <p class="highlight-text">
+                タイマー本体のランプが点いていても、出力接点側の電源や配線に問題があれば負荷は動きません。
+                本体側と接点側を分けて確認するのが、トラブル対応ではかなり大事です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="operation">
+            <h2>タイマーリレーの基本の動き</h2>
+            <p>
+              基本の流れは、入力が入る、タイマーが時間を数える、設定時間に到達する、接点が切り替わる、という順番です。
+              いきなり端子番号を追うより、この流れで考えると理解しやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/timer-relay-basic/timer-relay-operation-flow.png" alt="タイマーリレーの入力ONから接点切替までの動作イメージ" loading="lazy" decoding="async">
+              <figcaption>
+                入力が入ってから設定時間をカウントし、時間に到達すると出力接点が切り替わります。ランプ、リレー、ソレノイド、ファンなどを遅らせて動かす考え方につながります。
+              </figcaption>
+            </figure>
+
+            <h3>1. 入力ON</h3>
+            <p>
+              押しボタン、センサー、リレー接点、PLC出力などから条件が入り、タイマーリレーに電源や入力信号が入ります。
+              機種によっては、電源が入ったこと自体がタイマー開始条件になる場合もあります。
+            </p>
+
+            <h3>2. タイマーがカウント</h3>
+            <p>
+              前面ダイヤルやレンジ設定に合わせて、設定時間を数えます。
+              この間はまだ出力接点が切り替わっていない場合があります。
+            </p>
+
+            <h3>3. 設定時間に到達</h3>
+            <p>
+              設定した時間に到達すると、タイマーリレー内部の動作が完了します。
+              表示ランプ付きの機種では、通電表示や出力表示で状態を見られることがあります。
+            </p>
+
+            <h3>4. 接点が切り替わる</h3>
+            <p>
+              a接点側が閉じる、b接点側が開くなど、接点の状態が変わります。
+              実際に負荷が動くかどうかは、接点側の電源・配線・負荷状態も関係します。
+            </p>
+
+            <div class="check-list">
+              <div class="check-item check-item--important">
+                <strong>入力が来ているか</strong>
+                <p>タイマー開始条件になる信号が入っているかを確認します。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <strong>時間を数えているか</strong>
+                <p>設定時間の間、カウント状態になっているかを確認します。</p>
+              </div>
+              <div class="check-item check-item--important">
+                <strong>接点が切り替わるか</strong>
+                <p>時間到達後にNO/NC接点が想定どおり変わるかを見ます。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <strong>負荷側が正常か</strong>
+                <p>接点が返っても、負荷側電源や配線がなければ動きません。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="delay">
+            <h2>ONディレーとOFFディレーの違い</h2>
+            <p>
+              タイマーリレーで最初に混ざりやすいのが、ONディレーとOFFディレーです。
+              名前だけで覚えるよりも、「入ってから遅れる」のか「切れてから遅れる」のかで見ると整理しやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/timer-relay-basic/on-delay-vs-off-delay.png" alt="ONディレーとOFFディレーの違いを比較する図解" loading="lazy" decoding="async">
+              <figcaption>
+                ONディレーは入力が入ってから設定時間後に接点が切り替わります。OFFディレーは入力が切れてから設定時間後に接点が戻ります。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>種類</th>
+                    <th>動き方</th>
+                    <th>現場での言い方</th>
+                    <th>使い方の例</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th class="cell-blue">ONディレー</th>
+                    <td>入力が入ってから、設定時間後に接点が切り替わる</td>
+                    <td>入ってから遅れる</td>
+                    <td>遅延起動、順番制御、一定時間後のランプ点灯</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-green">OFFディレー</th>
+                    <td>入力が切れてから、設定時間後に接点が戻る</td>
+                    <td>切れてから遅れる</td>
+                    <td>遅延停止、ファンの残運転、警報保持</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-orange">その他の動作</th>
+                    <td>フリッカ、ワンショット、インターバルなど</td>
+                    <td>機種のモード設定で確認する</td>
+                    <td>点滅、一定時間だけON、繰り返し動作</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <p class="highlight-title">ONディレーは「入ってから待つ」、OFFディレーは「切れてから待つ」</p>
+              <p class="highlight-text">
+                図面や現物を見たときは、タイマーの種類名だけで判断せず、
+                入力がONした瞬間から遅れているのか、入力がOFFした瞬間から遅れているのかを確認すると間違えにくいです。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <img class="talk-avatar" src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--kouhai">新人</span>
+                  ONディレーとOFFディレー、名前だけ見るとよく混ざります。
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--left">
+                <img class="talk-avatar" src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--senpai">先輩</span>
+                  最初は「入ってから遅れる」「切れてから遅れる」で覚えるといいよ。現場ではこの見方の方が追いやすいことが多いね。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="software">
+            <h2>PLCのソフトタイマーとの違い</h2>
+            <p>
+              PLCのラダー内で使うタイマー命令も、一定時間を数えて接点を使うという意味では似ています。
+              ただし、今回のタイマーリレーは盤内に実物として付くハード部品です。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>比較</th>
+                    <th>ハードタイマーリレー</th>
+                    <th>PLCのソフトタイマー</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>存在する場所</th>
+                    <td class="cell-blue">制御盤内の実物部品</td>
+                    <td>PLCプログラム内のタイマー命令</td>
+                  </tr>
+                  <tr>
+                    <th>設定方法</th>
+                    <td>本体ダイヤル、レンジ切替、モード設定など</td>
+                    <td class="cell-green">GX Works3などで設定値を入力</td>
+                  </tr>
+                  <tr>
+                    <th>確認方法</th>
+                    <td>端子電圧、表示ランプ、接点導通、配線</td>
+                    <td>モニタ画面、デバイス値、ラダー状態</td>
+                  </tr>
+                  <tr>
+                    <th>注意点</th>
+                    <td class="cell-orange">型式、電圧、接点容量、動作モードを確認</td>
+                    <td>設定値、単位、完了接点、リセット条件を確認</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <p class="highlight-title">図面で実物の端子番号が出てくるなら、ハード側として見る</p>
+              <p class="highlight-text">
+                A1/A2、15/16/18、COM/NO/NCのような端子番号が出てくる場合は、盤内の実物タイマーリレーを追う場面が多いです。
+                一方、T0やT10などのデバイス番号を追う場合は、PLC内のソフトタイマーとして見ることが多いです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="use-case">
+            <h2>現場でよくある使い方</h2>
+            <p>
+              タイマーリレーは、古い設備やシンプルな制御盤、PLCを使わない小さな制御回路で今でも見かけます。
+              PLCがある設備でも、盤内の補助回路として使われていることがあります。
+            </p>
+
+            <div class="check-list">
+              <div class="check-item check-item--important">
+                <strong>遅延起動</strong>
+                <p>電源投入後、すぐに負荷を動かさず、数秒待ってから動かしたいときに使います。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <strong>遅延停止</strong>
+                <p>停止信号後もしばらくファンやポンプを動かしたいときに使います。</p>
+              </div>
+              <div class="check-item check-item--important">
+                <strong>順番制御</strong>
+                <p>1つ目の機器が動いてから、少し遅れて2つ目を動かすような回路に使います。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <strong>警報保持</strong>
+                <p>一瞬の異常信号をすぐ消さず、一定時間だけ表示やブザーを残したいときに使うことがあります。</p>
+              </div>
+            </div>
+
+            <div class="key-highlight">
+              <p class="highlight-title">タイマーリレーは「動作の順番」を作るために使われることが多い</p>
+              <p class="highlight-text">
+                モーター、ファン、ランプ、ブザー、電磁弁などを、すぐON/OFFさせずに少し時間をずらしたいときに使います。
+                設備の流れを整える部品として見ると分かりやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="panel">
+            <h2>制御盤の中でタイマーリレーをどう見るか</h2>
+            <p>
+              制御盤の中でタイマーリレーを見るときは、タイマー本体だけを見ても全体は分かりません。
+              何の条件で時間を数え始め、どの接点で何を動かしているかを順番に追います。
+            </p>
+
+            <h3>1. 電源仕様を見る</h3>
+            <p>
+              まずはタイマーリレー本体の電源電圧を確認します。
+              AC100V、AC200V、DC24Vなど、見た目が似ていても仕様が違うことがあります。
+            </p>
+
+            <h3>2. 何の信号で動くかを見る</h3>
+            <p>
+              押しボタン、センサー、リレー接点、PLC出力など、何がタイマー開始条件になっているかを確認します。
+              入力条件が来ていなければ、タイマーは当然カウントしません。
+            </p>
+
+            <h3>3. 設定時間を見る</h3>
+            <p>
+              ダイヤルの位置だけでなく、秒・分・時間などのレンジも確認します。
+              レンジ切替スイッチがある場合、ダイヤルの数字だけ見て判断すると間違えることがあります。
+            </p>
+
+            <h3>4. 出力接点を見る</h3>
+            <p>
+              NO接点を使っているのか、NC接点を使っているのかを確認します。
+              図面上の接点番号と実物の端子番号を合わせて見ると、どの回路を切り替えているか追いやすくなります。
+            </p>
+
+            <div class="field-highlight">
+              <p class="highlight-title">入力 → カウント → 接点 → 負荷、の順番で追う</p>
+              <p class="highlight-text">
+                「タイマーが悪い」と決めつける前に、入力条件が来ているか、設定時間を数えているか、接点が切り替わっているか、負荷側に電源があるかを順番に見ると原因を絞りやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="trouble">
+            <h2>トラブル時の確認ポイント</h2>
+            <p>
+              タイマーリレーまわりのトラブルでは、「時間後に動かない」「遅れて止まらない」「すぐ動いてしまう」「設定時間と違う」といった症状が出ます。
+              そのときは、タイマー本体だけでなく、入力条件・接点側・負荷側を分けて確認します。
+            </p>
+
+            <div class="check-list">
+              <div class="check-item check-item--important">
+                <strong>電源が来ているか</strong>
+                <p>A1/A2などに指定電圧が入っているか確認します。電圧仕様違いにも注意します。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <strong>入力条件が成立しているか</strong>
+                <p>押しボタン、センサー、前段リレー接点などがON/OFFしているか見ます。</p>
+              </div>
+              <div class="check-item check-item--important">
+                <strong>設定時間が合っているか</strong>
+                <p>ダイヤル位置、レンジ切替、秒・分の単位を確認します。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <strong>接点が切り替わっているか</strong>
+                <p>タイマー完了後にNO/NC接点が想定どおり変わるか確認します。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <strong>接点容量を超えていないか</strong>
+                <p>大きな負荷を直接入れていると接点不良や溶着につながることがあります。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <strong>端子ゆるみ・配線抜けがないか</strong>
+                <p>タイマー本体が正常でも、端子のゆるみで不安定になることがあります。</p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <img class="talk-avatar" src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--kouhai">新人</span>
+                  タイマーが悪いと思って交換したけど直らない、みたいなこともありますか？
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--left">
+                <img class="talk-avatar" src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+                <div class="talk-bubble">
+                  <span class="talk-name talk-name--senpai">先輩</span>
+                  あるよ。実際は入力条件が来ていない、接点側の電源がない、負荷側の配線が抜けている、ということもある。だから分けて見るのが大事だね。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="caution">
+            <h2>交換・設定変更するときの注意点</h2>
+            <p>
+              タイマーリレーは見た目が似ていても、電源電圧、接点構成、動作モード、時間レンジ、端子配列が違うことがあります。
+              交換するときは、同じメーカー・同じ形に見えるだけで判断しない方が安全です。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>確認項目</th>
+                    <th>見る理由</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th class="cell-blue">電源電圧</th>
+                    <td>AC100V、AC200V、DC24Vなどが違うと動作しない、または故障につながります。</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-green">動作モード</th>
+                    <td>ONディレー用なのか、OFFディレー用なのか、マルチタイマーなのかを確認します。</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-orange">時間レンジ</th>
+                    <td>0.1〜60秒、1〜10分など、同じダイヤル数字でも単位が違うことがあります。</td>
+                  </tr>
+                  <tr>
+                    <th>接点構成</th>
+                    <td>1c、2c、NOのみ、NCありなど、使える接点が違う場合があります。</td>
+                  </tr>
+                  <tr>
+                    <th>端子配列</th>
+                    <td>古い機種と新しい機種で端子位置が違うと、差し替えだけでは使えないことがあります。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <p class="highlight-title">設定変更は、設備の動作順序に影響します</p>
+              <p class="highlight-text">
+                タイマー時間を少し変えるだけでも、搬送、エアシリンダ、モーター、警報、停止動作などに影響することがあります。
+                現場で変更する場合は、元の値を控え、設備の動き全体を確認してから調整します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="wrap-up">
+            <h2>まとめ：タイマーリレーは「時間」と「接点」を分けて見る</h2>
+            <p>
+              タイマーリレーは、制御盤の中で時間を条件に接点を切り替えるハード回路用の部品です。
+              PLCのソフトタイマーとは違い、実物の端子、設定ダイヤル、出力接点、電源仕様を見ながら確認します。
+            </p>
+            <p>
+              ONディレーは「入力が入ってから遅れる」、OFFディレーは「入力が切れてから遅れる」と考えると整理しやすいです。
+              トラブル時は、入力が来ているか、タイマーがカウントしているか、接点が切り替わっているか、負荷側が正常かを分けて見ます。
+            </p>
+            <p>
+              タイマーリレーは小さな部品ですが、設備の起動順序、停止タイミング、警報保持などに関わることがあります。
+              交換や設定変更をするときは、電圧・モード・時間レンジ・接点構成を確認し、元の状態を控えてから進めると安心です。
+            </p>
+
+            <div class="back-links">
+              <a href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+              <a href="../categories/circuit-basics.html">回路の基礎も見る</a>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい記事</h2>
+            <div class="related-list">
+              <a class="related-card" href="relay-basic.html">
+                <span class="tag">制御の基礎</span>
+                <strong>リレーとは？</strong>
+                <p>コイルと接点の基本を先に整理すると、タイマーリレーの動きも追いやすくなります。</p>
+              </a>
+
+              <a class="related-card" href="timer-circuit-basic.html">
+                <span class="tag">PLC・ラダー</span>
+                <strong>タイマー回路とは？</strong>
+                <p>GX Works3上のソフトタイマー回路を見たい場合はこちらが近い内容です。</p>
+              </a>
+
+              <a class="related-card" href="no-nc-basic.html">
+                <span class="tag">接点の基礎</span>
+                <strong>NO / NC の違いとは？</strong>
+                <p>タイマー接点の見方とあわせて、NO・NCの考え方を整理できます。</p>
+              </a>
+
+              <a class="related-card" href="input-output-basic.html">
+                <span class="tag">制御入門</span>
+                <strong>入力と出力の違いとは？</strong>
+                <p>入力条件と出力側の回路を分けて見る考え方につながります。</p>
+              </a>
+
+              <a class="related-card" href="self-hold-circuit.html">
+                <span class="tag">基本回路</span>
+                <strong>自己保持回路とは？</strong>
+                <p>接点を使って状態を保持する考え方を押さえると、回路の流れを追いやすくなります。</p>
+              </a>
+
+              <a class="related-card" href="electromagnetic-contactor-vs-switch.html">
+                <span class="tag">比較</span>
+                <strong>電磁接触器と電磁開閉器の違い</strong>
+                <p>リレーやタイマーと一緒に、盤内の電磁部品の役割を整理できます。</p>
+              </a>
+            </div>
+          </section>
+        </main>
+
+        <aside class="side-rail" aria-label="記事内メニュー">
+          <section class="side-card">
+            <h2>記事内メニュー</h2>
+            <ul>
+              <li><a href="#summary">先に結論</a></li>
+              <li><a href="#basic">タイマーリレーとは</a></li>
+              <li><a href="#operation">基本の動き</a></li>
+              <li><a href="#delay">ON/OFFディレー</a></li>
+              <li><a href="#software">ソフトタイマーとの違い</a></li>
+              <li><a href="#panel">制御盤での見方</a></li>
+              <li><a href="#trouble">トラブル時の確認</a></li>
+              <li><a href="#wrap-up">まとめ</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h2>関連カテゴリ</h2>
+            <ul>
+              <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+              <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+              <li><a href="../categories/comparison-guide.html">比較・使い分け</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h2>この記事の要点</h2>
+            <ul>
+              <li><a href="#software">今回はハード回路側のタイマー</a></li>
+              <li><a href="#delay">入ってから遅れる / 切れてから遅れる</a></li>
+              <li><a href="#trouble">入力・カウント・接点を分けて確認</a></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© 電気と制御の実務メモ</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

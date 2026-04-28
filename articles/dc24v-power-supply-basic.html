@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>パワーサプライとは？制御盤で使うDC24V電源装置の見方をやさしく解説</title>
+  <meta name="description" content="パワーサプライとは、AC100VやAC200VをDC24Vに変換して、PLC・センサー・リレー・表示灯などへ電源を供給する制御盤の電源装置です。トランスとの違い、端子の見方、電源が出ない時の確認ポイントを初心者向けにやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/dc24v-power-supply-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="パワーサプライとは？制御盤で使うDC24V電源装置の見方をやさしく解説">
+  <meta property="og:description" content="制御盤でよく見るパワーサプライの基本、DC24V電源の役割、トランスとの違い、確認ポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/dc24v-power-supply-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --header-h:78px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      inset:0 0 auto 0;
+      z-index:1000;
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(209,220,234,.9);
+    }
+    .site-header-inner{
+      width:min(1180px,calc(100% - 24px));
+      margin:0 auto;
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:10px 0;
+    }
+    .brand{
+      min-width:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+    .brand-copy{display:flex;flex-direction:column;min-width:0}
+    .brand-title{font-size:14px;font-weight:900;letter-spacing:.02em;line-height:1.25}
+    .brand-sub{font-size:11px;color:var(--muted);line-height:1.35;white-space:nowrap}
+    .header-nav{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .header-nav a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .header-nav a:hover{background:#f8fbff;border-color:#dbe7f3}
+    .header-search{flex:0 0 260px;position:relative;margin-left:8px}
+    .search-box-input{
+      width:100%;
+      height:44px;
+      padding:0 50px 0 16px;
+      border-radius:999px;
+      border:1px solid #cfdbeb;
+      background:#fff;
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      outline:none;
+    }
+    .search-box-input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    .search-box-button{
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:0;
+      border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+    }
+    .search-box-button:hover{background:#1e40af}
+    .header-search-icon{
+      display:block;
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-radius:50%;
+      position:relative;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#fff;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}
+    .hero-lead{margin:0;max-width:37ch;font-size:15px;color:#334155}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .mark{background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);font-weight:900}
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .key-highlight h3{margin:0 0 10px;font-size:16px;color:#1d4ed8;line-height:1.5}
+    .key-highlight p{margin:0;color:#334155;font-size:14px}
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{margin:0 0 10px;font-size:16px;color:#15803d;line-height:1.5}
+    .field-highlight p{margin:0;color:#334155;font-size:14px}
+
+    .simple-list{margin:0;padding-left:20px}
+    .simple-list li{margin:10px 0 0;font-size:15px}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure img{width:100%;height:auto}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+
+    .point-box,.note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
+    .point-box{background:#f8fbff;border-color:#d7e4f3}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .point-box h3,.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .point-box p,.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{width:76px;height:auto;display:block;object-fit:contain;background:transparent;border:none;box-shadow:none;outline:none}
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}
+    .talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}
+    .talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5}
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header-inner{gap:8px}
+      .brand-logo{width:40px;height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+      .header-search{margin-left:auto;flex:0 0 168px}
+      .search-box-input{height:40px;font-size:12px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .container{width:min(100% - 20px,1180px)}
+      .hero-actions{width:100%}
+      .btn{width:100%}
+      .mini-toc{display:grid;grid-template-columns:1fr}
+      .talk-row,.talk-row--right{flex-direction:row}
+      .talk-avatar{flex:0 0 58px;width:58px}
+      .talk-avatar img{width:54px}
+      .talk-bubble{padding:12px 14px}
+      .talk-bubble p{font-size:14px}
+      .table-wrap{margin-left:-4px;margin-right:-4px}
+      table{min-width:680px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center}
+      h1{font-size:34px}
+      .hero-lead{max-width:36ch;font-size:14px;color:#334155}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{font-size:13px;line-height:1.65}
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+      .side-card{padding:18px}
+      .side-card h3{font-size:15px}
+      .side-card li{font-size:13px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="トップページへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ">
+        <span class="brand-copy">
+          <span class="brand-title">電気と制御の実務メモ</span>
+          <span class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a href="../index.html">ホーム</a>
+        <a href="../index.html#popular">人気記事</a>
+        <a href="../index.html#categories">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">トップ</a> &gt;
+      <a href="../categories/control-basics.html">制御の基礎</a> &gt;
+      <span>パワーサプライとは？</span>
+    </nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">CONTROL BASIC / DC24V POWER SUPPLY</span>
+        <h1>パワーサプライとは？<br>制御盤で使うDC24V電源装置の見方</h1>
+        <p class="hero-lead">
+          パワーサプライは、AC100VやAC200VをDC24Vに変換して、PLC・センサー・リレー・表示灯などへ電源を供給する部品です。
+          トランスとの違いや、電源が出ない時の確認ポイントもあわせて整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#summary">先に結論を見る</a>
+          <a class="btn btn-secondary" href="#transformer">トランスとの違いを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の概要">
+      <article class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>制御盤のパワーサプライの役割を知りたい人</li>
+          <li>DC24V電源がどこから来ているか追いたい人</li>
+          <li>トランスとの違いが少しあいまいな人</li>
+        </ul>
+      </article>
+
+      <article class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まず端子台やサーキットプロテクタの見方が不安な人</li>
+          <li>電源装置の細かい型式選定だけを先に知りたい人</li>
+          <li>高圧・動力盤の電源設計を深く知りたい人</li>
+        </ul>
+      </article>
+
+      <article class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>パワーサプライはACをDC24Vに変換する電源装置</li>
+          <li>PLC・センサー・リレー・表示灯へ電源を供給する</li>
+          <li>トランスは主にAC電圧を変える部品</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="mini-toc-card" id="toc">
+      <h2>この記事でわかること</h2>
+      <nav class="mini-toc" aria-label="記事内メニュー">
+        <a href="#summary">先に結論</a>
+        <a href="#basic">パワーサプライとは</a>
+        <a href="#role">制御盤での役割</a>
+        <a href="#transformer">トランスとの違い</a>
+        <a href="#terminal">端子の見方</a>
+        <a href="#trouble">電源が出ない時</a>
+        <a href="#select">選定・交換時の注意</a>
+        <a href="#wrap-up">まとめ</a>
+      </nav>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="summary">
+          <h2>先に結論：パワーサプライは「制御盤のDC24Vを作る電源装置」</h2>
+          <p>
+            パワーサプライは、AC100VやAC200Vなどの交流入力を受けて、DC24Vなどの直流電源を出力する装置です。
+            制御盤では、PLC、センサー、リレー、表示灯、I/O機器などへ電源を供給するためによく使われます。
+          </p>
+          <p>
+            現場では「パワーサプライ」「DC24V電源」「スイッチング電源」などと呼ばれることがあります。
+            役割としては、<span class="mark">制御機器が安定して動くためのDC電源を作る部品</span>と考えると分かりやすいです。
+          </p>
+
+          <div class="key-highlight">
+            <h3>パワーサプライを見る時は「入力」と「出力」を分ける</h3>
+            <p>
+              入力側にはAC100VやAC200V、出力側にはDC24Vが出ます。
+              電源トラブル時は、入力が来ているか、出力DC24Vが出ているかを分けて確認します。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>パワーサプライは、制御盤の中でDC24Vを作る電源装置だね。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>PLCやセンサーに入っている24Vは、ここから作られていることが多いんですね。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>そう。電源が出ていない時は、入力側と出力側を分けて見ると追いやすいよ。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="basic">
+          <h2>パワーサプライとは？</h2>
+          <p>
+            パワーサプライとは、制御盤の中で使う電源装置のことです。
+            一般的には、AC100VやAC200Vなどの交流電源を入力して、DC24Vなどの直流電源を出力します。
+          </p>
+          <p>
+            制御機器の多くはDC24Vで動くため、パワーサプライは制御盤の中でもかなり重要な部品です。
+            ここが止まると、PLC入力、センサー、リレー、表示灯などがまとめて動かなくなることがあります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/dc24v-power-supply-basic/dc24v-power-supply-overview.png" alt="パワーサプライがAC入力をDC24Vに変換して各機器へ供給するイメージ" loading="lazy" decoding="async">
+            <figcaption>
+              パワーサプライは、AC100VやAC200Vを入力し、DC24Vを出力してPLC・センサー・リレー・表示灯などへ電源を供給します。
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>ACをDCに変換する</h3>
+              <p>交流入力を受けて、制御機器で使いやすい直流電源を作ります。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>DC24Vを供給する</h3>
+              <p>PLC、センサー、リレー、表示灯などへ安定したDC24Vを供給します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>制御盤の電源の中心になる</h3>
+              <p>パワーサプライが止まると、複数の制御機器が同時に動かなくなることがあります。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>容量不足に注意する</h3>
+              <p>接続機器が増えると電流が足りなくなり、電圧低下や不安定動作につながる場合があります。</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>まず「DC24Vが出ているか」を見る</h3>
+            <p>
+              PLCやセンサーが動かない時は、プログラムや機器本体を見る前に、
+              パワーサプライの出力DC24Vが正常かを確認すると切り分けしやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="role">
+          <h2>制御盤での使われ方</h2>
+          <p>
+            制御盤では、パワーサプライの出力DC24Vをサーキットプロテクタや端子台を通して、各機器へ分配します。
+            供給先は、PLC、センサー、リレー、表示灯、ブザー、I/Oユニットなどです。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>供給先</th>
+                  <th>使われ方</th>
+                  <th>確認ポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>PLC</th>
+                  <td class="cell-blue">CPUやI/Oまわりの電源</td>
+                  <td>電源ランプ、入力ランプ、通信状態を確認します。</td>
+                </tr>
+                <tr>
+                  <th>センサー</th>
+                  <td class="cell-green">近接センサー、光電センサーなどの電源</td>
+                  <td>+24V、0V、信号線を分けて確認します。</td>
+                </tr>
+                <tr>
+                  <th>リレー</th>
+                  <td>DC24Vコイルや補助回路の電源</td>
+                  <td>コイル電圧が来ているか、接点側と分けて見ます。</td>
+                </tr>
+                <tr>
+                  <th>表示灯</th>
+                  <td class="cell-orange">DC24Vランプや表示回路の電源</td>
+                  <td>ランプ本体か電源側かを切り分けます。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>サーキットプロテクタの後ろで分岐していることが多い</h3>
+            <p>
+              パワーサプライの出力側にサーキットプロテクタを入れ、そこから回路ごとに分けて保護することがあります。
+              電源が出ない時は、パワーサプライ本体だけでなく、その先の保護回路も確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="transformer">
+          <h2>パワーサプライとトランスの違い</h2>
+          <p>
+            パワーサプライとトランスは、どちらも電源まわりで使う部品なので混ざりやすいです。
+            ざっくり分けると、パワーサプライはACをDCに変換してDC24Vを作る部品、トランスは主にACの電圧を変える部品です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/dc24v-power-supply-basic/power-supply-vs-transformer.png" alt="パワーサプライとトランスの違いを比較した図解" loading="lazy" decoding="async">
+            <figcaption>
+              パワーサプライはAC入力からDC24Vを作ります。トランスは主にAC電圧を変える部品で、トランスだけではDC24Vにはなりません。
+            </figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>パワーサプライ</th>
+                  <th>トランス</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>主な役割</th>
+                  <td class="cell-blue">ACをDC24Vに変換する</td>
+                  <td class="cell-orange">ACの電圧を上げ下げする</td>
+                </tr>
+                <tr>
+                  <th>出力</th>
+                  <td class="cell-green">直流、DC24Vなど</td>
+                  <td>交流、AC100V・AC24Vなど</td>
+                </tr>
+                <tr>
+                  <th>よく使う場面</th>
+                  <td>PLC、センサー、リレー、表示灯の電源</td>
+                  <td>AC電圧の変換、補助電源、絶縁用途など</td>
+                </tr>
+                <tr>
+                  <th>注意点</th>
+                  <td>容量、出力電圧、過負荷、放熱を見る</td>
+                  <td>トランスだけではDC24Vにはならない</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="key-highlight">
+            <h3>DC24Vが必要なら、基本はパワーサプライを見る</h3>
+            <p>
+              トランスは電圧を変える部品ですが、直流電源を作る目的ではパワーサプライを使うことが多いです。
+              制御盤でDC24V回路を見る時は、まずパワーサプライの入力と出力を確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="terminal">
+          <h2>入力端子と出力端子の見方</h2>
+          <p>
+            パワーサプライを見る時は、入力側と出力側を分けて確認します。
+            入力側にはAC100VやAC200V、出力側には+V、-VなどのDC24V端子があります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>L / N</h3>
+              <p>AC入力側の端子です。AC100VやAC200Vが入力されているか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>+V / -V</h3>
+              <p>DC出力側の端子です。DC24Vが正常に出ているか測定します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>FG / アース</h3>
+              <p>接地用の端子です。盤の接地やノイズ対策に関わる場合があります。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>DC OKランプ</h3>
+              <p>出力状態を示すランプです。消灯している時は入力・出力・過負荷を確認します。</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>入力が正常でも、出力が出ていないことがある</h3>
+            <p>
+              AC入力が来ていても、過負荷、短絡、本体不良、保護回路動作などでDC24Vが出ないことがあります。
+              入力側と出力側を両方確認するのがポイントです。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="trouble">
+          <h2>電源が出ない時の確認ポイント</h2>
+          <p>
+            パワーサプライからDC24Vが出ていない時は、本体不良と決めつける前に、入力電源、出力電圧、保護回路、端子ゆるみ、負荷側の短絡などを順番に確認します。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/dc24v-power-supply-basic/power-supply-troubleshooting.png" alt="パワーサプライの電源が出ない時の確認ポイント" loading="lazy" decoding="async">
+            <figcaption>
+              電源が出ない時は、入力電源、出力DC24V、サーキットプロテクタやヒューズ、端子ゆるみ、過負荷・短絡、本体不良の順で確認します。
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>入力電源が来ているか</h3>
+              <p>AC100VやAC200Vが入力端子に来ているか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>出力DC24Vを測定する</h3>
+              <p>+Vと-V間でDC24Vが出ているか、テスターで確認します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>保護回路を確認する</h3>
+              <p>サーキットプロテクタやヒューズが動作していないか確認します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>端子ゆるみを見る</h3>
+              <p>入力側、出力側の端子ゆるみや配線外れを確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>過負荷・短絡を見る</h3>
+              <p>負荷側の機器や配線で短絡していないか、接続機器が増えすぎていないか見ます。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>本体不良を疑う</h3>
+              <p>入力が正常で負荷側にも異常がないのに出力が出ない場合、本体不良の可能性があります。</p>
+            </div>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>DC24Vが出ていなかったら、すぐ電源装置を交換ですか？</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>交換前に、入力電源、出力側の短絡、サーキットプロテクタ、端子ゆるみを確認しよう。本体以外が原因のこともあるよ。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="select">
+          <h2>選定・交換するときの注意点</h2>
+          <p>
+            パワーサプライを交換・選定する時は、出力電圧だけでなく、容量、入力電圧、取付方法、端子位置、放熱スペースも確認します。
+            同じDC24Vでも、容量が足りないと不安定動作につながります。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>確認項目</th>
+                  <th>見る理由</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>出力電圧</th>
+                  <td class="cell-blue">DC24Vなど、接続機器に合った電圧か確認します。</td>
+                </tr>
+                <tr>
+                  <th>出力容量</th>
+                  <td class="cell-green">5A、10Aなど、負荷全体の消費電流に余裕があるか確認します。</td>
+                </tr>
+                <tr>
+                  <th>入力電圧</th>
+                  <td class="cell-orange">AC100V、AC200V、AC100〜240V対応などを確認します。</td>
+                </tr>
+                <tr>
+                  <th>取付方法</th>
+                  <td>DINレール取付、ねじ取付など、既存盤に合うか確認します。</td>
+                </tr>
+                <tr>
+                  <th>放熱スペース</th>
+                  <td>発熱する部品なので、周囲の空間や通風も確認します。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="danger-box">
+            <h3>容量不足のまま使うと、電圧低下や不安定動作につながる</h3>
+            <p>
+              PLCやセンサーが時々落ちる、表示灯が暗い、リレーが不安定などの症状は、電源容量や電圧低下が関係することがあります。
+              交換時は、元の容量だけでなく、実際の負荷も確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="wrap-up">
+          <h2>まとめ：パワーサプライは「制御盤のDC24Vを支える部品」</h2>
+          <p>
+            パワーサプライは、AC100VやAC200VをDC24Vに変換して、PLC・センサー・リレー・表示灯などへ電源を供給する部品です。
+            制御盤の中では、かなり重要な電源の中心部品になります。
+          </p>
+          <p>
+            トランスは主にAC電圧を変える部品で、パワーサプライはACをDC24Vに変換する部品です。
+            DC24V回路を見る時は、パワーサプライの入力側と出力側を分けて確認すると追いやすくなります。
+          </p>
+          <p>
+            電源が出ない時は、入力電源、出力DC24V、サーキットプロテクタ、端子ゆるみ、過負荷・短絡、本体不良の順に確認します。
+            いきなり交換ではなく、どこで止まっているかを切り分けることが大切です。
+          </p>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-primary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="circuit-protector-basic.html">
+              <h3>サーキットプロテクタとは？</h3>
+              <p>パワーサプライの出力側を保護する部品として、電源トラブル時の確認につながります。</p>
+            </a>
+
+            <a class="related-card" href="terminal-block-basic.html">
+              <h3>端子台とは？</h3>
+              <p>DC24V電源を各機器へ分配する時に、端子台の見方が役立ちます。</p>
+            </a>
+
+            <a class="related-card" href="pilot-lamp-basic.html">
+              <h3>パイロットランプ・表示灯とは？</h3>
+              <p>表示灯が点かない時に、電源側から確認する流れにつながります。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事内メニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#summary">先に結論</a></li>
+            <li><a href="#basic">パワーサプライとは</a></li>
+            <li><a href="#role">制御盤での役割</a></li>
+            <li><a href="#transformer">トランスとの違い</a></li>
+            <li><a href="#terminal">端子の見方</a></li>
+            <li><a href="#trouble">電源が出ない時</a></li>
+            <li><a href="#wrap-up">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>パワーサプライはDC24Vを作る電源装置</li>
+            <li>PLC・センサー・リレーなどへ電源を供給する</li>
+            <li>トランスは主にAC電圧を変える部品</li>
+            <li>電源トラブル時は入力と出力を分けて見る</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/comparison-guide.html">比較・使い分け</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

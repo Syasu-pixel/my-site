@@ -8,7 +8,7 @@
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/servo-motor-basic.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="サーボモーターとは？位置決め制御で使うモーターの基本をやさしく解説">
-  <meta property="og:description" content="サーボモーターの役割、サーボアンプとの関係、位置決め制御、エンコーダ、原点復帰、現場で見る確認ポイントを初心者向けに整理します。">
+  <meta property="og:description" content="サーボモーターの役割、サーボアンプとエンコーダの関係、位置決め制御の流れをやさしく整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/servo-motor-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/servo-motor-basic/servo-motor-basic-hero.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -284,7 +284,7 @@
       position:absolute;
       inset:0;
       background:url("../assets/images/servo-motor-basic/servo-motor-basic-hero.png") right center / auto 100% no-repeat;
-      opacity:.36;
+      opacity:.32;
       pointer-events:none;
       z-index:0;
     }
@@ -292,7 +292,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 38%, rgba(255,255,255,.26) 64%, rgba(255,255,255,0) 100%);
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
       pointer-events:none;
       z-index:1;
     }
@@ -328,7 +328,7 @@
     }
     .hero-lead{
       margin:0;
-      max-width:38ch;
+      max-width:37ch;
       font-size:15px;
       color:#334155;
     }
@@ -463,11 +463,6 @@
       margin:0 0 16px;
       font-size:22px;
       line-height:1.4;
-    }
-    .section-card h3{
-      margin:22px 0 10px;
-      font-size:17px;
-      line-height:1.5;
     }
     .section-card p{
       margin:0 0 14px;
@@ -827,11 +822,11 @@
           #f8fbff;
       }
       .article-hero::before{
-        background:url("../assets/images/servo-motor-basic/servo-motor-basic-hero.png") right -36px bottom -14px / 156% auto no-repeat;
+        background:url("../assets/images/servo-motor-basic/servo-motor-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
         opacity:.2;
       }
       .article-hero::after{
-        background:linear-gradient(170deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.62) 42%, rgba(255,255,255,.3) 72%, rgba(255,255,255,0) 100%);
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
       }
       .article-hero-copy{
         min-height:360px;
@@ -878,9 +873,9 @@
       .article-hero::after{
         background:linear-gradient(
           90deg,
-          rgba(255,255,255,.76) 0%,
-          rgba(255,255,255,.5) 44%,
-          rgba(255,255,255,.2) 72%,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
           rgba(255,255,255,0) 100%
         );
       }
@@ -918,11 +913,11 @@
     }
     @media (max-width:640px){
       .article-hero::before{
-        background:url("../assets/images/servo-motor-basic/servo-motor-basic-hero.png") right -58px bottom -22px / 172% auto no-repeat;
-        opacity:.15;
+        background:url("../assets/images/servo-motor-basic/servo-motor-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
       }
       .article-hero::after{
-        background:linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.72) 50%, rgba(255,255,255,.34) 100%);
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
       }
       .container{width:min(100%,calc(100% - 20px))}
       .breadcrumb{margin-top:14px}
@@ -998,10 +993,10 @@
     <section class="article-hero" aria-labelledby="page-title">
       <div class="article-hero-copy">
         <span class="hero-label">制御の基礎</span>
-        <h1 id="page-title">サーボモーターとは？<br>位置決め制御で使うモーターの基本をやさしく解説</h1>
+        <h1 id="page-title">サーボモーターとは？<br>コイルと接点で信号を切り替える基本部品をやさしく解説</h1>
         <p class="hero-lead">
-          サーボモーターは、ただ回すだけでなく、決めた位置・速度・動き方に近づけるために使うモーターです。
-          サーボアンプやエンコーダとセットで考えると、現場での見方がぐっと分かりやすくなります。
+          リレーは、コイルに入った小さな信号で接点を切り替え、別の回路をON/OFFする基本部品です。
+          a接点・b接点・自己保持・インターロックの理解にもつながります。
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
@@ -1014,27 +1009,27 @@
       <section class="summary-card summary-card--fit">
         <h2>向いている人</h2>
         <ul>
-          <li>サーボモーターが何をしている部品か知りたい人</li>
-          <li>インバーターとの違いをざっくり整理したい人</li>
-          <li>原点復帰や位置決めの流れを現場目線で見たい人</li>
+          <li>リレーが何をしている部品なのか整理したい人</li>
+          <li>a接点・b接点・コイルの関係を図で覚えたい人</li>
+          <li>PLC出力や自己保持回路を理解しやすくしたい人</li>
         </ul>
       </section>
 
       <section class="summary-card summary-card--notyet">
         <h2>まだ不要な人</h2>
         <ul>
-          <li>サーボゲイン調整や制御理論を深く知りたい人</li>
-          <li>特定メーカーのパラメータ設定だけを知りたい人</li>
-          <li>位置決めユニットの詳細命令を今すぐ設定したい人</li>
+          <li>まずは電源・負荷・入力出力の基本から押さえたい人</li>
+          <li>接点のON/OFFの考え方がまだかなり曖昧な人</li>
+          <li>実物の端子番号や接点構成だけを先に調べたい人</li>
         </ul>
       </section>
 
       <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>サーボは<span class="mark">位置を決めて動かす</span>用途に向いています。</li>
-          <li><span class="mark">サーボアンプ・モーター・エンコーダ</span>をセットで見ます。</li>
-          <li>動かない時は<span class="mark">電源・サーボON・原点・指令・アラーム</span>を順番に確認します。</li>
+          <li>リレーは<span class="mark">小さな信号で別の回路をON/OFFする部品</span>です。</li>
+          <li>コイルがONになると、<span class="mark">a接点は閉じ、b接点は開く</span>方向に切り替わります。</li>
+          <li>現場では「コイルが入っているか」「接点が返っているか」を分けて見ます。</li>
         </ul>
       </section>
     </section>
@@ -1043,12 +1038,13 @@
       <h2 id="mini-toc-title">この記事でわかること</h2>
       <div class="mini-toc">
         <a href="#conclusion">先に結論</a>
-        <a href="#overview">サーボとは</a>
-        <a href="#structure">基本構成</a>
-        <a href="#difference">インバーターとの違い</a>
-        <a href="#flow">制御の流れ</a>
-        <a href="#field">現場で見るところ</a>
-        <a href="#trouble">確認ポイント</a>
+        <a href="#overview">リレーとは</a>
+        <a href="#flow">基本の動き</a>
+        <a href="#contact">a接点・b接点</a>
+        <a href="#plc">PLCとの関係</a>
+        <a href="#contactor">電磁接触器との違い</a>
+        <a href="#panel">盤内での見方</a>
+        <a href="#trouble">トラブル時の確認</a>
         <a href="#summary">まとめ</a>
       </div>
     </section>
@@ -1056,296 +1052,406 @@
     <div class="page-layout">
       <div class="main-column">
         <section class="section-card" id="conclusion">
-          <h2>1. 先に結論</h2>
+          <h2>先に結論：リレーは「小さな信号で別の回路を切り替える部品」</h2>
           <p>
-            サーボモーターは、<span class="mark">決めた位置まで正確に動かしたい時</span>に使うモーターです。
-            ただ回るだけではなく、今どこにいるかを見ながら、目標位置や速度に合わせて動きます。
+            リレーは、コイルに電気が入ることで内部の接点が切り替わり、
+            <span class="mark">別の回路をON/OFFするための基本部品</span>です。
           </p>
           <p>
-            現場では、サーボモーター単体だけを見るよりも、PLCやコントローラ、サーボアンプ、エンコーダ、原点センサー、機械側の動きまでを
-            ひとつの流れとして見ると理解しやすいです。
+            押しボタンやPLC出力などの小さな信号を使って、ランプ、ソレノイド、別の制御回路などを切り替えるときに使われます。
+            制御盤の中では、信号の中継、条件分岐、自己保持、インターロックなどでよく出てきます。
           </p>
 
           <div class="key-highlight">
-            <h3>サーボは「回す」より「狙った位置へ動かす」と考える</h3>
+            <h3>まず覚えるポイント</h3>
             <p>
-              モーターをただ回すだけなら、他のモーターやインバーターでも対応できる場面があります。
-              サーボは、位置決め、原点復帰、繰り返し精度が必要な動きでよく使われます。
+              リレーを見るときは、いきなり端子番号から入るよりも、
+              <strong>「コイルが入る → 接点が切り替わる → 出力側の回路が変わる」</strong>
+              という流れで見ると分かりやすいです。
             </p>
           </div>
 
-          <div class="talk-thread">
-            <div class="talk-row">
+          <div class="talk-thread" aria-label="会話でポイント整理">
+            <div class="talk-row talk-row--left">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>サーボは、モーター単体というより「位置を見ながら動かす仕組み」として見ると分かりやすいよ。</p>
+                <p><span class="talk-name talk-name--senpai">先輩</span> リレーは、ざっくり言うと<strong>小さな信号で別の回路を切り替える部品</strong>だよ。</p>
               </div>
             </div>
+
             <div class="talk-row talk-row--right">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>インバーターみたいに回転数を変えるだけ、という感じではないんですね。</p>
+                <p><span class="talk-name talk-name--kouhai">新人</span> PLCや押しボタンの信号で、別の回路をON/OFFできるイメージですね。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span> そう。特に<strong>コイルと接点を分けて見る</strong>のが大事だね。</p>
               </div>
             </div>
           </div>
         </section>
 
         <section class="section-card" id="overview">
-          <h2>2. サーボモーターとは</h2>
+          <h2>サーボモーターとは？</h2>
           <p>
-            サーボモーターとは、指令された位置や速度に合わせて動くように制御されるモーターです。
-            多くの場合、サーボアンプと組み合わせて使い、モーター側のエンコーダから現在位置を返しながら制御します。
+            リレーは、入力側のコイルに電気を流すことで、出力側の接点を切り替える部品です。
+            コイルと接点が分かれているため、入力側と出力側の回路を分けながら信号を受け渡しできます。
           </p>
           <p>
-            たとえば、部品を決まった位置へ移動する、テーブルを指定距離だけ動かす、ロボット軸を決まった角度へ動かす、といった用途で使われます。
-            「何秒回すか」ではなく、<span class="mark">どこまで動かすか</span>を見ているイメージです。
-          </p>
-
-          <div class="field-highlight">
-            <h3>サーボモーターはサーボアンプとセットで見る</h3>
-            <p>
-              サーボアンプがモーターへ電流を出し、モーターが回転し、エンコーダが現在位置を返します。
-              この戻り情報を使って、狙った位置へ近づけていきます。
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="structure">
-          <h2>3. サーボの基本構成</h2>
-          <p>
-            サーボの基本は、PLCやコントローラから位置指令を出し、サーボアンプがモーターを駆動し、
-            エンコーダで現在位置を見ながら補正する流れです。
+            制御盤では、PLCの出力を受けて別の回路を動かしたり、押しボタンの信号を中継したり、
+            複数の条件を組み合わせるために使われます。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/servo-motor-basic/servo-motor-basic-overview.png" alt="サーボモーターの基本構成を示す概要図" loading="lazy" decoding="async">
-            <figcaption>PLC、サーボアンプ、サーボモーター、位置決め機構、エンコーダの流れを簡略化した図です。</figcaption>
+            <img src="../assets/images/servo-motor-basic/servo-motor-basic-hero.png" alt="リレーとは何かを示すコイル・a接点・b接点の図解" loading="lazy" decoding="async">
+            <figcaption>
+              リレーは、コイルに電気が入ると接点が切り替わり、別の回路をON/OFFできる基本部品です。
+            </figcaption>
           </figure>
 
           <div class="check-grid">
             <div class="check-item check-item--important">
-              <h3>PLC / コントローラ</h3>
-              <p>どの位置へ、どの速度で動かすかという指令を出します。</p>
+              <h3>コイル</h3>
+              <p>入力側です。電気が入ると磁力が発生し、接点を動かします。</p>
             </div>
             <div class="check-item check-item--important">
-              <h3>サーボアンプ</h3>
-              <p>指令を受けて、サーボモーターへ必要な電流を出します。</p>
+              <h3>接点</h3>
+              <p>出力側です。コイルの状態に合わせて回路を開閉します。</p>
             </div>
             <div class="check-item check-item--field">
-              <h3>サーボモーター</h3>
-              <p>実際に回転し、ボールねじや機械を動かします。</p>
+              <h3>入力側</h3>
+              <p>PLC出力、押しボタン、センサー信号などが関係します。</p>
             </div>
             <div class="check-item check-item--field">
-              <h3>エンコーダ</h3>
-              <p>今の位置や回転状態を検出して、サーボアンプへ返します。</p>
+              <h3>出力側</h3>
+              <p>ランプ、ソレノイド、別の制御回路などをON/OFFします。</p>
             </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>現場での見方</h3>
+            <p>
+              リレーを確認するときは、まず「コイルに電気が来ているか」を見ます。
+              そのうえで「接点側が切り替わっているか」を確認すると、入力側の問題か、リレー本体・接点側の問題かを分けやすくなります。
+            </p>
           </div>
         </section>
 
-        <section class="section-card" id="difference">
-          <h2>4. 普通のモーターやインバーターとの違い</h2>
+        <section class="section-card" id="flow">
+          <h2>リレーの基本の動き</h2>
           <p>
-            普通のモーターは、電源を入れると回転し、主に「回す」ことが目的です。
-            インバーターは、周波数を変えることでモーターの回転数を変えやすくします。
+            リレーの動きは、
+            <span class="mark">コイルOFF → 信号が入る → コイルON → 接点が切り替わる</span>
+            という流れで見ると分かりやすいです。
           </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/relay-basic/relay-operation-flow.png" alt="リレーのコイルONで接点が切り替わる流れ" loading="lazy" decoding="async">
+            <figcaption>
+              コイルがONになると磁力が発生し、a接点は閉じ、b接点は開く方向に切り替わります。
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>1. コイルOFF</h3>
+              <p>コイルに電気が入っていない通常状態です。接点は通常位置にあります。</p>
+            </div>
+            <div class="check-item">
+              <h3>2. 信号が入る</h3>
+              <p>PLCや押しボタンからコイルへ電気が送られます。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>3. コイルON</h3>
+              <p>コイルに電流が流れ、磁力が発生します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>4. 接点が切り替わる</h3>
+              <p>a接点・b接点の状態が変わり、出力側の回路が切り替わります。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>「リレーが入った」と「接点が使えている」は分けて見る</h3>
+            <p>
+              コイルがONになっていても、接点の接触不良や配線間違いがあると、出力側が期待どおり動かないことがあります。
+              コイル側と接点側を分けて確認するのが大事です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="contact">
+          <h2>a接点・b接点の考え方</h2>
           <p>
-            一方でサーボは、回転だけでなく、位置・速度・加減速・停止位置を細かく見ながら制御します。
-            そのため、決められた位置へ正確に止めたい用途では、サーボが使われることが多いです。
+            リレーを理解するときに大事なのが、a接点とb接点です。
+            どちらもコイルのON/OFFによって状態が変わりますが、動き方が逆になります。
           </p>
 
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>種類</th>
-                  <th>主な目的</th>
-                  <th>現場での見方</th>
+                  <th>接点</th>
+                  <th>通常時</th>
+                  <th>コイルON時</th>
+                  <th>使い方のイメージ</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>普通のモーター</th>
-                  <td class="cell-blue">回す</td>
-                  <td>電源を入れて回転させる用途。正確な停止位置までは別の仕組みが必要です。</td>
+                  <td class="cell-blue">a接点</td>
+                  <td>開いている</td>
+                  <td class="cell-green">閉じる</td>
+                  <td>コイルONで出力をONにしたいときに使う</td>
                 </tr>
                 <tr>
-                  <th>インバーター</th>
-                  <td class="cell-green">回転数を変える</td>
-                  <td>速度変更やソフトスタートに向いています。位置決め専用ではありません。</td>
-                </tr>
-                <tr>
-                  <th>サーボ</th>
-                  <td class="cell-orange">位置を決めて動かす</td>
-                  <td>位置指令とフィードバックを使い、狙った位置へ動かします。</td>
+                  <td class="cell-orange">b接点</td>
+                  <td>閉じている</td>
+                  <td class="cell-orange">開く</td>
+                  <td>コイルONで出力を切りたいときや、異常時に止めたいときに使う</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div class="note-box">
-            <h3>どちらが上位というより、用途が違う</h3>
+          <div class="key-highlight">
+            <h3>a接点は「ONで閉じる」、b接点は「ONで開く」</h3>
             <p>
-              インバーターはモーターの回転数制御に強く、サーボは位置決めや繰り返し動作に強いです。
-              設備の目的によって使い分けます。
+              まずはこの見方で十分です。
+              図面やラダーを見るときも、コイルがONしたときに接点がどう変わるかを追うと、回路の意味が分かりやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread" aria-label="a接点とb接点を会話で整理">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span> a接点とb接点って、いつも混ざりやすいです。</p>
+              </div>
+            </div>
+
+            <div class="talk-row talk-row--left">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span> 最初は<strong>a接点はONで閉じる、b接点はONで開く</strong>で覚えるといいよ。あとは実際の回路で何をON/OFFしたいかを見るんだ。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="plc">
+          <h2>PLC出力や自己保持回路との関係</h2>
+          <p>
+            PLCの出力で直接大きな負荷を動かすのではなく、PLC出力でリレーのコイルを動かし、
+            リレー接点で別の回路を切り替えることがあります。
+          </p>
+          <p>
+            また、自己保持回路では、押しボタンやリレー接点を使って「一度ONした状態を保持する」考え方が出てきます。
+            リレーのコイルと接点の関係が分かると、自己保持回路やインターロックもかなり追いやすくなります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--field">
+              <h3>PLC出力</h3>
+              <p>リレーのコイルをONする指示役として使われることがあります。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>リレー接点</h3>
+              <p>別電源の回路や複数の信号を切り替える中継役になります。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>自己保持</h3>
+              <p>ONした状態をリレー接点で保持する考え方につながります。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>インターロック</h3>
+              <p>同時に入ってはいけない回路を、接点で止める考え方にもつながります。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>ラダーでは「コイル」と「接点」が別の場所に出てくる</h3>
+            <p>
+              ラダー図では、同じリレーのコイルと接点が離れた場所に出てくることがあります。
+              名称や番号を見て、どのコイルに対応した接点なのかを追うことが大事です。
             </p>
           </div>
         </section>
 
-        <section class="section-card" id="flow">
-          <h2>5. サーボ制御の流れ</h2>
+        <section class="section-card" id="contactor">
+          <h2>リレーと電磁接触器の違い</h2>
           <p>
-            サーボ制御では、指令を出す側、駆動する側、実際に動く側、現在位置を返す側を分けて見ると分かりやすいです。
-            動かない時も、この流れに沿って確認すると原因を切り分けやすくなります。
+            リレーと電磁接触器は、どちらもコイルで接点を動かすという意味では似ています。
+            ただし、現場では扱う電流や用途が違います。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/servo-motor-basic/servo-motor-basic-control-flow.png" alt="サーボ制御の流れを示す図" loading="lazy" decoding="async">
-            <figcaption>位置指令、駆動、動作、フィードバック、原点・位置信号の流れを簡略化しています。</figcaption>
+            <img src="../assets/images/relay-basic/relay-vs-contactor.png" alt="リレーと電磁接触器の違いを比較する図解" loading="lazy" decoding="async">
+            <figcaption>
+              リレーは小さな信号の切替・中継に使われ、電磁接触器はモーターなど大きな負荷の主回路入切に使われます。
+            </figcaption>
           </figure>
 
-          <ul class="simple-list">
-            <li><strong>位置指令：</strong>PLCやコントローラから目標位置や速度を出す</li>
-            <li><strong>駆動：</strong>サーボアンプがモーターを動かす</li>
-            <li><strong>動作：</strong>モーターが回転し、機械側が移動する</li>
-            <li><strong>フィードバック：</strong>エンコーダが現在位置を返す</li>
-            <li><strong>原点信号：</strong>機械の基準位置を確認する</li>
-          </ul>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>比較項目</th>
+                  <th>リレー</th>
+                  <th>電磁接触器</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>扱う電流</td>
+                  <td class="cell-blue">小さめ</td>
+                  <td class="cell-orange">大きめ</td>
+                </tr>
+                <tr>
+                  <td>主な用途</td>
+                  <td>信号の切替・中継</td>
+                  <td>モーターなど主回路の入切</td>
+                </tr>
+                <tr>
+                  <td>接点の見方</td>
+                  <td>制御回路中心</td>
+                  <td>主接点＋補助接点</td>
+                </tr>
+                <tr>
+                  <td>現場での確認</td>
+                  <td>コイルON・接点出力</td>
+                  <td>コイル電圧・主接点・補助接点</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="key-highlight">
+            <h3>小さな信号はリレー、大きな負荷は電磁接触器</h3>
+            <p>
+              ざっくり分けるなら、リレーは制御信号の切替や中継、電磁接触器はモーターなどの主回路を入切する部品として見ると整理しやすいです。
+            </p>
+          </div>
         </section>
 
-        <section class="section-card" id="field">
-          <h2>6. 現場でよく見る言葉</h2>
+        <section class="section-card" id="panel">
+          <h2>制御盤の中でどう見るか</h2>
           <p>
-            サーボまわりでは、位置決め、原点復帰、サーボON、アラーム、エンコーダなどの言葉がよく出てきます。
-            最初はすべてを細かく覚えるより、何の役割を持つ言葉かを分けて見るのがおすすめです。
+            制御盤の中でリレーを見るときは、リレー本体だけを見るのではなく、
+            そのリレーが何の信号を受けて、どの回路を切り替えているのかを確認します。
           </p>
 
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>サーボON</h3>
-              <p>サーボアンプがモーターを動かせる状態にする運転許可のようなものです。</p>
+            <div class="check-item check-item--field">
+              <h3>1. コイル側を見る</h3>
+              <p>PLC出力、押しボタン、センサーなど、何の信号でコイルがONするか確認します。</p>
             </div>
             <div class="check-item check-item--field">
-              <h3>原点復帰</h3>
-              <p>機械の基準位置を確認し、位置決めの基準を作る動作です。</p>
+              <h3>2. 接点側を見る</h3>
+              <p>リレー接点で、どのランプ・ソレノイド・信号をON/OFFしているか確認します。</p>
             </div>
             <div class="check-item check-item--important">
-              <h3>位置決め</h3>
-              <p>指定した位置へ移動し、そこで止める動作です。</p>
+              <h3>3. 接点番号を見る</h3>
+              <p>a接点・b接点・共通端子など、実物と図面の対応を確認します。</p>
             </div>
             <div class="check-item check-item--warning">
-              <h3>アラーム</h3>
-              <p>過負荷、エンコーダ異常、指令異常など、何かの異常を示す表示です。</p>
+              <h3>4. 交換時は仕様を見る</h3>
+              <p>コイル電圧、接点容量、接点構成、端子配列が合っているか確認します。</p>
             </div>
           </div>
 
-          <div class="talk-thread">
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>サーボって言葉が多くて、最初はどこから見ればいいか迷います。</p>
-              </div>
-            </div>
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>まずは、電源、サーボON、原点復帰、指令、アラームを順番に見るといいよ。いきなりパラメータに行かない方が追いやすいね。</p>
-              </div>
-            </div>
+          <div class="field-highlight">
+            <h3>「どの信号を中継しているか」を追う</h3>
+            <p>
+              リレーは数が増えると、ただの部品の集まりに見えやすいです。
+              でも1個ずつ「何の入力でコイルが入るか」「どの出力を切り替えるか」を見ると、回路の役割が追いやすくなります。
+            </p>
           </div>
         </section>
 
         <section class="section-card" id="trouble">
-          <h2>7. 動かない・位置が合わない時の確認ポイント</h2>
+          <h2>トラブル時の確認ポイント</h2>
           <p>
-            サーボが動かない、位置が合わない、原点復帰できない時は、サーボモーター本体だけを疑う前に、
-            電源、サーボON、アラーム、原点、指令、機械側を順番に確認します。
+            「出力が出ない」「ランプが点かない」「ソレノイドが動かない」といったトラブルでは、
+            リレーのコイル側と接点側を分けて確認すると原因を絞りやすくなります。
           </p>
 
-          <figure class="article-figure">
-            <img src="../assets/images/servo-motor-basic/servo-motor-basic-checkpoints.png" alt="サーボモーターの確認ポイントを示すチェックリスト図" loading="lazy" decoding="async">
-            <figcaption>サーボが動かない時に、上から順番に見るための確認ポイントです。</figcaption>
-          </figure>
-
-          <div class="check-grid">
-            <div class="check-item">
-              <h3>電源</h3>
-              <p>サーボアンプに主電源や制御電源が入っているか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>サーボON</h3>
-              <p>運転許可信号が入っているか、非常停止や安全回路が落ちていないか見ます。</p>
-            </div>
-            <div class="check-item">
-              <h3>アラーム</h3>
-              <p>サーボアンプの異常表示、過負荷、エンコーダ異常などを確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>原点復帰</h3>
-              <p>原点センサーや原点復帰完了状態を確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>指令入力</h3>
-              <p>PLCやコントローラから位置・速度指令が出ているか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>機械側</h3>
-              <p>ボールねじ、軸、ワーク、ガイドが引っかかっていないか確認します。</p>
-            </div>
-          </div>
+          <ul class="simple-list">
+            <li>リレーのコイルに指定電圧が来ているか</li>
+            <li>コイルがONしたときにリレーが動作しているか</li>
+            <li>a接点・b接点が想定どおり切り替わっているか</li>
+            <li>接点側の電源が来ているか</li>
+            <li>接点容量を超える負荷を入れていないか</li>
+            <li>端子のゆるみや配線抜けがないか</li>
+            <li>リレー本体の劣化や接点不良がないか</li>
+          </ul>
 
           <div class="danger-box">
-            <h3>機械が動く可能性があるので、安全確認を先にする</h3>
+            <h3>コイルが入っていても、出力が出るとは限らない</h3>
             <p>
-              サーボまわりを確認する時は、軸が急に動く可能性があります。
-              実機では設備仕様、社内手順、安全確認、メーカー資料に従って作業してください。
+              リレーのランプが点いていたり、動作音がしていたりしても、接点不良や接点側電源の未供給で出力が出ないことがあります。
+              コイル側だけで判断せず、接点側も必ず確認します。
+            </p>
+          </div>
+
+          <div class="note-box">
+            <h3>交換時はコイル電圧と接点構成を確認</h3>
+            <p>
+              見た目が似ていても、DC24Vコイル、AC100Vコイル、接点数、端子配列、接点容量が違うことがあります。
+              同じ形に見えても仕様違いがあるため、交換前に型式と仕様を確認します。
             </p>
           </div>
         </section>
 
         <section class="section-card" id="summary">
-          <h2>8. まとめ</h2>
+          <h2>まとめ：リレーは制御回路を理解するための基本部品</h2>
           <p>
-            サーボモーターは、位置決め制御でよく使われるモーターです。
-            サーボアンプから駆動され、エンコーダで現在位置を返しながら、指令された位置や速度に近づけて動きます。
+            リレーは、コイルと接点で信号を切り替える基本部品です。
+            小さな入力信号で別の回路をON/OFFできるため、制御盤の中でよく使われます。
           </p>
           <p>
-            最初は、サーボモーター単体を細かく見るより、PLC、サーボアンプ、モーター、エンコーダ、原点、機械側の流れをつかむと理解しやすいです。
+            a接点はコイルONで閉じ、b接点はコイルONで開きます。
+            この動きが分かると、自己保持回路、インターロック、PLC出力の中継なども理解しやすくなります。
           </p>
-
-          <ul class="simple-list">
-            <li>サーボは、狙った位置へ動かす用途に向いている</li>
-            <li>サーボアンプとエンコーダの関係を見ると分かりやすい</li>
-            <li>動かない時は、電源・サーボON・原点・指令・アラーム・機械側を順番に見る</li>
-          </ul>
+          <p>
+            現場では「コイルが入っているか」と「接点が返っているか」を分けて見ることが大事です。
+            リレー単体で覚えるだけでなく、どの信号を受けて、どの回路を切り替えているかまで追えるようにしておくと、トラブル対応もしやすくなります。
+          </p>
 
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
-            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎を見る</a>
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎も見る</a>
           </div>
         </section>
 
         <section class="section-card" aria-labelledby="related-title">
           <h2 id="related-title">あわせて読みたい記事</h2>
           <div class="related-grid">
-            <a class="related-card" href="inverter-basic.html">
-              <h3>インバーターとは？</h3>
-              <p>モーターの回転数を変える制御盤部品の基本を、サーボとの違いと合わせて整理できます。</p>
+            <a class="related-card" href="self-hold-circuit.html">
+              <h3>自己保持回路の基本</h3>
+              <p>リレーの接点を使って、ON状態を保持する考え方につながります。</p>
             </a>
-            <a class="related-card" href="sto-basic.html">
-              <h3>STOとは？</h3>
-              <p>サーボやインバーターで使う安全停止の考え方を、初心者向けに確認できます。</p>
+            <a class="related-card" href="electromagnetic-contactor-vs-switch.html">
+              <h3>電磁接触器と電磁開閉器の違い</h3>
+              <p>リレーと似た考え方で、モーター制御に使う部品との違いを整理できます。</p>
             </a>
-            <a class="related-card" href="motor-breaker-basic.html">
-              <h3>モーターブレーカとは？</h3>
-              <p>モーター回路を守る遮断器の基本を、駆動系の保護という目線で確認できます。</p>
+            <a class="related-card" href="input-output-basic.html">
+              <h3>PLCの入力・出力の基礎</h3>
+              <p>PLC出力でリレーを動かす流れを理解しやすくなります。</p>
             </a>
           </div>
         </section>
@@ -1356,12 +1462,13 @@
           <h3>記事内メニュー</h3>
           <ul>
             <li><a href="#conclusion">先に結論</a></li>
-            <li><a href="#overview">サーボとは</a></li>
-            <li><a href="#structure">基本構成</a></li>
-            <li><a href="#difference">インバーターとの違い</a></li>
-            <li><a href="#flow">制御の流れ</a></li>
-            <li><a href="#field">現場で見るところ</a></li>
-            <li><a href="#trouble">確認ポイント</a></li>
+            <li><a href="#overview">リレーとは</a></li>
+            <li><a href="#flow">基本の動き</a></li>
+            <li><a href="#contact">a接点・b接点</a></li>
+            <li><a href="#plc">PLCとの関係</a></li>
+            <li><a href="#contactor">電磁接触器との違い</a></li>
+            <li><a href="#panel">盤内での見方</a></li>
+            <li><a href="#trouble">トラブル時の確認</a></li>
             <li><a href="#summary">まとめ</a></li>
           </ul>
         </section>
@@ -1371,15 +1478,16 @@
           <ul>
             <li><a href="../categories/control-basics.html">制御の基礎</a></li>
             <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/comparison-guide.html">比較・使い分け</a></li>
           </ul>
         </section>
 
         <section class="side-card">
           <h3>先に読むと分かりやすい記事</h3>
           <ul>
-            <li><a href="inverter-basic.html">インバーターの基本</a></li>
-            <li><a href="sto-basic.html">STOの基本</a></li>
-            <li><a href="motor-breaker-basic.html">モーターブレーカの基本</a></li>
+            <li><a href="input-output-basic.html">PLCの入力・出力の基礎</a></li>
+            <li><a href="no-nc-basic.html">NO / NC の違い</a></li>
+            <li><a href="self-hold-circuit.html">自己保持回路の基本</a></li>
           </ul>
         </section>
       </aside>

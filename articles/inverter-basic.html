@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>インバーターとは？モーターの回転数を変える制御盤部品の基本</title>
   <meta name="description" content="インバーターとは何かを、制御盤初心者向けにやさしく解説。電源とモーターの間に入って周波数を変え、回転数を調整する基本、PLCとの関係、マグネットスイッチ制御との違い、現場で見るポイントを整理します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/inverter-basic.html">
@@ -12,134 +12,238 @@
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/inverter-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/inverter-basic/inverter-basic-hero.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="インバーターとは？モーターの回転数を変える制御盤部品の基本">
-  <meta name="twitter:description" content="インバーターの基本、モーター回転数の考え方、PLCとの関係、マグネットスイッチ制御との違いを現場目線で整理します。">
-  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/inverter-basic/inverter-basic-hero.png">
+  <meta name="theme-color" content="#f8fbff">
   <link rel="icon" href="../favicon.ico">
   <style>
     :root{
-      --bg:#f4f7fb;
+      --bg:#f5f8fc;
       --card:#ffffff;
-      --ink:#172033;
-      --muted:#5c667a;
-      --line:#dfe7f2;
-      --blue:#1f6fd1;
-      --blue-dark:#1554a3;
-      --green:#1f9d66;
-      --orange:#f28b2e;
-      --red:#d94848;
-      --shadow:0 18px 48px rgba(30,52,90,.10);
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
       --radius:24px;
       --header-h:78px;
     }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    html{
-      scroll-behavior:smooth;
-      scroll-padding-top:calc(var(--header-h) + 18px);
-    }
-
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
     body{
       margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
-      color:var(--ink);
-      background:linear-gradient(180deg,#eef5ff 0%,#f7f9fc 34%,#ffffff 100%);
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
       line-height:1.8;
+      padding-top:var(--header-h);
     }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    img{
-      max-width:100%;
-      height:auto;
-      vertical-align:middle;
-    }
-
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
     .container{
-      width:min(1120px,calc(100% - 32px));
+      width:min(1180px,calc(100% - 28px));
       margin:0 auto;
     }
 
     .site-header{
-      position:sticky;
-      top:0;
-      z-index:50;
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(18px);
-      border-bottom:1px solid rgba(210,222,238,.86);
+      position:fixed;
+      inset:0 0 auto 0;
+      z-index:1000;
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(209,220,234,.9);
     }
-
     .site-header-inner{
-      width:min(1120px,calc(100% - 32px));
-      min-height:var(--header-h);
+      width:min(1180px,calc(100% - 24px));
       margin:0 auto;
+      min-height:var(--header-h);
       display:flex;
       align-items:center;
-      gap:18px;
+      gap:14px;
+      padding:10px 0;
     }
-
     .brand{
+      min-width:0;
       display:flex;
       align-items:center;
       gap:10px;
-      min-width:250px;
+      color:var(--text);
+      text-decoration:none;
     }
-
-    .brand-logo{
-      width:42px;
-      height:42px;
-      object-fit:contain;
-    }
-
-    .brand-copy{
-      display:flex;
-      flex-direction:column;
-      line-height:1.35;
-    }
-
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+    .brand-copy{display:flex;flex-direction:column;min-width:0}
     .brand-title{
-      font-weight:800;
-      font-size:15px;
+      font-size:14px;
+      font-weight:900;
       letter-spacing:.02em;
+      line-height:1.25;
     }
-
     .brand-sub{
-      color:var(--muted);
       font-size:11px;
+      color:var(--muted);
+      line-height:1.35;
       white-space:nowrap;
     }
-
     .header-nav{
+      margin-left:auto;
       display:flex;
       align-items:center;
-      gap:10px;
-      margin-left:auto;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .header-nav a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .header-nav a:hover{
+      background:#f8fbff;
+      border-color:#dbe7f3;
+    }
+    .header-search{
+      flex:0 0 260px;
+      position:relative;
+      margin-left:8px;
+    }
+    .search-box-input{
+      width:100%;
+      height:44px;
+      padding:0 50px 0 16px;
+      border-radius:999px;
+      border:1px solid #cfdbeb;
+      background:#fff;
+      color:var(--text);
       font-size:13px;
       font-weight:700;
-      color:#25324a;
+      outline:none;
     }
-
-    .header-nav a{
-      padding:8px 10px;
+    .search-box-input:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .search-box-button{
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:0;
       border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
     }
-
-    .header-nav a:hover{
-      background:#eef5ff;
-      color:var(--blue-dark);
-    }
-
-    .header-search{
+    .search-box-button:hover{background:#1e40af}
+    .header-search-icon{
+      display:block;
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-radius:50%;
       position:relative;
-      width:240px;
     }
-
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#fff;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
     .sr-only{
       position:absolute;
       width:1px;
@@ -152,743 +256,633 @@
       border:0;
     }
 
-    .search-box{
-      display:flex;
-      align-items:center;
-    }
-
-    .search-box-input{
-      width:100%;
-      height:42px;
-      padding:0 44px 0 14px;
-      border:1px solid #d8e3f2;
-      border-radius:999px;
-      background:#fff;
-      font-size:14px;
-      outline:none;
-    }
-
-    .search-box-input:focus{
-      border-color:#8db8ee;
-      box-shadow:0 0 0 4px rgba(31,111,209,.12);
-    }
-
-    .search-box-button{
-      position:absolute;
-      right:4px;
-      top:50%;
-      transform:translateY(-50%);
-      width:34px;
-      height:34px;
-      border:0;
-      border-radius:50%;
-      background:var(--blue);
-      cursor:pointer;
-      display:grid;
-      place-items:center;
-    }
-
-    .header-search-icon{
-      width:14px;
-      height:14px;
-      border:2px solid #fff;
-      border-radius:50%;
-      position:relative;
-      display:block;
-    }
-
-    .header-search-icon::after{
-      content:"";
-      position:absolute;
-      width:7px;
-      height:2px;
-      background:#fff;
-      right:-6px;
-      bottom:-3px;
-      transform:rotate(45deg);
-      border-radius:999px;
-    }
-
-    .search-box-panel{
-      position:absolute;
-      top:48px;
-      right:0;
-      width:min(420px,calc(100vw - 32px));
-      max-height:420px;
-      overflow:auto;
-      background:#fff;
-      border:1px solid #dfe7f2;
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:10px;
-      z-index:80;
-    }
-
-    .search-box-results{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:grid;
-      gap:8px;
-    }
-
-    .search-box-empty{
-      margin:8px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    main{
-      padding:28px 0 56px;
-    }
-
     .breadcrumb{
-      width:min(1120px,calc(100% - 32px));
-      margin:0 auto 14px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
       color:var(--muted);
-      font-size:13px;
-    }
-
-    .breadcrumb a{
-      color:var(--blue-dark);
-      font-weight:700;
+      font-size:12px;
+      font-weight:800;
     }
 
     .article-hero{
       position:relative;
-      width:min(1120px,calc(100% - 32px));
-      min-height:390px;
-      margin:0 auto 22px;
       overflow:hidden;
-      border-radius:32px;
-      background:linear-gradient(135deg,#eaf4ff 0%,#ffffff 52%,#eaf4ff 100%);
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
       box-shadow:var(--shadow);
+      min-height:400px;
       isolation:isolate;
     }
-
     .article-hero::before{
       content:"";
       position:absolute;
       inset:0;
       background:url("../assets/images/inverter-basic/inverter-basic-hero.png") right center / auto 100% no-repeat;
-      opacity:.92;
-      z-index:-2;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
     }
-
     .article-hero::after{
       content:"";
       position:absolute;
       inset:0;
-      background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.88) 40%,rgba(255,255,255,.22) 72%,rgba(255,255,255,.02) 100%);
-      z-index:-1;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
     }
-
     .article-hero-copy{
-      min-height:390px;
-      width:min(100%,590px);
-      padding:46px 42px;
+      width:min(100%,620px);
+      min-height:400px;
       display:flex;
       flex-direction:column;
       justify-content:center;
-      gap:16px;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
     }
-
     .hero-label{
-      align-self:flex-start;
       display:inline-flex;
       align-items:center;
-      padding:6px 12px;
+      min-height:30px;
+      padding:0 12px;
       border-radius:999px;
-      background:#e9f3ff;
-      color:var(--blue-dark);
-      border:1px solid #bdd7f8;
-      font-size:13px;
-      font-weight:800;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
     }
-
     h1{
-      margin:0;
-      font-size:clamp(30px,4.2vw,48px);
-      line-height:1.2;
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
       letter-spacing:.01em;
     }
-
     .hero-lead{
       margin:0;
-      color:#31415d;
-      font-size:16px;
-      line-height:1.9;
-      font-weight:600;
+      max-width:37ch;
+      font-size:15px;
+      color:#334155;
     }
-
     .hero-actions{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin-top:4px;
+      margin-top:26px;
     }
-
     .btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:46px;
+      min-height:50px;
       padding:10px 16px;
-      border-radius:999px;
-      font-weight:800;
+      border-radius:14px;
       font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
       border:1px solid transparent;
     }
-
+    .btn:hover{text-decoration:none}
     .btn-primary{
-      background:var(--blue);
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
       color:#fff;
-      box-shadow:0 8px 20px rgba(31,111,209,.22);
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
     }
-
     .btn-secondary{
       background:#fff;
-      color:var(--blue-dark);
-      border-color:#c8daf2;
+      color:var(--text);
+      border-color:#d3dfec;
     }
 
     .top-summary{
-      width:min(1120px,calc(100% - 32px));
-      margin:0 auto 18px;
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:14px;
+      gap:16px;
+      margin:18px 0 22px;
     }
-
     .summary-card{
       background:var(--card);
       border:1px solid var(--line);
-      border-radius:22px;
-      padding:18px 18px 16px;
-      box-shadow:0 10px 30px rgba(36,54,86,.07);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
     }
-
     .summary-card h2{
-      margin:0 0 10px;
-      font-size:17px;
-    }
-
-    .summary-card ul{
-      margin:0;
-      padding-left:1.2em;
-      color:#34425b;
-      font-size:14px;
-    }
-
-    .summary-card--fit{
-      border-top:5px solid var(--blue);
-    }
-
-    .summary-card--notyet{
-      border-top:5px solid var(--green);
-    }
-
-    .summary-card--conclusion{
-      border-top:5px solid var(--orange);
-    }
-
-    .mini-toc-card{
-      width:min(1120px,calc(100% - 32px));
-      margin:0 auto 22px;
-      padding:18px;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:22px;
-      box-shadow:0 10px 30px rgba(36,54,86,.06);
-    }
-
-    .mini-toc-card h2{
       margin:0 0 12px;
       font-size:18px;
+      line-height:1.4;
     }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
 
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
     .mini-toc{
       display:flex;
       flex-wrap:wrap;
-      gap:8px;
+      gap:10px;
     }
-
     .mini-toc a{
       display:inline-flex;
-      padding:8px 12px;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
       border-radius:999px;
-      background:#f0f6ff;
-      color:var(--blue-dark);
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
       font-size:13px;
-      font-weight:800;
-      border:1px solid #d7e7fb;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
     }
 
     .page-layout{
-      width:min(1120px,calc(100% - 32px));
-      margin:0 auto;
       display:grid;
-      grid-template-columns:minmax(0,1fr) 290px;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
       align-items:start;
-      gap:22px;
+      margin-bottom:48px;
     }
-
-    .main-column{
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
       display:grid;
-      gap:18px;
-      min-width:0;
+      gap:16px;
     }
-
-    .section-card{
-      background:#fff;
+    .section-card,
+    .side-card{
+      background:var(--card);
       border:1px solid var(--line);
-      border-radius:24px;
-      padding:26px;
-      box-shadow:0 12px 34px rgba(36,54,86,.07);
+      border-radius:28px;
+      box-shadow:var(--shadow);
     }
-
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
     .section-card h2{
-      margin:0 0 14px;
-      font-size:25px;
+      margin:0 0 16px;
+      font-size:22px;
       line-height:1.4;
     }
-
     .section-card h3{
-      margin:22px 0 8px;
-      font-size:18px;
+      margin:22px 0 10px;
+      font-size:17px;
       line-height:1.5;
     }
-
     .section-card p{
       margin:0 0 14px;
-      color:#34425b;
+      font-size:15px;
     }
-
-    .section-card ul{
-      margin:0 0 14px;
-      padding-left:1.25em;
-      color:#34425b;
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
     }
 
     .key-highlight{
-      background:#fff7eb;
-      border:1px solid #ffd7a8;
-      border-left:6px solid var(--orange);
-      border-radius:18px;
-      padding:16px 18px;
-      font-weight:700;
-      color:#3d2a12;
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
     }
-
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
     .field-highlight{
-      background:#eef8f2;
-      border:1px solid #ccebd9;
-      border-left:6px solid var(--green);
-      border-radius:18px;
-      padding:16px 18px;
-      font-weight:700;
-      color:#153d2b;
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    .note-box{
-      background:#f0f6ff;
-      border:1px solid #d4e6fb;
-      border-radius:18px;
-      padding:16px 18px;
-      color:#263856;
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
     }
 
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
     .danger-box{
-      background:#fff1f1;
-      border:1px solid #f5caca;
-      border-left:6px solid var(--red);
-      border-radius:18px;
-      padding:16px 18px;
-      color:#4b2424;
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
     .talk-thread{
       display:grid;
       gap:12px;
-      margin:18px 0;
+      margin-top:18px;
+      max-width:980px;
     }
-
     .talk-row{
       display:flex;
       align-items:flex-start;
-      gap:10px;
+      gap:12px;
     }
-
     .talk-row--right{
       flex-direction:row-reverse;
     }
-
     .talk-avatar{
-      flex:0 0 56px;
-      width:56px;
-      height:56px;
-      display:grid;
-      place-items:center;
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
-
     .talk-avatar img{
-      width:56px;
-      height:56px;
+      width:76px;
+      height:auto;
+      display:block;
       object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
-
     .talk-bubble{
-      max-width:calc(100% - 70px);
-      padding:14px 16px;
-      border-radius:18px;
-      background:#f4f8ff;
-      border:1px solid #dce9fb;
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
     }
-
     .talk-row--right .talk-bubble{
-      background:#fff7ec;
-      border-color:#ffddb8;
+      background:#fcfbff;
+      border-color:#e1d6fb;
     }
-
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
     .talk-bubble p{
       margin:0;
-    }
-
-    .talk-name{
-      display:inline;
-      font-weight:900;
-      margin-right:.45em;
-    }
-
-    .talk-name--senpai{
-      color:var(--blue-dark);
-    }
-
-    .talk-name--kouhai{
-      color:#b85f09;
-    }
-
-    .article-figure{
-      margin:20px 0;
-      padding:14px;
-      background:#f8fbff;
-      border:1px solid var(--line);
-      border-radius:22px;
-    }
-
-    .article-figure img{
-      width:100%;
-      border-radius:16px;
-      background:#fff;
-    }
-
-    .article-figure figcaption{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-    }
-
-    .table-wrap{
-      overflow-x:auto;
-      margin:18px 0;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff;
-    }
-
-    table{
-      width:100%;
-      min-width:680px;
-      border-collapse:collapse;
-      font-size:14px;
-    }
-
-    th,td{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      border-right:1px solid var(--line);
-      vertical-align:top;
-      text-align:left;
-    }
-
-    th{
-      background:#f1f6fd;
-      color:#203252;
-      font-weight:900;
-    }
-
-    tr:last-child td{
-      border-bottom:0;
-    }
-
-    th:last-child,td:last-child{
-      border-right:0;
-    }
-
-    .cell-blue{
-      background:#eef6ff;
-      color:#164d93;
-      font-weight:800;
-    }
-
-    .cell-green{
-      background:#eef8f2;
-      color:#17603e;
-      font-weight:800;
-    }
-
-    .cell-orange{
-      background:#fff5e8;
-      color:#9a520e;
-      font-weight:800;
+      font-size:15px;
+      line-height:1.72;
     }
 
     .check-grid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin:18px 0;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
-
     .check-item{
-      border:1px solid var(--line);
-      border-radius:18px;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
       padding:16px;
-      background:#fff;
     }
-
     .check-item h3{
       margin:0 0 8px;
       font-size:16px;
+      line-height:1.5;
     }
-
     .check-item p{
       margin:0;
       font-size:14px;
+      color:var(--muted);
     }
-
     .check-item--important{
-      border-top:5px solid var(--blue);
+      background:#eff6ff;
+      border-color:#bfdbfe;
     }
-
     .check-item--field{
-      border-top:5px solid var(--green);
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
     }
 
-    .check-item--warning{
-      border-top:5px solid var(--orange);
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
     }
 
     .related-grid{
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin-top:14px;
+      gap:14px;
+      margin-top:16px;
     }
-
     .related-card{
       display:block;
-      padding:16px;
-      border:1px solid var(--line);
-      border-radius:18px;
       background:#f8fbff;
-      transition:.2s ease;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
     }
-
     .related-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 24px rgba(31,111,209,.12);
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
-
     .related-card h3{
       margin:0 0 8px;
       font-size:16px;
-      color:var(--blue-dark);
+      line-height:1.5;
+      color:var(--blue-deep);
     }
-
     .related-card p{
       margin:0;
       font-size:13px;
       color:var(--muted);
+      line-height:1.75;
     }
 
-    .side-rail{
-      position:sticky;
-      top:calc(var(--header-h) + 18px);
-      display:grid;
-      gap:14px;
-    }
-
-    .side-card{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:18px;
-      box-shadow:0 10px 30px rgba(36,54,86,.06);
-    }
-
-    .side-card h3{
-      margin:0 0 10px;
-      font-size:16px;
-    }
-
-    .side-card ul{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:grid;
-      gap:8px;
-      font-size:13px;
-    }
-
-    .side-card a{
-      color:var(--blue-dark);
-      font-weight:800;
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
     }
 
     .site-footer{
-      padding:28px 0 40px;
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
       color:var(--muted);
-      font-size:13px;
       text-align:center;
+      font-size:12px;
+      font-weight:700;
     }
 
-    @media (max-width:900px){
-      .site-header-inner{
-        min-height:auto;
-        padding:10px 0;
-        flex-wrap:wrap;
-      }
-
-      .brand{
-        min-width:0;
-      }
-
-      .brand-sub{
-        white-space:normal;
-      }
-
-      .header-nav{
-        order:3;
-        width:100%;
-        margin-left:0;
-        overflow-x:auto;
-        padding-bottom:2px;
-      }
-
-      .header-search{
-        width:180px;
-        margin-left:auto;
-      }
-
-      .article-hero{
-        min-height:0;
-        border-radius:26px;
-      }
-
-      .article-hero::before{
-        opacity:.24;
-        background-size:auto 100%;
-      }
-
-      .article-hero::after{
-        background:linear-gradient(90deg,rgba(255,255,255,.96),rgba(255,255,255,.9));
-      }
-
-      .article-hero-copy{
-        min-height:340px;
-        width:100%;
-        padding:34px 24px;
-      }
-
-      .top-summary{
-        grid-template-columns:1fr;
-      }
-
+    @media (max-width:1100px){
       .page-layout{
-        grid-template-columns:1fr;
+        grid-template-columns:minmax(0,1fr);
       }
-
       .side-rail{
         position:static;
-        grid-template-columns:1fr;
-      }
-
-      .check-grid,
-      .related-grid{
-        grid-template-columns:1fr;
-      }
-
-      .section-card{
-        padding:22px 18px;
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
     }
-
-    @media (max-width:640px){
-      .container,
-      .breadcrumb,
-      .article-hero,
-      .top-summary,
-      .mini-toc-card,
-      .page-layout{
-        width:min(100% - 20px,1120px);
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header-inner{gap:8px}
+      .brand-logo{width:40px;height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+      .header-search{margin-left:auto;flex:0 0 168px}
+      .search-box-input{height:40px;font-size:12px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
       }
-
-      main{
-        padding-top:16px;
+      .article-hero::before{
+        background:url("../assets/images/inverter-basic/inverter-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
       }
-
-      .brand-logo{
-        width:36px;
-        height:36px;
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
       }
-
-      .brand-title{
-        font-size:14px;
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
       }
-
-      .brand-sub{
-        font-size:10px;
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
       }
-
-      .header-search{
-        width:100%;
-      }
-
-      h1{
-        font-size:30px;
-      }
-
-      .hero-actions{
-        flex-direction:column;
-      }
-
-      .btn{
-        width:100%;
-      }
-
-      .talk-avatar{
-        flex-basis:48px;
-        width:48px;
-        height:48px;
-      }
-
-      .talk-avatar img{
-        width:48px;
-        height:48px;
-      }
-
       .talk-bubble{
-        max-width:calc(100% - 58px);
-        padding:12px 13px;
+        max-width:none;
       }
     }
-
     @media (min-width:744px) and (max-width:1100px){
       .article-hero{
         min-height:360px;
         border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/inverter-basic/inverter-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
       }
       .article-hero-copy{
         width:min(100%,600px);
@@ -896,12 +890,68 @@
         padding:40px 34px;
         justify-content:center;
       }
+      h1{
+        font-size:34px;
+      }
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
       .top-summary{
         grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
       }
       .side-rail{
         grid-template-columns:repeat(3,minmax(0,1fr));
       }
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/inverter-basic/inverter-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .header-search{flex:0 0 150px}
     }
   </style>
 </head>
@@ -936,79 +986,98 @@
     </div>
   </header>
 
-  <main>
-    <nav class="breadcrumb" aria-label="パンくずリスト">
-      <a href="../index.html">ホーム</a> › <a href="../categories/control-basics.html">制御の基礎</a> › インバーターとは？
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>インバーターとは？</span>
     </nav>
 
-    <section class="article-hero">
+    <section class="article-hero" aria-labelledby="page-title">
       <div class="article-hero-copy">
         <span class="hero-label">制御の基礎</span>
-        <h1>インバーターとは？</h1>
-        <p class="hero-lead">インバーターは、モーターの回転数を変えたいときに使う制御盤部品です。電源とモーターの間に入り、周波数を変えることで、速度調整・省エネ・やさしい起動停止につなげます。</p>
+        <h1 id="page-title">インバーターとは？<br>モーターの回転数を変える制御盤部品の基本</h1>
+        <p class="hero-lead">
+          インバーターは、モーターの回転数を変えたいときに使う制御盤部品です。
+          電源とモーターの間に入り、周波数を変えることで、速度調整・省エネ・やさしい起動停止につなげます。
+        </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#summary">先に結論を見る</a>
-          <a class="btn btn-secondary" href="#what-is-inverter">基本を順番に見る</a>
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#overview">基本を順番に見る</a>
         </div>
       </div>
     </section>
 
-    <section class="top-summary" aria-label="この記事の概要">
-      <article class="summary-card summary-card--fit">
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
         <h2>向いている人</h2>
         <ul>
           <li>インバーターが何をしている部品なのか整理したい人</li>
           <li>モーターの回転数と周波数の関係をざっくり理解したい人</li>
           <li>マグネットスイッチ制御との違いを知りたい人</li>
         </ul>
-      </article>
+      </section>
 
-      <article class="summary-card summary-card--notyet">
+      <section class="summary-card summary-card--notyet">
         <h2>まだ不要な人</h2>
         <ul>
           <li>まずはリレーやマグネットスイッチのON/OFF制御を覚えたい人</li>
           <li>インバーターの細かいパラメータ設定だけを探している人</li>
           <li>メーカーごとの詳細な配線端子説明を先に見たい人</li>
         </ul>
-      </article>
+      </section>
 
-      <article class="summary-card summary-card--conclusion">
+      <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>インバーターは、モーターへ出す周波数を変えて回転数を調整する部品です。</li>
-          <li>マグネットスイッチはON/OFFが中心、インバーターは速度を変える制御が得意です。</li>
-          <li>現場では、運転指令・周波数指令・異常表示・加減速時間を分けて見ると理解しやすいです。</li>
+          <li>インバーターは、<span class="mark">モーターへ出す周波数を変えて回転数を調整する部品</span>です。</li>
+          <li>マグネットスイッチはON/OFFが中心、インバーターは<span class="mark">速度を変える制御</span>が得意です。</li>
+          <li>現場では、<span class="mark">運転指令・周波数指令・異常表示・加減速時間</span>を分けて見ると理解しやすいです。</li>
         </ul>
-      </article>
+      </section>
     </section>
 
-    <section class="mini-toc-card" id="toc">
-      <h2>この記事でわかること</h2>
-      <nav class="mini-toc" aria-label="記事内メニュー">
-        <a href="#summary">先に結論</a>
-        <a href="#what-is-inverter">インバーターとは</a>
-        <a href="#basic-structure">基本構成</a>
-        <a href="#operation-flow">制御の流れ</a>
-        <a href="#magnetic-switch-difference">マグネットスイッチとの違い</a>
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#overview">インバーターとは</a>
+        <a href="#structure">基本構成</a>
+        <a href="#flow">制御の流れ</a>
+        <a href="#comparison">マグネットスイッチとの違い</a>
         <a href="#field-points">現場で見るポイント</a>
-        <a href="#trouble-check">トラブル時の確認</a>
-        <a href="#summary-end">まとめ</a>
-      </nav>
+        <a href="#trouble">トラブル時の確認</a>
+        <a href="#caution">注意点</a>
+        <a href="#summary">まとめ</a>
+      </div>
     </section>
 
     <div class="page-layout">
       <div class="main-column">
-        <section class="section-card" id="summary">
-          <h2>先に結論：インバーターは「モーターの回転数を変えるための部品」</h2>
-          <p>インバーターは、電源とモーターの間に入って、モーターへ出す周波数や電圧を変える制御機器です。ざっくり言うと、モーターをただ入切するだけではなく、必要な速さで回すための部品です。</p>
-          <p>コンベア、ファン、ポンプ、攪拌機など、速度を変えたい機械でよく使われます。ゆっくり立ち上げたり、ゆっくり止めたりできるので、機械への負担を減らしやすいのも特徴です。</p>
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
+          <p>
+            インバーターは、電源とモーターの間に入って、モーターへ出す周波数や電圧を変える制御機器です。
+            ざっくり言うと、モーターをただ入切するだけではなく、必要な速さで回すための部品です。
+          </p>
+          <p>
+            コンベア、ファン、ポンプ、攪拌機など、速度を変えたい機械でよく使われます。
+            ゆっくり立ち上げたり、ゆっくり止めたりできるので、機械への負担を減らしやすいのも特徴です。
+          </p>
 
           <div class="key-highlight">
-            インバーターを見るときは、いきなり細かい設定値から入るよりも、「運転指令が入る → 周波数指令が入る → インバーターが出力する → モーターの回転数が変わる」という流れで見ると分かりやすいです。
+            <h3>インバーターは「何Hzでモーターを回すか」を見ると分かりやすい</h3>
+            <p>
+              いきなり細かい設定値から入るよりも、
+              「運転指令が入る → 周波数指令が入る → インバーターが出力する → モーターの回転数が変わる」
+              という流れで見ると追いやすくなります。
+            </p>
           </div>
 
           <div class="talk-thread">
-            <div class="talk-row talk-row--left">
+            <div class="talk-row">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
               </div>
@@ -1016,7 +1085,6 @@
                 <p><span class="talk-name talk-name--senpai">先輩</span>インバーターは、モーターの速さを変えたいときに使う部品だよ。</p>
               </div>
             </div>
-
             <div class="talk-row talk-row--right">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
@@ -1025,8 +1093,7 @@
                 <p><span class="talk-name talk-name--kouhai">新人</span>マグネットスイッチみたいにON/OFFするだけじゃなくて、速さも変えられるんですね。</p>
               </div>
             </div>
-
-            <div class="talk-row talk-row--left">
+            <div class="talk-row">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
               </div>
@@ -1037,10 +1104,16 @@
           </div>
         </section>
 
-        <section class="section-card" id="what-is-inverter">
-          <h2>インバーターとは？</h2>
-          <p>インバーターは、交流電源をいったん直流に変換し、そのあと再び交流に戻して、モーターへ出す周波数を調整する機器です。</p>
-          <p>三相モーターは、基本的に電源の周波数に応じて回転数が変わります。そのため、インバーターで出力周波数を変えると、モーターの回転数も変えられます。</p>
+        <section class="section-card" id="overview">
+          <h2>2. インバーターとは</h2>
+          <p>
+            インバーターは、交流電源をいったん直流に変換し、そのあと再び交流に戻して、
+            モーターへ出す周波数を調整する機器です。
+          </p>
+          <p>
+            三相モーターは、基本的に電源の周波数に応じて回転数が変わります。
+            そのため、インバーターで出力周波数を変えると、モーターの回転数も変えられます。
+          </p>
 
           <figure class="article-figure">
             <img src="../assets/images/inverter-basic/inverter-basic-overview.png" alt="インバーターの基本構成を示す図解" loading="lazy" decoding="async">
@@ -1048,16 +1121,26 @@
           </figure>
 
           <h3>50Hz・60Hzだけでなく、必要な周波数で出力できる</h3>
-          <p>商用電源は地域や設備によって50Hzや60Hzですが、インバーターを使うと、たとえば20Hz、40Hz、60Hzのように、必要な周波数でモーターを動かせます。</p>
+          <p>
+            商用電源は地域や設備によって50Hzや60Hzですが、インバーターを使うと、
+            たとえば20Hz、40Hz、60Hzのように、必要な周波数でモーターを動かせます。
+          </p>
 
           <div class="note-box">
-            初心者のうちは、「Hzを上げると速く回る」「Hzを下げるとゆっくり回る」というイメージで十分です。実際の設定では、モーター容量、定格電流、加減速時間、上限周波数なども関係します。
+            <h3>最初は「Hzを上げると速く、下げるとゆっくり」でOK</h3>
+            <p>
+              初心者のうちは、「Hzを上げると速く回る」「Hzを下げるとゆっくり回る」というイメージで十分です。
+              実際の設定では、モーター容量、定格電流、加減速時間、上限周波数なども関係します。
+            </p>
           </div>
         </section>
 
-        <section class="section-card" id="basic-structure">
-          <h2>インバーターの基本構成</h2>
-          <p>インバーター内部の細かい電子回路まで完全に覚える必要はありません。現場で最初に押さえるなら、電源を受けて、内部で変換し、モーターに出力する流れを知っておくと十分です。</p>
+        <section class="section-card" id="structure">
+          <h2>3. インバーターの基本構成</h2>
+          <p>
+            インバーター内部の細かい電子回路まで完全に覚える必要はありません。
+            現場で最初に押さえるなら、電源を受けて、内部で変換し、モーターに出力する流れを知っておくと十分です。
+          </p>
 
           <div class="table-wrap">
             <table>
@@ -1070,36 +1153,43 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="cell-blue">入力側</td>
-                  <td>三相電源などをインバーターへ入れる部分</td>
+                  <th>入力側</th>
+                  <td class="cell-blue">三相電源などをインバーターへ入れる部分</td>
                   <td>元電源、ブレーカー、電源電圧を確認する</td>
                 </tr>
                 <tr>
-                  <td class="cell-green">インバーター内部</td>
-                  <td>交流を直流にし、再び可変周波数の交流に変換する</td>
+                  <th>インバーター内部</th>
+                  <td class="cell-green">交流を直流にし、再び可変周波数の交流に変換する</td>
                   <td>表示、パラメータ、異常コード、運転状態を見る</td>
                 </tr>
                 <tr>
-                  <td class="cell-orange">出力側</td>
-                  <td>モーターへ周波数と電圧を変換した電力を出す</td>
+                  <th>出力側</th>
+                  <td class="cell-orange">モーターへ周波数と電圧を変換した電力を出す</td>
                   <td>モーター配線、出力周波数、回転方向を確認する</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <h3>インバーターは「電源を入れるだけの箱」ではない</h3>
-          <p>インバーターには、運転指令、周波数指令、加速時間、減速時間、保護機能などの考え方があります。電源が来ていても、運転指令や設定が合っていなければモーターは動かないことがあります。</p>
-
           <div class="field-highlight">
-            制御盤でインバーターを見るときは、「電源が来ているか」「運転指令が入っているか」「周波数指令が入っているか」「異常で止まっていないか」を分けて見ると、原因を追いやすくなります。
+            <h3>インバーターは「電源を入れるだけの箱」ではない</h3>
+            <p>
+              インバーターには、運転指令、周波数指令、加速時間、減速時間、保護機能などの考え方があります。
+              電源が来ていても、運転指令や設定が合っていなければモーターは動かないことがあります。
+            </p>
           </div>
         </section>
 
-        <section class="section-card" id="operation-flow">
-          <h2>インバーターを使った制御の流れ</h2>
-          <p>PLCと組み合わせる場合、PLCからインバーターへ運転指令や周波数指令を送り、インバーターがモーターの回転数を調整します。</p>
-          <p>周波数指令は、アナログ信号、通信、パネル設定など、設備によって方式が違います。初心者のうちは、まず「誰がインバーターに何Hzで回せと指示しているか」を見ると分かりやすいです。</p>
+        <section class="section-card" id="flow">
+          <h2>4. インバーターを使った制御の流れ</h2>
+          <p>
+            PLCと組み合わせる場合、PLCからインバーターへ運転指令や周波数指令を送り、
+            インバーターがモーターの回転数を調整します。
+          </p>
+          <p>
+            周波数指令は、アナログ信号、通信、パネル設定など、設備によって方式が違います。
+            初心者のうちは、まず「誰がインバーターに何Hzで回せと指示しているか」を見ると分かりやすいです。
+          </p>
 
           <figure class="article-figure">
             <img src="../assets/images/inverter-basic/inverter-basic-operation-flow.png" alt="PLCからインバーターへ指令を出してモーターを制御する流れ" loading="lazy" decoding="async">
@@ -1119,13 +1209,23 @@
               <h3>異常状態</h3>
               <p>過電流、過負荷、過電圧などで停止している場合があります。表示や異常履歴を確認します。</p>
             </div>
+            <div class="check-item">
+              <h3>出力周波数</h3>
+              <p>指令値だけでなく、実際に何Hzを出しているかを見ると、原因を分けやすくなります。</p>
+            </div>
           </div>
         </section>
 
-        <section class="section-card" id="magnetic-switch-difference">
-          <h2>マグネットスイッチ制御とインバーター制御の違い</h2>
-          <p>マグネットスイッチ制御は、モーターをON/OFFする考え方が中心です。一定速で回す用途にはシンプルで分かりやすい制御です。</p>
-          <p>一方、インバーター制御は、周波数を変えて回転数を調整できます。速度を変えたい、ゆっくり起動停止したい、省エネを意識したい設備で使われます。</p>
+        <section class="section-card" id="comparison">
+          <h2>5. マグネットスイッチ制御とインバーター制御の違い</h2>
+          <p>
+            マグネットスイッチ制御は、モーターをON/OFFする考え方が中心です。
+            一定速で回す用途にはシンプルで分かりやすい制御です。
+          </p>
+          <p>
+            一方、インバーター制御は、周波数を変えて回転数を調整できます。
+            速度を変えたい、ゆっくり起動停止したい、省エネを意識したい設備で使われます。
+          </p>
 
           <figure class="article-figure">
             <img src="../assets/images/inverter-basic/inverter-basic-comparison.png" alt="マグネットスイッチ制御とインバーター制御の違いを比較する図解" loading="lazy" decoding="async">
@@ -1143,22 +1243,22 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>制御方法</td>
-                  <td>ON/OFFでモーターを入切する</td>
-                  <td>周波数を変えて回転数を調整する</td>
+                  <th>制御方法</th>
+                  <td class="cell-blue">ON/OFFでモーターを入切する</td>
+                  <td class="cell-orange">周波数を変えて回転数を調整する</td>
                 </tr>
                 <tr>
-                  <td>回転数</td>
+                  <th>回転数</th>
                   <td>基本的に一定速</td>
                   <td>低速から高速まで調整しやすい</td>
                 </tr>
                 <tr>
-                  <td>起動・停止</td>
+                  <th>起動・停止</th>
                   <td>急に起動・停止しやすい</td>
                   <td>加速時間・減速時間を設定できる</td>
                 </tr>
                 <tr>
-                  <td>向いている用途</td>
+                  <th>向いている用途</th>
                   <td>単純な入切で十分な設備</td>
                   <td>速度調整が必要なコンベア、ファン、ポンプなど</td>
                 </tr>
@@ -1175,8 +1275,7 @@
                 <p><span class="talk-name talk-name--kouhai">新人</span>じゃあインバーターの方が全部上位互換なんですか？</p>
               </div>
             </div>
-
-            <div class="talk-row talk-row--left">
+            <div class="talk-row">
               <div class="talk-avatar">
                 <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
               </div>
@@ -1188,8 +1287,11 @@
         </section>
 
         <section class="section-card" id="field-points">
-          <h2>現場でインバーターを見るときのポイント</h2>
-          <p>インバーターは設定項目が多いので、最初から全部を覚えようとすると難しく感じます。まずは、設備トラブルや確認時によく見るポイントに絞ると分かりやすいです。</p>
+          <h2>6. 現場でインバーターを見るときのポイント</h2>
+          <p>
+            インバーターは設定項目が多いので、最初から全部を覚えようとすると難しく感じます。
+            まずは、設備トラブルや確認時によく見るポイントに絞ると分かりやすいです。
+          </p>
 
           <div class="check-grid">
             <div class="check-item check-item--important">
@@ -1204,21 +1306,29 @@
               <h3>アラーム表示</h3>
               <p>異常コードが出ている場合は、過負荷や過電流などの原因を切り分けます。</p>
             </div>
+            <div class="check-item">
+              <h3>加速時間・減速時間</h3>
+              <p>立ち上がりや停止時の異常は、加減速時間が関係していることがあります。</p>
+            </div>
           </div>
 
-          <h3>加速時間・減速時間も大事</h3>
-          <p>インバーターでは、モーターを何秒かけて立ち上げるか、何秒かけて止めるかを設定できます。短すぎると過電流や過電圧になりやすく、長すぎると設備の動きが遅く感じることがあります。</p>
-
           <div class="note-box">
-            現場では、「なぜかモーターがすぐ止まる」「立ち上がりで異常が出る」「停止時にアラームになる」といった場合に、加速時間・減速時間が関係していることがあります。
+            <h3>加速時間・減速時間も大事</h3>
+            <p>
+              インバーターでは、モーターを何秒かけて立ち上げるか、何秒かけて止めるかを設定できます。
+              短すぎると過電流や過電圧になりやすく、長すぎると設備の動きが遅く感じることがあります。
+            </p>
           </div>
         </section>
 
-        <section class="section-card" id="trouble-check">
-          <h2>トラブル時の確認ポイント</h2>
-          <p>インバーターまわりでモーターが動かないときは、いきなり本体故障と決めつけず、入力・指令・出力・異常の順に分けて確認します。</p>
+        <section class="section-card" id="trouble">
+          <h2>7. トラブル時の確認ポイント</h2>
+          <p>
+            インバーターまわりでモーターが動かないときは、いきなり本体故障と決めつけず、
+            入力・指令・出力・異常の順に分けて確認します。
+          </p>
 
-          <ul>
+          <ul class="simple-list">
             <li>インバーターに電源が入っているか</li>
             <li>ブレーカーやモーターブレーカーが落ちていないか</li>
             <li>運転指令が入っているか</li>
@@ -1228,35 +1338,77 @@
             <li>モーター側の配線や負荷に異常がないか</li>
           </ul>
 
+          <div class="field-highlight">
+            <h3>「動かない」は4つに分けて考える</h3>
+            <p>
+              電源がない、運転指令がない、周波数指令がない、異常で止まっている、というように分けて考えると原因を追いやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="caution">
+          <h2>8. 注意点</h2>
+          <p>
+            インバーターは便利な部品ですが、電源・モーター・安全機能に関わるため、安易な配線変更や設定変更は避けます。
+            設備仕様、メーカー資料、取扱説明書、社内手順に従って確認することが大切です。
+          </p>
+
+          <ul class="simple-list">
+            <li>インバーターは三相モーターで使う前提のものが多く、単相モーターへ安易に接続しない</li>
+            <li>単相モーターへの使用可否は、必ずメーカー資料・取扱説明書で確認する</li>
+            <li>電源OFF後もしばらく内部に電荷が残る場合があるため、点検・配線変更・交換は放電時間を守る</li>
+            <li>STO付きインバーターでは、安全入力が成立していないと運転できない場合がある</li>
+          </ul>
+
           <div class="danger-box">
-            インバーター内部には電源を切ったあともしばらく電荷が残る場合があります。点検・配線変更・交換作業は、設備のルールや取扱説明書に従い、無理に触らないことが大事です。
+            <h3>電源を切った直後にすぐ触らない</h3>
+            <p>
+              インバーター内部には、電源を切ったあともしばらく電荷が残る場合があります。
+              点検・配線変更・交換作業は、取扱説明書の放電時間や社内手順に従って行います。
+            </p>
           </div>
 
-          <h3>「動かない」は4つに分けて考える</h3>
-          <p>インバーターでモーターが動かない場合、電源がない、運転指令がない、周波数指令がない、異常で止まっている、というように分けて考えると原因を追いやすくなります。</p>
-        </section>
-
-        <section class="section-card" id="summary-end">
-          <h2>まとめ：インバーターはモーター制御を一段細かくする部品</h2>
-          <p>インバーターは、モーターの回転数を自由に調整したいときに使う制御盤部品です。マグネットスイッチのように単純なON/OFFだけではなく、周波数を変えることで速度調整や加減速制御ができます。</p>
-          <p>初心者のうちは、細かいパラメータを全部覚えるよりも、運転指令、周波数指令、出力周波数、異常表示を分けて見ることが大切です。</p>
-          <p>インバーターの考え方が分かると、コンベア、ファン、ポンプなどのモーター制御をかなり追いやすくなります。制御盤の中で見かけたときは、「何をきっかけに動き、何Hzでモーターを回しているのか」を見るようにすると理解しやすいです。</p>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
-            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎も見る</a>
+          <div class="note-box">
+            <h3>STO付きインバーターは別の見方も必要</h3>
+            <p>
+              STO付きインバーターでは、通常の運転指令とは別に、安全回路側の入力が成立しているかを見る必要があります。
+              STOの詳しい考え方は、別記事で整理する予定です。
+            </p>
           </div>
         </section>
 
-        <section class="section-card" id="related">
-          <h2>あわせて読みたい記事</h2>
+        <section class="section-card" id="summary">
+          <h2>9. まとめ</h2>
+          <p>
+            インバーターは、モーターの回転数を自由に調整したいときに使う制御盤部品です。
+            マグネットスイッチのように単純なON/OFFだけではなく、周波数を変えることで速度調整や加減速制御ができます。
+          </p>
+          <p>
+            初心者のうちは、細かいパラメータを全部覚えるよりも、
+            運転指令、周波数指令、出力周波数、異常表示を分けて見ることが大切です。
+          </p>
+
+          <ul class="simple-list">
+            <li>インバーターは、周波数を変えてモーターの回転数を調整する部品</li>
+            <li>マグネットスイッチ制御はON/OFF中心、インバーター制御は速度調整が得意</li>
+            <li>トラブル時は、電源・運転指令・周波数指令・異常表示を分けて確認する</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
           <div class="related-grid">
             <a class="related-card" href="magnetic-switch-basic.html">
-              <h3>電磁接触器と電磁開閉器の違い</h3>
+              <h3>マグネットスイッチとは？</h3>
               <p>モーターをON/OFFする基本部品として、インバーターとの違いを整理しやすくなります。</p>
             </a>
             <a class="related-card" href="motor-breaker-basic.html">
-              <h3>モーターブレーカーとは？</h3>
+              <h3>モーターブレーカとは？</h3>
               <p>モーター回路の保護部品として、インバーターまわりの構成を理解する前に見ておきたい内容です。</p>
             </a>
             <a class="related-card" href="input-output-basic.html">
@@ -1267,18 +1419,19 @@
         </section>
       </div>
 
-      <aside class="side-rail" aria-label="記事内メニュー">
+      <aside class="side-rail" aria-label="記事サイドメニュー">
         <section class="side-card">
           <h3>記事内メニュー</h3>
           <ul>
-            <li><a href="#summary">先に結論</a></li>
-            <li><a href="#what-is-inverter">インバーターとは</a></li>
-            <li><a href="#basic-structure">基本構成</a></li>
-            <li><a href="#operation-flow">制御の流れ</a></li>
-            <li><a href="#magnetic-switch-difference">マグネットスイッチとの違い</a></li>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#overview">インバーターとは</a></li>
+            <li><a href="#structure">基本構成</a></li>
+            <li><a href="#flow">制御の流れ</a></li>
+            <li><a href="#comparison">マグネットスイッチとの違い</a></li>
             <li><a href="#field-points">現場で見るポイント</a></li>
-            <li><a href="#trouble-check">トラブル時の確認</a></li>
-            <li><a href="#summary-end">まとめ</a></li>
+            <li><a href="#trouble">トラブル時の確認</a></li>
+            <li><a href="#caution">注意点</a></li>
+            <li><a href="#summary">まとめ</a></li>
           </ul>
         </section>
 
@@ -1294,8 +1447,8 @@
         <section class="side-card">
           <h3>先に読むと分かりやすい記事</h3>
           <ul>
-            <li><a href="magnetic-switch-basic.html">電磁接触器と電磁開閉器の違い</a></li>
-            <li><a href="motor-breaker-basic.html">モーターブレーカーとは？</a></li>
+            <li><a href="magnetic-switch-basic.html">マグネットスイッチとは？</a></li>
+            <li><a href="motor-breaker-basic.html">モーターブレーカとは？</a></li>
             <li><a href="input-output-basic.html">PLCの入力・出力の基礎</a></li>
           </ul>
         </section>

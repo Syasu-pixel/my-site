@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>正転・逆転回路とは？モーターの回転方向を切り替える基本をやさしく解説</title>
+  <meta name="description" content="正転・逆転回路とは何かを初心者向けにやさしく整理。正転用・逆転用の電磁接触器、停止ボタン、自己保持、相互インターロック、GX Works3で見る時のポイントまで現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/forward-reverse-circuit-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="正転・逆転回路とは？モーターの回転方向を切り替える基本をやさしく解説">
+  <meta property="og:description" content="正転・逆転回路の基本、自己保持、相互インターロック、GX Works3での見方、確認ポイントをやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/forward-reverse-circuit-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="正転・逆転回路とは？モーターの回転方向を切り替える基本をやさしく解説">
+  <meta name="twitter:description" content="正転・逆転回路の基本、自己保持、相互インターロック、GX Works3での見方、確認ポイントをやさしく整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png">
+  <meta name="theme-color" content="#f7fbff">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --bg-soft:#f8fbff;
+      --card:#ffffff;
+      --line:#d9e3ef;
+      --line-strong:#c8d6e6;
+      --text:#1f2d3d;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-soft:#eef5ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --header-h:78px;
+    }
+    *{box-sizing:border-box}
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:calc(var(--header-h) + 18px);
+    }
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f5f8fc 100%);
+      line-height:1.85;
+      padding-top:var(--header-h);
+    }
+    img{max-width:100%;display:block}
+    a{color:#1d4ed8;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      width:min(1180px,calc(100% - 24px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:1000;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(214,225,238,.95);
+    }
+    .site-header-inner{
+      width:min(1180px,calc(100% - 24px));
+      margin:0 auto;
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 0;
+    }
+    .site-brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .site-brand:hover{text-decoration:none}
+    .site-brand img{
+      width:40px;
+      height:40px;
+      object-fit:contain;
+      flex:0 0 auto;
+    }
+    .site-brand-copy{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .site-brand-title{
+      font-size:14px;
+      font-weight:900;
+      line-height:1.25;
+      letter-spacing:.02em;
+    }
+    .site-brand-sub{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+    }
+    .site-nav{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .site-nav a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      color:var(--text);
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+    .site-nav a:hover{
+      background:#f8fbff;
+      border-color:#dbe7f3;
+      text-decoration:none;
+    }
+
+    .header-search{
+      position:relative;
+      width:min(280px,100%);
+      margin-left:8px;
+    }
+    .search-box-input{
+      width:100%;
+      height:44px;
+      border:1px solid #cfdbeb;
+      border-radius:999px;
+      background:#fff;
+      padding:0 50px 0 16px;
+      font-size:13px;
+      color:var(--text);
+      outline:none;
+    }
+    .search-box-input:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .search-box-button{
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:none;
+      border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      padding:0;
+    }
+    .header-search-icon{
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-radius:50%;
+      position:relative;
+      display:block;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#fff;
+      right:-5px;
+      bottom:-1px;
+      transform:rotate(45deg);
+      border-radius:2px;
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px;
+      z-index:1100;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border:1px solid #e6eef8;
+      border-radius:12px;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+      color:#0f172a;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      color:#64748b;
+      line-height:1.5;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .breadcrumb{
+      margin:18px 0 14px;
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:6px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 38%, rgba(255,255,255,.82) 58%, rgba(255,255,255,.42) 76%, rgba(255,255,255,.08) 100%),
+        #f8fbff;
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      z-index:0;
+      pointer-events:none;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 82% 20%, rgba(96,165,250,.22), transparent 28%),
+        radial-gradient(circle at 74% 78%, rgba(34,197,94,.14), transparent 24%);
+      z-index:1;
+      pointer-events:none;
+    }
+    .article-hero-copy{
+      position:relative;
+      z-index:2;
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+    }
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      color:#334155;
+      font-size:15px;
+      line-height:1.85;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 20px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:22px 20px;
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.45;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.75;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:#1d4ed8}
+
+    .top-summary-note{
+      margin:0 0 22px;
+      padding:18px 20px;
+      border-radius:24px;
+      border:1px solid #d7e4f3;
+      background:#fff;
+      box-shadow:var(--shadow);
+    }
+    .top-summary-note h2{
+      margin:0 0 12px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .top-summary-note p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:calc(var(--header-h) + 18px);
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.45;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.55;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+      line-height:1.9;
+    }
+    .section-card p:last-child{margin-bottom:0}
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      margin:18px 0;
+      padding:18px;
+      border-radius:20px;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-color:#bfdbfe;
+    }
+    .field-highlight{
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-color:#bbf7d0;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+      line-height:1.85;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-avatar{
+      width:72px;
+      flex:0 0 72px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    .talk-avatar img{
+      width:64px;
+      height:auto;
+      object-fit:contain;
+    }
+    .talk-bubble{
+      flex:1 1 auto;
+      min-width:0;
+      max-width:760px;
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 16px;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      margin-right:8px;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:#1d4ed8;
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:#7c3aed;
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:14px;
+      line-height:1.8;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 8px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.75;
+    }
+    th{
+      background:#f8fbff;
+      font-weight:900;
+      color:#0f172a;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      border-radius:20px;
+      padding:16px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:18px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+      line-height:1.85;
+    }
+    .number-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .number-list li{
+      margin:12px 0 0;
+      font-size:15px;
+      line-height:1.9;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.75;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-item{
+      display:block;
+      color:var(--text);
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      text-decoration:none;
+    }
+    .related-item:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:#1d4ed8;
+    }
+    .related-item p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+    .footer-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 14px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid #d3dfec;
+      color:var(--text);
+      font-size:14px;
+      font-weight:800;
+      text-decoration:none;
+    }
+    .footer-link:hover{
+      text-decoration:none;
+      background:#f8fbff;
+    }
+
+    .site-footer{
+      border-top:1px solid #dbe7f3;
+      padding:24px 0 34px;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:900px){
+      :root{--header-h:72px}
+      .site-brand-sub,
+      .site-nav{display:none}
+      .header-search{
+        margin-left:auto;
+        width:min(180px,100%);
+      }
+      .article-hero{
+        min-height:360px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 56%, rgba(255,255,255,.70) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png") right -24px bottom -8px / 165% auto no-repeat;
+        opacity:.18;
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+      .related-grid{
+        grid-template-columns:1fr;
+      }
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+      .section-card{
+        padding:22px;
+      }
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+      }
+      .article-hero::before{
+        background:url("../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero-copy{
+        width:min(100%,590px);
+        min-height:360px;
+        padding:40px 34px;
+      }
+      h1{
+        font-size:34px;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+    }
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 18px));
+      }
+      .article-hero{
+        border-radius:24px;
+      }
+      .article-hero::before{
+        background:url("../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-hero.png") right -34px bottom -12px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero-copy{
+        padding:30px 18px;
+      }
+      .summary-card,
+      .section-card,
+      .side-card{
+        border-radius:22px;
+      }
+      .talk-row{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:60px;
+        flex-basis:auto;
+      }
+      .talk-avatar img{
+        width:56px;
+      }
+      .talk-bubble{
+        max-width:none;
+      }
+      .section-card h2{
+        font-size:20px;
+      }
+      .section-card p,
+      .simple-list li,
+      .number-list li{
+        font-size:14px;
+      }
+      .header-search{
+        width:min(150px,100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="site-brand" href="../index.html" aria-label="トップページへ">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ">
+        <span class="site-brand-copy">
+          <span class="site-brand-title">電気と制御の実務メモ</span>
+          <span class="site-brand-sub">現場で使う考え方を初心者向けにやさしく整理</span>
+        </span>
+      </a>
+
+      <nav class="site-nav" aria-label="主要ナビゲーション">
+        <a href="../index.html">ホーム</a>
+        <a href="../categories/control-basics.html">制御の基礎</a>
+        <a href="../categories/circuit-basics.html">回路の基礎</a>
+        <a href="../categories/tools-guide.html">工具</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div id="site-search-panel" class="search-box-panel" hidden>
+          <ul id="site-search-results" class="search-box-results"></ul>
+          <p id="site-search-empty" class="search-box-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">回路の基礎</a>
+      <span>›</span>
+      <span>正転・逆転回路とは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-kicker">回路の基礎</span>
+        <h1 id="page-title">正転・逆転回路とは？<br>モーターの回転方向を切り替える基本をやさしく解説</h1>
+        <p class="hero-lead">
+          正転・逆転回路は、モーターの回転方向を切り替えるための基本回路です。
+          ポイントは、正転と逆転を同時に入れないこと、そして自己保持と相互インターロックをセットで見ることです。
+        </p>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>正転・逆転回路の基本を知りたい人</li>
+          <li>自己保持とインターロックの組み合わせを整理したい人</li>
+          <li>GX Works3でラダーを見る時の考え方を知りたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>サーボの位置決めやシンプルモーション設定を知りたい人</li>
+          <li>特定メーカーの実機配線図そのままを見たい人</li>
+          <li>安全PLCや複雑な設備連動まで一気に学びたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>正転・逆転回路は<span style="font-weight:900;">方向切替</span>の基本回路です。</li>
+          <li><span style="font-weight:900;">自己保持</span>と<span style="font-weight:900;">相互インターロック</span>が重要です。</li>
+          <li>GX Works3では<span style="font-weight:900;">左から順番に条件を追う</span>と理解しやすいです。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="top-summary-note" aria-labelledby="article-outline-title">
+      <h2 id="article-outline-title">この記事でわかること</h2>
+      <p>
+        正転・逆転回路の基本構成、ラダー図の見方、正転時・逆転時の動作の流れ、
+        相互インターロックが必要な理由、GX Works3で確認する時のポイント、
+        正転しない・逆転しない時の見方を順番に整理します。
+      </p>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="sec-conclusion">
+          <h2>1. まずは結論から</h2>
+          <p>
+            正転・逆転回路は、モーターを<span style="font-weight:900;">正転方向</span>と
+            <span style="font-weight:900;">逆転方向</span>へ切り替えるための基本回路です。
+            コンベアの前後送り、昇降の上下、左右動作など、方向を切り替えたい設備でよく出てきます。
+          </p>
+          <p>
+            ただし、正転用と逆転用の接触器が同時に入ると危険です。
+            そのため、ラダーでは自己保持だけでなく、
+            <span style="font-weight:900;">相手側が入っている時は自分側を入れない</span>という
+            相互インターロックを必ず考えます。
+          </p>
+
+          <div class="key-highlight">
+            <h3>方向を切り替える回路だが、同時動作防止まで含めて考える</h3>
+            <p>
+              正転・逆転回路は、ただ切り替えるだけの回路ではありません。
+              正転時は逆転側を入れない、逆転時は正転側を入れない、という
+              安全で基本的な考え方まで含めて理解すると、回路が追いやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/common/operator-man.png" alt="先輩作業者">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>正転・逆転回路は、自己保持回路の次に見ておきたい基本回路だね。大事なのは、反対側を同時に入れないことだよ。</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/common/operator-young.png" alt="若手作業者">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>ただモーターの向きを変えるだけじゃなくて、同時に入らないようにする回路として見るんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-overview">
+          <h2>2. 正転・逆転回路とは？</h2>
+          <p>
+            正転・逆転回路とは、モーターの回転方向を切り替えるための回路です。
+            一般的には、正転用の電磁接触器と逆転用の電磁接触器を分けて考えます。
+          </p>
+          <p>
+            正転ボタンを押したら正転側の接触器が入り、逆転ボタンを押したら逆転側の接触器が入る、
+            というのが基本の考え方です。
+            実際の主回路は設備仕様で変わるので、ここではまず
+            <span style="font-weight:900;">制御回路の流れ</span>を中心に整理します。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-overview.png" alt="正転・逆転回路の基本構成を示す概要図" loading="lazy" decoding="async">
+            <figcaption>停止ボタン、正転・逆転ボタン、正転用・逆転用の接触器、モーターの関係を簡略化した概要図です。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>最初は主回路よりも制御回路の考え方を先に見る</h3>
+            <p>
+              初心者のうちは、停止ボタン、正転ボタン、逆転ボタン、自己保持、インターロックの流れを先に押さえる方が理解しやすいです。
+              まずは「どの条件でどのコイルが入るか」を見るのがおすすめです。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-structure">
+          <h2>3. 基本構成を部品ごとに見る</h2>
+          <p>
+            正転・逆転回路の基本構成は、停止ボタン、正転スタート、逆転スタート、
+            正転用コイル、逆転用コイル、そしてモーターです。
+            設備によってはサーマルリレーや異常条件、安全回路なども入りますが、
+            まずは基本形で整理すると追いやすくなります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>停止ボタン</h3>
+              <p>正転・逆転の両方に共通で効く停止条件です。どちらの回路でも上流側に入ることが多いです。</p>
+            </div>
+            <div class="check-item">
+              <h3>正転ボタン</h3>
+              <p>正転側のコイルを動かすためのスタート条件です。押した時だけ一瞬ONになります。</p>
+            </div>
+            <div class="check-item">
+              <h3>逆転ボタン</h3>
+              <p>逆転側のコイルを動かすためのスタート条件です。正転側とは別に考えます。</p>
+            </div>
+            <div class="check-item">
+              <h3>正転用・逆転用コイル</h3>
+              <p>どちらの方向へ回すかを切り替える中心です。同時にONしないようにするのが重要です。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>実機では補助接点や機械的インターロックも関係する</h3>
+            <p>
+              実際の設備では、ラダーだけでなく接触器の補助接点や機械的インターロックも関係します。
+              この記事では、初心者向けに制御回路の考え方が見えるように簡略化しています。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-ladder">
+          <h2>4. 基本ラダー図の見方</h2>
+          <p>
+            GX Works3でラダーを見る時も、まずは難しい命令ではなく、
+            <span style="font-weight:900;">接点とコイルの関係</span>で見るのが基本です。
+            正転側と逆転側を別々の段で考え、それぞれに自己保持と相手側のインターロックを入れるイメージです。
+          </p>
+          <p>
+            最初に見るポイントは、停止条件、スタート入力、自己保持、相手側のインターロック、
+            そして最後に出力コイルです。これを左から順番に見ていくと理解しやすいです。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-ladder.png" alt="正転・逆転回路の基本ラダー図" loading="lazy" decoding="async">
+            <figcaption>正転側と逆転側を分けて見た基本ラダーのイメージです。GX Works3で考える時も、まずはこの流れで追うと分かりやすいです。</figcaption>
+          </figure>
+
+          <ul class="simple-list">
+            <li><strong>停止条件：</strong>正転・逆転どちらにも共通で効く条件です。</li>
+            <li><strong>スタート入力：</strong>正転PBと逆転PBを分けて見ます。</li>
+            <li><strong>自己保持：</strong>一度押した後も運転を保持する接点です。</li>
+            <li><strong>相互インターロック：</strong>反対側が動作中の時は入らないようにする接点です。</li>
+          </ul>
+
+          <div class="key-highlight">
+            <h3>正転側だけをまず読むと理解しやすい</h3>
+            <p>
+              最初から正転側と逆転側を同時に追うと混乱しやすいです。
+              先に正転側だけを読み、次に逆転側を見ると、左右対称のような考え方だと分かりやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-flow">
+          <h2>5. 動作の流れを順番に見る</h2>
+          <p>
+            回路記事では、ラダー図だけでなく
+            <span style="font-weight:900;">押した時に何が起きるか</span>を順番に追うと、理解がかなり進みます。
+            正転時と逆転時で、どこが同じでどこが違うかを見るのがポイントです。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-operation-flow.png" alt="正転・逆転回路の動作順序を示す図" loading="lazy" decoding="async">
+            <figcaption>停止中から正転、停止、逆転へ進む時の動作順序を簡略化した図です。</figcaption>
+          </figure>
+
+          <ol class="number-list">
+            <li><strong>停止中：</strong>正転側も逆転側もOFFです。自己保持も成立していません。</li>
+            <li><strong>正転ボタンを押す：</strong>停止条件が成立していて、逆転側が入っていなければ正転コイルがONします。</li>
+            <li><strong>自己保持が入る：</strong>ボタンを離しても正転側が保持され、モーターは正転を続けます。</li>
+            <li><strong>停止ボタンを押す：</strong>自己保持が切れて正転側がOFFになります。</li>
+            <li><strong>逆転ボタンを押す：</strong>今度は逆転側が同じ考え方でONし、逆方向へ動きます。</li>
+          </ol>
+
+          <div class="field-highlight">
+            <h3>正転中に逆転ボタンを押しても、すぐ逆転しない考え方が大切</h3>
+            <p>
+              正転中は逆転側がインターロックで止められているのが基本です。
+              いったん停止してから逆転へ移る、という流れで考えると、安全で分かりやすい回路になります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-interlock">
+          <h2>6. 相互インターロックが大事な理由</h2>
+          <p>
+            正転と逆転は、同時に動作してはいけない関係です。
+            そのため、正転側の回路には逆転側が入っていないこと、
+            逆転側の回路には正転側が入っていないことを条件として入れます。
+          </p>
+          <p>
+            このように、相手側の動作を禁止条件として入れる考え方が相互インターロックです。
+            現場でラダーを見る時も、正転側と逆転側のどちらにも
+            相手側を止める接点が入っているかを確認します。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>見る場所</th>
+                  <th>役割</th>
+                  <th>確認ポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>正転側</th>
+                  <td>正転コイルを動かす</td>
+                  <td>逆転側がONしている時に、正転が入らない条件になっているか。</td>
+                </tr>
+                <tr>
+                  <th>逆転側</th>
+                  <td>逆転コイルを動かす</td>
+                  <td>正転側がONしている時に、逆転が入らない条件になっているか。</td>
+                </tr>
+                <tr>
+                  <th>停止条件</th>
+                  <td>どちらも止める</td>
+                  <td>停止ボタンや異常条件が、正転・逆転の両方に効いているか。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="danger-box">
+            <h3>ラダー上だけでなく実機側のインターロックも軽く見ない</h3>
+            <p>
+              ラダー上の条件だけでなく、実機では接触器の補助接点や機械的インターロック、サーマル、安全回路も関係します。
+              実配線や改造は、必ず設備仕様、社内基準、メーカー資料に従ってください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-gxw3">
+          <h2>7. GX Works3で見る時のポイント</h2>
+          <p>
+            GX Works3でラダーを見る時は、画面全体を何となく眺めるのではなく、
+            <span style="font-weight:900;">出力が入るまでの条件を左から順番に追う</span>のが基本です。
+          </p>
+          <p>
+            たとえば正転側が入らないなら、停止条件、正転PB、自己保持、
+            逆転側インターロックのどこで切れているかを順番に見ます。
+            逆転側も同じで、左右対になる回路として見ると分かりやすいです。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>入力状態を見る</h3>
+              <p>停止PB、正転PB、逆転PBが想定どおりON/OFFしているかを確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>自己保持を見る</h3>
+              <p>スタート後に保持接点が入っているか、停止で切れるかを見ます。</p>
+            </div>
+            <div class="check-item">
+              <h3>反対側条件を見る</h3>
+              <p>相手側コイルや補助接点が、インターロックとして効いているかを確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>出力だけで判断しない</h3>
+              <p>コイルがONしない時は、出力より前の条件を順番に追う方が原因を見つけやすいです。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>GX Works3ベースで考えるが、この記事は概念図として見ればOK</h3>
+            <p>
+              実際のGX Works3では、使用PLC、入力番号、出力番号、内部リレー、異常条件などに合わせて回路を組みます。
+              この記事では、初心者が回路の考え方をつかみやすいように簡略化しています。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-trouble">
+          <h2>8. 正転しない・逆転しない時の確認ポイント</h2>
+          <p>
+            正転しない、逆転しない時は、モーターや接触器だけを疑う前に、
+            入力条件とインターロック条件を順番に確認します。
+            特に、正転だけ動かない、逆転だけ動かない場合は、
+            それぞれのスタート入力や反対側条件を見ていくと原因を追いやすいです。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-checkpoints.png" alt="正転・逆転回路の確認ポイントを示すチェック図" loading="lazy" decoding="async">
+            <figcaption>正転しない・逆転しない時に、上から順番に見ていきたい確認ポイントを整理した図です。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>電源</h3>
+              <p>PLC、制御電源、接触器まわりに電源が来ているかを確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>停止条件</h3>
+              <p>停止ボタン、非常停止、異常条件が解除されているかを見ます。</p>
+            </div>
+            <div class="check-item">
+              <h3>正転入力</h3>
+              <p>正転PBが入力として入っているかをGX Works3上で確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>逆転入力</h3>
+              <p>逆転PBが入力として入っているかを確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>インターロック</h3>
+              <p>反対側の条件が残っていて、動作を止めていないかを確認します。</p>
+            </div>
+            <div class="check-item">
+              <h3>接触器・モーター</h3>
+              <p>コイル通電、補助接点、サーマル、モーター側に異常がないかを確認します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-summary">
+          <h2>9. まとめ</h2>
+          <p>
+            正転・逆転回路は、モーターの回転方向を切り替えるための基本回路です。
+            自己保持回路をベースに、正転側と逆転側を分けて見ると理解しやすくなります。
+          </p>
+          <p>
+            ただし、方向を切り替える回路だからこそ、
+            <span style="font-weight:900;">正転と逆転を同時に入れない</span>という考え方が大切です。
+            ラダーでは自己保持と相互インターロックをセットで見て、
+            GX Works3では条件を左から順番に追う、という流れで確認すると分かりやすいです。
+          </p>
+
+          <ul class="simple-list">
+            <li>正転・逆転回路はモーターの方向を切り替える基本回路</li>
+            <li>停止条件、スタート入力、自己保持、インターロックの順で見ると追いやすい</li>
+            <li>正転中は逆転を入れない、逆転中は正転を入れない考え方が大切</li>
+            <li>実機では補助接点、サーマル、安全回路、設備仕様も必ず確認する</li>
+          </ul>
+
+          <div class="footer-nav">
+            <a class="footer-link" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
+            <a class="footer-link" href="self-hold-circuit.html">自己保持回路の記事を見る</a>
+            <a class="footer-link" href="interlock-basic.html">インターロック回路の記事を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="sec-related">
+          <h2>あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-item" href="self-hold-circuit.html">
+              <h3>自己保持回路とは？</h3>
+              <p>正転・逆転回路の土台になる自己保持の基本を、ラダーの見方からやさしく整理しています。</p>
+            </a>
+            <a class="related-item" href="interlock-basic.html">
+              <h3>インターロック回路とは？</h3>
+              <p>同時動作を防ぐ考え方を、正転・逆転回路とつなげて理解しやすい内容です。</p>
+            </a>
+            <a class="related-item" href="magnetic-switch-basic.html">
+              <h3>マグネットスイッチとは？</h3>
+              <p>正転・逆転回路の前提になる電磁接触器の役割を、現場目線でやさしく整理しています。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="右カラム">
+        <section class="side-card">
+          <h3>目次</h3>
+          <ul>
+            <li><a href="#sec-conclusion">1. まずは結論から</a></li>
+            <li><a href="#sec-overview">2. 正転・逆転回路とは？</a></li>
+            <li><a href="#sec-structure">3. 基本構成を部品ごとに見る</a></li>
+            <li><a href="#sec-ladder">4. 基本ラダー図の見方</a></li>
+            <li><a href="#sec-flow">5. 動作の流れを順番に見る</a></li>
+            <li><a href="#sec-interlock">6. 相互インターロックが大事な理由</a></li>
+            <li><a href="#sec-gxw3">7. GX Works3で見る時のポイント</a></li>
+            <li><a href="#sec-trouble">8. 確認ポイント</a></li>
+            <li><a href="#sec-summary">9. まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この回路で先に押さえたいこと</h3>
+          <ul>
+            <li>自己保持がどこで効いているか</li>
+            <li>相互インターロックがどこで効いているか</li>
+            <li>正転中に逆転PBを押してもすぐ逆転しないこと</li>
+            <li>GX Works3では左から順番に条件を追うこと</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
+</body>
+</html>

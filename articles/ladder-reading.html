@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ラダー図の読み方入門｜電気工事士向けにやさしく整理</title>
   <meta name="description" content="ラダー図の読み方を、電気工事士向けにやさしく整理した入門記事です。a接点・b接点、入力・出力、自己保持の見方まで、現場で追いやすい考え方をベースに解説します。">
-  <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/ladder-reading.html">
 
   <meta property="og:type" content="article">
@@ -13,726 +12,183 @@
   <meta property="og:description" content="ラダー図の読み方を、電気工事士向けにやさしく整理した入門記事です。a接点・b接点、入力・出力、自己保持の見方まで、現場で追いやすい考え方をベースに解説します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/ladder-reading.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/ladder-reading/ladder-reading-ogp.png">
-  <meta property="og:site_name" content="現場目線の工具ガイド">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ラダー図の読み方入門｜電気工事士向けにやさしく整理">
   <meta name="twitter:description" content="ラダー図の読み方を、電気工事士向けにやさしく整理した入門記事です。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/ladder-reading/ladder-reading-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
 
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2a37;
-      --muted: #5b6777;
-      --line: #d9e0ea;
-      --accent: #1677ff;
-      --accent-soft: #eef5ff;
-      --green: #1f9d55;
-      --green-soft: #eaf8f0;
-      --orange: #f59e0b;
-      --orange-soft: #fff4df;
-      --danger: #e5484d;
-      --danger-soft: #fff1f2;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --header-h: 78px;
-      --content-w: 1120px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.8;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
-    }
-
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000; backdrop-filter:none !important; background:#fff !important;
-      border-bottom: 1px solid rgba(217, 224, 234, 0.9);
-    }
-
-    .site-header-inner {
-      min-height: var(--header-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 0;
-    }
-
-    .brand {
-      min-width: 0;
-    }
-
-    .brand a {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .brand-sub {
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .brand-main {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.35;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .header-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    main {
-      padding: 22px 0 64px;
-    }
-
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .breadcrumb span {
-      opacity: 0.7;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #fafdff 0%, #eef5ff 100%);
-      border: 1px solid #dbe7ff;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4.5vw, 40px);
-      line-height: 1.35;
-      letter-spacing: -0.02em;
-    }
-
-    .hero-lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 18px 0 0;
-    }
-
-    .audience-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-    }
-
-    .audience-card--good {
-      background: var(--green-soft);
-      border-color: #cfead8;
-    }
-
-    .audience-card--notyet {
-      background: var(--orange-soft);
-      border-color: #f7dcaa;
-    }
-
-    .audience-card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .audience-card ul {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    .summary-box {
-      margin-top: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-    }
-
-    .summary-box h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .summary-box p {
-      margin: 0;
-      font-size: 15px;
-    }
-
-    .jump-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .jump-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .content-wrap {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 20px;
-      align-items: start;
-      margin-top: 22px;
-    }
-
-    .article {
-      min-width: 0;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-bottom: 18px;
-    }
-
-    .section-anchor {
-      scroll-margin-top: calc(var(--header-h) + 18px);
-    }
-
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    h2.section-title {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.45;
-    }
-
-    h3 {
-      margin: 24px 0 10px;
-      font-size: 18px;
-      line-height: 1.55;
-    }
-
-    p {
-      margin: 0 0 14px;
-      font-size: 15px;
-    }
-
-    ul, ol {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 15px;
-    }
-
-    li + li {
-      margin-top: 8px;
-    }
-
-    .note {
-      border-left: 4px solid var(--accent);
-      background: #f8fbff;
-      padding: 14px 14px 14px 16px;
-      border-radius: 0 14px 14px 0;
-      margin: 14px 0;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    .caution {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
-    }
-
-    .point-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .point-card {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
-      background: #fff;
-    }
-
-    .point-card h3 {
-      margin-top: 0;
-      font-size: 16px;
-    }
-
-    .article-figure {
-      margin: 18px 0;
-    }
-
-    .article-figure img {
-      width: 100%;
-      height: auto;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-    }
-
-    .article-figure figcaption {
-      margin-top: 8px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .help-ui {
-      margin: 18px 0;
-      border: 1px solid #d7e5ff;
-      border-radius: 18px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .help-ui summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 14px 16px;
-      background: #f3f8ff;
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .help-ui summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .help-ui-content {
-      padding: 16px;
-      font-size: 14px;
-    }
-
-    .checklist {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .check-item {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      background: #fff;
-    }
-
-    .compare-table-wrap {
-      overflow-x: auto;
-      margin-top: 12px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 620px;
-      background: #fff;
-    }
-
-    th, td {
-      border-bottom: 1px solid var(--line);
-      padding: 12px;
-      text-align: left;
-      vertical-align: top;
-      font-size: 14px;
-    }
-
-    th {
-      background: #f8fafc;
-      font-weight: 800;
-    }
-
-    .faq-item + .faq-item {
-      margin-top: 12px;
-    }
-
-    .faq-q {
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .sidebar {
-      position: sticky;
-      top: calc(var(--header-h) + 12px);
-    }
-
-    .side-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .toc {
-      display: grid;
-      gap: 10px;
-    }
-
-    .toc a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .cta-box {
-      border: 1px solid #d7e5ff;
-      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-    }
-
-    .btn-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid transparent;
-    }
-
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: #cfe0ff;
-    }
-
-    .related-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 12px;
-    }
-
-    .related-card {
-      display: block;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-
-    .related-thumb {
-      aspect-ratio: 16 / 9;
-      background: linear-gradient(135deg, #eef5ff 0%, #e7f8ef 100%);
-      border-bottom: 1px solid var(--line);
-      position: relative;
-    }
-
-    .related-thumb span {
-      position: absolute;
-      left: 14px;
-      bottom: 12px;
-      display: inline-flex;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.92);
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--accent);
-    }
-
-    .related-body {
-      padding: 14px;
-    }
-
-    .related-title {
-      margin: 0 0 8px;
-      font-size: 15px;
-      line-height: 1.55;
-      font-weight: 800;
-    }
-
-    .related-desc {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .footer-nav {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .site-footer {
-      padding: 28px 0 42px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .top-link {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 999;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(31, 42, 55, 0.92);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    @media (max-width: 980px) {
-      :root {
-        --header-h: 72px;
-      }
-
-      .content-wrap {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-      }
-
-      .related-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .site-header-inner {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
-        padding: 8px 0;
-      }
-
-      .brand-main {
-        font-size: 16px;
-      }
-
-      .header-nav {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .header-link {
-        min-height: 36px;
-        padding: 7px 11px;
-        font-size: 12px;
-      }
-
-      main {
-        padding-top: 16px;
-      }
-
-      .hero {
-        padding: 18px;
-        border-radius: 20px;
-      }
-
-      .audience-grid,
-      .point-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .card {
-        padding: 18px;
-        border-radius: 16px;
-      }
-
-      h2.section-title {
-        font-size: 21px;
-      }
-
-      p, ul, ol {
-        font-size: 14px;
-      }
-
-      .jump-link {
-        width: 100%;
-      }
-
-      .top-link {
-        right: 12px;
-        bottom: 12px;
-      }
-      .search-box-panel{
-      position:absolute;
-      top:calc(100% + 8px);
-      right:0;
-      width:min(420px,92vw);
-      max-height:min(72vh, 640px);
-      overflow-y:auto;
-      overscroll-behavior:contain;
-      -webkit-overflow-scrolling:touch;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --header-h:78px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      inset:0 0 auto 0;
+      z-index:1000;
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(209,220,234,.9);
+    }
+    .site-header-inner{
+      width:min(1180px,calc(100% - 24px));
+      margin:0 auto;
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:10px 0;
+    }
+    .brand{
+      min-width:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+    .brand-copy{display:flex;flex-direction:column;min-width:0}
+    .brand-title{
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.02em;
+      line-height:1.25;
+    }
+    .brand-sub{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.35;
+      white-space:nowrap;
+    }
+    .header-nav{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .header-nav a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .header-nav a:hover{
+      background:#f8fbff;
+      border-color:#dbe7f3;
+    }
+    .header-search{
+      flex:0 0 260px;
+      position:relative;
+      margin-left:8px;
+    }
+    .search-box-input{
+      width:100%;
+      height:44px;
+      padding:0 50px 0 16px;
+      border-radius:999px;
+      border:1px solid #cfdbeb;
       background:#fff;
-      border:1px solid #dbe7f3;
-      border-radius:16px;
-      box-shadow:0 18px 40px rgba(15,23,42,.12);
-      padding:8px 8px 10px;
-      z-index:1200;
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      outline:none;
     }
-}
-  
-    @media (max-width: 768px) {
-      .brand-sub {
-        display: none !important;
-      }
-      .search-box-panel{
-        max-height:min(68vh, 520px);
-        overflow-y:auto;
-      }
-}
-
-    /* unified fixed header */
-    body { padding-top: var(--header-h); }
-    .site-header { position: fixed !important; top: 0; left: 0; right: 0; z-index: 1100; }
-    .site-header .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .site-header .brand-logo { width: 44px; height: 44px; object-fit: contain; border-radius: 8px; flex: 0 0 auto; }
-    .site-header .brand-copy { display: grid; gap: 2px; min-width: 0; }
-    .site-header .brand-main { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.25; }
-    .site-header .brand-sub { margin: 0; font-size: 11px; font-weight: 700; color: var(--muted); line-height: 1.3; }
-    .header-search { position: relative; width: min(320px, 100%); margin-left: auto; }
-    .search-box-input { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; padding: 0 44px 0 14px; font-size: 14px; background: #fff; }
-    .search-box-button { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); width: 32px; height: 32px; border: 0; border-radius: 50%; background: #1d4ed8; cursor: pointer; }
-    .header-search-icon { display: block; width: 14px; height: 14px; margin: 0 auto; border: 2px solid #fff; border-radius: 50%; position: relative; }
-    .header-search-icon::after { content: ""; position: absolute; width: 7px; height: 2px; background: #fff; right: -5px; bottom: -2px; transform: rotate(45deg); }
+    .search-box-input:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+    .search-box-button{
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:0;
+      border-radius:999px;
+      background:#1d4ed8;
+      color:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+    }
+    .search-box-button:hover{background:#1e40af}
+    .header-search-icon{
+      display:block;
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-radius:50%;
+      position:relative;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#fff;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
     .search-box-panel{
       position:absolute;
       top:calc(100% + 8px);
       right:0;
       width:min(420px,92vw);
-      max-height:min(72vh, 640px);
+      max-height:min(72vh,640px);
       overflow-y:auto;
       overscroll-behavior:contain;
       -webkit-overflow-scrolling:touch;
@@ -795,55 +251,733 @@
       font-size:12px;
       font-weight:700;
     }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-
-    @media (max-width: 960px) {
-      :root { --header-h: 124px; }
-      .site-header-inner {
-        align-items: stretch !important;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .header-nav { display: none !important; }
-      .header-search { width: 100%; margin-left: 0; }
-    }
-    @media (max-width: 768px) {
-      :root { --header-h: 118px; }
-      .site-header-inner {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 8px !important;
-      }
-      .site-header .brand-sub { display: none !important; }
-      .header-nav { display: none !important; }
-      .header-search { width: 100% !important; margin-left: 0 !important; }
-      .search-box-input { min-height: 38px !important; font-size: 13px !important; }
-      .search-box-panel{
-        max-height:min(68vh, 520px);
-        overflow-y:auto;
-      }
-}
-    @media (max-width: 480px) {
-      :root { --header-h: 112px; }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/ladder-reading/ladder-reading-ogp.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:37ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header-inner{gap:8px}
+      .brand-logo{width:40px;height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+      .header-search{margin-left:auto;flex:0 0 168px}
+      .search-box-input{height:40px;font-size:12px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/ladder-reading/ladder-reading-ogp.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
+      .talk-bubble{
+        max-width:none;
+      }
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/ladder-reading/ladder-reading-ogp.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{
+        font-size:34px;
+      }
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/ladder-reading/ladder-reading-ogp.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .header-search{flex:0 0 150px}
+    }
   </style>
 </head>
-<body id="top">
-    <header class="site-header">
-    <div class="container site-header-inner">
-      <a href="../index.html" class="brand" aria-label="トップページへ移動">
-        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-        <div class="brand-copy">
-          <p class="brand-main">電気と制御の実務メモ</p>
-          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-        </div>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="トップページへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ">
+        <span class="brand-copy">
+          <span class="brand-title">電気と制御の実務メモ</span>
+          <span class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</span>
+        </span>
       </a>
 
-      <nav class="header-nav" aria-label="グローバルナビゲーション">
-        <a class="header-link" href="../index.html">ホーム</a>
-        <a class="header-link" href="../index.html#featured">人気記事</a>
-        <a class="header-link" href="../index.html#category">カテゴリ</a>
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a href="../index.html">ホーム</a>
+        <a href="../index.html#featured">人気記事</a>
+        <a href="../index.html#category">カテゴリ</a>
       </nav>
 
       <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
@@ -860,379 +994,453 @@
     </div>
   </header>
 
-  <main>
-    <div class="container">
-      <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a>
-        <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
-        <span>›</span>
-        <span>ラダー図の読み方入門</span>
-      </nav>
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>ラダー図の読み方入門</span>
+    </nav>
 
-      <section class="hero">
-        <div class="hero-kicker">制御系の入口記事</div>
-        <h1>ラダー図の読み方入門<br>電気工事士向けにやさしく整理</h1>
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御系の入口記事</span>
+        <h1 id="page-title">ラダー図の読み方入門<br>電気工事士向けにやさしく整理</h1>
         <p class="hero-lead">
           ラダー図は、最初は難しく見えやすいですが、いきなり全部を覚える必要はありません。
           まずは「入力が入る」「条件がそろう」「出力が動く」という流れで追えるようになると、かなり見やすくなります。
-          この記事では、現場で後から見た人でも追いやすい考え方をベースに、ラダー図の基本をやさしく整理します。
         </p>
-
-        <div class="audience-grid">
-          <section class="audience-card audience-card--good" aria-labelledby="good-for">
-            <h2 id="good-for">向いている人</h2>
-            <ul>
-              <li>制御盤や設備まわりの仕事でラダー図を見る機会がある人</li>
-              <li>GX Works3をこれから触る、または触り始めた人</li>
-              <li>ラダー図を見ても何から追えばいいか分からない人</li>
-              <li>トラブル時に最低限の流れを追えるようになりたい人</li>
-            </ul>
-          </section>
-
-          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
-            <h2 id="notyet-for">まだ不要な人</h2>
-            <ul>
-              <li>配線作業だけで、今のところ制御回路を見る予定がほぼない人</li>
-              <li>詳しい命令や応用制御を今すぐ覚えたい人</li>
-              <li>まずは電気図面や接続図の見方を優先したい人</li>
-            </ul>
-          </section>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#basic-view">基本を順番に見る</a>
         </div>
+      </div>
+    </section>
 
-        <section class="summary-box">
-          <h2>先に結論</h2>
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>制御盤や設備まわりの仕事でラダー図を見る機会がある人</li>
+          <li>GX Works3をこれから触る、または触り始めた人</li>
+          <li>ラダー図を見ても何から追えばいいか分からない人</li>
+          <li>トラブル時に最低限の流れを追えるようになりたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>配線作業だけで、今のところ制御回路を見る予定がほぼない人</li>
+          <li>詳しい命令や応用制御を今すぐ覚えたい人</li>
+          <li>まずは電気図面や接続図の見方を優先したい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>ラダー図は<span class="mark">左から右へ条件が通るか</span>を見ます。</li>
+          <li>基本は<span class="mark">入力 → 条件 → 出力</span>の流れです。</li>
+          <li>トラブル時は<span class="mark">動かない出力から逆に追う</span>と見やすいです。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#basic-view">ラダー図の基本</a>
+        <a href="#contacts">a接点・b接点</a>
+        <a href="#self-hold">自己保持の見方</a>
+        <a href="#trouble">トラブル時の追い方</a>
+        <a href="#what-to-remember">ここだけ覚える</a>
+        <a href="#faq">よくある疑問</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
           <p>
             ラダー図は、<strong>左から右へ「条件が通るか」を見る</strong>のが基本です。
             まずは <strong>入力（押しボタン・センサ）→ 条件（接点）→ 出力（ランプ・リレー・電磁弁）</strong> の流れで追うと分かりやすくなります。
+          </p>
+          <p>
             最初から難しい命令を追うより、<strong>どの入力で、何がONして、何が動くのか</strong> を一つずつ見る方が現場では役立ちます。
           </p>
-          <div class="jump-links" aria-label="記事内ジャンプ">
-            <a class="jump-link" href="#basic-view">ラダー図の見方の基本</a>
-            <a class="jump-link" href="#contacts">a接点・b接点</a>
-            <a class="jump-link" href="#self-hold">自己保持の見方</a>
-            <a class="jump-link" href="#trouble">トラブル時の追い方</a>
+
+          <div class="key-highlight">
+            <h3>ラダー図は「条件がそろったら右側が動く」で見る</h3>
+            <p>
+              ラダー図をいきなり全部読もうとすると難しく感じます。
+              まずは1段ずつ、左側の条件が成立しているか、その結果として右側の出力が動くかを見るだけでも十分です。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>ラダー図は、最初から全部を理解しようとしなくていいよ。まずは左から右へ、条件が通るかを1段ずつ見れば大丈夫。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>入力、条件、出力の流れで見れば、どこから追えばいいか分かりやすくなりそうです。</p>
+              </div>
+            </div>
           </div>
         </section>
-      </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="basic-view" class="card section-anchor">
-            <div class="section-label">基本の見方</div>
-            <h2 class="section-title">まずは「左から右へ流れを見る」と追いやすいです</h2>
-            <p>
-              ラダー図は、見た目が少し独特ですが、考え方はそこまで複雑ではありません。
-              基本は<strong>左側に条件、右側に結果</strong>があります。
-            </p>
-            <p>
-              たとえば、押しボタンが押された、センサが入った、停止条件が解除されている、といった条件が左側でそろうと、
-              右側にある出力コイルがONします。
-              この「条件が通ったら、右側が動く」という見方が基本です。
-            </p>
+        <section class="section-card" id="basic-view">
+          <h2>2. まずは「左から右へ流れを見る」と追いやすいです</h2>
+          <p>
+            ラダー図は、見た目が少し独特ですが、考え方はそこまで複雑ではありません。
+            基本は<strong>左側に条件、右側に結果</strong>があります。
+          </p>
+          <p>
+            たとえば、押しボタンが押された、センサが入った、停止条件が解除されている、といった条件が左側でそろうと、
+            右側にある出力コイルがONします。
+            この「条件が通ったら、右側が動く」という見方が基本です。
+          </p>
 
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>入力を見る</h3>
-                <p>まずはどのスイッチ、センサ、信号が入ると回路が動くのかを見ます。</p>
-              </section>
-              <section class="point-card">
-                <h3>条件を見る</h3>
-                <p>途中にある接点がON条件なのか、OFF条件なのかを確認します。</p>
-              </section>
-              <section class="point-card">
-                <h3>出力を見る</h3>
-                <p>右側にあるコイルや出力で、何が動くのかを見ます。</p>
-              </section>
-              <section class="point-card">
-                <h3>流れで追う</h3>
-                <p>1個ずつ部品を覚えるより、どの順で動くかを流れで見る方が追いやすいです。</p>
-              </section>
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>入力を見る</h3>
+              <p>まずはどのスイッチ、センサ、信号が入ると回路が動くのかを見ます。</p>
             </div>
-
-            <div class="note">
-              ラダー図を読む時は、「記号を全部暗記する」より「この信号が入ったら、次に何が動くか」を追う方が実務では役立ちます。
+            <div class="check-item check-item--important">
+              <h3>条件を見る</h3>
+              <p>途中にある接点がON条件なのか、OFF条件なのかを確認します。</p>
             </div>
-            <figure class="article-figure">
-              <img src="../assets/images/ladder-reading/ladder-reading-basic-flow.png" alt="入力接点と条件接点を通って出力コイルがONするラダー図の基本フロー">
-              <figcaption>図1：いちばん基本の見方（入力 → 条件 → 出力）</figcaption>
-            </figure>
-
-            <details class="help-ui">
-              <summary>補助説明を見る：ラダー図が苦手な人向けの見方</summary>
-              <div class="help-ui-content">
-                <p>
-                  ラダー図は「はしご」っぽい見た目ですが、実際は<strong>横一段ごとに意味がある</strong>と思うと見やすいです。
-                </p>
-                <p>
-                  1段の中で、左から条件を見ていき、最後に右側のコイルや出力がONするかどうかを見る、という感じです。
-                  まずは1段ずつ読むだけでもかなり理解しやすくなります。
-                </p>
-              </div>
-            </details>
-          </section>
-
-          <section id="contacts" class="card section-anchor">
-            <div class="section-label">接点の基本</div>
-            <h2 class="section-title">a接点・b接点は「普段どうなっているか」で見ると分かりやすいです</h2>
-            <p>
-              ラダー図を見始めると、最初に出てきやすいのが a接点 と b接点 です。
-              ここはつまずきやすいですが、<strong>普段の状態で開いているか、閉じているか</strong>で考えると整理しやすいです。
-            </p>
-
-            <div class="compare-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>種類</th>
-                    <th>普段の状態</th>
-                    <th>入力が入った時</th>
-                    <th>見方のコツ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>a接点</td>
-                    <td>開いている</td>
-                    <td>閉じる</td>
-                    <td>条件が成立したら通るイメージです</td>
-                  </tr>
-                  <tr>
-                    <td>b接点</td>
-                    <td>閉じている</td>
-                    <td>開く</td>
-                    <td>条件が成立したら止める・切るイメージです</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="check-item check-item--field">
+              <h3>出力を見る</h3>
+              <p>右側にあるコイルや出力で、何が動くのかを見ます。</p>
             </div>
+            <div class="check-item check-item--field">
+              <h3>流れで追う</h3>
+              <p>1個ずつ部品を覚えるより、どの順で動くかを流れで見る方が追いやすいです。</p>
+            </div>
+          </div>
 
-            <h3>a接点は「入ったら通る」</h3>
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-reading/ladder-reading-basic-flow.png" alt="入力接点と条件接点を通って出力コイルがONするラダー図の基本フロー" loading="lazy" decoding="async">
+            <figcaption>いちばん基本の見方は、入力 → 条件 → 出力の流れです。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>横一段ごとに意味があると思うと見やすい</h3>
             <p>
-              a接点は、通常時は開いていて、対象の信号がONすると通る接点です。
-              押しボタン、起動条件、運転許可などでよく出てきます。
+              ラダー図は「はしご」っぽい見た目ですが、実際は横一段ごとに意味があります。
+              1段の中で、左から条件を見ていき、最後に右側のコイルや出力がONするかどうかを見る、という感じです。
             </p>
+          </div>
+        </section>
 
-            <h3>b接点は「入ったら切れる」</h3>
+        <section class="section-card" id="contacts">
+          <h2>3. a接点・b接点は「普段どうなっているか」で見ると分かりやすいです</h2>
+          <p>
+            ラダー図を見始めると、最初に出てきやすいのがa接点とb接点です。
+            ここはつまずきやすいですが、<strong>普段の状態で開いているか、閉じているか</strong>で考えると整理しやすいです。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>種類</th>
+                  <th>普段の状態</th>
+                  <th>入力が入った時</th>
+                  <th>見方のコツ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>a接点</th>
+                  <td>開いている</td>
+                  <td class="cell-blue">閉じる</td>
+                  <td>条件が成立したら通るイメージです。</td>
+                </tr>
+                <tr>
+                  <th>b接点</th>
+                  <td>閉じている</td>
+                  <td class="cell-orange">開く</td>
+                  <td>条件が成立したら止める・切るイメージです。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>a接点は「入ったら通る」</h3>
+          <p>
+            a接点は、通常時は開いていて、対象の信号がONすると通る接点です。
+            押しボタン、起動条件、運転許可などでよく出てきます。
+          </p>
+
+          <h3>b接点は「入ったら切れる」</h3>
+          <p>
+            b接点は、通常時は閉じていて、対象の信号がONすると切れる接点です。
+            停止条件、異常条件、インターロックなどでよく使います。
+          </p>
+
+          <div class="danger-box">
+            <h3>記号だけで覚えようとすると混乱しやすい</h3>
             <p>
-              b接点は、通常時は閉じていて、対象の信号がONすると切れる接点です。
-              停止条件、異常条件、インターロックなどでよく使います。
-            </p>
-
-            <div class="note caution">
               初心者のうちは、a接点・b接点を記号だけで覚えようとすると混乱しやすいです。
               「この条件が入ると通すのか、切るのか」で見た方が追いやすいです。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="self-hold">
+          <h2>4. 自己保持は「一度入ったら自分でつなぎ続ける」と考えると見やすいです</h2>
+          <p>
+            制御回路でよく出てくるのが自己保持です。
+            これは、スタート信号が一瞬でも入ったら、その後は自分の接点で回路をつなぎ続ける形です。
+          </p>
+          <p>
+            モータ運転、ポンプ運転、設備スタートなどでよく見ます。
+            ラダー図を読み慣れていない時でも、自己保持が分かるとかなり見やすくなります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-reading/ladder-reading-contacts-self-hold.png" alt="停止b接点と起動a接点、自己保持接点を含む自己保持回路のラダー図例" loading="lazy" decoding="async">
+            <figcaption>自己保持の基本イメージ。停止b接点、起動a接点、自己保持接点を順番に見ます。</figcaption>
+          </figure>
+
+          <h3>自己保持を読む時の流れ</h3>
+          <ol class="simple-list">
+            <li>停止条件が解除されているかを見る</li>
+            <li>起動ボタンが入ると出力がONする</li>
+            <li>出力がONすると、自分の接点でも通るようになる</li>
+            <li>起動ボタンを離しても、回路が保持される</li>
+            <li>停止ボタンや異常条件で切れると止まる</li>
+          </ol>
+
+          <div class="note-box">
+            <h3>自己保持は「起動ボタンを押しっぱなしにしなくても動き続けるための回路」</h3>
+            <p>
+              最初のきっかけは起動ボタンですが、その後は出力が自分で自分の回路をつなぐイメージです。
+              ここが見えると、設備の運転回路をかなり追いやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="trouble">
+          <h2>5. トラブル時は「動かない出力」から逆に追うと見やすいです</h2>
+          <p>
+            現場でラダー図を見る場面は、新規作成よりも「なんで動かないのか」「どこで止まっているのか」を確認する時が多いと思います。
+            そういう時は、最初から全部を読むより、<strong>動いてほしい出力から逆に追う</strong>と分かりやすいです。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>1. まず出力を決める</h3>
+              <p>モータが回らないなら、そのモータを動かす出力やリレーを見ます。</p>
             </div>
-          </section>
-
-          <section id="self-hold" class="card section-anchor">
-            <div class="section-label">よく出る回路</div>
-            <h2 class="section-title">自己保持は「一度入ったら自分でつなぎ続ける」と考えると見やすいです</h2>
-            <p>
-              制御回路でよく出てくるのが自己保持です。
-              これは、スタート信号が一瞬でも入ったら、その後は自分の接点で回路をつなぎ続ける形です。
-            </p>
-            <p>
-              モータ運転、ポンプ運転、設備スタートなどでよく見ます。
-              ラダー図を読み慣れていない時でも、自己保持が分かるとかなり見やすくなります。
-            </p>
-            <figure class="article-figure">
-              <img src="../assets/images/ladder-reading/ladder-reading-contacts-self-hold.png" alt="停止b接点と起動a接点、自己保持接点を含む自己保持回路のラダー図例">
-              <figcaption>図2：自己保持の基本イメージ（a接点・b接点を含む）</figcaption>
-            </figure>
-
-            <h3>自己保持を読む時の流れ</h3>
-            <ol>
-              <li>停止条件が解除されているかを見る</li>
-              <li>起動ボタンが入ると出力がONする</li>
-              <li>出力がONすると、自分の接点でも通るようになる</li>
-              <li>起動ボタンを離しても、回路が保持される</li>
-              <li>停止ボタンや異常条件で切れると止まる</li>
-            </ol>
-
-            <details class="help-ui">
-              <summary>補助説明を見る：自己保持が苦手な人向け</summary>
-              <div class="help-ui-content">
-                <p>
-                  自己保持は「起動ボタンを押しっぱなしにしなくても動き続けるための回路」と考えると分かりやすいです。
-                </p>
-                <p>
-                  最初のきっかけは起動ボタンですが、その後は出力が自分で自分の回路をつなぐイメージです。
-                </p>
-              </div>
-            </details>
-          </section>
-
-          <section id="trouble" class="card section-anchor">
-            <div class="section-label">実務で大事</div>
-            <h2 class="section-title">トラブル時は「動かない出力」から逆に追うと見やすいです</h2>
-            <p>
-              現場でラダー図を見る場面は、新規作成よりも「なんで動かないのか」「どこで止まっているのか」を確認する時が多いと思います。
-              そういう時は、最初から全部を読むより、<strong>動いてほしい出力から逆に追う</strong>と分かりやすいです。
-            </p>
-
-            <div class="checklist">
-              <div class="check-item">
-                <strong>1. まず出力を決める</strong><br>
-                例：モータが回らないなら、そのモータを動かす出力やリレーを見る。
-              </div>
-              <div class="check-item">
-                <strong>2. その出力の手前の条件を見る</strong><br>
-                どの接点が通っていないのかを確認する。
-              </div>
-              <div class="check-item">
-                <strong>3. 停止条件・異常条件を見る</strong><br>
-                b接点で止まっていることも多いので、ここを見落とさない。
-              </div>
-              <div class="check-item">
-                <strong>4. 実機信号と照らす</strong><br>
-                図面上だけでなく、押しボタン、センサ、ランプの実際の状態と合わせて見る。
-              </div>
+            <div class="check-item check-item--important">
+              <h3>2. 出力の手前を見る</h3>
+              <p>その出力の手前で、どの接点が通っていないのかを確認します。</p>
             </div>
+            <div class="check-item check-item--warning">
+              <h3>3. 停止・異常条件を見る</h3>
+              <p>b接点で止まっていることも多いので、ここを見落とさないようにします。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>4. 実機信号と照らす</h3>
+              <p>図面上だけでなく、押しボタン、センサ、ランプの実際の状態と合わせて見ます。</p>
+            </div>
+          </div>
 
-            <div class="note">
+          <div class="key-highlight">
+            <h3>GX Works3のモニタと実機を合わせて見る</h3>
+            <p>
               ラダー図だけ見て悩むより、GX Works3のモニタで実際のON/OFFを見ながら追うとかなり分かりやすいです。
-            </div>
-
-            <h3>「読みにくいラダー」より「追いやすいラダー」が大事です</h3>
-            <p>
-              制御は難しく見せようと思えばいくらでも難しくできますが、設備トラブル時に後から見た人が追えないと困ります。
-              現場では、凝った書き方よりも、<strong>誰が見ても流れが追いやすいこと</strong>の方が大事です。
+              どの条件が入っていて、どこで止まっているかを順番に見ます。
             </p>
-            <p>
-              コメントが入っている、条件のまとまりが分かりやすい、自己保持や停止条件が見つけやすい、というだけでもかなり変わります。
-              この記事もその温度感で整理しています。
-            </p>
-          </section>
+          </div>
 
-          <section id="what-to-remember" class="card section-anchor">
-            <div class="section-label">ここだけ覚える</div>
-            <h2 class="section-title">最初はこの4つを押さえるとかなり読みやすくなります</h2>
-            <ol>
-              <li><strong>左から右へ</strong>見て、条件が通るかを追う</li>
-              <li><strong>a接点は入ったら通る、b接点は入ったら切れる</strong>で見る</li>
-              <li><strong>入力 → 条件 → 出力</strong>の流れで読む</li>
-              <li><strong>トラブル時は出力から逆に追う</strong></li>
-            </ol>
-            <p>
-              この4つだけでも、ラダー図の苦手意識はかなり減ります。
-              まずは1段ずつ落ち着いて追えるようになるだけで十分です。
-            </p>
-          </section>
+          <h3>「読みにくいラダー」より「追いやすいラダー」が大事です</h3>
+          <p>
+            制御は難しく見せようと思えばいくらでも難しくできますが、設備トラブル時に後から見た人が追えないと困ります。
+            現場では、凝った書き方よりも、<strong>誰が見ても流れが追いやすいこと</strong>の方が大事です。
+          </p>
+          <p>
+            コメントが入っている、条件のまとまりが分かりやすい、自己保持や停止条件が見つけやすい、というだけでもかなり変わります。
+            この記事もその温度感で整理しています。
+          </p>
 
-          <section id="faq" class="card section-anchor">
-            <div class="section-label">よくある疑問</div>
-            <h2 class="section-title">ラダー図の読み方でよくある疑問</h2>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. ラダー図は全部暗記しないと読めませんか？</div>
-              <p>A. 最初から全部覚える必要はありません。まずは入力、接点、出力の流れが追えればかなり読みやすくなります。</p>
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>動かない時は、最初から全部読むより、動かしたい出力から戻って見る方がいいんですね。</p>
+              </div>
             </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. a接点とb接点が毎回こんがらがります</div>
-              <p>A. 記号だけで覚えようとせず、「信号が入ったら通すのか、切るのか」で見ると整理しやすいです。</p>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>そうだね。出力の手前でどの条件が切れているかを見れば、原因をかなり絞りやすいよ。</p>
+              </div>
             </div>
+          </div>
+        </section>
 
-            <div class="faq-item">
-              <div class="faq-q">Q. 現場でラダー図を見る時、どこから見ればいいですか？</div>
-              <p>A. 動かしたい機器に関係する出力から見て、その手前の条件を逆に追うと分かりやすいです。</p>
-            </div>
-          </section>
+        <section class="section-card" id="what-to-remember">
+          <h2>6. 最初はこの4つを押さえるとかなり読みやすくなります</h2>
+          <ol class="simple-list">
+            <li><strong>左から右へ</strong>見て、条件が通るかを追う</li>
+            <li><strong>a接点は入ったら通る、b接点は入ったら切れる</strong>で見る</li>
+            <li><strong>入力 → 条件 → 出力</strong>の流れで読む</li>
+            <li><strong>トラブル時は出力から逆に追う</strong></li>
+          </ol>
+          <p>
+            この4つだけでも、ラダー図の苦手意識はかなり減ります。
+            まずは1段ずつ落ち着いて追えるようになるだけで十分です。
+          </p>
+        </section>
 
-          <section class="card">
-            <div class="section-label">関連記事</div>
-            <h2 class="section-title">次に読むとつながりやすい記事</h2>
-            <p>
-              ラダー図の読み方が少し見えてきたら、次は「自己保持」「インターロック」「PLCとは何か」の順で広げると理解しやすいです。
-            </p>
+        <section class="section-card" id="faq">
+          <h2>7. ラダー図の読み方でよくある疑問</h2>
 
-            <div class="related-grid">
-              <a class="related-card" href="plc-basic.html">
-                <div class="related-thumb"><span>入口記事</span></div>
-                <div class="related-body">
-                  <p class="related-title">PLCとは何か？電気工事士向けにやさしく整理</p>
-                  <p class="related-desc">シーケンサの役割や、リレー回路との違いを最初に整理したい人向けです。</p>
-                </div>
-              </a>
+          <h3>Q. ラダー図は全部暗記しないと読めませんか？</h3>
+          <p>
+            最初から全部覚える必要はありません。
+            まずは入力、接点、出力の流れが追えればかなり読みやすくなります。
+          </p>
 
-              <a class="related-card" href="self-hold-circuit.html">
-                <div class="related-thumb"><span>基本回路</span></div>
-                <div class="related-body">
-                  <p class="related-title">自己保持回路とは？まず最初に覚えたい基本回路</p>
-                  <p class="related-desc">起動ボタンを離しても動き続ける仕組みを、図で追いやすく整理します。</p>
-                </div>
-              </a>
+          <h3>Q. a接点とb接点が毎回こんがらがります</h3>
+          <p>
+            記号だけで覚えようとせず、「信号が入ったら通すのか、切るのか」で見ると整理しやすいです。
+          </p>
 
-              <a class="related-card" href="interlock-basic.html">
-                <div class="related-thumb"><span>使い分け</span></div>
-                <div class="related-body">
-                  <p class="related-title">インターロック回路とは？同時動作を防ぐ考え方</p>
-                  <p class="related-desc">正転逆転や誤動作防止の考え方を、初心者向けに整理した記事です。</p>
-                </div>
-              </a>
+          <h3>Q. 現場でラダー図を見る時、どこから見ればいいですか？</h3>
+          <p>
+            動かしたい機器に関係する出力から見て、その手前の条件を逆に追うと分かりやすいです。
+          </p>
+        </section>
 
-              <a class="related-card" href="input-output-basic.html">
-                <div class="related-thumb"><span>基本整理</span></div>
-                <div class="related-body">
-                  <p class="related-title">入力と出力の違いとは？</p>
-                  <p class="related-desc">入力（X）と出力（Y）の違い、よくある機器の例、迷った時の見分け方をやさしく整理した記事です。</p>
-                </div>
-              </a>
-            </div>
+        <section class="section-card" id="summary">
+          <h2>8. まとめ</h2>
+          <p>
+            ラダー図は、左から右へ条件が通るかを見て、右側の出力が動くかを確認する図です。
+            最初から難しい命令を追うより、入力、条件、出力の流れを1段ずつ見ると理解しやすくなります。
+          </p>
 
-            <div class="footer-nav">
-                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
-            </div>
-          </section>
-        </article>
+          <ul class="simple-list">
+            <li>ラダー図は左から右へ条件を追う</li>
+            <li>a接点は入ったら通る、b接点は入ったら切れる</li>
+            <li>自己保持は、一度入ったら自分の接点でつなぎ続ける回路</li>
+            <li>トラブル時は、動かない出力から逆に追うと原因を探しやすい</li>
+          </ul>
 
-        <aside class="sidebar">
-          <section class="side-card">
-            <h2>この記事の流れ</h2>
-            <nav class="toc" aria-label="目次">
-              <a href="#basic-view">ラダー図の見方の基本</a>
-              <a href="#contacts">a接点・b接点</a>
-              <a href="#self-hold">自己保持の見方</a>
-              <a href="#trouble">トラブル時の追い方</a>
-              <a href="#what-to-remember">ここだけ覚える</a>
-              <a href="#faq">よくある疑問</a>
-            </nav>
-          </section>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="self-hold-circuit.html">自己保持回路へ進む</a>
+          </div>
+        </section>
 
-          <section class="side-card cta-box">
-            <h2>この記事で分かること</h2>
-            <ul>
-              <li>ラダー図をどこから見ればいいか</li>
-              <li>a接点・b接点の基本</li>
-              <li>自己保持の読み方</li>
-              <li>現場での追い方のコツ</li>
-            </ul>
-            <div class="btn-group">
-              <a class="btn btn-primary" href="#basic-view">最初から読む</a>
-              <a class="btn btn-secondary" href="#trouble">トラブル時の見方を見る</a>
-            </div>
-          </section>
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <p>
+            ラダー図の読み方が少し見えてきたら、入力と出力、自己保持、インターロック、PLCの全体像へ広げると理解しやすいです。
+          </p>
 
-          <section class="side-card">
-            <h2>ひとこと</h2>
-            <p style="margin:0; font-size:14px; color:var(--muted);">
-              制御系は、難しく書くより、後から見た人でも追いやすいことの方が大事です。
-              このサイトでもその前提で整理していきます。
-            </p>
-          </section>
-        </aside>
+          <div class="related-grid">
+            <a class="related-card" href="input-output-basic.html">
+              <h3>入力と出力の違いとは？</h3>
+              <p>入力（X）と出力（Y）の違いを先に整理すると、ラダー図を追いやすくなります。</p>
+            </a>
+            <a class="related-card" href="self-hold-circuit.html">
+              <h3>自己保持回路とは？</h3>
+              <p>起動ボタンを離しても動き続ける基本回路を、図で追いやすく整理します。</p>
+            </a>
+            <a class="related-card" href="interlock-basic.html">
+              <h3>インターロック回路とは？</h3>
+              <p>同時動作を防ぐ考え方を、正転・逆転回路などに広げて理解できます。</p>
+            </a>
+            <a class="related-card" href="plc-basic.html">
+              <h3>PLCとは何か？</h3>
+              <p>シーケンサの役割や、リレー回路との違いを最初に整理したい人向けです。</p>
+            </a>
+            <a class="related-card" href="a-contact-b-contact-basic.html">
+              <h3>a接点・b接点の違い</h3>
+              <p>ラダー図でよく出る接点の見方を、基本から確認できます。</p>
+            </a>
+            <a class="related-card" href="relay-basic.html">
+              <h3>リレーとは？</h3>
+              <p>コイルと接点の動きが分かると、ラダー図の出力や自己保持も追いやすくなります。</p>
+            </a>
+          </div>
+        </section>
       </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#basic-view">ラダー図の基本</a></li>
+            <li><a href="#contacts">a接点・b接点</a></li>
+            <li><a href="#self-hold">自己保持の見方</a></li>
+            <li><a href="#trouble">トラブル時の追い方</a></li>
+            <li><a href="#what-to-remember">ここだけ覚える</a></li>
+            <li><a href="#faq">よくある疑問</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この記事で分かること</h3>
+          <ul>
+            <li>ラダー図をどこから見ればいいか</li>
+            <li>a接点・b接点の基本</li>
+            <li>自己保持の読み方</li>
+            <li>現場での追い方のコツ</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>次に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="input-output-basic.html">入力と出力の違い</a></li>
+            <li><a href="self-hold-circuit.html">自己保持回路とは？</a></li>
+            <li><a href="interlock-basic.html">インターロック回路とは？</a></li>
+            <li><a href="plc-basic.html">PLCとは何か？</a></li>
+          </ul>
+        </section>
+      </aside>
     </div>
   </main>
 
   <footer class="site-footer">
     <div class="container">
-      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+      <p>© 電気と制御の実務メモ</p>
     </div>
   </footer>
 
-  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
-  <script src="../assets/js/site-search.js"></script>
+  <script src="../assets/js/site-search.js" defer></script>
 </body>
 </html>

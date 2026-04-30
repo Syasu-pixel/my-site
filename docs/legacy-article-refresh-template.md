@@ -211,3 +211,56 @@ safe to merge / not safe
 
 固定ヘッダーの見た目統一は、後日 `index.html` を基準に CODEX で全記事横断修正する。
 
+## 固定ヘッダーをトップページと統一する時の詳細ルール
+
+固定ヘッダーを全記事へ統一する場合は、「トップページ風に寄せる」のではなく、`index.html` の固定ヘッダーを正として扱う。
+
+### 基本方針
+
+固定ヘッダーは、記事ごとに再設計しない。
+記事側の既存ヘッダーCSSを少し調整して似せるのではなく、`index.html` の固定ヘッダーHTML・CSS・参照変数を基準にする。
+
+固定ヘッダー修正は、記事本文テンプレート修正とは別タスクにする。
+本文・画像・関連記事・Amazonリンク・canonical・OGPを同時に触らない。
+
+### 必ず揃えるもの
+
+固定ヘッダー統一時は、以下を `index.html` 基準で揃える。
+
+- `header.site-header` のHTML構造
+- ロゴ画像の構造
+- `brand-title` / `brand-sub` の構造
+- `header-nav` / `header-link` の構造
+- サイト内検索フォームのDOM構造
+- `site-search.js` の読み込み位置
+- 固定ヘッダー関連CSS
+- 固定ヘッダーが参照するCSS変数
+
+### 記事用に変えてよいもの
+
+記事ページでは、パスだけ記事用に変更してよい。
+
+- `kougu_logo_middle.png` → `../kougu_logo_middle.png`
+- `#top` または `index.html#top` → `../index.html#top`
+- `#featured` → `../index.html#featured`
+- `#category` → `../index.html#category`
+- `assets/js/site-search.js` → `../assets/js/site-search.js`
+
+### サイト内検索フォームの必須DOM構造
+
+検索フォームは、全記事で以下の構造を維持する。
+
+```html
+<form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+  <label class="sr-only" for="site-search-input">サイト内検索</label>
+  <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+  <button class="search-box-button" type="submit" aria-label="検索">
+    <span class="header-search-icon" aria-hidden="true"></span>
+  </button>
+  <div class="search-box-panel" id="site-search-panel" hidden>
+    <ul class="search-box-results" id="site-search-results"></ul>
+    <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+  </div>
+</form>
+```
+

@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ランプ表示回路とは？運転・停止・異常を表示する基本回路をやさしく解説</title>
-  <meta name="description" content="ランプ表示回路とは何かを初心者向けにやさしく整理。運転中・停止中・異常中の表示、PLC出力と表示灯の関係、GX Works3で見る時の基本、ランプが点かない時の確認ポイントまで現場目線で解説します。">
+  <meta name="description" content="ランプ表示回路とは何かを初心者向けにやさしく整理。運転中・停止中・異常中の表示、PLC出力と表示灯の関係、GX Works3で見る時の基本ラダー例、ランプが点かない時の確認ポイントまで現場目線で解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/lamp-indicator-circuit-basic.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="ランプ表示回路とは？運転・停止・異常を表示する基本回路をやさしく解説">
-  <meta property="og:description" content="ランプ表示回路の基本、運転中・停止中・異常中の表示、PLC出力と表示灯の関係、GX Works3で見る時のポイントをやさしく整理します。">
+  <meta property="og:description" content="ランプ表示回路の基本、運転中・停止中・異常中の表示、PLC出力と表示灯の関係、GX Works3で見る時の基本ラダー例をやさしく整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/lamp-indicator-circuit-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/lamp-indicator-circuit-basic/lamp-indicator-circuit-basic-hero.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -1044,7 +1044,7 @@
         <ul>
           <li>ランプ表示回路は<span class="mark">設備状態を見える化する基本回路</span>です。</li>
           <li>運転・停止・異常などを<span class="mark">条件ごとに分けて表示</span>します。</li>
-          <li>点かない時は<span class="mark">電源・出力・ランプ・条件</span>を順番に確認します。</li>
+          <li>点かない時は<span class="mark">条件・出力・電源・配線・ランプ本体</span>を順番に確認します。</li>
         </ul>
       </section>
     </section>
@@ -1056,7 +1056,7 @@
         <a href="#overview">ランプ表示回路とは</a>
         <a href="#structure">基本構成</a>
         <a href="#examples">表示の種類</a>
-        <a href="#flow">動作の流れ</a>
+        <a href="#ladder">基本ラダー例</a>
         <a href="#gxworks3">GX Works3での見方</a>
         <a href="#trouble">確認ポイント</a>
         <a href="#summary">まとめ</a>
@@ -1072,7 +1072,7 @@
             運転中、停止中、異常中、準備完了などの状態を、表示灯やパイロットランプで知らせます。
           </p>
           <p>
-            回路としては難しく見えにくいですが、現場ではとても大事です。
+            回路としてはシンプルですが、現場ではかなり大事です。
             ランプ表示が分かりにくいと、設備が動いているのか、止まっているのか、異常で止まっているのかを判断しづらくなります。
           </p>
 
@@ -1112,7 +1112,7 @@
           </p>
           <p>
             PLCを使う設備では、PLCの出力から表示灯を点灯させることが多いです。
-            たとえば、運転中の内部リレーや出力条件がONした時に、運転ランプの出力をONするように考えます。
+            たとえば、運転中の内部リレーや異常条件がONした時に、運転ランプや異常ランプの出力をONするように考えます。
           </p>
 
           <figure class="article-figure">
@@ -1214,30 +1214,31 @@
           </div>
         </section>
 
-        <section class="section-card" id="flow">
-          <h2>5. ランプ表示の動作の流れ</h2>
+        <section class="section-card" id="ladder">
+          <h2>5. ランプ表示回路の基本ラダー例</h2>
           <p>
-            ランプ表示回路は、設備状態が変わると表示条件が変わり、PLC出力やリレー接点を通して表示灯が点灯する、という流れで見ます。
-            「どの条件で点くか」を順番に追うと理解しやすいです。
+            回路記事として見るなら、ランプ表示は「どの条件で、どの表示灯を点けるか」をラダーで確認すると分かりやすいです。
+            基本は、運転中条件がONなら運転ランプ、停止中条件がONなら停止ランプ、異常条件がONなら異常ランプを点灯させます。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/lamp-indicator-circuit-basic/lamp-indicator-circuit-basic-operation-flow.png" alt="ランプ表示回路の動作の流れを示す図" loading="lazy" decoding="async">
-            <figcaption>設備状態、PLC内部条件、出力、表示灯点灯までの流れを簡略化した図です。</figcaption>
+            <img src="../assets/images/lamp-indicator-circuit-basic/lamp-indicator-circuit-basic-ladder.png" alt="ランプ表示回路の基本ラダー例" loading="lazy" decoding="async">
+            <figcaption>運転中条件・停止中条件・異常条件から、各ランプ出力へつなぐ基本ラダー例です。実機では設備仕様に合わせて条件を決めます。</figcaption>
           </figure>
 
-          <ol class="number-list">
-            <li><strong>設備状態が変わる：</strong>運転開始、停止、異常発生などで内部条件が変わります。</li>
-            <li><strong>PLC内の条件がONする：</strong>運転中フラグや異常フラグなどがONします。</li>
-            <li><strong>表示出力がONする：</strong>条件に応じて、運転ランプや異常ランプの出力がONします。</li>
-            <li><strong>表示灯が点灯する：</strong>操作盤や制御盤の表示灯が点き、作業者へ状態を知らせます。</li>
-          </ol>
+          <ul class="simple-list">
+            <li><strong>運転ランプ：</strong>運転中条件がONした時に点灯します。</li>
+            <li><strong>停止ランプ：</strong>停止中条件がONした時に点灯します。</li>
+            <li><strong>異常ランプ：</strong>異常条件がONした時に点灯します。</li>
+            <li><strong>条件の作り方：</strong>運転指令、停止状態、異常信号などを設備仕様に合わせて定義します。</li>
+          </ul>
 
           <div class="field-highlight">
-            <h3>動作条件と表示条件を分けて考える</h3>
+            <h3>停止ランプの条件は設備によって考え方が変わる</h3>
             <p>
-              機械を動かす条件と、ランプを点ける条件は似ていても役割が違います。
-              ランプ表示は、設備の状態を伝えるための条件として整理すると見やすくなります。
+              停止中ランプは、単純に「運転中ではない」で点ける場合もあれば、
+              「異常なし、停止中、運転準備完了」などの条件を組み合わせる場合もあります。
+              何を作業者へ伝えたいかで条件を決めるのが大切です。
             </p>
           </div>
         </section>
@@ -1273,7 +1274,7 @@
           </div>
 
           <div class="note-box">
-            <h3>この記事の図は概念図です</h3>
+            <h3>この記事のラダー図は概念図です</h3>
             <p>
               実際のGX Works3では、使用PLC、出力番号、内部リレー、異常条件、タッチパネル表示などに合わせて設計します。
               この記事では、初心者がランプ表示回路の考え方を追いやすいように簡略化しています。
@@ -1380,7 +1381,7 @@
             <li><a href="#overview">ランプ表示回路とは</a></li>
             <li><a href="#structure">基本構成</a></li>
             <li><a href="#examples">表示の種類</a></li>
-            <li><a href="#flow">動作の流れ</a></li>
+            <li><a href="#ladder">基本ラダー例</a></li>
             <li><a href="#gxworks3">GX Works3での見方</a></li>
             <li><a href="#trouble">確認ポイント</a></li>
             <li><a href="#summary">まとめ</a></li>

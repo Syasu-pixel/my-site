@@ -44,10 +44,39 @@
 - 向いている人 / まだ不要な人 / 使い分けを明確にする。
 - 関連記事は前工程・後工程・一緒に使う工具へ自然につなげる。
 
-## 6. search-index / sitemap の扱い
-- URLが変わらないリフレッシュ作業では、原則 `search-index.json` と `sitemap.xml` は触らない。
-- `title` や `description` を大きく変更する場合のみ、`search-index` の `title` / `description` 更新を検討する。
+## 6. 追加点検（画像・OGP・メタ情報）
+古い記事を現在のスタイルへ統一する時は、見た目だけでなく以下も必ず点検する。
+
+- ヒーロー画像の有無
+- OGP画像の有無
+- `og:image` / `twitter:image` が記事固有画像になっているか
+- canonical が正しいか
+- meta description が現在の記事内容に合っているか
+- 本文補助画像が不足していないか
+- 商品画像やAmazonリンクが維持されているか
+- 関連記事が3〜6件あるか
+- `search-index.json` の `title` / `description` / `keywords` 更新が必要か
+
+### 6.1 画像が不足している場合
+- `docs/image-generation-rules.md` に従って画像追加候補を提案する。
+- ヒーロー画像はOGP兼用できる構図にする。
+- 人物を入れる場合は `assets/images/guide-characters/` の既存2人を基準にする。
+- 画像フォルダは記事スラッグに合わせる。
+- 画像は用途ごとに別ファイルにする。
+
+### 6.2 OGP更新ルール
+- 古い記事で共通OGPや汎用画像を使っている場合は、記事固有のヒーロー画像またはOGP兼用画像への差し替えを検討する。
+- ただし、画像ファイルがまだ存在しない場合は、勝手にHTMLだけ差し替えない。
+- 画像生成・画像保存後にHTMLの `og:image` / `twitter:image` を更新する。
+
+### 6.3 search-index更新ルール
+- URLが変わらないリフレッシュ作業では、`sitemap.xml` は原則触らない。
+- `title` / meta description / 記事内容を大きく変更した場合は、`assets/data/search-index.json` の `title` / `description` / `keywords` / `synonyms` 更新を検討する。
 - `/seo/sitemap.xml` は非運用なので触らない。
+
+
+確認コマンド：
+- `rg -n "OGP|og:image|twitter:image|ヒーロー画像|記事固有|meta description|search-index|image-generation-rules|guide-characters" docs/legacy-article-refresh-template.md`
 
 ## 7. 禁止事項
 - 記事URLを変更しない。

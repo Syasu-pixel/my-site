@@ -141,3 +141,73 @@ Testing
 判定
 safe to merge / not safe
 ```
+
+
+## 固定ヘッダーの扱い
+
+記事HTMLの本文テンプレートと、サイト共通の固定ヘッダーは分けて扱う。
+
+### 記事本文テンプレート
+新規記事・古い記事の移植では、以下の基準記事を完全コピーして、必要箇所だけ差し替える。
+
+- `articles/relay-basic.html`
+- `articles/forward-reverse-circuit-basic.html`
+- `articles/lamp-indicator-circuit-basic.html`
+
+維持する本文構造：
+- `article-hero`
+- `article-hero-copy`
+- `top-summary`
+- `summary-card`
+- `mini-toc-card`
+- `page-layout`
+- `main-column`
+- `side-rail`
+- `side-card`
+- `section-card`
+- `talk-thread`
+- `article-figure`
+- `check-grid`
+- `table-wrap`
+- `related-grid`
+
+### 固定ヘッダー
+固定ヘッダーは、最終的にトップページ `index.html` の最新版を基準に全ページで統一する。
+
+- 記事移植作業のたびに、固定ヘッダーを個別に作り直さない。
+- 記事テンプレート内のヘッダーCSSを勝手に再設計しない。
+- 検索フォーム構造や `site-search.js` の読み込みを重複させない。
+
+固定ヘッダーを修正する場合は、記事本文修正とは別タスクにする。
+
+その場合の対象は以下に限定する。
+
+触ってよい範囲：
+- `header.site-header` 周辺
+- 固定ヘッダー関連CSS
+- サイト内検索フォーム構造
+- `site-search.js` の読み込み確認
+
+触らない範囲：
+- 記事本文
+- `article-hero`
+- `top-summary`
+- `section-card`
+- `related-grid`
+- 画像パス
+- Amazonリンク
+- canonical / OGP
+- `search-index.json`
+- `sitemap.xml`
+- `/seo/sitemap.xml`
+
+### 判断ルール
+記事本文テンプレートの統一作業では、固定ヘッダーの完全統一は後回しにしてよい。
+
+ただし、以下の場合は要修正。
+- ヘッダーが壊れている
+- 検索フォームが使えない
+- `site-search.js` が重複している
+
+固定ヘッダーの見た目統一は、後日 `index.html` を基準に CODEX で全記事横断修正する。
+

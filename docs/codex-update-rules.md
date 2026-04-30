@@ -4,6 +4,16 @@
 - 記事HTMLと画像はユーザーが先にGitHubへ入れる。
 - CODEXはメタ更新・導線更新を中心に反映する。
 
+## 一括反映ルール
+- 記事HTMLと画像は、1記事ずつユーザーがGitHubへ追加する。
+- その後、3〜5記事分をまとめてCODEXで以下へ反映してよい。
+  - `index.html`
+  - `categories/*.html`
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - トップページの記事数表示
+- ただし、CODEXは原則 `articles/**` と `assets/images/**` を触らない。
+
 ## CODEXの主な反映対象
 - トップページ
 - カテゴリページ
@@ -36,5 +46,8 @@
 - `sitemap.xml` に重複がない。
 - 更新対象が想定範囲（トップ、カテゴリ、search-index、sitemap、記事数表示）に収まっている。
 - 非運用対象（`/seo/sitemap.xml`）を変更していない。
+- 対象記事の画像ファイルが存在している。
+- トップページの記事数表示が `search-index` のカテゴリ別件数と一致している。
+- articles count と search-index article urls count が一致している。
 
 上記を満たさない場合は **not safe** とする。

@@ -5,12 +5,21 @@
 - 完成済み記事HTMLを**完全コピー**し、必要箇所のみ差し替える。
 - 既存テンプレートのレイアウト一貫性を優先し、構造改変は最小限にする。
 
+## 基準記事（コピー元の明記）
+- 新規記事HTMLは、完成済み記事を**完全コピー**して必要箇所だけ差し替える。
+- 現時点の主な基準記事は以下。
+  - `articles/relay-basic.html`
+  - `articles/forward-reverse-circuit-basic.html`
+  - `articles/lamp-indicator-circuit-basic.html`
+
 ## 維持する必須要素
 - 固定ヘッダー
 - 検索フォーム
 - 右カラム
 - `section-card`
+- `talk-thread`
 - `related-grid`
+- `site-search.js`
 
 上記は記事ページのUI/UX統一のため、基本的に維持する。
 

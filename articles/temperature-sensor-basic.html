@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>温度センサーとは？熱電対・測温抵抗体の違いと配線の基本をやさしく解説</title>
+  <meta name="description" content="温度センサーとは何かを初心者向けにやさしく整理。熱電対と測温抵抗体（Pt100）の違い、PLCや温度調節計への接続、配線方式、選定時の確認ポイントを現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/temperature-sensor-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="温度センサーとは？熱電対・測温抵抗体の違いと配線の基本をやさしく解説">
+  <meta property="og:description" content="温度センサーの役割、熱電対と測温抵抗体（Pt100）の違い、PLCや温度調節計への配線時の注意点をやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/temperature-sensor-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="温度センサーとは？熱電対・測温抵抗体の違いと配線の基本をやさしく解説">
+  <meta name="twitter:description" content="熱電対と測温抵抗体（Pt100）の違い、温度入力への接続、選定時の注意点を初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-box-empty{
+      margin:8px 6px 4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:14px 16px;
+      border-radius:18px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 6px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .site-header-inner{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:42px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        display:none;
+      }
+
+      .header-nav{
+        display:none;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+
+      .related-grid{
+        grid-template-columns:1fr;
+      }
+
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{
+        padding:20px 18px;
+      }
+
+      .summary-card h2{
+        font-size:17px;
+      }
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/temperature-sensor-basic/temperature-sensor-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .mini-toc{
+        gap:8px;
+      }
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+
+      .talk-avatar img{
+        width:60px;
+      }
+
+      .brand-copy{
+        display:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="電気と制御の実務メモ ホームへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気と制御の実務メモ">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="主要カテゴリ">
+        <a class="header-link" href="../index.html">ホーム</a>
+        <a class="header-link" href="../index.html#featured">人気記事</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div id="site-search-panel" class="search-box-panel" hidden>
+          <ul id="site-search-results" class="search-box-results"></ul>
+          <p id="site-search-empty" class="search-box-empty" hidden>該当する記事が見つかりませんでした。</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../categories/control-basics.html">制御の基本</a>
+        <span>›</span>
+        <span>温度センサーとは？</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御機器の基本</span>
+          <h1>温度センサーとは？<br>熱電対・測温抵抗体の違いと配線の基本</h1>
+          <p class="hero-lead">
+            温度センサーは、物体や流体の温度を検知して、PLCや温度調節計で扱える信号に変える機器です。熱電対と測温抵抗体の違い、配線方式、選定時の注意点を現場目線で整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">先に基本を見る</a>
+            <a class="btn btn-secondary" href="#wiring">配線の注意点を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>温度センサーの役割を初めて学ぶ人</li>
+            <li>熱電対と測温抵抗体の違いを整理したい人</li>
+            <li>PLCや温度調節計への配線イメージを知りたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>PID制御の細かい調整だけを知りたい人</li>
+            <li>メーカー別の型式選定だけをしたい人</li>
+            <li>高温炉など特殊用途の専門設計を探している人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>温度センサーは温度を電気信号として扱うための機器</li>
+            <li>熱電対は高温域、測温抵抗体は精度重視で使われやすい</li>
+            <li>センサー種類・配線本数・受け側入力仕様の確認が重要</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#overview">温度センサーの役割</a>
+          <a href="#type">熱電対と測温抵抗体</a>
+          <a href="#signal">温度入力との関係</a>
+          <a href="#wiring">配線の基本</a>
+          <a href="#checkpoints">確認ポイント</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>温度センサーとは？温度を電気信号として扱うための機器</h2>
+            <p>
+              温度センサーは、配管、タンク、ヒーター、装置内部などの温度を検知して、制御機器が扱える信号に変えるための機器です。
+            </p>
+            <p>
+              現場では、温度表示、ヒーター制御、冷却制御、異常温度の監視などに使われます。ざっくり言うと、<span class="mark">現場の温度をPLCや温度調節計が読める形にする部品</span>です。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/temperature-sensor-basic/temperature-sensor-basic-overview.png" alt="温度センサーが温度を検知してPLCや温度調節計へ伝える流れの解説図">
+              <figcaption>
+                温度センサーは、測った温度を電気信号として扱える形に変え、PLC・温度調節計・表示器などへ渡します。
+              </figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>温度センサーは、単に温度を見るだけじゃなくて、ヒーターや冷却の制御につなげるために使うことが多いよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>温度を数値として扱えるようにする入口の機器なんですね。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="key-highlight">
+              <h3>まずは「温度を信号に変える」と覚える</h3>
+              <p>
+                温度センサーは、温度そのものをPLCが直接読むのではなく、センサーの種類に応じた信号として受け側に渡します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="type">
+            <h2>熱電対と測温抵抗体の違い</h2>
+            <p>
+              温度センサーでよく出てくる代表例が、熱電対と測温抵抗体です。どちらも温度を測るためのセンサーですが、測る仕組みや得意な範囲が違います。
+            </p>
+            <p>
+              熱電対は高温域で使われることが多く、応答が早い一方で、補償導線やノイズ、誤差に注意が必要です。測温抵抗体はPt100などがよく使われ、精度や安定性を重視する場面で使われやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/temperature-sensor-basic/temperature-sensor-basic-thermocouple-vs-rtd.png" alt="熱電対と測温抵抗体Pt100の違いを比較した図">
+              <figcaption>
+                熱電対は高温域や応答性を重視する場面、測温抵抗体は精度や安定性を重視する場面で使われやすいです。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>種類</th>
+                    <th>特徴</th>
+                    <th>現場での見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">熱電対</td>
+                    <td>異なる金属の組み合わせで起電力を発生させ、温度を検出する。</td>
+                    <td>高温域やヒーター周りで使われやすい。補償導線や極性に注意します。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">測温抵抗体</td>
+                    <td>温度によって抵抗値が変わる性質を使って温度を検出する。</td>
+                    <td>Pt100などが代表的。精度や安定性を重視する装置で使われやすいです。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">共通点</td>
+                    <td>どちらも受け側の入力仕様とセットで確認する。</td>
+                    <td>センサーだけでなく、温度入力ユニットや温調計の対応種類を確認します。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>見た目だけで判断しない</h3>
+              <p>
+                同じような金属棒の形でも、中身が熱電対なのか測温抵抗体なのかで、配線方法や受け側の設定が変わります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="signal">
+            <h2>PLCや温度調節計では「温度入力」として受ける</h2>
+            <p>
+              温度センサーは、そのまま通常のデジタル入力へ入れるものではありません。PLCの温度入力ユニットや、温度調節計のセンサー入力へ接続して使います。
+            </p>
+            <p>
+              受け側の機器では、熱電対の種類、測温抵抗体の種類、入力レンジ、単位、補正値などを設定することがあります。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>PLC温度入力</h3>
+                <p>
+                  温度入力ユニットでセンサー信号を読み取り、PLC内で温度データとして扱います。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>温度調節計</h3>
+                <p>
+                  センサーから温度を読み、ヒーターや冷却機器を制御する調節器として使われます。
+                </p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>センサー種類と入力設定を合わせる</h3>
+              <p>
+                たとえば熱電対Kをつないでいるのに、受け側がPt100設定になっていると、正しい温度になりません。配線と設定をセットで確認します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="wiring">
+            <h2>温度センサーの配線イメージ</h2>
+            <p>
+              温度センサーの配線は、センサーの種類によって変わります。熱電対ではプラス・マイナスや補償導線、測温抵抗体では2線式・3線式・4線式などを確認します。
+            </p>
+            <p>
+              とくにPt100などの測温抵抗体では、配線抵抗の影響を小さくするために3線式がよく使われます。端子名や線色はメーカーで異なるため、仕様書で確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/temperature-sensor-basic/temperature-sensor-basic-wiring.png" alt="熱電対とPt100測温抵抗体の配線イメージ図">
+              <figcaption>
+                熱電対では極性と補償導線、Pt100では線数と端子接続を確認します。受け側の温度入力仕様と合わせることが大切です。
+              </figcaption>
+            </figure>
+
+            <div class="danger-box">
+              <h3>通常入力へ入れない</h3>
+              <p>
+                温度センサーは、ON/OFF信号として扱う入力ではありません。温度入力ユニットや温度調節計など、対応した入力へ接続します。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>温度センサーは、線色だけで判断すると危ないよ。センサー種類、極性、線数、受け側端子を必ずセットで見るんだ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>熱電対かPt100かで、同じ温度センサーでも配線の見方が変わるんですね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>温度センサーで確認したいポイント</h2>
+            <p>
+              温度センサーを選ぶ時は、測定温度範囲、センサー種類、取付位置、配線方式、ノイズ対策、受け側の入力仕様を順番に確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/temperature-sensor-basic/temperature-sensor-basic-checkpoints.png" alt="温度センサー選定と接続時の確認ポイントをまとめた図">
+              <figcaption>
+                測定温度範囲、センサー種類、取付位置、配線方式、ノイズ対策、受け側入力仕様を確認すると、選定ミスや配線ミスを防ぎやすくなります。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>測定温度範囲</h3>
+                <p>
+                  測りたい温度がセンサーの使用範囲内か確認します。高温・低温・急変する温度では特に注意します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>センサー種類</h3>
+                <p>
+                  熱電対なのか、Pt100などの測温抵抗体なのかを確認します。受け側機器の対応種類と合わせます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>配線方式</h3>
+                <p>
+                  極性、補償導線、2線式・3線式・4線式などを確認します。端子の入れ間違いに注意します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>ノイズと設置環境</h3>
+                <p>
+                  動力線との距離、シールド、配線経路、熱源との距離などを確認します。温度表示のふらつきにも関係します。
+                </p>
+              </div>
+            </div>
+
+            <div class="key-highlight">
+              <h3>「何度を、どこで、何に入力するか」を先に整理する</h3>
+              <p>
+                温度センサーは、センサー単体だけでなく、取り付け場所、配線、受け側の機器設定まで含めて見ると選びやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：温度センサーは「温度を制御で使える信号にする入口」</h2>
+            <p>
+              温度センサーは、現場の温度をPLCや温度調節計が扱える形にするための機器です。ヒーター制御、冷却制御、温度監視などでよく使われます。
+            </p>
+            <p>
+              代表的な種類には、熱電対と測温抵抗体があります。熱電対は高温域や応答性、測温抵抗体は精度や安定性を重視する場面で使われやすいです。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                温度センサーでは、センサー種類、測定温度範囲、配線方式、受け側の入力仕様をセットで確認することが大切です。見た目や線色だけで判断せず、仕様書と図面を合わせて確認しましょう。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card">
+            <h2>関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="./analog-input-basic.html">
+                <h3>アナログ入力とは？</h3>
+                <p>4-20mAや0-10Vなど、PLCで連続した値を読む考え方を整理します。</p>
+              </a>
+              <a class="related-card" href="./analog-output-basic.html">
+                <h3>アナログ出力とは？</h3>
+                <p>PLCから4-20mAや0-10Vを出して、機器を動かす考え方を整理します。</p>
+              </a>
+              <a class="related-card" href="./plc-basic.html">
+                <h3>PLCとは？</h3>
+                <p>制御盤で使われるPLCの役割や入力・出力の基本をやさしく解説します。</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../categories/control-basics.html">制御の基本一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の流れ</h3>
+            <ul>
+              <li><a href="#overview">温度センサーの役割</a></li>
+              <li><a href="#type">熱電対と測温抵抗体</a></li>
+              <li><a href="#signal">温度入力との関係</a></li>
+              <li><a href="#wiring">配線の基本</a></li>
+              <li><a href="#checkpoints">確認ポイント</a></li>
+              <li><a href="#summary">まとめ</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>よく出る用語</h3>
+            <ul>
+              <li>熱電対：起電力を利用する温度センサー</li>
+              <li>測温抵抗体：抵抗値の変化を利用する温度センサー</li>
+              <li>Pt100：測温抵抗体の代表例</li>
+              <li>補償導線：熱電対で使う専用の導線</li>
+              <li>温度入力：温度センサーを受ける専用入力</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>現場での注意</h3>
+            <ul>
+              <li>センサー種類を確認する</li>
+              <li>受け側の入力仕様と合わせる</li>
+              <li>極性・線数を間違えない</li>
+              <li>ノイズや配線経路を確認する</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気工事士の工具箱. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
+</body>
+</html>

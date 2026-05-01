@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>アナログ入力とは？4-20mA・0-10Vの見方を初心者向けに整理</title>
+  <meta name="description" content="アナログ入力とは何かを初心者向けにやさしく整理。4-20mA・0-10Vの基本、ON/OFF入力との違い、PLCのAI入力で数値として読む考え方、配線やスケーリングの確認ポイントまで現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/analog-input-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="アナログ入力とは？4-20mA・0-10Vの見方を初心者向けに整理">
+  <meta property="og:description" content="アナログ入力の基本、4-20mA・0-10Vの違い、PLCのAI入力で数値として読む考え方、確認ポイントをやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/analog-input-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/analog-input-basic/analog-input-basic-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="アナログ入力とは？4-20mA・0-10Vの見方を初心者向けに整理">
+  <meta name="twitter:description" content="4-20mA・0-10Vの見方、ON/OFF入力との違い、PLCで数値として読む考え方を初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/analog-input-basic/analog-input-basic-hero.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-box-empty{
+      margin:8px 6px 4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/analog-input-basic/analog-input-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:14px 16px;
+      border-radius:18px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 6px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .caution-character-box{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .caution-character{
+      width:36px;
+      flex:0 0 36px;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .caution-character-box > div{
+      min-width:0;
+    }
+
+    .caution-character-box h3{
+      margin:0 0 4px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .caution-character-box p{
+      margin:0;
+      font-size:13px;
+      line-height:1.65;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .site-header-inner{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:42px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        display:none;
+      }
+
+      .header-nav{
+        display:none;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/analog-input-basic/analog-input-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+
+      .related-grid{
+        grid-template-columns:1fr;
+      }
+
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/analog-input-basic/analog-input-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{
+        padding:20px 18px;
+      }
+
+      .summary-card h2{
+        font-size:17px;
+      }
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
+
+      .talk-bubble{
+        max-width:none;
+      }
+
+      .caution-character-box{
+        gap:8px;
+        align-items:flex-start;
+      }
+
+      .caution-character{
+        width:30px;
+        flex-basis:30px;
+      }
+
+      .caution-character-box h3{
+        font-size:14px;
+      }
+
+      .caution-character-box p{
+        font-size:13px;
+      }
+    }
+
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/analog-input-basic/analog-input-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .hero-actions{
+        width:100%;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .mini-toc{
+        gap:8px;
+      }
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html#top" aria-label="工具ガイドTOPへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="工具ガイド">
+        <span class="brand-copy">
+          <span class="brand-title">工具ガイド</span>
+          <span class="brand-sub">電気工事士・制御盤の現場メモ</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a class="header-link" href="../index.html#featured">おすすめ</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+        <a class="header-link" href="../index.html#series">シリーズ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html#top">トップ</a>
+        <span aria-hidden="true">/</span>
+        <a href="../index.html#category">制御の基礎</a>
+        <span aria-hidden="true">/</span>
+        <span>アナログ入力の基本</span>
+      </nav>
+
+      <section class="article-hero" id="top">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎</span>
+          <h1>アナログ入力とは？4-20mA・0-10Vの見方を初心者向けに整理</h1>
+          <p class="hero-lead">アナログ入力は、センサからの連続的に変化する信号をPLCで数値として読むための入力です。4-20mAや0-10Vの考え方、ON/OFF入力との違い、現場で見る確認ポイントを整理します。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">全体像を見る</a>
+            <a class="btn btn-secondary" href="#flow">流れを見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の要約">
+        <article class="summary-card summary-card--fit">
+          <h2>この記事が向いている人</h2>
+          <ul>
+            <li>アナログ入力の基本を初めて整理したい人</li>
+            <li>4-20mAや0-10Vが何を表すのか知りたい人</li>
+            <li>PLCで数値として読む入力の見方を知りたい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ深掘りしなくてよい人</h2>
+          <ul>
+            <li>まずは入力と出力の違いから確認したい人</li>
+            <li>センサのON/OFF入力だけを今は見たい人</li>
+            <li>スケーリング計算の細かい設定だけを知りたい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>アナログ入力は「変化する値」をPLCで読む入力</li>
+            <li>4-20mAや0-10Vは、センサ値を伝える信号の形</li>
+            <li>入力レンジ・配線・スケーリングを分けて見ると追いやすい</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="この記事で分かること">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">アナログ入力の全体像</a>
+          <a href="#basic">基本の考え方</a>
+          <a href="#flow">入力の流れ</a>
+          <a href="#range">4-20mA・0-10V</a>
+          <a href="#checkpoints">確認ポイント</a>
+          <a href="#related">あわせて読みたい記事</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>アナログ入力の全体像</h2>
+            <p>アナログ入力は、温度・圧力・流量・重量など、<span class="mark">連続的に変化する値</span>をPLCで読み取るための入力です。</p>
+            <p>通常のON/OFF入力は「入っているか、入っていないか」を見ます。一方でアナログ入力は、「今どれくらいの値なのか」を数値として読みます。</p>
+            <p>たとえば、圧力センサの値をPLCへ入れて、表示器に数値を出したり、設定値と比較して異常を出したり、制御の判断材料にしたりします。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/analog-input-basic/analog-input-basic-overview.png" alt="アナログ入力の全体像。センサ、アナログ信号、PLC入力、数値で読む流れ">
+              <figcaption>アナログ入力は、現場のセンサ値を4-20mAや0-10Vなどの信号でPLCへ送り、数値として読み取る考え方です。</figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>アナログ入力は、ONかOFFかではなく「今どれくらいか」を読む入力です。温度や圧力のように少しずつ変わる値でよく使います。</p>
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">新人</span>入力といっても、スイッチみたいにON/OFFだけじゃなくて、数値として読む入力もあるんですね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="basic">
+            <h2>アナログ入力の基本の考え方</h2>
+            <p>アナログ入力で見るポイントは、<span class="mark">センサ値・信号の形・PLC側の入力レンジ</span>です。</p>
+            <p>センサが測った値は、そのままPLCへ入るわけではありません。多くの場合、4-20mAや0-10Vのような信号に変換されて、PLCのアナログ入力ユニットへ入ります。</p>
+            <p>PLC側では、その信号を内部の数値として読み込みます。その後、表示器に出したり、上限・下限と比較したり、異常判定や制御条件として使ったりします。</p>
+
+            <div class="key-highlight">
+              <h3>アナログ入力は「値を読む入力」</h3>
+              <p>ON/OFF入力は状態を見る入力、アナログ入力は量を見る入力です。まずこの違いを分けて考えると、4-20mAや0-10Vも理解しやすくなります。</p>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>入力の種類</th>
+                    <th>見るもの</th>
+                    <th>例</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">ON/OFF入力</td>
+                    <td>入っている / 入っていない</td>
+                    <td>押しボタン、リミットスイッチ、近接センサのON/OFF</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">アナログ入力</td>
+                    <td>どれくらいの値か</td>
+                    <td>圧力、温度、流量、重量、レベルなど</td>
+                  </tr>
+                  <tr>
+                    <td>4-20mA</td>
+                    <td>電流値でセンサ値を伝える</td>
+                    <td>圧力センサ、流量計、温度変換器など</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">0-10V</td>
+                    <td>電圧値でセンサ値を伝える</td>
+                    <td>変位センサ、速度指令、簡易的なアナログ信号など</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="section-card" id="flow">
+            <h2>アナログ入力の流れ</h2>
+            <p>アナログ入力は、センサの値が変わり、その変化が4-20mAや0-10Vの信号になってPLCへ入り、PLC側で数値として扱われる流れです。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/analog-input-basic/analog-input-basic-operation-flow.png" alt="アナログ入力の流れ。センサ値が変わる、4-20mAや0-10Vが変化、PLCのAIで読み込む、数値や表示や比較に使う流れ">
+              <figcaption>センサ値の変化がアナログ信号になり、PLCのAI入力で読み込まれて、表示・比較・制御に使われます。</figcaption>
+            </figure>
+
+            <p>たとえば圧力が上がると、圧力センサの出力電流が4mAから20mAの範囲で変化します。PLCはその電流値を読み取り、内部の数値に変換します。</p>
+            <p>そのままでは「PLC内部の数値」なので、実際の単位に合わせて使うにはスケーリングが必要になります。たとえば、4-20mAを0.00〜1.00MPaとして扱うような考え方です。</p>
+
+            <div class="note-box">
+              <div class="caution-character-box">
+                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="先輩のちびキャラ">
+                <div>
+                  <h3>まずは計算より流れを押さえる</h3>
+                  <p>最初から細かい換算式に入るより、センサ値が信号になり、PLCで数値として読まれる流れを先に押さえると理解しやすいです。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="range">
+            <h2>4-20mAと0-10Vの見方</h2>
+            <p>アナログ入力でよく出てくるのが、4-20mAと0-10Vです。</p>
+            <p>どちらも、現場のセンサ値をPLCへ伝えるための信号ですが、電流で伝えるか、電圧で伝えるかが違います。</p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>4-20mA</h3>
+                <p>電流で値を伝える方式です。工業用途でよく使われ、配線距離やノイズに比較的強い考え方として扱われます。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>0-10V</h3>
+                <p>電圧で値を伝える方式です。扱いやすい一方で、配線やノイズ、電圧降下の影響を考える場面があります。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>入力レンジを合わせる</h3>
+                <p>センサ出力が4-20mAなのに、PLC側を0-10V入力として見ると正しく読めません。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>スケーリングが必要</h3>
+                <p>PLCが読み込んだ数値を、MPa、℃、kgなどの実際の単位に合わせるには換算が必要です。</p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現場では「信号の種類」と「実際の単位」を分ける</h3>
+              <p>4-20mAや0-10Vは信号の形です。実際に見たいのは圧力・温度・流量などの値なので、信号の形と実際の単位を分けて考えると混乱しにくくなります。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>アナログ入力が思った通りに読めない時の確認ポイント</h2>
+            <p>アナログ入力が思った通りに読めない時は、センサ本体だけでなく、入力レンジ、配線、極性、スケーリング、ノイズや電源を順番に確認します。</p>
+            <p>「値が0のまま」「上限に張り付く」「数値がふらつく」などは、設定や配線の見落としで起きることがあります。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/analog-input-basic/analog-input-basic-checkpoints.png" alt="アナログ入力の確認ポイント。入力レンジ、配線と極性、スケーリング設定、ノイズや電源を整理">
+              <figcaption>アナログ入力は、入力レンジ・配線・スケーリング・ノイズを分けて確認すると原因を追いやすくなります。</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>入力レンジは合っているか</h3>
+                <p>センサ出力が4-20mAなのか0-10Vなのか、PLC側の入力設定と合っているか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>配線と極性は正しいか</h3>
+                <p>電源、信号線、COM、極性の取り方を確認します。逆接続や配線ミスで値が出ないことがあります。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>スケーリング設定は合っているか</h3>
+                <p>PLC内部値と実際の単位が正しく対応しているか確認します。単位の見間違いにも注意します。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>ノイズや電源は問題ないか</h3>
+                <p>数値がふらつく場合は、ノイズ、シールド、電源の安定、アース、配線ルートも確認します。</p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <div class="caution-character-box">
+                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="先輩のちびキャラ">
+                <div>
+                  <h3>入力レンジ違いは最初に確認</h3>
+                  <p>4-20mAと0-10Vの取り違えは、初心者がつまずきやすいポイントです。センサ仕様とPLC入力ユニットの設定を先に確認すると、原因を絞りやすくなります。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <div class="caution-character-box">
+                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="先輩のちびキャラ">
+                <div>
+                  <h3>0か最大値に張り付く時は配線も見る</h3>
+                  <p>値が変化しない時は、センサが悪いと決めつけず、断線、COM違い、極性、入力レンジ違いを順番に見ると追いやすいです。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい記事</h2>
+            <p>アナログ入力は、入力と出力、センサ、圧力スイッチ、NPN/PNPなどの基礎とつながる内容です。周辺の基礎も一緒に見ると、PLCで値を読む流れが理解しやすくなります。</p>
+
+            <div class="related-grid">
+              <a class="related-card" href="input-output-basic.html">
+                <h3>入力と出力の違い</h3>
+                <p>アナログ入力に入る前の、入力機器と出力機器の基本整理に向いています。</p>
+              </a>
+
+              <a class="related-card" href="sensor-basic.html">
+                <h3>センサーの基本</h3>
+                <p>センサ全体の役割と、PLC入力としての見方を整理できます。</p>
+              </a>
+
+              <a class="related-card" href="pressure-switch-basic.html">
+                <h3>圧力スイッチの基本</h3>
+                <p>ON/OFFで見る圧力機器と、数値で読むアナログ入力の違いを比べやすくなります。</p>
+              </a>
+
+              <a class="related-card" href="npn-pnp-basic.html">
+                <h3>NPNとPNPの違い</h3>
+                <p>センサ配線やPLC入力の受け方を確認する時の前提になります。</p>
+              </a>
+
+              <a class="related-card" href="photoelectric-sensor-basic.html">
+                <h3>光電センサの基本</h3>
+                <p>ON/OFF入力のセンサと、アナログ入力の違いを比較しながら見られます。</p>
+              </a>
+
+              <a class="related-card" href="proximity-sensor-basic.html">
+                <h3>近接センサーの基本</h3>
+                <p>ON/OFF入力の代表的なセンサとして、アナログ入力との違いを整理しやすくなります。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-primary" href="input-output-basic.html">入力と出力の違いを見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="記事の補足ナビゲーション">
+          <section class="side-card">
+            <h3>目次</h3>
+            <ul>
+              <li><a href="#overview">アナログ入力の全体像</a></li>
+              <li><a href="#basic">基本の考え方</a></li>
+              <li><a href="#flow">入力の流れ</a></li>
+              <li><a href="#range">4-20mA・0-10V</a></li>
+              <li><a href="#checkpoints">確認ポイント</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>アナログ入力は変化する値を読む入力</li>
+              <li>4-20mAや0-10Vは信号の形</li>
+              <li>PLC側ではAI入力で数値として読む</li>
+              <li>入力レンジ・配線・スケーリングを分けて見る</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>次に見る</h3>
+            <ul>
+              <li><a href="input-output-basic.html">入力と出力の違い</a></li>
+              <li><a href="sensor-basic.html">センサーの基本</a></li>
+              <li><a href="pressure-switch-basic.html">圧力スイッチの基本</a></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 工具ガイド｜電気工事士・制御盤の現場メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

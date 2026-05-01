@@ -65,6 +65,10 @@
 ## 5. HTML作成ルール
 - 新規記事HTMLは完成済み記事HTMLを完全コピーして必要箇所だけ差し替える
 - 見た目だけ似せるのではなく、構造をコピーする
+- 新規記事HTML作成時は、記事本文構造と固定ヘッダーの参照元を分ける
+  - 記事本文構造：完成済み記事HTMLをコピー
+  - 固定ヘッダー：必ず `index.html` の最新版を参照
+  - 共通キャラ画像：`assets/images/guide-characters/` の既存2人を使う
 - 固定ヘッダー、検索フォーム、右カラム、section-card、talk-thread、related-grid、site-search.js は維持する
 - site-search.js は重複読み込みしない
 - 新しい独自CSSテンプレートを作らない
@@ -149,6 +153,15 @@ CODEX反映時の注意：
 
 - コピー方式で作っているか
 - 固定ヘッダーが維持されているか
+- 固定ヘッダーの `brand-title` / `brand-sub` が `index.html` と一致しているか
+- ヘッダーナビの文言と `href` が `index.html` 基準になっているか
+  - ホーム：`../index.html`
+  - 人気記事：`../index.html#featured`
+  - カテゴリ：`../index.html#category`
+- 検索placeholderが「キーワードで検索」になっているか
+- ロゴ画像が記事階層用の `../kougu_logo_middle.png` になっているか
+- 先輩・後輩キャラ画像が `guide-characters` の実在パスになっているか
+- 「電気工事士の工具箱」「工具・制御・現場の基本をやさしく整理」など旧ヘッダー文言が残っていないか
 - サイト内検索フォームが維持されているか
 - 右カラムがあるか
 - section-card 構造があるか
@@ -300,6 +313,14 @@ button,input{
 - `#featured` → `../index.html#featured`
 - `#category` → `../index.html#category`
 - `assets/js/site-search.js` → `../assets/js/site-search.js`
+
+### ヘッダーナビ確認（文言 + href）
+
+記事ページのヘッダーナビは、文言だけでなく `href` も必ず確認する。
+
+- ホーム：`../index.html`
+- 人気記事：`../index.html#featured`
+- カテゴリ：`../index.html#category`
 
 ### サイト内検索フォームの必須DOM構造
 

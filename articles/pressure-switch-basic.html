@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>圧力スイッチとは？役割と見方を初心者向けにやさしく整理</title>
+  <meta name="description" content="圧力スイッチとは何かを初心者向けにやさしく整理。設定圧に達した時のON/OFFの考え方、圧力センサとの違い、動作の流れ、圧力がうまく取れない時の確認ポイントまで現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/pressure-switch-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="圧力スイッチとは？役割と見方を初心者向けにやさしく整理">
+  <meta property="og:description" content="圧力スイッチの基本、設定圧で切り替わる考え方、圧力センサとの違い、動作の流れ、確認ポイントをやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/pressure-switch-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/pressure-switch-basic/pressure-switch-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="圧力スイッチとは？役割と見方を初心者向けにやさしく整理">
+  <meta name="twitter:description" content="設定圧で切り替わる考え方、圧力センサとの違い、動作の流れ、確認ポイントを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/pressure-switch-basic/pressure-switch-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-box-empty{
+      margin:8px 6px 4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/pressure-switch-basic/pressure-switch-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:14px 16px;
+      border-radius:18px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 6px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .chibi-note{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .chibi-note img{
+      width:34px;
+      flex:0 0 34px;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .chibi-note-text{
+      min-width:0;
+    }
+
+    .chibi-note-text h3{
+      margin:0 0 4px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .chibi-note-text p{
+      margin:0;
+      font-size:13px;
+      line-height:1.65;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .site-header-inner{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:42px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        display:none;
+      }
+
+      .header-nav{
+        display:none;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/pressure-switch-basic/pressure-switch-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+
+      .related-grid{
+        grid-template-columns:1fr;
+      }
+
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/pressure-switch-basic/pressure-switch-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{
+        padding:20px 18px;
+      }
+
+      .summary-card h2{
+        font-size:17px;
+      }
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
+
+      .talk-bubble{
+        max-width:none;
+      }
+
+      .chibi-note{
+        gap:8px;
+        align-items:flex-start;
+      }
+
+      .chibi-note img{
+        width:30px;
+        flex-basis:30px;
+      }
+
+      .chibi-note-text h3{
+        font-size:14px;
+      }
+
+      .chibi-note-text p{
+        font-size:13px;
+      }
+    }
+
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/pressure-switch-basic/pressure-switch-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .hero-actions{
+        width:100%;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .mini-toc{
+        gap:8px;
+      }
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html#top" aria-label="工具ガイドTOPへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="工具ガイド">
+        <span class="brand-copy">
+          <span class="brand-title">工具ガイド</span>
+          <span class="brand-sub">電気工事士・制御盤の現場メモ</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a class="header-link" href="../index.html#featured">おすすめ</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+        <a class="header-link" href="../index.html#series">シリーズ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html#top">トップ</a>
+        <span aria-hidden="true">/</span>
+        <a href="../index.html#category">制御の基礎</a>
+        <span aria-hidden="true">/</span>
+        <span>圧力スイッチの基本</span>
+      </nav>
+
+      <section class="article-hero" id="top">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎</span>
+          <h1>圧力スイッチとは？役割と見方を初心者向けにやさしく整理</h1>
+          <p class="hero-lead">圧力スイッチは、配管や機器の圧力が設定値に達したかどうかを見て、ON/OFFの信号を出す部品です。空圧設備でよく見る基本機器として、役割・見方・確認ポイントを整理します。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">全体像を見る</a>
+            <a class="btn btn-secondary" href="#flow">動作の流れを見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の要約">
+        <article class="summary-card summary-card--fit">
+          <h2>この記事が向いている人</h2>
+          <ul>
+            <li>圧力スイッチの基本的な役割を知りたい人</li>
+            <li>設定圧でON/OFFする考え方を整理したい人</li>
+            <li>圧力がうまく取れない時の見方を知りたい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ深掘りしなくてよい人</h2>
+          <ul>
+            <li>まずは入力と出力の違いから確認したい人</li>
+            <li>アナログ値の細かい読み取りまで今は不要な人</li>
+            <li>メーカーごとの細かい設定機能だけを知りたい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>圧力スイッチは設定した圧力で信号を切り替える部品</li>
+            <li>空圧設備では圧力の有無確認や異常監視でよく使う</li>
+            <li>圧力源・設定値・配線・漏れを分けて見ると追いやすい</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="この記事で分かること">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">圧力スイッチの全体像</a>
+          <a href="#basic">基本の考え方</a>
+          <a href="#flow">動作の流れ</a>
+          <a href="#difference">圧力センサとの違い</a>
+          <a href="#checkpoints">確認ポイント</a>
+          <a href="#related">あわせて読みたい記事</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>圧力スイッチの全体像</h2>
+            <p>圧力スイッチは、配管や機器の中にある圧力を見て、<span class="mark">設定した圧力に達したら信号を切り替える</span>ための部品です。</p>
+            <p>空圧設備では、エアが来ているかの確認、シリンダや設備の圧力監視、圧力不足の異常検出などでよく使います。</p>
+            <p>「圧力があるかないか」「設定圧を超えたかどうか」を見る用途では、初心者でも流れを追いやすい機器です。まずは、圧力を見てスイッチ動作する部品だと考えると分かりやすいです。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/pressure-switch-basic/pressure-switch-basic-overview.png" alt="圧力スイッチの全体像。圧力源と配管、圧力検知、設定圧で出力変化、PLCや機器へ信号の流れ">
+              <figcaption>圧力スイッチは、圧力を見て設定値でON/OFFを切り替え、その状態をPLCや表示・異常監視へ渡します。</figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>圧力スイッチは「今の圧力が設定値より上か下か」を見ているイメージです。難しく考えすぎず、まずは圧力で切り替わる入力機器だと捉えると追いやすいです。</p>
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">新人</span>つまり、圧力そのものを見て、一定以上ならON、足りなければOFFみたいに使うことが多いんですね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="basic">
+            <h2>圧力スイッチの基本の考え方</h2>
+            <p>圧力スイッチで見るポイントは、<span class="mark">圧力源・設定値・出力</span>です。</p>
+            <p>エアや油、水などの圧力が圧力スイッチにかかり、その値が設定値に達すると内部でON/OFFが切り替わります。その結果が、PLC入力や表示、異常監視の信号として使われます。</p>
+            <p>PLCで見る場合は、圧力スイッチ自体の表示や動作状態と、PLC入力が実際にONしているかを分けて確認すると、トラブル時に原因を追いやすくなります。</p>
+
+            <div class="key-highlight">
+              <h3>まずは「何の圧力を見ているか」を整理する</h3>
+              <p>元圧なのか、シリンダ手前なのか、真空なのかで見方が変わります。どこの圧力を監視しているかを先に決めてから、設定値や出力を見ると分かりやすいです。</p>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>内容</th>
+                    <th>現場での確認</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">圧力源</td>
+                    <td>コンプレッサ、配管、レギュレータなど</td>
+                    <td>そもそも圧力が供給されているかを見る</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">設定値</td>
+                    <td>何MPaや何kPaで切り替えるか</td>
+                    <td>設定圧が用途に合っているか確認する</td>
+                  </tr>
+                  <tr>
+                    <td>出力</td>
+                    <td>ON/OFFする接点や電子出力</td>
+                    <td>設定圧で出力が変わるか確認する</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC入力</td>
+                    <td>圧力スイッチの信号を受ける先</td>
+                    <td>PLC側で入力がONしているか確認する</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="section-card" id="flow">
+            <h2>動作の流れで見る圧力スイッチ</h2>
+            <p>圧力スイッチは、流れで見るとかなり分かりやすい機器です。まず圧力がかかり、その圧力が設定値に達したかどうかを監視し、条件を満たしたら出力を切り替えます。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/pressure-switch-basic/pressure-switch-basic-operation-flow.png" alt="圧力スイッチの動作の流れ。圧力がかかる、設定圧を監視、ON/OFF切替、機器やPLCへ信号の4ステップ">
+              <figcaption>圧力スイッチは、圧力を受けて設定値と比較し、条件を満たすと出力を切り替えてPLCや機器へ信号を送ります。</figcaption>
+            </figure>
+
+            <p>たとえば「0.45MPa以上でONにしたい」と設定していれば、圧力がその値を超えた時に出力が切り替わります。その出力で、運転許可、異常解除、ランプ点灯などの条件に使えます。</p>
+            <p>反対に、圧力が足りない時はOFFにして異常監視へ使うこともあります。現場では、圧力が上がった時に使うのか、圧力低下の異常を見たいのかを先に整理すると理解しやすいです。</p>
+
+            <div class="note-box">
+              <div class="chibi-note">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                <div class="chibi-note-text">
+                  <h3>表示値と出力切替は分けて見る</h3>
+                  <p>デジタル表示がある機種でも、表示されている圧力と、実際に出力が切り替わる条件は別に確認した方が安心です。設定値やヒステリシスの影響で見え方が変わることがあります。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="difference">
+            <h2>圧力センサとの違い</h2>
+            <p>圧力スイッチと圧力センサは似ていますが、役割は少し違います。</p>
+            <p>圧力スイッチは「設定値に達したかどうか」を見てON/OFFするのが基本です。一方で圧力センサは、現在の圧力値をアナログや数値として扱う場面で使われます。</p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>圧力スイッチ</h3>
+                <p>設定圧に達したかどうかを見る用途に向きます。運転許可、異常監視、インターロックに使いやすいです。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>圧力センサ</h3>
+                <p>現在値を細かく見たい時や、アナログ値として扱いたい時に向きます。表示や制御の細かな調整で使われます。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>初心者が最初に見るなら</h3>
+                <p>まずは圧力スイッチのようなON/OFFの考え方から入ると理解しやすいです。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>型式によっては両方の性格を持つ</h3>
+                <p>デジタル圧力スイッチの中には、表示機能やアナログ出力付きの機種もあります。用途に応じて見分けます。</p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現場では「何をしたいか」で選ぶ</h3>
+              <p>一定圧以上で動作許可を出したいなら圧力スイッチが分かりやすいです。現在圧力を細かく監視したいなら圧力センサ寄りの考え方になります。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>圧力スイッチが思った通りに動かない時の確認ポイント</h2>
+            <p>圧力スイッチが思った通りに動かない時は、設定値だけを見るのではなく、圧力源、配管、配線、出力の切替、漏れの有無を順番に確認します。</p>
+            <p>特に、表示はそれらしく見えるのに入力が入らない時は、配線や出力設定、PLC側の受け方も一緒に確認するのが大事です。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/pressure-switch-basic/pressure-switch-basic-checkpoints.png" alt="圧力スイッチの確認ポイント。設定圧、圧力源、配線や出力、エア漏れやチャタリングを整理">
+              <figcaption>圧力スイッチは、設定値・圧力源・配線・漏れを分けて見ると原因を追いやすくなります。</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>設定圧は合っているか</h3>
+                <p>必要な切替圧と設定値がずれていないか、単位を見間違えていないか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>圧力源は来ているか</h3>
+                <p>コンプレッサやレギュレータ、元圧側に問題がないか、圧力そのものが来ているか確認します。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>配線や出力形式は合っているか</h3>
+                <p>NPN/PNPや接点出力の違い、PLC入力側の取り方に問題がないか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>漏れやチャタリングはないか</h3>
+                <p>配管のエア漏れや圧力のばらつきで、出力が不安定になることがあります。</p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <div class="chibi-note">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                <div class="chibi-note-text">
+                  <h3>安全用途とは分けて考える</h3>
+                  <p>一般的な圧力スイッチは、圧力確認や設備制御に使う機器です。人の安全停止に直結する用途では、安全機器や安全回路として適切な構成を別に考える必要があります。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい記事</h2>
+            <p>圧力スイッチは、センサ全体の考え方、入力と出力、NPN/PNP、空圧系の機器理解とつながる内容です。周辺の基礎も一緒に見ると、現場で追いやすくなります。</p>
+
+            <div class="related-grid">
+              <a class="related-card" href="sensor-basic.html">
+                <h3>センサーの基本</h3>
+                <p>センサ全体の役割と、入力機器としての見方を整理できます。</p>
+              </a>
+
+              <a class="related-card" href="input-output-basic.html">
+                <h3>入力と出力の違い</h3>
+                <p>圧力スイッチの信号をPLC入力として見る基礎になります。</p>
+              </a>
+
+              <a class="related-card" href="npn-pnp-basic.html">
+                <h3>NPNとPNPの違い</h3>
+                <p>圧力スイッチの出力方式や配線確認の前提になります。</p>
+              </a>
+
+              <a class="related-card" href="reed-switch-basic.html">
+                <h3>リードスイッチの基本</h3>
+                <p>空圧機器まわりでよく見る入力機器として、比較しながら見られます。</p>
+              </a>
+
+              <a class="related-card" href="photoelectric-sensor-basic.html">
+                <h3>光電センサの基本</h3>
+                <p>センサの入力信号をどう見るかという共通の考え方につながります。</p>
+              </a>
+
+              <a class="related-card" href="proximity-sensor-basic.html">
+                <h3>近接センサーの基本</h3>
+                <p>他の検出機器と比べながら、圧力スイッチの役割を整理しやすくなります。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-primary" href="sensor-basic.html">センサーの基本を見る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="記事の補足ナビゲーション">
+          <section class="side-card">
+            <h3>目次</h3>
+            <ul>
+              <li><a href="#overview">圧力スイッチの全体像</a></li>
+              <li><a href="#basic">基本の考え方</a></li>
+              <li><a href="#flow">動作の流れ</a></li>
+              <li><a href="#difference">圧力センサとの違い</a></li>
+              <li><a href="#checkpoints">確認ポイント</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>圧力スイッチは設定圧で信号を切り替える</li>
+              <li>空圧設備では圧力有無の確認によく使う</li>
+              <li>圧力源・設定値・配線・漏れを分けて見る</li>
+              <li>圧力センサとは役割の細かさが違う</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>次に見る</h3>
+            <ul>
+              <li><a href="sensor-basic.html">センサーの基本</a></li>
+              <li><a href="npn-pnp-basic.html">NPNとPNPの違い</a></li>
+              <li><a href="reed-switch-basic.html">リードスイッチの基本</a></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 工具ガイド｜電気工事士・制御盤の現場メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

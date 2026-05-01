@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>リードスイッチとは？エアシリンダとの関係も初心者向けに整理</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>リードスイッチとは？エアシリンダとの関係も初心者向けに整理 | 電気と制御の実務メモ</title>
   <meta name="description" content="リードスイッチとは何かを初心者向けにやさしく整理。基本構造と動作、エアシリンダとの関係、位置検出の考え方、PLC入力とのつながり、現場での確認ポイントまで分かりやすく解説します。">
+  <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/reed-switch-basic.html">
 
   <meta property="og:type" content="article">
@@ -12,7 +13,7 @@
   <meta property="og:description" content="リードスイッチの基本、エアシリンダとの関係、位置検出の見方、PLC入力とのつながりを初心者向けにやさしく整理。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/reed-switch-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/reed-switch-basic/reed-switch-basic-ogp.png">
-  <meta property="og:site_name" content="電気工事士向け工具・実務メディア">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
   <meta property="og:locale" content="ja_JP">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -20,49 +21,58 @@
   <meta name="twitter:description" content="リードスイッチの基本、エアシリンダとの関係、位置検出の考え方を初心者向けに整理。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/reed-switch-basic/reed-switch-basic-ogp.png">
 
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+
   <style>
     :root{
-      --bg:#f6f8fb;
+      --bg:#f5f8fc;
       --card:#ffffff;
-      --text:#1d2a3a;
-      --muted:#627086;
-      --line:#dbe3ee;
-      --blue:#1f67d2;
-      --blue-soft:#eef5ff;
-      --green:#25a55b;
-      --green-soft:#edf9f1;
-      --orange:#f57c00;
-      --orange-soft:#fff4e9;
-      --navy:#17345f;
-      --shadow:0 10px 28px rgba(20,40,80,.08);
-      --header-h:78px;
-      --content-w:1120px;
-      
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    *{box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
     body{
       margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
       color:var(--text);
-      background:var(--bg);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
       line-height:1.8;
+      padding-top:var(--header-h);
     }
 
-    button,input{
+    button,
+    input{
       font:inherit;
     }
 
     img{
       max-width:100%;
-      height:auto;
       display:block;
-      border-radius:16px;
     }
 
     a{
-      color:var(--blue);
+      color:var(--blue-deep);
       text-decoration:none;
     }
 
@@ -71,1114 +81,1667 @@
     }
 
     .container{
-      width:min(var(--content-w), calc(100% - 28px));
+      width:min(var(--container),calc(100% - 28px));
       margin:0 auto;
     }
-        .breadcrumb{
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
       display:flex;
-      flex-wrap:wrap;
-      gap:8px;
       align-items:center;
-      font-size:.92rem;
-      color:var(--muted);
-      padding:14px 0;
-    }
-
-    .breadcrumb span{
-      color:#9aa7ba;
-    }
-
-    main { padding: 22px 0 64px; }
-
-    .hero{
-      background:linear-gradient(135deg,#ffffff 0%, #f6fbff 100%);
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:22px;
-      margin-bottom:22px;
-    }
-
-    .hero-labels{
-      display:flex;
-      flex-wrap:wrap;
+      justify-content:space-between;
       gap:10px;
-      margin-bottom:14px;
     }
 
-    .pill{
+    .brand{
+      min-width:0;
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:.9rem;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
       font-weight:700;
     }
 
-    .pill-green{
-      background:var(--green-soft);
-      color:var(--green);
-      border:1px solid #cfeeda;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .pill-blue{
-      background:var(--blue-soft);
-      color:var(--blue);
-      border:1px solid #d6e7ff;
-    }
-
-    .hero h1{
-      font-size:clamp(1.85rem,4.5vw,2.7rem);
-      line-height:1.25;
-      margin:0 0 12px;
-      color:#132e55;
-    }
-
-    .lead{
-      font-size:1.03rem;
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
       color:#334155;
-      margin:0;
-    }
-
-    .hero-note{
-      margin-top:16px;
-      padding:14px 16px;
-      border-radius:16px;
       background:#fff;
-      border:1px solid var(--line);
-      color:#334155;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
     }
 
-    .quick-boxes{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-      margin:22px 0;
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
     }
 
-    .quick-box{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:var(--shadow);
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
-    .quick-box h2{
-      margin:0 0 10px;
-      font-size:1.1rem;
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
       display:flex;
       align-items:center;
       gap:8px;
+      padding:0 12px;
     }
 
-    .quick-box ul{
-      margin:0;
-      padding-left:1.2em;
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
     }
 
-    .quick-box li{
-      margin:8px 0;
+    .search-box-input::placeholder{
+      color:#94a3b8;
     }
 
-    .box-fit h2{color:var(--green);}
-    .box-nope h2{color:var(--orange);}
-    .box-conclusion h2{color:var(--blue);}
-
-        .content-wrap{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 300px;
-      gap:20px;
-      align-items:start;
-      margin-top:22px;
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .sidebar{ position: sticky; top: calc(var(--header-h) + 12px); }
-
-    .side-card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:var(--shadow);
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
     }
 
-    .side-card h2,
-    .side-card h3{
-      margin:0 0 12px;
-      font-size:1rem;
-      color:var(--navy);
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
     }
 
-    .side-card ul{ margin:0; padding-left:1.15em; }
-
-    .toc{ display:grid; gap:10px; }
-    .toc a{ display:block; padding:10px 12px; border-radius:12px; background:#f8fafc; border:1px solid var(--line); font-size:14px; font-weight:700; color:var(--text); }
-
-    .side-card li{
-      margin:8px 0;
-      color:#415165;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:22px;
-      margin-bottom:18px;
-      box-shadow:var(--shadow);
-      scroll-margin-top: calc(var(--header-h) + 18px);
-    }
-
-    .card h2.section-title{
-      font-size:1.45rem;
-      line-height:1.35;
-      margin:0 0 14px;
-      color:#123158;
-    }
-
-    .card h3{
-      font-size:1.12rem;
-      margin:24px 0 10px;
-      color:#20456d;
-    }
-
-    .card p{
-      margin:0 0 14px;
-    }
-
-    .card p:last-child{
-      margin-bottom:0;
-    }
-
-    .info-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:16px;
-      margin-top:16px;
-    }
-
-    .info-card{
-      border-radius:18px;
-      padding:18px;
-      border:2px solid;
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
       background:#fff;
-    }
-
-    .info-card.blue{
-      border-color:#b8d3ff;
-      background:var(--blue-soft);
-    }
-
-    .info-card.green{
-      border-color:#bfe8cd;
-      background:var(--green-soft);
-    }
-
-    .info-card.orange{
-      border-color:#ffd0aa;
-      background:var(--orange-soft);
-    }
-
-    .info-card h3{
-      margin:0 0 10px;
-      font-size:1.15rem;
-    }
-
-    .info-card.blue h3{color:var(--blue);}
-    .info-card.green h3{color:var(--green);}
-    .info-card.orange h3{color:var(--orange);}
-
-    .image-box{
-      margin:18px 0 8px;
-    }
-
-    figure{margin:0;}
-
-    figcaption{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:.94rem;
-    }
-
-    .check-list{
-      padding-left:1.2em;
-      margin:0;
-    }
-
-    .check-list li{
-      margin:8px 0;
-    }
-
-    .tip{
-      border-left:4px solid var(--green);
-      background:var(--green-soft);
-      border-radius:14px;
-      padding:14px 16px;
-      margin:16px 0;
-    }
-
-    .warn{
-      border-left:4px solid var(--orange);
-      background:var(--orange-soft);
-      border-radius:14px;
-      padding:14px 16px;
-      margin:16px 0;
-    }
-
-    .compare-list{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-      margin-top:14px;
-    }
-
-    .compare-item{
-      background:#fff;
-      border:1px solid var(--line);
+      border:1px solid #dbe7f3;
       border-radius:16px;
-      padding:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    .compare-item h3{
-      margin:0 0 8px;
-      color:#16345c;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    .cta-box { background: #f8fbff; border: 1px solid #d7e6ff; border-radius: 18px; padding: 18px; margin-top: 14px; }
+    .search-result-item{
+      margin:0;
+    }
 
-    .cta-box h2 { margin:0 0 10px; color:#123158; }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
 
-    .cta-buttons{
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/reed-switch-basic/reed-switch-basic-ogp.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin-top:14px;
+      margin-top:26px;
     }
 
     .btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:46px;
-      padding:0 16px;
-      border-radius:999px;
-      font-weight:700;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
       text-decoration:none;
       border:1px solid transparent;
     }
 
-    .btn-primary { background: var(--green); color:#fff; }
+    .btn:hover{
+      text-decoration:none;
+    }
 
-    .btn-secondary { background:#fff; color:var(--blue); border-color:#cfe0ff; }
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
 
-    .related{
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
       margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
     }
 
     .related-grid{
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:14px;
+      margin-top:16px;
     }
 
-    .related-item{
-      display:grid;
-      grid-template-columns:84px minmax(0,1fr);
-      gap:12px;
-      align-items:center;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
       padding:16px;
-      box-shadow:var(--shadow);
-      color:inherit;
+      color:var(--text);
       text-decoration:none;
     }
 
-    .related-item:hover{
+    .related-card:hover{
       text-decoration:none;
-      transform:translateY(-1px);
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 
-    /*unused*/ .related-item .tag{
-      display:inline-block;
-      font-size:.8rem;
-      font-weight:700;
-      color:var(--blue);
-      background:var(--blue-soft);
-      border:1px solid #d8e8ff;
-      border-radius:999px;
-      padding:5px 10px;
-      margin-bottom:10px;
+    .related-card-thumb{
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:1px solid #dbe6f1;
+      background:#fff;
     }
 
-    .related-item img { width:84px; height:56px; object-fit:cover; border:1px solid var(--line); background:#f6f8fb; }
-
-    .related-item-title{
+    .related-card h3{
       margin:0 0 8px;
-      font-size:1.03rem;
-      color:#16345c;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
     }
 
-    .related-item-desc{
+    .related-card p{
       margin:0;
-      color:#536377;
-      font-size:.95rem;
-      line-height:1.7;
-    }
-
-    .footer-note{
+      font-size:13px;
       color:var(--muted);
-      font-size:.92rem;
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
       text-align:center;
-      margin-top:26px;
+      font-size:12px;
+      font-weight:700;
     }
 
-    @media (min-width: 720px){
-      .quick-boxes{
-        grid-template-columns:repeat(3,1fr);
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .info-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .compare-list{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .related-grid{
-        grid-template-columns:repeat(2,1fr);
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
     }
 
-    @media (min-width: 1024px){
-      .quick-boxes{ grid-template-columns:repeat(3, 1fr); }
-      .content-wrap{
-        grid-template-columns:minmax(0,1fr) 300px;
-        align-items:start;
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
       }
 
-      .hero{
-        padding:28px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .card{
-        padding:26px;
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
       }
     }
-  
-    @media (max-width: 980px) { .content-wrap { grid-template-columns: 1fr; } .sidebar { position: static; } }
-    @media (max-width: 768px) { .site-header-inner { align-items:flex-start; flex-direction:column; gap:8px; padding:8px 0; } .header-nav { width:100%; justify-content:flex-start; } main { padding-top: 16px; }
-}
-  
-    
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
 
-body{
-  padding-top:var(--header-h);
-}
+      html{
+        scroll-padding-top:92px;
+      }
 
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
 
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-ogp.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+      h1{
+        font-size:30px;
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .section-card{
+        padding:22px;
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+      .talk-avatar img{
+        width:66px;
+      }
+    }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
+      }
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .brand-logo{
+        height:40px;
+      }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .search-box{
+        padding:0 10px;
+      }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+      .search-box-input{
+        font-size:12px;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .talk-thread,
+      .talk-bubble{
+        max-width:none;
+      }
+    }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-ogp.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
 
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
 
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
 
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
+      h1{
+        font-size:34px;
+      }
 
-.search-result-item{
-  margin:0;
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
 
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
+      .summary-card{
+        padding:20px 18px;
+      }
 
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
+      .summary-card h2{
+        font-size:17px;
+      }
 
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
 
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-ogp.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
+      .breadcrumb{
+        margin-top:14px;
+      }
 
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
+      .mini-toc{
+        gap:8px;
+      }
 
-  .header-nav{
-    display:none !important;
-  }
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
+      .section-card h2{
+        font-size:20px;
+      }
 
-  .brand-title{
-    white-space:nowrap;
-  }
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
 
-  .header-search{
-    flex:0 0 180px;
-  }
-}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
 </head>
 <body>
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a><span>›</span><a href="../index.html#tips">使い方・コツ記事</a><span>›</span><span>リードスイッチとは？</span>
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#category">カテゴリ</a>
+        <span>›</span>
+        <span>リードスイッチとは？</span>
       </nav>
-<section class="hero">
-        <div class="hero-labels">
-          <span class="pill pill-green">初心者向け</span>
-          <span class="pill pill-blue">制御・センサ入門</span>
-        </div>
-        <h1>リードスイッチとは？エアシリンダとの関係も初心者向けに整理</h1>
-        <p class="lead">
-          エアシリンダの横に付いている小さいスイッチのような部品が、リードスイッチです。
-          この記事では、リードスイッチの基本構造と動作、エアシリンダとの関係、PLC入力とのつながりを、現場目線でやさしく整理します。
-        </p>
-        <div class="hero-note">
-          <strong>先にひとこと：</strong>
-          リードスイッチは、磁石が近づくとON/OFFが切り替わるスイッチで、エアシリンダの位置検出によく使います。
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">空圧機器と入力の基礎</span>
+          <h1>リードスイッチとは？<br>エアシリンダとの関係も整理</h1>
+          <p class="hero-lead">
+            リードスイッチは、磁石が近づくとON/OFFが切り替わるスイッチです。エアシリンダの位置検出、PLC入力とのつながり、現場で見るポイントを初心者向けに整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
+            <a class="btn btn-secondary" href="#air-cylinder">エアシリンダとの関係を見る</a>
+          </div>
         </div>
       </section>
 
-      <section class="quick-boxes" aria-label="記事の冒頭整理">
-        <div class="quick-box box-fit">
-          <h2 class="section-title">向いている人</h2>
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
           <ul>
             <li>エアシリンダに付いているスイッチの意味を知りたい人</li>
             <li>リードスイッチの基本動作を知りたい人</li>
             <li>PLC入力とのつながりをイメージしたい人</li>
           </ul>
-        </div>
-        <div class="quick-box box-nope">
-          <h2 class="section-title">まだ不要な人</h2>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
           <ul>
             <li>リードスイッチの配線や選定をすでに問題なくできる人</li>
             <li>メーカーごとの差まで整理できている人</li>
-            <li>空圧設備の設計・保全に慣れている人</li>
+            <li>空圧設備の設計・保全にかなり慣れている人</li>
           </ul>
-        </div>
-        <div class="quick-box box-conclusion">
-          <h2 class="section-title">先に結論</h2>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
           <ul>
-            <li>磁石が近づくとON/OFFが切り替わる</li>
-            <li>エアシリンダの位置検出によく使う</li>
-            <li>原点確認・端点確認・PLC入力でよく使う</li>
+            <li>リードスイッチは磁石が近づくとON/OFFが切り替わる</li>
+            <li>エアシリンダの原点・端点・動作完了確認でよく使う</li>
+            <li>LED、取付位置、PLC入力をセットで確認する</li>
           </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">リードスイッチとは？</a>
+          <a href="#how-it-works">どうやって動く？</a>
+          <a href="#air-cylinder">エアシリンダとの関係</a>
+          <a href="#plc-input">PLC入力との関係</a>
+          <a href="#field-view">現場で見るポイント</a>
+          <a href="#mistakes">よくある混乱</a>
+          <a href="#summary">まとめ</a>
         </div>
       </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="what-is" class="card">
-            <h2 class="section-title">リードスイッチとは？</h2>
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>リードスイッチとは？</h2>
             <p>
-              リードスイッチは、<strong>磁力で接点が切り替わるスイッチ</strong>です。
-              中に入っている接点が、磁石が近づくことで動いてON/OFFが切り替わります。
+              リードスイッチは、<span class="mark">磁力で接点が切り替わるスイッチ</span>です。内部に細い接点があり、磁石が近づくことでON/OFFが変わります。
             </p>
             <p>
-              現場では単体で使うというより、<strong>エアシリンダの位置検出</strong>で見ることが多いです。
-              設備を見ていると、シリンダの側面や溝の部分に取り付けられていることがあります。
+              現場では単体で使うというより、エアシリンダの位置検出で見ることが多いです。シリンダの側面や溝に取り付けられていて、前進端・後退端・原位置などを確認するために使われます。
             </p>
 
-            <div class="image-box">
-              <figure>
-                <img src="../assets/images/reed-switch-basic/reed-switch-basic-01.png" alt="リードスイッチの基本構造と動作を説明した図。磁石が近づくと接点が閉じてONになる。">
-                <figcaption>画像1：リードスイッチの基本構造と動作。磁石が近づくと接点が切り替わります。</figcaption>
-              </figure>
-            </div>
+            <figure class="article-figure">
+              <img src="../assets/images/reed-switch-basic/reed-switch-basic-01.png" alt="リードスイッチの基本構造と動作を説明した図。磁石が近づくと接点が閉じてONになる。">
+              <figcaption>
+                リードスイッチの基本構造と動作です。磁石が近づくと内部の接点が切り替わり、ON/OFF信号として使えます。
+              </figcaption>
+            </figure>
 
-            <div class="tip">
-              <strong>まずはここだけ覚えると分かりやすいです：</strong>
-              リードスイッチは「磁石が近づいたことを検出するスイッチ」です。
+            <div class="key-highlight">
+              <h3>まずは「磁石が近づいたことを検出するスイッチ」と覚える</h3>
+              <p>
+                リードスイッチは、磁石の近さでON/OFFが変わるスイッチです。エアシリンダでは、内部の磁石位置を外側から検出するためによく使われます。
+              </p>
             </div>
           </section>
 
-          <section id="how-it-works" class="card">
-            <h2 class="section-title">どうやって動くのか</h2>
+          <section class="section-card" id="how-it-works">
+            <h2>どうやって動くのか</h2>
             <p>
-              リードスイッチの中には、細い接点が入っています。
-              普段は離れていて、磁石が近づくと引き寄せられて接点がつながります。
+              リードスイッチの中には細い接点が入っています。普段は離れていて、磁石が近づくと引き寄せられて接点がつながります。
             </p>
 
-            <div class="compare-list">
-              <div class="compare-item">
+            <div class="check-grid">
+              <div class="check-item check-item--important">
                 <h3>磁石が遠いとき</h3>
-                <ul class="check-list">
-                  <li>接点は離れている</li>
-                  <li>出力はOFF</li>
-                  <li>PLC入力も入らないことが多い</li>
-                </ul>
-              </div>
-              <div class="compare-item">
-                <h3>磁石が近いとき</h3>
-                <ul class="check-list">
-                  <li>接点が切り替わる</li>
-                  <li>出力はON</li>
-                  <li>PLC入力で位置確認しやすい</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="warn">
-              <strong>注意：</strong>
-              リードスイッチにも配線方式や型式違いがありますが、最初は「磁石の近さでON/OFFが変わる」と覚えれば十分です。
-            </div>
-          </section>
-
-          <section id="air-cylinder" class="card">
-            <h2 class="section-title">エアシリンダとの関係</h2>
-            <p>
-              エアシリンダの中には、ピストンに<strong>磁石（マグネット）</strong>が入っているタイプがあります。
-              シリンダが動くと、その磁石も一緒に移動します。
-            </p>
-            <p>
-              その外側にリードスイッチを取り付けておくと、ピストンが近づいた位置でONになり、位置確認ができます。
-            </p>
-
-            <div class="image-box">
-              <figure>
-                <img src="../assets/images/reed-switch-basic/reed-switch-basic-02.png" alt="エアシリンダ内部の磁石を外側のリードスイッチで検出している説明図。">
-                <figcaption>画像2：エアシリンダ内部の磁石を、外側のリードスイッチで検出しているイメージです。</figcaption>
-              </figure>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-card green">
-                <h3>よくある用途</h3>
-                <ul class="check-list">
-                  <li>原点確認</li>
-                  <li>端点確認</li>
-                  <li>動作完了確認</li>
-                  <li>PLC入力への取り込み</li>
-                </ul>
-              </div>
-              <div class="info-card blue">
-                <h3>考え方のコツ</h3>
                 <p>
-                  リードスイッチは、<strong>シリンダ内部のピストン位置を直接見ているわけではなく、内蔵磁石を外から検出している</strong> と考えると理解しやすいです。
+                  接点は離れていて、出力はOFFになることが多いです。PLC入力も入らない状態として扱われます。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>磁石が近いとき</h3>
+                <p>
+                  接点が切り替わり、出力がONになります。PLC入力で位置確認しやすくなります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>配線方式の違い</h3>
+                <p>
+                  リードスイッチにも配線方式や型式違いがあります。最初は「磁石でON/OFFが変わる」と考えれば十分です。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>表示LED</h3>
+                <p>
+                  検出時にLEDが点灯するタイプがあります。現場では、まずLEDの反応を見ると切り分けしやすいです。
                 </p>
               </div>
             </div>
-          </section>
 
-          <section id="check-points" class="card">
-            <h2 class="section-title">現場で見るポイント</h2>
-
-            <h3>1. 本当にリードスイッチか確認する</h3>
-            <p>
-              まずは型式や取り付け位置を見て、リードスイッチかどうか確認します。
-              メーカーによって見た目や呼び方が違うことがあります。
-            </p>
-
-            <h3>2. 取り付け位置を見る</h3>
-            <p>
-              位置がずれていると、検出タイミングが変わったり、うまくONしないことがあります。
-              シリンダ端で反応してほしいのか、途中位置で反応してほしいのかも見ます。
-            </p>
-
-            <h3>3. LED表示を見る</h3>
-            <p>
-              多くのリードスイッチは、検出時にLEDが点灯します。
-              動いているのにPLC入力が入らない時は、まずLEDが点くかどうかを見ると切り分けしやすいです。
-            </p>
-
-            <h3>4. PLC入力も確認する</h3>
-            <p>
-              スイッチが反応していても、配線やPLC側入力の問題で入っていないことがあります。
-              GX Works3 で X入力が切り替わるか確認すると追いやすいです。
-            </p>
-
-            <div class="tip">
-              <strong>現場の見方：</strong>
-              「シリンダが動く → リードスイッチLEDが点く → PLC入力Xが入る」
-              この流れで追うとかなり分かりやすいです。
-            </div>
-          </section>
-
-          <section id="confusion" class="card">
-            <h2 class="section-title">よくある混乱</h2>
-
-            <h3>近接センサと同じだと思ってしまう</h3>
-            <p>
-              役割は似て見えますが、見ているものが違います。
-              リードスイッチは<strong>磁石</strong>を見ています。
-              近接センサは金属検出で使うことが多いです。
-            </p>
-
-            <h3>リミットスイッチと同じだと思ってしまう</h3>
-            <p>
-              リミットスイッチは、物理的に当たって切り替わることが多いです。
-              一方でリードスイッチは、<strong>磁力で切り替わる</strong>のが大きな違いです。
-            </p>
-
-            <h3>シリンダが動いているのに入力が入らない</h3>
-            <p>
-              この場合は、以下の順で見ると追いやすいです。
-            </p>
-            <ul class="check-list">
-              <li>スイッチ位置が合っているか</li>
-              <li>LEDが点灯するか</li>
-              <li>配線に問題がないか</li>
-              <li>PLC入力が入っているか</li>
-              <li>そもそもシリンダ側が磁石内蔵タイプか</li>
-            </ul>
-          </section>
-
-          <section id="summary" class="card">
-            <h2 class="section-title">まとめ</h2>
-            <p>
-              リードスイッチは、<strong>磁石の近さでON/OFFが変わるスイッチ</strong>です。
-              現場では、特に<strong>エアシリンダの位置検出</strong>でよく使います。
-            </p>
-
-            <div class="info-grid">
-              <div class="info-card blue">
-                <h3>基本の覚え方</h3>
-                <ul class="check-list">
-                  <li>シリンダの中に磁石がある</li>
-                  <li>外側のリードスイッチで検出する</li>
-                  <li>PLC入力で位置確認に使う</li>
-                </ul>
-              </div>
-              <div class="info-card orange">
-                <h3>まず押さえたいこと</h3>
-                <ul class="check-list">
-                  <li>取り付け位置</li>
-                  <li>LED点灯</li>
-                  <li>PLC入力の変化</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="cta-box">
-              <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <div class="note-box">
+              <h3>接点そのものを見るというより、磁石との位置関係を見る</h3>
               <p>
-                リードスイッチの次は、NPN / PNP や NO / NC を見ておくと、配線や入力の見方がさらに整理しやすくなります。
+                リードスイッチは、押されて動くスイッチではなく、磁石が近づくことで反応します。物理的な当たり方ではなく、磁石とスイッチの位置関係を見ます。
               </p>
-              <div class="cta-buttons">
-                <a class="btn btn-secondary" href="../index.html">制御系記事一覧を見る</a>
+            </div>
+          </section>
+
+          <section class="section-card" id="air-cylinder">
+            <h2>エアシリンダとの関係</h2>
+            <p>
+              エアシリンダの中には、ピストンに磁石が入っているタイプがあります。シリンダが前進・後退すると、内部のピストンと一緒に磁石も移動します。
+            </p>
+            <p>
+              その外側にリードスイッチを取り付けておくと、ピストンが近づいた位置でONになり、前進端・後退端などの位置確認ができます。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/reed-switch-basic/reed-switch-basic-02.png" alt="エアシリンダ内部の磁石を外側のリードスイッチで検出している説明図。">
+              <figcaption>
+                エアシリンダ内部の磁石を、外側のリードスイッチで検出しているイメージです。シリンダ位置をPLC入力へ伝えるためによく使われます。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>原点確認</h3>
+                <p>
+                  シリンダが戻りきった位置を確認するために使われることがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>端点確認</h3>
+                <p>
+                  シリンダが前進端や後退端まで動いたかを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>動作完了確認</h3>
+                <p>
+                  リードスイッチの入力を、次工程へ進む条件として使うことがあります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>位置調整</h3>
+                <p>
+                  取り付け位置がずれると、検出タイミングが変わったり、うまくONしないことがあります。
+                </p>
               </div>
             </div>
 
-                        <div class="related">
-              <h3>関連記事</h3>
-              <div class="related-grid">
-                <a class="related-item" href="npn-pnp-basic.html"><img src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="NPN / PNP の違いとは？の記事サムネイル"><div><p class="related-item-title">NPN / PNP の違いとは？</p><p class="related-item-desc">センサ出力とPLC入力の関係を整理したい時に相性が良い記事です。</p></div></a>
-                <a class="related-item" href="no-nc-basic.html"><img src="../assets/images/no-nc-basic/no-nc-basic-ogp.png" alt="NO / NC の違いとは？の記事サムネイル"><div><p class="related-item-title">NO / NC の違いとは？</p><p class="related-item-desc">接点の基本を整理したい人向け。リードスイッチの接点理解にもつながります。</p></div></a>
-                <a class="related-item" href="limit-switch-basic.html"><img src="../assets/images/limit-switch-basic/limit-switch-basic-ogp.png" alt="リミットスイッチとは？の記事サムネイル"><div><p class="related-item-title">リミットスイッチとは？</p><p class="related-item-desc">物理接触で検出するスイッチとの違いを比較しやすい記事です。</p></div></a>
+            <div class="field-highlight">
+              <h3>シリンダ内部のピストン位置を直接見ているわけではない</h3>
+              <p>
+                リードスイッチは、シリンダ内部の磁石を外側から検出しています。つまり「ピストンについている磁石の位置を見ている」と考えると理解しやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="plc-input">
+            <h2>PLC入力との関係</h2>
+            <p>
+              リードスイッチのON/OFF信号は、PLC入力として使われることが多いです。シリンダが所定位置まで動くとリードスイッチが反応し、PLC入力がONになります。
+            </p>
+            <p>
+              ラダー上では、前進端確認、後退端確認、原位置確認、動作完了条件などに使われます。シリンダが動いていても、リードスイッチ入力が入らなければ、PLC上では完了条件にならないことがあります。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>確認すること</th>
+                    <th>よくある見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">シリンダ側</td>
+                    <td>シリンダが所定位置まで動いているか</td>
+                    <td>前進端、後退端、途中位置</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">リードスイッチ側</td>
+                    <td>LEDが点灯するか、位置が合っているか</td>
+                    <td>スイッチ位置、固定状態、検出ランプ</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC側</td>
+                    <td>入力XがON/OFFしているか</td>
+                    <td>GX Works3などで入力モニタを確認</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>シリンダが動く → LEDが点く → PLC入力が入る</h3>
+              <p>
+                この流れで追うと、リードスイッチまわりはかなり整理しやすいです。LEDは点くのにPLC入力が変わらない場合は、配線や入力側を確認します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-view">
+            <h2>現場で見るポイント</h2>
+            <p>
+              リードスイッチを見る時は、スイッチ単体だけでなく、シリンダの動き、スイッチ位置、LED、PLC入力をセットで確認します。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>本当にリードスイッチか</h3>
+                <p>
+                  メーカーや型式によって見た目や呼び方が違うことがあります。まず型式や取り付け位置を確認します。
+                </p>
               </div>
+              <div class="check-item check-item--field">
+                <h3>取り付け位置</h3>
+                <p>
+                  位置がずれていると、反応タイミングが変わったり、うまくONしないことがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>LED表示</h3>
+                <p>
+                  検出時にLEDが点くかを確認します。動いているのに入力が入らない時の切り分けに役立ちます。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>PLC入力</h3>
+                <p>
+                  GX Works3などでX入力が切り替わるか確認します。LEDと入力モニタをセットで見ると追いやすいです。
+                </p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>リードスイッチは、シリンダが動いたかだけじゃなくて、LEDとPLC入力まで見ると切り分けしやすいよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>シリンダが動いていても、PLC入力が入っていなければ完了条件にならないんですね。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>位置調整時はシリンダの急な動きに注意</h3>
+              <p>
+                リードスイッチの位置調整や確認をする時は、エアシリンダが急に動く可能性があります。挟まれ、干渉、運転モード、周囲の人を確認してから作業してください。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>よくある混乱</h2>
+            <p>
+              リードスイッチは、近接センサやリミットスイッチと役割が似て見えることがあります。ただし、見ているものや動作の考え方が違います。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>近接センサと同じだと思う</h3>
+                <p>
+                  リードスイッチは磁石を見ています。近接センサは金属などを非接触で検出することが多いです。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>リミットスイッチと同じだと思う</h3>
+                <p>
+                  リミットスイッチは物理的に当たって切り替わることが多いですが、リードスイッチは磁力で切り替わります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>シリンダが動いたからOKと思う</h3>
+                <p>
+                  シリンダが動いていても、リードスイッチ入力が入っていなければPLC上では完了条件にならないことがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>磁石内蔵タイプか見ない</h3>
+                <p>
+                  そもそもシリンダ側が磁石内蔵タイプでないと、リードスイッチで検出できない場合があります。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>動かない・入力が入らない時の順番</h3>
+              <p>
+                スイッチ位置、LED点灯、配線、PLC入力、シリンダ側が磁石内蔵タイプかを順番に見ると追いやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：リードスイッチは磁石でON/OFFが変わる位置検出用のスイッチ</h2>
+            <p>
+              リードスイッチは、磁石が近づくことでON/OFFが切り替わるスイッチです。現場では、特にエアシリンダの位置検出でよく使われます。
+            </p>
+            <p>
+              見る時は、シリンダの動き、スイッチの取り付け位置、LED点灯、PLC入力の変化をセットで確認します。リードスイッチ単体ではなく、エアシリンダとPLC入力の流れで見ると理解しやすくなります。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                リードスイッチは「磁石の近さでON/OFFが変わるスイッチ」です。エアシリンダの原点確認、端点確認、動作完了確認に使われることが多く、PLC入力とセットで見ることが大切です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="./air-cylinder-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png" alt="エアシリンダとは？の記事">
+                </div>
+                <h3>エアシリンダとは？</h3>
+                <p>リードスイッチがよく取り付けられるエアシリンダの基本を整理します。</p>
+              </a>
+
+              <a class="related-card" href="./npn-pnp-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="NPN / PNP の違いとは？の記事">
+                </div>
+                <h3>NPN / PNP の違いとは？</h3>
+                <p>センサ出力とPLC入力の関係を整理したい時につながる記事です。</p>
+              </a>
+
+              <a class="related-card" href="./no-nc-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/no-nc-basic/no-nc-basic-ogp.png" alt="NO / NC の違いとは？の記事">
+                </div>
+                <h3>NO / NC の違いとは？</h3>
+                <p>接点の基本を整理したい人向け。リードスイッチの接点理解にもつながります。</p>
+              </a>
+
+              <a class="related-card" href="./limit-switch-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/limit-switch-basic/limit-switch-basic-hero.png" alt="リミットスイッチとは？の記事">
+                </div>
+                <h3>リミットスイッチとは？</h3>
+                <p>物理接触で検出するスイッチとの違いを比較しやすい記事です。</p>
+              </a>
+
+              <a class="related-card" href="./proximity-sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/proximity-sensor-basic/proximity-sensor-basic-ogp.png" alt="近接センサとは？の記事">
+                </div>
+                <h3>近接センサとは？</h3>
+                <p>非接触で検出する入力機器との違いを整理できます。</p>
+              </a>
+
+              <a class="related-card" href="./sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/sensor-basic/sensor-basic-ogp.png" alt="センサとは何か？の記事">
+                </div>
+                <h3>センサとは何か？</h3>
+                <p>入力機器全体の考え方を整理した入口記事です。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
-          <div class="sticky">
-            <section class="side-card">
-              <h2 class="section-title">このページの要点</h2>
-              <ul>
-                <li>磁石が近づくとON/OFFが切り替わる</li>
-                <li>エアシリンダの位置検出でよく使う</li>
-                <li>原点確認・端点確認に使いやすい</li>
-                <li>LEDとPLC入力を一緒に見ると追いやすい</li>
-              </ul>
-            </section>
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の流れ</h3>
+            <ul>
+              <li><a href="#what-is">リードスイッチとは？</a></li>
+              <li><a href="#how-it-works">どうやって動く？</a></li>
+              <li><a href="#air-cylinder">エアシリンダとの関係</a></li>
+              <li><a href="#plc-input">PLC入力との関係</a></li>
+              <li><a href="#field-view">現場で見るポイント</a></li>
+              <li><a href="#mistakes">よくある混乱</a></li>
+              <li><a href="#summary">まとめ</a></li>
+            </ul>
+          </section>
 
-            <nav class="side-card" aria-label="記事内目次">
-              <h2>目次</h2>
-              <div class="toc">
-                <a href="#what-is">リードスイッチとは？</a>
-                <a href="#how-it-works">どうやって動くのか</a>
-                <a href="#air-cylinder">エアシリンダとの関係</a>
-                <a href="#check-points">現場で見るポイント</a>
-                <a href="#confusion">よくある混乱</a>
-                <a href="#summary">まとめ</a>
-              </div>
-            </nav>
+          <section class="side-card">
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>リードスイッチは磁石で反応する</li>
+              <li>エアシリンダの位置検出でよく使う</li>
+              <li>原点確認・端点確認に使いやすい</li>
+              <li>LEDとPLC入力を一緒に見る</li>
+              <li>シリンダ側の磁石内蔵も確認する</li>
+            </ul>
+          </section>
 
-            <section class="side-card">
-              <h3>次に読む候補</h3>
-              <ul>
-                <li><a href="npn-pnp-basic.html">NPN / PNP の違いとは？</a></li>
-                <li><a href="no-nc-basic.html">NO / NC の違いとは？</a></li>
-                <li><a href="../index.html">制御系記事一覧</a></li>
-              </ul>
-            </section>
-          </div>
+          <section class="side-card">
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./air-cylinder-basic.html">エアシリンダとは？</a></li>
+              <li><a href="./npn-pnp-basic.html">NPN / PNP の違いとは？</a></li>
+              <li><a href="./no-nc-basic.html">NO / NC の違いとは？</a></li>
+              <li><a href="./limit-switch-basic.html">リミットスイッチとは？</a></li>
+              <li><a href="./proximity-sensor-basic.html">近接センサとは？</a></li>
+            </ul>
+          </section>
         </aside>
       </div>
-
-      <p class="footer-note">
-        この記事は、制御を始めたばかりの人でも現場で追いやすいことを優先して構成しています。
-      </p>
     </div>
   </main>
-  <script src="../assets/js/site-search.js" defer></script>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

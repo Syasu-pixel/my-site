@@ -1,69 +1,78 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理</title>
   <meta name="description" content="NO / NC の違いを初心者向けにやさしく整理。Normally Open・Normally Closed の意味、押しボタン・リレー・PLC入力での見方、a接点・b接点との関係まで現場目線で分かりやすく解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/no-nc-basic.html">
-
   <meta property="og:type" content="article">
   <meta property="og:title" content="NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理">
-  <meta property="og:description" content="NO / NC の基本、押しボタン・リレー・PLC入力での見方、a接点・b接点との関係を初心者向けにやさしく整理。">
+  <meta property="og:description" content="NO / NC の基本を、通常時と動作時の違い、a接点・b接点との関係、押しボタン・リレー・PLC入力での見方まで現場目線で整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/no-nc-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/no-nc-basic/no-nc-basic-hero.png">
-  <meta property="og:site_name" content="電気工事士向け工具・実務メディア">
-  <meta property="og:locale" content="ja_JP">
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理">
-  <meta name="twitter:description" content="NO / NC の違い、押しボタン・リレー・PLC入力での見方を現場目線でやさしく整理。">
+  <meta name="twitter:description" content="NO / NC の違い、a接点・b接点との関係、押しボタン・リレー・PLC入力での見方をやさしく整理。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/no-nc-basic/no-nc-basic-hero.png">
-
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
   <style>
     :root{
-      --bg:#f6f8fb;
+      --bg:#f5f8fc;
       --card:#ffffff;
-      --text:#1d2a3a;
-      --muted:#627086;
-      --line:#dbe3ee;
-      --blue:#1f67d2;
-      --blue-soft:#eef5ff;
-      --orange:#f57c00;
-      --orange-soft:#fff4e9;
-      --green:#25a55b;
-      --green-soft:#edf9f1;
-      --navy:#17345f;
-      --shadow:0 10px 28px rgba(20, 40, 80, 0.08);
-      --radius:18px;
-      --header-h:78px;
-      --content-w:1120px;
-      
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    *{box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
     body{
       margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
       color:var(--text);
-      background:var(--bg);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
       line-height:1.8;
+      padding-top:var(--header-h);
     }
 
-    button,input{
+    button,
+    input{
       font:inherit;
     }
 
     img{
       max-width:100%;
-      height:auto;
       display:block;
-      border-radius:16px;
     }
 
     a{
-      color:var(--blue);
+      color:var(--blue-deep);
       text-decoration:none;
     }
 
@@ -72,1126 +81,1661 @@
     }
 
     .container{
-      width:min(var(--content-w), calc(100% - 28px));
+      width:min(var(--container),calc(100% - 28px));
       margin:0 auto;
     }
-        .breadcrumb{
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
       display:flex;
-      flex-wrap:wrap;
-      gap:8px;
       align-items:center;
-      font-size:0.92rem;
-      color:var(--muted);
-      padding:14px 0;
-    }
-
-    .breadcrumb span{
-      color:#9aa7ba;
-    }
-
-    main { padding: 22px 0 64px; }
-
-    .hero{
-      background:linear-gradient(135deg,#ffffff 0%, #f6fbff 100%);
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:22px;
-      margin-bottom:22px;
-    }
-
-    .hero-labels{
-      display:flex;
-      flex-wrap:wrap;
+      justify-content:space-between;
       gap:10px;
-      margin-bottom:14px;
     }
 
-    .pill{
+    .brand{
+      min-width:0;
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:0.9rem;
-      font-weight:700;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
     }
 
-    .pill-green{
-      background:var(--green-soft);
-      color:var(--green);
-      border:1px solid #cfeeda;
+    .brand:hover{
+      text-decoration:none;
     }
 
-    .pill-blue{
-      background:var(--blue-soft);
-      color:var(--blue);
-      border:1px solid #d6e7ff;
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
     }
 
-    .hero h1{
-      font-size:clamp(1.85rem, 4.5vw, 2.8rem);
-      line-height:1.25;
-      margin:0 0 12px;
-      color:#132e55;
-    }
-
-    .lead{
-      font-size:1.03rem;
-      color:#334155;
-      margin:0;
-    }
-
-    .hero-note{
-      margin-top:16px;
-      padding:14px 16px;
-      border-radius:16px;
-      background:#fff;
-      border:1px solid var(--line);
-      color:#334155;
-    }
-
-    .quick-boxes{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-      margin:22px 0;
-    }
-
-    .quick-box{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .quick-box h2{
-      margin:0 0 10px;
-      font-size:1.1rem;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .quick-box ul{
-      margin:0;
-      padding-left:1.2em;
-    }
-
-    .quick-box li{
-      margin:8px 0;
-    }
-
-    .box-fit h2{color:var(--green);}
-    .box-nope h2{color:var(--orange);}
-    .box-conclusion h2{color:var(--blue);}
-
-        .content-wrap{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 300px;
-      gap:20px;
-      align-items:start;
-      margin-top:22px;
-    }
-
-    .article{
+    .brand-copy{
       min-width:0;
     }
 
-    .sidebar{ min-width:0; position: sticky; top: calc(var(--header-h) + 12px); }
-
-    .side-card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:var(--shadow);
-    }
-
-    .side-card h2,
-    .side-card h3{
-      margin:0 0 12px;
-      font-size:1rem;
-      color:var(--navy);
-    }
-
-    .side-card ul{ margin:0; padding-left:1.15em; }
-
-    .toc{ display:grid; gap:10px; }
-    .toc a{ display:block; padding:10px 12px; border-radius:12px; background:#f8fafc; border:1px solid var(--line); font-size:14px; font-weight:700; color:var(--text); }
-
-    .side-card li{
-      margin:8px 0;
-      color:#415165;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:22px;
-      margin-bottom:18px;
-      box-shadow:var(--shadow);
-      scroll-margin-top: calc(var(--header-h) + 18px);
-    }
-
-    .card h2.section-title{
-      font-size:1.45rem;
-      line-height:1.35;
-      margin:0 0 14px;
-      color:#123158;
-    }
-
-    .card h3{
-      font-size:1.12rem;
-      margin:24px 0 10px;
-      color:#20456d;
-    }
-
-    .card p{
-      margin:0 0 14px;
-    }
-
-    .card p:last-child{
-      margin-bottom:0;
-    }
-
-    .info-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:16px;
-      margin-top:16px;
-    }
-
-    .info-card{
-      border-radius:18px;
-      padding:18px;
-      border:2px solid;
-      background:#fff;
-    }
-
-    .info-card.blue{
-      border-color:#b8d3ff;
-      background:var(--blue-soft);
-    }
-
-    .info-card.orange{
-      border-color:#ffd0aa;
-      background:var(--orange-soft);
-    }
-
-    .info-card h3{
-      margin:0 0 10px;
-      font-size:1.15rem;
-    }
-
-    .info-card.blue h3{color:var(--blue);}
-    .info-card.orange h3{color:var(--orange);}
-
-    .image-box{
-      margin:18px 0 8px;
-    }
-
-    figure{
+    .brand-title{
       margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
     }
 
-    figcaption{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:0.94rem;
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
     }
 
-    .check-list,
-    .step-list{
-      padding-left:1.2em;
-      margin:0;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .check-list li,
-    .step-list li{
-      margin:8px 0;
-    }
-
-    .tip{
-      border-left:4px solid var(--green);
-      background:var(--green-soft);
-      border-radius:14px;
-      padding:14px 16px;
-      margin:16px 0;
-    }
-
-    .warn{
-      border-left:4px solid var(--orange);
-      background:var(--orange-soft);
-      border-radius:14px;
-      padding:14px 16px;
-      margin:16px 0;
-    }
-
-    .compare-list{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-      margin-top:14px;
-    }
-
-    .compare-item{
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
       background:#fff;
-      border:1px solid var(--line);
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
       border-radius:16px;
-      padding:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    .compare-item h3{
-      margin:0 0 8px;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    .compare-item.blue{
-      border-color:#d1e3ff;
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
       background:#fbfdff;
+      text-decoration:none;
     }
 
-    .compare-item.orange{
-      border-color:#ffd8b6;
-      background:#fffaf6;
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
     }
 
-    .compare-item.blue h3{color:var(--blue);}
-    .compare-item.orange h3{color:var(--orange);}
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
 
-    .cta-box { background: #f8fbff; border: 1px solid #d7e6ff; border-radius: 18px; padding: 18px; margin-top: 14px; }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
 
-    .cta-box h2 { margin:0 0 10px; color:#123158; }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
 
-    .cta-buttons{
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/no-nc-basic/no-nc-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin-top:14px;
+      margin-top:26px;
     }
 
     .btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:46px;
-      padding:0 16px;
-      border-radius:999px;
-      font-weight:700;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
       text-decoration:none;
       border:1px solid transparent;
     }
 
-    .btn-primary { background: var(--green); color:#fff; }
+    .btn:hover{
+      text-decoration:none;
+    }
 
-    .btn-secondary { background:#fff; color:var(--blue); border-color:#cfe0ff; }
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
 
-    .related{
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
       margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
     }
 
     .related-grid{
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:14px;
+      margin-top:16px;
     }
 
-    .related-item{
-      display:grid;
-      grid-template-columns:84px minmax(0,1fr);
-      gap:12px;
-      align-items:center;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
       padding:16px;
-      box-shadow:var(--shadow);
-      color:inherit;
+      color:var(--text);
       text-decoration:none;
     }
 
-    .related-item:hover{
+    .related-card:hover{
       text-decoration:none;
-      transform:translateY(-1px);
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 
-    /*unused*/ .related-item .tag{
-      display:inline-block;
-      font-size:0.8rem;
-      font-weight:700;
-      color:var(--blue);
-      background:var(--blue-soft);
-      border:1px solid #d8e8ff;
-      border-radius:999px;
-      padding:5px 10px;
-      margin-bottom:10px;
-    }
-
-    .related-item img { width:84px; height:56px; object-fit:cover; border:1px solid var(--line); background:#f6f8fb; }
-
-    .related-item-title{
+    .related-card h3{
       margin:0 0 8px;
-      font-size:1.03rem;
-      color:#16345c;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
     }
 
-    .related-item-desc{
+    .related-card p{
       margin:0;
-      color:#536377;
-      font-size:0.95rem;
-      line-height:1.7;
-    }
-
-    .footer-note{
+      font-size:13px;
       color:var(--muted);
-      font-size:0.92rem;
-      text-align:center;
-      margin-top:26px;
+      line-height:1.75;
     }
 
-    @media (min-width: 720px){
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
 
-      .info-grid{
-        grid-template-columns:repeat(2, 1fr);
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .compare-list{
-        grid-template-columns:repeat(2, 1fr);
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub{
+        display:none !important;
+      }
+
+      .header-nav{
+        display:none !important;
+      }
+
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/no-nc-basic/no-nc-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+
+      .side-rail{
+        grid-template-columns:1fr;
       }
 
       .related-grid{
-        grid-template-columns:repeat(2, 1fr);
+        grid-template-columns:1fr;
+      }
+
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
       }
     }
 
-    @media (min-width: 1024px){
-      .quick-boxes{ grid-template-columns:repeat(3, 1fr); }
-      .content-wrap{
-        grid-template-columns:minmax(0, 1fr) 300px;
-        align-items:start;
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
       }
 
-      .hero{
-        padding:28px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .card{
-        padding:26px;
+      .brand{
+        min-width:0;
+        gap:8px;
       }
 
-      
+      .brand-logo{
+        height:40px;
+      }
+
+      .brand-copy{
+        min-width:0;
+      }
+
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+
+      .brand-sub{
+        display:none !important;
+      }
+
+      .header-nav{
+        display:none !important;
+      }
+
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+
+      .search-box{
+        padding:0 10px;
+      }
+
+      .search-box-input{
+        font-size:12px;
+      }
+
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
+      }
+
+      .talk-thread{
+        max-width:none;
+      }
+
+      .talk-bubble{
+        max-width:none;
+      }
     }
-  
-    @media (max-width: 980px) { .content-wrap { grid-template-columns: 1fr; } .sidebar { position: static; } }
-    @media (max-width: 768px) { .site-header-inner { align-items:flex-start; flex-direction:column; gap:8px; padding:8px 0; } .header-nav { width:100%; justify-content:flex-start; } main { padding-top: 16px; }
-}
-  
-    
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
 
-body{
-  padding-top:var(--header-h);
-}
+      .article-hero::before{
+        background:url("../assets/images/no-nc-basic/no-nc-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
 
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
 
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      h1{
+        font-size:34px;
+      }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      .summary-card{
+        padding:20px 18px;
+      }
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      .summary-card h2{
+        font-size:17px;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/no-nc-basic/no-nc-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+      .breadcrumb{
+        margin-top:14px;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .mini-toc{
+        gap:8px;
+      }
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .section-card h2{
+        font-size:20px;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{
+        font-size:14px;
+      }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
-
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
-
-.search-result-item{
-  margin:0;
-}
-
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
-
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
-
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
-
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
-
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-
-
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-title{
-    white-space:nowrap;
-  }
-
-  .header-search{
-    flex:0 0 180px;
-  }
-}
-
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
 </head>
 <body>
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a><span>›</span><a href="../index.html#tips">使い方・コツ記事</a><span>›</span><span>NO / NC の違いとは？</span>
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#category">カテゴリ</a>
+        <span>›</span>
+        <span>NO / NC の違いとは？</span>
       </nav>
-<section class="hero">
-        <div class="hero-labels">
-          <span class="pill pill-green">初心者向け</span>
-          <span class="pill pill-blue">電気工事士・制御入門</span>
-        </div>
-        <h1>NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理</h1>
-        <p class="lead">
-          制御を見始めると、押しボタンやリレー、センサの説明で NO / NC という表記がよく出てきます。
-          この記事では、難しく見せるよりも「通常時にどうなっていて、押した時・動作した時にどう変わるか」が分かるように、現場目線でやさしく整理します。
-        </p>
-        <div class="hero-note">
-          <strong>先にひとこと：</strong>
-          NO = Normally Open（通常開） / NC = Normally Closed（通常閉）。まずはここだけ押さえれば大丈夫です。
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">接点の基礎</span>
+          <h1>NO / NC の違いとは？<br>意味・見分け方・使い分けを整理</h1>
+          <p class="hero-lead">
+            NO / NC は、押しボタン・リレー・センサ・PLC入力を読むときによく出てくる接点表記です。Normally Open / Normally Closed の意味と、a接点・b接点との関係を整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#basic">基本の意味を見る</a>
+            <a class="btn btn-secondary" href="#field-view">現場での見方を見る</a>
+          </div>
         </div>
       </section>
 
-      <section class="quick-boxes" aria-label="記事の冒頭整理">
-        <div class="quick-box box-fit">
-          <h2 class="section-title">向いている人</h2>
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
           <ul>
             <li>NO / NC の意味を基礎から整理したい人</li>
-            <li>押しボタンやリレーの接点表記で混乱しやすい人</li>
-            <li>PLC入力の見方を現物とセットで理解したい人</li>
+            <li>a接点・b接点との関係があいまいな人</li>
+            <li>押しボタンやリレーの接点表記で迷いやすい人</li>
           </ul>
-        </div>
-        <div class="quick-box box-nope">
-          <h2 class="section-title">まだ不要な人</h2>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
           <ul>
             <li>NO / NC を現場でほぼ迷わず読めている人</li>
-            <li>補助接点やメーカー記号まで十分理解できている人</li>
-            <li>詳細設計や安全回路を深く扱っている人</li>
+            <li>メーカーごとの接点番号や定格だけを調べたい人</li>
+            <li>安全回路の詳細設計を深く扱いたい人</li>
           </ul>
-        </div>
-        <div class="quick-box box-conclusion">
-          <h2 class="section-title">先に結論</h2>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
           <ul>
-            <li><strong>NO</strong> = Normally Open（通常開）</li>
-            <li><strong>NC</strong> = Normally Closed（通常閉）</li>
-            <li>押した時・動作時の変化で見ると整理しやすい</li>
+            <li>NOはNormally Open、通常時に開いている接点</li>
+            <li>NCはNormally Closed、通常時に閉じている接点</li>
+            <li>NOはa接点、NCはb接点と考えると整理しやすい</li>
           </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">NO / NCとは？</a>
+          <a href="#basic">基本の意味</a>
+          <a href="#ab-contact">a接点・b接点との関係</a>
+          <a href="#field-view">現場での見方</a>
+          <a href="#plc-view">PLC入力での見方</a>
+          <a href="#mistakes">間違えやすいポイント</a>
+          <a href="#summary">まとめ</a>
         </div>
       </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="what-is" class="card">
-            <h2 class="section-title">NO / NC とは？</h2>
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>NO / NCとは？</h2>
             <p>
-              NO / NC は、接点の状態を表す英語表記です。
-              NO は <strong>Normally Open</strong>、NC は <strong>Normally Closed</strong> の略です。
+              NO / NC は、接点の通常状態を表す英語表記です。NO は <span class="mark">Normally Open</span>、NC は <span class="mark">Normally Closed</span> の略です。
             </p>
             <p>
-              つまり、<strong>通常時に開いているか、閉じているか</strong> をそのまま表しています。
-              ここでいう通常時は、ボタンを押していない、コイルが入っていない、機器が動作していない状態です。
+              ここでいう通常状態とは、ボタンを押していない、リレーコイルが動作していない、センサが検出していないなど、接点が操作されていない状態のことです。
             </p>
 
-            <div class="image-box">
-              <figure>
-                <img src="../assets/images/no-nc-basic/no-nc-basic-01.png" alt="NOとNCの基本を比較した図。NOは通常開で押すと閉じ、NCは通常閉で押すと開くことを説明している。">
-                <figcaption>画像1：NO / NC の基本比較。まずは「通常時」と「動作時」の違いだけ見ればOKです。</figcaption>
-              </figure>
-            </div>
+            <figure class="article-figure">
+              <img src="../assets/images/no-nc-basic/no-nc-basic-01.png" alt="NOとNCの基本を比較した図。NOは通常開で動作すると閉じ、NCは通常閉で動作すると開くことを説明している。">
+              <figcaption>
+                NO / NC は、通常時に開いているか閉じているかで見分けます。まずは通常状態を基準にするのが大切です。
+              </figcaption>
+            </figure>
 
-            <div class="tip">
-              <strong>ポイント：</strong>
-              英語表記だけで覚えるよりも、「普段どうなっていて、押した時にどう変わるか」で見る方が現場では追いやすいです。
-            </div>
-          </section>
-
-          <section id="basic" class="card">
-            <h2 class="section-title">まずは基本の意味</h2>
-
-            <div class="info-grid">
-              <div class="info-card blue">
-                <h3>NO</h3>
-                <p>NO は <strong>Normally Open</strong> です。通常時は<strong>開</strong>で、押したり動作したりすると<strong>閉</strong>になります。</p>
-                <ul class="check-list">
-                  <li>普段は電気が流れない</li>
-                  <li>動作した時に電気が流れる</li>
-                  <li>「普段OFF → 動作でON」と考えると分かりやすい</li>
-                </ul>
-              </div>
-
-              <div class="info-card orange">
-                <h3>NC</h3>
-                <p>NC は <strong>Normally Closed</strong> です。通常時は<strong>閉</strong>で、押したり動作したりすると<strong>開</strong>になります。</p>
-                <ul class="check-list">
-                  <li>普段は電気が流れている</li>
-                  <li>動作した時に電気が切れる</li>
-                  <li>「普段ON → 動作でOFF」と考えると分かりやすい</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="warn">
-              <strong>混乱しやすい点：</strong>
-              ここでいう通常時は、設備全体の運転状態ではなく、接点そのものを操作していない状態を基準に考えます。
-            </div>
-          </section>
-
-          <section id="use-cases" class="card">
-            <h2 class="section-title">現場でよくある使い方</h2>
-            <p>
-              現場では、NO / NC は押しボタン、リレー・電磁接触器、PLC入力の見方などでよく出てきます。
-              名前だけで覚えるよりも、実際にどこで見るかを知っておくとかなり追いやすくなります。
-            </p>
-
-            <div class="image-box">
-              <figure>
-                <img src="../assets/images/no-nc-basic/no-nc-basic-02.png" alt="NOとNCがどこで使われるかを説明した図。押しボタン、リレー・電磁接触器、PLC入力の見方が整理されている。">
-                <figcaption>画像2：押しボタン、リレー・電磁接触器、PLC入力での見方をまとめた図です。</figcaption>
-              </figure>
-            </div>
-
-            <h3>1. 押しボタン</h3>
-            <p>
-              押しボタンでは、スタート側に NO、ストップ側に NC が使われることがあります。
-              スタートは押した時に信号を入れたいので NO が分かりやすく、ストップは押した時に切れる考え方になるので NC が使われることがあります。
-            </p>
-            <div class="warn">
-              <strong>注意：</strong>
-              ここは回路の作り方で変わるので、「必ずこの組み合わせ」と決めつけず、現物と回路を確認した方が安心です。
-            </div>
-
-            <h3>2. リレー・電磁接触器</h3>
-            <p>
-              リレーや電磁接触器では、接点に NO / NC の表記が付いていることがあります。
-              コイルがOFFの時は NO が開、NC が閉。コイルがONになると、NO が閉、NC が開に切り替わります。
-            </p>
-
-            <h3>3. PLC入力の見方</h3>
-            <p>
-              現場では、名称だけでなく<strong>押した時にPLC入力がどう変わるか</strong>を見るのが大事です。
-              たとえば、押したら入力がONになるなら NO っぽく、押したら入力がOFFになるなら NC っぽいと考えると整理しやすいです。
-            </p>
-          </section>
-
-          <section id="plc-view" class="card">
-            <h2 class="section-title">PLC入力ではどう見る？</h2>
-            <p>
-              PLCで確認する時は、接点の名前だけを追うよりも、<strong>普段の状態 → 操作した時の変化 → 回路と合っているか</strong> の3つをセットで見るのが基本です。
-            </p>
-
-            <div class="compare-list">
-              <div class="compare-item blue">
-                <h3>NOっぽい見方</h3>
-                <ul class="check-list">
-                  <li>普段は入力OFF</li>
-                  <li>押す / 動作する と入力ON</li>
-                  <li>例：スタート側、信号を入れたい入力</li>
-                </ul>
-              </div>
-
-              <div class="compare-item orange">
-                <h3>NCっぽい見方</h3>
-                <ul class="check-list">
-                  <li>普段は入力ON</li>
-                  <li>押す / 動作する と入力OFF</li>
-                  <li>例：停止側、監視側で使うことがある</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="tip">
-              <strong>現場での見方：</strong>
-              画面だけではなく、現物のボタンやリレーの状態も一緒に見てください。画面・現物・配線をセットで見ると切り分けしやすいです。
-            </div>
-          </section>
-
-          <section id="relation" class="card">
-            <h2 class="section-title">a接点・b接点との関係</h2>
-            <p>
-              NO / NC は、a接点・b接点とかなり近い考え方です。
-              ざっくり整理すると、次のように考えて大きくは問題ありません。
-            </p>
-
-            <div class="compare-list">
-              <div class="compare-item blue">
-                <h3>NO ≒ a接点</h3>
-                <p>通常開で、動作すると閉じる考え方です。</p>
-              </div>
-
-              <div class="compare-item orange">
-                <h3>NC ≒ b接点</h3>
-                <p>通常閉で、動作すると開く考え方です。</p>
-              </div>
-            </div>
-
-            <p>
-              ただ、最初は無理に全部一気に覚えなくても大丈夫です。
-              まずは <strong>NO / NC 単体で意味が分かること</strong> を優先した方が整理しやすいです。
-            </p>
-
-            <h3>よくある混乱</h3>
-            <ul class="check-list">
-              <li><strong>NO = ON ではない</strong> → NO は通常開です</li>
-              <li><strong>NC = 危ない接点ではない</strong> → 停止や監視でかなり重要です</li>
-              <li><strong>英語表記だけで止まらない</strong> → 通常時と動作時の変化で見る</li>
-            </ul>
-          </section>
-
-          <section id="summary" class="card">
-            <h2 class="section-title">まとめ</h2>
-            <p>
-              NO / NC は、制御を触り始めた時にかなりよく出てくる基本表記です。
-              まずは次の2つを押さえるのがおすすめです。
-            </p>
-
-            <div class="info-grid">
-              <div class="info-card blue">
-                <h3>NO</h3>
-                <p><strong>通常開</strong></p>
-              </div>
-              <div class="info-card orange">
-                <h3>NC</h3>
-                <p><strong>通常閉</strong></p>
-              </div>
-            </div>
-
-            <p>
-              そのあとに、押した時どう変わるか、PLC入力がどう変わるか、a接点・b接点とどうつながるかを見ていくとかなり追いやすくなります。
-            </p>
-
-            <div class="cta-box">
-              <h2 class="section-title">次に読むとつながりやすい記事</h2>
+            <div class="key-highlight">
+              <h3>最初は英語をそのまま読む</h3>
               <p>
-                NO / NC の次は、a接点・b接点と行き来しながら読むとかなり理解しやすくなります。
-                すでにある記事なら、入力と出力、自己保持回路、リミットスイッチも相性が良いです。
+                NO は Normally Open なので「通常開」、NC は Normally Closed なので「通常閉」です。略語だけで覚えるより、英語の意味とセットで見ると理解しやすくなります。
               </p>
-              <div class="cta-buttons">
-                <a class="btn btn-primary" href="../index.html#control">制御系記事一覧を見る</a>
+            </div>
+          </section>
+
+          <section class="section-card" id="basic">
+            <h2>基本の意味：NOは通常開、NCは通常閉</h2>
+            <p>
+              NO / NC の違いは、普段どうなっていて、押した時・動作した時にどう変わるかで判断します。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>NO：Normally Open</h3>
+                <p>
+                  通常時は開いています。押したり動作したりすると閉じます。現場では「普段OFF、動作でON」と考えると追いやすいです。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>NC：Normally Closed</h3>
+                <p>
+                  通常時は閉じています。押したり動作したりすると開きます。現場では「普段ON、動作でOFF」と考えると追いやすいです。
+                </p>
               </div>
             </div>
 
-                        <div class="related">
-              <h3>関連記事</h3>
-              <div class="related-grid">
-                <a class="related-item" href="a-contact-b-contact-basic.html"><img src="../assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-ogp.png" alt="a接点・b接点の記事サムネイル"><div><p class="related-item-title">a接点・b接点とは？</p><p class="related-item-desc">NO / NC とかなり近い考え方の基本。通常時と動作時の変化をやさしく整理した記事です。</p></div></a>
-                <a class="related-item" href="input-output-basic.html"><img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の記事サムネイル"><div><p class="related-item-title">入力と出力の違いとは？</p><p class="related-item-desc">制御を読む時の基本になる「入力」「出力」の違いを整理した記事です。</p></div></a>
-                <a class="related-item" href="self-hold-circuit.html"><img src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.png" alt="自己保持回路の記事サムネイル"><div><p class="related-item-title">自己保持回路とは？</p><p class="related-item-desc">接点の動きを回路で見る時につながりやすい基本回路です。</p></div></a>
-                <a class="related-item" href="limit-switch-basic.html"><img src="../assets/images/limit-switch-basic/limit-switch-basic-ogp.png" alt="リミットスイッチの記事サムネイル"><div><p class="related-item-title">リミットスイッチとは？</p><p class="related-item-desc">接点が切り替わって入力が変わる考え方を、現物寄りに理解しやすい記事です。</p></div></a>
+            <div class="field-highlight">
+              <h3>見分ける基準は「通常時」</h3>
+              <p>
+                NO / NC は、動作している瞬間だけで決めるものではありません。通常時に開いているならNO、通常時に閉じているならNCです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="ab-contact">
+            <h2>a接点・b接点との関係</h2>
+            <p>
+              日本語の現場では、NO / NC と同じ意味で a接点・b接点 という呼び方もよく使います。大まかには、NO = a接点、NC = b接点 と考えると整理しやすいです。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>英語表記</th>
+                    <th>日本語の呼び方</th>
+                    <th>通常時</th>
+                    <th>動作時</th>
+                    <th>覚え方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">NO</td>
+                    <td>a接点</td>
+                    <td>開いている</td>
+                    <td>閉じる</td>
+                    <td>普段OFF、動作でON</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">NC</td>
+                    <td>b接点</td>
+                    <td>閉じている</td>
+                    <td>開く</td>
+                    <td>普段ON、動作でOFF</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              図面や機器の説明では、NO / NC 表記と a接点・b接点 表記が混ざることがあります。表記が違っても、通常時の状態を見れば意味は追えます。
+            </p>
+
+            <div class="note-box">
+              <h3>表記が違っても見るところは同じ</h3>
+              <p>
+                NO / NC でも a接点・b接点 でも、まずは通常時に開いているか閉じているかを確認します。名前だけで暗記するより、動き方で覚える方が実務では使いやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-view">
+            <h2>押しボタン・リレー・センサでの見方</h2>
+            <p>
+              NO / NC は、押しボタン、リレー、電磁接触器、リミットスイッチ、近接センサなど、いろいろな機器で出てきます。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--field">
+                <h3>押しボタン</h3>
+                <p>
+                  NO接点は押すと導通します。NC接点は普段導通していて、押すと切れます。スタート・ストップ回路でよく出てきます。
+                </p>
               </div>
+              <div class="check-item check-item--important">
+                <h3>リレー・電磁接触器</h3>
+                <p>
+                  コイルが動作していない状態を通常時として見ます。コイルが入ると、NOは閉じ、NCは開きます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>リミットスイッチ</h3>
+                <p>
+                  レバーが押されていない状態を通常時として見ます。機械が当たった時に接点がどう変わるかを確認します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>センサ出力</h3>
+                <p>
+                  センサではNO/NC設定を切り替えられるものもあります。検出時にONするのか、検出時にOFFするのかを仕様で確認します。
+                </p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>NO / NC は、押した後だけじゃなくて「押す前にどうなっているか」を見ないと判断できないよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>通常時を基準にするから、NOが通常開でNCが通常閉なんですね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="plc-view">
+            <h2>PLC入力ではどう見る？</h2>
+            <p>
+              PLC入力を見る時は、入力モニタのON/OFFだけでNO / NCを決めないことが大切です。PLCに電圧が入っているかどうかと、接点そのものがNOかNCかは、分けて考える必要があります。
+            </p>
+
+            <div class="key-highlight">
+              <h3>PLCのON/OFF表示と接点種別は別で考える</h3>
+              <p>
+                入力モニタでX0がONになっているからNO、OFFだからNC、とは判断できません。どんな接点を通って電圧が入っているのか、現物・図面・配線をセットで確認します。
+              </p>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見方</th>
+                    <th>通常時</th>
+                    <th>動作時</th>
+                    <th>よくある例</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">NOっぽい動き</td>
+                    <td>PLC入力OFF</td>
+                    <td>PLC入力ON</td>
+                    <td>スタートボタン、検出時ONのセンサ</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">NCっぽい動き</td>
+                    <td>PLC入力ON</td>
+                    <td>PLC入力OFF</td>
+                    <td>停止ボタン、断線検知を考慮した監視信号</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              実務では、入力モニタ、端子台、現物の動作、図面の接点記号を合わせて確認します。どれか1つだけで判断すると、接点種別や配線の意味を取り違えることがあります。
+            </p>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>現場で間違えやすいポイント</h2>
+            <p>
+              NO / NC は基本用語ですが、実際の現場では「通常時」の取り方や、PLC入力表示との関係で混乱しやすいです。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>通常時を設備の停止状態と決めつける</h3>
+                <p>
+                  通常時は、接点が操作されていない状態です。設備全体が運転中か停止中かとは分けて考えます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>PLCのON/OFFだけでNO / NCを判断する</h3>
+                <p>
+                  PLC入力のON/OFFは、接点の種類だけでなく配線や電源の取り方にも左右されます。現物と図面を合わせて確認します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>NOは必ず安全、NCは必ず危険と考える</h3>
+                <p>
+                  NO / NC の選び方は回路の目的によります。停止系や監視系では、NCを使う意味が重要になることがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>a接点・b接点と別物として覚える</h3>
+                <p>
+                  基本的にはNOがa接点、NCがb接点です。表記が違っても通常時の状態を見れば整理できます。
+                </p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>停止系・安全系は必ず図面と仕様を確認</h3>
+              <p>
+                停止ボタンや安全に関わる信号は、断線時にどうなるか、異常時にどちら側へ倒すかが重要です。NO / NC の名前だけで判断せず、実際の回路と仕様を確認してください。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：NO / NCは通常時の状態で見分ける</h2>
+            <p>
+              NO は Normally Open、つまり通常時に開いている接点です。NC は Normally Closed、つまり通常時に閉じている接点です。
+            </p>
+            <p>
+              日本語の呼び方では、NOはa接点、NCはb接点と考えると整理しやすくなります。押しボタン、リレー、センサ、PLC入力を読む時も、まず通常時を決めて、動作時にどう変わるかを見ることが大切です。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                NOは「普段OFF、動作でON」、NCは「普段ON、動作でOFF」。a接点・b接点と同じ考え方で、通常時と動作時の変化を見れば現場でも追いやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="./a-contact-b-contact-basic.html">
+                <h3>a接点・b接点とは？</h3>
+                <p>NO / NC と合わせて覚えたい、a接点・b接点の基本と見分け方を整理します。</p>
+              </a>
+              <a class="related-card" href="./relay-basic.html">
+                <h3>リレーとは？</h3>
+                <p>コイルと接点の関係、NO / NC が切り替わる流れをやさしく整理します。</p>
+              </a>
+              <a class="related-card" href="./input-output-basic.html">
+                <h3>入力と出力の違いとは？</h3>
+                <p>PLC入力や出力を読むために必要な、信号の向きと役割を整理します。</p>
+              </a>
+              <a class="related-card" href="./push-button-switch-basic.html">
+                <h3>押しボタンスイッチとは？</h3>
+                <p>押しボタンの役割、NO / NC、スタート・ストップ回路での見方を整理します。</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
-          <div class="sticky">
-            <section class="side-card">
-              <h2 class="section-title">このページの要点</h2>
-              <ul>
-                <li>NO = Normally Open（通常開）</li>
-                <li>NC = Normally Closed（通常閉）</li>
-                <li>押した時にどう変わるかで見る</li>
-                <li>a接点・b接点ともつながる</li>
-              </ul>
-            </section>
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の流れ</h3>
+            <ul>
+              <li><a href="#what-is">NO / NCとは？</a></li>
+              <li><a href="#basic">基本の意味</a></li>
+              <li><a href="#ab-contact">a接点・b接点との関係</a></li>
+              <li><a href="#field-view">現場での見方</a></li>
+              <li><a href="#plc-view">PLC入力での見方</a></li>
+              <li><a href="#mistakes">間違えやすいポイント</a></li>
+              <li><a href="#summary">まとめ</a></li>
+            </ul>
+          </section>
 
-            <nav class="side-card" aria-label="記事内目次">
-              <h2>目次</h2>
-              <div class="toc">
-                <a href="#what-is">NO / NC とは？</a>
-                <a href="#basic">まずは基本の意味</a>
-                <a href="#use-cases">現場でよくある使い方</a>
-                <a href="#plc-view">PLC入力ではどう見る？</a>
-                <a href="#relation">a接点・b接点との関係</a>
-                <a href="#summary">まとめ</a>
-              </div>
-            </nav>
+          <section class="side-card">
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>NOはNormally Open</li>
+              <li>NCはNormally Closed</li>
+              <li>NOは通常開</li>
+              <li>NCは通常閉</li>
+              <li>NOはa接点、NCはb接点と整理しやすい</li>
+            </ul>
+          </section>
 
-            <section class="side-card">
-              <h3>次に読む候補</h3>
-              <ul>
-                <li><a href="a-contact-b-contact-basic.html">a接点・b接点とは？</a></li>
-                <li><a href="input-output-basic.html">入力と出力の違いとは？</a></li>
-                <li><a href="self-hold-circuit.html">自己保持回路とは？</a></li>
-              </ul>
-            </section>
-          </div>
+          <section class="side-card">
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./a-contact-b-contact-basic.html">a接点・b接点とは？</a></li>
+              <li><a href="./relay-basic.html">リレーとは？</a></li>
+              <li><a href="./input-output-basic.html">入力と出力の違いとは？</a></li>
+              <li><a href="./push-button-switch-basic.html">押しボタンスイッチとは？</a></li>
+            </ul>
+          </section>
         </aside>
       </div>
-
-      <p class="footer-note">
-        この記事は、電気工事士・制御初心者が現場で追いやすいことを優先して構成しています。
-      </p>
     </div>
   </main>
-  <script src="../assets/js/site-search.js" defer></script>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

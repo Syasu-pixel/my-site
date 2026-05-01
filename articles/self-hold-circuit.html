@@ -1,1426 +1,1570 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理</title>
-  <meta name="description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。起動PB・停止PB・Y0自己保持接点の流れ、基本回路の見方、自己保持しない時の確認ポイントまで、現場で追いやすい考え方で解説します。">
-  <meta name="robots" content="index,follow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理</title>
+  <meta name="description" content="自己保持回路とは何かを初心者向けにやさしく整理。起動ボタンを離しても運転が続く理由、停止ボタンで保持が切れる流れ、簡略ラダー例、自己保持しない時の確認ポイントを現場目線で解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/self-hold-circuit.html">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理">
-  <meta property="og:description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。起動PB・停止PB・Y0自己保持接点の流れ、基本回路の見方、自己保持しない時の確認ポイントまで、現場で追いやすい考え方で解説します。">
+  <meta property="og:title" content="自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理">
+  <meta property="og:description" content="自己保持回路の基本、起動ボタン・停止ボタン・自己保持接点のつながり、簡略ラダー例、確認ポイントを初心者向けに整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/self-hold-circuit.html">
-  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
-  <meta property="og:site_name" content="現場目線の工具ガイド">
-
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-hero.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="自己保持回路とは？まず最初に覚えたい基本回路｜電気工事士向けにやさしく整理">
-  <meta name="twitter:description" content="自己保持回路とは何かを、電気工事士向けにやさしく整理した入門記事です。">
-  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
+  <meta name="twitter:title" content="自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理">
+  <meta name="twitter:description" content="起動ボタンを離しても運転が続く理由、停止ボタンで保持が切れる流れを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/self-hold-circuit/self-hold-circuit-hero.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
 
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2a37;
-      --muted: #5b6777;
-      --line: #d9e0ea;
-      --accent: #1677ff;
-      --accent-soft: #eef5ff;
-      --green: #1f9d55;
-      --green-soft: #eaf8f0;
-      --orange: #f59e0b;
-      --orange-soft: #fff4df;
-      --danger: #e5484d;
-      --danger-soft: #fff1f2;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --header-h: 78px;
-      --content-w: 1120px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{text-decoration:none}
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{min-width:0}
+
+    .brand-title{
+      display:block;
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      display:block;
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{color:#94a3b8}
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{margin:0}
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-box-empty{
+      margin:8px 6px 4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/self-hold-circuit/self-hold-circuit-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{text-decoration:none}
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{min-width:0}
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{padding:20px}
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{margin-bottom:0}
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.8;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    button,input{
-      font:inherit;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
-    }
-    .brand a {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    main {
-      padding: 22px 0 64px;
-    }
-
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .breadcrumb span {
-      opacity: 0.7;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #fafdff 0%, #eef8f2 100%);
-      border: 1px solid #d7e9dd;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4.5vw, 40px);
-      line-height: 1.35;
-      letter-spacing: -0.02em;
-    }
-
-    .hero-lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 18px 0 0;
-    }
-
-    .audience-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-    }
-
-    .audience-card--good {
-      background: var(--green-soft);
-      border-color: #cfead8;
-    }
-
-    .audience-card--notyet {
-      background: var(--orange-soft);
-      border-color: #f7dcaa;
-    }
-
-    .audience-card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .audience-card ul {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--text);
-      font-size: 14px;
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    .summary-box {
-      margin-top: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
     }
 
-    .summary-box h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      line-height: 1.5;
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
     }
 
-    .summary-box p {
-      margin: 0;
-      font-size: 15px;
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    .jump-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .jump-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .content-wrap {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 20px;
-      align-items: start;
-      margin-top: 22px;
-    }
-
-    .article {
-      min-width: 0;
-    }
+    .simple-list,
+    .number-list{
+      margin:0;
+      padding-left:20px;
+    }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-bottom: 18px;
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .number-list li{
+      margin:12px 0 0;
+      font-size:15px;
+      line-height:1.85;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
-
-    .section-anchor {
-      scroll-margin-top: calc(var(--header-h) + 18px);
-    }
-
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 10px;
+
+    .caution-character-box{
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr);
+      gap:10px;
+      align-items:center;
     }
 
-    h2.section-title {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.45;
+    .caution-character{
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    h3 {
-      margin: 24px 0 10px;
-      font-size: 18px;
-      line-height: 1.55;
+    .caution-character img{
+      width:36px;
+      height:auto;
+      display:block;
+      object-fit:contain;
     }
 
-    p {
-      margin: 0 0 14px;
-      font-size: 15px;
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
     }
 
-    ul, ol {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 15px;
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
     }
 
-    li + li {
-      margin-top: 8px;
-    }
+    .talk-row--right{flex-direction:row-reverse}
 
-    .note {
-      border-left: 4px solid var(--green);
-      background: #f7fcf8;
-      padding: 14px 14px 14px 16px;
-      border-radius: 0 14px 14px 0;
-      margin: 14px 0;
-      font-size: 14px;
-      color: var(--text);
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .note.caution {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .guide-callout {
-      position: relative;
-      margin: 18px 0 20px;
-      padding-left: 58px;
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
     }
 
-    .guide-callout-body {
-      position: relative;
-      background: var(--danger-soft);
-      border-left: 4px solid var(--danger);
-      border-radius: 0 16px 16px 0;
-      padding: 15px 18px;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
     }
 
-    .guide-callout-character {
-      position: absolute;
-      left: -6px;
-      top: 50%;
-      width: 68px;
-      transform: translateY(-50%);
-      z-index: 2;
-      pointer-events: none;
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
     }
 
-    .guide-callout-character img {
-      width: 100%;
-      height: auto;
-      display: block;
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
     }
 
-    .guide-callout-label {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      margin: 0 0 6px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: #fff;
-      color: var(--danger);
-      border: 1px solid rgba(229, 72, 77, 0.22);
-      font-size: 12px;
-      line-height: 1.3;
-      font-weight: 800;
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
     }
 
-    .guide-callout-text {
-      margin: 0;
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.85;
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
     }
-
 
-    .point-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 10px;
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .point-card {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
-      background: #fff;
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
     }
 
-    .point-card h3 {
-      margin-top: 0;
-      font-size: 16px;
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .article-figure {
-      margin: 18px 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fbfdff;
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
-    .article-figure img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
     }
 
-    .article-figure figcaption {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
     }
 
-    .checklist {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
     }
 
-    .check-item {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      background: #fff;
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
     }
 
-    .faq-item + .faq-item {
-      margin-top: 12px;
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
     }
 
-    .faq-q {
-      font-weight: 800;
-      margin-bottom: 6px;
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .sidebar {
-      position: sticky;
-      top: calc(var(--header-h) + 12px);
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
     }
 
-    .side-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
-    }
+    tr:last-child td{border-bottom:none}
 
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
-      line-height: 1.5;
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
     }
 
-    .toc {
-      display: grid;
-      gap: 10px;
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
     }
 
-    .toc a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
     }
 
-    .cta-box {
-      border: 1px solid #d7e5ff;
-      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    .ladder-box{
+      margin:18px 0;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      background:#fbfdff;
+      padding:18px;
+      overflow:auto;
     }
 
-    .btn-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
+    .ladder-row{
+      display:grid;
+      grid-template-columns:64px minmax(620px,1fr);
+      gap:10px;
+      align-items:center;
+      margin:10px 0;
+      font-size:14px;
+      font-weight:800;
+      color:#334155;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid transparent;
+    .ladder-label{
+      color:#1d4ed8;
+      font-weight:900;
     }
 
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
+    .ladder-line{
+      border:1px solid #cbdced;
+      background:#fff;
+      border-radius:14px;
+      padding:12px 14px;
+      white-space:nowrap;
+      font-family:"Yu Gothic",Meiryo,sans-serif;
     }
 
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: #cfe0ff;
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .related-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 12px;
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .related-card {
-      display: block;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .related-thumb {
-      aspect-ratio: 16 / 9;
-      background: linear-gradient(135deg, #eef5ff 0%, #e7f8ef 100%);
-      border-bottom: 1px solid var(--line);
-      position: relative;
-    }
+    .side-card a{font-weight:800}
 
-    .related-thumb span {
-      position: absolute;
-      left: 14px;
-      bottom: 12px;
-      display: inline-flex;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.92);
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--accent);
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .related-body {
-      padding: 14px;
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
     }
 
-    .related-title {
-      margin: 0 0 8px;
-      font-size: 15px;
-      line-height: 1.55;
-      font-weight: 800;
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 
-    .related-desc {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
     }
 
-    .footer-nav {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
     }
 
-    .site-footer {
-      padding: 28px 0 42px;
-      color: var(--muted);
-      font-size: 13px;
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
     }
 
-    .top-link {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 999;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(31, 42, 55, 0.92);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-      font-size: 18px;
-      font-weight: 800;
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
     }
 
-    @media (max-width: 980px) {
-      .content-wrap {
-        grid-template-columns: 1fr;
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .sidebar {
-        position: static;
-      }
-
-      .related-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .guide-callout {
-        padding-left: 0;
-      }
-
-      .guide-callout-character {
-        position: static;
-        width: 58px;
-        transform: none;
-        margin: 0 0 -8px 12px;
-      }
-
-      .guide-callout-body {
-        border-radius: 16px;
-        padding: 15px 16px;
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
     }
 
-    @media (max-width: 768px) {
-      main {
-        padding-top: 16px;
+    @media (max-width:900px){
+      :root{--header-h:74px}
+
+      html{scroll-padding-top:92px}
+
+      .site-header{padding:8px 10px}
+      .site-header-inner{gap:8px}
+      .brand-logo{height:42px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
       }
 
-      .hero {
-        padding: 18px;
-        border-radius: 20px;
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
       }
 
-      .audience-grid,
-      .point-grid {
-        grid-template-columns: 1fr;
+      .article-hero::before{
+        background:url("../assets/images/self-hold-circuit/self-hold-circuit-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
       }
 
-      .guide-callout {
-        margin: 16px 0 18px;
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
       }
 
-      .guide-callout-character {
-        width: 50px;
-        margin-left: 8px;
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
       }
 
-      .guide-callout-body {
-        padding: 14px 14px;
+      h1{font-size:30px}
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
       }
 
-      .guide-callout-label {
-        font-size: 11px;
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
       }
 
-      .guide-callout-text {
-        font-size: 13px;
-        line-height: 1.8;
+      .section-card{padding:22px}
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
       }
 
-      .card {
-        padding: 18px;
-        border-radius: 16px;
+      .talk-avatar img{width:66px}
+
+      .caution-character-box{
+        grid-template-columns:36px minmax(0,1fr);
+        gap:8px;
       }
 
-      h2.section-title {
-        font-size: 21px;
+      .caution-character img{width:30px}
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
       }
 
-      p, ul, ol {
-        font-size: 14px;
+      .article-hero::before{
+        background:url("../assets/images/self-hold-circuit/self-hold-circuit-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
       }
 
-      .jump-link {
-        width: 100%;
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
       }
 
-      .top-link {
-        right: 12px;
-        bottom: 12px;
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
       }
-}
-  
-    
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+      h1{font-size:34px}
 
-body{
-  padding-top:var(--header-h);
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
 
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{font-size:13px;line-height:1.65}
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      .breadcrumb{margin-top:14px}
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      .article-hero::before{
+        background:url("../assets/images/self-hold-circuit/self-hold-circuit-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      h1{font-size:28px}
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+      .hero-actions,
+      .btn{
+        width:100%;
+      }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+      .mini-toc{gap:8px}
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .section-card h2{font-size:20px}
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li,
+      .number-list li{
+        font-size:14px;
+      }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+      .talk-avatar img{width:60px}
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
-
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
-
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
-
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
-
-.search-result-item{
-  margin:0;
-}
-
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
-
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
-
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
-
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
-
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-
-
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-title{
-    white-space:nowrap;
-  }
-
-  .header-search{
-    flex:0 0 180px;
-  }
-}
-
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .ladder-row{
+        grid-template-columns:52px minmax(520px,1fr);
+        font-size:13px;
+      }
+    }
+  </style>
 </head>
-<body id="top">
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html#top" aria-label="工具ガイドTOPへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="工具ガイド">
+        <span class="brand-copy">
+          <span class="brand-title">工具ガイド</span>
+          <span class="brand-sub">電気工事士・制御盤の現場メモ</span>
+        </span>
+      </a>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a class="header-link" href="../index.html#featured">おすすめ</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+        <a class="header-link" href="../index.html#series">シリーズ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a>
-        <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
-        <span>›</span>
-        <span>自己保持回路とは？</span>
+        <a href="../index.html#top">トップ</a>
+        <span aria-hidden="true">/</span>
+        <a href="../index.html#category">回路</a>
+        <span aria-hidden="true">/</span>
+        <span>自己保持回路の基本</span>
       </nav>
 
-      <section class="hero">
-        <div class="hero-kicker">制御系の基本回路</div>
-        <h1>自己保持回路とは？<br>まず最初に覚えたい基本回路</h1>
-        <p class="hero-lead">
-          自己保持回路は、制御を見始めるとかなり早い段階で出てくる基本回路です。
-          最初は少し分かりにくいですが、考え方はそこまで難しくありません。
-          かんたんに言うと、<strong>起動ボタンで一度動かした出力を、自分の接点でもう一度つなぎ続ける回路</strong>です。
-          モータやポンプ、設備の運転回路でもよく出てきます。
-          現場では、新しく組む時よりも「なぜ保持しないのか」「なぜ止まるのか」を追う時に役立つことが多いです。
-        </p>
-
-        <div class="audience-grid">
-          <section class="audience-card audience-card--good" aria-labelledby="good-for">
-            <h2 id="good-for">向いている人</h2>
-            <ul>
-              <li>ラダー図を少し読み始めた人</li>
-              <li>モータや設備の起動回路を見たい人</li>
-              <li>起動ボタンを離しても動き続ける理由を知りたい人</li>
-              <li>自己保持しない時の見方を知りたい人</li>
-            </ul>
-          </section>
-
-          <section class="audience-card audience-card--notyet" aria-labelledby="notyet-for">
-            <h2 id="notyet-for">まだ不要な人</h2>
-            <ul>
-              <li>まずはラダー図全体の見方から整理したい人</li>
-              <li>細かい命令や応用制御を先に覚えたい人</li>
-              <li>今のところ制御盤や設備制御に触れる予定がほぼない人</li>
-            </ul>
-          </section>
-        </div>
-
-        <section class="summary-box">
-          <h2>先に結論</h2>
-          <p>
-            自己保持回路は、<strong>一度ONした出力を、自分の接点で保持する回路</strong>です。
-            起動のきっかけは起動PBですが、そのあと出力Y0がONすると、Y0の自己保持接点でも回路がつながり、起動PBを離しても運転が続きます。
-            逆に、停止PBや異常条件でその流れが切れると止まります。
-          </p>
-          <div class="jump-links" aria-label="記事内ジャンプ">
-            <a class="jump-link" href="#basic-idea">自己保持回路とは</a>
-            <a class="jump-link" href="#basic-circuit">基本回路の見方</a>
-            <a class="jump-link" href="#flow">動作の流れ</a>
-            <a class="jump-link" href="#trouble">自己保持しない時の見方</a>
+      <section class="article-hero" id="top">
+        <div class="article-hero-copy">
+          <span class="hero-label">回路の基本</span>
+          <h1>自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理</h1>
+          <p class="hero-lead">自己保持回路は、起動ボタンを一度押したあと、ボタンを離しても運転を続けるための基本回路です。停止ボタンで保持を切る流れまで、現場で追いやすい形で整理します。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">全体像を見る</a>
+            <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
           </div>
-        </section>
+        </div>
       </section>
 
-      <div class="guide-callout guide-callout--warning">
-        <div class="guide-callout-character" aria-hidden="true">
-          <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="先輩ちびキャラが指差しで注意点を案内">
+      <section class="top-summary" aria-label="この記事の要約">
+        <article class="summary-card summary-card--fit">
+          <h2>この記事が向いている人</h2>
+          <ul>
+            <li>自己保持回路の基本を最初から整理したい人</li>
+            <li>起動ボタンを離しても動き続ける理由を知りたい人</li>
+            <li>ラダー図で保持が切れる流れを確認したい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ深掘りしなくてよい人</h2>
+          <ul>
+            <li>a接点・b接点の違いをまだ整理していない人</li>
+            <li>入力と出力の違いをまだ見分けにくい人</li>
+            <li>まずは起動・停止回路から見たい人</li>
+          </ul>
+        </article>
+
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>自己保持は、出力自身の接点で運転を続ける考え方</li>
+            <li>起動ボタンは運転開始のきっかけ、保持接点が継続を担当する</li>
+            <li>停止ボタンや停止条件で保持を切って止める</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="この記事で分かること">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">全体像</a>
+          <a href="#flow">動作の流れ</a>
+          <a href="#ladder">簡略ラダー</a>
+          <a href="#start-stop">起動停止との違い</a>
+          <a href="#checkpoints">確認ポイント</a>
+          <a href="#related">関連記事</a>
         </div>
-        <div class="guide-callout-body">
-          <p class="guide-callout-label">ここ注意</p>
-          <p class="guide-callout-text">
-            自己保持回路は、起動したあとに「どの接点で回路をつなぎ続けているか」を先に見ると追いやすいです。
-            ボタンを押した瞬間だけでなく、押したあとも電気が回る道が残っているかを意識すると、止まる原因も見つけやすくなります。
-          </p>
-        </div>
-      </div>
+      </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="basic-idea" class="card section-anchor">
-            <div class="section-label">基本の考え方</div>
-            <h2 class="section-title">自己保持回路とは「一度つながった出力を自分でつなぎ続ける回路」です</h2>
-            <p>
-              自己保持回路は、起動ボタンを押した瞬間だけではなく、<strong>起動ボタンを離したあとも運転を続けたい時</strong>に使う基本回路です。
-            </p>
-            <p>
-              例えば、モータを回す、ポンプを動かす、設備の運転を開始するといった場面では、
-              ボタンをずっと押しっぱなしにしなくても動き続けてほしいことが多いです。
-              そのために使うのが自己保持です。
-            </p>
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>自己保持回路の全体像</h2>
+            <p>自己保持回路は、<span class="mark">起動ボタンを一度押したあと、ボタンを離しても運転を続ける</span>ための回路です。</p>
+            <p>起動ボタンだけで出力を動かすと、ボタンを離した瞬間に出力も切れてしまいます。そこで、運転出力がONしたあと、自分自身の接点を使って回路をつなぎ続けます。</p>
+            <p>この「自分の出力で自分を保持する」考え方が、自己保持回路の基本です。</p>
 
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>起動のきっかけがある</h3>
-                <p>最初は起動PBや入力信号がきっかけになって回路が通ります。</p>
-              </section>
-              <section class="point-card">
-                <h3>出力がONする</h3>
-                <p>条件がそろうとY0などの出力コイルがONします。</p>
-              </section>
-              <section class="point-card">
-                <h3>自分の接点で保持する</h3>
-                <p>Y0が入ると、Y0の自己保持接点も通るようになり、運転を続けます。</p>
-              </section>
-              <section class="point-card">
-                <h3>停止条件で切れる</h3>
-                <p>停止PBや異常条件で流れが切れると、自己保持も解除されます。</p>
-              </section>
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>自己保持は、制御回路のかなり基本です。起動ボタンを離しても動く理由は、運転出力の接点が回路をつなぎ続けているからです。</p>
+                </div>
+              </div>
+
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">新人</span>起動ボタンがずっと押されているわけじゃなくて、別の接点で運転を続けているんですね。</p>
+                </div>
+              </div>
             </div>
 
-            <div class="note">
-              最初は「自己保持」という言葉が難しく見えても、実際は
-              <strong>一度つながった回路を、自分の接点でもう一回つなぎ直している</strong>
-              と考えるとかなり分かりやすくなります。
+            <div class="key-highlight">
+              <h3>自己保持は「一度入った出力を、自分の接点で保持する」回路</h3>
+              <p>起動ボタンは運転開始のきっかけです。運転を続ける役割は、運転出力の自己保持接点が担当します。</p>
             </div>
           </section>
 
-          <section id="basic-circuit" class="card section-anchor">
-            <div class="section-label">図で見る</div>
-            <h2 class="section-title">基本回路は「停止 → 起動 → 出力 → 自己保持」の流れで見ると追いやすいです</h2>
-            <p>
-              自己保持回路を読む時は、部品をバラバラに覚えるより、まず<strong>どこでつながり、どこで保持しているか</strong>を見ると追いやすいです。
-            </p>
-            <p>
-              下の図では、停止PB、起動PB、Y0コイル、Y0自己保持接点の関係をまとめています。
-              まずはこの形を一つ覚えておくと、他のラダーを見た時もかなり読みやすくなります。
-            </p>
+          <section class="section-card" id="flow">
+            <h2>自己保持回路の動作の流れ</h2>
+            <p>自己保持回路は、起動、保持、停止の3段階で見ると分かりやすいです。</p>
+            <p>起動ボタンを押すと運転出力がONし、その運転出力の接点が並列に入って回路を保持します。停止ボタンを押すと、その保持回路が切れて運転出力がOFFします。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/self-hold-circuit/self-hold-circuit-basic-flow.png" alt="自己保持回路の基本図。停止PB、起動PB、Y0コイル、Y0自己保持接点の流れを示した図。">
-              <figcaption>図1：自己保持回路の基本イメージ。起動PBがきっかけになり、Y0が入るとY0自己保持接点でも通るようになります。</figcaption>
-            </figure>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. 起動ボタンを押す</h3>
+                <p>起動入力が入り、運転出力がONするきっかけになります。</p>
+              </div>
 
-            <h3>基本回路の見方</h3>
-            <ul>
-              <li><strong>X1 停止PB（b接点）</strong>：通常は通っています。押されたり異常条件が入ると切れる側です。</li>
-              <li><strong>X0 起動PB（a接点）</strong>：押した時だけ通ります。最初のきっかけです。</li>
-              <li><strong>Y0 コイル</strong>：条件がそろうとONする出力です。</li>
-              <li><strong>Y0 自己保持接点（a接点）</strong>：Y0がONするとこの接点も通り、起動PBを離しても保持します。</li>
-            </ul>
+              <div class="check-item check-item--field">
+                <h3>2. 運転出力がONする</h3>
+                <p>出力がONすると、運転状態を作ります。接触器やPLC出力などにつながります。</p>
+              </div>
 
-            <div class="note">
-              最初は「X」「Y」の記号を全部気にしすぎなくても大丈夫です。
-              まずは <strong>停止側 → 起動側 → 出力 → 自己保持</strong> の流れで見れば十分追えます。
+              <div class="check-item">
+                <h3>3. 自己保持接点が入る</h3>
+                <p>運転出力自身の接点で回路をつなぎ、起動ボタンを離しても運転を続けます。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>4. 停止ボタンで保持を切る</h3>
+                <p>停止入力が入ると保持回路が切れ、運転出力がOFFします。</p>
+              </div>
             </div>
-          </section>
 
-          <section id="flow" class="card section-anchor">
-            <div class="section-label">順番で理解</div>
-            <h2 class="section-title">動作の流れを順番で見ると自己保持の意味が分かりやすいです</h2>
-
-            <h3>1. 停止条件がOKの状態</h3>
-            <p>
-              まず、停止PBや異常条件側が問題なく通っている状態です。
-              ここが切れていると、その先へ進めません。
-            </p>
-
-            <h3>2. 起動PBを押す</h3>
-            <p>
-              起動PBを押すと、起動のきっかけが入ります。
-              ここで回路が通り、Y0コイルまで流れがつながります。
-            </p>
-
-            <h3>3. Y0がONする</h3>
-            <p>
-              Y0コイルがONすると、出力が入ります。
-              この段階で設備が運転を始めるイメージです。
-            </p>
-
-            <h3>4. Y0自己保持接点も通る</h3>
-            <p>
-              Y0がONすると、Y0自己保持接点も通るようになります。
-              これで起動PBを離しても、Y0接点側から回路が保持されます。
-            </p>
-
-            <h3>5. 停止PBや異常条件で切れる</h3>
-            <p>
-              停止PBが押されたり、異常条件が入ったりすると、回路のどこかが切れます。
-              そうするとY0がOFFになり、自己保持接点も通らなくなって止まります。
-            </p>
-
-            <div class="note">
-              自己保持を理解する時は、
-              <strong>起動PBは最初のきっかけだけ</strong>、
-              <strong>その後はY0接点が引き継いで保持する</strong>
-              と考えるとかなり整理しやすいです。
-            </div>
-          </section>
-
-          <section id="stuck" class="card section-anchor">
-            <div class="section-label">つまずきやすい所</div>
-            <h2 class="section-title">よくあるつまずきは「どこで保持しているか」が見えていない時です</h2>
-            <p>
-              自己保持回路は基本回路ですが、最初はつまずきやすい所もあります。
-              特に「起動PBを離したらなぜ止まらないのか」「どこが自己保持接点なのか」が分かりにくいことが多いです。
-            </p>
-
-            <div class="checklist">
-              <div class="check-item">
-                <strong>自己保持接点がどれか分からない</strong><br>
-                並列で入っているY0接点が自己保持接点です。ここが保持の役目です。
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="補足する先輩ちびキャラ">
               </div>
-              <div class="check-item">
-                <strong>起動PBを離したら止まる理由が分からない</strong><br>
-                自己保持接点が通っていないと、起動PBを離した時点で回路が切れてしまいます。
-              </div>
-              <div class="check-item">
-                <strong>停止側のb接点が見落としやすい</strong><br>
-                停止PBや異常条件側が切れていると、そもそも保持以前に回路が通りません。
-              </div>
-              <div class="check-item">
-                <strong>実機とラダーを結びつけにくい</strong><br>
-                押しボタン、ランプ、リレー、接触器など実際の機器と合わせて見ると分かりやすいです。
+              <div>
+                <h3>保持しているのは起動ボタンではなく出力接点</h3>
+                <p>自己保持でよく混乱しやすいのは、起動ボタンが運転を続けているように見えてしまう点です。実際には、出力自身の接点が回路を保持しています。</p>
               </div>
             </div>
           </section>
 
-          <section id="trouble" class="card section-anchor">
-            <div class="section-label">実務で大事</div>
-            <h2 class="section-title">自己保持しない時は「どこで切れているか」を順番に確認すると追いやすいです</h2>
-            <p>
-              現場で多いのは「自己保持回路を組む」よりも、「自己保持しない」「押している間しか動かない」といった確認です。
-              そういう時は、いきなり全部を読もうとせず、<strong>どこで切れているかを順番に確認</strong>すると見やすいです。
-            </p>
+          <section class="section-card" id="ladder">
+            <h2>簡略ラダー例で見る自己保持回路</h2>
+            <p>自己保持回路をラダーで見ると、停止b接点の後に、起動a接点と自己保持接点が並列で入る形になります。</p>
+            <p>ここではメーカー画面を完全再現するのではなく、初心者が追いやすい概念図として整理します。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/self-hold-circuit/self-hold-circuit-trouble-check.png" alt="自己保持しない時の確認図。停止条件、起動条件、Y0出力、自己保持接点のどこで切れているかを確認する図。">
-              <figcaption>図2：自己保持しない時の確認ポイント。停止条件、起動条件、Y0出力、自己保持接点の順で見ると追いやすいです。</figcaption>
-            </figure>
-
-            <h3>確認の順番</h3>
-            <ol>
-              <li><strong>停止条件を見る</strong><br>停止PBや異常条件で切れていないか確認します。</li>
-              <li><strong>起動条件を見る</strong><br>起動PBや入力信号がちゃんと入っているか見ます。</li>
-              <li><strong>Y0出力を見る</strong><br>Y0が実際にONしているか、モニタや出力状態で確認します。</li>
-              <li><strong>自己保持接点を見る</strong><br>Y0接点が通っているか、保持の役目を果たしているか見ます。</li>
-            </ol>
-
-            <div class="note caution">
-              「押している間だけ動く」場合は、自己保持接点が通っていない、またはY0自体が入っていないことが多いです。
-              まずは <strong>出力Y0が本当にONしているか</strong> と <strong>Y0接点が通っているか</strong> を見ると絞りやすいです。
+            <div class="ladder-box" role="img" aria-label="自己保持回路の簡略ラダー例">
+              <div class="ladder-row">
+                <div class="ladder-label">起動</div>
+                <div class="ladder-line">[ X0 停止 b接点 ] ── [ X1 起動 a接点 ] ── ( Y0 運転出力 )</div>
+              </div>
+              <div class="ladder-row">
+                <div class="ladder-label">保持</div>
+                <div class="ladder-line">[ X0 停止 b接点 ] ── [ Y0 自己保持接点 ] ── ( Y0 運転出力 )</div>
+              </div>
             </div>
 
-            <p>
-              さらに言うと、トラブル時は<strong>動かしたい出力から逆に追う</strong>と見やすいです。
-              モータを回したいなら、そのモータに関係する出力から見て、そこへ来るまでの条件を逆に追っていく方が現場では早いことが多いです。
-            </p>
-          </section>
-
-          <section id="remember" class="card section-anchor">
-            <div class="section-label">ここだけ覚える</div>
-            <h2 class="section-title">最初はこの4つを押さえるとかなり追いやすくなります</h2>
-            <ol>
-              <li><strong>起動PBは最初のきっかけ</strong></li>
-              <li><strong>Y0が入ると、Y0自己保持接点も通る</strong></li>
-              <li><strong>起動PBを離しても、Y0接点で保持する</strong></li>
-              <li><strong>停止PBや異常条件でその流れが切れる</strong></li>
-            </ol>
-            <p>
-              これだけでも、自己保持回路の見方はかなり楽になります。
-              細かい命令や応用回路より先に、この基本形をしっかり見られるようになると後が楽です。
-            </p>
-          </section>
-
-          <section id="faq" class="card section-anchor">
-            <div class="section-label">よくある疑問</div>
-            <h2 class="section-title">自己保持回路でよくある疑問</h2>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 自己保持は必ず必要ですか？</div>
-              <p>A. 必ずではありません。押している間だけ動けばよい回路なら不要なこともあります。ただ、運転開始後も継続して動かしたい場合はよく使います。</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>記号例</th>
+                    <th>意味</th>
+                    <th>自己保持での役割</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-orange">X0</td>
+                    <td>停止ボタン b接点</td>
+                    <td>押された時に保持回路を切って停止する</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-blue">X1</td>
+                    <td>起動ボタン a接点</td>
+                    <td>運転出力をONする最初のきっかけになる</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Y0</td>
+                    <td>運転出力</td>
+                    <td>接触器、モータ、運転指令などを動かす出力</td>
+                  </tr>
+                  <tr>
+                    <td>Y0接点</td>
+                    <td>自己保持接点</td>
+                    <td>起動ボタンを離してもY0をONし続ける</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <div class="faq-item">
-              <div class="faq-q">Q. 自己保持とインターロックは同じですか？</div>
-              <p>A. 同じではありません。自己保持は「動き続けるため」の回路、インターロックは「同時動作を防ぐため」の回路として考えると分かりやすいです。</p>
-            </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 自己保持しない時はどこから見ればいいですか？</div>
-              <p>A. 停止条件、起動条件、Y0出力、Y0自己保持接点の順に見ると整理しやすいです。特にY0が本当にONしているかは早めに確認したいです。</p>
+            <div class="field-highlight">
+              <h3>現場では「起動入力」と「保持接点」を分けて見る</h3>
+              <p>一瞬だけ動いて止まる場合は、起動入力は入っていても、自己保持接点や保持条件が成立していない可能性があります。</p>
             </div>
           </section>
 
-          <section class="card">
-            <div class="section-label">関連記事</div>
-            <h2 class="section-title">次に読むとつながりやすい記事</h2>
-            <p>
-              自己保持回路の基本が見えてきたら、次はラダー全体の見方や、インターロック、PLCの役割へ広げると理解しやすいです。
-            </p>
+          <section class="section-card" id="start-stop">
+            <h2>起動・停止回路との違い</h2>
+            <p>起動・停止回路は、起動ボタンで動かし、停止ボタンで止める基本の考え方です。</p>
+            <p>自己保持回路は、その起動・停止回路に「起動ボタンを離しても運転を続ける仕組み」を加えたものとして見ると分かりやすいです。</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th>起動・停止回路</th>
+                    <th>自己保持回路</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">見るポイント</td>
+                    <td>起動と停止の条件</td>
+                    <td>起動後に運転を続ける保持条件</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">起動ボタンを離した後</td>
+                    <td>構成によっては止まる</td>
+                    <td>自己保持接点で運転を続ける</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">停止方法</td>
+                    <td>停止ボタンや停止条件で切る</td>
+                    <td>停止ボタンで保持を切って止める</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>自己保持は起動・停止回路の中核になる考え方</h3>
+              <p>設備の運転回路では、起動ボタン、停止ボタン、自己保持接点をセットで見る場面が多いです。ここを押さえると、インターロックやタイマー回路も追いやすくなります。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>自己保持しない時の確認ポイント</h2>
+            <p>自己保持回路でよくあるトラブルは、起動ボタンを押している間だけ動き、離すと止まってしまう状態です。</p>
+            <p>この場合は、起動入力だけでなく、自己保持接点、停止条件、出力状態を順番に確認します。</p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>起動入力は入っているか</h3>
+                <p>起動ボタンを押した時に、PLC入力やリレー入力がONしているか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>運転出力はONしているか</h3>
+                <p>起動条件が成立した時に、Y出力やリレー出力がONしているか確認します。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>自己保持接点が入っているか</h3>
+                <p>運転出力がONした後、その補助接点やラダー上の自己保持接点がONしているか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>停止条件が入ったままではないか</h3>
+                <p>停止ボタン、非常停止系の接点、異常停止条件などで保持が切れていないか確認します。</p>
+              </div>
+            </div>
+
+            <div class="danger-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="注意点を案内する先輩ちびキャラ">
+              </div>
+              <div>
+                <h3>安全回路とは分けて考える</h3>
+                <p>自己保持回路は運転を続けるための基本回路ですが、非常停止や安全リレーの代わりにはなりません。安全に関わる停止は、安全回路として別に考えます。</p>
+              </div>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="補足する先輩ちびキャラ">
+              </div>
+              <div>
+                <h3>一瞬動いて止まる時は保持を見る</h3>
+                <p>起動ボタンを押している間だけ動き、離すと止まる場合は、自己保持接点や保持条件が成立していない可能性が高いです。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい記事</h2>
+            <p>自己保持回路は、起動・停止回路、インターロック、正転・逆転、タイマー回路などにつながる基本です。関連する回路を順番に見ると、ラダーの流れを追いやすくなります。</p>
 
             <div class="related-grid">
-              <a class="related-card" href="ladder-reading.html">
-                <div class="related-thumb"><span>入口記事</span></div>
-                <div class="related-body">
-                  <p class="related-title">ラダー図の読み方入門</p>
-                  <p class="related-desc">ラダー図をどこから見ればいいか、a接点・b接点・自己保持の基本をやさしく整理した入口記事です。</p>
-                </div>
+              <a class="related-card" href="start-stop-circuit-basic.html">
+                <h3>起動・停止回路の基本</h3>
+                <p>起動ボタンと停止ボタンの基本的な考え方を整理できます。</p>
               </a>
 
               <a class="related-card" href="interlock-basic.html">
-                <div class="related-thumb"><span>使い分け</span></div>
-                <div class="related-body">
-                  <p class="related-title">インターロック回路とは？同時動作を防ぐ考え方</p>
-                  <p class="related-desc">自己保持と混ざりやすいインターロックの考え方を、初心者向けに整理します。</p>
-                </div>
+                <h3>インターロック回路の基本</h3>
+                <p>同時に動かしてはいけない回路の考え方につながります。</p>
               </a>
 
-              <a class="related-card" href="plc-basic.html">
-                <div class="related-thumb"><span>基本整理</span></div>
-                <div class="related-body">
-                  <p class="related-title">PLCとは何か？電気工事士向けにやさしく整理</p>
-                  <p class="related-desc">シーケンサの役割やリレー回路との違いを、現場目線で整理した入口記事です。</p>
-                </div>
+              <a class="related-card" href="forward-reverse-circuit-basic.html">
+                <h3>正転・逆転回路の基本</h3>
+                <p>自己保持とインターロックを組み合わせる代表例として見やすいです。</p>
               </a>
 
-              <a class="related-card" href="input-output-basic.html">
-                <div class="related-thumb"><span>基本整理</span></div>
-                <div class="related-body">
-                  <p class="related-title">入力と出力の違いとは？</p>
-                  <p class="related-desc">入力（X）と出力（Y）の違い、よくある機器の例、迷った時の見分け方をやさしく整理した記事です。</p>
-                </div>
+              <a class="related-card" href="reset-circuit-basic.html">
+                <h3>リセット回路の基本</h3>
+                <p>保持した状態を戻す考え方を整理できます。</p>
+              </a>
+
+              <a class="related-card" href="timer-circuit-basic.html">
+                <h3>タイマー回路の基本</h3>
+                <p>自己保持した後に時間条件を加える考え方へつながります。</p>
+              </a>
+
+              <a class="related-card" href="a-contact-b-contact-basic.html">
+                <h3>a接点・b接点の基本</h3>
+                <p>停止b接点、起動a接点の前提を確認できます。</p>
               </a>
             </div>
 
-            <div class="footer-nav">
-                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-primary" href="interlock-basic.html">インターロック回路を見る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
+        <aside class="side-rail" aria-label="記事の補足ナビゲーション">
           <section class="side-card">
-            <h2>この記事の流れ</h2>
-            <nav class="toc" aria-label="目次">
-              <a href="#basic-idea">自己保持回路とは</a>
-              <a href="#basic-circuit">基本回路の見方</a>
-              <a href="#flow">動作の流れ</a>
-              <a href="#stuck">よくあるつまずき</a>
-              <a href="#trouble">自己保持しない時の見方</a>
-              <a href="#remember">ここだけ覚える</a>
-              <a href="#faq">よくある疑問</a>
-            </nav>
-          </section>
-
-          <section class="side-card cta-box">
-            <h2>この記事で分かること</h2>
+            <h3>目次</h3>
             <ul>
-              <li>自己保持回路の基本</li>
-              <li>停止PB・起動PB・Y0の流れ</li>
-              <li>起動後に保持する仕組み</li>
-              <li>自己保持しない時の確認ポイント</li>
+              <li><a href="#overview">全体像</a></li>
+              <li><a href="#flow">動作の流れ</a></li>
+              <li><a href="#ladder">簡略ラダー</a></li>
+              <li><a href="#start-stop">起動停止との違い</a></li>
+              <li><a href="#checkpoints">確認ポイント</a></li>
             </ul>
-            <div class="btn-group">
-              <a class="btn btn-primary" href="#basic-circuit">基本回路を見る</a>
-              <a class="btn btn-secondary" href="#trouble">トラブル時の見方を見る</a>
-            </div>
           </section>
 
           <section class="side-card">
-            <h2>ひとこと</h2>
-            <p style="margin:0; font-size:14px; color:var(--muted);">
-              制御系は、難しく書くより、後から見た人でも追いやすいことの方が大事です。
-              自己保持もまずは「どこでつながり、どこで切れるか」で見ると理解しやすいです。
-            </p>
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>自己保持は出力自身の接点で運転を続ける考え方</li>
+              <li>起動ボタンは運転開始のきっかけ</li>
+              <li>停止ボタンや停止条件で保持を切る</li>
+              <li>安全回路とは役割を分けて考える</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>次に見る</h3>
+            <ul>
+              <li><a href="start-stop-circuit-basic.html">起動・停止回路</a></li>
+              <li><a href="interlock-basic.html">インターロック回路</a></li>
+              <li><a href="forward-reverse-circuit-basic.html">正転・逆転回路</a></li>
+            </ul>
           </section>
         </aside>
       </div>
@@ -1429,11 +1573,10 @@ body{
 
   <footer class="site-footer">
     <div class="container">
-      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+      <p>© 工具ガイド｜電気工事士・制御盤の現場メモ</p>
     </div>
   </footer>
 
-  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
   <script src="../assets/js/site-search.js" defer></script>
 </body>
 </html>

@@ -1,1450 +1,1551 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>交互運転回路とは？｜AとBを交互に動かす基本回路をやさしく解説</title>
-  <meta name="description" content="交互運転回路とは何かを、電気工事士・制御を始めた人向けにやさしく解説。GX Works3前提で、同じ役割の機器Aと機器Bを1回ごとに交互に動かす考え方、基本ラダー図、使いどころを分かりやすくまとめています。">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説</title>
+  <meta name="description" content="交互運転回路とは何かをPLC初心者向けにやさしく整理。押すたびにON/OFFを切り替える考え方、切替フラグの見方、簡略ラダー例、現場での使いどころを解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/alternate-operation-circuit-basic.html">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="電気工事士 工具・実務ガイド">
-  <meta property="og:title" content="交互運転回路とは？｜AとBを交互に動かす基本回路をやさしく解説">
-  <meta property="og:description" content="交互運転回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、AとBを交互に切り替えて動かす流れを分かりやすく解説します。">
+  <meta property="og:title" content="交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説">
+  <meta property="og:description" content="交互運転回路の基本を、押す→ON→もう一度押す→OFFの流れでやさしく整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/alternate-operation-circuit-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="交互運転回路とは？｜AとBを交互に動かす基本回路をやさしく解説">
-  <meta name="twitter:description" content="交互運転回路の基本を、現場で追いやすい考え方でやさしく整理。GX Works3前提で、AとBを交互に切り替えて動かす流れを分かりやすく解説します。">
+  <meta name="twitter:title" content="交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説">
+  <meta name="twitter:description" content="交互運転回路の基本を、押す→ON→もう一度押す→OFFの流れでやさしく整理します。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png">
-
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #5b6475;
-      --line: #d9e1ee;
-      --blue: #2563eb;
-      --blue-soft: #eaf2ff;
-      --green: #16a34a;
-      --green-soft: #ecfdf3;
-      --orange: #ea580c;
-      --orange-soft: #fff3eb;
-      --purple: #7c3aed;
-      --purple-soft: #f3e8ff;
-      --yellow: #f59e0b;
-      --yellow-soft: #fffbeb;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-      --header-h: 76px;
-      --content-w: 1180px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius:24px;
+      --header-h:76px;
+      --container:1180px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box;}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{font:inherit;}
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{text-decoration:underline;}
+
+    .container{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
     }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
 
-    * {
-      box-sizing: border-box;
+    .hero-lead{
+      margin:0;
+      max-width:37ch;
+      font-size:15px;
+      color:#334155;
     }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
 
-    html {
-      scroll-behavior: smooth;
+    .btn:hover{text-decoration:none;}
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:var(--blue-deep);}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{min-width:0;}
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{padding:20px;}
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{margin-bottom:0;}
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
     }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Yu Gothic UI", "Meiryo", sans-serif;
-      color: var(--text);
-      background: linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
-      line-height: 1.8;
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    button,input{
-      font:inherit;
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
     }
 
-    img {
-      max-width: 100%;
-      display: block;
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
     }
 
-    a {
-      color: var(--blue);
-      text-decoration: none;
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    a:hover {
-      opacity: 0.9;
+    .simple-list{
+      margin:0;
+      padding-left:20px;
     }
-    .page-wrap {
-      max-width: var(--content-w);
-      margin: 0 auto;
-      padding: 18px 16px 64px;
+
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
     }
 
-    .breadcrumbs {
-      margin: 8px 0 18px;
-      font-size: 13px;
-      color: var(--muted);
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
     }
 
-    .breadcrumbs a {
-      color: var(--muted);
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
     }
 
-    .hero {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      margin-bottom: 24px;
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
     }
 
-    .hero-inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(360px, 1fr);
-      gap: 24px;
-      padding: 28px;
-      align-items: center;
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
     }
 
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      margin-bottom: 14px;
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .hero h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.28;
-      letter-spacing: -0.02em;
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
-    .hero-lead {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 16px;
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
     }
 
-    .hero-points {
-      display: grid;
-      gap: 10px;
-      margin: 0 0 22px;
-      padding: 0;
-      list-style: none;
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
     }
 
-    .hero-points li {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-      background: #f8fbff;
-      border: 1px solid #e2ebfb;
-      font-size: 14px;
+    .talk-row--right{
+      flex-direction:row-reverse;
     }
 
-    .hero-points strong {
-      color: var(--text);
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.4;
-      border: 1px solid transparent;
-      text-align: center;
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
     }
 
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
     }
 
-    .btn-secondary {
-      background: var(--orange);
-      color: #fff;
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
     }
 
-    .hero-visual {
-      background: transparent;
-      border: 0;
-      border-radius: 0;
-      padding: 4px;
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
     }
 
-    .hero-visual-card {
-      background: transparent;
-      border: 0;
-      border-radius: 0;
-      overflow: visible;
-      box-shadow: none;
-      max-width: none;
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
     }
 
-    .hero-visual-card img {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      display: block;
-      aspect-ratio: auto;
-      object-fit: contain;
-      background: transparent;
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
     }
 
-    .hero-visual-caption {
-      padding: 0;
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-      border-top: 0;
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .intro-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
     }
 
-    .intro-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      padding: 18px;
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .intro-card h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      line-height: 1.4;
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
-    .intro-card ul,
-    .intro-card p {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--muted);
-      font-size: 14px;
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
     }
 
-    .intro-card p {
-      padding-left: 0;
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
     }
 
-    .intro-card--fit {
-      background: linear-gradient(180deg, #effcf5 0%, #ffffff 100%);
-      border-color: #ccefd9;
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
     }
 
-    .intro-card--wait {
-      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
-      border-color: #fed7aa;
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
     }
 
-    .intro-card--conclusion {
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-      border-color: #bfdbfe;
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
     }
 
-    .mini-toc {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 24px;
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .mini-toc h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
     }
 
-    .mini-toc-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    tr:last-child td{border-bottom:none;}
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
     }
 
-    .mini-toc-links a {
-      display: inline-flex;
-      min-height: 42px;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      background: #f8fbff;
-      border: 1px solid #dce8fb;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
     }
 
-    .content-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 24px;
-      align-items: start;
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .article {
-      min-width: 0;
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .section {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-      margin-bottom: 18px;
-      scroll-margin-top: 100px;
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .section h2 {
-      margin: 0 0 14px;
-      font-size: 26px;
-      line-height: 1.45;
-      letter-spacing: -0.01em;
+    .side-card a{
+      color:var(--blue-deep);
+      font-weight:800;
     }
 
-    .section h3 {
-      margin: 22px 0 10px;
-      font-size: 19px;
-      line-height: 1.5;
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .section p {
-      margin: 0 0 14px;
-      font-size: 15px;
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
     }
 
-    .section ul {
-      margin: 0 0 14px;
-      padding-left: 20px;
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 
-    .section li {
-      margin-bottom: 8px;
-      font-size: 15px;
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
     }
 
-    .point-box {
-      display: grid;
-      gap: 10px;
-      background: #f8fbff;
-      border: 1px solid #dce8fb;
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 16px;
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
     }
 
-    .point-box strong {
-      color: var(--blue);
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
     }
 
-    .comparison-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .comparison-card {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-      background: #fff;
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
     }
 
-    .comparison-card h3 {
-      margin-top: 0;
-      font-size: 17px;
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
 
-    .comparison-card--selfhold {
-      background: linear-gradient(180deg, #eef6ff 0%, #ffffff 100%);
-      border-color: #bfdbfe;
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
     }
+
+    .brand:hover{text-decoration:none;}
 
-    .comparison-card--alternate {
-      background: linear-gradient(180deg, #f3e8ff 0%, #ffffff 100%);
-      border-color: #d8b4fe;
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
     }
 
-    .figure-card {
-      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-      border: 1px solid #dbeafe;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-top: 18px;
+    .brand-copy{min-width:0;}
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
     }
 
-    .figure-card img {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      background: #eef4ff;
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
     }
 
-    .figure-card figcaption {
-      padding: 12px 14px 14px;
-      font-size: 13px;
-      color: var(--muted);
-      border-top: 1px solid #dbeafe;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .related-section {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-      margin-top: 12px;
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
     }
 
-    .related-section h2 {
-      margin: 0 0 14px;
-      font-size: 24px;
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
     }
 
-    .related-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
-    .related-item {
-      display: grid;
-      grid-template-columns: 110px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fff;
-      color: inherit;
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
     }
 
-    .related-thumb-wrap {
-      border-radius: 14px;
-      overflow: hidden;
-      background: #eef4ff;
-      border: 1px solid #dbeafe;
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
     }
 
-    .related-thumb {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
     }
+
+    .search-box-input::placeholder{color:#94a3b8;}
 
-    .related-title {
-      margin: 0 0 6px;
-      font-size: 15px;
-      font-weight: 800;
-      line-height: 1.5;
-      color: var(--text);
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .related-desc {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--muted);
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
     }
 
-    .sidebar {
-      position: sticky;
-      top: calc(var(--header-h) + 16px);
-      display: grid;
-      gap: 14px;
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
     }
 
-    .side-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      padding: 18px;
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      line-height: 1.4;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    .side-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 8px;
+    .search-result-item{margin:0;}
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
     }
 
-    .side-card li {
-      margin: 0;
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
     }
 
-    .side-card a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fbff;
-      border: 1px solid #dbeafe;
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1.6;
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
     }
 
-    .note-list {
-      display: grid;
-      gap: 10px;
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
     }
 
-    .note-item {
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #fff8e8;
-      border: 1px solid #fde7b0;
-      font-size: 13px;
-      color: #6b4f00;
-      line-height: 1.75;
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
     }
 
-    .footer-cta {
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-      border: 1px solid #bfdbfe;
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-top: 20px;
-      text-align: center;
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
     }
 
-    .footer-cta h2 {
-      margin: 0 0 10px;
-      font-size: 24px;
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .footer-cta p {
-      margin: 0 auto 16px;
-      max-width: 760px;
-      color: var(--muted);
-      font-size: 15px;
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
     }
+
+    @media (max-width:980px){
+      .brand-sub{display:none !important;}
+      .header-nav{display:none !important;}
 
-    @media (max-width: 960px) {
-.hero-inner,
-      .content-grid,
-      .intro-grid,
-      .comparison-grid,
-      .related-grid {
-        grid-template-columns: 1fr;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .sidebar {
-        position: static;
+      .brand{
+        min-width:0;
+        gap:8px;
       }
+
+      .brand-title{white-space:nowrap;}
+      .header-search{flex:0 0 180px;}
     }
 
-    @media (max-width: 768px) {
-      .page-wrap {
-        padding: 12px 12px 56px;
+    @media (max-width:900px){
+      :root{--header-h:74px;}
+
+      html{scroll-padding-top:92px;}
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
       }
 
-      .hero-inner,
-      .section,
-      .mini-toc,
-      .intro-card,
-      .related-section,
+      .article-hero::before{
+        background:url("../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{font-size:30px;}
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{grid-template-columns:1fr;}
+      .side-rail{grid-template-columns:1fr;}
+      .related-grid{grid-template-columns:1fr;}
+      .check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{width:66px;}
+    }
+
+    @media (max-width:768px){
+      .site-header{padding:8px 10px;}
+      .brand-logo{height:40px;}
+
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+
+      .search-box{padding:0 10px;}
+      .search-box-input{font-size:12px;}
+
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+
+      .talk-thread{max-width:none;}
+      .talk-bubble{max-width:none;}
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero::after{
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.72) 0%,
+            rgba(255,255,255,.48) 44%,
+            rgba(255,255,255,.18) 72%,
+            rgba(255,255,255,0) 100%
+          );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{font-size:34px;}
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{padding:20px 18px;}
+      .summary-card h2{font-size:17px;}
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr));}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      .container{width:min(100%,calc(100% - 20px));}
+      .breadcrumb{margin-top:14px;}
+      .mini-toc{gap:8px;}
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
       .side-card,
-      .footer-cta {
-        padding: 18px;
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
       }
 
-      .hero h1 {
-        font-size: 28px;
+      .section-card h2{font-size:20px;}
+
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{
+        font-size:14px;
       }
 
-      .hero-lead,
-      .section p,
-      .section li {
-        font-size: 14px;
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
       }
 
-      .hero-visual {
-        padding: 0;
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
       }
 
-      .section h2 {
-        font-size: 22px;
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
       }
 
-      .section h3 {
-        font-size: 17px;
-      }
-
-      .related-item {
-        grid-template-columns: 92px minmax(0, 1fr);
-        gap: 10px;
-      }
-
-      .mini-toc-links {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .mini-toc-links a {
-        width: 100%;
-      }
-}
-
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
-
-body{
-  padding-top:var(--header-h);
-}
-
-
-
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
-
-.brand:hover{
-  text-decoration:none;
-}
-
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
-
-.brand-copy{
-  min-width:0;
-}
-
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
-
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
-
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
-
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
-
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
-
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
-
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
-
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
-
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
-
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
-
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
-
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
-
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
-
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
-
-.search-result-item{
-  margin:0;
-}
-
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
-
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
-
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
-
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
-
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-
-
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-title{
-    white-space:nowrap;
-  }
-
-  .header-search{
-    flex:0 0 180px;
-  }
-}
-
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{width:60px;}
+    }
+  </style>
 </head>
 <body>
-    <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
-  <main class="page-wrap">
-    <nav class="breadcrumbs" aria-label="パンくずリスト">
-      <a href="../index.html">トップ</a> &gt;
-      <a href="../index.html#tips">使い方・基礎記事</a> &gt;
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">トップ</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">回路の基礎</a>
+      <span>›</span>
       <span>交互運転回路とは？</span>
     </nav>
 
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <span class="hero-kicker">CONTROL BASIC</span>
-          <h1>交互運転回路とは？<br>AとBを交互に動かす基本回路をやさしく解説</h1>
-          <p class="hero-lead">
-            交互運転回路は、同じ役割の機器Aと機器Bを1回ごとに交代で動かしたい時に使う基本回路です。
-            GX Works3を前提に、現場で追いやすい見方で整理しました。
+    <div class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">PLC BASIC</span>
+        <h1>交互運転回路とは？<br>押すたびにON/OFFが切り替わる基本の考え方</h1>
+        <p class="hero-lead">
+          交互運転回路は、押すたびにON/OFFを切り替えたり、AとBを順番に切り替えたりするための基本回路です。
+        </p>
+        <div class="hero-actions">
+          <a href="#basic" class="btn btn-primary">交互運転の基本を見る</a>
+          <a href="#ladder" class="btn btn-secondary">ラダー例を見る</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-summary">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>ワンショットや自己保持の次に覚える回路を探している人</li>
+          <li>押すたびにON/OFFを切り替える考え方を知りたい人</li>
+          <li>ポンプやファンの交互運転を読みたい人</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>PLCの入力・出力の意味がまだ分からない人</li>
+          <li>a接点・b接点の基本がまだ不安な人</li>
+          <li>まずは起動停止回路から確認したい人</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>交互運転は「前回と反対側へ切り替える」回路</li>
+          <li>切替フラグでON/OFFやA/Bを覚える</li>
+          <li>同時ON防止と切替タイミングの確認が大事</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mini-toc-card" id="toc">
+      <h2>この記事で分かること</h2>
+      <div class="mini-toc">
+        <a href="#basic">交互運転回路の基本</a>
+        <a href="#flow">動作の流れ</a>
+        <a href="#ladder">簡略ラダー例</a>
+        <a href="#field">現場での使い方</a>
+        <a href="#check">確認ポイント</a>
+      </div>
+    </div>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <div class="section-card" id="basic">
+          <h2>交互運転回路は「押すたびに切り替える」ための回路</h2>
+          <p>
+            交互運転回路は、入力が入るたびに状態を切り替える回路です。
+            シンプルに言うと、<span class="mark">1回押すとON、もう一度押すとOFF</span>のような動きを作ります。
+          </p>
+          <p>
+            設備では、AとBの機器を交代で動かしたい時にも使います。
+            たとえば、ポンプAとポンプBを1回ごとに交代で使い、片方だけに負担が偏らないようにする考え方です。
           </p>
 
-          <ul class="hero-points">
-            <li><strong>まず押さえたいこと：</strong> 1回目はA、次はB、その次はまたAというように、交代で使う考え方です。</li>
-            <li><strong>この記事で分かること：</strong> 交互運転回路の役割、切替フラグの見方、基本ラダーの考え方。</li>
-            <li><strong>向いている人：</strong> PLCを始めたばかりの人、少し実務寄りの回路を知りたい人。</li>
-          </ul>
+          <figure class="article-figure">
+            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-flow.png" alt="交互運転回路の基本動作イメージ図">
+            <figcaption>
+              押すたびに状態を切り替えたり、AとBを交代で動かしたりする考え方を整理した図です。
+            </figcaption>
+          </figure>
 
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#toc">先に要点を見る</a>
-            <a class="btn btn-secondary" href="#related">関連記事を見る</a>
-          </div>
-        </div>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>交互運転は「今どっちの状態か」を覚えて、次に反対へ切り替える回路だよ。</p>
+              </div>
+            </div>
 
-        <div class="hero-visual">
-          <div class="hero-visual-card">
-            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-flow.png" alt="交互運転回路の基本動作イメージ図" loading="eager" decoding="async">
-            <div class="hero-visual-caption">
-              AとBを1回ごとに交代で動かす。まずはこの流れで見ると、交互運転の考え方をつかみやすいです。
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>押すたびにON/OFFが変わるスイッチみたいな考え方ですね。</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="intro-grid" aria-label="導入まとめ">
-      <article class="intro-card intro-card--fit">
-        <h2>向いている人</h2>
-        <ul>
-          <li>PLCを始めたばかりの人</li>
-          <li>少し実務寄りの回路を知りたい人</li>
-          <li>ポンプやファンの2台切替の考え方を知りたい人</li>
-          <li>GX Works3で内部リレーの使い方を覚えたい人</li>
-        </ul>
-      </article>
-
-      <article class="intro-card intro-card--wait">
-        <h2>まだ不要な人</h2>
-        <ul>
-          <li>入力と出力の違いがまだ曖昧な人</li>
-          <li>a接点・b接点や自己保持回路がまだ不安な人</li>
-          <li>まずは単純な1出力回路から理解したい人</li>
-        </ul>
-      </article>
-
-      <article class="intro-card intro-card--conclusion">
-        <h2>先に結論</h2>
-        <p>
-          交互運転回路は、<strong>AとBを1回ごとに交代で動かすための基本回路</strong>です。
-          前回どちらを動かしたかを覚えておき、次は反対側を動かす考え方で見ると分かりやすいです。
-        </p>
-      </article>
-    </section>
-
-    <section class="mini-toc" id="toc">
-      <h2>この記事の見どころ</h2>
-      <div class="mini-toc-links">
-        <a href="#what">交互運転回路とは？</a>
-        <a href="#usage">どんな時に使う？</a>
-        <a href="#flow">基本動作</a>
-        <a href="#gxworks3">GX Works3での見方</a>
-        <a href="#basic-ladder">基本ラダーの見方</a>
-        <a href="#summary">まとめ</a>
-      </div>
-    </section>
-
-    <div class="content-grid">
-      <article class="article">
-        <section class="section" id="what">
-          <h2>交互運転回路とは？</h2>
+        <div class="section-card" id="flow">
+          <h2>基本の流れは「入力 → 状態を反転 → 出力切替」</h2>
           <p>
-            交互運転回路とは、<strong>同じ役割の機器Aと機器Bを、1回ごとに交互に動かす回路</strong>です。
-          </p>
-          <p>
-            たとえば現場では、ポンプAとポンプBを交互に使ったり、ファン2台を交互に回したりして、片方だけに負担が偏らないようにしたい時によく使います。
-          </p>
-          <p>
-            回路の考え方としては、<strong>前回どちらを動かしたかを覚えておいて、次は反対側を動かす</strong>という見方がいちばん分かりやすいです。
+            交互運転回路を見るときは、入力そのものよりも「切替フラグがどう変わるか」を追うと分かりやすくなります。
           </p>
 
-          <div class="point-box">
-            <div><strong>ポイント1：</strong> AとBを交代で使うための基本回路です。</div>
-            <div><strong>ポイント2：</strong> 内部リレーや切替フラグで「次はどちらを動かすか」を覚えます。</div>
-            <div><strong>ポイント3：</strong> 「同じ機器ばかり使わず、負担を分けるための回路」だと思うと分かりやすいです。</div>
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>1. 入力が入る</h3>
+              <p>押しボタン、完了信号、起動きっかけなどがONになります。</p>
+            </div>
+
+            <div class="check-item">
+              <h3>2. ワンショット化する</h3>
+              <p>押しっぱなしで何度も切り替わらないよう、一瞬の信号にすることがあります。</p>
+            </div>
+
+            <div class="check-item check-item--field">
+              <h3>3. 切替フラグを反転</h3>
+              <p>M0などの内部リレーで、ON/OFFやA/Bの状態を覚えます。</p>
+            </div>
+
+            <div class="check-item check-item--warning">
+              <h3>4. 出力を切り替える</h3>
+              <p>フラグの状態に応じて、Y0側かY1側などを選んで動かします。</p>
+            </div>
           </div>
-        </section>
 
-        <section class="section" id="usage">
-          <h2>どんな時に使うのか</h2>
-          <p>
-            交互運転回路は、<strong>同じ役割の機器を偏らず使いたい時</strong>に向いています。
-          </p>
+          <div class="key-highlight">
+            <h3>ワンショットとの関係</h3>
+            <p>
+              押しボタンを押している間ずっと切替条件がONだと、回路が意図せず何度も反転することがあります。
+              そのため、交互運転ではワンショット信号と組み合わせると考えやすいです。
+            </p>
+          </div>
+        </div>
 
-          <h3>ポンプ2台を交互に使いたい時</h3>
+        <div class="section-card" id="ladder">
+          <h2>交互運転回路の簡略ラダー例</h2>
           <p>
-            片方のポンプばかり動かすと、使用時間に差が出ます。
-            そのため、A→B→A→Bのように交互に動かして負担を分けます。
-          </p>
-
-          <h3>ファン2台を交互に使いたい時</h3>
-          <p>
-            排気ファンや送風ファンでも、同じように交互運転の考え方が使えます。
-            設備っぽい回路としてかなりよく出ます。
+            ここでは、切替フラグM0を使って、出力Y0とY1を交互に選ぶ考え方で見ます。
           </p>
 
-          <h3>予備機をうまく活かしたい時</h3>
-          <p>
-            同じ役割の2台があるなら、片方を完全固定にするより、交互に使った方が状態の偏りを減らしやすいです。
-          </p>
-        </section>
-
-        <section class="section" id="flow">
-          <h2>交互運転回路の基本イメージ</h2>
-          <p>
-            一番基本のイメージはこれです。
-          </p>
-          <ul>
-            <li>1回目はAが動く</li>
-            <li>次の完了時に切替フラグを反転する</li>
-            <li>2回目はBが動く</li>
-            <li>次の完了時にまた反転する</li>
-            <li>3回目はAに戻る</li>
-          </ul>
-          <p>
-            つまり、<strong>AとBを切り替えるための記憶を1つ持つ</strong>ような考え方です。
-          </p>
-          <p>
-            この時によく使うのが、内部リレーです。
-            たとえば、
-          </p>
-          <ul>
-            <li>M0 = OFF の時はA側</li>
-            <li>M0 = ON の時はB側</li>
-          </ul>
-          <p>
-            というふうに決めておくと、かなり見やすくなります。
-          </p>
-
-          <figure class="figure-card">
-            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-flow.png" alt="交互運転回路の基本動作イメージ図" loading="lazy" decoding="async">
-            <figcaption>1回目はA、次はB、その次はまたA、という交代の流れを初心者向けに見やすく整理した図です。</figcaption>
-          </figure>
-        </section>
-
-        <section class="section" id="gxworks3">
-          <h2>GX Works3で見る時の考え方</h2>
-          <p>
-            GX Works3で見る時は、まず次の3つを見れば分かりやすいです。
-          </p>
-
-          <h3>1. 何が運転のきっかけか</h3>
-          <p>
-            スタート信号なのか、自動運転条件なのか、液面や圧力などの条件なのかを見ます。
-            まず入口条件が分からないと、なぜAかBが動いたのか追いにくくなります。
-          </p>
-
-          <h3>2. 切替フラグをどこで見ているか</h3>
-          <p>
-            交互運転では、内部リレーや切替ビットを使うことが多いです。
-            このフラグがA/Bのどちらを選んでいるかを見るのが大事です。
-          </p>
-
-          <h3>3. どのタイミングで切り替えているか</h3>
-          <p>
-            起動時に切り替えるのか、停止時に切り替えるのか、サイクル完了時に切り替えるのかで回路の意味が変わります。
-            最初は<strong>完了時に反転して次回を切り替える</strong>と考えると分かりやすいです。
-          </p>
-
-          <figure class="figure-card">
-            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ladder.png" alt="交互運転回路の基本ラダー図イメージ" loading="lazy" decoding="async">
-            <figcaption>GX Works3を意識した基本ラダーのイメージ。M0の状態でA/Bを切り替え、完了信号で次回の運転先を更新する見方がポイントです。</figcaption>
+          <figure class="article-figure">
+            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ladder.png" alt="交互運転回路の基本ラダー図イメージ">
+            <figcaption>
+              M0の状態でA/Bを切り替え、次回の運転先を更新する基本例です。実際の命令名やデバイス番号はPLC機種により変わります。
+            </figcaption>
           </figure>
 
-          <div class="point-box">
-            <div><strong>1：</strong> 運転条件がどこから入るかを見る</div>
-            <div><strong>2：</strong> 切替フラグがA/Bのどちらを選んでいるかを見る</div>
-            <div><strong>3：</strong> 完了後にフラグをどう更新しているかを見る</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>見るところ</th>
+                  <th>例</th>
+                  <th>意味</th>
+                  <th>確認ポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">切替フラグ</td>
+                  <td>M0</td>
+                  <td>今どちら側を選ぶかを覚える</td>
+                  <td>ON/OFFのどちらがA側かB側か確認する</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">出力選択</td>
+                  <td>Y0 / Y1</td>
+                  <td>M0の状態に応じて出力を分ける</td>
+                  <td>AとBが同時にONしない条件になっているか見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">切替タイミング</td>
+                  <td>完了信号・押しボタン</td>
+                  <td>次回のためにM0を反転する</td>
+                  <td>起動時に切替か、完了時に切替かを確認する</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </section>
 
-        <section class="section" id="basic-ladder">
-          <h2>基本ラダーの見方</h2>
-          <p>
-            基本形では、
-          </p>
-          <ul>
-            <li>M0がOFFならA側を動かす</li>
-            <li>M0がONならB側を動かす</li>
-            <li>完了信号でM0を反転する</li>
-          </ul>
-          <p>
-            という流れが分かりやすいです。
-          </p>
-          <p>
-            たとえば、
-          </p>
-          <ul>
-            <li>Y0 = 機器A</li>
-            <li>Y1 = 機器B</li>
-            <li>M0 = 交互運転フラグ</li>
-          </ul>
-          <p>
-            として見ると、
-          </p>
-          <ul>
-            <li>M0 OFF → A運転</li>
-            <li>M0 ON → B運転</li>
-          </ul>
-          <p>
-            という対応になります。
-          </p>
-          <p>
-            ここで大事なのは、<strong>出力の切替そのもの</strong>と<strong>次回のためのフラグ更新</strong>を分けて見ることです。
-          </p>
-        </section>
-
-        <section class="section" id="difference-selfhold">
-          <h2>自己保持回路との違い</h2>
-          <p>
-            交互運転回路は、自己保持回路と似ているようで役割が違います。
-          </p>
-
-          <div class="comparison-grid">
-            <article class="comparison-card comparison-card--selfhold">
-              <h3>自己保持回路</h3>
-              <ul>
-                <li>一度押したらそのまま動作を継続する</li>
-                <li>継続運転の考え方が中心</li>
-                <li>動き続けるための回路</li>
-              </ul>
-            </article>
-
-            <article class="comparison-card comparison-card--alternate">
-              <h3>交互運転回路</h3>
-              <ul>
-                <li>AとBのどちらを動かすかを切り替える</li>
-                <li>運転先の選択が中心</li>
-                <li>どちらを動かすか決める回路</li>
-              </ul>
-            </article>
+          <div class="note-box">
+            <h3>GX Works3で見るときの注意</h3>
+            <p>
+              交互運転の書き方は現場やPLC機種によって変わります。最初は「切替フラグ」「出力選択」「フラグ更新」の3つに分けて追うと理解しやすいです。
+            </p>
           </div>
-        </section>
+        </div>
 
-        <section class="section" id="caution">
-          <h2>注意したいポイント</h2>
-
-          <h3>AとBが同時に入らないようにする</h3>
+        <div class="section-card" id="field">
+          <h2>現場ではどんな場面で使う？</h2>
           <p>
-            交互運転のつもりでも、条件の組み方が甘いとA/Bが同時に入る形になることがあります。
-            ここはかなり注意したいところです。
+            交互運転回路は、同じ役割の機器を偏らず使いたい時や、押すたびに状態を変えたい時に使います。
           </p>
 
-          <h3>どのタイミングで切り替えるかを決める</h3>
-          <p>
-            起動のたびに切り替えるのか、完了時に切り替えるのかで意味が変わります。
-            設備に合わせて考え方を決める必要があります。
-          </p>
-
-          <h3>異常時の扱いは実機で追加されることが多い</h3>
-          <p>
-            基本記事ではシンプルにしていますが、実際の現場では
-            A異常ならB固定、B異常ならA固定、両方異常なら停止、といった条件が追加されることも多いです。
-          </p>
-        </section>
-
-        <section class="section" id="learn-next">
-          <h2>まずはこう覚えると分かりやすい</h2>
-          <p>
-            最初はこの形だけ覚えるとかなり楽です。
-          </p>
-          <ul>
-            <li>1回目はA</li>
-            <li>次はB</li>
-            <li>その次はA</li>
-            <li>切替は内部リレーで覚える</li>
+          <ul class="simple-list">
+            <li>ポンプAとポンプBを1回ごとに交互に動かす</li>
+            <li>ファン2台を交互に使って負担を分ける</li>
+            <li>押しボタン1つでON/OFFを切り替える</li>
+            <li>予備機を含めて運転順を切り替える</li>
+            <li>同じ機器ばかり動く偏りを減らす</li>
           </ul>
-          <p>
-            これが分かると、
-          </p>
-          <ul>
-            <li>ポンプ交互運転</li>
-            <li>ファン交互運転</li>
-            <li>予備機切替</li>
-            <li>偏り防止の回路</li>
-          </ul>
-          <p>
-            にもつながっていきます。
-          </p>
-        </section>
 
-        <section class="section" id="summary">
-          <h2>まとめ</h2>
-          <p>
-            交互運転回路とは、<strong>同じ役割の機器Aと機器Bを、1回ごとに交代で動かす基本回路</strong>です。
-          </p>
-          <p>
-            GX Works3で見る時も、
-          </p>
-          <ul>
-            <li>何がきっかけか</li>
-            <li>切替フラグをどこで見ているか</li>
-            <li>どのタイミングで次回へ切り替えているか</li>
-          </ul>
-          <p>
-            この順で追うと、かなり理解しやすいです。
-          </p>
-          <p>
-            最初は複雑な異常処理まで入れず、<strong>A/Bの切替だけをシンプルに追える基本形</strong>から覚えるのがおすすめです。
-          </p>
-        </section>
+          <div class="field-highlight">
+            <h3>実務では「どのタイミングで切り替えるか」を見る</h3>
+            <p>
+              起動した瞬間に切り替えるのか、停止した時に切り替えるのか、完了信号で切り替えるのかで意味が変わります。
+              実機の動きとラダーの切替位置をセットで確認します。
+            </p>
+          </div>
+        </div>
 
-        <section class="related-section" id="related">
-          <h2>あわせて見たい関連記事</h2>
+        <div class="section-card" id="check">
+          <h2>交互運転回路で確認したいポイント</h2>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>切替フラグはどれか</h3>
+              <p>M0など、A/BやON/OFFを覚えている内部リレーを探します。</p>
+            </div>
+
+            <div class="check-item">
+              <h3>何で切り替えているか</h3>
+              <p>押しボタン、完了信号、停止信号など、切替のきっかけを確認します。</p>
+            </div>
+
+            <div class="check-item check-item--field">
+              <h3>A/Bが同時に入らないか</h3>
+              <p>交互運転では、両方同時ONにならない条件作りが重要です。</p>
+            </div>
+
+            <div class="check-item check-item--warning">
+              <h3>異常時の扱い</h3>
+              <p>A異常ならB固定、B異常ならA固定など、実機では追加条件が入ることがあります。</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>切替だけ見て判断しない</h3>
+            <p>
+              交互運転は、切替フラグだけでなく安全条件・異常条件・手動/自動条件と組み合わせて使われます。
+              出力が入らない時は、切替フラグ以外の条件も一緒に確認します。
+            </p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2>関連記事</h2>
+          <p>
+            交互運転回路は、ワンショット・自己保持・タイマー・インターロックと組み合わせて見ると理解しやすくなります。
+          </p>
+
           <div class="related-grid">
-            <a class="related-item" href="start-stop-circuit-basic.html">
-              <div class="related-thumb-wrap">
-                <img class="related-thumb" src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.png" alt="起動・停止回路とは？の記事">
-              </div>
-              <div>
-                <p class="related-title">起動・停止回路とは？</p>
-                <p class="related-desc">交互運転の前提になる、運転の入り口と停止の考え方を整理したい時に見やすい関連記事です。</p>
-              </div>
+            <a class="related-card" href="one-shot-circuit-basic.html">
+              <h3>ワンショット回路とは？</h3>
+              <p>切替きっかけ信号の考え方を整理できます。</p>
             </a>
 
-            <a class="related-item" href="while-pressed-circuit-basic.html">
-              <div class="related-thumb-wrap">
-                <img class="related-thumb" src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ogp.png" alt="押している間だけ動く回路とは？の記事">
-              </div>
-              <div>
-                <p class="related-title">押している間だけ動く回路とは？</p>
-                <p class="related-desc">一時的な手動操作回路との違いを比べる時に見やすい関連記事です。</p>
-              </div>
+            <a class="related-card" href="self-hold-circuit.html">
+              <h3>自己保持回路とは？</h3>
+              <p>動作を保持する基本回路を先に確認できます。</p>
             </a>
 
-            <a class="related-item" href="one-shot-circuit-basic.html">
-              <div class="related-thumb-wrap">
-                <img class="related-thumb" src="../assets/images/one-shot-circuit-basic/one-shot-circuit-basic-ogp.png" alt="ワンショット回路とは？の記事">
-              </div>
-              <div>
-                <p class="related-title">ワンショット回路とは？</p>
-                <p class="related-desc">切替きっかけ信号の考え方も、あわせて見ると理解しやすくなります。</p>
-              </div>
+            <a class="related-card" href="start-stop-circuit-basic.html">
+              <h3>起動停止回路の基本</h3>
+              <p>運転の入口と停止条件を整理できます。</p>
             </a>
 
-            <a class="related-item" href="delayed-start-circuit-basic.html">
-              <div class="related-thumb-wrap">
-                <img class="related-thumb" src="../assets/images/delayed-start-circuit-basic/delayed-start-circuit-basic-ogp.png" alt="一定時間後に動く回路とは？の記事">
-              </div>
-              <div>
-                <p class="related-title">一定時間後に動く回路とは？</p>
-                <p class="related-desc">時間差をつけて動かす考え方も、設備回路ではあわせて使われやすいです。</p>
-              </div>
+            <a class="related-card" href="interlock-basic.html">
+              <h3>インターロック回路の基本</h3>
+              <p>A/B同時ONを防ぐ考え方につながります。</p>
+            </a>
+
+            <a class="related-card" href="timer-circuit-basic.html">
+              <h3>タイマー回路とは？</h3>
+              <p>時間を使った制御と組み合わせて理解できます。</p>
+            </a>
+
+            <a class="related-card" href="delayed-start-circuit-basic.html">
+              <h3>遅延起動回路とは？</h3>
+              <p>少し待ってから動かす基本回路です。</p>
             </a>
           </div>
-        </section>
 
-        <section class="footer-cta">
-          <h2>次に見るなら、実務寄りの回路を並べて覚えるのがおすすめです</h2>
-          <p>
-            交互運転回路は、起動・停止回路や遅延回路と並べて見ると役割の違いが分かりやすくなります。
-            1つずつ無理なく増やしていけば、設備回路の見え方がかなり変わってきます。
-          </p>
-          <div class="hero-actions" style="justify-content:center;">
-            <a class="btn btn-primary" href="start-stop-circuit-basic.html">起動・停止回路を見る</a>
-            <a class="btn btn-secondary" href="delayed-start-circuit-basic.html">一定時間後に動く回路を見る</a>
+          <div class="article-footer-nav">
+            <a href="../categories/circuit-basics.html" class="btn btn-secondary">回路の基礎一覧へ</a>
+            <a href="../index.html#category" class="btn btn-primary">カテゴリから探す</a>
           </div>
-        </section>
-      </article>
+        </div>
+      </div>
 
-      <aside class="sidebar" aria-label="右カラム">
-        <section class="side-card">
-          <h2>目次</h2>
+      <aside class="side-rail" aria-label="補足情報">
+        <div class="side-card">
+          <h3>この記事の要点</h3>
           <ul>
-            <li><a href="#what">交互運転回路とは？</a></li>
-            <li><a href="#usage">どんな時に使う？</a></li>
-            <li><a href="#flow">基本動作</a></li>
-            <li><a href="#gxworks3">GX Works3での見方</a></li>
-            <li><a href="#basic-ladder">基本ラダーの見方</a></li>
-            <li><a href="#summary">まとめ</a></li>
+            <li>交互運転は押すたびに状態を切り替える</li>
+            <li>切替フラグで今の状態を覚える</li>
+            <li>A/B同時ON防止が大事</li>
           </ul>
-        </section>
+        </div>
 
-        <section class="side-card">
-          <h2>この記事の要点</h2>
-          <div class="note-list">
-            <div class="note-item">交互運転回路は「AとBを1回ごとに交代で動かす」ための基本回路です。</div>
-            <div class="note-item">内部リレーや切替フラグで、次回どちらを動かすかを覚えます。</div>
-            <div class="note-item">まずはA/Bの切替だけをシンプルに追える基本形から見ると理解しやすいです。</div>
-          </div>
-        </section>
+        <div class="side-card">
+          <h3>読む順番</h3>
+          <ul>
+            <li><a href="#basic">交互運転の基本</a></li>
+            <li><a href="#flow">動作の流れ</a></li>
+            <li><a href="#ladder">ラダー例</a></li>
+            <li><a href="#field">現場での使い方</a></li>
+            <li><a href="#check">確認ポイント</a></li>
+          </ul>
+        </div>
+
+        <div class="side-card">
+          <h3>現場で見るところ</h3>
+          <ul>
+            <li>切替フラグ</li>
+            <li>切替のきっかけ</li>
+            <li>A/Bの出力条件</li>
+            <li>異常時の条件</li>
+          </ul>
+        </div>
       </aside>
     </div>
   </main>
-  <script src="../assets/js/site-search.js" defer></script>
+
+  <footer class="site-footer">
+    <p>© 電気と制御の実務メモ</p>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

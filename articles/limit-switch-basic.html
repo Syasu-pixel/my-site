@@ -1,1294 +1,1687 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>リミットスイッチとは？電気工事士向けにやさしく整理｜現場目線の制御入門</title>
-  <meta name="description" content="リミットスイッチとは何かを、電気工事士向けにやさしく整理した入門記事です。接触して検知する仕組み、PLC入力との関係、現場で見るポイント、近接センサとの違いまで分かりやすく解説します。">
-  <meta name="robots" content="index,follow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>リミットスイッチとは？仕組み・使い方・現場で見るポイントを整理 | 電気と制御の実務メモ</title>
+  <meta name="description" content="リミットスイッチとは何かを初心者向けにやさしく整理。物が接触して位置を検出する仕組み、PLC入力との関係、近接センサとの違い、現場で見るポイントまで分かりやすく解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/limit-switch-basic.html">
-
   <meta property="og:type" content="article">
-  <meta property="og:title" content="リミットスイッチとは？電気工事士向けにやさしく整理">
-  <meta property="og:description" content="リミットスイッチとは何かを、電気工事士向けにやさしく整理した入門記事です。接触して検知する仕組み、PLC入力との関係、現場で見るポイント、近接センサとの違いまで分かりやすく解説します。">
+  <meta property="og:title" content="リミットスイッチとは？仕組み・使い方・現場で見るポイントを整理">
+  <meta property="og:description" content="リミットスイッチの基本、接触して検出する仕組み、PLC入力との関係、近接センサとの違いを現場目線で整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/limit-switch-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/limit-switch-basic/limit-switch-basic-hero.png">
-  <meta property="og:site_name" content="現場目線の工具ガイド">
-
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="リミットスイッチとは？電気工事士向けにやさしく整理">
-  <meta name="twitter:description" content="リミットスイッチとは何かを、電気工事士向けにやさしく整理した入門記事です。">
+  <meta name="twitter:title" content="リミットスイッチとは？仕組み・使い方・現場で見るポイントを整理">
+  <meta name="twitter:description" content="リミットスイッチの仕組み、PLC入力との関係、近接センサとの違い、現場で見るポイントを整理。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/limit-switch-basic/limit-switch-basic-hero.png">
-
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2a37;
-      --muted: #5b6777;
-      --line: #d9e0ea;
-      --accent: #1f6bff;
-      --accent-soft: #edf4ff;
-      --green: #239b56;
-      --green-soft: #ebf8ef;
-      --orange: #f59e0b;
-      --orange-soft: #fff4df;
-      --danger: #e5484d;
-      --danger-soft: #fff1f2;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --header-h: 78px;
-      --content-w: 1120px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.8;
-      -webkit-text-size-adjust: 100%;
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
     }
 
-    button,input{
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
       font:inherit;
     }
-    img { max-width: 100%; display: block; }
-    a { color: inherit; text-decoration: none; }
 
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
-    }
-    .brand a {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    main { padding: 22px 0 64px; }
-
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
+    img{
+      max-width:100%;
+      display:block;
     }
 
-    .breadcrumb span { opacity: .7; }
-
-    .hero {
-      background: linear-gradient(135deg, #fbfdff 0%, #eef5ff 100%);
-      border: 1px solid #dbe7ff;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
     }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) 290px;
-      gap: 18px;
-      align-items: start;
+    a:hover{
+      text-decoration:underline;
     }
 
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
     }
 
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4.5vw, 40px);
-      line-height: 1.35;
-      letter-spacing: -.02em;
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
     }
 
-    .hero-lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
 
-    .hero-side {
-      background: rgba(255,255,255,.94);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
     }
 
-    .hero-side h2 {
-      margin: 0 0 10px;
-      font-size: 16px;
+    .brand:hover{
+      text-decoration:none;
     }
 
-    .hero-side ul {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 14px;
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
     }
 
-    .hero-side li + li { margin-top: 6px; }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-      margin: 18px 0 0;
+    .brand-copy{
+      min-width:0;
     }
 
-    .audience-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
     }
 
-    .audience-card--good {
-      background: var(--green-soft);
-      border-color: #cfead8;
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
     }
 
-    .audience-card--notyet {
-      background: var(--orange-soft);
-      border-color: #f7dcaa;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .audience-card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
     }
 
-    .audience-card ul {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 14px;
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
     }
 
-    .summary-box {
-      margin-top: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
-    .summary-box h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
     }
 
-    .summary-box p {
-      margin: 0;
-      font-size: 15px;
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
     }
 
-    .jump-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
     }
 
-    .jump-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 9px 13px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 13px;
-      font-weight: 700;
+    .search-box-input::placeholder{
+      color:#94a3b8;
     }
 
-    .content-wrap {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) 300px;
-      gap: 20px;
-      align-items: start;
-      margin-top: 22px;
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .article { min-width: 0; }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-bottom: 18px;
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
     }
 
-    .section-anchor {
-      scroll-margin-top: calc(var(--header-h) + 18px);
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
     }
 
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 10px;
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    h2.section-title {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.45;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    h3 {
-      margin: 24px 0 10px;
-      font-size: 18px;
-      line-height: 1.55;
+    .search-result-item{
+      margin:0;
     }
 
-    p {
-      margin: 0 0 14px;
-      font-size: 15px;
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
     }
 
-    ul, ol {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 15px;
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
     }
 
-    li + li { margin-top: 8px; }
-
-    .note {
-      border-left: 4px solid var(--accent);
-      background: #f8fbff;
-      padding: 14px 14px 14px 16px;
-      border-radius: 0 14px 14px 0;
-      margin: 14px 0;
-      font-size: 14px;
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
     }
 
-    .note.caution {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
     }
 
-    .article-figure {
-      margin: 18px 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fbfdff;
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
     }
 
-    .article-figure img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
     }
 
-    .article-figure figcaption {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .point-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-      margin-top: 12px;
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
     }
 
-    .point-card {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
-      background: #fff;
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
     }
 
-    .point-card h3 {
-      margin: 0 0 8px;
-      font-size: 17px;
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/limit-switch-basic/limit-switch-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
     }
 
-    .checklist {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
     }
 
-    .check-item {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      background: #fff;
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
     }
 
-    .faq-item + .faq-item { margin-top: 12px; }
-    .faq-q { font-weight: 800; margin-bottom: 6px; }
-
-    .sidebar {
-      position: sticky;
-      top: calc(var(--header-h) + 12px);
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
     }
 
-    .side-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
     }
 
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
     }
 
-    .toc {
-      display: grid;
-      gap: 10px;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
     }
 
-    .toc a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
     }
 
-    .btn-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
+    .btn:hover{
+      text-decoration:none;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 0 16px;
-      border-radius: 999px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid transparent;
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
     }
 
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
     }
 
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: #cfe0ff;
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
     }
 
-    .related-grid {
-      display: grid;
-      gap: 12px;
-      margin-top: 10px;
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
     }
 
-    .related-item {
-      display: grid;
-      grid-template-columns: 84px minmax(0,1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
     }
 
-    .related-item img {
-      width: 84px;
-      height: 56px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background: #f6f8fb;
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .related-item-title {
-      margin: 0 0 4px;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.5;
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .related-item-desc {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
+    .summary-card--fit h2{
+      color:#0f766e;
     }
 
-
-    .cta-box {
-      background: #f8fbff;
-      border-color: #d7e6ff;
+    .summary-card--notyet h2{
+      color:#b45309;
     }
 
-    .cta-box h2.section-title {
-      color: #123158;
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
     }
 
-    .footer-nav {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
     }
 
-    .site-footer {
-      padding: 28px 0 42px;
-      color: var(--muted);
-      font-size: 13px;
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
     }
 
-    .top-link {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 999;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(31,42,55,.92);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(15,23,42,.25);
-      font-size: 18px;
-      font-weight: 800;
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
 
-    @media (max-width: 980px) {
-.hero-grid, .content-wrap { grid-template-columns: 1fr; }
-      .sidebar { position: static; }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
     }
 
-    @media (max-width: 768px) {
-      main { padding-top: 16px; }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
 
-      .hero {
-        padding: 18px;
-        border-radius: 20px;
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .audience-grid,
-      .point-grid {
-        grid-template-columns: 1fr;
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
       }
 
-      .card {
-        padding: 18px;
-        border-radius: 16px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      h2.section-title { font-size: 21px; }
-
-      p, ul, ol { font-size: 14px; }
-
-      .jump-link { width: 100%; }
-
-      .btn { min- }
-
-      .related-item {
-        grid-template-columns: 72px minmax(0,1fr);
+      .brand{
+        min-width:0;
+        gap:8px;
       }
 
-      .related-item img {
-        width: 72px;
-        height: 48px;
+      .brand-title{
+        white-space:nowrap;
       }
 
-      .top-link {
-        right: 12px;
-        bottom: 12px;
+      .header-search{
+        flex:0 0 180px;
       }
-}
-  
-    
+    }
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
 
-body{
-  padding-top:var(--header-h);
-}
+      html{
+        scroll-padding-top:92px;
+      }
 
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
 
+      .article-hero::before{
+        background:url("../assets/images/limit-switch-basic/limit-switch-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+      h1{
+        font-size:30px;
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .section-card{
+        padding:22px;
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+      .talk-avatar img{
+        width:66px;
+      }
+    }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
+      }
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .brand-logo{
+        height:40px;
+      }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .search-box{
+        padding:0 10px;
+      }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+      .search-box-input{
+        font-size:12px;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .talk-thread,
+      .talk-bubble{
+        max-width:none;
+      }
+    }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
+      .article-hero::before{
+        background:url("../assets/images/limit-switch-basic/limit-switch-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
 
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
 
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
 
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
+      h1{
+        font-size:34px;
+      }
 
-.search-result-item{
-  margin:0;
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
 
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
+      .summary-card{
+        padding:20px 18px;
+      }
 
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
+      .summary-card h2{
+        font-size:17px;
+      }
 
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
 
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/limit-switch-basic/limit-switch-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
+      .breadcrumb{
+        margin-top:14px;
+      }
 
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
+      .mini-toc{
+        gap:8px;
+      }
 
-  .header-nav{
-    display:none !important;
-  }
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
+      .section-card h2{
+        font-size:20px;
+      }
 
-  .brand-title{
-    white-space:nowrap;
-  }
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
 
-  .header-search{
-    flex:0 0 180px;
-  }
-}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
 </head>
-<body id="top">
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a>
+        <a href="../index.html">ホーム</a>
         <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
+        <a href="../index.html#category">カテゴリ</a>
         <span>›</span>
         <span>リミットスイッチとは？</span>
       </nav>
 
-      <section class="hero">
-        <div class="hero-grid">
-          <div>
-            <div class="hero-kicker">入力機器の基礎</div>
-            <h1>リミットスイッチとは？<br>電気工事士向けにやさしく整理</h1>
-            <p class="hero-lead">
-              リミットスイッチは、<strong>物が実際に当たって動作する接触式の入力機器</strong>です。
-              近接センサや光電センサのように非接触で見るのではなく、物理的に当てて位置や端を取る時によく使います。
-              最初はシンプルに、
-              <strong>何が当たっているか / どこで動作するか / PLCへどう入るか</strong>
-              で見ると整理しやすいです。
-            </p>
-          </div>
-          <aside class="hero-side">
-            <h2>この記事で分かること</h2>
-            <ul>
-              <li>リミットスイッチの基本と役割</li>
-              <li>接触して検知する考え方</li>
-              <li>PLC入力との関係</li>
-              <li>現場で見るポイント</li>
-              <li>近接センサとの違い</li>
-            </ul>
-          </aside>
-        </div>
-
-        <div class="audience-grid">
-          <section class="audience-card audience-card--good">
-            <h2>向いている人</h2>
-            <ul>
-              <li>リミットスイッチの仕組みや使い方を基礎から理解したい人</li>
-              <li>近接センサとの違いを整理したい人</li>
-              <li>PLC入力との関係を知りたい人</li>
-              <li>制御系をこれから学びたい人</li>
-            </ul>
-          </section>
-
-          <section class="audience-card audience-card--notyet">
-            <h2>まだ不要な人</h2>
-            <ul>
-              <li>制御や設備にほとんど関わらない人</li>
-              <li>まずはPLCや入力・出力の全体像を優先したい人</li>
-              <li>型番比較だけを先に見たい人</li>
-            </ul>
-          </section>
-        </div>
-
-        <section class="summary-box">
-          <h2>先に結論</h2>
-          <p>
-            リミットスイッチは、<strong>物が当たってスイッチが動作し、PLCの入力（X）へ信号を送る接触式の機器</strong>です。
-            非接触で見る近接センサと違って、実際に当てて位置や端を取りたい時に使いやすいのが特徴です。
-            迷ったら、まず
-            <strong>「どの当たり方で動作するか」「取付位置は合っているか」「アクチュエータの向き」「PLC入力へ入っているか」</strong>
-            を見ると整理しやすいです。
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">入力機器の基礎</span>
+          <h1>リミットスイッチとは？<br>仕組み・使い方・現場で見るポイントを整理</h1>
+          <p class="hero-lead">
+            リミットスイッチは、物が実際に当たって動作する接触式の入力機器です。位置検出、端検出、PLC入力との関係、近接センサとの違いを現場目線で整理します。
           </p>
-
-          <div class="jump-links" aria-label="記事内ジャンプ">
-            <a class="jump-link" href="#basic">リミットスイッチとは</a>
-            <a class="jump-link" href="#flow">基本の流れ</a>
-            <a class="jump-link" href="#points">現場で見るポイント</a>
-            <a class="jump-link" href="#difference">近接センサとの違い</a>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
+            <a class="btn btn-secondary" href="#field-view">現場での見方を見る</a>
           </div>
-        </section>
+        </div>
       </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="basic" class="card section-anchor">
-            <div class="section-label">基本の考え方</div>
-            <h2 class="section-title">リミットスイッチは「物が当たって動作する」接触式のスイッチです</h2>
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>リミットスイッチの仕組みを基礎から知りたい人</li>
+            <li>接触式の検出機器を現場目線で整理したい人</li>
+            <li>PLC入力との関係や近接センサとの違いを知りたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>型式やメーカーごとの詳細仕様だけを調べたい人</li>
+            <li>安全スイッチやインターロック設計を専門的に詰めたい人</li>
+            <li>まずはPLC全体の基礎だけを先に見たい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>リミットスイッチは物が当たって動く接触式センサ</li>
+            <li>設備の端位置、原位置、到達確認でよく使う</li>
+            <li>見る時は当たり方、接点、配線、PLC入力をセットで確認する</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">リミットスイッチとは？</a>
+          <a href="#structure">仕組みと接点</a>
+          <a href="#plc-input">PLC入力との関係</a>
+          <a href="#proximity">近接センサとの違い</a>
+          <a href="#field-view">現場で見るポイント</a>
+          <a href="#mistakes">間違えやすいポイント</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>リミットスイッチとは？</h2>
             <p>
-              リミットスイッチは、機械やワークの一部がレバーやローラなどに当たることで接点が切り替わり、ON/OFF信号を出す機器です。
+              リミットスイッチとは、機械の一部やワークがレバー・ローラー・プランジャなどに接触することで動作するスイッチです。設備の端位置、原位置、到達確認などでよく使われます。
             </p>
             <p>
-              つまり、何かが近づいたことを非接触で見るのではなく、
-              <strong>実際に当たって動作している</strong>
-              のが大きな特徴です。
-            </p>
-
-            <div class="note">
-              最初は
-              <strong>「触って検知する」</strong>
-              <strong>「入力機器としてPLCへ信号を送る」</strong>
-              の2つを押さえると入りやすいです。
-            </div>
-          </section>
-
-          <section id="flow" class="card section-anchor">
-            <div class="section-label">流れで見る</div>
-            <h2 class="section-title">物が当たる → PLC入力 → 判断 → 出力の流れで見ると分かりやすいです</h2>
-            <p>
-              実務では、リミットスイッチだけで終わらず、
-              <strong>その信号がPLCへ入り、そのあと何が動くか</strong>
-              までセットで見ることが多いです。
-            </p>
-
-            <figure class="article-figure">
-              <img src="../assets/images/limit-switch-basic/limit-switch-basic-overview.png" alt="リミットスイッチの基本の流れ。物が当たり、リミットスイッチが動作し、PLC入力へ信号が入り、PLCが判断して出力が動く流れ。">
-              <figcaption>図1：リミットスイッチの基本の流れ。検知 → PLC入力 → 判断 → 出力 の流れで見ると追いやすいです。</figcaption>
-            </figure>
-
-            <ol>
-              <li>物や機械の一部が当たる</li>
-              <li>リミットスイッチ内部の接点が切り替わる</li>
-              <li>スイッチの信号がPLC入力（例：X0）へ入る</li>
-              <li>PLCが条件に応じて判断する</li>
-              <li>ランプや電磁弁などの出力が動く</li>
-            </ol>
-
-            <div class="note">
-              リミットスイッチはあくまで入力機器です。  
-              自分で機械を動かすのではなく、<strong>PLCへ状態を伝える役目</strong>です。
-            </div>
-          </section>
-
-          <section id="usage" class="card section-anchor">
-            <div class="section-label">よくある使い方</div>
-            <h2 class="section-title">端位置・扉開閉・シリンダ位置確認でよく使います</h2>
-            <p>
-              リミットスイッチは、物が確実に当たる位置を取りたい時に使いやすいです。たとえば次のような場面でよく見ます。
-            </p>
-
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>端位置確認</h3>
-                <p>シリンダが前進端・後退端まで来たかを見る時によく使います。</p>
-              </section>
-              <section class="point-card">
-                <h3>扉やカバーの開閉確認</h3>
-                <p>開いた・閉じた位置を物理的に取りたい時に使いやすいです。</p>
-              </section>
-              <section class="point-card">
-                <h3>原点検出</h3>
-                <p>装置の基準位置や初期位置を取る用途でも使われます。</p>
-              </section>
-              <section class="point-card">
-                <h3>確実に当てたい場面</h3>
-                <p>非接触より、実際に当たって確認したい時に向いています。</p>
-              </section>
-            </div>
-          </section>
-
-          <section id="points" class="card section-anchor">
-            <div class="section-label">現場での見方</div>
-            <h2 class="section-title">現場ではこの6つを見るとかなり整理しやすいです</h2>
-            <p>
-              リミットスイッチがうまく動かない時や、取付で迷う時は、まずこの6つを見ると原因を絞りやすいです。
+              近接センサや光電センサのように非接触で検出するのではなく、<span class="mark">実際に物が当たってスイッチが動く</span>のが大きな特徴です。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/limit-switch-basic/limit-switch-basic-points.png" alt="リミットスイッチを現場で見るポイント。どの当たり方で動作するか、取付位置、アクチュエータの向き、摩耗やガタ、接触式であること、近接センサとの違いを整理した図。">
-              <figcaption>図2：リミットスイッチを現場で見るポイント。ズレ・摩耗・当たり方を中心に見ると追いやすいです。</figcaption>
+              <img src="../assets/images/limit-switch-basic/limit-switch-basic-01.png" alt="リミットスイッチが物に当たって動作し、位置を検出する仕組みを説明した図">
+              <figcaption>
+                リミットスイッチは、物がレバーやローラーに当たることで内部接点が切り替わります。まずは「何が、どこに、どう当たるか」を見ると整理しやすいです。
+              </figcaption>
             </figure>
 
-            <div class="checklist">
-              <div class="check-item">
-                <strong>1. どの当たり方で動作するか</strong><br>
-                押す・レバーを押す・ローラで当てるなど、当たり方で動作が変わります。
-              </div>
-              <div class="check-item">
-                <strong>2. 取付位置は合っているか</strong><br>
-                物が確実に当たる位置か、行き過ぎていないかを確認します。
-              </div>
-              <div class="check-item">
-                <strong>3. アクチュエータの向き</strong><br>
-                レバーやローラの向きが動く方向と合っているかが大事です。
-              </div>
-              <div class="check-item">
-                <strong>4. 摩耗やガタはないか</strong><br>
-                接触式なので、使っていくうちに摩耗やズレが出ることがあります。
-              </div>
-              <div class="check-item">
-                <strong>5. 接触式であることを理解する</strong><br>
-                物に当たって動くので、衝撃が大きすぎたり高速すぎたりすると不安定になることがあります。
-              </div>
-              <div class="check-item">
-                <strong>6. PLC入力へ本当に入っているか</strong><br>
-                スイッチが動いていても、PLCの入力Xに入っていないことがあります。
-              </div>
-            </div>
-
-            <div class="note caution">
-              リミットスイッチは分かりやすい反面、接触式なので  
-              <strong>ズレ・摩耗・当たり不足</strong> が原因になりやすいです。  
-              現場では「当たり方」「取付位置」「入力モニタ」をセットで見たいです。
+            <div class="key-highlight">
+              <h3>接触して検出する入力機器</h3>
+              <p>
+                リミットスイッチは、設備の動きを直接受けてON/OFFする入力機器です。接触するため、取り付け位置や当たり方が検出の安定性に大きく関係します。
+              </p>
             </div>
           </section>
 
-          <section id="difference" class="card section-anchor">
-            <div class="section-label">違いを整理</div>
-            <h2 class="section-title">近接センサとの違いは「接触か、非接触か」で見ると分かりやすいです</h2>
+          <section class="section-card" id="structure">
+            <h2>仕組みと接点の見方</h2>
             <p>
-              リミットスイッチと近接センサは、どちらも位置や有無を取りたい時に出てきますが、考え方ははっきり違います。
+              リミットスイッチの中には接点があり、外部から力が加わると接点の状態が変わります。機種によって、a接点、b接点、NO、NCの表記が使われます。
             </p>
 
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>リミットスイッチ</h3>
-                <p>接触して検知します。物に実際に当てて、端位置や動作位置を確実に取りたい時に向いています。</p>
-              </section>
-              <section class="point-card">
-                <h3>近接センサ</h3>
-                <p>非接触で検知します。金属などが近づいたことを見たい時に使いやすいです。</p>
-              </section>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>操作部</h3>
+                <p>
+                  レバー、ローラー、プランジャなど、物が当たる部分です。当たり方や戻り方が悪いと検出が不安定になります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>内部接点</h3>
+                <p>
+                  操作部が動くことで接点が切り替わります。NO/NC、a接点/b接点のどちらを使っているかを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>配線</h3>
+                <p>
+                  どの接点をPLC入力へ入れているかを確認します。端子番号や図面と現物の配線を合わせて見ます。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>復帰</h3>
+                <p>
+                  当たりが外れた後に、レバーや接点が正常に戻るかも重要です。戻り不良は誤検出の原因になります。
+                </p>
+              </div>
             </div>
 
-            <p>
-              ざっくり分けると、
-            </p>
-            <ul>
-              <li>実際に当てて位置を取りたい → リミットスイッチ</li>
-              <li>近づいたことを非接触で見たい → 近接センサ</li>
-            </ul>
-            <p>
-              という整理にすると入りやすいです。
-            </p>
-          </section>
-
-          <section id="faq" class="card section-anchor">
-            <div class="section-label">よくある疑問</div>
-            <h2 class="section-title">リミットスイッチでよくある疑問</h2>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. リミットスイッチは入力ですか？</div>
-              <p>A. はい、基本は入力です。接触して得た状態をPLCへ伝える側だからです。</p>
-            </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 近接センサとどちらが良いですか？</div>
-              <p>A. どちらが良いかではなく、何をどう取りたいかで変わります。実際に当てて確実に位置を取りたいならリミットスイッチが向いています。</p>
-            </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 動いているのに設備が止まりません</div>
-              <p>A. スイッチの当たり方、接点の切り替わり、PLC入力X、ラダー条件を順に見ると整理しやすいです。</p>
+            <div class="note-box">
+              <h3>接点名だけで判断しない</h3>
+              <p>
+                a接点・b接点、NO・NCの表記だけでなく、実際に押した時にPLC入力がどう変わるかを確認すると、現場では間違いにくいです。
+              </p>
             </div>
           </section>
 
-          <section class="card cta-box">
-            <div class="section-label">関連記事</div>
-            <h2 class="section-title">次に読むとつながりやすい記事</h2>
+          <section class="section-card" id="plc-input">
+            <h2>PLC入力との関係</h2>
             <p>
-              リミットスイッチの基本が見えてきたら、次はセンサ全体・近接センサ・光電センサと合わせて読むと整理しやすいです。
+              リミットスイッチは、PLCの入力信号として使われることが多いです。スイッチが動作すると、PLC入力のXやIなどがON/OFFし、ラダー上の条件として使われます。
             </p>
 
-            <div class="footer-nav">
-                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            <figure class="article-figure">
+              <img src="../assets/images/limit-switch-basic/limit-switch-basic-02.png" alt="リミットスイッチの接点がPLC入力へ入り、ラダー条件として使われる流れを説明した図">
+              <figcaption>
+                リミットスイッチの接点信号は、PLC入力へ入り、ラダー上では前進端・後退端・原位置などの条件として使われます。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>確認すること</th>
+                    <th>よくある見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">現物側</td>
+                    <td>スイッチが正しく押されているか</td>
+                    <td>レバー、ローラー、当たり位置、戻り</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">配線側</td>
+                    <td>接点からPLC入力へ信号が入っているか</td>
+                    <td>端子台、断線、接点番号、電源</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC側</td>
+                    <td>入力モニタがON/OFFしているか</td>
+                    <td>GX Works3などでX入力を確認</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現物の動きとPLC入力をセットで見る</h3>
+              <p>
+                スイッチが押されているように見えても、PLC入力が変わっていなければ、接点・配線・入力ユニット側の確認が必要です。逆にPLC入力だけ見て、現物の当たり方を見落とさないようにします。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="proximity">
+            <h2>近接センサとの違い</h2>
+            <p>
+              リミットスイッチと近接センサは、どちらも設備の位置や有無を確認する入力機器ですが、検出の考え方が違います。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th>リミットスイッチ</th>
+                    <th>近接センサ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>検出方法</td>
+                    <td class="cell-blue">物が当たって検出</td>
+                    <td class="cell-green">非接触で検出</td>
+                  </tr>
+                  <tr>
+                    <td>見るポイント</td>
+                    <td>当たり位置、押し込み量、戻り</td>
+                    <td>検出距離、取付距離、金属の有無</td>
+                  </tr>
+                  <tr>
+                    <td>注意点</td>
+                    <td>機械的な摩耗やズレが出る</td>
+                    <td>距離や材質の影響を受ける</td>
+                  </tr>
+                  <tr>
+                    <td>よくある用途</td>
+                    <td>端位置、原位置、扉やカバーの確認</td>
+                    <td>金属ワーク検出、シリンダ位置検出など</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>リミットスイッチは「当たっているか」を見る</h3>
+              <p>
+                近接センサは距離や検出物の条件が重要ですが、リミットスイッチは物が正しく当たっているか、押し込みすぎていないか、戻っているかが重要です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-view">
+            <h2>現場で見るポイント</h2>
+            <p>
+              リミットスイッチを見る時は、電気的なON/OFFだけでなく、機械的に正しく押されているかを確認します。特に、当たり方と復帰は現場でよく見るポイントです。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>当たり位置</h3>
+                <p>
+                  レバーやローラーに対して、ワークや機械部品が正しい位置で当たっているかを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>押し込み量</h3>
+                <p>
+                  押し込みが浅いと検出しないことがあります。逆に押し込みすぎると破損や戻り不良の原因になります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>戻り</h3>
+                <p>
+                  当たりが外れた後に、レバーや接点が正常に戻るかを確認します。戻り不良は誤動作につながります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>入力モニタ</h3>
+                <p>
+                  PLC側で入力がON/OFFしているかを確認します。現物の動きと入力表示を同時に見ると切り分けしやすいです。
+                </p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>リミットスイッチは、PLC入力だけじゃなくて「本当に正しく当たっているか」を見るのが大事だよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>電気部品だけど、機械的な当たり方もかなり重要なんですね。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>手で押す確認は安全を見てから</h3>
+              <p>
+                リミットスイッチを手で押して確認する場合、設備が急に動く可能性があります。周囲の安全、挟まれ、干渉、運転モードを確認してから作業してください。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>間違えやすいポイント</h2>
+            <p>
+              リミットスイッチはシンプルな機器ですが、現場では機械的なズレや接点の見方で迷いやすいです。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>PLC入力だけで判断する</h3>
+                <p>
+                  入力が入っていない時、接点や配線だけでなく、そもそもスイッチが正しく押されているかも確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>当たりすぎを見落とす</h3>
+                <p>
+                  強く押し込みすぎると、スイッチ破損や戻り不良につながることがあります。適切な当たり方が大切です。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>戻り不良を見落とす</h3>
+                <p>
+                  押した時は反応しても、戻りが悪いと次の動作で誤検出することがあります。復帰状態も確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>近接センサと同じ感覚で見る</h3>
+                <p>
+                  リミットスイッチは接触式です。距離だけでなく、接触方向、角度、押し込み量を確認します。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：リミットスイッチは接触して位置を確認する入力機器</h2>
+            <p>
+              リミットスイッチは、物が当たって動作する接触式の入力機器です。設備の端位置、原位置、扉やカバーの状態確認などでよく使われます。
+            </p>
+            <p>
+              現場で見る時は、当たり位置、押し込み量、戻り、接点、配線、PLC入力をセットで確認します。電気的なON/OFFだけではなく、機械的に正しく動いているかも合わせて見ることが大切です。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                リミットスイッチは「物が当たってON/OFFする入力機器」です。接触式なので、当たり方と戻り方を確認することが、安定した検出につながります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="./proximity-sensor-basic.html">
+                <h3>近接センサとは？</h3>
+                <p>リミットスイッチとの違いも押さえながら、非接触で金属などを検出する考え方を整理します。</p>
+              </a>
+              <a class="related-card" href="./sensor-basic.html">
+                <h3>センサーとは？</h3>
+                <p>設備の状態を検出する入力機器全体の考え方を、初心者向けに整理します。</p>
+              </a>
+              <a class="related-card" href="./input-output-basic.html">
+                <h3>入力と出力の違いとは？</h3>
+                <p>リミットスイッチの信号がPLC入力として扱われる流れを理解しやすくします。</p>
+              </a>
+              <a class="related-card" href="./plc-basic.html">
+                <h3>PLCとは？</h3>
+                <p>入力信号を受けて設備を制御するPLCの基本を整理します。</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
+        <aside class="side-rail" aria-label="補足情報">
           <section class="side-card">
-            <h2>この記事の流れ</h2>
-            <nav class="toc" aria-label="目次">
-              <a href="#basic">リミットスイッチとは</a>
-              <a href="#flow">基本の流れ</a>
-              <a href="#usage">よくある使い方</a>
-              <a href="#points">現場で見るポイント</a>
-              <a href="#difference">近接センサとの違い</a>
-              <a href="#faq">よくある疑問</a>
-            </nav>
-          </section>
-
-          <section class="side-card">
-            <h2>この記事で分かること</h2>
+            <h3>この記事の流れ</h3>
             <ul>
-              <li>リミットスイッチの基本</li>
-              <li>接触して検知する意味</li>
-              <li>PLC入力との関係</li>
-              <li>現場で見るポイント</li>
-              <li>近接センサとの違い</li>
+              <li><a href="#what-is">リミットスイッチとは？</a></li>
+              <li><a href="#structure">仕組みと接点</a></li>
+              <li><a href="#plc-input">PLC入力との関係</a></li>
+              <li><a href="#proximity">近接センサとの違い</a></li>
+              <li><a href="#field-view">現場で見るポイント</a></li>
+              <li><a href="#mistakes">間違えやすいポイント</a></li>
+              <li><a href="#summary">まとめ</a></li>
             </ul>
-            <div class="btn-group">
-              <a class="btn btn-primary" href="#flow">基本の流れを見る</a>
-              <a class="btn btn-secondary" href="#points">現場で見るポイントを見る</a>
-            </div>
           </section>
 
           <section class="side-card">
-            <h2>ひとこと</h2>
-            <p style="margin:0; font-size:14px; color:var(--muted);">
-              リミットスイッチはシンプルで分かりやすいですが、接触式なのでズレや摩耗の影響を受けやすいです。  
-              現場では「当たり方」「取付位置」「入力の確認」が大事です。
-            </p>
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>リミットスイッチは接触式</li>
+              <li>物が当たって接点が切り替わる</li>
+              <li>PLC入力として使われることが多い</li>
+              <li>当たり位置と戻りを確認する</li>
+              <li>近接センサは非接触、リミットスイッチは接触</li>
+            </ul>
           </section>
 
           <section class="side-card">
-            <h2>関連記事</h2>
-            <div class="related-grid">
-              <a class="related-item" href="sensor-basic.html">
-                <img src="../assets/images/sensor-basic/sensor-basic-ogp.png" alt="センサとは何か？の記事">
-                <div>
-                  <p class="related-item-title">センサとは何か？</p>
-                  <p class="related-item-desc">センサ全体の役割や種類をやさしく整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="proximity-sensor-basic.html">
-                <img src="../assets/images/proximity-sensor-basic/proximity-sensor-basic-ogp.png" alt="近接センサとは？の記事">
-                <div>
-                  <p class="related-item-title">近接センサとは？</p>
-                  <p class="related-item-desc">近接センサの基本や現場で見るポイントを整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="photoelectric-sensor-basic.html">
-                <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp.png" alt="光電センサとは？の記事">
-                <div>
-                  <p class="related-item-title">光電センサとは？</p>
-                  <p class="related-item-desc">光電センサの基本や光で検知する考え方を整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="input-output-basic.html">
-                <img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いの記事">
-                <div>
-                  <p class="related-item-title">入力と出力の違いとは？</p>
-                  <p class="related-item-desc">入力（X）と出力（Y）の違いを基礎から整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="plc-basic.html">
-                <img src="../assets/images/plc-basic/plc-basic-ogp.png" alt="PLCとは何か？の記事">
-                <div>
-                  <p class="related-item-title">PLCとは何か？</p>
-                  <p class="related-item-desc">PLCの役割や全体像を分かりやすく整理した入口記事です。</p>
-                </div>
-              </a>
-            </div>
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./proximity-sensor-basic.html">近接センサとは？</a></li>
+              <li><a href="./sensor-basic.html">センサーとは？</a></li>
+              <li><a href="./input-output-basic.html">入力と出力の違いとは？</a></li>
+              <li><a href="./plc-basic.html">PLCとは？</a></li>
+            </ul>
           </section>
         </aside>
       </div>
@@ -1297,11 +1690,10 @@ body{
 
   <footer class="site-footer">
     <div class="container">
-      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+      <p>© 電気と制御の実務メモ. All rights reserved.</p>
     </div>
   </footer>
 
-  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
-  <script src="../assets/js/site-search.js" defer></script>
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

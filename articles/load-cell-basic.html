@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ロードセルとは？役割・使い方をやさしく整理 | 電気工事士の制御入門</title>
-  <meta name="description" content="ロードセルとは何かを、現場目線でやさしく整理。力や重さを電気信号に変える仕組み、タンク計量・ホッパー計量・押し付け荷重確認での使い方、指示計やPLCとのつながりを初心者向けに分かりやすくまとめました。">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ロードセルとは？役割・使い方をやさしく整理 | 電気と制御の実務メモ</title>
+  <meta name="description" content="ロードセルとは何かを、電気工事士・制御初心者向けにやさしく整理。力や重さを電気信号に変える仕組み、タンク計量・ホッパー計量・押し付け荷重確認での使い方、指示計やPLCとのつながりまで解説します。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/load-cell-basic.html">
 
@@ -13,7 +13,7 @@
   <meta property="og:description" content="ロードセルの役割、どこで使うか、指示計や変換器とセットで見る考え方を現場目線でやさしく整理。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/load-cell-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/load-cell-basic/load-cell-basic-hero.png">
-  <meta property="og:site_name" content="電気工事士の現場目線ガイド">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
   <meta property="og:locale" content="ja_JP">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -21,1877 +21,1704 @@
   <meta name="twitter:description" content="ロードセルの基本、計量や荷重確認での使い方、指示計やPLCとのつながりを初心者向けに整理。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/load-cell-basic/load-cell-basic-hero.png">
 
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+
   <style>
-    :root {
-      --bg: #f3f7fb;
-      --card: #ffffff;
-      --text: #1f2d3d;
-      --muted: #607086;
-      --line: #dbe6f0;
-      --blue: #1f73c9;
-      --blue-dark: #1459a0;
-      --green: #43a047;
-      --green-dark: #2f7d32;
-      --orange: #f28c28;
-      --orange-dark: #b76812;
-      --red: #d9534f;
-      --shadow: 0 12px 30px rgba(31, 45, 61, 0.08);
-      --radius: 20px;
-      --header-h: 78px;
-      --content-w: 1180px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    * {
-      box-sizing: border-box;
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
     }
 
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: calc(var(--header-h) + 16px);
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
     }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(31, 115, 201, 0.06), transparent 28%),
-        radial-gradient(circle at top right, rgba(67, 160, 71, 0.05), transparent 24%),
-        linear-gradient(180deg, #f7fbff 0%, #f3f7fb 100%);
-      line-height: 1.8;
-    }
-
-    button,input{
+    button,
+    input{
       font:inherit;
     }
 
-    img {
-      display: block;
-      max-width: 100%;
+    img{
+      max-width:100%;
+      display:block;
     }
 
-    a {
-      color: var(--blue-dark);
-      text-decoration: none;
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
     }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
 
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/load-cell-basic/load-cell-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
-    .site-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
     }
 
-    .site-brand-badge {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--blue), #63a7ef);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 15px;
-      flex-shrink: 0;
-      box-shadow: 0 10px 22px rgba(31, 115, 201, 0.22);
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
     }
 
-    .site-brand-text {
-      min-width: 0;
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
     }
 
-    .site-brand-title {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.35;
-      letter-spacing: 0.01em;
-    }
-
-
-    .site-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .nav-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.4;
-      white-space: nowrap;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .nav-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .nav-btn-primary {
-      background: linear-gradient(135deg, var(--blue), #63a7ef);
-      color: #fff;
-      box-shadow: 0 10px 22px rgba(31, 115, 201, 0.2);
-    }
-
-    .nav-btn-secondary {
-      background: #eef5fb;
-      color: var(--blue-dark);
-      border: 1px solid #d7e6f5;
-    }
-
-    .page-wrap {
-      padding: 18px 0 72px;
-    }
-
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 10px;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-      margin: 6px 0 18px;
-    }
-
-    .breadcrumb span {
-      color: #9aacbf;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, rgba(31, 115, 201, 0.08), rgba(67, 160, 71, 0.05));
-      border: 1px solid #dceaf8;
-      border-radius: 28px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: auto -90px -90px auto;
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(242, 140, 40, 0.14), transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #e9f3ff;
-      color: var(--blue-dark);
-      border: 1px solid #d7e8fa;
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 14px;
-    }
-
-    .hero h1 {
-      margin: 0 0 14px;
-      font-size: clamp(30px, 4vw, 42px);
-      line-height: 1.22;
-      letter-spacing: 0.01em;
-    }
-
-    .hero-lead {
-      margin: 0 0 18px;
-      font-size: 16px;
-      color: #334155;
-    }
-
-    .hero-note {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      background: #fff;
-      border: 1px solid #e3edf6;
-      border-radius: 16px;
-      padding: 12px 14px;
-      color: var(--muted);
-      font-size: 14px;
-      box-shadow: 0 8px 18px rgba(31, 45, 61, 0.04);
-    }
-
-    .hero-note strong {
-      color: var(--text);
-    }
-
-    .hero-media {
-      background: #fff;
-      border: 1px solid #deebf7;
-      border-radius: 24px;
-      padding: 14px;
-      box-shadow: 0 16px 36px rgba(31, 45, 61, 0.08);
-    }
-
-    .hero-media img {
-      width: 100%;
-      border-radius: 18px;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      background: #f7fbff;
-    }
-
-    .top-panels {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .top-panel {
-      border-radius: 22px;
-      padding: 18px 18px 16px;
-      box-shadow: var(--shadow);
-      background: var(--card);
-      border: 1px solid var(--line);
-    }
-
-    .top-panel h2 {
-      margin: 0 0 10px;
-      font-size: 19px;
-      line-height: 1.4;
-    }
-
-    .top-panel ul,
-    .top-panel p {
-      margin: 0;
-      padding-left: 20px;
-      color: #334155;
-      font-size: 14px;
-      line-height: 1.9;
-    }
-
-    .top-panel p {
-      padding-left: 0;
-    }
-
-    .top-panel-fit {
-      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-      border-color: #d8e8f8;
-    }
-
-    .top-panel-fit h2 {
-      color: var(--blue-dark);
-    }
-
-    .top-panel-no {
-      background: linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
-      border-color: #f3d5d5;
-    }
-
-    .top-panel-no h2 {
-      color: #c93c3c;
-    }
-
-    .top-panel-conclusion {
-      background: linear-gradient(180deg, #fff 0%, #fff8ef 100%);
-      border-color: #f6dfc0;
-    }
-
-    .top-panel-conclusion h2 {
-      color: var(--orange-dark);
-    }
-
-    .top-panel-conclusion p strong {
-      color: #9b5208;
-    }
-
-    .article-layout {
-      margin-top: 24px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
-      gap: 24px;
-      align-items: start;
-    }
-
-    .article-main {
-      min-width: 0;
-    }
-
-    .article-section {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 26px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
-    }
-
-    .article-section h2 {
-      margin: 0 0 14px;
-      font-size: 28px;
-      line-height: 1.35;
-      letter-spacing: 0.01em;
-    }
-
-    .article-section h3 {
-      margin: 24px 0 10px;
-      font-size: 21px;
-      line-height: 1.45;
-      color: var(--blue-dark);
-    }
-
-    .article-section p {
-      margin: 0 0 14px;
-      font-size: 16px;
-      color: #334155;
-    }
-
-    .article-section ul,
-    .article-section ol {
-      margin: 0 0 14px;
-      padding-left: 24px;
-      color: #334155;
-      font-size: 16px;
-    }
-
-    .article-section li + li {
-      margin-top: 6px;
-    }
-
-    .article-section p:last-child,
-    .article-section ul:last-child,
-    .article-section ol:last-child,
-    .article-section .info-grid:last-child,
-    .article-section .scene-grid:last-child,
-    .article-section .article-figure:last-child {
-      margin-bottom: 0;
-    }
-
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: #eaf4ff;
-      color: var(--blue-dark);
-      border: 1px solid #d7e7f8;
-      font-size: 12px;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    .mini-lead {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .article-figure {
-      margin: 18px 0 0;
-      background: #f8fbfe;
-      border: 1px solid #dfeaf5;
-      border-radius: 22px;
-      padding: 14px;
-    }
-
-    .article-figure img {
-      width: 100%;
-      border-radius: 16px;
-      background: #fff;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-    }
-
-    .article-figure figcaption {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .info-card {
-      border-radius: 20px;
-      padding: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
+    .main-column{
+      min-width:0;
     }
 
-    .info-card h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
     }
 
-    .info-card p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.8;
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
     }
 
-    .info-card-blue {
-      background: linear-gradient(180deg, #fff 0%, #f5faff 100%);
-      border-color: #d7e6f6;
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
     }
 
-    .info-card-blue h3 {
-      color: var(--blue-dark);
+    .side-card{
+      padding:20px;
     }
 
-    .info-card-green {
-      background: linear-gradient(180deg, #fff 0%, #f4fbf4 100%);
-      border-color: #d7ecd8;
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
     }
 
-    .info-card-green h3 {
-      color: var(--green-dark);
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
     }
 
-    .info-card-orange {
-      background: linear-gradient(180deg, #fff 0%, #fff8f2 100%);
-      border-color: #f3dfcb;
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
     }
 
-    .info-card-orange h3 {
-      color: var(--orange-dark);
+    .section-card p:last-child{
+      margin-bottom:0;
     }
 
-    .scene-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 18px;
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
     }
 
-    .scene-card {
-      border-radius: 20px;
-      padding: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      box-shadow: 0 8px 20px rgba(31, 45, 61, 0.04);
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
     }
 
-    .scene-card h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
     }
 
-    .scene-card p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.8;
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    .scene-card-blue {
-      border-color: #d7e6f6;
-      background: linear-gradient(180deg, #fff 0%, #f5faff 100%);
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
     }
 
-    .scene-card-blue h3 {
-      color: var(--blue-dark);
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
     }
 
-    .scene-card-green {
-      border-color: #d7ecd8;
-      background: linear-gradient(180deg, #fff 0%, #f4fbf4 100%);
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
     }
 
-    .scene-card-green h3 {
-      color: var(--green-dark);
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
     }
 
-    .scene-card-orange {
-      border-color: #f3dfcb;
-      background: linear-gradient(180deg, #fff 0%, #fff8f2 100%);
+    .article-figure img{
+      width:100%;
+      height:auto;
     }
 
-    .scene-card-orange h3 {
-      color: var(--orange-dark);
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
     }
 
-    .check-list {
-      list-style: none;
-      padding: 0;
-      margin: 18px 0 0;
-      display: grid;
-      gap: 12px;
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
     }
 
-    .check-list li {
-      position: relative;
-      padding: 14px 14px 14px 48px;
-      border-radius: 18px;
-      background: #f8fbff;
-      border: 1px solid #dce9f7;
-      color: #334155;
-      font-size: 15px;
-      line-height: 1.8;
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
     }
 
-    .check-list li::before {
-      content: "✓";
-      position: absolute;
-      left: 16px;
-      top: 13px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: var(--blue);
-      color: #fff;
-      font-weight: 800;
-      font-size: 13px;
-      line-height: 1;
-      box-shadow: 0 8px 16px rgba(31, 115, 201, 0.2);
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
     }
 
-    .point-box {
-      border-radius: 22px;
-      padding: 18px;
-      background: linear-gradient(135deg, #f2f8ff, #ffffff);
-      border: 1px solid #dae8f6;
-      margin-top: 16px;
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .point-box h3 {
-      margin-top: 0;
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
-    .note-box {
-      border-left: 5px solid var(--orange);
-      background: #fff4e9;
-      border-radius: 18px;
-      padding: 16px 18px;
-      margin-top: 18px;
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
     }
 
-    .note-box p {
-      margin: 0;
-      font-size: 15px;
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
     }
 
-    .summary-box {
-      background: linear-gradient(135deg, #eaf5ff, #ffffff);
-      border: 1px solid #d7e8f8;
-      border-radius: 22px;
-      padding: 20px;
+    .talk-row--right{
+      flex-direction:row-reverse;
     }
 
-    .summary-box h2 {
-      margin-bottom: 12px;
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .cta-box {
-      background: linear-gradient(135deg, #f8fbff, #ffffff);
-      border: 1px solid #dbe8f4;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-top: 22px;
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
     }
 
-    .cta-box h2 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.4;
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
     }
 
-    .cta-box p {
-      margin: 0;
-      color: #445468;
-      font-size: 15px;
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
     }
 
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 16px;
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 800;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
     }
 
-    .btn-green {
-      background: linear-gradient(135deg, var(--green), #7ac77d);
-      color: #fff;
-      box-shadow: 0 10px 22px rgba(67, 160, 71, 0.2);
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
     }
 
-    .btn-orange {
-      background: linear-gradient(135deg, var(--orange), #f5b05d);
-      color: #fff;
-      box-shadow: 0 10px 22px rgba(242, 140, 40, 0.2);
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .related-section {
-      margin-top: 24px;
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
     }
 
-    .related-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .related-head h2 {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.35;
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
     }
 
-    .related-head p {
-      margin: 0;
-      font-size: 14px;
-      color: var(--muted);
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
     }
 
-    .related-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
     }
 
-    .related-item {
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
     }
 
-    .related-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 34px rgba(31, 45, 61, 0.11);
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
     }
 
-    .related-thumb-wrap {
-      background: linear-gradient(135deg, #f6fbff, #edf5fd);
-      padding: 12px;
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
     }
 
-    .related-thumb {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-radius: 16px;
-      background: #fff;
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .related-body {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
     }
 
-    .related-kicker {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: #eef5fb;
-      color: var(--blue-dark);
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.2;
+    tr:last-child td{
+      border-bottom:none;
     }
 
-    .related-title {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.5;
-      color: var(--text);
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
     }
 
-    .related-desc {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--muted);
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
     }
 
-    .article-side {
-      position: sticky;
-      top: calc(var(--header-h) + 14px);
-      display: grid;
-      gap: 14px;
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
     }
 
-    .side-card {
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
     }
 
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 19px;
-      line-height: 1.4;
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .toc-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 8px;
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .toc-list a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: #f7fbff;
-      border: 1px solid #e2edf7;
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.6;
-      font-weight: 700;
-      transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    .side-card a{
+      font-weight:800;
     }
 
-    .toc-list a:hover {
-      background: #edf6ff;
-      border-color: #d4e5f7;
-      transform: translateX(2px);
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
     }
 
-    .side-note-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 10px;
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
     }
 
-    .side-note-list li {
-      padding: 12px 12px 12px 42px;
-      position: relative;
-      border-radius: 16px;
-      background: #f8fbff;
-      border: 1px solid #e0ebf7;
-      color: #334155;
-      font-size: 14px;
-      line-height: 1.7;
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 
-    .side-note-list li::before {
-      content: "●";
-      position: absolute;
-      left: 16px;
-      top: 13px;
-      color: var(--blue);
-      font-size: 14px;
-      font-weight: 900;
-      line-height: 1;
+    .related-card-thumb{
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:1px solid #dbe6f1;
+      background:#fff;
     }
 
-    .side-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--blue), #63a7ef);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.4;
-      text-align: center;
-      box-shadow: 0 10px 22px rgba(31, 115, 201, 0.2);
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
     }
 
-    .footer {
-      margin-top: 34px;
-      padding-top: 20px;
-      border-top: 1px solid #dce7f2;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.8;
-      text-align: center;
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
     }
 
-    .scroll-top {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 1100;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: none;
-      background: linear-gradient(135deg, var(--blue), #63a7ef);
-      color: #fff;
-      font-size: 20px;
-      font-weight: 900;
-      box-shadow: 0 14px 28px rgba(31, 115, 201, 0.26);
-      cursor: pointer;
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
     }
 
-    .scroll-top:hover {
-      transform: translateY(-1px);
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
     }
 
-    @media (max-width: 1100px) {
-      :root {
-        --header-h: 74px;
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .hero-grid,
-      .article-layout,
-      .top-panels,
-      .info-grid,
-      .scene-grid,
-      .related-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .article-side {
-        position: static;
-      }
-
-      .hero {
-        padding: 22px;
-      }
-
-      .article-section {
-        padding: 22px;
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
     }
 
-    @media (max-width: 768px) {
-      :root {
-        --header-h: 86px;
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
       }
 
-      .container {
-        width: min(100% - 20px, var(--content-w));
-      }
-      .site-brand {
-        width: 100%;
-      }
-
-      .site-brand-badge {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        font-size: 14px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .site-brand-title {
-        font-size: 14px;
+      .brand{
+        min-width:0;
+        gap:8px;
       }
 
-
-      .site-nav {
-        width: 100%;
-        gap: 8px;
+      .brand-title{
+        white-space:nowrap;
       }
 
-      .nav-btn {
-        flex: 1 1 calc(50% - 4px);
-        min-
-        padding: 9px 10px;
-        font-size: 12px;
-        border-radius: 13px;
+      .header-search{
+        flex:0 0 180px;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
       }
 
-      .page-wrap {
-        padding-top: 14px;
-        padding-bottom: 64px;
+      html{
+        scroll-padding-top:92px;
       }
 
-      .breadcrumb {
-        font-size: 12px;
-        margin-bottom: 14px;
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
       }
 
-      .hero {
-        border-radius: 22px;
-        padding: 18px;
+      .article-hero::before{
+        background:url("../assets/images/load-cell-basic/load-cell-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
       }
 
-      .hero h1 {
-        font-size: 28px;
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
       }
 
-      .hero-lead {
-        font-size: 15px;
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
       }
 
-      .hero-note {
-        font-size: 13px;
-        border-radius: 14px;
+      h1{
+        font-size:30px;
       }
 
-      .top-panels {
-        gap: 12px;
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
       }
 
-      .top-panel {
-        padding: 16px;
-        border-radius: 18px;
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
       }
 
-      .top-panel h2 {
-        font-size: 18px;
+      .section-card{
+        padding:22px;
       }
 
-      .top-panel ul,
-      .top-panel p {
-        font-size: 14px;
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
       }
 
-      .article-layout {
-        gap: 18px;
+      .talk-avatar img{
+        width:66px;
+      }
+    }
+
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
       }
 
-      .article-section {
-        padding: 18px 16px;
-        border-radius: 20px;
+      .brand-logo{
+        height:40px;
       }
 
-      .article-section h2,
-      .related-head h2 {
-        font-size: 24px;
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
       }
 
-      .article-section h3 {
-        font-size: 19px;
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
       }
 
-      .article-section p,
-      .article-section ul,
-      .article-section ol {
-        font-size: 15px;
+      .search-box{
+        padding:0 10px;
       }
 
-      .section-label {
-        font-size: 11px;
-        padding: 6px 10px;
+      .search-box-input{
+        font-size:12px;
       }
 
-      .mini-lead {
-        font-size: 16px;
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
       }
 
-      .article-figure {
-        padding: 10px;
-        border-radius: 18px;
+      .talk-thread,
+      .talk-bubble{
+        max-width:none;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
       }
 
-      .article-figure figcaption {
-        font-size: 12px;
+      .article-hero::before{
+        background:url("../assets/images/load-cell-basic/load-cell-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
       }
 
-      .info-card,
-      .scene-card,
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{
+        padding:20px 18px;
+      }
+
+      .summary-card h2{
+        font-size:17px;
+      }
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/load-cell-basic/load-cell-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .mini-toc{
+        gap:8px;
+      }
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
       .side-card,
-      .cta-box {
-        border-radius: 18px;
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
       }
 
-      .check-list li,
-      .side-note-list li {
-        font-size: 14px;
+      .section-card h2{
+        font-size:20px;
       }
 
-      .related-item {
-        border-radius: 18px;
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
       }
 
-      .related-body {
-        padding: 14px;
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
       }
 
-      .related-title {
-        font-size: 17px;
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
       }
 
-      .related-desc {
-        font-size: 13px;
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
       }
 
-      .btn-row {
-        gap: 10px;
+      .talk-avatar img{
+        width:60px;
       }
-
-      .btn {
-        width: 100%;
-      }
-
-      .scroll-top {
-        right: 12px;
-        bottom: 12px;
-        width: 48px;
-        height: 48px;
-        font-size: 18px;
-      }
-}
-  
-    
-
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
-
-body{
-  padding-top:var(--header-h);
-}
-
-
-
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
-
-.brand:hover{
-  text-decoration:none;
-}
-
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
-
-.brand-copy{
-  min-width:0;
-}
-
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
-
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
-
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
-
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
-
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
-
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
-
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
-
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
-
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
-
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
-
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
-
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
-
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
-
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
-
-.search-result-item{
-  margin:0;
-}
-
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
-
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
-
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
-
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
-
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-
-
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-title{
-    white-space:nowrap;
-  }
-
-  .header-search{
-    flex:0 0 180px;
-  }
-}
-
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+    }
+  </style>
 </head>
+
 <body>
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
-  <main class="page-wrap">
+  <main>
     <div class="container">
-      <nav class="breadcrumb" aria-label="パンくず">
-        <a href="../index.html">トップ</a>
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
         <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
+        <a href="../index.html#category">カテゴリ</a>
         <span>›</span>
         <span>ロードセルとは？</span>
       </nav>
 
-      <section class="hero">
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <div class="hero-kicker">制御入門 / 計量・荷重確認の基本</div>
-            <h1>ロードセルとは？<br>役割・使い方をやさしく整理</h1>
-            <p class="hero-lead">
-              ロードセルは、<strong>力や重さを電気信号に変える部品</strong>です。
-              最初は「重さや押す力を、電気で見られるようにする部品」と考えると追いやすいです。
-            </p>
-            <div class="hero-note">
-              <strong>先に結論：</strong>
-              ロードセルは単体で完結するというより、指示計・変換器・アンプ・PLC入力とセットで使うことが多い部品です。
-            </div>
-          </div>
-          <div class="hero-media">
-            <img src="../assets/images/load-cell-basic/load-cell-basic-structure.png" alt="ロードセルの基本構造と役割をまとめた図" loading="eager" fetchpriority="high">
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">計量・荷重確認の基礎</span>
+          <h1>ロードセルとは？<br>役割・使い方をやさしく整理</h1>
+          <p class="hero-lead">
+            ロードセルは、力や重さを電気信号に変える部品です。タンク計量、ホッパー計量、押し付け荷重確認、指示計やPLCとのつながりを現場目線で整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
+            <a class="btn btn-secondary" href="#together">周辺機器との関係を見る</a>
           </div>
         </div>
       </section>
 
-      <section class="top-panels" aria-label="記事の導入">
-        <article class="top-panel top-panel-fit">
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
           <h2>向いている人</h2>
           <ul>
             <li>ロードセルが何をする部品か知りたい人</li>
-            <li>計量機器や荷重確認の基本をざっくり理解したい人</li>
-            <li>タンク計量やホッパー計量で何を見ているのか知りたい人</li>
-            <li>PLCや指示計につながる流れを初歩から整理したい人</li>
+            <li>計量機器や荷重確認の基本を理解したい人</li>
+            <li>指示計やPLCにつながる流れを整理したい人</li>
           </ul>
         </article>
-
-        <article class="top-panel top-panel-no">
+        <article class="summary-card summary-card--notyet">
           <h2>まだ不要な人</h2>
           <ul>
             <li>ロードセル配線やゼロ点調整を実務で普通にやっている人</li>
             <li>ひずみゲージの細かい理論まで今すぐ必要な人</li>
             <li>アンプ設定や校正手順を詳しく知りたい人</li>
-            <li>機種選定の細部まで今すぐ詰めたい人</li>
           </ul>
         </article>
-
-        <article class="top-panel top-panel-conclusion">
+        <article class="summary-card summary-card--conclusion">
           <h2>先に結論</h2>
-          <p>
-            ロードセルは、<strong>力や重さを電気信号に変える部品</strong>です。<br>
-            タンク計量やホッパー計量、押し付け荷重確認などでよく使われます。<br>
-            最初は<strong>「重さや押す力を電気で見られるようにする部品」</strong>として捉えると分かりやすいです。
-          </p>
+          <ul>
+            <li>ロードセルは力や重さを電気信号に変える</li>
+            <li>タンク計量・ホッパー計量・荷重確認でよく使う</li>
+            <li>単体ではなく指示計や変換器とセットで見る</li>
+          </ul>
         </article>
       </section>
 
-      <div class="article-layout">
-        <article class="article-main">
-          <section class="article-section" id="about">
-            <div class="section-label">まずはここだけ押さえる</div>
-            <h2>ロードセルとは何か</h2>
-            <p class="mini-lead">
-              ロードセルは、物が載った時の重さや、押した時の力を電気信号に変えるための部品です。
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">ロードセルとは？</a>
+          <a href="#flow">電気信号になる流れ</a>
+          <a href="#usage">どこで使う？</a>
+          <a href="#together">指示計や変換器との関係</a>
+          <a href="#field-view">現場で見るポイント</a>
+          <a href="#mistakes">見落としやすい点</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>ロードセルとは？</h2>
+            <p>
+              ロードセルとは、物が載った時の重さや、押した時の力を<span class="mark">電気信号に変えるための部品</span>です。
             </p>
             <p>
-              見た目は金属ブロックのようなものが多いですが、中ではわずかな変形を利用して信号に変えています。
-              そのため、見た目以上に<strong>測るための部品</strong>という性格が強いです。
+              見た目は金属ブロックのようなものが多いですが、中ではわずかな変形を利用して信号に変えています。そのため、見た目以上に「測るための部品」という性格が強いです。
             </p>
             <p>
               現場では、タンクの中身の重さを見る、ホッパーへの投入量を管理する、プレスや押し付けの力を確認する、といった用途で使われます。
-              つまりロードセルは、<strong>重さだけでなく力の確認にも使える部品</strong>です。
             </p>
 
-            <div class="info-grid">
-              <div class="info-card info-card-blue">
-                <h3>重さを測る</h3>
-                <p>タンクやホッパー、台の上に載った物の重さを見たい時に使います。</p>
-              </div>
-              <div class="info-card info-card-green">
-                <h3>力を確認する</h3>
-                <p>押し付け荷重や圧入力など、重さ以外の力を確認したい時にも使います。</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="article-section" id="flow">
-            <div class="section-label">流れで見ると分かりやすい</div>
-            <h2>まずは「重さや力を電気信号に変える部品」と考える</h2>
-            <p>
-              ひずみゲージやブリッジ回路の細かい理論まで、最初から全部覚えなくても大丈夫です。
-              まず押さえたい流れは次の通りです。
-            </p>
-            <ol>
-              <li>重さや力がかかる</li>
-              <li>ロードセルがわずかに変形する</li>
-              <li>その変化が小さな電気信号になる</li>
-              <li>指示計や変換器で見やすい形にする</li>
-              <li>必要ならPLCでも扱う</li>
-            </ol>
-            <p>
-              この流れで見ると、ロードセルは<strong>単体だけで完結する部品ではない</strong>ことが分かりやすいです。
-            </p>
-
-            <figure class="article-figure">
-              <img src="../assets/images/load-cell-basic/load-cell-basic-structure.png" alt="力や重さがロードセルを通って電気信号になる流れをまとめた図" loading="lazy" decoding="async">
-              <figcaption>
-                力や重さ → ロードセル → 指示計 / PLC入力 の流れで見ると、装置の中で何をしている部品かかなり追いやすくなります。
-              </figcaption>
-            </figure>
-
-            <ul class="check-list">
-              <li>何が載っているか、何を押しているか</li>
-              <li>その力がどこにかかっているか</li>
-              <li>信号を受ける指示計や変換器がどこにあるか</li>
-              <li>最終的にPLCで見ているか、表示だけなのか</li>
-            </ul>
-          </section>
-
-          <section class="article-section" id="role">
-            <div class="section-label">役割を先に整理</div>
-            <h2>ロードセルの役割</h2>
-            <p>
-              ロードセルの役割をシンプルに言うと、<strong>荷重を見ること</strong>です。
-              ここでいう荷重には、重さだけでなく押し付けの力も含まれます。
-            </p>
-
-            <h3>1. 重さを測る</h3>
-            <p>
-              タンクやホッパー、台の上に載った物の重さを見たい時に使います。
-            </p>
-
-            <h3>2. 力を確認する</h3>
-            <p>
-              押し付け荷重や圧入力など、重さ以外の力を確認したい時にも使います。
-            </p>
-
-            <div class="point-box">
-              <h3>ここを押さえると分かりやすいです</h3>
+            <div class="key-highlight">
+              <h3>まずは「重さや押す力を電気で見られるようにする部品」と覚える</h3>
               <p>
-                ロードセルは<strong>計量専用の部品</strong>というより、<strong>荷重を見るための部品</strong>として理解すると実務に近い感覚で追いやすくなります。
+                ロードセルは、重量だけでなく荷重を見るための部品です。重さや力を、指示計やPLCで扱える信号にする役割があります。
               </p>
             </div>
           </section>
 
-          <section class="article-section" id="scene">
-            <div class="section-label">どこで使う？</div>
-            <h2>ロードセルはどこで使う？</h2>
+          <section class="section-card" id="flow">
+            <h2>重さや力が電気信号になる流れ</h2>
             <p>
-              現場では、計量だけでなく荷重確認でもよく使われます。特に次のような場面で見かけやすいです。
+              ひずみゲージやブリッジ回路の細かい理論まで、最初から全部覚える必要はありません。まずは、重さや力が電気信号になって設備側へ伝わる流れを押さえると分かりやすいです。
             </p>
 
-            <div class="scene-grid">
-              <article class="scene-card scene-card-blue">
-                <h3>タンク計量</h3>
-                <p>
-                  タンク脚の下にロードセルを入れて、中身の重さを見ます。液体や粉体の残量確認でもよく使われます。
-                </p>
-              </article>
+            <figure class="article-figure">
+              <img src="../assets/images/load-cell-basic/load-cell-basic-structure.png" alt="力や重さがロードセルを通って電気信号になり、指示計やPLC入力につながる流れをまとめた図。">
+              <figcaption>
+                力や重さ → ロードセル → 指示計 / PLC入力の流れで見ると、装置の中で何をしている部品か追いやすくなります。
+              </figcaption>
+            </figure>
 
-              <article class="scene-card scene-card-green">
-                <h3>ホッパー計量</h3>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>重さや力がかかる</h3>
                 <p>
-                  材料を投入するホッパーの下で重さを見て、投入量や供給量を管理します。
+                  タンク、ホッパー、押し付け部などで、ロードセルに荷重がかかります。
                 </p>
-              </article>
-
-              <article class="scene-card scene-card-orange">
-                <h3>押し付け荷重の確認</h3>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>わずかに変形する</h3>
                 <p>
-                  ワークを押す工程や圧着・加圧の工程で、どれくらいの力がかかっているかを見る時に使います。
+                  ロードセル本体がわずかに変形し、その変化を内部で検出します。
                 </p>
-              </article>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>小さな電気信号になる</h3>
+                <p>
+                  変形に応じた小さな信号が出ます。そのままでは扱いにくいことが多いです。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>指示計やPLCへつなぐ</h3>
+                <p>
+                  指示計、変換器、アンプなどを通して、表示やPLC入力へつなげます。
+                </p>
+              </div>
             </div>
+          </section>
+
+          <section class="section-card" id="usage">
+            <h2>ロードセルはどこで使う？</h2>
+            <p>
+              現場では、計量だけでなく荷重確認でもよく使われます。特にタンク計量、ホッパー計量、押し付け荷重確認などで見かけやすいです。
+            </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/load-cell-basic/load-cell-basic-usage.png" alt="タンク計量、ホッパー計量、押し付け荷重確認でのロードセル使用例をまとめた図" loading="lazy" decoding="async">
+              <img src="../assets/images/load-cell-basic/load-cell-basic-usage.png" alt="タンク計量、ホッパー計量、押し付け荷重確認でのロードセル使用例をまとめた図。">
               <figcaption>
                 タンク計量・ホッパー計量・押し付け荷重確認のように、重さだけでなく力の確認にも使えるのがロードセルの特徴です。
               </figcaption>
             </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>タンク計量</h3>
+                <p>
+                  タンク脚の下にロードセルを入れて、中身の重さを見ます。液体や粉体の残量確認でも使われます。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>ホッパー計量</h3>
+                <p>
+                  材料を投入するホッパーの下で重さを見て、投入量や供給量を管理します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>押し付け荷重</h3>
+                <p>
+                  ワークを押す工程や圧着・加圧の工程で、どれくらいの力がかかっているかを見ます。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>装置の判定</h3>
+                <p>
+                  設定値に対して重さや力が足りているかを確認し、OK / NG判定や制御条件に使うことがあります。
+                </p>
+              </div>
+            </div>
           </section>
 
-          <section class="article-section" id="together">
-            <div class="section-label">単体ではなくセットで見る</div>
+          <section class="section-card" id="together">
             <h2>指示計や変換器とセットで見る</h2>
             <p>
-              ここは初心者がつまずきやすいところですが、ロードセルは<strong>単体では小さい信号</strong>しか出しません。
-            </p>
-            <p>
-              そのため実際の設備では、次のようなものと一緒に出てくることが多いです。
-            </p>
-            <ul>
-              <li>指示計</li>
-              <li>変換器</li>
-              <li>アンプ</li>
-              <li>PLC入力ユニット</li>
-            </ul>
-            <p>
-              つまり現場で見た時は、<strong>「ロードセル本体だけでなく、その後ろに何がつながっているか」</strong>も一緒に見るのが大事です。
+              初心者がつまずきやすいポイントですが、ロードセルは単体で大きく分かりやすい信号を出す部品ではありません。実際の設備では、指示計、変換器、アンプ、PLC入力ユニットなどと一緒に使われることが多いです。
             </p>
 
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>機器</th>
+                    <th>役割</th>
+                    <th>現場で見るポイント</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">ロードセル</td>
+                    <td>力や重さを小さな電気信号に変える</td>
+                    <td>どこに取り付いているか、どの方向の荷重を見るか</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">指示計・変換器</td>
+                    <td>信号を見やすい数値や扱いやすい信号にする</td>
+                    <td>表示値、ゼロ点、スパン、設定値</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC入力</td>
+                    <td>重量や荷重の信号を制御側で扱う</td>
+                    <td>アナログ値、判定信号、異常信号</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             <div class="note-box">
+              <h3>ロードセル本体だけで判断しない</h3>
               <p>
                 ロードセルだけ見ても、そのまま数字が読めるとは限りません。指示計や変換器まで含めて見ると、装置全体の意味が分かりやすくなります。
               </p>
             </div>
           </section>
 
-          <section class="article-section" id="check">
-            <div class="section-label">見る順番を決めておく</div>
-            <h2>どこを見ればいい？</h2>
+          <section class="section-card" id="field-view">
+            <h2>現場で見るポイント</h2>
             <p>
-              ロードセルが出てきた時は、次の順で見ると整理しやすいです。
+              ロードセルが出てきた時は、何を測りたいのか、どこに取り付いているのか、後ろに何がつながっているのかを順番に見ると整理しやすいです。
             </p>
 
-            <ul class="check-list">
-              <li><strong>何を測りたいのか</strong><br>重さなのか、押す力なのかで見方が変わります。</li>
-              <li><strong>どこに取り付いているか</strong><br>タンク脚なのか、ホッパー下なのか、押し機構の途中なのかで役割が見えやすいです。</li>
-              <li><strong>指示計や変換器があるか</strong><br>ロードセルの信号をどう扱っているかを見ると、システム全体が追いやすいです。</li>
-              <li><strong>荷重のかかり方が自然か</strong><br>変な方向から力が入ると、正しく測りにくくなることがあります。</li>
-            </ul>
-          </section>
-
-          <section class="article-section" id="attention">
-            <div class="section-label">見落としやすいところ</div>
-            <h2>現場で見落としやすいポイント</h2>
-
-            <h3>単体で完結すると思わない</h3>
-            <p>
-              ロードセルだけ見ても、数字はそのまま分からないことが多いです。指示計や変換器とセットで見る必要があります。
-            </p>
-
-            <h3>取付方法で見え方が変わる</h3>
-            <p>
-              同じロードセルでも、取り付け方が悪いと測りにくくなります。
-            </p>
-
-            <h3>力の向きが大事</h3>
-            <p>
-              どの方向の荷重を見たいのかが合っていないと、期待した値になりにくいです。
-            </p>
-
-            <h3>重さだけとは限らない</h3>
-            <p>
-              名前の印象で重量測定だけを想像しやすいですが、押し付け力の確認にも使われます。
-            </p>
-          </section>
-
-          <section class="article-section" id="practical">
-            <div class="section-label">現場で追いやすくする考え方</div>
-            <h2>現場目線での覚え方</h2>
-            <p>
-              最初は理論を深く追うよりも、
-            </p>
-            <ul>
-              <li>何を測っているか</li>
-              <li>どこに付いているか</li>
-              <li>後ろに何がつながっているか</li>
-            </ul>
-            <p>
-              この3つを意識した方が、実務ではかなり追いやすいです。
-            </p>
-            <p>
-              ロードセルも、難しく見せようと思えばかなり難しくなります。
-              でも現場でまず大事なのは、<strong>その装置で何を見たいから付いているのか</strong>をつかむことです。
-            </p>
-            <p>
-              その意味でもロードセルは、<strong>「重さや力を電気信号に変える部品」</strong>として覚えるところから始めるのがおすすめです。
-            </p>
-          </section>
-
-          <section class="article-section summary-box" id="summary">
-            <div class="section-label">最後に整理</div>
-            <h2>まとめ</h2>
-            <p>
-              ロードセルは、力や重さを電気信号に変える部品です。
-              タンク計量、ホッパー計量、押し付け荷重の確認などでよく使われます。
-            </p>
-            <p>
-              最初は細かい理論よりも、
-            </p>
-            <ul>
-              <li>何を測っているか</li>
-              <li>どこに付いているか</li>
-              <li>指示計や変換器とどうつながっているか</li>
-            </ul>
-            <p>
-              このあたりを追うと分かりやすいです。
-              ロードセルは、<strong>単体ではなく周辺機器とセットで見る</strong>という感覚を持っておくと、現場でもかなり追いやすくなります。
-            </p>
-          </section>
-
-          <section class="cta-box">
-            <h2>次は関連する基本記事も合わせて見ると分かりやすいです</h2>
-            <p>
-              ロードセル単体よりも、入力・出力やセンサ、装置の中で何を見ているかとセットで見ると全体像がつかみやすくなります。
-            </p>
-            <div class="btn-row">
-              <a class="btn btn-green" href="input-output-basic.html">入力と出力の違いとは？を見る</a>
-              <a class="btn btn-orange" href="sensor-basic.html">センサとは何か？を見る</a>
-            </div>
-          </section>
-
-          <section class="related-section" aria-labelledby="related-title">
-            <div class="related-head">
-              <div>
-                <h2 id="related-title">合わせて見たい関連記事</h2>
-                <p>入口記事から少しずつ広げたい人向けに、つながりやすい基本記事を置いています。</p>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>何を測りたいか</h3>
+                <p>
+                  重さなのか、押す力なのかで見方が変わります。まず装置の目的を見ます。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>どこに取り付いているか</h3>
+                <p>
+                  タンク脚、ホッパー下、押し機構の途中など、取付位置で役割が見えやすくなります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>指示計や変換器があるか</h3>
+                <p>
+                  ロードセルの信号をどう扱っているかを見ると、システム全体が追いやすいです。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>荷重のかかり方</h3>
+                <p>
+                  変な方向から力が入ると、正しく測りにくくなることがあります。
+                </p>
               </div>
             </div>
 
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>ロードセルは本体だけじゃなくて、指示計や変換器までセットで見ると追いやすいよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>重さを見ているのか、押し付け力を見ているのかも先に確認した方がいいんですね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>見落としやすいポイント</h2>
+            <p>
+              ロードセルは「重さを測る部品」と覚えやすいですが、実際には取付方法、荷重の向き、周辺機器とのつながりがかなり大事です。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>単体で完結すると思う</h3>
+                <p>
+                  ロードセルだけ見ても、数字はそのまま分からないことが多いです。指示計や変換器とセットで見ます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>取付方法を見ない</h3>
+                <p>
+                  同じロードセルでも、取り付け方が悪いと測りにくくなります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>力の向きを見ない</h3>
+                <p>
+                  どの方向の荷重を見たいのかが合っていないと、期待した値になりにくいです。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>重さだけと思い込む</h3>
+                <p>
+                  名前の印象で重量測定だけを想像しやすいですが、押し付け力の確認にも使われます。
+                </p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>荷重部まわりの作業は挟まれ・落下に注意</h3>
+              <p>
+                ロードセルまわりはタンク、ホッパー、押し付け機構など重い物や力がかかる場所に付いていることがあります。確認時は落下、挟まれ、急な動作に注意してください。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：ロードセルは重さや力を電気信号に変える部品</h2>
+            <p>
+              ロードセルは、力や重さを電気信号に変える部品です。タンク計量、ホッパー計量、押し付け荷重の確認などでよく使われます。
+            </p>
+            <p>
+              最初は細かい理論よりも、何を測っているか、どこに付いているか、指示計や変換器とどうつながっているかを追うと分かりやすいです。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                ロードセルは単体ではなく周辺機器とセットで見る部品です。ロードセル本体、指示計、変換器、PLC入力までの流れを見ていくと、現場でも役割を追いやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
             <div class="related-grid">
-              <a class="related-item" href="input-output-basic.html">
-                <div class="related-thumb-wrap">
-                  <img class="related-thumb" src="../assets/images/load-cell-basic/load-cell-basic-hero.png" alt="入力と出力の違いとは？の記事イメージ" loading="lazy" decoding="async">
+              <a class="related-card" href="./input-output-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いとは？の記事">
                 </div>
-                <div class="related-body">
-                  <span class="related-kicker">制御入門</span>
-                  <h3 class="related-title">入力と出力の違いとは？</h3>
-                  <p class="related-desc">ロードセル信号をPLCでどう扱うか考える前に、入出力の基本を整理したい人向けです。</p>
-                </div>
+                <h3>入力と出力の違いとは？</h3>
+                <p>ロードセル信号をPLCでどう扱うか考える前に、入出力の基本を整理できます。</p>
               </a>
 
-              <a class="related-item" href="sensor-basic.html">
-                <div class="related-thumb-wrap">
-                  <img class="related-thumb" src="../assets/images/load-cell-basic/load-cell-basic-structure.png" alt="センサとは何か？の記事イメージ" loading="lazy" decoding="async">
+              <a class="related-card" href="./sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/sensor-basic/sensor-basic-ogp.png" alt="センサとは何か？の記事">
                 </div>
-                <div class="related-body">
-                  <span class="related-kicker">制御の基本</span>
-                  <h3 class="related-title">センサとは何か？</h3>
-                  <p class="related-desc">ロードセルも「何かを検出して信号にする」という意味では、センサの考え方とつながります。</p>
-                </div>
+                <h3>センサとは何か？</h3>
+                <p>ロードセルも「何かを検出して信号にする」という考え方でセンサとつながります。</p>
               </a>
 
-              <a class="related-item" href="air-valve-basic.html">
-                <div class="related-thumb-wrap">
-                  <img class="related-thumb" src="../assets/images/load-cell-basic/load-cell-basic-usage.png" alt="エアバルブとは？の記事イメージ" loading="lazy" decoding="async">
+              <a class="related-card" href="./plc-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/plc-basic/plc-basic-ogp.png" alt="PLCとは何か？の記事">
                 </div>
-                <div class="related-body">
-                  <span class="related-kicker">装置を見る視点</span>
-                  <h3 class="related-title">エアバルブとは？</h3>
-                  <p class="related-desc">部品単体ではなく、装置の中で何をしているかを追う考え方が共通しやすい記事です。</p>
-                </div>
+                <h3>PLCとは何か？</h3>
+                <p>ロードセルや変換器からの信号を制御側でどう扱うか整理できます。</p>
               </a>
+
+              <a class="related-card" href="./air-valve-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/air-valve-basic/air-valve-basic-ogp.png" alt="エアバルブとは？の記事">
+                </div>
+                <h3>エアバルブとは？</h3>
+                <p>部品単体ではなく、装置の中で何をしているかを追う考え方が共通します。</p>
+              </a>
+
+              <a class="related-card" href="./proximity-sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/proximity-sensor-basic/proximity-sensor-basic-ogp.png" alt="近接センサとは？の記事">
+                </div>
+                <h3>近接センサとは？</h3>
+                <p>検出機器の基本を別の視点から整理できます。</p>
+              </a>
+
+              <a class="related-card" href="./npn-pnp-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="NPN / PNP の違いとは？の記事">
+                </div>
+                <h3>NPN / PNP の違いとは？</h3>
+                <p>センサや信号をPLC入力へつなぐ時の考え方を整理できます。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
             </div>
           </section>
         </article>
 
-        <aside class="article-side">
-          <section class="side-card" aria-labelledby="toc-title">
-            <h2 id="toc-title">目次</h2>
-            <ul class="toc-list">
-              <li><a href="#about">ロードセルとは何か</a></li>
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の流れ</h3>
+            <ul>
+              <li><a href="#what-is">ロードセルとは？</a></li>
               <li><a href="#flow">電気信号になる流れ</a></li>
-              <li><a href="#role">ロードセルの役割</a></li>
-              <li><a href="#scene">どこで使う？</a></li>
-              <li><a href="#together">指示計や変換器とセットで見る</a></li>
-              <li><a href="#check">どこを見ればいい？</a></li>
-              <li><a href="#attention">見落としやすいポイント</a></li>
-              <li><a href="#practical">現場目線での覚え方</a></li>
+              <li><a href="#usage">どこで使う？</a></li>
+              <li><a href="#together">指示計や変換器との関係</a></li>
+              <li><a href="#field-view">現場で見るポイント</a></li>
+              <li><a href="#mistakes">見落としやすい点</a></li>
               <li><a href="#summary">まとめ</a></li>
             </ul>
           </section>
 
           <section class="side-card">
-            <h2>このページの要点</h2>
-            <ul class="side-note-list">
-              <li>ロードセルは力や重さを電気信号に変える部品</li>
-              <li>タンク計量・ホッパー計量・押し付け荷重確認でよく使う</li>
-              <li>単体ではなく指示計や変換器とセットで見ると分かりやすい</li>
-              <li>何を測るか・どこに付いているか・後ろに何がつながるかが重要</li>
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>ロードセルは力や重さを信号に変える</li>
+              <li>重さだけでなく荷重確認にも使う</li>
+              <li>指示計や変換器とセットで見る</li>
+              <li>取付位置と荷重方向を見る</li>
+              <li>PLCで扱う場合は入力信号まで追う</li>
             </ul>
           </section>
 
           <section class="side-card">
-            <h2>関連リンク</h2>
-            <a class="side-link" href="../index.html#tips">使い方・コツ記事一覧へ</a>
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./input-output-basic.html">入力と出力の違いとは？</a></li>
+              <li><a href="./sensor-basic.html">センサとは何か？</a></li>
+              <li><a href="./plc-basic.html">PLCとは何か？</a></li>
+              <li><a href="./proximity-sensor-basic.html">近接センサとは？</a></li>
+              <li><a href="./npn-pnp-basic.html">NPN / PNP の違いとは？</a></li>
+            </ul>
           </section>
         </aside>
       </div>
-
-      <footer class="footer">
-        このページは、現場で追いやすいことを優先して、ロードセルの基本をやさしく整理しています。
-      </footer>
     </div>
   </main>
 
-  <button class="scroll-top" type="button" aria-label="ページ上部へ戻る" onclick="window.scrollTo({top:0,behavior:'smooth'});">↑</button>
-  <script src="../assets/js/site-search.js" defer></script>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

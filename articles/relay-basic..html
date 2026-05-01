@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>エンコーダとは？配線とパルス信号の基本をやさしく解説</title>
+  <meta name="description" content="エンコーダとは何かを初心者向けにやさしく整理。インクリメンタル形とアブソリュート形の違い、A相・B相・Z相のパルス信号、PLC高速入力への配線、選定と接続時の注意点を現場目線で解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/encoder-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="エンコーダとは？配線とパルス信号の基本をやさしく解説">
+  <meta property="og:description" content="エンコーダの役割、A相・B相・Z相、インクリメンタル形とアブソリュート形、PLC高速入力への接続時の注意点をやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/encoder-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/encoder-basic/encoder-basic-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --header-h:78px;
+      --container:1180px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:8px 10px 2px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/encoder-basic/encoder-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:37ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header-inner{gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-nav{display:none}
+      .header-search{flex:1 1 auto}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/encoder-basic/encoder-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/encoder-basic/encoder-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/encoder-basic/encoder-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="電気工事士の工具箱 ホームへ">
+        <img class="brand-logo" src="../assets/images/site-logo.png" alt="電気工事士の工具箱">
+        <div class="brand-copy">
+          <p class="brand-title">電気工事士の工具箱</p>
+          <p class="brand-sub">工具・制御・現場の基本をやさしく整理</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="主要カテゴリ">
+        <a class="header-link" href="../categories/control-basics.html">制御の基本</a>
+        <a class="header-link" href="../categories/tools.html">工具</a>
+        <a class="header-link" href="../categories/comparison-guide.html">比較</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="記事を検索" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div id="site-search-panel" class="search-box-panel" hidden>
+          <ul id="site-search-results" class="search-box-results"></ul>
+          <p id="site-search-empty" class="search-box-empty" hidden>該当する記事が見つかりませんでした。</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../categories/control-basics.html">制御の基本</a>
+        <span>›</span>
+        <span>エンコーダとは？</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御機器の基本</span>
+          <h1>エンコーダとは？<br>配線とパルス信号の基本</h1>
+          <p class="hero-lead">
+            エンコーダは、回転や位置の動きをパルス信号としてPLCやサーボへ伝えるセンサーです。A相・B相・Z相、インクリメンタル形とアブソリュート形、配線時の注意点を現場目線で整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">先に基本を見る</a>
+            <a class="btn btn-secondary" href="#wiring">配線の注意点を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>エンコーダの役割を初めて学ぶ人</li>
+            <li>A相・B相・Z相の意味を整理したい人</li>
+            <li>PLC高速入力への配線イメージをつかみたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>すでにサーボ設定や位置決め制御を実務で扱っている人</li>
+            <li>メーカー別の詳細パラメータだけを探している人</li>
+            <li>専用カウンタユニットの型式選定だけをしたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>エンコーダは回転や位置を電気信号に変えるセンサー</li>
+            <li>A相・B相で回転方向、Z相で原点を扱うことが多い</li>
+            <li>配線では電源・出力方式・ノイズ対策の確認が重要</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#overview">エンコーダの役割</a>
+          <a href="#pulse">パルス信号</a>
+          <a href="#type">種類の違い</a>
+          <a href="#wiring">配線とラダー</a>
+          <a href="#checkpoints">選定と注意点</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>エンコーダとは？回転や位置を信号に変えるセンサー</h2>
+            <p>
+              エンコーダは、モータや機械の軸がどれだけ回ったか、どちら向きに回っているか、現在位置がどこにあるかを検出するための機器です。
+            </p>
+            <p>
+              現場では、搬送装置、包装機、印刷機、ロボット、サーボ機構、インバータ制御などで使われます。ざっくり言うと、<span class="mark">機械の動きをPLCや制御機器が読める電気信号に変える部品</span>です。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/encoder-basic/encoder-basic-overview.png" alt="エンコーダの役割とパルス信号の基本を示した解説図">
+              <figcaption>
+                エンコーダは、回転や位置をA相・B相・Z相などのパルス信号に変えて、PLC・サーボ・インバータなどへ伝えます。
+              </figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/characters/senpai.png" alt="先輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>エンコーダは「モータが回ったかどうか」だけでなく、「どれだけ回ったか」「どちら向きに回ったか」を見るために使うことが多いよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/characters/chibi.png" alt="ちびキャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">ちび</span>単なるON/OFFセンサーより、動きの量を細かく見られるイメージだね。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="key-highlight">
+              <h3>まずは「回転をパルスに変える」と覚える</h3>
+              <p>
+                難しく考えすぎず、最初は「軸が回る → パルスが出る → PLCやカウンタが数える」と考えると理解しやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="pulse">
+            <h2>A相・B相・Z相とは？パルス信号の基本</h2>
+            <p>
+              インクリメンタル形エンコーダでは、A相・B相・Z相という信号名がよく出てきます。A相とB相はパルスを出し、2つの位相差を見ることで回転方向を判断します。
+            </p>
+            <p>
+              Z相は原点信号として使われることが多く、1回転に1回だけ出る信号として、原点復帰や基準位置の確認に使われます。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>信号名</th>
+                    <th>主な役割</th>
+                    <th>現場での見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">A相</td>
+                    <td>パルスを出力する基本信号</td>
+                    <td>パルス数を数えることで、回転量や移動量の判断に使います。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">B相</td>
+                    <td>A相と少しずれたパルス信号</td>
+                    <td>A相との位相差を見て、正転・逆転の判断に使います。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Z相</td>
+                    <td>原点・基準位置の信号</td>
+                    <td>原点復帰や1回転ごとの基準確認に使われます。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>パルス数だけで判断しない</h3>
+              <p>
+                パルス数が多いほど細かく見られますが、PLC側の高速入力性能や応答周波数を超えると、カウント漏れの原因になります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="type">
+            <h2>インクリメンタル形とアブソリュート形の違い</h2>
+            <p>
+              エンコーダには大きく分けて、インクリメンタル形とアブソリュート形があります。現場でよく出てくるのは、パルスを数えて位置を把握するインクリメンタル形です。
+            </p>
+            <p>
+              アブソリュート形は現在位置を絶対値として出せるため、電源投入後でも位置を把握しやすい特徴があります。一方で、配線や通信、機器構成が少し複雑になることがあります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/encoder-basic/encoder-basic-incremental-absolute.png" alt="インクリメンタル形とアブソリュート形エンコーダの違いを比較した図">
+              <figcaption>
+                インクリメンタル形はパルスを数えて相対的に位置を見ます。アブソリュート形は現在位置を絶対値として扱いやすい方式です。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>インクリメンタル形</h3>
+                <p>
+                  構成が比較的シンプルで、回転量・速度・方向検出に使いやすい方式です。原点復帰が必要になる場合があります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>アブソリュート形</h3>
+                <p>
+                  現在位置を絶対値で扱いやすい方式です。高精度な位置決めや、電源再投入後の位置保持が重要な装置で使われます。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="wiring">
+            <h2>PLCへ接続するときの基本</h2>
+            <p>
+              エンコーダをPLCに接続するときは、通常の入力端子ではなく、高速入力やカウンタ入力を使うことが多いです。回転が速い装置では、通常入力だとパルスを拾いきれないことがあります。
+            </p>
+            <p>
+              また、エンコーダには電源線、0V、A相、B相、Z相、シールド線などがあり、機種によって線色や出力方式が異なります。配線色だけで判断せず、必ず仕様書で確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/encoder-basic/encoder-basic-wiring-ladder.png" alt="エンコーダの配線例とラダー概念を示した図">
+              <figcaption>
+                エンコーダ入力は、PLCの高速入力やカウンタ機能と組み合わせて使います。A相・B相・Z相、シールド・FGの扱いを確認します。
+              </figcaption>
+            </figure>
+
+            <div class="danger-box">
+              <h3>電源電圧と出力方式を必ず確認</h3>
+              <p>
+                5V、12V、24Vなどの電源仕様や、オープンコレクタ、ラインドライバ、差動出力などの出力方式が合っていないと、入力できないだけでなく故障の原因にもなります。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/characters/senpai.png" alt="先輩キャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>エンコーダはノイズの影響を受けやすいから、動力線と離す、シールドを正しく処理する、FGを確認する。このあたりがかなり大事だよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/characters/chibi.png" alt="ちびキャラ">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">ちび</span>配線が合っていても、ノイズでカウントが飛ぶことがあるんだね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>選定・接続時に確認したいポイント</h2>
+            <p>
+              エンコーダは「とりあえず回ればよい」という部品ではありません。分解能、出力方式、電源電圧、取付方法、最大応答周波数、Z相の有無などを装置側の要求に合わせて確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/encoder-basic/encoder-basic-checkpoints.png" alt="エンコーダ選定と接続時の注意点をまとめた図">
+              <figcaption>
+                分解能、出力方式、電源、取付、ノイズ対策、高速入力、Z相の使い方を順番に確認すると、選定・接続ミスを防ぎやすくなります。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>分解能を確認する</h3>
+                <p>
+                  P/Rの値が装置に必要な位置精度を満たしているか確認します。細かすぎてもPLC側の処理が追いつかないことがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>出力方式を確認する</h3>
+                <p>
+                  NPN/PNP、オープンコレクタ、ラインドライバなど、PLCやカウンタユニット側と合う方式を選びます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>ノイズ対策を確認する</h3>
+                <p>
+                  動力線と分ける、シールド線を適切に処理する、FGを確認するなど、誤カウントを防ぐ配線を意識します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>入力周波数を確認する</h3>
+                <p>
+                  エンコーダの最大応答周波数と、PLC側の高速入力・カウンタ入力の仕様を合わせて確認します。
+                </p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現場では「仕様書確認」が一番安全</h3>
+              <p>
+                同じエンコーダでも、メーカーや型式によって線色、出力方式、Z相の有無、シールド処理の考え方が異なります。配線前に型式と仕様書を確認することが大切です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：エンコーダは「動きを数値化する目」</h2>
+            <p>
+              エンコーダは、回転や位置をパルス信号として出力し、PLCやサーボ、インバータなどが機械の動きを把握するために使うセンサーです。
+            </p>
+            <p>
+              まずは、A相・B相で方向や回転量を見て、Z相で原点を扱うことが多い、と覚えると理解しやすくなります。配線では、電源電圧、出力方式、高速入力、ノイズ対策を必ず確認しましょう。
+            </p>
+
+            <div class="key-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                エンコーダは「回転をパルスに変える部品」です。インクリメンタル形とアブソリュート形の違い、A相・B相・Z相の役割、PLC高速入力への接続注意を押さえると、制御盤や装置の信号の流れが追いやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card">
+            <h2>関連記事</h2>
+            <div class="related-grid">
+              <a class="related-card" href="./analog-input-basic.html">
+                <h3>アナログ入力とは？</h3>
+                <p>4-20mAや0-10Vなど、連続した値をPLCへ取り込む考え方を整理します。</p>
+              </a>
+              <a class="related-card" href="./plc-basic.html">
+                <h3>PLCとは？</h3>
+                <p>制御盤で使われるPLCの役割や入力・出力の基本をやさしく解説します。</p>
+              </a>
+              <a class="related-card" href="./servo-motor-basic.html">
+                <h3>サーボモータとは？</h3>
+                <p>位置決め制御やモータ制御で使われるサーボの基本を整理します。</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../categories/control-basics.html">制御の基本一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の流れ</h3>
+            <ul>
+              <li><a href="#overview">エンコーダの役割</a></li>
+              <li><a href="#pulse">A相・B相・Z相</a></li>
+              <li><a href="#type">種類の違い</a></li>
+              <li><a href="#wiring">配線とラダー</a></li>
+              <li><a href="#checkpoints">選定と注意点</a></li>
+              <li><a href="#summary">まとめ</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>よく出る用語</h3>
+            <ul>
+              <li>A相・B相：方向や回転量を見る信号</li>
+              <li>Z相：原点や基準位置を見る信号</li>
+              <li>P/R：1回転あたりのパルス数</li>
+              <li>高速入力：速いパルスを読むPLC入力</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>現場での注意</h3>
+            <ul>
+              <li>配線色だけで判断しない</li>
+              <li>電源電圧を必ず確認する</li>
+              <li>出力方式をPLC側と合わせる</li>
+              <li>シールド・FGを正しく扱う</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気工事士の工具箱. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
+</body>
+</html>

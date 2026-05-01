@@ -170,3 +170,14 @@ button,input{
   </div>
 </form>
 ```
+
+## 先輩チビキャラ画像の運用（記事制作時）
+
+- 記事内の注意喚起・補足・覚え方には、まず以下の3画像を使う。
+  - `assets/images/guide-characters/senpai-chibi-pointing.png`
+  - `assets/images/guide-characters/senpai-chibi-guide.png`
+  - `assets/images/guide-characters/senpai-chibi-idea.png`
+- 1記事あたりの使用目安は1〜3か所。
+- 本文可読性を優先し、本文・ボタンへの重なりやスマホでの過大表示を避ける。
+- 背景つき画像は使わず、透過PNGのキャラ単体画像のみを使う。
+- 差し替え時も同じファイル名と用途を維持する。

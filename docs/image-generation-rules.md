@@ -35,6 +35,96 @@
 - ヒーロー画像に人物を入れる場合も、既存の先輩役キャラクターの雰囲気に寄せる。
 - 記事ごとに人物の顔・服装・雰囲気がぶれないようにする。
 
+
+
+## 本文内ガイドキャラ運用ルール
+
+本文内で使う人物キャラクターは、`assets/images/guide-characters/` 内の既存キャラを使う。新しい別キャラや、別テイストの人物画像を勝手に増やさない。
+
+基準キャラ：
+- 先輩キャラ：
+  - `assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png`
+- 後輩キャラ：
+  - `assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png`
+
+会話欄の基本：
+- 先輩は説明・補足・判断の役
+- 後輩は質問・気づき・理解確認の役
+- 会話は「先輩の説明 → 後輩の理解・質問」または「後輩の疑問 → 先輩の説明」の流れにする
+- 先輩は左配置、後輩は右配置を基本にする
+- 会話画像は必ず `div.talk-avatar > img` に入れる
+- 会話欄では `.talk-avatar` / `.talk-avatar img` の既存サイズを使う
+- 注意ボックス用の小さいキャラサイズを、会話欄には流用しない
+
+注意ボックスの基本：
+- 注意・補足・安全関連の `note-box` / `danger-box` では、先輩キャラを小さく添えてよい
+- 注意ボックス内では、キャラが本文より目立ちすぎないようにする
+- 注意ボックス内では、頭身の高い立ち絵や別テイスト画像を使わない
+- 注意ボックス内のキャラは「補助役」として扱い、本文の主役にしない
+
+注意ボックスのHTML構造：
+- `h3` と `p` は、キャラ右側の同じ `div` 内にまとめる
+- `h3` だけを `caution-character-box` の外に出さない
+
+基本構造：
+
+```html
+<div class="danger-box caution-character-box">
+  <div class="caution-character">
+    <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="注意点を案内する先輩キャラクター">
+  </div>
+  <div>
+    <h3>注意見出し</h3>
+    <p>注意本文を入れる。</p>
+  </div>
+</div>
+
+<div class="note-box caution-character-box">
+  <div class="caution-character">
+    <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="補足する先輩キャラクター">
+  </div>
+  <div>
+    <h3>補足見出し</h3>
+    <p>補足本文を入れる。</p>
+  </div>
+</div>
+```
+
+注意ボックス用ちびキャラCSS基準：
+
+```css
+.caution-character-box{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+}
+
+.caution-character{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.caution-character img{
+  width:36px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+
+@media (max-width:900px){
+  .caution-character-box{
+    grid-template-columns:36px minmax(0,1fr);
+    gap:8px;
+  }
+
+  .caution-character img{
+    width:30px;
+  }
+}
+```
+
 ## 先輩チビキャラ画像の運用ルール
 
 記事内の注意喚起・補足・覚え方の補助には、採用済みの先輩チビキャラ画像を優先して使う。

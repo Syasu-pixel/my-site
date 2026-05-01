@@ -1,1269 +1,1666 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>光電センサとは？電気工事士向けにやさしく整理｜現場目線の制御入門</title>
-  <meta name="description" content="光電センサとは何かを、電気工事士向けにやさしく整理した入門記事です。光を使って有無や位置を検知する考え方、PLC入力との関係、現場で見るポイント、近接センサとの違いまで分かりやすく解説します。">
-  <meta name="robots" content="index,follow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>光電センサとは？種類と使い方を初心者向けにやさしく整理</title>
+  <meta name="description" content="光電センサとは何かを初心者向けにやさしく整理。透過型・回帰反射型・拡散反射型の違い、近接センサとの使い分け、検出距離や光軸ズレ、汚れによる誤検出の確認ポイントまで現場目線で解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/photoelectric-sensor-basic.html">
-
   <meta property="og:type" content="article">
-  <meta property="og:title" content="光電センサとは？電気工事士向けにやさしく整理">
-  <meta property="og:description" content="光電センサとは何かを、電気工事士向けにやさしく整理した入門記事です。光を使って有無や位置を検知する考え方、PLC入力との関係、現場で見るポイント、近接センサとの違いまで分かりやすく解説します。">
+  <meta property="og:title" content="光電センサとは？種類と使い方を初心者向けにやさしく整理">
+  <meta property="og:description" content="光電センサの基本、透過型・回帰反射型・拡散反射型の違い、検出距離や光軸ズレ、汚れによる誤検出の確認ポイントをやさしく整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/photoelectric-sensor-basic.html">
-  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp.png">
-  <meta property="og:site_name" content="現場目線の工具ガイド">
-
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="光電センサとは？電気工事士向けにやさしく整理">
-  <meta name="twitter:description" content="光電センサとは何かを、電気工事士向けにやさしく整理した入門記事です。">
-  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp.png">
-
+  <meta name="twitter:title" content="光電センサとは？種類と使い方を初心者向けにやさしく整理">
+  <meta name="twitter:description" content="透過型・回帰反射型・拡散反射型の違い、検出距離や光軸ズレ、確認ポイントを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2a37;
-      --muted: #5b6777;
-      --line: #d9e0ea;
-      --accent: #1f6bff;
-      --accent-soft: #edf4ff;
-      --green: #239b56;
-      --green-soft: #ebf8ef;
-      --orange: #f59e0b;
-      --orange-soft: #fff4df;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --header-h: 78px;
-      --content-w: 1120px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.8;
-      -webkit-text-size-adjust: 100%;
+    *{
+      box-sizing:border-box;
     }
 
-    button,input{
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
       font:inherit;
     }
-    img { max-width: 100%; display: block; }
-    a { color: inherit; text-decoration: none; }
 
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
-    }
-    .brand a {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    main { padding: 22px 0 64px; }
-
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
+    img{
+      max-width:100%;
+      display:block;
     }
 
-    .breadcrumb span { opacity: .7; }
-
-    .hero {
-      background: linear-gradient(135deg, #fbfdff 0%, #eef5ff 100%);
-      border: 1px solid #dbe7ff;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
     }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) 290px;
-      gap: 18px;
-      align-items: start;
+    a:hover{
+      text-decoration:underline;
     }
 
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
     }
 
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4.5vw, 40px);
-      line-height: 1.35;
-      letter-spacing: -.02em;
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
     }
 
-    .hero-lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
 
-    .hero-side {
-      background: rgba(255,255,255,.94);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
     }
 
-    .hero-side h2 {
-      margin: 0 0 10px;
-      font-size: 16px;
+    .brand:hover{
+      text-decoration:none;
     }
 
-    .hero-side ul {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 14px;
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
     }
 
-    .hero-side li + li { margin-top: 6px; }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-      margin: 18px 0 0;
+    .brand-copy{
+      min-width:0;
     }
 
-    .audience-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
     }
 
-    .audience-card--good {
-      background: var(--green-soft);
-      border-color: #cfead8;
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
     }
 
-    .audience-card--notyet {
-      background: var(--orange-soft);
-      border-color: #f7dcaa;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .audience-card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
     }
 
-    .audience-card ul {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 14px;
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
     }
 
-    .summary-box {
-      margin-top: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
-    .summary-box h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
     }
 
-    .summary-box p {
-      margin: 0;
-      font-size: 15px;
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
     }
 
-    .jump-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
     }
 
-    .jump-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px solid var(--line);
-      font-size: 13px;
-      font-weight: 700;
+    .search-box-input::placeholder{
+      color:#94a3b8;
     }
 
-    .content-wrap {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) 300px;
-      gap: 20px;
-      align-items: start;
-      margin-top: 22px;
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .article { min-width: 0; }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-bottom: 18px;
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
     }
 
-    .section-anchor {
-      scroll-margin-top: calc(var(--header-h) + 18px);
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
     }
 
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 10px;
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    h2.section-title {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.45;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    h3 {
-      margin: 24px 0 10px;
-      font-size: 18px;
-      line-height: 1.55;
+    .search-result-item{
+      margin:0;
     }
 
-    p {
-      margin: 0 0 14px;
-      font-size: 15px;
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
     }
 
-    ul, ol {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 15px;
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
     }
 
-    li + li { margin-top: 8px; }
-
-    .note {
-      border-left: 4px solid var(--accent);
-      background: #f8fbff;
-      padding: 14px 14px 14px 16px;
-      border-radius: 0 14px 14px 0;
-      margin: 14px 0;
-      font-size: 14px;
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
     }
 
-    .article-figure {
-      margin: 18px 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fbfdff;
+    .search-result-meta{
+      margin:4px 0 0;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
     }
 
-    .article-figure img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
+    .search-box-empty{
+      margin:8px 6px 4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .article-figure figcaption {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
     }
 
-    .point-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-      margin-top: 12px;
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
     }
 
-    .point-card {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 16px;
-      background: #fff;
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
     }
 
-    .point-card h3 {
-      margin: 0 0 8px;
-      font-size: 17px;
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
     }
 
-    .checklist {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
     }
 
-    .check-item {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      background: #fff;
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
     }
 
-    .faq-item + .faq-item { margin-top: 12px; }
-    .faq-q { font-weight: 800; margin-bottom: 6px; }
-
-    .sidebar {
-      position: sticky;
-      top: calc(var(--header-h) + 12px);
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
     }
 
-    .side-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
     }
 
-    .side-card h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
     }
 
-    .toc {
-      display: grid;
-      gap: 10px;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
     }
 
-    .toc a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
+    .btn:hover{
+      text-decoration:none;
     }
 
-    .btn-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid transparent;
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
     }
 
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
     }
 
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: #cfe0ff;
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
     }
 
-    .related-grid {
-      display: grid;
-      gap: 12px;
-      margin-top: 10px;
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
     }
 
-    .related-item {
-      display: grid;
-      grid-template-columns: 84px minmax(0,1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .related-item img {
-      width: 84px;
-      height: 56px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background: #f6f8fb;
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .related-item-title {
-      margin: 0 0 4px;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.5;
+    .summary-card--fit h2{
+      color:#0f766e;
     }
 
-    .related-item-desc {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
+    .summary-card--notyet h2{
+      color:#b45309;
     }
 
-    .footer-nav {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
     }
 
-    .site-footer {
-      padding: 28px 0 42px;
-      color: var(--muted);
-      font-size: 13px;
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
     }
 
-    .top-link {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 999;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(31,42,55,.92);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(15,23,42,.25);
-      font-size: 18px;
-      font-weight: 800;
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
     }
 
-    @media (max-width: 980px) {
-.hero-grid, .content-wrap { grid-template-columns: 1fr; }
-      .sidebar { position: static; }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
 
-    @media (max-width: 768px) {
-      main { padding-top: 16px; }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
 
-      .hero {
-        padding: 18px;
-        border-radius: 20px;
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .number-list{
+      margin:0;
+      padding-left:20px;
+    }
+
+    .number-list li{
+      margin:12px 0 0;
+      font-size:15px;
+      line-height:1.85;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .chibi-note{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .chibi-note img{
+      width:72px;
+      flex:0 0 72px;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .chibi-note-text{
+      min-width:0;
+    }
+
+    .chibi-note-text h3{
+      margin:0 0 8px;
+    }
+
+    .chibi-note-text p{
+      margin:0;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
       }
 
-      .audience-grid,
-      .point-grid {
-        grid-template-columns: 1fr;
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
       }
 
-      .card {
-        padding: 18px;
-        border-radius: 16px;
+      html{
+        scroll-padding-top:92px;
       }
 
-      h2.section-title { font-size: 21px; }
-
-      p, ul, ol { font-size: 14px; }
-
-      .jump-link { width: 100%; }
-
-      .related-item {
-        grid-template-columns: 72px minmax(0,1fr);
+      .site-header{
+        padding:8px 10px;
       }
 
-      .related-item img {
-        width: 72px;
-        height: 48px;
+      .site-header-inner{
+        gap:8px;
       }
 
-      .top-link {
-        right: 12px;
-        bottom: 12px;
+      .brand-logo{
+        height:42px;
       }
-}
-  
-    
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+      .brand-title{
+        font-size:15px;
+      }
 
-body{
-  padding-top:var(--header-h);
-}
+      .brand-sub{
+        display:none;
+      }
 
+      .header-nav{
+        display:none;
+      }
 
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+      .article-hero::before{
+        background:url("../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      h1{
+        font-size:30px;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      .top-summary{
+        grid-template-columns:1fr;
+      }
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+      .side-rail{
+        grid-template-columns:1fr;
+      }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+      .related-grid{
+        grid-template-columns:1fr;
+      }
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .check-grid{
+        grid-template-columns:1fr;
+      }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+      .section-card{
+        padding:22px;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .talk-avatar img{
+        width:66px;
+      }
+    }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .article-hero::before{
+        background:url("../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
+      h1{
+        font-size:34px;
+      }
 
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
 
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
+      .summary-card{
+        padding:20px 18px;
+      }
 
-.search-result-item{
-  margin:0;
-}
+      .summary-card h2{
+        font-size:17px;
+      }
 
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
 
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
 
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
+      .talk-bubble{
+        max-width:none;
+      }
 
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
+      .chibi-note{
+        align-items:flex-start;
+      }
 
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
+      .chibi-note img{
+        width:58px;
+        flex-basis:58px;
+      }
+    }
 
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
+      .breadcrumb{
+        margin-top:14px;
+      }
 
+      .article-hero::before{
+        background:url("../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
-  .header-nav{
-    display:none !important;
-  }
+      h1{
+        font-size:28px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .hero-actions{
+        width:100%;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
+      .btn{
+        width:100%;
+      }
 
-  .brand-title{
-    white-space:nowrap;
-  }
+      .mini-toc{
+        gap:8px;
+      }
 
-  .header-search{
-    flex:0 0 180px;
-  }
-}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
+      .section-card h2{
+        font-size:20px;
+      }
 
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li,
+      .number-list li{
+        font-size:14px;
+      }
 
-  .brand-logo{
-    height:40px;
-  }
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-  .brand-copy{
-    min-width:0;
-  }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
 </head>
-<body id="top">
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html#top" aria-label="工具ガイドTOPへ">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="工具ガイド">
+        <span class="brand-copy">
+          <span class="brand-title">工具ガイド</span>
+          <span class="brand-sub">電気工事士・制御盤の現場メモ</span>
+        </span>
+      </a>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <nav class="header-nav" aria-label="主要ナビゲーション">
+        <a class="header-link" href="../index.html#featured">おすすめ</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+        <a class="header-link" href="../index.html#series">シリーズ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a>
-        <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
-        <span>›</span>
-        <span>光電センサとは？</span>
+        <a href="../index.html#top">トップ</a>
+        <span aria-hidden="true">/</span>
+        <a href="../index.html#category">制御の基礎</a>
+        <span aria-hidden="true">/</span>
+        <span>光電センサの基本</span>
       </nav>
 
-      <section class="hero">
-        <div class="hero-grid">
-          <div>
-            <div class="hero-kicker">入力機器の基礎</div>
-            <h1>光電センサとは？<br>電気工事士向けにやさしく整理</h1>
-            <p class="hero-lead">
-              光電センサは、<strong>光を使って物の有無や位置を検知する入力機器</strong>です。
-              近接センサよりも広い距離や、物が通ったかどうかを見たい時に使いやすく、
-              現場では通過検知・有無確認・位置確認などでよく使われます。
-              最初は難しく見えても、
-              <strong>光がどう通るか / 何を検知するか / PLC入力へどう入るか</strong>
-              で整理すると追いやすいです。
-            </p>
+      <section class="article-hero" id="top">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎</span>
+          <h1>光電センサとは？種類と使い方を初心者向けにやさしく整理</h1>
+          <p class="hero-lead">光電センサは、光を使ってワークの有無や位置を検出するセンサです。透過型・回帰反射型・拡散反射型の違い、近接センサとの使い分け、現場で見る確認ポイントを整理します。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">全体像を見る</a>
+            <a class="btn btn-secondary" href="#types">種類を見る</a>
           </div>
-          <aside class="hero-side">
-            <h2>この記事で分かること</h2>
-            <ul>
-              <li>光電センサの基本と役割</li>
-              <li>光を使って検知する考え方</li>
-              <li>PLC入力との関係</li>
-              <li>現場で見るポイント</li>
-              <li>近接センサとのざっくりした違い</li>
-            </ul>
-          </aside>
         </div>
-
-        <div class="audience-grid">
-          <section class="audience-card audience-card--good">
-            <h2>向いている人</h2>
-            <ul>
-              <li>光電センサの基本を基礎から理解したい人</li>
-              <li>センサの入力機器としての考え方を整理したい人</li>
-              <li>近接センサとの違いをざっくり知りたい人</li>
-              <li>制御をこれから覚えたい人</li>
-            </ul>
-          </section>
-
-          <section class="audience-card audience-card--notyet">
-            <h2>まだ不要な人</h2>
-            <ul>
-              <li>制御や設備にまだほとんど関わらない人</li>
-              <li>まずはPLCや入力・出力の全体像を先に見たい人</li>
-              <li>メーカー別・型番比較だけを先に知りたい人</li>
-            </ul>
-          </section>
-        </div>
-
-        <section class="summary-box">
-          <h2>先に結論</h2>
-          <p>
-            光電センサは、<strong>光の通過・遮光・反射の変化を見て、物の有無や位置を検知し、PLCの入力（X）へ信号を送る機器</strong>です。
-            迷ったら、まずは
-            <strong>「何を検知したいか」「光が正しく通っているか」「センサ表示LEDはどうか」「PLC入力へ本当に入っているか」</strong>
-            の順で見るとかなり整理しやすいです。
-          </p>
-
-          <div class="jump-links" aria-label="記事内ジャンプ">
-            <a class="jump-link" href="#basic">光電センサとは</a>
-            <a class="jump-link" href="#flow">基本の流れ</a>
-            <a class="jump-link" href="#points">現場で見るポイント</a>
-            <a class="jump-link" href="#difference">近接センサとの違い</a>
-          </div>
-        </section>
       </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="basic" class="card section-anchor">
-            <div class="section-label">基本の考え方</div>
-            <h2 class="section-title">光電センサは「光の変化」で物の有無や位置を見ています</h2>
-            <p>
-              光電センサは、投光器から出した光を受光器が受け取り、その光が遮られたか、反射したかなどの変化で物を検知するセンサです。
-            </p>
-            <p>
-              つまり、物に触れて見ているのではなく、<strong>光がどう変わったか</strong>を見ています。
-              そのため、通過確認・有無確認・位置確認などで使いやすく、設備の自動化ではかなりよく出てきます。
-            </p>
+      <section class="top-summary" aria-label="この記事の要約">
+        <article class="summary-card summary-card--fit">
+          <h2>この記事が向いている人</h2>
+          <ul>
+            <li>光電センサの基本的な役割を知りたい人</li>
+            <li>透過型・回帰反射型・拡散反射型の違いを整理したい人</li>
+            <li>検出しない時や誤検出する時の見方を知りたい人</li>
+          </ul>
+        </article>
 
-            <div class="note">
-              まずは
-              <strong>「光で見ている」</strong>
-              <strong>「入力機器としてPLCへ信号を送る」</strong>
-              の2つを押さえるとかなり分かりやすいです。
-            </div>
-          </section>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ深掘りしなくてよい人</h2>
+          <ul>
+            <li>まずはセンサ全体の種類から確認したい人</li>
+            <li>PLC入力と出力の違いをまだ整理していない人</li>
+            <li>メーカーごとの細かい型式選定だけを知りたい人</li>
+          </ul>
+        </article>
 
-          <section id="flow" class="card section-anchor">
-            <div class="section-label">流れで見る</div>
-            <h2 class="section-title">光電センサ → PLC入力 → 判断 → 出力の流れで見ると追いやすいです</h2>
-            <p>
-              現場では、光電センサだけで終わるより、
-              <strong>センサが検知して、その信号がPLCへ入り、そのあと設備がどう動くか</strong>
-              までを見ることが多いです。
-            </p>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>光電センサは光の遮りや反射でワークを検出する</li>
+            <li>距離・ワーク色・反射・光軸ズレで検出が変わる</li>
+            <li>近接センサより離れた検出や非接触検出に向く</li>
+          </ul>
+        </article>
+      </section>
 
-            <figure class="article-figure">
-              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-overview.png" alt="光電センサの基本の流れ。光を出し、物が入り、受光器が検知し、PLC入力へ信号が入り、PLCが判断して出力が動く流れ。">
-              <figcaption>図1：光電センサの基本の流れ。検知 → PLC入力 → 判断 → 出力 の流れで見ると追いやすいです。</figcaption>
-            </figure>
+      <section class="mini-toc-card" aria-label="この記事で分かること">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">光電センサの全体像</a>
+          <a href="#basic">基本の考え方</a>
+          <a href="#types">主な種類</a>
+          <a href="#use">使い分けの考え方</a>
+          <a href="#checkpoints">確認ポイント</a>
+          <a href="#related">あわせて読みたい記事</a>
+        </div>
+      </section>
 
-            <ol>
-              <li>投光器が光を出す</li>
-              <li>物が光の通り道に入る、または反射する</li>
-              <li>受光器が光の変化を検知する</li>
-              <li>センサ信号がPLC入力（例：X0）へ入る</li>
-              <li>PLCが条件に応じて出力側を動かす</li>
-            </ol>
-
-            <div class="note">
-              光電センサはあくまで入力機器です。  
-              自分で設備を動かすのではなく、<strong>PLCへ判断材料を送る役目</strong>です。
-            </div>
-          </section>
-
-          <section id="usage" class="card section-anchor">
-            <div class="section-label">よくある使い方</div>
-            <h2 class="section-title">通過確認・有無確認・位置確認でよく使います</h2>
-            <p>
-              光電センサは、近接センサよりも離れた位置を見やすく、物が通ったかどうかも取りやすいので、次のような場面でよく使われます。
-            </p>
-
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>通過確認</h3>
-                <p>ワークがラインを通過したか、箱が流れてきたかなどを見ます。</p>
-              </section>
-              <section class="point-card">
-                <h3>有無確認</h3>
-                <p>所定の位置に物があるか、部品が来ているかを確認します。</p>
-              </section>
-              <section class="point-card">
-                <h3>位置確認</h3>
-                <p>ある位置に物が来たら次工程へ進める、といった使い方ができます。</p>
-              </section>
-              <section class="point-card">
-                <h3>非接触で見たい時</h3>
-                <p>物理的に当てずに見たい時や、摩耗を減らしたい時にも向いています。</p>
-              </section>
-            </div>
-          </section>
-
-          <section id="points" class="card section-anchor">
-            <div class="section-label">現場での見方</div>
-            <h2 class="section-title">現場ではこの6つを見ると整理しやすいです</h2>
-            <p>
-              光電センサがうまく入らない時や、選定で迷う時は、細かい型式に入る前にまずこの6つを見るとかなり整理しやすいです。
-            </p>
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>光電センサの全体像</h2>
+            <p>光電センサは、光を出して、その光が<span class="mark">遮られたか、反射して戻ってきたか</span>を見て、ワークの有無や位置を検出するセンサです。</p>
+            <p>制御盤や機械装置では、ワークの通過確認、位置確認、部品の有無確認、箱や製品の検出などでよく使われます。</p>
+            <p>近接センサは金属検出が得意ですが、光電センサは光を使うため、金属以外のワークも検出しやすい場面があります。ただし、ワークの色、表面の反射、汚れ、光軸ズレの影響を受けることがあります。</p>
 
             <figure class="article-figure">
-              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-points.png" alt="光電センサを現場で見るポイント。何を検知するか、光が通っているか、LED表示の確認、取付位置と角度、周囲の影響、PLC入力へ入っているかを整理した図。">
-              <figcaption>図2：光電センサを現場で見るポイント。トラブル時や選定時も、この順で見ると追いやすいです。</figcaption>
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-overview.png" alt="光電センサの全体像。光を出す、遮るまたは反射する、検出する、PLCや表示へ信号を送る流れ">
+              <figcaption>光電センサは、光を使ってワークの有無や位置を非接触で検出し、PLCや表示機器へ信号を送ります。</figcaption>
             </figure>
 
-            <div class="checklist">
-              <div class="check-item">
-                <strong>1. 何を検知するか</strong><br>
-                通過なのか、有無なのか、位置なのかをはっきりさせます。
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>光電センサは、まず「光がどう通るか」を見ると分かりやすいです。遮るのか、反射して戻るのかで種類が変わります。</p>
+                </div>
               </div>
-              <div class="check-item">
-                <strong>2. 光が通っているか</strong><br>
-                投光器と受光器の間に余計な物が入っていないかを確認します。
-              </div>
-              <div class="check-item">
-                <strong>3. LED表示の確認</strong><br>
-                受光状態・遮光状態がLEDで分かることが多いので、かなり重要です。
-              </div>
-              <div class="check-item">
-                <strong>4. 取付位置と角度</strong><br>
-                少しズレるだけでも不安定になることがあるので、取付は大事です。
-              </div>
-              <div class="check-item">
-                <strong>5. 周囲の影響</strong><br>
-                太陽光・照明・反射物の影響を受けることがあります。
-              </div>
-              <div class="check-item">
-                <strong>6. PLC入力へ入っているか</strong><br>
-                センサ側が反応していても、PLCの入力Xに入っていない場合があります。
+
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">新人</span>近接センサみたいに対象物だけを見るんじゃなくて、光の通り道まで見る必要があるんですね。</p>
+                </div>
               </div>
             </div>
           </section>
 
-          <section id="difference" class="card section-anchor">
-            <div class="section-label">違いを整理</div>
-            <h2 class="section-title">近接センサとの違いは「何で検知するか」で見ると分かりやすいです</h2>
-            <p>
-              光電センサと近接センサは、どちらも非接触で使えることが多いですが、見ているものが違います。
-            </p>
+          <section class="section-card" id="basic">
+            <h2>光電センサの基本の考え方</h2>
+            <p>光電センサで見るポイントは、<span class="mark">投光・受光・検出物</span>の関係です。</p>
+            <p>投光部から出た光を、受光部が受け取ります。その途中にワークが入って光が遮られたり、ワークで反射した光が戻ってきたりすると、センサが状態の変化として検出します。</p>
+            <p>PLCで見る場合は、光電センサの出力が入力信号として入ります。つまり、センサ本体の検出状態と、PLC入力がONしているかを分けて確認すると、トラブル時に追いやすくなります。</p>
 
-            <div class="point-grid">
-              <section class="point-card">
-                <h3>光電センサ</h3>
-                <p>光の変化で検知します。通過確認や、少し離れた位置での有無確認に向いています。</p>
-              </section>
-              <section class="point-card">
-                <h3>近接センサ</h3>
-                <p>金属などが近づいたことを検知します。近距離での位置確認や金属検出でよく使います。</p>
-              </section>
+            <div class="key-highlight">
+              <h3>光電センサは「光の通り道」を見る</h3>
+              <p>検出しない時は、センサ本体だけでなく、投光方向、受光方向、ワークの位置、光軸、汚れや遮りを順番に確認すると原因を見つけやすくなります。</p>
             </div>
 
-            <p>
-              ざっくり分けると、
-            </p>
-            <ul>
-              <li>光で見たい・通過を取りたい → 光電センサ</li>
-              <li>金属が近づいたことを見たい → 近接センサ</li>
-            </ul>
-            <p>
-              という整理にすると入りやすいです。
-            </p>
-          </section>
-
-          <section id="faq" class="card section-anchor">
-            <div class="section-label">よくある疑問</div>
-            <h2 class="section-title">光電センサでよくある疑問</h2>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 光電センサは入力ですか？</div>
-              <p>A. はい、基本は入力です。物の有無や位置の情報をPLCへ伝える側だからです。</p>
-            </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. 光が見えないのですが本当に出ていますか？</div>
-              <p>A. 赤外線タイプでは目に見えないことがあります。LED表示や受光状態表示を確認すると追いやすいです。</p>
-            </div>
-
-            <div class="faq-item">
-              <div class="faq-q">Q. センサが反応しているのに設備が動きません</div>
-              <p>A. センサLEDがONでも、PLC入力・ラダー条件・出力側で止まっていることがあります。LED → 入力X → ラダー → 出力の順で見ると整理しやすいです。</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>内容</th>
+                    <th>現場での確認</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">投光</td>
+                    <td>センサから光を出す側</td>
+                    <td>光が正しい方向へ出ているか</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">受光</td>
+                    <td>光を受け取る側</td>
+                    <td>光軸が合っているか、受光できているか</td>
+                  </tr>
+                  <tr>
+                    <td>ワーク</td>
+                    <td>検出したい対象物</td>
+                    <td>色、材質、反射、形状が検出に影響していないか</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC入力</td>
+                    <td>センサ出力が入る先</td>
+                    <td>センサ検出時にPLC入力がONしているか</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
 
-          <section class="card">
-            <div class="section-label">関連記事</div>
-            <h2 class="section-title">次に読むとつながりやすい記事</h2>
-            <p>
-              光電センサの基本が見えてきたら、次はセンサ全体・入力と出力・近接センサも合わせて読むとかなりつながりやすいです。
-            </p>
+          <section class="section-card" id="types">
+            <h2>光電センサの主な種類</h2>
+            <p>光電センサは、大きく分けると<span class="mark">透過型・回帰反射型・拡散反射型</span>があります。</p>
+            <p>どれが正解というより、検出距離、取り付けスペース、ワークの色や反射、周囲の環境に合わせて選びます。</p>
 
-            <div class="footer-nav">
-                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            <figure class="article-figure">
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-types.png" alt="光電センサの主な種類。透過型、回帰反射型、拡散反射型の違い">
+              <figcaption>透過型は投光器と受光器を向かい合わせます。回帰反射型は反射板を使い、拡散反射型は対象物からの反射を使って検出します。</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>透過型</h3>
+                <p>投光器と受光器を向かい合わせて設置します。検出距離を取りやすく、ワークが光を遮ることで検出します。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>回帰反射型</h3>
+                <p>センサ本体と反射板を使います。反射板から戻る光が遮られることでワークを検出します。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>拡散反射型</h3>
+                <p>対象物に当たって戻る光を使います。設置はしやすいですが、ワークの色や反射の影響を受けやすい場合があります。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>選定は環境も見る</h3>
+                <p>粉じん、油、透明体、光沢物、黒いワークなどでは検出が不安定になることがあります。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="use">
+            <h2>近接センサとの使い分け</h2>
+            <p>光電センサと近接センサは、どちらもワークを検出するために使いますが、得意な条件が違います。</p>
+            <p>近接センサは金属ワークの検出に向いています。一方で光電センサは、光を使うため、金属以外のワークや少し離れた位置の検出に使いやすい場面があります。</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th>光電センサ</th>
+                    <th>近接センサ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">検出方法</td>
+                    <td>光の遮りや反射を見る</td>
+                    <td>金属の接近を検出する</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">得意な対象</td>
+                    <td>箱、ワーク、通過物、非金属など</td>
+                    <td>金属部品、金属板、金属治具など</td>
+                  </tr>
+                  <tr>
+                    <td>注意点</td>
+                    <td>汚れ、反射、色、光軸ズレ</td>
+                    <td>検出距離、金属材質、取り付け位置</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">使いどころ</td>
+                    <td>離れた位置や通過検出に使いやすい</td>
+                    <td>金属の有無確認に使いやすい</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <div class="chibi-note">
+                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意を促す先輩チビキャラ">
+                <div class="chibi-note-text">
+                  <h3>黒いワークや光沢物は要注意</h3>
+                  <p>拡散反射型では、ワークの色や表面の反射で検出が不安定になることがあります。現場では実物に近い条件で確認するのが安心です。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="checkpoints">
+            <h2>光電センサがうまく検出しない時の確認ポイント</h2>
+            <p>光電センサがうまく検出しない時は、センサ本体の故障だけでなく、検出距離、ワークの色や反射、取り付け位置、汚れを順番に確認します。</p>
+            <p>特に、以前は動いていたのに急に不安定になった場合は、レンズ汚れ、位置ズレ、治具やワークの変更が原因になっていることがあります。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-guide-checkpoints.png" alt="光電センサの確認ポイント。検出距離、ワークの色や反射、取付位置や光軸、汚れや遮りを整理">
+              <figcaption>検出距離、ワークの色や反射、光軸、汚れを分けて見ると、光電センサのトラブル原因を追いやすくなります。</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>検出距離は合っているか</h3>
+                <p>センサの検出範囲から外れていないか、ワークとの距離が遠すぎないか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>ワークの色や反射は問題ないか</h3>
+                <p>黒いワーク、透明体、光沢物では検出が不安定になることがあります。</p>
+              </div>
+
+              <div class="check-item">
+                <h3>取付位置や光軸は合っているか</h3>
+                <p>投光方向と受光方向がズレていないか、振動で位置が変わっていないか確認します。</p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>汚れや遮りはないか</h3>
+                <p>レンズ汚れ、油、粉じん、治具の影などで光が遮られていないか確認します。</p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <div class="chibi-note">
+                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩チビキャラ">
+                <div class="chibi-note-text">
+                  <h3>安全用途とは分けて考える</h3>
+                  <p>一般的な光電センサは、ワーク検出や位置確認に使う部品です。人の侵入検知や安全停止に関わる用途では、安全機器や安全回路として適した構成を別に考える必要があります。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい記事</h2>
+            <p>光電センサは、センサ全体の考え方、近接センサ、PLC入力、NPN/PNPの理解とつながる内容です。先に基本を押さえておくと、現場での確認がしやすくなります。</p>
+
+            <div class="related-grid">
+              <a class="related-card" href="sensor-basic.html">
+                <h3>センサーの基本</h3>
+                <p>センサ全体の役割と、入力機器としての見方を整理できます。</p>
+              </a>
+
+              <a class="related-card" href="proximity-sensor-basic.html">
+                <h3>近接センサーの基本</h3>
+                <p>光電センサとの違いを比較しながら、金属検出の考え方を確認できます。</p>
+              </a>
+
+              <a class="related-card" href="input-output-basic.html">
+                <h3>入力と出力の違い</h3>
+                <p>光電センサの信号をPLC入力として見る基礎になります。</p>
+              </a>
+
+              <a class="related-card" href="npn-pnp-basic.html">
+                <h3>NPNとPNPの違い</h3>
+                <p>センサ配線や入力方式を確認する時の前提になります。</p>
+              </a>
+
+              <a class="related-card" href="limit-switch-basic.html">
+                <h3>リミットスイッチの基本</h3>
+                <p>接触式の位置検出と、光電センサの非接触検出を比べやすくなります。</p>
+              </a>
+
+              <a class="related-card" href="area-sensor-basic.html">
+                <h3>エリアセンサーの基本</h3>
+                <p>範囲検出や侵入検知との違いを整理できます。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-primary" href="proximity-sensor-basic.html">近接センサーを見る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
+        <aside class="side-rail" aria-label="記事の補足ナビゲーション">
           <section class="side-card">
-            <h2>この記事の流れ</h2>
-            <nav class="toc" aria-label="目次">
-              <a href="#basic">光電センサとは</a>
-              <a href="#flow">基本の流れ</a>
-              <a href="#usage">よくある使い方</a>
-              <a href="#points">現場で見るポイント</a>
-              <a href="#difference">近接センサとの違い</a>
-              <a href="#faq">よくある疑問</a>
-            </nav>
-          </section>
-
-          <section class="side-card">
-            <h2>この記事で分かること</h2>
+            <h3>目次</h3>
             <ul>
-              <li>光電センサの基本</li>
-              <li>光で検知する考え方</li>
-              <li>PLC入力との関係</li>
-              <li>現場で見るポイント</li>
-              <li>近接センサとの違い</li>
+              <li><a href="#overview">光電センサの全体像</a></li>
+              <li><a href="#basic">基本の考え方</a></li>
+              <li><a href="#types">主な種類</a></li>
+              <li><a href="#use">使い分け</a></li>
+              <li><a href="#checkpoints">確認ポイント</a></li>
             </ul>
-            <div class="btn-group">
-              <a class="btn btn-primary" href="#flow">基本の流れを見る</a>
-              <a class="btn btn-secondary" href="#points">見るポイントを見る</a>
-            </div>
           </section>
 
           <section class="side-card">
-            <h2>ひとこと</h2>
-            <p style="margin:0; font-size:14px; color:var(--muted);">
-              光電センサは便利ですが、光軸のズレや周囲光の影響で不安定になることがあります。  
-              現場では「光が通っているか」「表示LED」「PLC入力」の3つを見るだけでもかなり追いやすくなります。
-            </p>
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>光電センサは光でワークを検出する</li>
+              <li>透過型・回帰反射型・拡散反射型がある</li>
+              <li>距離・色・反射・光軸ズレに注意する</li>
+              <li>PLC入力とセンサ本体の状態を分けて見る</li>
+            </ul>
           </section>
 
           <section class="side-card">
-            <h2>関連記事</h2>
-            <div class="related-grid">
-              <a class="related-item" href="sensor-basic.html">
-                <img src="../assets/images/sensor-basic/sensor-basic-ogp.png" alt="センサとは何か？の記事">
-                <div>
-                  <p class="related-item-title">センサとは何か？</p>
-                  <p class="related-item-desc">センサ全体の役割や種類をやさしく整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="proximity-sensor-basic.html">
-                <img src="../assets/images/proximity-sensor-basic/proximity-sensor-basic-ogp.png" alt="近接センサとは？の記事">
-                <div>
-                  <p class="related-item-title">近接センサとは？</p>
-                  <p class="related-item-desc">近接センサの基本や現場で見るポイントを整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="input-output-basic.html">
-                <img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いの記事">
-                <div>
-                  <p class="related-item-title">入力と出力の違いとは？</p>
-                  <p class="related-item-desc">入力（X）と出力（Y）の違いを基礎から整理した記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="plc-basic.html">
-                <img src="../assets/images/plc-basic/plc-basic-ogp.png" alt="PLCとは何か？の記事">
-                <div>
-                  <p class="related-item-title">PLCとは何か？</p>
-                  <p class="related-item-desc">PLCの役割や全体像を分かりやすく整理した入口記事です。</p>
-                </div>
-              </a>
-
-              <a class="related-item" href="limit-switch-basic.html">
-                <img src="../assets/images/limit-switch-basic/limit-switch-basic-ogp.png" alt="リミットスイッチとは？の記事">
-                <div>
-                  <p class="related-item-title">リミットスイッチとは？</p>
-                  <p class="related-item-desc">リミットスイッチの基本、接触して検知する考え方、現場で見るポイントをやさしく整理した記事です。</p>
-                </div>
-              </a>
-
-            </div>
+            <h3>次に見る</h3>
+            <ul>
+              <li><a href="sensor-basic.html">センサーの基本</a></li>
+              <li><a href="proximity-sensor-basic.html">近接センサーの基本</a></li>
+              <li><a href="npn-pnp-basic.html">NPNとPNPの違い</a></li>
+            </ul>
           </section>
         </aside>
       </div>
@@ -1272,11 +1669,10 @@ body{
 
   <footer class="site-footer">
     <div class="container">
-      <p style="margin:0;">© 現場目線の工具ガイド / 電気工事士の工具・実務メモ</p>
+      <p>© 工具ガイド｜電気工事士・制御盤の現場メモ</p>
     </div>
   </footer>
 
-  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
   <script src="../assets/js/site-search.js" defer></script>
 </body>
 </html>

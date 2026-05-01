@@ -1,1357 +1,1739 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理</title>
-  <meta name="description" content="エアシリンダとは何かを初心者向けにやさしく整理。基本構造、動きの流れ、エアバルブとリードスイッチとの関係、現場で見るポイントまで分かりやすく解説します。">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理 | 電気と制御の実務メモ</title>
+  <meta name="description" content="エアシリンダとは何かを初心者向けにやさしく整理。圧縮空気で前進・後退する仕組み、エアバルブやリードスイッチとの関係、現場で見るポイントまで分かりやすく解説します。">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/air-cylinder-basic.html">
-
   <meta property="og:type" content="article">
   <meta property="og:title" content="エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理">
-  <meta property="og:description" content="エアシリンダの基本構造、動きの仕組み、エアバルブとリードスイッチとの関係を初心者向けにやさしく整理。">
+  <meta property="og:description" content="エアシリンダの基本構造、圧縮空気で前進・後退する流れ、エアバルブとリードスイッチとの関係を初心者向けに整理します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/air-cylinder-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/air-cylinder-basic/air-cylinder-basic-hero.png">
-  <meta property="og:site_name" content="電気工事士向け工具・実務メディア">
-  <meta property="og:locale" content="ja_JP">
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理">
-  <meta name="twitter:description" content="エアシリンダの基本構造、動きの流れ、エアバルブやリードスイッチとの関係をやさしく整理。">
+  <meta name="twitter:description" content="エアシリンダの仕組み、エアバルブやリードスイッチとの関係、現場で見るポイントをやさしく整理。">
   <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/air-cylinder-basic/air-cylinder-basic-hero.png">
-
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2a37;
-      --muted: #5b6777;
-      --line: #d9e0ea;
-      --accent: #1677ff;
-      --accent-soft: #eef5ff;
-      --green: #1f9d55;
-      --green-soft: #eaf8f0;
-      --orange: #f59e0b;
-      --orange-soft: #fff4df;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --header-h: 78px;
-      --content-w: 1120px;
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.8;
-      -webkit-text-size-adjust: 100%;
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
     }
 
-    button,input{
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
       font:inherit;
     }
 
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 12px;
+    img{
+      max-width:100%;
+      display:block;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
     }
 
-    .container {
-      width: min(var(--content-w), calc(100% - 28px));
-      margin: 0 auto;
-    }
-    main {
-      padding: 22px 0 64px;
+    a:hover{
+      text-decoration:underline;
     }
 
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
     }
 
-    .breadcrumb span {
-      opacity: 0.7;
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
     }
 
-    .hero {
-      background: linear-gradient(135deg, #fbfdff 0%, #eef5ff 100%);
-      border: 1px solid #dbe7ff;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
 
-    .hero-kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
     }
 
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(28px, 4.5vw, 40px);
-      line-height: 1.35;
-      letter-spacing: -0.02em;
-      color: #132e55;
+    .brand:hover{
+      text-decoration:none;
     }
 
-    .lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
     }
 
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 18px 0 0;
+    .brand-copy{
+      min-width:0;
     }
 
-    .audience-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
     }
 
-    .audience-card--good {
-      background: var(--green-soft);
-      border-color: #cfead8;
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
     }
 
-    .audience-card--notyet {
-      background: var(--orange-soft);
-      border-color: #f7dcaa;
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
     }
 
-    .audience-card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      line-height: 1.5;
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
     }
 
-    .audience-card ul {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 14px;
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
     }
 
-    .summary-box {
-      margin-top: 18px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
-    .summary-box h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      line-height: 1.5;
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
     }
 
-    .summary-box ul {
-      margin: 0;
-      padding-left: 20px;
-      font-size: 15px;
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
     }
 
-    .jump-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
     }
 
-    .jump-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 9px 13px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
+    .search-box-input::placeholder{
+      color:#94a3b8;
     }
 
-    .content-wrap {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 20px;
-      align-items: start;
-      margin-top: 22px;
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .article {
-      min-width: 0;
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-      margin-bottom: 18px;
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
     }
 
-    .section-anchor {
-      scroll-margin-top: calc(var(--header-h) + 18px);
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
     }
 
-    .section-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 12px;
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
     }
 
-    h2.section-title {
-      margin: 0 0 12px;
-      font-size: 24px;
-      line-height: 1.45;
-      color: #123158;
+    .search-result-item{
+      margin:0;
     }
 
-    h3 {
-      margin: 24px 0 10px;
-      font-size: 18px;
-      line-height: 1.55;
-      color: #20456d;
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
     }
 
-    p {
-      margin: 0 0 14px;
-      font-size: 15px;
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
     }
 
-    ul, ol {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 15px;
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
     }
 
-    .info-grid,
-    .point-grid,
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 14px;
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
     }
 
-    .info-card,
-    .point-card,
-    .compare-card {
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid var(--line);
-      background: #fff;
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
     }
 
-    .info-card.blue,
-    .point-card.blue,
-    .compare-card.blue {
-      border-color: #b8d3ff;
-      background: var(--accent-soft);
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
     }
 
-    .info-card.green,
-    .point-card.green,
-    .compare-card.green {
-      border-color: #cfead8;
-      background: var(--green-soft);
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .info-card.orange,
-    .point-card.orange,
-    .compare-card.orange {
-      border-color: #ffd0aa;
-      background: #fff4e9;
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
     }
 
-    .info-card h3,
-    .point-card h3,
-    .compare-card h3 {
-      margin-top: 0;
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
     }
 
-    .tip {
-      border-left: 4px solid var(--green);
-      background: var(--green-soft);
-      border-radius: 0 14px 14px 0;
-      padding: 14px 16px;
-      margin: 16px 0;
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
     }
 
-    .warn {
-      border-left: 4px solid var(--orange);
-      background: var(--orange-soft);
-      border-radius: 0 14px 14px 0;
-      padding: 14px 16px;
-      margin: 16px 0;
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
     }
 
-    figure.image-box {
-      margin: 18px 0;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fbfdff;
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
     }
 
-    figcaption {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
     }
 
-    .sidebar {
-      min-width: 0;
-      position: sticky;
-      top: calc(var(--header-h) + 12px);
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
     }
 
-    .side-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
     }
 
-    .side-card h2,
-    .side-card h3 {
-      margin: 0 0 12px;
-      font-size: 16px;
-      line-height: 1.5;
-      color: #123158;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
     }
 
-    .side-card ul {
-      margin: 0;
-      padding-left: 18px;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
     }
 
-    .toc {
-      display: grid;
-      gap: 10px;
+    .btn:hover{
+      text-decoration:none;
     }
 
-    .toc a {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
     }
 
-    .btn-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 0 16px;
-      border-radius: 999px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid transparent;
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
     }
 
-    .btn-primary {
-      background: var(--green);
-      color: #fff;
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
     }
 
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: #cfe0ff;
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
     }
 
-    .related-grid {
-      display: grid;
-      gap: 12px;
-      margin-top: 10px;
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
     }
 
-    .related-item {
-      display: grid;
-      grid-template-columns: 84px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
     }
 
-    .related-item img {
-      width: 84px;
-      height: 56px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background: #f6f8fb;
+    .summary-card--fit h2{
+      color:#0f766e;
     }
 
-    .related-item-title {
-      margin: 0 0 4px;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.5;
-      color: #16345c;
+    .summary-card--notyet h2{
+      color:#b45309;
     }
 
-    .related-item-desc {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
     }
 
-    .cta-box {
-      background: #f8fbff;
-      border: 1px solid #d7e6ff;
-      border-radius: 18px;
-      padding: 18px;
-      margin-top: 14px;
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
     }
 
-    .cta-box h2.section-title {
-      color: #123158;
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
     }
 
-    .footer-nav {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
 
-    .site-footer {
-      padding: 28px 0 42px;
-      color: var(--muted);
-      font-size: 13px;
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
     }
 
-    .top-link {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 999;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(31, 42, 55, 0.92);
-      color: #fff;
-      font-size: 20px;
-      box-shadow: var(--shadow);
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
     }
 
-    @media (min-width: 720px) {
-      .info-grid,
-      .point-grid,
-      .compare-grid,
-      .related-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
     }
 
-    @media (min-width: 1024px) {
-      .audience-grid {
-        grid-template-columns: repeat(2, 1fr);
+    @media (max-width:980px){
+      .brand-sub{
+        display:none !important;
       }
 
-      .content-wrap {
-        grid-template-columns: minmax(0, 1fr) 300px;
-        align-items: start;
+      .header-nav{
+        display:none !important;
       }
 
-      .hero {
-        padding: 28px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .card {
-        padding: 26px;
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
       }
     }
 
-    @media (max-width: 980px) {
-      .content-wrap {
-        grid-template-columns: 1fr;
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
       }
 
-      .sidebar {
-        position: static;
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary{
+        grid-template-columns:1fr;
+      }
+
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+
+      .related-grid{
+        grid-template-columns:1fr;
+      }
+
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
       }
     }
 
-    @media (max-width: 768px) {
-main {
-        padding-top: 16px;
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
       }
 
-      .hero {
-        padding: 18px;
-        border-radius: 20px;
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
       }
 
-      .audience-grid,
-      .point-grid,
-      .info-grid,
-      .compare-grid {
-        grid-template-columns: 1fr;
+      .brand{
+        min-width:0;
+        gap:8px;
       }
 
-      .card {
-        padding: 18px;
-        border-radius: 16px;
+      .brand-logo{
+        height:40px;
       }
 
-      h2.section-title {
-        font-size: 21px;
+      .brand-copy{
+        min-width:0;
       }
 
-      p, ul, ol {
-        font-size: 14px;
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
       }
 
-      .jump-link {
-        width: 100%;
+      .brand-sub{
+        display:none !important;
       }
 
-      .btn {
-        min-
+      .header-nav{
+        display:none !important;
       }
 
-      .related-item {
-        grid-template-columns: 72px minmax(0, 1fr);
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
       }
 
-      .related-item img {
-        width: 72px;
-        height: 48px;
+      .search-box{
+        padding:0 10px;
       }
 
-      .top-link {
-        right: 12px;
-        bottom: 12px;
+      .search-box-input{
+        font-size:12px;
       }
-}
-  
-    
 
-:root{
-  --container:1180px;
-  --header-h:76px;
-  --muted-2:#64748b;
-  --line-header:#dbe7f3;
-  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
+      }
 
-body{
-  padding-top:var(--header-h);
-}
+      .talk-thread{
+        max-width:none;
+      }
 
+      .talk-bubble{
+        max-width:none;
+      }
+    }
 
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
 
-.site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  z-index:999;
-  padding:10px 12px;
-  background:#fff !important;
-  border-bottom:1px solid rgba(203,219,235,.9);
-  box-shadow:0 10px 24px rgba(15,23,42,.06);
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
+      .article-hero::before{
+        background:url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
 
-.site-header-inner{
-  width:min(100%,var(--container));
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
 
-.brand{
-  min-width:0;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  flex:0 0 auto;
-  color:inherit;
-  text-decoration:none;
-}
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
 
-.brand:hover{
-  text-decoration:none;
-}
+      h1{
+        font-size:34px;
+      }
 
-.brand-logo{
-  width:auto;
-  height:46px;
-  flex:0 0 auto;
-}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
 
-.brand-copy{
-  min-width:0;
-}
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
 
-.brand-title{
-  margin:0;
-  font-size:17px;
-  line-height:1.25;
-  font-weight:900;
-  color:#0f172a;
-  letter-spacing:.01em;
-}
+      .summary-card{
+        padding:20px 18px;
+      }
 
-.brand-sub{
-  margin:2px 0 0;
-  font-size:11px;
-  line-height:1.4;
-  color:#475569;
-  font-weight:700;
-}
+      .summary-card h2{
+        font-size:17px;
+      }
 
-.header-nav{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-  flex:1 1 auto;
-  margin-left:auto;
-  margin-right:4px;
-}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
 
-.header-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.2;
-  color:#334155;
-  background:#fff;
-  border:1px solid transparent;
-  white-space:nowrap;
-  text-decoration:none;
-}
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
 
-.header-link:hover{
-  color:#1d4ed8;
-  background:#f8fbff;
-  border-color:#dbeafe;
-  text-decoration:none;
-}
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
 
-.sr-only{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
 
-.header-search{
-  position:relative;
-  flex:0 0 220px;
-  min-height:42px;
-  border-radius:999px;
-  border:1px solid var(--line-header);
-  background:#fff;
-  color:var(--muted-2);
-  box-shadow:var(--shadow-soft);
-}
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
 
-.search-box{
-  position:relative;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-}
+      .breadcrumb{
+        margin-top:14px;
+      }
 
-.search-box-input{
-  width:100%;
-  min-width:0;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:12px;
-  color:#334155;
-  font-weight:700;
-}
+      .mini-toc{
+        gap:8px;
+      }
 
-.search-box-input::placeholder{
-  color:#94a3b8;
-}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
 
-.search-box-button{
-  border:none;
-  background:transparent;
-  color:inherit;
-  padding:0;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
 
-.header-search-icon{
-  width:16px;
-  height:16px;
-  border:2px solid #1f2937;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
+      .section-card h2{
+        font-size:20px;
+      }
 
-.header-search-icon::after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:2px;
-  background:#1f2937;
-  border-radius:999px;
-  right:-5px;
-  bottom:-2px;
-  transform:rotate(45deg);
-}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{
+        font-size:14px;
+      }
 
-.search-box-panel{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  width:min(420px,92vw);
-  max-height:min(72vh,640px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  background:#fff;
-  border:1px solid #dbe7f3;
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(15,23,42,.12);
-  padding:8px 8px 10px;
-  z-index:1200;
-}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
 
-.search-box-results{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:6px;
-}
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
 
-.search-result-item{
-  margin:0;
-}
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
 
-.search-result-item a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid #e6eef8;
-  background:#fbfdff;
-  text-decoration:none;
-}
-
-.search-result-item a:hover,
-.search-result-item a:focus,
-.search-result-item.is-active a{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  text-decoration:none;
-}
-
-.search-result-title{
-  margin:0;
-  font-size:13px;
-  line-height:1.45;
-  color:#0f172a;
-  font-weight:800;
-}
-
-.search-result-meta{
-  margin:4px 0 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.search-result-category{
-  font-size:11px;
-  line-height:1;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#e6f0ff;
-  color:#1d4ed8;
-  font-weight:700;
-}
-
-.search-result-description{
-  margin:6px 0 0;
-  font-size:12px;
-  line-height:1.5;
-  color:#64748b;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.search-box-empty{
-  margin:0;
-  padding:14px 10px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-
-
-@media (max-width: 980px){
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-title{
-    white-space:nowrap;
-  }
-
-  .header-search{
-    flex:0 0 180px;
-  }
-}
-
-@media (max-width: 768px){
-  .site-header{
-    padding:8px 10px;
-  }
-
-  .site-header-inner{
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .brand{
-    min-width:0;
-    gap:8px;
-  }
-
-  .brand-logo{
-    height:40px;
-  }
-
-  .brand-copy{
-    min-width:0;
-  }
-
-  .brand-title{
-    font-size:15px;
-    line-height:1.2;
-    white-space:nowrap;
-  }
-
-  .brand-sub{
-    display:none !important;
-  }
-
-  .header-nav{
-    display:none !important;
-  }
-
-  .header-search{
-    flex:0 0 132px;
-    min-height:38px;
-  }
-
-  .search-box{
-    padding:0 10px;
-  }
-
-  .search-box-input{
-    font-size:12px;
-  }
-
-  .search-box-panel{
-    width:min(360px,92vw);
-    max-height:min(68vh,520px);
-    overflow-y:auto;
-  }
-}
-
-
-</style>
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  </style>
 </head>
-<body id="top">
-      <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
-      <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">電気と制御の実務メモ</p>
-        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
-      </div>
-    </a>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
 
-    <nav class="header-nav" aria-label="グローバルナビゲーション">
-      <a href="../index.html#top" class="header-link">ホーム</a>
-      <a href="../index.html#featured" class="header-link">人気記事</a>
-      <a href="../index.html#category" class="header-link">カテゴリ</a>
-    </nav>
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
 
-    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
-      <label class="sr-only" for="site-search-input">サイト内検索</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="検索">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
-      </div>
-    </form>
-  </div>
-</header>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
   <main>
     <div class="container">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../index.html">トップ</a>
+        <a href="../index.html">ホーム</a>
         <span>›</span>
-        <a href="../index.html#tips">使い方・コツ記事</a>
+        <a href="../index.html#category">カテゴリ</a>
         <span>›</span>
         <span>エアシリンダとは？</span>
       </nav>
 
-      <section class="hero">
-        <div class="hero-kicker">制御・空圧入門</div>
-        <h1>エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理</h1>
-        <p class="lead">
-          エアシリンダは、設備でよく使われる空圧機器のひとつです。この記事では、
-          エアシリンダが何をする部品なのか、どう動くのか、エアバルブやリードスイッチとどうつながるのかを、
-          現場で追いやすい形でやさしく整理します。
-        </p>
-
-        <div class="audience-grid" aria-label="この記事が向いている人">
-          <section class="audience-card audience-card--good">
-            <h2>向いている人</h2>
-            <ul>
-              <li>エアシリンダが何をする部品か知りたい人</li>
-              <li>設備でよく見るけど、役割がまだあいまいな人</li>
-              <li>リードスイッチやエアバルブとの関係を整理したい人</li>
-              <li>制御や設備保全を始めたばかりの人</li>
-            </ul>
-          </section>
-
-          <section class="audience-card audience-card--notyet">
-            <h2>まだ不要な人</h2>
-            <ul>
-              <li>すでにエア回路や機器構成まで普通に読める人</li>
-              <li>シリンダ選定や細かい計算をしたい人</li>
-              <li>空圧設計の細かい仕様差まで整理したい人</li>
-            </ul>
-          </section>
-        </div>
-
-        <section class="summary-box">
-          <h2>先に結論</h2>
-          <ul>
-            <li>エアシリンダは、<strong>圧縮空気の力でまっすぐ動く部品</strong>です。</li>
-            <li><strong>動かす役目はエアバルブ</strong>、<strong>位置確認はリードスイッチ</strong>で見ることが多いです。</li>
-            <li>現場では、シリンダ単体ではなく、<strong>エアバルブ・配管・リードスイッチ・PLC</strong> とセットで見ると分かりやすいです。</li>
-          </ul>
-
-          <div class="jump-links">
-            <a class="jump-link" href="#basic">まず何をする部品か</a>
-            <a class="jump-link" href="#structure">基本構造</a>
-            <a class="jump-link" href="#flow">どう動くか</a>
-            <a class="jump-link" href="#relation">エアバルブとリードスイッチ</a>
-            <a class="jump-link" href="#points">現場で見るポイント</a>
-            <a class="jump-link" href="#summary">まとめ</a>
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">空圧機器の基本</span>
+          <h1>エアシリンダとは？<br>仕組み・動き・どこを見るかを整理</h1>
+          <p class="hero-lead">
+            エアシリンダは、圧縮空気の力でまっすぐ前進・後退する空圧機器です。エアバルブやリードスイッチとの関係、現場で見るポイントまで初心者向けに整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is">基本の仕組みを見る</a>
+            <a class="btn btn-secondary" href="#field-view">現場での見方を見る</a>
           </div>
-        </section>
+        </div>
       </section>
 
-      <div class="content-wrap">
-        <article class="article">
-          <section id="basic" class="card section-anchor">
-            <div class="section-label">基本</div>
-            <h2 class="section-title">エアシリンダとは何か</h2>
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>エアシリンダが何をする部品か知りたい人</li>
+            <li>空圧機器の動き方を基礎から整理したい人</li>
+            <li>エアバルブやリードスイッチとの関係を知りたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>シリンダ径や推力計算を詳しくしたい人</li>
+            <li>メーカーごとの型式選定だけを調べたい人</li>
+            <li>空圧回路設計を専門的に詰めたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>エアシリンダは圧縮空気で直線運動する部品</li>
+            <li>動かす役目はエアバルブ、位置確認はリードスイッチで見ることが多い</li>
+            <li>動かない時は電気側・空気側・機械側を分けて確認する</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">エアシリンダとは？</a>
+          <a href="#structure">基本構造</a>
+          <a href="#movement">前進・後退の仕組み</a>
+          <a href="#valve">エアバルブとの関係</a>
+          <a href="#reed-switch">リードスイッチとの関係</a>
+          <a href="#field-view">現場で見るポイント</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>エアシリンダとは？</h2>
             <p>
-              エアシリンダは、工場設備や自動機でよく使われる<strong>空圧機器</strong>のひとつです。
-              圧縮空気を使って、ロッドを<strong>押し出す・引っ込める</strong>動きを作ります。
+              エアシリンダとは、圧縮空気の力でロッドやスライダを動かす空圧機器です。設備では、ワークを押す、引く、持ち上げる、位置決めする、開閉するなど、まっすぐな動きを作る場面でよく使われます。
             </p>
             <p>
-              現場では、モータのように回転させる部品ではなく、
-              <strong>直線運動を作る部品</strong>として使われることが多いです。
+              電気制御の現場では、PLCやリレーの信号でエアバルブを切り替え、その空気の流れでエアシリンダを動かす構成がよくあります。つまり、エアシリンダを見る時は、シリンダ単体だけでなく、電気信号・エアバルブ・空気圧もセットで見ることが大切です。
             </p>
 
-            <div class="point-grid">
-              <div class="point-card blue">
-                <h3>よくある使い方</h3>
-                <ul>
-                  <li>ワークを押す</li>
-                  <li>部品を止める</li>
-                  <li>製品を横に逃がす</li>
-                  <li>チャックを開閉する</li>
-                </ul>
-              </div>
-              <div class="point-card green">
-                <h3>まずの理解</h3>
+            <div class="key-highlight">
+              <h3>まずは「空気でまっすぐ動く部品」と考える</h3>
+              <p>
+                エアシリンダはモータのように回転する部品ではなく、基本的には直線方向に動く部品です。前進・後退のどちらへ動いているかを見ると、設備の動作を追いやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="structure">
+            <h2>エアシリンダの基本構造</h2>
+            <p>
+              エアシリンダには、空気を入れるポート、内部で動くピストン、外へ出て動作を伝えるロッドなどがあります。圧縮空気がどちら側へ入るかによって、ピストンとロッドが動きます。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>シリンダ本体</h3>
                 <p>
-                  「空気の力で、まっすぐ押す・戻す部品」と考えるとかなり入りやすいです。
+                  ピストンが内部で動く部分です。設備によって丸型、角型、薄型、ガイド付きなどいろいろな形があります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>ロッド</h3>
+                <p>
+                  シリンダの動きを外へ伝える部分です。ワークを押す、引く、治具を動かすなどの動作につながります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>ポート</h3>
+                <p>
+                  空気が入ったり抜けたりする口です。複動シリンダでは前進側と後退側に空気を送ります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>センサ溝・取付部</h3>
+                <p>
+                  リードスイッチやオートスイッチを取り付け、前進端・後退端を検出するために使います。
                 </p>
               </div>
             </div>
           </section>
 
-          <section id="structure" class="card section-anchor">
-            <div class="section-label">構造</div>
-            <h2 class="section-title">基本構造</h2>
+          <section class="section-card" id="movement">
+            <h2>前進・後退の仕組み</h2>
             <p>
-              エアシリンダでまず見ておきたいのは、シリンダ本体、ピストン、ロッド、エア配管口です。
+              エアシリンダは、空気を入れる向きによって前進・後退します。複動シリンダの場合、片側に空気を送ると前進し、反対側に空気を送ると後退します。
             </p>
 
-            <figure class="image-box">
-              <img src="../assets/images/air-cylinder-basic/air-cylinder-basic-01.png" alt="エアシリンダの基本構造と動きを説明した図。シリンダ本体、ピストン、ロッド、空気の流れが整理されている。">
-              <figcaption>画像1：エアシリンダの基本構造と動き。空気を入れるとピストンが動き、ロッドが前後します。</figcaption>
-            </figure>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>動き</th>
+                    <th>空気の入り方</th>
+                    <th>設備での見え方</th>
+                    <th>確認ポイント</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">前進</td>
+                    <td>前進側へ空気を送る</td>
+                    <td>ロッドが出る、ワークを押す</td>
+                    <td>前進端センサ、スピード、干渉</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">後退</td>
+                    <td>後退側へ空気を送る</td>
+                    <td>ロッドが戻る、治具が開く</td>
+                    <td>後退端センサ、戻り速度、負荷</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">停止・途中停止</td>
+                    <td>回路構成やバルブ状態による</td>
+                    <td>途中で止まる、動きが重い</td>
+                    <td>空気圧、スピコン、機械的な引っかかり</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-            <div class="info-grid">
-              <div class="info-card blue">
-                <h3>シリンダ本体</h3>
-                <p>空気が入る本体部分です。内部でピストンが動きます。</p>
+            <div class="note-box">
+              <h3>動作が遅い時は空気だけでなく機械側も見る</h3>
+              <p>
+                シリンダの動きが遅い場合、空気圧やスピードコントローラだけでなく、負荷、ガイドの渋さ、ワークの引っかかりも確認します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="valve">
+            <h2>エアバルブとの関係</h2>
+            <p>
+              エアシリンダを前進・後退させるためには、空気の流れを切り替える必要があります。その切り替えを行うのがエアバルブです。
+            </p>
+            <p>
+              PLC出力でソレノイドバルブを動かし、エアバルブが空気の通り道を切り替え、その結果としてエアシリンダが前進・後退します。シリンダが動かない時は、シリンダ本体だけでなく、エアバルブに信号が来ているか、空気が供給されているかも確認します。
+            </p>
+
+            <div class="field-highlight">
+              <h3>シリンダが動かない時は、バルブ側も見る</h3>
+              <p>
+                エアシリンダが動かない原因は、シリンダ本体とは限りません。ソレノイドに電圧が来ていない、バルブが切り替わっていない、元圧がない、排気できていないなど、周辺も含めて確認します。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>シリンダが動かない時に、いきなりシリンダ本体を疑うより、まずはエアバルブと空気圧も一緒に見るといいよ。</p>
+                </div>
               </div>
-              <div class="info-card blue">
-                <h3>ピストン</h3>
-                <p>本体の中で動く部分です。空気で押されて移動します。</p>
-              </div>
-              <div class="info-card orange">
-                <h3>ロッド</h3>
-                <p>外へ出てくる棒の部分です。実際にワークを押したり動かしたりします。</p>
-              </div>
-              <div class="info-card orange">
-                <h3>エア配管口</h3>
-                <p>空気を入れたり抜いたりする口です。ここにチューブがつながります。</p>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>シリンダの問題に見えても、実は電気信号やバルブ側が原因のこともあるんですね。</p>
+                </div>
               </div>
             </div>
           </section>
 
-          <section id="flow" class="card section-anchor">
-            <div class="section-label">動き</div>
-            <h2 class="section-title">どう動くのか</h2>
+          <section class="section-card" id="reed-switch">
+            <h2>リードスイッチとの関係</h2>
             <p>
-              エアシリンダの動きは、基本的にはかなりシンプルです。
+              エアシリンダでは、前進端や後退端を確認するためにリードスイッチやオートスイッチが使われることがあります。これは、シリンダが「どこまで動いたか」をPLCへ知らせるためのセンサです。
             </p>
 
-            <ol>
-              <li>片側に空気を入れる</li>
-              <li>内部のピストンが押される</li>
-              <li>ロッドが前に出る、または後ろに戻る</li>
-              <li>反対側の空気は排気として抜ける</li>
-            </ol>
-
-            <div class="compare-grid">
-              <div class="compare-card green">
-                <h3>前進するとき</h3>
-                <p>片側に空気を入れると、ピストンが押されてロッドが出ます。</p>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>前進端</h3>
+                <p>
+                  シリンダが前進しきった位置を確認します。工程の次ステップへ進む条件として使われることがあります。
+                </p>
               </div>
-              <div class="compare-card blue">
-                <h3>後退するとき</h3>
-                <p>反対側へ空気を入れると、ロッドが元の位置へ戻ります。</p>
+              <div class="check-item check-item--field">
+                <h3>後退端</h3>
+                <p>
+                  シリンダが戻りきった位置を確認します。原位置確認や復帰確認として使われることがあります。
+                </p>
               </div>
-            </div>
-
-            <div class="tip">
-              <strong>まず覚えたいこと：</strong>
-              エアシリンダは「空気を入れる向き」で動きが変わります。
-            </div>
-
-            <h3>よく見るのは複動タイプ</h3>
-            <p>
-              現場では<strong>複動シリンダ</strong>をよく見ます。前に出す時も、戻す時も、どちらも空気で動かすタイプです。
-              制御しやすく、自動機で使いやすいからです。
-            </p>
-            <p>
-              単動タイプもありますが、まずは複動をイメージしておけば大きくズレにくいです。
-            </p>
-          </section>
-
-          <section id="relation" class="card section-anchor">
-            <div class="section-label">周辺機器との関係</div>
-            <h2 class="section-title">エアバルブとリードスイッチとの関係</h2>
-            <p>
-              エアシリンダは、単体で勝手に動くわけではありません。多くの設備では、
-              <strong>PLC → エアバルブ → エアシリンダ → リードスイッチ → PLC入力</strong>
-              という流れで見ます。
-            </p>
-
-            <figure class="image-box">
-              <img src="../assets/images/air-cylinder-basic/air-cylinder-basic-02.png" alt="エアシリンダとエアバルブ、リードスイッチの関係を説明した図。PLC出力でエアバルブが切り替わり、シリンダが動き、リードスイッチで位置確認する流れ。">
-              <figcaption>画像2：エアバルブが空気を切り替えてシリンダを動かし、リードスイッチで位置確認するイメージです。</figcaption>
-            </figure>
-
-            <div class="info-grid">
-              <div class="info-card orange">
-                <h3>エアバルブ</h3>
-                <p>空気の流れを切り替えて、シリンダを前進・後退させる役目です。</p>
+              <div class="check-item check-item--warning">
+                <h3>ランプ確認</h3>
+                <p>
+                  リードスイッチ本体の表示ランプで、検出しているかを確認できる場合があります。ただしランプだけで断定しないようにします。
+                </p>
               </div>
-              <div class="info-card green">
-                <h3>リードスイッチ</h3>
-                <p>シリンダがちゃんと出たか、戻ったかの位置確認でよく使います。</p>
+              <div class="check-item">
+                <h3>PLC入力</h3>
+                <p>
+                  リードスイッチの信号がPLC入力に入っているかを確認します。現物のランプと入力モニタをセットで見ます。
+                </p>
               </div>
             </div>
 
-            <div class="warn">
-              <strong>見方のコツ：</strong>
-              シリンダだけを見るより、「何で動かして、どこで確認しているか」をセットで見た方が追いやすいです。
+            <div class="key-highlight">
+              <h3>動作確認は「動いたか」と「検出したか」を分ける</h3>
+              <p>
+                シリンダが動いていても、リードスイッチが検出していないと、PLC上では動作完了にならないことがあります。現物の動きと入力信号を分けて確認します。
+              </p>
             </div>
           </section>
 
-          <section id="points" class="card section-anchor">
-            <div class="section-label">現場での見方</div>
-            <h2 class="section-title">現場でどこを見るか</h2>
-
-            <h3>1. ロッドが何を動かしているか</h3>
+          <section class="section-card" id="field-view">
+            <h2>現場で見るポイント</h2>
             <p>
-              まずはここです。何を押しているか、何を止めているかを見ると役割が見えやすいです。
+              エアシリンダを見る時は、シリンダ単体だけでなく、電気側・空気側・機械側を分けて確認すると切り分けしやすくなります。
             </p>
 
-            <h3>2. 前進と後退のどちらが本番動作か</h3>
-            <p>
-              設備によっては「出る側が作業」「戻りは待機位置」ということがあります。
-            </p>
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>電気側</h3>
+                <p>
+                  PLC出力、エアバルブのソレノイド、リードスイッチ入力、センサランプを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>空気側</h3>
+                <p>
+                  元圧、レギュレータ、エアバルブ、チューブ接続、排気、スピードコントローラを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>機械側</h3>
+                <p>
+                  ロッドの引っかかり、ワークの干渉、ガイドの渋さ、取り付けのズレを確認します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>PLCモニタ</h3>
+                <p>
+                  出力が出ているか、前進端・後退端入力が入っているかを見ます。現物の動きと合わせて確認します。
+                </p>
+              </div>
+            </div>
 
-            <h3>3. 配管はどのエアバルブにつながっているか</h3>
-            <p>
-              チューブを追うと、どのバルブで動かしているか見えてきます。
-            </p>
-
-            <h3>4. リードスイッチが付いているか</h3>
-            <p>
-              位置確認をしている設備かどうかが分かります。付いていない場合はタイマだけで見ていることもあります。
-            </p>
-
-            <h3>5. 速度調整があるか</h3>
-            <p>
-              スピコンで速度を落としていることがあります。速すぎると衝撃が大きくなるので、調整されていることが多いです。
-            </p>
-
-            <div class="tip">
-              <strong>最初の見る順：</strong>
-              ロッドの動き → 配管 → エアバルブ → リードスイッチ → PLC入力、の順で見ると整理しやすいです。
+            <div class="danger-box">
+              <h3>手で動かす・エアを入れる前に安全確認</h3>
+              <p>
+                シリンダは急に動くことがあります。手動操作やエア供給を行う前に、挟まれ、干渉、周囲の人、設備状態を必ず確認してください。
+              </p>
             </div>
           </section>
 
-          <section id="trouble" class="card section-anchor">
-            <div class="section-label">トラブル時</div>
-            <h2 class="section-title">動きがおかしい時の見方</h2>
+          <section class="section-card" id="mistakes">
+            <h2>間違えやすいポイント</h2>
+            <p>
+              エアシリンダは、電気・空気・機械がつながって動くため、原因を一か所だけに決めつけると見落としやすくなります。
+            </p>
 
-            <h3>動かない時</h3>
-            <ul>
-              <li>エアは来ているか</li>
-              <li>エアバルブは切り替わっているか</li>
-              <li>配管が抜けていないか</li>
-              <li>ロッド先で引っかかっていないか</li>
-            </ul>
-
-            <h3>戻らない時</h3>
-            <ul>
-              <li>反対側に空気が入っているか</li>
-              <li>排気が詰まっていないか</li>
-              <li>機械的に噛み込みがないか</li>
-            </ul>
-
-            <h3>動いているのに信号が入らない時</h3>
-            <ul>
-              <li>リードスイッチ位置がズレていないか</li>
-              <li>配線が外れていないか</li>
-              <li>PLC入力が見えているか</li>
-            </ul>
-
-            <div class="warn">
-              <strong>大事なこと：</strong>
-              エアシリンダだけでなく、エアバルブ・配管・リードスイッチ・PLC入力までセットで見ないと切り分けしにくいです。
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>シリンダ本体だけを疑う</h3>
+                <p>
+                  動かない原因は、バルブ、空気圧、配管、PLC出力、機械負荷のどこかにある場合もあります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>ランプだけで正常判断する</h3>
+                <p>
+                  ソレノイドやリードスイッチのランプが点いていても、実際の信号や動作が正常とは限りません。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>前進端・後退端を見ない</h3>
+                <p>
+                  シリンダが動いても、端まで行っていないと次工程へ進まないことがあります。端検出を確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>スピコンを見落とす</h3>
+                <p>
+                  スピードコントローラの絞りすぎや詰まりで、動きが遅い、戻らない、途中で止まることがあります。
+                </p>
+              </div>
             </div>
           </section>
 
-          <section id="summary" class="card section-anchor cta-box">
-            <div class="section-label">まとめ</div>
-            <h2 class="section-title">エアシリンダは「動く部品」として見ると分かりやすい</h2>
+          <section class="section-card" id="summary">
+            <h2>まとめ：エアシリンダは空気で直線運動する部品</h2>
             <p>
-              エアシリンダは、<strong>空気の力で直線運動を作る部品</strong>です。
-              現場では単体で見るより、
+              エアシリンダは、圧縮空気の力で前進・後退する空圧機器です。設備では、押す、引く、持ち上げる、位置決めする、開閉するなど、直線的な動きを作る場面でよく使われます。
             </p>
-            <ul>
-              <li>何を動かしているか</li>
-              <li>どのエアバルブで動かしているか</li>
-              <li>どのリードスイッチで位置確認しているか</li>
-            </ul>
             <p>
-              を一緒に見ると理解しやすいです。
-              制御を始めたての人は、まず
-              <strong>「動かすのはエアバルブ、確認するのはリードスイッチ」</strong>
-              という整理で覚えておくと追いやすいです。
+              現場で見る時は、エアシリンダ本体だけでなく、エアバルブ、空気圧、チューブ、スピードコントローラ、リードスイッチ、PLC入力・出力をセットで確認します。
             </p>
 
-            <div class="footer-nav">
-                            <a class="btn btn-primary" href="../index.html#tips">使い方・コツ記事をもっと見る</a>
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                エアシリンダは「空気で動く直線運動の部品」です。動かない時は、電気側・空気側・機械側を分けて見れば、原因を切り分けしやすくなります。
+              </p>
             </div>
+          </section>
 
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
             <div class="related-grid">
-              <a class="related-item" href="reed-switch-basic.html">
-                <img src="../assets/images/reed-switch-basic/reed-switch-basic-ogp.png" alt="リードスイッチとは？の記事サムネイル">
-                <div>
-                  <p class="related-item-title">リードスイッチとは？</p>
-                  <p class="related-item-desc">エアシリンダの位置確認でよく使うスイッチの基本を整理した記事です。</p>
-                </div>
+              <a class="related-card" href="./air-valve-basic.html">
+                <h3>エアバルブとは？</h3>
+                <p>エアシリンダを前進・後退させる空気の流れを切り替える部品について整理します。</p>
               </a>
-
-              <a class="related-item" href="npn-pnp-basic.html">
-                <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="NPN / PNP の違いとは？の記事サムネイル">
-                <div>
-                  <p class="related-item-title">NPN / PNP の違いとは？</p>
-                  <p class="related-item-desc">センサ出力とPLC入力の関係を整理したい時に相性が良い記事です。</p>
-                </div>
+              <a class="related-card" href="./reed-switch-basic.html">
+                <h3>リードスイッチとは？</h3>
+                <p>エアシリンダの前進端・後退端を確認するセンサの基本を整理します。</p>
               </a>
-
-              <a class="related-item" href="limit-switch-basic.html">
-                <img src="../assets/images/limit-switch-basic/limit-switch-basic-ogp.png" alt="リミットスイッチとは？の記事サムネイル">
-                <div>
-                  <p class="related-item-title">リミットスイッチとは？</p>
-                  <p class="related-item-desc">位置確認の考え方を他の入力機器と比べながら見たい時に読みやすい記事です。</p>
-                </div>
+              <a class="related-card" href="./input-output-basic.html">
+                <h3>入力と出力の違いとは？</h3>
+                <p>PLC出力でバルブを動かし、入力でシリンダ位置を確認する流れを理解しやすくします。</p>
               </a>
-
-              <a class="related-item" href="input-output-basic.html">
-                <img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="入力と出力の違いとは？の記事サムネイル">
-                <div>
-                  <p class="related-item-title">入力と出力の違いとは？</p>
-                  <p class="related-item-desc">PLCで何が入力で何が出力かを整理して、全体の流れを見やすくする記事です。</p>
-                </div>
+              <a class="related-card" href="./sensor-basic.html">
+                <h3>センサーとは？</h3>
+                <p>設備の状態確認に使うセンサーの基本を、現場目線で整理します。</p>
               </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
             </div>
           </section>
         </article>
 
-        <aside class="sidebar">
+        <aside class="side-rail" aria-label="補足情報">
           <section class="side-card">
-            <h2>この記事の流れ</h2>
-            <nav class="toc" aria-label="目次">
-              <a href="#basic">エアシリンダとは何か</a>
-              <a href="#structure">基本構造</a>
-              <a href="#flow">どう動くのか</a>
-              <a href="#relation">エアバルブとリードスイッチ</a>
-              <a href="#points">現場でどこを見るか</a>
-              <a href="#trouble">動きがおかしい時の見方</a>
-              <a href="#summary">まとめ</a>
-            </nav>
-          </section>
-
-          <section class="side-card">
-            <h3>この記事の要点</h3>
+            <h3>この記事の流れ</h3>
             <ul>
-              <li>空気の力で直線運動を作る</li>
-              <li>動かすのはエアバルブ</li>
-              <li>確認するのはリードスイッチ</li>
-              <li>配管・入力までセットで見る</li>
+              <li><a href="#what-is">エアシリンダとは？</a></li>
+              <li><a href="#structure">基本構造</a></li>
+              <li><a href="#movement">前進・後退の仕組み</a></li>
+              <li><a href="#valve">エアバルブとの関係</a></li>
+              <li><a href="#reed-switch">リードスイッチとの関係</a></li>
+              <li><a href="#field-view">現場で見るポイント</a></li>
+              <li><a href="#summary">まとめ</a></li>
             </ul>
           </section>
 
           <section class="side-card">
-            <h3>次に読む候補</h3>
-            <div class="btn-group">
-              <a class="btn btn-secondary" href="reed-switch-basic.html">リードスイッチとは？</a>
-              <a class="btn btn-secondary" href="npn-pnp-basic.html">NPN / PNP の違いとは？</a>
-              <a class="btn btn-secondary" href="../index.html#tips">使い方・コツ記事一覧</a>
-            </div>
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>エアシリンダは圧縮空気で動く</li>
+              <li>前進・後退は空気の流れで切り替わる</li>
+              <li>エアバルブが空気の通り道を切り替える</li>
+              <li>リードスイッチで位置を確認する</li>
+              <li>電気・空気・機械を分けて見る</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./air-valve-basic.html">エアバルブとは？</a></li>
+              <li><a href="./reed-switch-basic.html">リードスイッチとは？</a></li>
+              <li><a href="./input-output-basic.html">入力と出力の違いとは？</a></li>
+              <li><a href="./sensor-basic.html">センサーとは？</a></li>
+            </ul>
           </section>
         </aside>
       </div>
@@ -1360,11 +1742,10 @@ body{
 
   <footer class="site-footer">
     <div class="container">
-      現場で追いやすいことを優先して、電気工事士・制御初心者向けに整理しています。
+      <p>© 電気と制御の実務メモ. All rights reserved.</p>
     </div>
   </footer>
 
-  <a class="top-link" href="#top" aria-label="ページ上部へ戻る">↑</a>
-  <script src="../assets/js/site-search.js" defer></script>
+  <script src="../assets/js/site-search.js"></script>
 </body>
 </html>

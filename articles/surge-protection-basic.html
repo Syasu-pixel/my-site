@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>サージ保護・サージ対策とは？雷サージや開閉サージから制御盤を守る基本</title>
+  <meta name="description" content="サージ保護・サージ対策とは何かを初心者向けに整理。雷サージや開閉サージ、SPDの役割、サージ対策あり・なしの違い、制御盤で見るポイントまで現場目線でやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/surge-protection-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="サージ保護・サージ対策とは？雷サージや開閉サージから制御盤を守る基本">
+  <meta property="og:description" content="雷サージや開閉サージ、SPDの役割、サージ対策あり・なしの違い、制御盤で見るポイントをやさしく整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/surge-protection-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/surge-protection-basic/surge-protection-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="サージ保護・サージ対策とは？雷サージや開閉サージから制御盤を守る基本">
+  <meta name="twitter:description" content="雷サージや開閉サージ、SPDの役割、サージ対策あり・なしの違い、制御盤で見るポイントをやさしく整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/surge-protection-basic/surge-protection-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/surge-protection-basic/surge-protection-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
+      font-weight:900;
+    }
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .icon-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      margin-bottom:10px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:24px;
+      font-weight:900;
+    }
+    .icon-point h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.45;
+    }
+    .icon-point p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .icon-point--orange{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    .icon-point--orange .icon{
+      background:#ffedd5;
+      color:#c2410c;
+    }
+    .icon-point--green{
+      border-color:#bbf7d0;
+      background:#ecfdf3;
+    }
+    .icon-point--green .icon{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--blue{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--green{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--orange{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+    .check-item--red{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#eaf2ff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-red{
+      background:#fff1f2;
+      font-weight:800;
+      color:#991b1b;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/surge-protection-basic/surge-protection-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/surge-protection-basic/surge-protection-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/surge-protection-basic/surge-protection-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../index.html#category">制御盤の基礎</a>
+      <span>›</span>
+      <span>サージ保護・サージ対策とは</span>
+    </nav>
+
+    <section class="article-hero" id="top">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御盤の基礎</span>
+        <h1>サージ保護・サージ対策とは？雷サージや開閉サージから制御盤を守る基本</h1>
+        <p class="hero-lead">
+          サージは、雷や機器のON/OFFなどで一瞬だけ発生する高い電圧です。PLC、電源、インバータ、センサーなどを守るために、SPDや接地を含めたサージ対策の考え方を初心者向けに整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic">まず基本を見る</a>
+          <a class="btn btn-secondary" href="#flow">保護の流れを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の要点">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>サージやSPDという言葉を現場で聞いたことがある人</li>
+          <li>雷や開閉サージで機器が壊れる理由をざっくり知りたい人</li>
+          <li>制御盤の保護機器を少しずつ覚えたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まず押しボタン、リレー、センサーなどの基本部品を優先したい人</li>
+          <li>盤内配線より工具や施工の基礎を先に覚えたい人</li>
+          <li>SPDの選定や施工基準を細かく知りたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>サージ対策は、一瞬の過電圧から制御機器を守る考え方です。</li>
+          <li>SPDはサージを受けて、アース側へ逃がす役割を持ちます。</li>
+          <li>制御盤では、電源・PLC・インバータ・通信機器の保護に関係します。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="記事内メニュー">
+      <h2>この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#basic">サージとは</a>
+        <a href="#source">発生源</a>
+        <a href="#overview">SPDの役割</a>
+        <a href="#comparison">対策あり/なし</a>
+        <a href="#flow">保護の流れ</a>
+        <a href="#field">現場で見るポイント</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic">
+          <h2>サージ保護・サージ対策とは</h2>
+          <p>
+            サージとは、回路に一瞬だけ発生する<span class="term">高い電圧</span>のことです。
+            落雷の影響や、モーター・電磁接触器・大型機器のON/OFFなどで発生することがあります。
+          </p>
+          <p>
+            サージが制御盤内に入り込むと、PLC、スイッチング電源、インバータ、センサー、通信機器などに悪影響を与えることがあります。
+            すぐに壊れる場合もあれば、誤動作や寿命低下のように、あとから不具合として出ることもあります。
+          </p>
+          <p>
+            サージ保護・サージ対策は、この一瞬の過電圧をそのまま機器へ入れないようにして、設備を守るための考え方です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>まずはこう覚える</h3>
+            <p>
+              サージは「一瞬だけ来る強い電気的な衝撃」、SPDは「その衝撃を受けてアースへ逃がす保護機器」と考えると分かりやすいです。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>サージはずっと流れ続ける電圧じゃなくて、一瞬だけドンと入ってくる過電圧なんだ。だから見えにくいけど、制御機器にはかなり嫌な存在だよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>雷だけじゃなくて、機械のON/OFFでもサージが出ることがあるんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="source">
+          <h2>サージはどこから来るのか</h2>
+          <p>
+            サージの発生源は、大きく分けると<span class="mark">雷サージ</span>と<span class="mark">開閉サージ</span>があります。
+            雷サージは、落雷や雷の影響で電源線や信号線に高い電圧が乗るものです。
+          </p>
+          <p>
+            開閉サージは、モーター、電磁接触器、ソレノイド、インバータ、大きな負荷などを入切したときに発生する一時的な過電圧です。
+            制御盤の中では、こちらの方が身近に関係する場面もあります。
+          </p>
+
+          <div class="icon-points">
+            <div class="icon-point icon-point--orange">
+              <span class="icon">⚡</span>
+              <h3>雷サージ</h3>
+              <p>落雷や雷の影響で、電源線や外部配線に高い電圧が乗ることがあります。</p>
+            </div>
+            <div class="icon-point">
+              <span class="icon">↔</span>
+              <h3>開閉サージ</h3>
+              <p>モーターや接点のON/OFFで、一瞬の過電圧が発生することがあります。</p>
+            </div>
+            <div class="icon-point icon-point--green">
+              <span class="icon">🛡</span>
+              <h3>機器保護</h3>
+              <p>PLCや電源、通信機器に直接サージが入らないように対策します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>SPDの役割とサージ保護の基本</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/surge-protection-basic/surge-protection-basic-overview.png" alt="サージ保護の基本とSPDが制御盤内の機器を守るしくみを示した図">
+            <figcaption>
+              SPDは、サージが回路に入ってきたときに過電圧を受け止め、アース側へ逃がすことで、PLCや電源、インバータなどへの影響を減らします。
+            </figcaption>
+          </figure>
+          <p>
+            SPDは、サージ保護デバイスとも呼ばれる保護機器です。
+            普段は回路へ大きく影響しませんが、サージが発生したときに働き、過電圧を抑える方向に動きます。
+          </p>
+          <p>
+            重要なのは、SPD単体だけで考えないことです。
+            サージを逃がすためには、<span class="term">アース</span>や配線の取り回し、保護したい機器の位置関係も関係します。
+          </p>
+
+          <div class="field-highlight">
+            <h3>制御盤で見るポイント</h3>
+            <p>
+              SPDが付いているかだけでなく、どの電源系統を守っているのか、アースへきちんと逃がす経路があるのかを見ることが大切です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>サージ対策あり・なしの違い</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/surge-protection-basic/surge-protection-basic-comparison.png" alt="サージ対策なしとサージ対策ありで機器への影響がどう変わるかを比較した図">
+            <figcaption>
+              サージ対策がない場合は、サージが機器側へ直接入りやすくなります。SPDを使うと、サージをアース側へ逃がし、機器への影響を減らす考え方になります。
+            </figcaption>
+          </figure>
+          <p>
+            サージ対策がない場合、雷やスイッチングで発生したサージが、そのままPLCや電源、制御機器へ届いてしまう可能性があります。
+            その結果、異常停止、誤動作、故障、寿命低下につながることがあります。
+          </p>
+          <p>
+            サージ対策がある場合は、SPDがサージを受けてアースへ逃がし、機器側にかかる負担を減らします。
+            完全にすべてのトラブルを防ぐものではありませんが、設備を安定して動かすための保護として役立ちます。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>サージ対策なし</th>
+                  <th>サージ対策あり</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>サージの流れ</td>
+                  <td class="cell-red">機器側へ直接入りやすい</td>
+                  <td class="cell-green">SPDからアース側へ逃がす</td>
+                </tr>
+                <tr>
+                  <td>PLC・電源への影響</td>
+                  <td class="cell-red">誤動作・故障の原因になりやすい</td>
+                  <td class="cell-green">過電圧の影響を減らしやすい</td>
+                </tr>
+                <tr>
+                  <td>設備の安定性</td>
+                  <td class="cell-orange">原因不明の停止につながることがある</td>
+                  <td class="cell-blue">安定稼働を支えやすい</td>
+                </tr>
+                <tr>
+                  <td>考え方</td>
+                  <td>サージが来てから壊れるリスクを見る</td>
+                  <td>サージが来る前提で逃がす道を作る</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>サージ保護の流れ</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/surge-protection-basic/surge-protection-basic-flow.png" alt="サージ発生からSPDが受け、アースへ逃がし、機器を保護する流れを示した図">
+            <figcaption>
+              サージが発生すると、SPDが過電圧を受け、アース側へ逃がします。その結果、PLCや電源などにかかる電圧上昇を抑え、機器を守る流れになります。
+            </figcaption>
+          </figure>
+          <p>
+            サージ保護の流れは、4段階で見ると分かりやすいです。
+            まず雷や開閉動作によってサージが発生します。次に、そのサージが電源線や信号線を通って制御盤側へ入ってきます。
+          </p>
+          <p>
+            SPDはサージを検出すると、過電圧を抑えながらアース側へ逃がします。
+            その結果、PLCや電源などの機器へ直接大きな電圧がかかりにくくなります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--red">
+              <h3>1. サージ発生</h3>
+              <p>雷や機器のON/OFFで、一瞬の過電圧が発生します。</p>
+            </div>
+            <div class="check-item check-item--blue">
+              <h3>2. SPDが受ける</h3>
+              <p>サージが回路に入ると、SPDが反応して過電圧を受けます。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>3. アースへ逃がす</h3>
+              <p>サージをアース側へ逃がし、回路の電圧上昇を抑えます。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>4. 機器を保護</h3>
+              <p>PLCや電源、制御機器への負担を減らします。</p>
+            </div>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>SPDは、サージを消して終わりというより「機器へ行く前に逃がす道を作る」イメージで見るといいよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="理解する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>だからSPDとアースはセットで考えるんですね。付いている場所だけでなく、逃げ道を見るのが大事そうです。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field">
+          <h2>現場で見るときのポイント</h2>
+          <p>
+            現場でサージ対策を見るときは、まず「どの機器を守るためのSPDなのか」を確認します。
+            たとえば、制御電源、PLC、通信機器、インバータ、外部に伸びる信号線など、保護したい対象を意識します。
+          </p>
+          <p>
+            次に、SPDの接続先とアースを見ます。
+            サージは逃がす先が必要なので、SPDだけを見て終わりにせず、接地側の考え方もセットで見るのが大切です。
+          </p>
+
+          <div class="note-box">
+            <h3>ここを覚える</h3>
+            <p>
+              サージ対策は「何となく付ける部品」ではなく、守りたい機器と、サージを逃がす経路をセットで考える保護です。
+            </p>
+          </div>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>守る対象</h3>
+              <p>PLC、電源、通信機器、インバータなど、何を守るのかを確認します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>逃がす経路</h3>
+              <p>SPDからアース側へ、サージを逃がす考え方があるかを見ます。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>外部配線</h3>
+              <p>盤外へ出る配線や長い信号線は、サージの影響を受けることがあります。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>勝手に触らない</h3>
+              <p>SPDや接地まわりは、盤の設計や管理に関わるため、判断は責任者に確認します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：サージ対策は制御機器を守るための逃げ道づくり</h2>
+          <p>
+            サージ保護・サージ対策は、雷サージや開閉サージなどの一瞬の過電圧から、PLC、電源、インバータ、通信機器などを守るための考え方です。
+          </p>
+          <p>
+            SPDは、サージを受けてアース側へ逃がすことで、機器側へ直接大きな電圧が入ることを減らします。
+            ただし、SPDだけを見ればよいのではなく、守る対象、配線の流れ、アースへの逃げ道をセットで考えることが大切です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事の結論</h3>
+            <p>
+              サージ対策は「機器が壊れてから考えるもの」ではなく、「サージが来る前提で、機器へ入る前に逃がす道を作るもの」です。
+            </p>
+          </div>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="#top">この記事の上へ戻る</a>
+            <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>関連記事</h2>
+          <p>電源や保護機器まわりの記事もあわせて見ると、サージ対策の位置づけが整理しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="dc24v-power-supply-basic.html">
+              <h3>DC24V電源とは？</h3>
+              <p>制御盤でよく使うDC24V電源の役割と見るポイントを解説します。</p>
+            </a>
+            <a class="related-card" href="circuit-protector-basic.html">
+              <h3>サーキットプロテクタとは？</h3>
+              <p>制御回路やDC24V回路で使われる小型保護機器の基本を整理します。</p>
+            </a>
+            <a class="related-card" href="no-fuse-breaker-basic.html">
+              <h3>NFBとは？</h3>
+              <p>制御盤や分電盤でよく見るノーヒューズブレーカーの基本を整理します。</p>
+            </a>
+            <a class="related-card" href="inverter-basic.html">
+              <h3>インバータとは？</h3>
+              <p>モーター制御で使うインバータの基本と見るポイントを解説します。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>サージは一瞬だけ発生する高い電圧</li>
+            <li>雷サージと開閉サージがある</li>
+            <li>SPDはサージをアース側へ逃がす</li>
+            <li>守る機器と逃がす経路をセットで見る</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="dc24v-power-supply-basic.html">DC24V電源とは？</a></li>
+            <li><a href="circuit-protector-basic.html">サーキットプロテクタとは？</a></li>
+            <li><a href="no-fuse-breaker-basic.html">NFBとは？</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>現場での覚え方</h3>
+          <ul>
+            <li>サージは一瞬の電気的な衝撃</li>
+            <li>SPDは機器に入る前に逃がす部品</li>
+            <li>接地とセットで考える</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

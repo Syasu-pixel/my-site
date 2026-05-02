@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IAIロボシリンダーとは？エアシリンダーとの違いと現場で見るポイントをやさしく整理 | 電気と制御の実務メモ</title>
-  <meta name="description" content="IAIロボシリンダーとは何かを、電気工事士・制御初心者向けにやさしく整理。エアシリンダーとの違い、位置決めできるメリット、PLCとの信号のやり取り、原点復帰・位置No・完了信号・アラームの見方まで現場目線で解説します。">
+  <meta name="description" content="IAIロボシリンダーとは何かを、電気工事士・制御初心者向けにやさしく整理。エアシリンダーとの違い、基本構成、PLCとの信号の流れ、原点復帰、位置No、完了信号、アラーム確認、現場での見方まで解説します。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/iai-robocylinder-basic.html">
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="IAIロボシリンダーとは？エアシリンダーとの違いと現場で見るポイントをやさしく整理">
-  <meta property="og:description" content="IAIロボシリンダーの基本を現場目線で整理。エアシリンダーとの違い、PLCとの信号の流れ、原点復帰・位置No・完了信号の見方をやさしく解説します。">
+  <meta property="og:description" content="IAIロボシリンダーの基本を現場目線で整理。エアシリンダーとの違い、PLCとの信号の流れ、原点復帰・位置No・完了信号・アラームの見方をやさしく解説します。">
   <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/iai-robocylinder-basic.html">
   <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/iai-robocylinder-basic/iai-robocylinder-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
@@ -1343,7 +1343,7 @@
           <span class="hero-label">電動アクチュエータの基礎</span>
           <h1>IAIロボシリンダーとは？<br>エアシリンダーとの違いと現場で見るポイント</h1>
           <p class="hero-lead">
-            IAIロボシリンダーは、モーターで動く電動アクチュエータです。エアシリンダーとの違い、位置決め、原点復帰、PLCとの信号のやり取りを現場目線で整理します。
+            IAIロボシリンダーは、モーターで位置を決めて動かす電動アクチュエータです。エアシリンダーとの違い、PLCとの信号の流れ、原点復帰や完了信号の見方を現場目線で整理します。
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
@@ -1358,14 +1358,14 @@
           <ul>
             <li>ロボシリンダーが何をする機器か知りたい人</li>
             <li>エアシリンダーとの違いを整理したい人</li>
-            <li>PLCとの信号のやり取りをざっくり理解したい人</li>
+            <li>原点復帰・位置No・完了信号の意味をつかみたい人</li>
           </ul>
         </article>
         <article class="summary-card summary-card--notyet">
           <h2>まだ不要な人</h2>
           <ul>
-            <li>IAIコントローラの詳細設定だけを知りたい人</li>
-            <li>具体的な型式選定やパラメータ一覧が必要な人</li>
+            <li>IAIの型式選定や細かいパラメータだけを知りたい人</li>
+            <li>コントローラ設定ソフトの操作手順を詳しく知りたい人</li>
             <li>サーボ調整やゲイン調整を深く知りたい人</li>
           </ul>
         </article>
@@ -1373,8 +1373,8 @@
           <h2>先に結論</h2>
           <ul>
             <li>ロボシリンダーは位置決めしやすい電動シリンダー</li>
-            <li>エアより細かい位置制御や速度調整に向く</li>
             <li>PLC側では位置No・起動・完了・アラームを追う</li>
+            <li>止まった時は指令、原点、完了、異常を順番に見る</li>
           </ul>
         </article>
       </section>
@@ -1386,8 +1386,8 @@
           <a href="#structure">基本構成</a>
           <a href="#comparison">エアシリンダーとの違い</a>
           <a href="#signal-flow">PLCとの信号の流れ</a>
-          <a href="#field-view">現場で見るポイント</a>
-          <a href="#mistakes">見落としやすい点</a>
+          <a href="#home-position">原点復帰と位置No</a>
+          <a href="#trouble">止まった時の見方</a>
           <a href="#summary">まとめ</a>
         </div>
       </section>
@@ -1400,10 +1400,10 @@
               IAIロボシリンダーとは、ざっくり言うと<span class="mark">モーターで動く電動シリンダー</span>です。
             </p>
             <p>
-              エアシリンダーのように前進・後退するだけでなく、指定した位置まで動かしたり、速度を変えたり、途中位置で止めたりできるのが大きな特徴です。
+              エアシリンダーのように前進・後退させるだけでなく、指定した位置まで動かしたり、速度を変えたり、途中位置で止めたりできるのが大きな特徴です。
             </p>
             <p>
-              現場では、ワークを押す、スライドさせる、位置を合わせる、搬送の一部を動かすなど、空気圧より細かい動きがほしい場所で使われます。
+              現場では、ワークを押す、スライドさせる、位置を合わせる、搬送の一部を動かす、検査位置までゆっくり持っていくなど、空気圧だけでは少し調整しにくい場所で使われます。
             </p>
 
             <div class="key-highlight">
@@ -1412,15 +1412,34 @@
                 最初から細かい型式や設定を覚えるより、エアシリンダーよりも細かく位置や速度を決めやすい駆動機器として見ると理解しやすいです。
               </p>
             </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>ロボシリンダーって、名前だけ見るとロボットみたいで難しそうです。普通のシリンダーとは別物ですか？</p>
+                </div>
+              </div>
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>最初は難しく考えなくていいよ。まずは「モーターで動く、位置を決めやすいシリンダー」と考えると入りやすいね。</p>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section class="section-card" id="structure">
             <h2>ロボシリンダーの基本構成</h2>
             <p>
-              ロボシリンダーは、本体だけで完結しているように見えますが、実際にはコントローラ、電源、PLC、信号線などとセットで動きます。
+              ロボシリンダーは、本体だけで動いているように見えても、実際にはコントローラ、電源、PLC、入出力信号が関係します。
             </p>
             <p>
-              まずは「シリンダー本体」「コントローラ」「PLCからの指令」「完了やアラームの戻り信号」を分けて見ると、現場でも追いやすくなります。
+              現場で見る時は、まず「どこが動く本体か」「どこにコントローラがあるか」「PLCと何の信号でつながっているか」を分けると追いやすくなります。
             </p>
 
             <figure class="article-figure">
@@ -1434,25 +1453,37 @@
               <div class="check-item check-item--important">
                 <h3>ロボシリンダー本体</h3>
                 <p>
-                  実際に動く部分です。スライダやロッドが動いて、ワークを押す・送る・位置決めする役割を持ちます。
+                  実際に動く部分です。スライダやロッドが動き、ワークを押す、送る、位置決めするなどの役割を持ちます。
                 </p>
               </div>
               <div class="check-item check-item--field">
                 <h3>コントローラ</h3>
                 <p>
-                  ロボシリンダーを動かすための制御部です。位置データや速度、加減速などの設定が入ります。
+                  ロボシリンダーを動かすための制御部です。位置データ、速度、加減速、押付け条件などの設定が入ります。
                 </p>
               </div>
               <div class="check-item check-item--warning">
                 <h3>PLCからの指令</h3>
                 <p>
-                  位置No選択、起動、停止、リセットなど、設備側から動作指令を出します。
+                  位置No選択、起動、停止、原点復帰、リセットなど、設備側から動作指令を出します。
                 </p>
               </div>
               <div class="check-item">
                 <h3>戻り信号</h3>
                 <p>
-                  位置決め完了、原点復帰完了、アラームなど、ロボシリンダー側の状態をPLCへ返します。
+                  位置決め完了、原点復帰完了、移動中、アラームなど、ロボシリンダー側の状態をPLCへ返します。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩キャラクター">
+              </div>
+              <div>
+                <h3>本体だけで判断しない</h3>
+                <p>
+                  ロボシリンダーの不具合確認では、本体、コントローラ、PLC指令、戻り信号をセットで見ることが大切です。
                 </p>
               </div>
             </div>
@@ -1464,7 +1495,10 @@
               ロボシリンダーを理解する時は、エアシリンダーと比べると分かりやすいです。
             </p>
             <p>
-              エアシリンダーは、空気圧で前進・後退するシンプルな動きが得意です。一方でロボシリンダーは、電動で位置や速度を細かく扱いやすいのが特徴です。
+              エアシリンダーは、空気圧で前進・後退するシンプルな動きが得意です。構造も比較的分かりやすく、前進端・後退端のリードスイッチで位置確認する場面が多いです。
+            </p>
+            <p>
+              一方でロボシリンダーは、電動で動くため、複数位置への移動、速度変更、途中停止、押付け動作などを扱いやすくなります。その分、信号や設定を見るポイントは増えます。
             </p>
 
             <figure class="article-figure">
@@ -1495,14 +1529,19 @@
                     <td>指定位置へ移動、途中停止、速度調整がしやすい</td>
                   </tr>
                   <tr>
-                    <td>位置決め</td>
-                    <td>ストッパやセンサで見ることが多い</td>
-                    <td>位置データで管理しやすい</td>
+                    <td>位置確認</td>
+                    <td>リードスイッチや近接センサで端位置を見ることが多い</td>
+                    <td>位置データ、完了信号、原点復帰完了などで見る</td>
+                  </tr>
+                  <tr>
+                    <td>調整</td>
+                    <td>スピコン、ストッパ、センサ位置などで調整</td>
+                    <td>位置、速度、加減速、押付け条件などを設定で調整</td>
                   </tr>
                   <tr>
                     <td>現場で見る信号</td>
                     <td>電磁弁、前進端、後退端など</td>
-                    <td>位置No、起動、完了、原点、アラームなど</td>
+                    <td>位置No、起動、移動中、完了、原点、アラームなど</td>
                   </tr>
                   <tr>
                     <td>向いている場面</td>
@@ -1513,15 +1552,22 @@
               </table>
             </div>
 
-            <div class="note-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩キャラクター">
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>エアシリンダーは「前進したか、後退したか」を見ることが多いけど、ロボシリンダーは「どの位置に、どの条件で動いたか」まで見る感じだね。</p>
+                </div>
               </div>
-              <div>
-                <h3>どちらが上というより、使いどころが違う</h3>
-                <p>
-                  エアシリンダーはシンプルで扱いやすく、ロボシリンダーは細かい動きに向きます。現場では、必要な動きに合わせて使い分けます。
-                </p>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>だから位置Noとか完了信号が出てくるんですね。エアシリンダーより、見る信号が少し多いんですね。</p>
+                </div>
               </div>
             </div>
           </section>
@@ -1529,10 +1575,10 @@
           <section class="section-card" id="signal-flow">
             <h2>PLCとロボシリンダーの信号の流れ</h2>
             <p>
-              ロボシリンダーを見る時に大事なのは、機械本体の動きだけでなく、PLCとコントローラの間でどんな信号をやり取りしているかです。
+              ロボシリンダーを見る時に大事なのは、機械本体の動きだけではありません。PLCとコントローラの間で、どんな信号をやり取りしているかを見ることが重要です。
             </p>
             <p>
-              現場でよく見る考え方としては、PLCから「どの位置へ動くか」「動作を開始するか」を出し、ロボシリンダー側から「動作が終わったか」「アラームが出ていないか」を返す流れです。
+              現場でよく見る流れは、PLCから「どの位置へ動くか」「動作を開始するか」を出し、ロボシリンダー側から「動作が終わったか」「アラームが出ていないか」を返す形です。
             </p>
 
             <figure class="article-figure">
@@ -1546,19 +1592,19 @@
               <div class="check-item check-item--important">
                 <h3>位置Noを選ぶ</h3>
                 <p>
-                  PLC側から、どの位置データで動かすかを指定します。複数位置を使う設備ではここが重要です。
+                  PLC側から、どの位置データで動かすかを指定します。複数位置を使う設備では、ここを間違えると違う位置へ動きます。
                 </p>
               </div>
               <div class="check-item check-item--field">
                 <h3>起動信号を出す</h3>
                 <p>
-                  位置Noを指定したうえで、スタート信号を出してロボシリンダーを動かします。
+                  位置Noを指定したうえで、スタート信号を出してロボシリンダーを動かします。起動条件がそろっていないと動きません。
                 </p>
               </div>
               <div class="check-item check-item--warning">
                 <h3>完了信号を見る</h3>
                 <p>
-                  指定位置まで動いたら、位置決め完了信号などが返ります。次工程へ進む条件になります。
+                  指定位置まで動いたら、位置決め完了信号などが返ります。次工程へ進む条件として使われることが多いです。
                 </p>
               </div>
               <div class="check-item">
@@ -1567,6 +1613,13 @@
                   アラームや異常信号が出ている場合、起動できない、途中で止まる、復旧操作が必要になることがあります。
                 </p>
               </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>ラダーでは「出している信号」と「待っている信号」を分ける</h3>
+              <p>
+                PLC側のラダーを見る時は、位置Noや起動信号のようにPLCから出す信号と、完了やアラームのように戻ってくる信号を分けると追いやすいです。
+              </p>
             </div>
 
             <div class="talk-thread">
@@ -1583,94 +1636,108 @@
                   <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>エアシリンダーの前進端・後退端を見る感覚に近いけど、位置Noや完了信号も見るんですね。</p>
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>動かない時も、本体が悪いと決めつけずに、PLCから起動信号が出ているか、完了待ちになっていないかを見るんですね。</p>
                 </div>
               </div>
             </div>
           </section>
 
-          <section class="section-card" id="field-view">
-            <h2>現場で見るポイント</h2>
+          <section class="section-card" id="home-position">
+            <h2>原点復帰と位置Noの考え方</h2>
             <p>
-              実際の設備でロボシリンダーを見る時は、いきなりパラメータ画面を見るより、まずは全体の流れを押さえる方が安全です。
+              ロボシリンダーでは、原点復帰と位置Noの考え方が大切です。エアシリンダーだけを見てきた人は、ここで少し戸惑いやすいかもしれません。
+            </p>
+            <p>
+              原点復帰は、ロボシリンダーが自分の基準位置を確認する動作です。設備によっては、電源投入後やアラーム復旧後に原点復帰が完了していないと、通常動作に進めないことがあります。
+            </p>
+            <p>
+              位置Noは、あらかじめ登録された動作位置の番号です。たとえば、位置No.1は待機位置、位置No.2は押付け位置、位置No.3は退避位置のように使うことがあります。
             </p>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>何を動かしているか</h3>
+                <h3>原点復帰</h3>
                 <p>
-                  ワークを押しているのか、スライドさせているのか、位置決めしているのかを先に見ます。
+                  ロボシリンダーが基準位置を確認する動作です。原点復帰完了がないと、位置決め動作に進めない場合があります。
                 </p>
               </div>
               <div class="check-item check-item--field">
-                <h3>原点復帰が必要か</h3>
+                <h3>位置No</h3>
                 <p>
-                  電源投入後や異常復旧後に、原点復帰が必要な設備があります。原点復帰完了の有無を確認します。
+                  どの登録位置へ動かすかを指定する番号です。PLCから複数ビットで選ぶ場合もあります。
                 </p>
               </div>
               <div class="check-item check-item--warning">
-                <h3>どの位置Noで動いているか</h3>
+                <h3>位置決め完了</h3>
                 <p>
-                  同じロボシリンダーでも、位置Noによって停止位置や速度が変わることがあります。
+                  指定した位置へ到達したことを示す戻り信号です。次工程の開始条件になることがあります。
                 </p>
               </div>
               <div class="check-item">
-                <h3>完了信号を待っているか</h3>
+                <h3>リセット</h3>
                 <p>
-                  次工程へ進まない時は、PLC側が位置決め完了や原点復帰完了を待っている場合があります。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>アラームの有無</h3>
-                <p>
-                  過負荷、位置ずれ、非常停止、原点未完了などでアラームが出ると動作できないことがあります。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>干渉や機械抵抗</h3>
-                <p>
-                  ロボシリンダーが悪いように見えても、実際はワークの引っかかりやガイド抵抗が原因のこともあります。
+                  アラーム解除や状態復旧で使う信号です。ただし原因を見ずにリセットだけ繰り返すのは避けます。
                 </p>
               </div>
             </div>
 
-            <div class="field-highlight">
-              <h3>現場では「指令・動作・完了・異常」の順で見る</h3>
-              <p>
-                PLCから指令が出ているか、ロボシリンダーが動いているか、完了信号が返っているか、アラームが出ていないか。この順で追うと原因を絞りやすくなります。
-              </p>
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="覚え方を案内する先輩キャラクター">
+              </div>
+              <div>
+                <h3>原点は地図の現在地合わせに近い</h3>
+                <p>
+                  ロボシリンダーが「自分の基準位置を分かっている状態」にしてから、指定された位置へ動くと考えるとイメージしやすいです。
+                </p>
+              </div>
             </div>
           </section>
 
-          <section class="section-card" id="mistakes">
-            <h2>見落としやすいポイント</h2>
+          <section class="section-card" id="trouble">
+            <h2>動かない・次工程へ進まない時の見方</h2>
             <p>
-              ロボシリンダーは便利な機器ですが、エアシリンダーと同じ感覚だけで見るとつまずきやすい部分があります。
+              ロボシリンダーが動かない時や、動いたのに次工程へ進まない時は、いきなり本体交換や細かい設定を疑う前に、信号の流れを順番に確認します。
+            </p>
+            <p>
+              特に多いのは、起動条件がそろっていない、原点復帰が完了していない、位置Noが違う、完了信号が返っていない、アラームが出ている、機械的に引っかかっている、といったパターンです。
             </p>
 
             <div class="check-grid">
-              <div class="check-item check-item--warning">
-                <h3>本体だけを見てしまう</h3>
+              <div class="check-item check-item--important">
+                <h3>1. 電源と非常停止</h3>
                 <p>
-                  実際にはコントローラ、PLC、電源、信号線、位置データが関係します。本体だけでは判断しにくいです。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>原点復帰を見落とす</h3>
-                <p>
-                  原点が取れていないと、位置決め動作に進めない場合があります。復旧時は特に確認します。
-                </p>
-              </div>
-              <div class="check-item">
-                <h3>位置Noを確認しない</h3>
-                <p>
-                  間違った位置Noを選んでいると、想定と違う位置へ動くことがあります。
+                  コントローラ電源、非常停止、安全回路、サーボON条件など、そもそも動ける状態かを見ます。
                 </p>
               </div>
               <div class="check-item check-item--field">
-                <h3>完了信号を待っていることに気づかない</h3>
+                <h3>2. 原点復帰完了</h3>
                 <p>
-                  設備が止まって見えても、PLC側では完了信号待ちになっていることがあります。
+                  原点復帰が必要な設備では、原点復帰完了がないと通常動作へ進めないことがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>3. 位置Noと起動信号</h3>
+                <p>
+                  PLCから正しい位置Noが出ているか、起動信号が出ているかを確認します。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>4. 完了信号</h3>
+                <p>
+                  動いたのに次工程へ進まない場合、PLC側が完了信号待ちになっていることがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>5. アラーム</h3>
+                <p>
+                  アラームが出ている場合は、内容を確認します。過負荷、位置偏差、原点未完了、外部停止などが関係することがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>6. 機械的な引っかかり</h3>
+                <p>
+                  ガイド抵抗、ワークの噛み込み、ストッパ干渉など、電気ではなく機械側が原因のこともあります。
                 </p>
               </div>
             </div>
@@ -1680,21 +1747,43 @@
                 <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意点を案内する先輩キャラクター">
               </div>
               <div>
-                <h3>動作確認時は挟まれ・干渉に注意</h3>
+                <h3>リセットだけで済ませない</h3>
                 <p>
-                  ロボシリンダーはゆっくり動かせる場合もありますが、押す力や移動範囲によっては危険です。手動操作や復旧確認では、可動範囲と周囲の安全を確認してください。
+                  アラームをリセットして動いたとしても、過負荷や干渉の原因が残っていると再発します。何が原因で止まったのかを確認することが大切です。
                 </p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>ロボシリンダーが止まっていたら、まずアラームをリセットすればいいんですか？</p>
+                </div>
+              </div>
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>リセットする前に、何のアラームか、どの動作中に止まったかを見たいね。原因を見ずにリセットだけすると、同じところでまた止まることがあるよ。</p>
+                </div>
               </div>
             </div>
           </section>
 
           <section class="section-card" id="summary">
-            <h2>まとめ：ロボシリンダーは位置決めしやすい電動シリンダー</h2>
+            <h2>まとめ：ロボシリンダーは「指令・動作・完了・異常」で見る</h2>
             <p>
               IAIロボシリンダーは、モーターで動く電動アクチュエータで、エアシリンダーよりも位置決めや速度調整をしやすい機器です。
             </p>
             <p>
-              現場では、シリンダー本体だけでなく、コントローラ、PLCからの指令、位置No、起動信号、完了信号、アラームまでセットで見ると理解しやすくなります。
+              現場では、シリンダー本体だけでなく、コントローラ、PLCからの指令、位置No、起動信号、完了信号、原点復帰、アラームまでセットで見ると理解しやすくなります。
+            </p>
+            <p>
+              特にトラブル時は、「PLCから指令が出ているか」「原点復帰は完了しているか」「正しい位置Noか」「完了信号は返っているか」「アラームはないか」を順番に確認するのが大切です。
             </p>
 
             <div class="key-highlight">
@@ -1772,8 +1861,8 @@
               <li><a href="#structure">基本構成</a></li>
               <li><a href="#comparison">エアシリンダーとの違い</a></li>
               <li><a href="#signal-flow">PLCとの信号の流れ</a></li>
-              <li><a href="#field-view">現場で見るポイント</a></li>
-              <li><a href="#mistakes">見落としやすい点</a></li>
+              <li><a href="#home-position">原点復帰と位置No</a></li>
+              <li><a href="#trouble">止まった時の見方</a></li>
               <li><a href="#summary">まとめ</a></li>
             </ul>
           </section>

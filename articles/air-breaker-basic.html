@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>エアブレーカーとは？大容量回路で使う遮断器をやさしく解説</title>
+  <meta name="description" content="エアブレーカーとは何かを初心者向けに整理。NFBとの違い、大容量回路で使われる理由、基本構造、異常時に遮断する流れ、現場で見かける場面までやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/air-breaker-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="エアブレーカーとは？大容量回路で使う遮断器をやさしく解説">
+  <meta property="og:description" content="エアブレーカーの役割、NFBとの違い、基本構造、遮断の流れを制御盤初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/air-breaker-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/air-breaker-basic/air-breaker-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="エアブレーカーとは？大容量回路で使う遮断器をやさしく解説">
+  <meta name="twitter:description" content="エアブレーカーの役割、NFBとの違い、基本構造、遮断の流れを制御盤初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/air-breaker-basic/air-breaker-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/air-breaker-basic/air-breaker-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/air-breaker-basic/air-breaker-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/air-breaker-basic/air-breaker-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/air-breaker-basic/air-breaker-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../index.html#category">制御盤の基礎</a>
+      <span>›</span>
+      <span>エアブレーカーとは</span>
+    </nav>
+
+    <section class="article-hero" id="top">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御盤の基礎</span>
+        <h1>エアブレーカーとは？大容量回路で使う遮断器をやさしく解説</h1>
+        <p class="hero-lead">
+          エアブレーカーは、普段の小さな制御盤ではあまり見かけないこともありますが、受電盤や主幹回路など大きな電流を扱う場所で使われる遮断器です。NFBとの違い、基本構造、異常時に回路を遮断する流れを初心者向けに整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic">まず基本を見る</a>
+          <a class="btn btn-secondary" href="#flow">遮断の流れを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の要点">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>エアブレーカーという名前を聞いたことはあるが、何に使うのか知りたい人</li>
+          <li>NFBや漏電ブレーカーとの違いをざっくり整理したい人</li>
+          <li>受電盤や主幹回路まわりの機器を少しずつ覚えたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>小さな制御盤内の部品だけをまず覚えたい人</li>
+          <li>押しボタン、リレー、センサーなどの基本部品を優先したい人</li>
+          <li>実際の現場でエアブレーカーに触れる機会がほとんどない人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>エアブレーカーは、大きな電流を扱う回路で使われる遮断器です。</li>
+          <li>普段の制御盤では、NFBやサーキットプロテクタの方が身近です。</li>
+          <li>受電盤や主幹側では、エアブレーカーが使われることがあります。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="記事内メニュー">
+      <h2>この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#basic">エアブレーカーとは</a>
+        <a href="#where">どこで使うか</a>
+        <a href="#structure">基本構造</a>
+        <a href="#comparison">NFBとの違い</a>
+        <a href="#flow">遮断する流れ</a>
+        <a href="#field">現場での見方</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic">
+          <h2>エアブレーカーとは</h2>
+          <p>
+            エアブレーカーは、正式には<span class="mark">気中遮断器</span>、ACBとも呼ばれる遮断器です。
+            名前の通り、遮断時に発生するアークを空気中で処理する構造を持っています。
+          </p>
+          <p>
+            役割としては、回路に大きな異常電流が流れたときに、回路を安全に切り離して設備を守ることです。
+            小さな分岐回路というより、受電盤や主幹回路など、容量の大きい場所で使われることが多い機器です。
+          </p>
+          <p>
+            普段、機械まわりの制御盤や小さめの盤を見ていると、エアブレーカーを見かける機会は少ないと思います。
+            そのため、初心者のうちは「そういう大きな遮断器がある」と知っておくくらいでも十分です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>まずはこう覚える</h3>
+            <p>
+              エアブレーカーは、制御盤の中で毎日触る部品というより、受電盤や大容量の主幹回路で使われる大きめの遮断器です。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>エアブレーカーは、制御盤の中でよく見る小さなブレーカーというより、もっと大きな電源側で使われるイメージだよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>だから普段の機械盤ではあまり見ないんですね。名前だけ知っておく段階でもよさそうです。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="where">
+          <h2>どこで使われることが多いか</h2>
+          <p>
+            エアブレーカーは、工場やビルの受電盤、動力盤の主幹、大容量設備の電源側などで使われることがあります。
+            一方で、一般的な機械の制御盤内では、NFB、漏電ブレーカー、サーキットプロテクタなどの方がよく見かけます。
+          </p>
+          <p>
+            つまり、普段の制御配線やI/Oチェックをしている範囲では、エアブレーカーを直接扱う機会は少なめです。
+            ただし、盤の電源系統を読むときや、受電盤から機械盤までの流れを見るときに名前が出てくることがあります。
+          </p>
+
+          <div class="field-highlight">
+            <h3>現場目線の覚え方</h3>
+            <p>
+              「制御盤内でよく触る部品」ではなく、「大きい電源側にある保護機器」として覚えると分かりやすいです。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="structure">
+          <h2>エアブレーカーの基本構造</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/air-breaker-basic/air-breaker-basic-structure.png" alt="エアブレーカーの主接点、トリップ装置、操作ハンドル、端子部、消弧室などの基本構造を示した図">
+            <figcaption>
+              エアブレーカーは、主接点、トリップ装置、操作ハンドル、端子部、消弧室などで構成されます。大電流を安全に遮断するため、一般的な小型ブレーカーより大きく、点検しやすい構造になっているものもあります。
+            </figcaption>
+          </figure>
+          <p>
+            エアブレーカーの中には、電流を通したり切ったりする主接点があります。
+            通常時は主接点が閉じていて、電源から負荷側へ電流が流れます。
+          </p>
+          <p>
+            異常が起きると、トリップ装置が過電流や短絡を検出し、内部機構が動いて接点を開きます。
+            接点が開くときにはアークが発生するため、それを安全に処理するための消弧室が重要になります。
+          </p>
+          <p>
+            また、大型のものでは引き出し式になっていて、点検や交換をしやすくしているタイプもあります。
+          </p>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>エアブレーカーとNFBの違い</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/air-breaker-basic/air-breaker-basic-comparison.png" alt="エアブレーカーとNFBの用途と容量の違いを比較した図">
+            <figcaption>
+              エアブレーカーは大容量の主幹回路向け、NFBは中小容量の分岐回路や盤内回路向けとして使われることが多いです。どちらも異常時に回路を遮断する保護機器ですが、使われる容量や場所が異なります。
+            </figcaption>
+          </figure>
+          <p>
+            NFBは、制御盤や分電盤の中でよく見る身近なブレーカーです。
+            分岐回路、制御電源、モーター回路など、比較的小さめから中容量の回路でよく使われます。
+          </p>
+          <p>
+            それに対してエアブレーカーは、もっと大きな電流を扱う主幹側で使われることが多いです。
+            サイズも大きく、点検性や保守性を考えた構造になっているものがあります。
+          </p>
+          <p>
+            ざっくり言うと、NFBは「盤内でよく見るブレーカー」、エアブレーカーは「大容量の電源側で使われる大きなブレーカー」というイメージです。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>エアブレーカー</th>
+                  <th>NFB</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>主な呼び方</td>
+                  <td>ACB、気中遮断器</td>
+                  <td>ノーヒューズブレーカー</td>
+                </tr>
+                <tr>
+                  <td>よく使う場所</td>
+                  <td>受電盤、主幹、大容量回路</td>
+                  <td>制御盤、分電盤、分岐回路</td>
+                </tr>
+                <tr>
+                  <td>容量感</td>
+                  <td>大容量向け</td>
+                  <td>中小容量向け</td>
+                </tr>
+                <tr>
+                  <td>現場での見かけやすさ</td>
+                  <td>現場によっては少ない</td>
+                  <td>比較的よく見る</td>
+                </tr>
+                <tr>
+                  <td>覚え方</td>
+                  <td>大きな電源側の保護</td>
+                  <td>盤内・分岐側の保護</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>エアブレーカーが遮断する流れ</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/air-breaker-basic/air-breaker-basic-operation-flow.png" alt="エアブレーカーが通常運転から異常検出、トリップ動作、回路遮断へ進む流れを示した図">
+            <figcaption>
+              通常運転中は電流が流れています。過電流や短絡などの異常を検出すると、トリップ装置が動作し、接点を開いて回路を遮断します。
+            </figcaption>
+          </figure>
+          <p>
+            エアブレーカーの動作は、流れで見ると理解しやすいです。
+            まず通常時は、主接点が閉じていて電流が流れています。この状態では、設備や負荷に電源が供給されています。
+          </p>
+          <p>
+            次に、過電流や短絡などの異常が発生すると、トリップ装置がそれを検出します。
+            設定値を超えた異常だと判断されると、内部の機構が動きます。
+          </p>
+          <p>
+            その結果、主接点が開き、回路が遮断されます。
+            接点が開く瞬間にはアークが発生しますが、消弧室で処理され、安全に回路を切り離します。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item">
+              <h3>1. 通常運転</h3>
+              <p>主接点が閉じて、電流が正常に流れている状態です。</p>
+            </div>
+            <div class="check-item">
+              <h3>2. 異常検出</h3>
+              <p>過電流や短絡などをトリップ装置が検出します。</p>
+            </div>
+            <div class="check-item">
+              <h3>3. トリップ動作</h3>
+              <p>内部機構が動き、接点を開く準備をします。</p>
+            </div>
+            <div class="check-item">
+              <h3>4. 回路遮断</h3>
+              <p>主接点が開き、電源側と負荷側を切り離します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field">
+          <h2>現場で見るときのポイント</h2>
+          <p>
+            エアブレーカーを見かけたときは、まず無理に内部を細かく覚えようとしなくて大丈夫です。
+            初心者のうちは、どの回路の主幹なのか、どの負荷へ電源を送っているのか、ON/OFF状態はどうかを確認するところからで十分です。
+          </p>
+          <p>
+            特に注意したいのは、エアブレーカーがある場所は電源容量が大きいことが多いという点です。
+            安易に触ったり、勝手に復旧したりするものではありません。
+          </p>
+          <p>
+            現場では、上位側の電源、負荷側の盤、遮断した理由、復旧前の安全確認をセットで考える必要があります。
+          </p>
+
+          <div class="danger-box">
+            <h3>操作と学習は分けて考える</h3>
+            <p>
+              エアブレーカーは大容量回路に関わることが多いため、知識として覚えることと、実際に操作することは別です。現場では必ず責任者や電気主任技術者、盤管理者の指示に従ってください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：エアブレーカーは大容量回路側の保護機器</h2>
+          <p>
+            エアブレーカーは、受電盤や主幹回路など、大きな電流を扱う場所で使われる遮断器です。
+            普段の制御盤ではNFBやサーキットプロテクタの方が身近ですが、電源系統を広く見るとエアブレーカーが出てくることがあります。
+          </p>
+          <p>
+            まずは、エアブレーカーは「大容量の主幹側で使われる保護機器」、NFBは「盤内や分岐回路でよく使うブレーカー」と分けて覚えると分かりやすいです。
+          </p>
+          <p>
+            この記事では、エアブレーカーの基本、NFBとの違い、遮断の流れを整理しました。
+            実際の現場で見かけたときは、容量が大きい電源側の機器として、安全確認を優先して見るようにしましょう。
+          </p>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="#top">この記事の上へ戻る</a>
+            <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>関連記事</h2>
+          <p>NFBや漏電ブレーカー、制御電源まわりもあわせて見ると、保護機器の役割が整理しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="no-fuse-breaker-basic.html">
+              <h3>NFBとは？</h3>
+              <p>制御盤や分電盤でよく見るノーヒューズブレーカーの基本を整理します。</p>
+            </a>
+            <a class="related-card" href="earth-leakage-breaker-basic.html">
+              <h3>漏電ブレーカーとは？</h3>
+              <p>漏電を検出して回路を遮断するブレーカーの役割をやさしく解説します。</p>
+            </a>
+            <a class="related-card" href="circuit-protector-basic.html">
+              <h3>サーキットプロテクタとは？</h3>
+              <p>制御回路やDC24V回路で使われる小型保護機器の基本を整理します。</p>
+            </a>
+            <a class="related-card" href="dc24v-power-supply-basic.html">
+              <h3>DC24V電源とは？</h3>
+              <p>制御盤でよく使うDC24V電源の役割と見るポイントを解説します。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>エアブレーカーはACB、気中遮断器とも呼ばれる</li>
+            <li>大容量の主幹回路や受電盤で使われることが多い</li>
+            <li>普段の制御盤ではNFBの方が身近</li>
+            <li>実際の操作は必ず管理者や責任者の指示に従う</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="no-fuse-breaker-basic.html">NFBとは？</a></li>
+            <li><a href="earth-leakage-breaker-basic.html">漏電ブレーカーとは？</a></li>
+            <li><a href="circuit-protector-basic.html">サーキットプロテクタとは？</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>現場での覚え方</h3>
+          <ul>
+            <li>NFBは盤内・分岐回路でよく見る</li>
+            <li>エアブレーカーは大きな電源側で見る</li>
+            <li>見慣れない機器ほど、勝手に触らない</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

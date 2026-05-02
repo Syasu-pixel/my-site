@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>線番・マークチューブとは？制御盤の配線を追う基本をやさしく解説</title>
+  <meta name="description" content="線番・マークチューブの基本を初心者向けに整理。制御盤で電線を識別する理由、図面・端子台・PLCとの関係、線番の見方、現場で確認するポイントまでやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/wire-number-marker-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="線番・マークチューブとは？制御盤の配線を追う基本をやさしく解説">
+  <meta property="og:description" content="線番・マークチューブの役割、図面や端子台との関係、線番の見方、現場で確認するポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/wire-number-marker-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/wire-number-marker-basic/wire-number-marker-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="線番・マークチューブとは？制御盤の配線を追う基本をやさしく解説">
+  <meta name="twitter:description" content="線番・マークチューブの役割、図面や端子台との関係、線番の見方、現場で確認するポイントを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/wire-number-marker-basic/wire-number-marker-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/wire-number-marker-basic/wire-number-marker-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.56) 38%, rgba(255,255,255,.24) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
+      font-weight:900;
+    }
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .icon-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      margin-bottom:10px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:23px;
+      font-weight:900;
+    }
+    .icon-point h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.45;
+    }
+    .icon-point p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .icon-point--orange{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    .icon-point--orange .icon{
+      background:#ffedd5;
+      color:#c2410c;
+    }
+    .icon-point--green{
+      border-color:#bbf7d0;
+      background:#ecfdf3;
+    }
+    .icon-point--green .icon{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--blue{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--green{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--orange{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+    .check-item--red{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#eaf2ff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-red{
+      background:#fff1f2;
+      font-weight:800;
+      color:#991b1b;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/wire-number-marker-basic/wire-number-marker-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/wire-number-marker-basic/wire-number-marker-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/wire-number-marker-basic/wire-number-marker-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../index.html#category">制御盤の基礎</a>
+      <span>›</span>
+      <span>線番・マークチューブとは</span>
+    </nav>
+
+    <section class="article-hero" id="top">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御盤の基礎</span>
+        <h1>線番・マークチューブとは？制御盤の配線を追う基本をやさしく解説</h1>
+        <p class="hero-lead">
+          線番・マークチューブは、制御盤の電線に付ける識別表示です。図面、端子台、PLC端子、現場機器をつなげて見るための目印になり、配線確認やトラブル対応でとても重要です。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic">まず基本を見る</a>
+          <a class="btn btn-secondary" href="#flow">追い方を見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の要点">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>制御盤の線番が何のためにあるか知りたい人</li>
+          <li>図面と実配線を照らし合わせて追えるようになりたい人</li>
+          <li>端子台、PLC、センサー、リレーの配線確認を覚えたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まず電線や端子台などの部品名から覚えたい人</li>
+          <li>線番ルールを会社標準として細かく設計したい人</li>
+          <li>マークチューブ印字機の機種比較だけを知りたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>線番は、電線の行き先や回路を識別するための番号・記号です。</li>
+          <li>マークチューブは、その線番を電線に付けるための表示チューブです。</li>
+          <li>図面、端子台、線番、機器端子をセットで見ると配線を追いやすくなります。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="記事内メニュー">
+      <h2>この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#basic">線番とは</a>
+        <a href="#overview">基本構成</a>
+        <a href="#reason">なぜ必要か</a>
+        <a href="#comparison">あり/なしの違い</a>
+        <a href="#flow">配線の追い方</a>
+        <a href="#field">現場で見るポイント</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic">
+          <h2>線番・マークチューブとは</h2>
+          <p>
+            線番とは、電線を識別するために付ける番号や記号のことです。
+            制御盤の中では、同じ色の電線が何本もあるため、線番がないとどの線がどこへ行くのか分かりにくくなります。
+          </p>
+          <p>
+            マークチューブは、その線番を電線へ付けるためのチューブです。
+            電線に通しておき、端子の近くで番号が見えるようにします。
+          </p>
+          <p>
+            現場では、線番を見ることで、図面上の回路、端子台、PLC端子、センサーやリレーなどをつなげて追えます。
+            <span class="term">図面と実物をつなぐ目印</span>と考えると分かりやすいです。
+          </p>
+
+          <div class="key-highlight">
+            <h3>まずはこう覚える</h3>
+            <p>
+              線番は、電線の名前札のようなものです。マークチューブは、その名前札を電線に付けるための部品です。配線を追うときの手がかりになります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>線番は、制御盤の中で配線を追うための目印だよ。同じ色の線が多くても、線番があれば図面と照らし合わせやすくなる。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>線の色だけじゃなくて、番号で行き先を判断するんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>線番・マークチューブの基本構成</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/wire-number-marker-basic/wire-number-marker-basic-overview.png" alt="制御盤内の端子台、PLC、リレー、センサー配線に線番マークチューブが付いている基本構成図">
+            <figcaption>
+              線番・マークチューブは、端子台、PLC、リレー、センサー配線などの近くに付けられ、図面と実配線を照合するための目印になります。
+            </figcaption>
+          </figure>
+          <p>
+            線番は、電線の両端に付いていることが多いです。
+            たとえば端子台側とPLC側、PLC側とリレー側のように、接続する先の近くで番号が見えるようにします。
+          </p>
+          <p>
+            線番の付け方は、会社や装置、図面ルールによって変わります。
+            端子番号に合わせる場合、回路番号に合わせる場合、PLCのX/Y番号に近い表記にする場合などがあります。
+          </p>
+          <p>
+            大切なのは、現場で勝手に解釈せず、図面と合わせて見ることです。
+            線番だけで判断するのではなく、端子番号、線番、機器名をセットで確認します。
+          </p>
+
+          <div class="icon-points">
+            <div class="icon-point">
+              <span class="icon">No</span>
+              <h3>番号で識別</h3>
+              <p>同じ色の電線でも、線番でどの回路かを見分けやすくなります。</p>
+            </div>
+            <div class="icon-point icon-point--green">
+              <span class="icon">図</span>
+              <h3>図面と照合</h3>
+              <p>図面上の線番と実配線を照らし合わせて確認します。</p>
+            </div>
+            <div class="icon-point icon-point--orange">
+              <span class="icon">端</span>
+              <h3>端子近くに表示</h3>
+              <p>端子の近くで見える位置に付いていると追いやすいです。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="reason">
+          <h2>なぜ線番が必要なのか</h2>
+          <p>
+            制御盤の中には、同じ色や同じ太さの電線がたくさんあります。
+            線番がないと、どの線がどの端子からどの機器へ向かっているのか、目視だけで判断するのが難しくなります。
+          </p>
+          <p>
+            線番があると、図面と実物を照合しやすくなります。
+            トラブル時には、図面で対象回路を確認し、線番を見ながら端子台やPLC端子、負荷側へ追っていけます。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>場面</th>
+                  <th>線番が役立つ理由</th>
+                  <th>現場での見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">新規配線</td>
+                  <td>図面通りに配線できているか確認しやすい</td>
+                  <td>線番、端子番号、行き先を照合する</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">I/Oチェック</td>
+                  <td>入力・出力の対象線を特定しやすい</td>
+                  <td>PLC端子、X/Y番号、線番を合わせて見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">トラブル対応</td>
+                  <td>断線、短絡、誤配線の確認がしやすい</td>
+                  <td>図面から対象線を追い、実物で線番を確認する</td>
+                </tr>
+                <tr>
+                  <td>改造・追加</td>
+                  <td>既存配線と追加配線を区別しやすい</td>
+                  <td>既存ルールに合わせて線番を付ける</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="field-highlight">
+            <h3>後から見る人のためでもある</h3>
+            <p>
+              線番は、自分が配線するときだけでなく、後から点検する人や改造する人のためにも重要です。誰が見ても追いやすい配線にするための目印です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>線番あり・なしの違い</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/wire-number-marker-basic/wire-number-marker-basic-comparison.png" alt="線番なしで配線を追いにくい状態と、線番ありで図面と照合しやすい状態を比較した図">
+            <figcaption>
+              線番があると、図面と実配線を照らし合わせやすくなります。線番がない場合、配線を目視で追う必要が増え、確認に時間がかかります。
+            </figcaption>
+          </figure>
+          <p>
+            線番がない場合、配線の行き先を実際に目で追ったり、導通確認したりする必要が増えます。
+            配線量が少ない盤なら何とかなることもありますが、線が多いほど確認に時間がかかります。
+          </p>
+          <p>
+            線番がある場合、図面上の番号と実物の番号を合わせながら追えます。
+            端子台、PLC端子、機器側の線番がそろっていると、確認作業がかなり楽になります。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>線番なし</th>
+                  <th>線番あり</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>配線確認</td>
+                  <td class="cell-orange">目視で追う範囲が多くなる</td>
+                  <td class="cell-blue">図面と照合しながら追える</td>
+                </tr>
+                <tr>
+                  <td>トラブル対応</td>
+                  <td>対象線を探すのに時間がかかる</td>
+                  <td class="cell-green">対象回路を特定しやすい</td>
+                </tr>
+                <tr>
+                  <td>改造作業</td>
+                  <td>既存線との区別がしにくい</td>
+                  <td>追加・変更の管理がしやすい</td>
+                </tr>
+                <tr>
+                  <td>注意点</td>
+                  <td>誤認しやすい</td>
+                  <td class="cell-red">線番の付け間違い・読みにくさに注意</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="danger-box">
+            <h3>線番があっても過信しない</h3>
+            <p>
+              線番が付いていても、付け間違い、古い改造跡、図面未反映の可能性があります。重要な確認では、図面・端子・実配線・導通確認を組み合わせて判断します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>線番を使った配線の追い方</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/wire-number-marker-basic/wire-number-marker-basic-tracing-flow.png" alt="図面の線番から端子台、PLC端子、現場機器へ配線を追う流れを示した図">
+            <figcaption>
+              図面で対象線番を確認し、端子台、PLC端子、機器側へ順番に追うと、配線の行き先を整理しやすくなります。
+            </figcaption>
+          </figure>
+          <p>
+            配線を追うときは、まず図面で対象の線番を確認します。
+            次に、その線番が実際の端子台やPLC端子のどこにあるかを探します。
+          </p>
+          <p>
+            端子台から先は、線番を見ながら接続先へ追います。
+            PLC入力ならX番号、PLC出力ならY番号、リレーや電磁弁なら機器の端子番号も合わせて確認します。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>1. 図面で線番を見る</h3>
+              <p>対象回路の線番、端子番号、機器名を確認します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>2. 端子台で探す</h3>
+              <p>盤内の端子台や中継端子で同じ線番を探します。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>3. PLC・機器へ追う</h3>
+              <p>PLC端子、リレー、センサー、電磁弁などの接続先を見ます。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>4. 必要なら導通確認</h3>
+              <p>線番だけで判断できない場合は、導通や電圧も確認します。</p>
+            </div>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>線番を追うときは、図面だけ、実物だけで見ないこと。図面の番号と盤内の線番を行ったり来たりしながら確認するのが基本だよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="理解する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>図面の線番、端子台、PLC端子、現場機器を順番に照合するんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field">
+          <h2>現場で見るときのポイント</h2>
+          <p>
+            現場で線番を見るときは、まず線番が読める向きで付いているかを確認します。
+            端子に近すぎて読めない、配線ダクトの中に隠れている、文字が薄い、向きがばらばらといった状態だと、後から確認しにくくなります。
+          </p>
+          <p>
+            次に、図面と合っているかを見ます。
+            改造後に図面が更新されていない場合や、現場で線番が付け替えられている場合もあるため、違和感があれば実配線まで確認します。
+          </p>
+          <p>
+            また、同じ線番が複数箇所に出てくる場合は、どこで中継されているかを見ることも大切です。
+            端子台やコネクタで中継している場合、途中で番号が変わることもあります。
+          </p>
+
+          <div class="note-box">
+            <h3>ここを覚える</h3>
+            <p>
+              線番は「読むために付けるもの」です。付いていても、読みにくい位置・向き・文字サイズだと、点検やトラブル対応で困りやすくなります。
+            </p>
+          </div>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>読みやすさ</h3>
+              <p>端子近くで線番が見えるか、向きや文字が読めるかを確認します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>図面との一致</h3>
+              <p>図面の線番、端子番号、実物のマークチューブを照合します。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>中継点</h3>
+              <p>端子台、コネクタ、中継箱などで線番がどう続くかを見ます。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>改造跡</h3>
+              <p>追加線や古い線番が残っていないか、図面未反映がないかを確認します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：線番は図面と実配線をつなぐ目印</h2>
+          <p>
+            線番・マークチューブは、制御盤内の電線を識別するための表示です。
+            同じ色の線が多い制御盤でも、線番があることで図面と実物を照らし合わせやすくなります。
+          </p>
+          <p>
+            配線確認では、線番、端子台、PLC端子、機器端子、図面をセットで見ます。
+            線番があるからといって過信せず、必要に応じて導通確認や電圧確認も組み合わせることが大切です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事の結論</h3>
+            <p>
+              線番は、制御盤の配線を追うための目印です。マークチューブで見えるように表示し、図面・端子台・PLC・現場機器をつなげて確認できるようにすることが大切です。
+            </p>
+          </div>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="#top">この記事の上へ戻る</a>
+            <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>関連記事</h2>
+          <p>線番は、端子台やPLC I/O、配線ダクトと一緒に見ると、制御盤の配線を追いやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="terminal-block-basic.html">
+              <h3>端子台とは？</h3>
+              <p>外部配線と盤内配線をつなぐ端子台の基本を整理します。</p>
+            </a>
+            <a class="related-card" href="plc-io-unit-basic.html">
+              <h3>PLC入力ユニット・出力ユニットとは？</h3>
+              <p>PLCのI/O配線、端子番号、コモンの見方を整理します。</p>
+            </a>
+            <a class="related-card" href="wiring-duct-basic.html">
+              <h3>配線ダクトとは？</h3>
+              <p>制御盤の電線を整理する配線ダクトの基本を解説します。</p>
+            </a>
+            <a class="related-card" href="input-output-basic.html">
+              <h3>入力と出力の違いとは？</h3>
+              <p>PLC制御でよく使う入力と出力の考え方を整理します。</p>
+            </a>
+            <a class="related-card" href="plc-basic.html">
+              <h3>PLCとは？</h3>
+              <p>制御盤の中心になるPLCの基本と、現場での見方を整理します。</p>
+            </a>
+            <a class="related-card" href="tester.html">
+              <h3>テスターの選び方と使い方</h3>
+              <p>配線確認や電圧確認で使うテスターの基本を整理します。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>線番は電線を識別する番号・記号</li>
+            <li>マークチューブは線番を表示する部品</li>
+            <li>図面、端子台、PLC端子と照合する</li>
+            <li>線番があっても過信しない</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="terminal-block-basic.html">端子台とは？</a></li>
+            <li><a href="plc-io-unit-basic.html">PLC I/Oユニットとは？</a></li>
+            <li><a href="wiring-duct-basic.html">配線ダクトとは？</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>現場での覚え方</h3>
+          <ul>
+            <li>線番は電線の名前札</li>
+            <li>図面と実物を照合する</li>
+            <li>端子近くで読めるか見る</li>
+            <li>必要なら導通確認する</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLC入力ユニット・出力ユニットとは？I/O配線の見方をやさしく解説</title>
+  <meta name="description" content="PLC入力ユニット・出力ユニットの基本を初心者向けに整理。入力と出力の違い、端子番号、コモン、センサーやランプとのつながり、現場で見るポイントまでやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/plc-io-unit-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLC入力ユニット・出力ユニットとは？I/O配線の見方をやさしく解説">
+  <meta property="og:description" content="PLC入力ユニット・出力ユニットの役割、端子番号、コモン、入力配線と出力配線の違い、現場で見るポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/plc-io-unit-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLC入力ユニット・出力ユニットとは？I/O配線の見方をやさしく解説">
+  <meta name="twitter:description" content="PLC入力ユニット・出力ユニットの役割、端子番号、コモン、入力配線と出力配線の違い、現場で見るポイントを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.56) 38%, rgba(255,255,255,.24) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
+      font-weight:900;
+    }
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .icon-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      margin-bottom:10px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:23px;
+      font-weight:900;
+    }
+    .icon-point h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.45;
+    }
+    .icon-point p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .icon-point--orange{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    .icon-point--orange .icon{
+      background:#ffedd5;
+      color:#c2410c;
+    }
+    .icon-point--green{
+      border-color:#bbf7d0;
+      background:#ecfdf3;
+    }
+    .icon-point--green .icon{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--blue{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--green{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--orange{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+    .check-item--red{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#eaf2ff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-red{
+      background:#fff1f2;
+      font-weight:800;
+      color:#991b1b;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../index.html#category">制御の基礎</a>
+      <span>›</span>
+      <span>PLC入力ユニット・出力ユニットとは</span>
+    </nav>
+
+    <section class="article-hero" id="top">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御の基礎</span>
+        <h1>PLC入力ユニット・出力ユニットとは？I/O配線の見方をやさしく解説</h1>
+        <p class="hero-lead">
+          PLCの入力ユニットは、押しボタンやセンサーからの信号を受けるところ。出力ユニットは、ランプ、リレー、電磁弁などへ信号を出すところです。端子番号、コモン、X/Yの考え方を、現場目線で整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic">まず基本を見る</a>
+          <a class="btn btn-secondary" href="#flow">信号の流れを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の要点">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>PLCの入力端子・出力端子の見方を覚えたい人</li>
+          <li>センサーやランプがPLCとどうつながるか知りたい人</li>
+          <li>コモン、端子番号、X/Yの関係で迷いやすい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まずPLCとは何かから知りたい人</li>
+          <li>GX Works3の命令やラダー作成だけを詳しく学びたい人</li>
+          <li>特殊ユニットやネットワークユニットを深掘りしたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>入力ユニットは、現場機器からPLCへ信号を入れる場所です。</li>
+          <li>出力ユニットは、PLCから現場機器へ信号を出す場所です。</li>
+          <li>端子番号、コモン、X/Y番号をセットで見ると追いやすくなります。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="記事内メニュー">
+      <h2>この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#basic">I/Oユニットとは</a>
+        <a href="#overview">基本構成</a>
+        <a href="#input-output">入力と出力</a>
+        <a href="#comparison">入力/出力の違い</a>
+        <a href="#flow">信号の流れ</a>
+        <a href="#field">現場で見るポイント</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic">
+          <h2>PLC入力ユニット・出力ユニットとは</h2>
+          <p>
+            PLC入力ユニットは、押しボタン、リミットスイッチ、センサーなどからの信号をPLCへ入れる部分です。
+            現場の状態をPLCへ知らせる入口と考えると分かりやすいです。
+          </p>
+          <p>
+            PLC出力ユニットは、PLCの判断結果をランプ、リレー、電磁弁、ブザーなどへ出す部分です。
+            PLCから現場機器を動かす出口と考えます。
+          </p>
+          <p>
+            入力と出力をまとめて<span class="term">I/O</span>と呼ぶことがあります。
+            I/Oは「Input / Output」の略で、制御の現場ではとてもよく出てくる言葉です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>まずはこう覚える</h3>
+            <p>
+              入力ユニットは「現場からPLCへ入る信号」、出力ユニットは「PLCから現場へ出る信号」です。信号の向きを意識すると、配線もラダーも追いやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>PLCのI/Oは、入力が「PLCへ入る」、出力が「PLCから出る」と考えると迷いにくいよ。まず信号の向きを見るのがコツだね。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>センサーはPLCへ入るから入力、ランプや電磁弁はPLCから動かすから出力ですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>PLC I/O配線の基本構成</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-overview.png" alt="PLC入力ユニットと出力ユニットに押しボタン、センサー、ランプ、リレー、電磁弁がつながる基本構成図">
+            <figcaption>
+              入力ユニットには押しボタンやセンサーがつながり、出力ユニットにはランプ、リレー、電磁弁などがつながります。
+            </figcaption>
+          </figure>
+          <p>
+            PLCには、CPU本体にI/Oが内蔵されているタイプと、入力ユニット・出力ユニットを追加して使うタイプがあります。
+            現場では、入力点数や出力点数に合わせてユニットを組み合わせます。
+          </p>
+          <p>
+            入力側では、押しボタンやセンサーがONしたことをPLCが読み取ります。
+            出力側では、PLCがON命令を出して、ランプやリレー、電磁弁などを動かします。
+          </p>
+          <p>
+            端子台を経由してPLCへつながっている場合も多いため、実際の現場では「端子台 → PLC端子 → ラダー上のX/Y番号」の関係を追うことが大切です。
+          </p>
+
+          <div class="icon-points">
+            <div class="icon-point">
+              <span class="icon">X</span>
+              <h3>入力</h3>
+              <p>押しボタン、センサー、リミットスイッチなどの信号を受けます。</p>
+            </div>
+            <div class="icon-point icon-point--green">
+              <span class="icon">Y</span>
+              <h3>出力</h3>
+              <p>ランプ、リレー、電磁弁、ブザーなどへ信号を出します。</p>
+            </div>
+            <div class="icon-point icon-point--orange">
+              <span class="icon">COM</span>
+              <h3>コモン</h3>
+              <p>入力や出力の共通側です。配線方式を見るうえで重要です。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="input-output">
+          <h2>入力ユニットと出力ユニットで見るもの</h2>
+          <p>
+            入力ユニットで見るポイントは、どの端子にどの入力機器がつながっているかです。
+            たとえば、押しボタンがX0、リミットスイッチがX1、センサーがX2のように、端子番号とラダー上の番号が関係します。
+          </p>
+          <p>
+            出力ユニットで見るポイントは、どの端子からどの負荷へ信号を出しているかです。
+            たとえば、表示灯がY0、リレーがY1、電磁弁がY2のように割り付けられます。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>種類</th>
+                  <th>つながる機器</th>
+                  <th>現場での見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">入力ユニット</td>
+                  <td>押しボタン、センサー、リミットスイッチ、近接センサー</td>
+                  <td>端子番号、X番号、入力LED、コモンを確認する</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">出力ユニット</td>
+                  <td>ランプ、リレー、電磁弁、ブザー、接触器コイル</td>
+                  <td>端子番号、Y番号、出力LED、負荷側電源を確認する</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">端子台</td>
+                  <td>外部配線とPLC配線の中継</td>
+                  <td>線番、端子番号、図面上の行き先を確認する</td>
+                </tr>
+                <tr>
+                  <td>コモン</td>
+                  <td>入力や出力の共通線</td>
+                  <td>プラスコモン、マイナスコモン、ユニット仕様を確認する</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="field-highlight">
+            <h3>端子番号だけで終わらない</h3>
+            <p>
+              現場では、PLCの端子番号だけでなく、図面のデバイス番号、線番、端子台番号、実際の機器名をセットで見ると、信号の流れを追いやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>入力ユニットと出力ユニットの違い</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-comparison.png" alt="PLC入力ユニットと出力ユニットの違いを比較した図">
+            <figcaption>
+              入力ユニットは現場の状態をPLCへ伝える入口。出力ユニットはPLCの判断を現場機器へ伝える出口です。
+            </figcaption>
+          </figure>
+          <p>
+            入力ユニットは、現場の状態を受け取る側です。
+            押しボタンが押された、センサーが検出した、リミットスイッチがONした、という情報をPLCへ伝えます。
+          </p>
+          <p>
+            出力ユニットは、PLCの判断を外へ出す側です。
+            ランプを点ける、リレーをONする、電磁弁を動かす、ブザーを鳴らす、という動作につながります。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>入力ユニット</th>
+                  <th>出力ユニット</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>信号の向き</td>
+                  <td class="cell-blue">現場機器 → PLC</td>
+                  <td class="cell-green">PLC → 現場機器</td>
+                </tr>
+                <tr>
+                  <td>代表例</td>
+                  <td>押しボタン、センサー、リミットスイッチ</td>
+                  <td>ランプ、リレー、電磁弁、ブザー</td>
+                </tr>
+                <tr>
+                  <td>ラダー上の見方</td>
+                  <td>Xとして扱うことが多い</td>
+                  <td>Yとして扱うことが多い</td>
+                </tr>
+                <tr>
+                  <td>確認ポイント</td>
+                  <td class="cell-orange">入力LED、端子、コモン、センサー電源</td>
+                  <td class="cell-red">出力LED、負荷電源、保護機器、負荷配線</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="danger-box">
+            <h3>入力と出力を混ぜて考えない</h3>
+            <p>
+              「PLCに入ってくる信号」と「PLCから出ていく信号」を分けて考えると、トラブル時の確認がしやすくなります。まずは信号の向きを確認しましょう。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>PLC I/O信号の流れ</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-signal-flow.png" alt="押しボタンやセンサーからPLC入力へ入り、PLC処理後に出力ユニットからランプや電磁弁へ出る信号の流れを示した図">
+            <figcaption>
+              入力機器の信号がPLC入力へ入り、PLCが条件を判断し、出力ユニットからランプや電磁弁などへ信号を出します。
+            </figcaption>
+          </figure>
+          <p>
+            基本の流れは、入力機器、PLC入力、PLC内部の処理、PLC出力、負荷機器の順です。
+            たとえば押しボタンを押すとPLC入力がONし、ラダー条件が成立するとPLC出力がONしてランプが点灯します。
+          </p>
+          <p>
+            トラブル時も、この流れで見ると整理しやすくなります。
+            入力がPLCまで来ているか、ラダー条件が成立しているか、出力がONしているか、負荷側に電源があるかを順番に見ます。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>1. 入力機器がONする</h3>
+              <p>押しボタン、センサー、リミットスイッチなどが動作します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>2. PLC入力へ入る</h3>
+              <p>入力ユニットの端子と入力LEDで信号を確認します。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>3. ラダーで判断する</h3>
+              <p>入力条件、インターロック、タイマーなどの条件を見ます。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>4. PLC出力から動かす</h3>
+              <p>出力ユニットからランプ、リレー、電磁弁などへ信号を出します。</p>
+            </div>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>動かない時は、いきなり出力だけを疑わない。入力が来ているか、PLCの中で条件が成立しているか、出力が出ているかを順番に見るといいよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="理解する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>入力、PLC内部、出力、負荷側の順番で切り分けるんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field">
+          <h2>現場で見るときのポイント</h2>
+          <p>
+            現場でPLC I/Oを見るときは、まず入力ユニットか出力ユニットかを見分けます。
+            ユニット名、端子表記、図面、配線の行き先を見ながら判断します。
+          </p>
+          <p>
+            次に、端子番号とラダー上の番号を照らし合わせます。
+            たとえば端子台の線番、PLC端子番号、X/Y番号が一致して追えると、トラブル確認がかなり楽になります。
+          </p>
+          <p>
+            また、コモンの扱いも重要です。
+            入力ユニットや出力ユニットにはコモン端子があり、配線方式によってプラス側を共通にする場合、マイナス側を共通にする場合があります。
+          </p>
+
+          <div class="note-box">
+            <h3>ここを覚える</h3>
+            <p>
+              PLC I/Oを見るときは「入力か出力か」「端子番号は何か」「コモンはどこか」「負荷やセンサーはどこか」をセットで確認します。
+            </p>
+          </div>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>入力/出力の区別</h3>
+              <p>ユニット名、図面、配線の行き先から入力か出力かを判断します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>端子番号</h3>
+              <p>PLC端子、端子台、線番、ラダー上のX/Y番号を照合します。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>コモン</h3>
+              <p>プラスコモン、マイナスコモン、ユニット仕様を確認します。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>LED表示</h3>
+              <p>入力LED、出力LEDがONしているかを見て切り分けます。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：PLC I/Oは信号の入口と出口</h2>
+          <p>
+            PLC入力ユニットは、押しボタンやセンサーなどからの信号をPLCへ入れる部分です。
+            PLC出力ユニットは、PLCからランプ、リレー、電磁弁などへ信号を出す部分です。
+          </p>
+          <p>
+            現場で見るときは、入力/出力の区別、端子番号、X/Y番号、コモン、LED表示をセットで確認します。
+            信号の流れを順番に追えば、配線確認やトラブル切り分けがしやすくなります。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事の結論</h3>
+            <p>
+              PLC I/Oユニットは、現場機器とPLCをつなぐ入口と出口です。入力はPLCへ入る信号、出力はPLCから出る信号として、端子番号とコモンを合わせて見るのが基本です。
+            </p>
+          </div>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="#top">この記事の上へ戻る</a>
+            <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>関連記事</h2>
+          <p>PLC I/Oは、入力と出力、PLC、センサー、制御回路の基礎と一緒に見ると理解しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="plc-basic.html">
+              <h3>PLCとは？</h3>
+              <p>制御盤の中心になるPLCの基本と、現場での見方を整理します。</p>
+            </a>
+            <a class="related-card" href="input-output-basic.html">
+              <h3>入力と出力の違いとは？</h3>
+              <p>PLC制御でよく使う入力と出力の考え方を整理します。</p>
+            </a>
+            <a class="related-card" href="npn-pnp-basic.html">
+              <h3>NPN・PNPとは？</h3>
+              <p>センサー配線で迷いやすいNPN/PNPの基本を整理します。</p>
+            </a>
+            <a class="related-card" href="terminal-block-basic.html">
+              <h3>端子台とは？</h3>
+              <p>外部配線と盤内配線をつなぐ端子台の基本を整理します。</p>
+            </a>
+            <a class="related-card" href="sensor-basic.html">
+              <h3>センサーとは？</h3>
+              <p>制御で使うセンサーの役割と基本の見方を解説します。</p>
+            </a>
+            <a class="related-card" href="relay-basic.html">
+              <h3>リレーとは？</h3>
+              <p>PLC出力と負荷の中継で使うリレーの基本を整理します。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>入力は現場からPLCへ入る信号</li>
+            <li>出力はPLCから現場へ出る信号</li>
+            <li>端子番号、X/Y番号、線番を照合する</li>
+            <li>コモンとLED表示も確認する</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="plc-basic.html">PLCとは？</a></li>
+            <li><a href="input-output-basic.html">入力と出力の違いとは？</a></li>
+            <li><a href="terminal-block-basic.html">端子台とは？</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>現場での覚え方</h3>
+          <ul>
+            <li>入力はPLCへ入る</li>
+            <li>出力はPLCから出る</li>
+            <li>端子番号とX/Yを見る</li>
+            <li>コモンを忘れない</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

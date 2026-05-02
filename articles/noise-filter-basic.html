@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ノイズフィルタとは？制御盤のノイズ対策の基本をやさしく解説</title>
+  <meta name="description" content="ノイズフィルタの基本を初心者向けに整理。制御盤でノイズが問題になる理由、電源ラインのノイズ対策、インバータやサーボとの関係、現場で見るポイントまでやさしく解説します。">
+  <link rel="canonical" href="https://syasu-pixel.github.io/my-site/articles/noise-filter-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ノイズフィルタとは？制御盤のノイズ対策の基本をやさしく解説">
+  <meta property="og:description" content="ノイズフィルタの役割、電源ラインのノイズ対策、インバータやサーボとの関係、接地とのつながり、現場で見るポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://syasu-pixel.github.io/my-site/articles/noise-filter-basic.html">
+  <meta property="og:image" content="https://syasu-pixel.github.io/my-site/assets/images/noise-filter-basic/noise-filter-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ノイズフィルタとは？制御盤のノイズ対策の基本をやさしく解説">
+  <meta name="twitter:description" content="ノイズフィルタの役割、電源ラインのノイズ対策、インバータやサーボとの関係、接地とのつながり、現場で見るポイントを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://syasu-pixel.github.io/my-site/assets/images/noise-filter-basic/noise-filter-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/noise-filter-basic/noise-filter-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.56) 38%, rgba(255,255,255,.24) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
+      font-weight:900;
+    }
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .icon-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      margin-bottom:10px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:23px;
+      font-weight:900;
+    }
+    .icon-point h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.45;
+    }
+    .icon-point p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .icon-point--orange{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    .icon-point--orange .icon{
+      background:#ffedd5;
+      color:#c2410c;
+    }
+    .icon-point--green{
+      border-color:#bbf7d0;
+      background:#ecfdf3;
+    }
+    .icon-point--green .icon{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--blue{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--green{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--orange{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+    .check-item--red{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#eaf2ff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-red{
+      background:#fff1f2;
+      font-weight:800;
+      color:#991b1b;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/noise-filter-basic/noise-filter-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/noise-filter-basic/noise-filter-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/noise-filter-basic/noise-filter-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../kougu_logo_middle.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../index.html#category">制御盤の基礎</a>
+      <span>›</span>
+      <span>ノイズフィルタとは</span>
+    </nav>
+
+    <section class="article-hero" id="top">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御盤の基礎</span>
+        <h1>ノイズフィルタとは？制御盤のノイズ対策の基本をやさしく解説</h1>
+        <p class="hero-lead">
+          ノイズフィルタは、電源ラインに乗る不要なノイズを減らすための部品です。インバータ、サーボ、スイッチング電源、通信機器がある制御盤では、誤動作や通信不安定を防ぐために重要になることがあります。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic">まず基本を見る</a>
+          <a class="btn btn-secondary" href="#flow">ノイズの流れを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="この記事の要点">
+      <div class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>制御盤のノイズ対策を基礎から知りたい人</li>
+          <li>インバータやサーボ周りのノイズが気になる人</li>
+          <li>ノイズフィルタとアース・接地の関係を整理したい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>まず制御盤の部品名から覚えたい人</li>
+          <li>EMC試験や高周波ノイズ解析を専門的に学びたい人</li>
+          <li>メーカー別のフィルタ選定表だけを知りたい人</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>ノイズフィルタは、電源ラインの不要なノイズを減らす部品です。</li>
+          <li>インバータ、サーボ、スイッチング電源の近くで関係しやすいです。</li>
+          <li>取り付け位置、配線の分離、接地の取り方が大切です。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="記事内メニュー">
+      <h2>この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#basic">ノイズフィルタとは</a>
+        <a href="#overview">基本構成</a>
+        <a href="#reason">なぜ必要か</a>
+        <a href="#comparison">あり/なしの違い</a>
+        <a href="#flow">ノイズの流れ</a>
+        <a href="#field">現場で見るポイント</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic">
+          <h2>ノイズフィルタとは</h2>
+          <p>
+            ノイズフィルタは、電源ラインに乗る不要な電気的ノイズを減らすための部品です。
+            制御盤では、インバータ、サーボアンプ、スイッチング電源などがノイズ源になったり、逆にノイズの影響を受けたりすることがあります。
+          </p>
+          <p>
+            ノイズが大きいと、センサーの誤検出、通信エラー、アナログ値のふらつき、機器の誤動作などにつながることがあります。
+            その対策の一つとして、電源ラインにノイズフィルタを入れます。
+          </p>
+          <p>
+            ただし、ノイズフィルタを付ければ必ず解決するわけではありません。
+            <span class="term">配線ルート</span>、<span class="term">接地</span>、<span class="term">シールド処理</span>、<span class="term">動力線と信号線の分離</span>も合わせて考える必要があります。
+          </p>
+
+          <div class="key-highlight">
+            <h3>まずはこう覚える</h3>
+            <p>
+              ノイズフィルタは、電源ラインから入るノイズ・出るノイズを減らすための部品です。制御盤では、インバータやサーボ、通信・アナログ信号と関係して考えることが多いです。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>ノイズフィルタは、ノイズを減らすための部品だけど、付ける場所や配線の引き回しも大事だよ。部品だけで全部解決するとは限らないんだ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>フィルタを入れるだけじゃなくて、配線やアースもセットで見るんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>ノイズフィルタの基本構成</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/noise-filter-basic/noise-filter-basic-overview.png" alt="電源、ノイズフィルタ、インバータ、サーボ、PLC、接地がつながる基本構成図">
+            <figcaption>
+              ノイズフィルタは、電源とノイズを出しやすい機器・影響を受けやすい機器の間に入れ、接地と合わせてノイズを逃がす役割を持ちます。
+            </figcaption>
+          </figure>
+          <p>
+            ノイズフィルタは、電源入力側や機器の手前に取り付けることがあります。
+            たとえばインバータの一次側、サーボアンプの電源側、制御電源の入力側などで見ることがあります。
+          </p>
+          <p>
+            ノイズフィルタには、入力側と出力側があります。
+            配線の向きや接地端子の扱いは、メーカーの取扱説明書や図面に従います。
+          </p>
+          <p>
+            接地端子があるノイズフィルタでは、接地の取り方がとても大切です。
+            接地が弱い、長い、回り込む、接続が緩いなどがあると、期待した効果が出にくいことがあります。
+          </p>
+
+          <div class="icon-points">
+            <div class="icon-point">
+              <span class="icon">AC</span>
+              <h3>電源ライン</h3>
+              <p>ノイズが入る・出る経路として電源ラインを見ます。</p>
+            </div>
+            <div class="icon-point icon-point--green">
+              <span class="icon">NF</span>
+              <h3>フィルタ本体</h3>
+              <p>入力側、出力側、接地端子の向きや接続を確認します。</p>
+            </div>
+            <div class="icon-point icon-point--orange">
+              <span class="icon">⏚</span>
+              <h3>接地</h3>
+              <p>ノイズを逃がすため、接地線の長さや接続状態を見ます。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="reason">
+          <h2>なぜノイズフィルタが必要になるのか</h2>
+          <p>
+            制御盤の中には、ノイズを出しやすい機器と、ノイズの影響を受けやすい機器があります。
+            インバータやサーボアンプはモーターを高速に制御するため、ノイズ対策が重要になりやすい機器です。
+          </p>
+          <p>
+            一方で、PLC、通信機器、アナログ入力、ロードセル、センサーなどは、ノイズの影響を受けると値がふらついたり、通信が不安定になったりすることがあります。
+            そのため、ノイズ源と影響を受ける回路を分けて考えます。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>対象</th>
+                  <th>ノイズとの関係</th>
+                  <th>現場での見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">インバータ</td>
+                  <td>ノイズ源になりやすい</td>
+                  <td>電源側、モーター線、接地、フィルタ有無を見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">サーボアンプ</td>
+                  <td>高速制御でノイズ対策が重要</td>
+                  <td>電源、モーター線、エンコーダ線の分離を見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">アナログ信号</td>
+                  <td>微小信号で影響を受けやすい</td>
+                  <td>シールド、配線ルート、接地処理を確認する</td>
+                </tr>
+                <tr>
+                  <td>通信機器</td>
+                  <td>ノイズで通信エラーが出ることがある</td>
+                  <td>通信線と動力線の距離、シールド処理を見る</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="field-highlight">
+            <h3>ノイズ源と弱い信号を分けて見る</h3>
+            <p>
+              ノイズ対策では「どこがノイズを出しやすいか」と「どこがノイズに弱いか」を分けて考えます。フィルタ、接地、配線ルートをセットで確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>ノイズフィルタあり・なしの違い</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/noise-filter-basic/noise-filter-basic-comparison.png" alt="ノイズフィルタなしでノイズが回り込みやすい状態と、ノイズフィルタありでノイズを低減する状態を比較した図">
+            <figcaption>
+              ノイズフィルタがあると、電源ラインを通じて出入りするノイズを減らしやすくなります。ただし配線や接地が悪いと効果が出にくいことがあります。
+            </figcaption>
+          </figure>
+          <p>
+            ノイズフィルタがない場合、機器から発生したノイズが電源ラインへ戻ったり、外部からのノイズが盤内機器へ入りやすくなったりすることがあります。
+          </p>
+          <p>
+            ノイズフィルタがある場合、電源ラインのノイズを減らし、他の機器への影響を抑えやすくなります。
+            ただし、フィルタの入出力配線を近づけすぎる、接地が長い、動力線と信号線を一緒に走らせるなどがあると効果が落ちることがあります。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>フィルタなし</th>
+                  <th>フィルタあり</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>電源ラインノイズ</td>
+                  <td class="cell-orange">入り込み・回り込みが起きやすい</td>
+                  <td class="cell-blue">ノイズを低減しやすい</td>
+                </tr>
+                <tr>
+                  <td>周辺機器への影響</td>
+                  <td>通信やアナログ値へ影響することがある</td>
+                  <td class="cell-green">影響を抑えやすい</td>
+                </tr>
+                <tr>
+                  <td>注意点</td>
+                  <td>原因切り分けが難しくなることがある</td>
+                  <td class="cell-red">配線・接地が悪いと効果が出にくい</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="danger-box">
+            <h3>入出力配線を近づけすぎない</h3>
+            <p>
+              ノイズフィルタの入力側と出力側の配線を近づけすぎると、せっかく抑えたノイズが回り込むことがあります。配線ルートもフィルタ効果に関係します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="flow">
+          <h2>ノイズとフィルタの流れ</h2>
+          <figure class="article-figure">
+            <img src="../assets/images/noise-filter-basic/noise-filter-basic-noise-flow.png" alt="ノイズ源から電源ラインへノイズが流れ、ノイズフィルタと接地で低減される流れを示した図">
+            <figcaption>
+              ノイズ源から電源ラインへ回り込むノイズを、ノイズフィルタと接地で低減する流れとして見ると理解しやすいです。
+            </figcaption>
+          </figure>
+          <p>
+            ノイズの流れを見るときは、まずノイズを出しやすい機器を探します。
+            インバータ、サーボアンプ、スイッチング電源、電磁弁やリレーのコイルなどが候補になります。
+          </p>
+          <p>
+            次に、ノイズがどこへ回り込むかを考えます。
+            電源ライン、接地線、信号線、通信線、盤内の配線ルートを見ながら、影響を受けている機器との関係を確認します。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>1. ノイズ源を見る</h3>
+              <p>インバータ、サーボ、電源、コイルなどを確認します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>2. 回り込み経路を見る</h3>
+              <p>電源ライン、信号線、通信線、接地線のルートを見ます。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>3. フィルタ位置を見る</h3>
+              <p>ノイズフィルタがどこに入っているか、入出力を確認します。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>4. 接地と配線を確認</h3>
+              <p>接地線、シールド、動力線と信号線の分離を確認します。</p>
+            </div>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>ノイズ対策は、部品を付けるだけじゃなくて、ノイズがどこから出て、どこへ回り込むかを見ることが大事だよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="理解する後輩キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>ノイズ源、配線ルート、フィルタ位置、接地をセットで見るんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field">
+          <h2>現場で見るときのポイント</h2>
+          <p>
+            現場でノイズフィルタを見るときは、まず入出力の向きと接地端子を確認します。
+            電源側と機器側が正しく分かれているか、接地がきちんと取られているかを見ます。
+          </p>
+          <p>
+            次に、配線ルートを見ます。
+            フィルタの入力側と出力側が近くで束ねられていないか、動力線と信号線が長く並走していないか、通信線やアナログ線がノイズ源の近くを通っていないかを確認します。
+          </p>
+          <p>
+            また、アース・接地の状態も重要です。
+            接地線が長すぎる、細い、緩んでいる、他のノイズ源と回り込んでいるなどがあると、期待した効果が出にくくなります。
+          </p>
+
+          <div class="note-box">
+            <h3>ここを覚える</h3>
+            <p>
+              ノイズフィルタは単体で見るより、配線ルート・接地・シールド・ノイズ源との距離をセットで見ると現場判断しやすくなります。
+            </p>
+          </div>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>入出力の向き</h3>
+              <p>電源側と機器側が図面や説明書通りか確認します。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>接地</h3>
+              <p>接地端子の接続、線の長さ、締付、盤本体との関係を見ます。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>配線ルート</h3>
+              <p>入力側と出力側、動力線と信号線が近すぎないか確認します。</p>
+            </div>
+            <div class="check-item check-item--red">
+              <h3>ノイズ源との距離</h3>
+              <p>インバータ、サーボ、モーター線、電源線との位置関係を見ます。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ：ノイズフィルタは配線と接地までセットで見る</h2>
+          <p>
+            ノイズフィルタは、電源ラインに乗る不要なノイズを減らすための部品です。
+            インバータ、サーボ、スイッチング電源、通信機器、アナログ信号などがある制御盤では、ノイズ対策として重要になることがあります。
+          </p>
+          <p>
+            ただし、ノイズフィルタだけで全てが解決するわけではありません。
+            取り付け位置、入出力配線、接地、シールド、動力線と信号線の分離を合わせて確認することが大切です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事の結論</h3>
+            <p>
+              ノイズフィルタは、制御盤のノイズ対策を支える部品です。効果を出すには、フィルタ本体だけでなく、配線ルートと接地までセットで見ることが大切です。
+            </p>
+          </div>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="#top">この記事の上へ戻る</a>
+            <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>関連記事</h2>
+          <p>ノイズフィルタは、接地、サージ対策、インバータ、制御盤内配線と一緒に見ると理解しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="control-panel-grounding-basic.html">
+              <h3>制御盤のアース・接地とは？</h3>
+              <p>安全とノイズ対策に関わる接地の基本を整理します。</p>
+            </a>
+            <a class="related-card" href="surge-protection-basic.html">
+              <h3>サージ保護・サージ対策とは？</h3>
+              <p>雷サージや開閉サージから制御盤を守る基本を整理します。</p>
+            </a>
+            <a class="related-card" href="inverter-basic.html">
+              <h3>インバータとは？</h3>
+              <p>モーター制御で使うインバータの基本と見るポイントを解説します。</p>
+            </a>
+            <a class="related-card" href="servo-motor-basic.html">
+              <h3>サーボモーターとは？</h3>
+              <p>位置決め制御で使うサーボの基本を整理します。</p>
+            </a>
+            <a class="related-card" href="wiring-duct-basic.html">
+              <h3>配線ダクトとは？</h3>
+              <p>制御盤の電線を整理する配線ダクトの基本を解説します。</p>
+            </a>
+            <a class="related-card" href="control-panel-wire-color-basic.html">
+              <h3>制御盤の配線色とは？</h3>
+              <p>配線色を手がかりに図面・線番と照合する見方を整理します。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card">
+          <h3>この記事の要点</h3>
+          <ul>
+            <li>ノイズフィルタは電源ラインのノイズを減らす</li>
+            <li>インバータやサーボ周りで関係しやすい</li>
+            <li>入出力配線と接地が大切</li>
+            <li>配線ルートもセットで確認する</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>先に読むと分かりやすい記事</h3>
+          <ul>
+            <li><a href="control-panel-grounding-basic.html">制御盤のアース・接地とは？</a></li>
+            <li><a href="surge-protection-basic.html">サージ保護とは？</a></li>
+            <li><a href="inverter-basic.html">インバータとは？</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>現場での覚え方</h3>
+          <ul>
+            <li>ノイズ源を見る</li>
+            <li>回り込み経路を見る</li>
+            <li>フィルタ位置を見る</li>
+            <li>接地と配線を確認する</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

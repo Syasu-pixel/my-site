@@ -14,7 +14,7 @@
 - 記事スラッグを決める
 - ファイル名は articles/slug.html にする
 - canonical / og:url は以下の形式にする
-  - https://syasu-pixel.github.io/my-site/articles/slug.html
+  - https://denkicontrol.com/articles/slug.html
 - URLは後から変えない前提で決める
 
 ## 3. 画像準備
@@ -22,7 +22,7 @@
   - assets/images/slug/
 - 画像は用途ごとに別ファイルにする
 - 1枚にまとめた画像は使わない
-- ヒーロー画像はOGP兼用できる構図にする
+- 通常記事では、ヒーロー画像をOGP兼用してもよい。
 - ヒーロー画像は左側にHTML文字が乗る余白を残す
 - SNSや検索結果で見ても記事テーマが分かるようにする
 - 必要なら短いタイトル風テキストを入れてよい
@@ -32,6 +32,30 @@
 - 人物を入れる場合は assets/images/guide-characters/ の既存2人を基準にする
 - 新しい別キャラを勝手に作らない
 
+
+
+### GX Works3命令語シリーズの画像5枚ルール
+GX Works3命令語シリーズでは、原則として以下の5枚を**別ファイル**で用意する。
+
+- slug-hero.png
+- slug-ogp.png
+- slug-overview.png
+- slug-comparison.png
+- slug-check-flow.png
+
+役割：
+- hero：記事上部のメイン画像。左側にHTML文字が乗る余白を残す。
+- ogp：SNS・リンク共有用サムネイル。細かい表や小さい文字を入れすぎない。
+- overview：本文の基本説明図。
+- comparison：使い分け・比較表・違いの整理。
+- check-flow：うまく動かない時の確認手順。
+
+注意：
+- 1枚に5枚分の内容をまとめない。
+- 1回の画像生成では1枚の用途だけを作る。
+- 他4枚の内容を混ぜない。
+- 実在メーカーUIやロゴは入れない。
+- 既存の先輩・後輩キャラの雰囲気を維持する。
 
 
 ### 本文内キャラチェック
@@ -118,8 +142,10 @@ articles/*.html 用の固定フッター：
 - footer-nav のリンク
 
 ## 7. OGP・meta確認
-- og:image / twitter:image はヒーロー画像を指定する
-- ヒーロー画像はOGP兼用前提で使う
+- 通常記事：og:image / twitter:image はヒーロー画像をOGP兼用してもよい
+- GX Works3命令語シリーズ：OGP専用画像 `slug-ogp.png` を使う
+- GX Works3命令語シリーズ：og:image / twitter:image は `slug-ogp.png` を指定する
+- GX Works3命令語シリーズ：hero画像とOGP画像を混同しない
 - meta description は記事内容に合わせる
 - canonical と og:url が記事URLと一致しているか確認する
 - 古い共通OGPや汎用画像を使わない
@@ -150,11 +176,32 @@ articles/*.html 用の固定フッター：
 記事HTMLと画像をGitHubへ入れたら、確認用URLを案内する。
 
 形式：
-https://syasu-pixel.github.io/my-site/articles/slug.html
+https://denkicontrol.com/articles/slug.html
 
-## 11. CODEX反映ルール
+## 11. 現在の標準フロー
+1. 記事候補を決める
+2. GitHub最新の既存HTMLを確認し、重複がないか確認する
+3. 公式情報・命令語の基本動作を確認する
+4. Codexで新規記事HTMLを作成する
+5. GPTがHTMLを確認する
+6. 必要ならCodexで修正する
+7. safe to merge: YES になったらマージする
+8. 画像5枚を生成する
+9. ユーザーが画像フォルダを作り、画像を配置する
+10. 確認用URLで表示確認する
+11. 表示OK後、導線追加をCodexに依頼する
+12. sitemap.xml / assets/data/search-index.json / categories/circuit-basics.html / index.html の記事数を更新する
+13. GPTが導線反映を確認する
+14. 1記事完了として次の記事へ進む
+
+補足：
+- エージェント運用でも、標準は1記事ずつ完了させる。
+- 3〜5記事まとめて導線反映してよいのは例外運用とする。
+- 通常は記事単体の品質確認と導線確認を優先する。
+
+## 12. CODEX反映ルール
 記事HTMLと画像は1記事ずつユーザーがGitHubへ追加する。
-その後、3〜5記事分をまとめてCODEXで以下へ反映してよい。
+その後、3〜5記事分をまとめてCODEXで以下へ反映してよい（例外運用）。
 
 - index.html
 - categories/*.html
@@ -169,7 +216,19 @@ CODEX反映時の注意：
 - sitemap の重複を確認する
 - トップの記事数表示がカテゴリ別件数と一致しているか確認する
 
-## 12. 新規記事作成の最終チェック
+
+## 新規記事作成エージェントの禁止事項
+- 既存記事と重複したテーマを作らない
+- GitHub最新の articles/*.html を確認せずに候補確定しない
+- 公式情報を確認せずに命令語の挙動を断定しない
+- ヘッダー・検索フォーム・フッターを独自に作り直さない
+- side-rail を抜かさない
+- site-search.js を重複読み込みしない
+- 画像5枚の用途を混ぜない
+- sitemap / search-index / categories / index.html をHTML作成タスク中に触らない
+- 導線追加タスク中に articles/*.html や画像を触らない
+
+## 13. 新規記事作成の最終チェック
 新規記事HTMLを出す前に、以下を確認する。
 
 - コピー方式で作っているか
@@ -196,7 +255,7 @@ CODEX反映時の注意：
 - 存在しないリンクがないか
 - canonical / og:url / 確認URL が一致しているか
 
-## 13. 新しいチャットでの使い方
+## 14. 新しいチャットでの使い方
 新しいチャットでは、以下のように伝える。
 
 このチャットでは my-site の新規記事制作を進めます。

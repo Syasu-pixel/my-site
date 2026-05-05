@@ -253,6 +253,28 @@ button,input{
 
 ## 運用フロー
 
+### 0. 2ステップ完了フロー（標準）
+- 記事制作は原則2ステップ完了フローで進める。Step 1では記事HTML・画像・確認用URLまで作成し、導線追加は行わない。ユーザーが確認用URLを確認してOKした後のみ、Step 2として index.html、categories/*.html、assets/data/search-index.json、sitemap.xml へ導線追加する。
+- 途中確認は原則不要。ただし、**導線追加前（Step 2開始前）だけは必ずユーザー確認を入れる**。
+
+#### Step 1（自律進行）
+- 記事作成
+- 画像生成
+- 画像配置
+- GitHub登録
+- 確認用URL発行
+- Step 1では以下を触らない。
+  - `index.html`
+  - `categories/*.html`
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - `/seo/sitemap.xml`（非運用）
+
+#### Step 2（ユーザーOK後のみ）
+- 導線追加（`index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml`）
+- 公開後監査（search-index missing/extra/duplicate、sitemap重複、件数整合）
+- 導線追加エージェントは、ユーザー明示OK前に実行しない。
+
 ### A. 1記事ずつ完了フロー
 1. 記事候補を決める
 2. GitHub最新の既存HTMLを確認し、重複がないか確認する

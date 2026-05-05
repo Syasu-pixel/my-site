@@ -189,6 +189,13 @@ articles/*.html 用の固定フッター：
 https://denkicontrol.com/articles/slug.html
 
 ## 11. 現在の標準フロー
+### 11.0 2ステップ完了フロー（標準）
+- 記事制作は原則2ステップ完了フローで進める。Step 1では記事HTML・画像・確認用URLまで作成し、導線追加は行わない。ユーザーが確認用URLを確認してOKした後のみ、Step 2として index.html、categories/*.html、assets/data/search-index.json、sitemap.xml へ導線追加する。
+- 途中確認は原則不要。ただし、導線追加前（Step 2開始前）だけは必ずユーザー確認を入れる。
+- Step 1では `index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml` を触らない。
+- `/seo/sitemap.xml` は非運用なので触らない。
+
+### 11.1 Step 1（自律進行）
 1. 記事候補を決める
 2. GitHub最新の既存HTMLを確認し、重複がないか確認する
 3. 公式情報・命令語の基本動作を確認する
@@ -196,24 +203,29 @@ https://denkicontrol.com/articles/slug.html
 5. GPTがHTMLを確認する
 6. 必要ならCodexで修正する
 7. safe to merge: YES になったらマージする
-8. 画像5枚を生成する
-9. ユーザーが画像フォルダを作り、画像を配置する
-10. 確認用URLで表示確認する
-11. 表示OK後、導線追加をCodexに依頼する
-12. sitemap.xml / assets/data/search-index.json / categories/circuit-basics.html / index.html の記事数を更新する
-13. GPTが導線反映を確認する
-14. 1記事完了として次の記事へ進む
+8. 画像を生成する
+9. 画像を配置してGitHub登録する
+10. 確認用URLを発行して共有する
+
+### 11.2 Step 2（ユーザーOK後のみ）
+1. ユーザーが確認用URLを確認する
+2. ユーザー明示OKを受ける（この確認は必須）
+3. 導線追加を実施する（`index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml`）
+4. 公開後監査を実施する（search-index missing / extra / duplicate、sitemap重複、件数整合）
+5. 最後に `safe to close: YES / NO` を出す
 
 補足：
 - 通常は1記事ずつ完了フローを使う。
 - ユーザーが希望した場合、または同じシリーズでテンプレートが安定している場合は、5記事まとめ制作フローを使ってよい。
 - 5記事まとめ制作では、HTML作成・画像作成・表示確認・導線追加を段階ごとにまとめて行う。
+- 5記事まとめ制作でも2ステップ制を適用し、Step 1完了（記事・画像・確認用URL）と、ユーザーOK後のStep 2（導線追加）を分離する。
 - ただし、表示確認前に導線追加へ進まない。
 - 導線追加時は sitemap / search-index / categories / index.html をまとめて更新してよい。
 - articles/*.html と assets/images/** の修正と、導線追加作業は分ける。
 - エージェント運用でも、標準は1記事ずつ完了させる。
 - 3〜5記事まとめて導線反映してよいのは例外運用とする。
 - 通常は記事単体の品質確認と導線確認を優先する。
+- 導線追加エージェントは、ユーザー明示OK前に実行しない。
 
 ### 11.1 5記事まとめ制作時の画像運用メモ
 - 5記事まとめ制作でも、画像は用途ごとに別ファイルで作る。

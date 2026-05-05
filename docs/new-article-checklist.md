@@ -68,10 +68,31 @@
 - 新規記事HTML作成時は、記事本文構造と固定ヘッダーの参照元を分ける
   - 記事本文構造：完成済み記事HTMLをコピー
   - 固定ヘッダー：必ず `index.html` の最新版を参照
+  - 固定フッター：必ず `index.html` の最新版文言を基準にし、`articles/*.html` 用の相対リンクへ調整
   - 共通キャラ画像：`assets/images/guide-characters/` の既存2人を使う
-- 固定ヘッダー、検索フォーム、右カラム、section-card、talk-thread、related-grid、site-search.js は維持する
+- 固定ヘッダー、検索フォーム、右カラム、section-card、talk-thread、related-grid、site-search.js、固定フッターは維持する
 - site-search.js は重複読み込みしない
 - 新しい独自CSSテンプレートを作らない
+- コピー元に古いフッターがあっても流用せず、必ず固定フッターへ差し替える
+
+articles/*.html 用の固定フッター：
+
+```html
+<footer class="site-footer">
+  <div class="container">
+    <p>
+      現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+      <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+    </p>
+  </div>
+</footer>
+```
+
+固定フッタールール：
+- 「© 電気と制御の実務メモ」だけの簡易フッターにしない
+- `<footer>` だけの裸フッターにしない
+- `footer` には必ず `class="site-footer"` を付ける
+- `footer` 内には必ず `div class="container"` を入れる
 
 基準記事：
 - articles/relay-basic.html

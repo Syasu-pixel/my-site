@@ -97,6 +97,16 @@ GX Works3命令語シリーズでは、原則として以下の5枚を**別フ�
 - 固定ヘッダー、検索フォーム、右カラム、section-card、talk-thread、related-grid、site-search.js、固定フッターは維持する
 - site-search.js は重複読み込みしない
 - 新しい独自CSSテンプレートを作らない
+- 新規記事HTMLでは、コピー元テンプレートのレスポンシブCSSを省略・短縮・圧縮・統合しない
+- とくに以下のメディアクエリは必ず維持する
+  - `@media (max-width:1100px)`
+  - `@media (max-width:900px)`
+  - `@media (max-width:768px)`
+  - `@media (min-width:744px) and (max-width:1100px)`
+  - `@media (max-width:640px)`
+- iPad / iPad Pro 幅の表示崩れ防止のため、`@media (min-width:744px) and (max-width:1100px)` は必須チェック項目とする
+- 上記の中間幅指定では、`.article-hero`、`.article-hero::before`、`.article-hero::after`、`.article-hero-copy`、`h1`、`.hero-lead`、`.top-summary`、`.side-rail` の補正を落とさない
+- `.article-hero::before` の中間幅指定では、ヒーロー背景画像の過剰拡大を防ぐため `right center / auto 92% no-repeat` 相当の指定を維持する
 - コピー元に古いフッターがあっても流用せず、必ず固定フッターへ差し替える
 
 articles/*.html 用の固定フッター：
@@ -258,6 +268,8 @@ CODEX反映時の注意：
   - カテゴリ：`../index.html#category`
 - 検索placeholderが「キーワードで検索」になっているか
 - ロゴ画像が記事階層用の `../kougu_logo_middle.png` になっているか
+- コピー元テンプレートと比較して、レスポンシブ用メディアクエリが欠落していないか
+- CSSを短縮・圧縮しただけに見えても、テンプレート由来のレスポンシブ補正が抜けていないか
 - 先輩・後輩キャラ画像が `guide-characters` の実在パスになっているか
 - 「電気工事士の工具箱」「工具・制御・現場の基本をやさしく整理」など旧ヘッダー文言が残っていないか
 - サイト内検索フォームが維持されているか

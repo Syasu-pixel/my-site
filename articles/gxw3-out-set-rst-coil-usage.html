@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OUT・SET・RSTの違いとは？GX Works3でコイルを使い分ける基本</title>
+  <meta name="description" content="GX Works3でよく使うOUT・SET・RST命令の違いを初心者向けに整理。条件がONの間だけ出力するOUT、一度ONした状態を保持するSET、保持を解除するRSTの使い分け、二重コイルや解除忘れの注意点まで現場目線で解説します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/gxw3-out-set-rst-coil-usage.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="OUT・SET・RSTの違いとは？GX Works3でコイルを使い分ける基本">
+  <meta property="og:description" content="OUT・SET・RSTの基本動作と使い分け、GX Works3で追う時のポイントを初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/gxw3-out-set-rst-coil-usage.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --header-h:78px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,input{
+      font:inherit;
+    }
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px 18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .number-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .number-list li{
+      margin:12px 0 0;
+      font-size:15px;
+      line-height:1.85;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .point-box,
+    .note-box,
+    .danger-box{
+      padding:18px 18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .point-box{
+      background:#f8fbff;
+      border-color:#d7e4f3;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .point-box h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .point-box p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .talk-thread{
+        max-width:none;
+      }
+      .talk-bubble{
+        max-width:none;
+      }
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{
+        font-size:34px;
+      }
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li,
+      .number-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+
+:root{
+  --container:1180px;
+  --header-h:76px;
+  --muted-2:#64748b;
+  --line-header:#dbe7f3;
+  --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+}
+
+body{
+  padding-top:var(--header-h);
+}
+
+
+
+.site-header{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:999;
+  padding:10px 12px;
+  background:#fff !important;
+  border-bottom:1px solid rgba(203,219,235,.9);
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.site-header-inner{
+  width:min(100%,var(--container));
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.brand{
+  min-width:0;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+  color:inherit;
+  text-decoration:none;
+}
+
+.brand:hover{
+  text-decoration:none;
+}
+
+.brand-logo{
+  width:auto;
+  height:46px;
+  flex:0 0 auto;
+}
+
+.brand-copy{
+  min-width:0;
+}
+
+.brand-title{
+  margin:0;
+  font-size:17px;
+  line-height:1.25;
+  font-weight:900;
+  color:#0f172a;
+  letter-spacing:.01em;
+}
+
+.brand-sub{
+  margin:2px 0 0;
+  font-size:11px;
+  line-height:1.4;
+  color:#475569;
+  font-weight:700;
+}
+
+.header-nav{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+  justify-content:flex-end;
+  flex:1 1 auto;
+  margin-left:auto;
+  margin-right:4px;
+}
+
+.header-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.2;
+  color:#334155;
+  background:#fff;
+  border:1px solid transparent;
+  white-space:nowrap;
+  text-decoration:none;
+}
+
+.header-link:hover{
+  color:#1d4ed8;
+  background:#f8fbff;
+  border-color:#dbeafe;
+  text-decoration:none;
+}
+
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+.header-search{
+  position:relative;
+  flex:0 0 220px;
+  min-height:42px;
+  border-radius:999px;
+  border:1px solid var(--line-header);
+  background:#fff;
+  color:var(--muted-2);
+  box-shadow:var(--shadow-soft);
+}
+
+.search-box{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px;
+}
+
+.search-box-input{
+  width:100%;
+  min-width:0;
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size:12px;
+  color:#334155;
+  font-weight:700;
+}
+
+.search-box-input::placeholder{
+  color:#94a3b8;
+}
+
+.search-box-button{
+  border:none;
+  background:transparent;
+  color:inherit;
+  padding:0;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.header-search-icon{
+  width:16px;
+  height:16px;
+  border:2px solid #1f2937;
+  border-radius:50%;
+  position:relative;
+  flex:0 0 auto;
+}
+
+.header-search-icon::after{
+  content:"";
+  position:absolute;
+  width:7px;
+  height:2px;
+  background:#1f2937;
+  border-radius:999px;
+  right:-5px;
+  bottom:-2px;
+  transform:rotate(45deg);
+}
+
+.search-box-panel{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  width:min(420px,92vw);
+  max-height:min(72vh,640px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  background:#fff;
+  border:1px solid #dbe7f3;
+  border-radius:16px;
+  box-shadow:0 18px 40px rgba(15,23,42,.12);
+  padding:8px 8px 10px;
+  z-index:1200;
+}
+
+.search-box-results{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:6px;
+}
+
+.search-result-item{
+  margin:0;
+}
+
+.search-result-item a{
+  display:block;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #e6eef8;
+  background:#fbfdff;
+  text-decoration:none;
+}
+
+.search-result-item a:hover,
+.search-result-item a:focus,
+.search-result-item.is-active a{
+  border-color:#bfdbfe;
+  background:#eff6ff;
+  text-decoration:none;
+}
+
+.search-result-title{
+  margin:0;
+  font-size:13px;
+  line-height:1.45;
+  color:#0f172a;
+  font-weight:800;
+}
+
+.search-result-meta{
+  margin:4px 0 0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.search-result-category{
+  font-size:11px;
+  line-height:1;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#e6f0ff;
+  color:#1d4ed8;
+  font-weight:700;
+}
+
+.search-result-description{
+  margin:6px 0 0;
+  font-size:12px;
+  line-height:1.5;
+  color:#64748b;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.search-box-empty{
+  margin:0;
+  padding:14px 10px;
+  text-align:center;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
+
+
+@media (max-width: 980px){
+  .brand-sub{
+    display:none !important;
+  }
+
+  .header-nav{
+    display:none !important;
+  }
+
+  .site-header-inner{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .brand{
+    min-width:0;
+    gap:8px;
+  }
+
+  .brand-title{
+    white-space:nowrap;
+  }
+
+  .header-search{
+    flex:0 0 180px;
+  }
+}
+
+@media (max-width: 768px){
+  .site-header{
+    padding:8px 10px;
+  }
+
+  .site-header-inner{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .brand{
+    min-width:0;
+    gap:8px;
+  }
+
+  .brand-logo{
+    height:40px;
+  }
+
+  .brand-copy{
+    min-width:0;
+  }
+
+  .brand-title{
+    font-size:15px;
+    line-height:1.2;
+    white-space:nowrap;
+  }
+
+  .brand-sub{
+    display:none !important;
+  }
+
+  .header-nav{
+    display:none !important;
+  }
+
+  .header-search{
+    flex:0 0 132px;
+    min-height:38px;
+  }
+
+  .search-box{
+    padding:0 10px;
+  }
+
+  .search-box-input{
+    font-size:12px;
+  }
+
+  .search-box-panel{
+    width:min(360px,92vw);
+    max-height:min(68vh,520px);
+    overflow-y:auto;
+  }
+}
+
+
+</style>
+</head>
+<body>
+    <header class="site-header">
+  <div class="site-header-inner">
+    <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+      <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+      <div class="brand-copy">
+        <p class="brand-title">電気と制御の実務メモ</p>
+        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+      </div>
+    </a>
+
+    <nav class="header-nav" aria-label="グローバルナビゲーション">
+      <a href="../index.html#top" class="header-link">ホーム</a>
+      <a href="../index.html#featured" class="header-link">人気記事</a>
+      <a href="../index.html#category" class="header-link">カテゴリ</a>
+    </nav>
+
+    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="sr-only" for="site-search-input">サイト内検索</label>
+      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+      <button class="search-box-button" type="submit" aria-label="検索">
+        <span class="header-search-icon" aria-hidden="true"></span>
+      </button>
+      <div class="search-box-panel" id="site-search-panel" hidden>
+        <ul class="search-box-results" id="site-search-results"></ul>
+        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+      </div>
+    </form>
+  </div>
+</header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>OUT・SET・RSTの違いとは？</span>
+    </nav>
+    <section class="article-hero" aria-labelledby="page-title"><div class="article-hero-copy"><span class="hero-label">制御の基礎</span><h1 id="page-title">OUT・SET・RSTの違いとは？<br>GX Works3でコイルを使い分ける基本</h1><p class="hero-lead">OUTは条件で動くコイル、SET/RSTは状態を保持するコイルとして考えると、GX Works3でも追いやすくなります。</p><div class="hero-actions"><a class="btn btn-primary" href="#conclusion">先に結論</a><a class="btn btn-secondary" href="#usage">使い分けを見る</a></div></div></section>
+    <section class="top-summary" aria-label="記事の導入まとめ"><section class="summary-card summary-card--fit"><h2>向いている人</h2><ul><li>GX Works3でOUT/SET/RSTを使い分けたい人</li><li>命令の基本動作を現場目線で整理したい人</li><li>同じデバイスの追い方を知りたい人</li></ul></section><section class="summary-card summary-card--notyet"><h2>まだ不要な人</h2><ul><li>自己保持回路の配線だけを学びたい人</li><li>機種固有の応用命令まで一気に学びたい人</li><li>命令リファレンス全文を先に読む人</li></ul></section><section class="summary-card summary-card--conclusion"><h2>先に結論</h2><ul><li>OUTは<span class="mark">条件ON中だけON</span></li><li>SETは<span class="mark">ON状態を保持</span></li><li>RSTは<span class="mark">保持を解除</span></li></ul></section></section>
+    <section class="mini-toc-card"><h2 id="mini-toc-title">この記事のポイント</h2><div class="mini-toc"><a href="#difference">OUT・SET・RSTの違い</a><a href="#conclusion">先に結論</a><a href="#out">OUT命令</a><a href="#set">SET命令</a><a href="#rst">RST命令</a><a href="#usage">使い分け</a><a href="#caution">注意点</a><a href="#gxworks3">GX Works3での確認</a><a href="#mistakes">初心者ミス</a><a href="#summary">まとめ</a></div></section>
+    <div class="page-layout"><div class="main-column">
+    <section class="section-card" id="difference"><h2>1. OUT・SET・RSTの違いとは？</h2><p>どれもラダー右側のコイルでよく使いますが、動き方が違います。OUTは条件に追従、SETは保持、RSTは解除です。</p><figure class="article-figure"><img src="../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-overview.png" alt="OUT SET RSTの位置づけ" loading="lazy" decoding="async"></figure></section>
+    <section class="section-card" id="conclusion"><h2>2. 先に結論：OUTは条件、SET/RSTは保持</h2><p>初心者のうちは、まずOUTで回路を組み、状態を残す必要がある箇所だけSET/RSTを使うと整理しやすいです。</p><div class="talk-thread"><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>まずOUTで追える形にして、必要な箇所だけSET/RSTにすると保守しやすいよ。</p></div></div><div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">新人</span>SETを使う時はRSTまで必ずセットで考える、ですね。</p></div></div></div>
+    </section>
+    <section class="section-card" id="out"><h2>3. OUT命令とは？</h2><p>OUTは左側条件がONの間だけ対象デバイスをONします。条件がOFFになるとOFFに戻る、という見方が基本です。</p></section>
+    <section class="section-card" id="set"><h2>4. SET命令とは？</h2><p>SETは条件成立で対象をONし、その後条件がOFFでもON状態を保持します。保持を切るにはRSTが必要です。</p></section>
+    <section class="section-card" id="rst"><h2>5. RST命令とは？</h2><p>RSTはSETで保持した状態をOFFへ戻す命令です。SETだけで終わらせず、解除条件までセットで考えるのが実務的です。</p></section>
+    <section class="section-card" id="usage"><h2>6. OUT・SET・RSTの使い分け</h2><p>まずはOUTを基本に考え、状態記憶が必要な場面だけSET/RSTを採用します。</p><figure class="article-figure"><img src="../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-ladder-flow.png" alt="OUT SET RSTのラダーフロー" loading="lazy" decoding="async"></figure></section>
+    <section class="section-card" id="caution"><h2>7. SET/RSTを使うときの注意点</h2><p>SETを使うならRST条件まで必ず設計します。同じデバイスを複数箇所でSET/RSTしすぎると、原因追跡が難しくなります。</p><p>Y出力を直接SET/RSTするより、Mで状態を作って最後にYへOUTする方が整理しやすい場面もあります。</p><figure class="article-figure"><img src="../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-comparison.png" alt="使い分け比較" loading="lazy" decoding="async"></figure></section>
+    <section class="section-card" id="gxworks3"><h2>8. GX Works3で確認するときのポイント</h2><p>同じデバイス番号を検索し、OUT/SET/RSTがどこにあるかを一覧で追います。ラダー監視時は、今ONしている命令と解除側命令の両方を見ると判断しやすいです。</p></section>
+    <section class="section-card" id="mistakes"><h2>9. 初心者が間違えやすいポイント</h2><ul class="simple-list"><li>SETしたままRST条件不足で状態が残る</li><li>同一デバイスの多重SET/RSTで追跡不能になる</li><li>OUTで十分な箇所までSET化して複雑化する</li></ul></section>
+    <section class="section-card" id="summary"><h2>10. まとめ</h2><p>OUTは条件、SET/RSTは保持と解除。この軸で見ればGX Works3でも迷いにくくなります。</p><figure class="article-figure"><img src="../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-ogp.png" alt="まとめイメージ" loading="lazy" decoding="async"></figure></section>
+    <section class="section-card" aria-labelledby="related-title"><h2 id="related-title">あわせて読みたい記事</h2><div class="related-grid"><a class="related-card" href="self-hold-circuit.html"><h3>自己保持回路とは？</h3><p>回路の形としての保持を確認できます。</p></a><a class="related-card" href="reset-circuit-basic.html"><h3>リセット回路の基本</h3><p>解除動作の考え方を整理できます。</p></a><a class="related-card" href="ladder-reading.html"><h3>ラダー図の読み方</h3><p>同じデバイスを追う基本を学べます。</p></a></div></section>
+    </div><aside class="side-rail" aria-label="記事サイドメニュー"><section class="side-card"><h3>記事内メニュー</h3><ul><li><a href="#difference">違い</a></li><li><a href="#out">OUT</a></li><li><a href="#set">SET</a></li><li><a href="#rst">RST</a></li><li><a href="#usage">使い分け</a></li><li><a href="#gxworks3">GX Works3確認</a></li></ul></section><section class="side-card"><h3>この回路で見るポイント</h3><ul><li>OUTは条件追従</li><li>SETは保持</li><li>RSTは解除</li><li>同デバイス検索で追う</li></ul></section><section class="side-card"><h3>関連カテゴリ</h3><ul><li><a href="../categories/control-basics.html">制御の基礎</a></li><li><a href="../categories/circuit-basics.html">回路の基礎</a></li></ul></section></aside></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 電気と制御の実務メモ</p>
+    </div>
+  </footer>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

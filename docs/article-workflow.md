@@ -26,6 +26,17 @@
 
 上記は記事ページのUI/UX統一のため、基本的に維持する。
 
+- 新規記事HTMLでは、コピー元テンプレートのレスポンシブCSSを省略・短縮・圧縮・統合しない。
+- 特に以下のメディアクエリを必須維持要素として扱う。
+  - `@media (max-width:1100px)`
+  - `@media (max-width:900px)`
+  - `@media (max-width:768px)`
+  - `@media (min-width:744px) and (max-width:1100px)`
+  - `@media (max-width:640px)`
+- iPad / iPad Pro 幅の表示崩れ再発防止のため、`@media (min-width:744px) and (max-width:1100px)` を必須チェック対象にする。
+- 上記の中間幅指定では、`.article-hero`、`.article-hero::before`、`.article-hero::after`、`.article-hero-copy`、`h1`、`.hero-lead`、`.top-summary`、`.side-rail` の補正を落とさない。
+- `.article-hero::before` の中間幅指定では、ヒーロー背景画像の過剰拡大を防ぐため `right center / auto 92% no-repeat` 相当の指定を維持する。
+
 ## 記事内容ルール
 - 回路記事は基本ラダー例を入れる。
 - 関連記事は3〜6件までを目安に設定してよい。
@@ -35,6 +46,8 @@
 - `site-search.js` は重複読み込みしない。
 - 変更対象は必要箇所に限定し、無関係な差分を含めない。
 - 新規記事を既存記事からコピーして作る場合、コピー元に古いフッターが残っていても、そのまま使わず固定フッターへ差し替える。
+- 新規記事HTMLの最終確認では、コピー元テンプレートと比較してレスポンシブ用メディアクエリの欠落がないかを確認する。
+- CSSを短縮・圧縮しただけに見える変更でも、テンプレート由来のレスポンシブ補正が抜ける場合はNGとする。
 
 ## 事前チェック
 - コピー元HTMLの構造が最新か確認。

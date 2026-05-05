@@ -449,3 +449,37 @@ button,input{
   </div>
 </form>
 ```
+
+
+## 12. 新規記事の最終ブランド整合チェック（公開前）
+公開前の最終確認で、旧サイト名・旧ブランド文言が残っていないかを必ず確認する。
+
+確認対象（新規記事 + 導線反映ファイル）：
+- title
+- meta description
+- og:title
+- og:description
+- og:site_name
+- twitter:title
+- twitter:description
+- header の brand-title / brand-sub
+- footer 文言
+- パンくず
+- 本文内のサイト紹介文
+- `assets/data/search-index.json` の description
+- `categories/*.html` や `index.html` の導線文言
+
+旧サイト名・旧文言の例（検出対象）：
+- 電気工事士の工具箱
+- 工具・制御・現場の基本をやさしく整理
+- 旧ロゴ名や旧キャッチコピー
+- 以前のサイト説明文
+
+現在の基準：
+- サイト名: 電気と制御の実務メモ
+- 将来ブランド方針: 電気制御ラボ / Denki Control Lab
+- キャッチコピー基準: 電気工事・PLC・制御を基礎から学ぶ実務ガイド
+
+判定ルール：
+- 旧サイト名・旧文言が1か所でも残っている場合は `safe to merge: NO` とする。
+- すべて現行基準に一致している場合のみ `safe to merge: YES` とする。

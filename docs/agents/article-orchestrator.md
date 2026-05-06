@@ -38,3 +38,12 @@
 - トップ/カテゴリ/検索/sitemap導線確認
 - sitemap・search-index重複なし
 - /seo/sitemap.xml を触っていない
+
+
+## Codex/ChatGPT 分担の固定
+- Codexは記事HTML作成と画像ファイル名・画像パス・画像フォルダ名の確定を担当する。
+- ChatGPTは記事固有画像5枚（hero / ogp / overview / comparison / check-flow）の生成を担当する。
+- Codexは画像生成を行わない。
+- Codexは画像生成前に、`assets/images/[slug]/` と `-hero/-ogp/-overview/-comparison/-check-flow` の5ファイル名を確定してから引き渡す。
+- ユーザーOK前に `index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml` を更新しない。
+- `/seo/sitemap.xml` は非運用のため参照・更新しない。

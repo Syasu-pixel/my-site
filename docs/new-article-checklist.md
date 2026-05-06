@@ -672,3 +672,166 @@ Codexは新規記事作成時に以下を行わない。
 - /seo/sitemap.xml を触らない
 - 存在しない関連記事リンクを入れない
 - 旧サイト名・旧ブランド文言を残さない
+
+
+## 記事候補の重複確認ルール
+
+新規記事候補の重複確認は、原則としてGPTが行う。
+
+Codexは、GPTが「重複確認済み」として渡した記事テーマをもとにHTML作成を行う。
+
+Codex側の最低限確認:
+- 同名HTMLファイルが存在しない
+- 同一slugが存在しない
+- 同一URLが search-index.json に存在しない
+- 同一URLが sitemap.xml に存在しない
+
+ただし、記事テーマの重複判断や候補選定はGPT側で行う。
+
+## Codexの作業範囲
+
+Codexは、GPTから渡された記事作成指示をもとに、HTML作成とGitHub反映を行う。
+
+Codexが行うこと:
+- コピー元テンプレート記事を選ぶ
+- 完成済み記事HTMLを完全コピーする
+- title / meta / canonical / OGP / h1 / 本文 / 関連記事を差し替える
+- 画像フォルダ名を確定する
+- 画像5枚のファイル名を確定する
+- HTML内の画像パスを .png で指定する
+- レスポンシブCSSを維持する
+- GitHubにHTMLを反映する
+- 画像配置後に表示確認する
+- ユーザーOK後に導線追加する
+
+Codexが行わないこと:
+- 記事候補の本格的な重複判断
+- 記事候補の最終選定
+- 画像生成
+- guide-characters の新規作成
+- ユーザーOK前の導線追加
+- /seo/sitemap.xml の更新
+
+## Codex用 HTML作成ルール
+
+新規記事HTMLは、完成済み記事HTMLを完全コピーして必要箇所だけ差し替える。
+
+コピー元候補:
+- articles/relay-basic.html
+- articles/forward-reverse-circuit-basic.html
+- articles/lamp-indicator-circuit-basic.html
+- 同カテゴリ・同シリーズの最新完成記事
+
+差し替える対象:
+- title
+- meta description
+- canonical
+- og:title
+- og:description
+- og:url
+- og:image
+- twitter:title
+- twitter:description
+- twitter:image
+- h1
+- hero lead
+- breadcrumb末尾
+- top-summary
+- mini-toc
+- section-card本文
+- article-figure画像パス
+- figcaption
+- 関連記事カード
+- side-rail目次
+
+変更しない対象:
+- CSS全体構造
+- クラス名
+- header/search構造
+- site-search.js読み込み位置
+- talk-thread構造
+- talk-avatar > img 構造
+- guide-characters画像パス
+- page-layout / main-column / side-rail
+- related-grid
+- check-grid
+- レスポンシブメディアクエリ
+
+禁止:
+- ゼロからHTML構造を作り直さない
+- CSSを新規設計しない
+- クラス名を勝手に変えない
+- 検索ヘッダーを作り直さない
+- 会話構造を作り直さない
+- 関連記事構造を作り直さない
+
+## 画像パス確定ルール
+
+Codexは画像生成を行わない。
+ただし、HTML作成時に画像フォルダ名・画像ファイル名・画像パスを必ず確定する。
+
+記事固有画像は原則 .png とする。
+記事固有画像に .svg を指定しない。
+
+基本の画像フォルダ:
+assets/images/[slug]/
+
+基本の画像5枚:
+- [slug]-hero.png
+- [slug]-ogp.png
+- [slug]-overview.png
+- [slug]-comparison.png
+- [slug]-check-flow.png
+
+HTML内では以下のように指定する。
+
+- hero背景:
+  ../assets/images/[slug]/[slug]-hero.png
+
+- OGP画像:
+  https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+
+- Twitter画像:
+  https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+
+- overview本文画像:
+  ../assets/images/[slug]/[slug]-overview.png
+
+- comparison本文画像:
+  ../assets/images/[slug]/[slug]-comparison.png
+
+- check-flow本文画像:
+  ../assets/images/[slug]/[slug]-check-flow.png
+
+HTML完成後、記事固有画像に .svg が残っている場合はNGとする。
+
+## レスポンシブCSS維持ルール
+
+Codexは新規記事HTML作成時に、既存テンプレートのレスポンシブCSSを落とさない。
+
+必須維持:
+- @media (max-width:1100px)
+- @media (max-width:900px)
+- @media (max-width:768px)
+- @media (min-width:744px) and (max-width:1100px)
+- @media (max-width:640px)
+
+特に、iPad / iPad Pro相当幅でhero画像が過剰拡大しないように、以下の中間幅指定を維持する。
+
+例:
+@media (min-width:744px) and (max-width:1100px){
+  .article-hero::before{
+    background:url("../assets/images/[slug]/[slug]-hero.png") right center / auto 92% no-repeat;
+    opacity:.24;
+  }
+  .article-hero-copy{
+    width:min(100%,600px);
+    padding:42px 34px;
+  }
+}
+
+禁止:
+- 中間幅で background-size:128% auto などにしてhero画像を過剰拡大させない
+- iPad用レスポンシブCSSを削除しない
+- max-width系メディアクエリを省略しない
+

@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>フリッカ回路とは？ランプを点滅させる基本回路をやさしく解説</title>
+  <meta name="description" content="フリッカ回路とは何かを初心者向けにやさしく整理。ランプを点滅させる考え方、タイマー回路との関係、異常表示・注意喚起での使い方、簡略ラダー例、現場での確認ポイントまで解説します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/flicker-circuit-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="フリッカ回路とは？ランプを点滅させる基本回路をやさしく解説">
+  <meta property="og:description" content="ランプを点滅させるフリッカ回路の基本を、タイマー・異常表示・注意喚起との関係までやさしく整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/flicker-circuit-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/flicker-circuit-basic/flicker-circuit-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="フリッカ回路とは？ランプを点滅させる基本回路をやさしく解説">
+  <meta name="twitter:description" content="フリッカ回路の考え方、点灯と点滅の違い、タイマーを使った点滅、確認ポイントを初心者向けに解説します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/flicker-circuit-basic/flicker-circuit-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --muted-2:#64748b;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+      --line-header:#dbe7f3;
+    }
+
+    *{box-sizing:border-box}
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+      -webkit-text-size-adjust:100%;
+    }
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Meiryo",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      overflow-x:hidden;
+      padding-top:var(--header-h);
+    }
+    img{
+      display:block;
+      max-width:100%;
+      height:auto;
+    }
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+      transition:.2s ease;
+    }
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+
+    .container{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      padding:0 14px 40px;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:var(--blue-deep);
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item{margin:0}
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/flicker-circuit-basic/flicker-circuit-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+
+    .key-highlight,
+    .field-highlight{
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .ladder-box{
+      margin:18px 0;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      background:#0f172a;
+      color:#e5edff;
+      overflow:auto;
+      box-shadow:0 10px 22px rgba(15,23,42,.08);
+    }
+    .ladder-row{
+      display:grid;
+      grid-template-columns:72px minmax(680px,1fr);
+      border-top:1px solid rgba(226,232,240,.16);
+    }
+    .ladder-row:first-child{border-top:none}
+    .ladder-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 10px;
+      background:rgba(37,99,235,.18);
+      color:#bfdbfe;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .ladder-line{
+      padding:14px 16px;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:13px;
+      line-height:1.7;
+      white-space:nowrap;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/flicker-circuit-basic/flicker-circuit-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(90deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.48) 44%,rgba(255,255,255,.18) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .site-header-inner{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header{
+        padding:8px 10px;
+      }
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+      }
+      .header-search{
+        flex:0 0 156px;
+        min-height:38px;
+      }
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/flicker-circuit-basic/flicker-circuit-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+      .top-summary,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+      .section-card{padding:22px}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+      .talk-avatar img{width:66px}
+    }
+
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+    }
+
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+        padding:0 10px 36px;
+      }
+      .breadcrumb{margin-top:14px}
+      .article-hero::before{
+        background:url("../assets/images/flicker-circuit-basic/flicker-circuit-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .hero-actions,
+      .btn{width:100%}
+      .mini-toc{gap:8px}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .ladder-row{
+        grid-template-columns:52px minmax(620px,1fr);
+      }
+      .ladder-label{
+        font-size:12px;
+        padding:12px 8px;
+      }
+      .ladder-line{
+        font-size:12px;
+        padding:12px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">回路の基礎</a>
+      <span>›</span>
+      <span>フリッカ回路とは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">回路の基礎</span>
+        <h1 id="page-title">フリッカ回路とは？<br>ランプを点滅させる基本回路をやさしく解説</h1>
+        <p class="hero-lead">
+          フリッカ回路は、ランプやブザーを<span class="mark">一定間隔でON/OFFさせる</span>ための基本回路です。
+          異常表示や注意喚起など、ただ点灯するだけでは目立ちにくい場面で使います。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#overview">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>ランプを点滅させる基本を知りたい人</li>
+          <li>タイマー回路を使った点滅条件を整理したい人</li>
+          <li>異常表示や注意表示を分かりやすくしたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>高速点滅や通信制御の詳細を知りたい人</li>
+          <li>タッチパネル画面のアニメーション設定を知りたい人</li>
+          <li>メーカー別の特殊命令をそのまま使いたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>フリッカ回路は、<span class="mark">出力を一定間隔でON/OFFする回路</span>です。</li>
+          <li>点灯より目立たせたい時に、点滅表示として使います。</li>
+          <li>タイマーやクロックパルスを使って作ることが多いです。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#overview">全体像</a>
+        <a href="#operation">基本動作</a>
+        <a href="#comparison">点灯との違い</a>
+        <a href="#ladder">簡略ラダー例</a>
+        <a href="#checks">確認ポイント</a>
+        <a href="#related-title">関連記事</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="overview">
+          <h2>フリッカ回路の全体像</h2>
+          <p>
+            フリッカ回路は、ランプやブザーなどの出力を一定間隔でON/OFFさせる回路です。
+            常時点灯ではなく点滅させることで、作業者に「注意してほしい状態」や「異常がある状態」を伝えやすくします。
+          </p>
+          <p>
+            たとえば異常保持フラグがONしている時に、異常ランプを点滅させると、通常の点灯表示より目に入りやすくなります。
+            設備の状態表示、準備中表示、異常表示、注意喚起などでよく使われます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/flicker-circuit-basic/flicker-circuit-basic-overview.png" alt="フリッカ信号でランプを一定間隔で点滅させる全体構成図" loading="lazy" decoding="async">
+            <figcaption>フリッカ信号を使って、ランプ出力を一定間隔でON/OFFさせるのが基本です。</figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>フリッカは「目立たせるための点滅」</h3>
+            <p>
+              ただ点灯しているだけでは見逃されることがあります。
+              点滅させることで、作業者が状態変化や異常に気づきやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>フリッカ回路は、ランプをチカチカ点滅させる回路だよ。異常や注意を目立たせたい時によく使うね。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>点灯と点滅で、伝えたい重要度を分けられるんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="operation">
+          <h2>フリッカ回路の基本動作</h2>
+          <p>
+            フリッカ回路では、点滅させたい条件と、一定間隔でON/OFFする信号を組み合わせます。
+            点滅条件がONしていて、フリッカ信号がONしているタイミングだけ、ランプ出力をONします。
+          </p>
+          <p>
+            PLCでは、内部クロックパルスやタイマーを使ってフリッカ信号を作ることがあります。
+            0.5秒点灯・0.5秒消灯、1秒点灯・1秒消灯など、点滅周期は設備の見やすさに合わせて決めます。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>点滅条件</h3>
+              <p>異常中、準備中、注意表示中など、点滅させたい元の条件です。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>フリッカ信号</h3>
+              <p>一定間隔でON/OFFする内部信号です。タイマーやクロックで作ります。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>ランプ出力</h3>
+              <p>点滅条件とフリッカ信号が成立した時だけONする出力です。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>点滅周期</h3>
+              <p>早すぎると見づらく、遅すぎると気づきにくくなります。</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>点滅条件と点滅信号を分けて考える</h3>
+            <p>
+              「何を点滅させたいか」と「どの周期で点滅させるか」を分けると、ラダーを追いやすくなります。
+              異常条件そのものと、フリッカ信号を混同しないことが大切です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>点灯表示との違い</h2>
+          <p>
+            ランプ表示には、点灯表示と点滅表示があります。
+            点灯表示は状態を分かりやすく伝えるため、点滅表示は特に注意してほしい状態を目立たせるために使うことが多いです。
+          </p>
+          <p>
+            すべてを点滅にすると、逆に何が重要なのか分かりづらくなります。
+            通常状態は点灯、異常や注意は点滅、というように意味を分けると現場で見やすくなります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/flicker-circuit-basic/flicker-circuit-basic-comparison.png" alt="点灯表示と点滅表示の使い分けを比較した図" loading="lazy" decoding="async">
+            <figcaption>点灯は状態表示、点滅は注意喚起として使い分けると、現場で判断しやすくなります。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>点灯表示</th>
+                  <th>点滅表示</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>主な目的</th>
+                  <td class="cell-blue">状態を伝える</td>
+                  <td class="cell-orange">注意を引く</td>
+                </tr>
+                <tr>
+                  <th>よく使う場面</th>
+                  <td>運転中、電源ON、準備完了</td>
+                  <td>異常中、注意、確認待ち、復帰待ち</td>
+                </tr>
+                <tr>
+                  <th>見え方</th>
+                  <td>安定して見える</td>
+                  <td>変化があるので気づきやすい</td>
+                </tr>
+                <tr>
+                  <th>注意点</th>
+                  <td>重要な変化に気づきにくいことがある</td>
+                  <td>多用すると見づらくなる</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>点滅の意味を設備内でそろえる</h3>
+            <p>
+              ある設備では異常点滅、別の設備では準備中点滅、というように意味がバラバラだと迷いやすくなります。
+              既存設備の表示ルールや社内ルールに合わせて使うのが基本です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>簡略ラダー例</h2>
+          <p>
+            フリッカ回路を簡略化すると、点滅させたい条件とフリッカ信号を直列に入れて、ランプ出力へつなぐ形になります。
+            ここでは、異常保持フラグがONしている時に、フリッカ信号に合わせて異常ランプを点滅させる例で考えます。
+          </p>
+
+          <div class="ladder-box" role="img" aria-label="フリッカ回路の簡略ラダー例">
+            <div class="ladder-row">
+              <div class="ladder-label">信号</div>
+              <div class="ladder-line">[ T0 0.5秒ON/OFF ] -------------------------------------- ( M50 フリッカ信号 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">点滅</div>
+              <div class="ladder-line">[ M100 異常保持 ] [ M50 フリッカ信号 ] -------------------- ( Y10 異常ランプ )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">ブザー</div>
+              <div class="ladder-line">[ M100 異常保持 ] [ M50 フリッカ信号 ] -------------------- ( Y11 ブザー )</div>
+            </div>
+          </div>
+
+          <p>
+            この例では、M100異常保持がONしている間だけ、M50フリッカ信号のON/OFFに合わせて異常ランプが点滅します。
+            フリッカ信号がOFFの瞬間はランプもOFFになるため、点滅して見えます。
+          </p>
+
+          <div class="key-highlight">
+            <h3>フリッカ信号は共通化すると使いやすい</h3>
+            <p>
+              複数のランプやブザーで同じ周期を使う場合、共通のフリッカ信号を作っておくと整理しやすいです。
+              ただし、点滅させる条件は出力ごとに分けて考えます。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="checks">
+          <h2>現場での確認ポイント</h2>
+          <p>
+            フリッカ回路がうまく動かない時は、点滅条件、フリッカ信号、ランプ出力、実ランプ側を順番に確認します。
+            「点きっぱなし」「まったく点かない」「点滅周期が違う」など、症状によって見る場所が変わります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/flicker-circuit-basic/flicker-circuit-basic-check-flow.png" alt="フリッカ回路で確認するポイントをSTEP形式で整理した図" loading="lazy" decoding="async">
+            <figcaption>点滅条件、フリッカ信号、出力、実ランプ側の順で確認すると、原因を追いやすくなります。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>点滅条件が入っているか</h3>
+              <p>異常保持や注意条件など、点滅させたい元条件がONしているか確認します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>フリッカ信号が動いているか</h3>
+              <p>内部クロックやタイマー信号がON/OFFしているかモニタします。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>出力が点滅しているか</h3>
+              <p>PLC出力がフリッカ信号に合わせてON/OFFしているか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>実ランプ側が反応するか</h3>
+              <p>ラダー上で点滅していても、配線・電源・ランプ本体で点かないことがあります。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>点滅周期が適切か</h3>
+              <p>早すぎる、遅すぎる、見づらい場合はタイマー設定を確認します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>点灯表示と混ざっていないか</h3>
+              <p>同じランプに点灯条件と点滅条件が混在していないか整理します。</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>点滅表示だけに頼りすぎない</h3>
+            <p>
+              点滅は注意喚起に有効ですが、重要な異常は表示灯だけでなく、ブザー、タッチパネル表示、異常履歴などと組み合わせて確認しやすくします。
+              実機では設備仕様と社内ルールに合わせてください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ</h2>
+          <p>
+            フリッカ回路は、ランプやブザーを一定間隔でON/OFFさせるための基本回路です。
+            通常の点灯表示より目立たせたい時に、点滅表示として使います。
+          </p>
+          <p>
+            回路を見る時は、点滅させたい条件とフリッカ信号を分けて考えると分かりやすくなります。
+            点滅しない時は、元条件、フリッカ信号、PLC出力、実ランプ側を順番に確認します。
+          </p>
+
+          <ul class="simple-list">
+            <li>フリッカ回路は、出力を一定間隔でON/OFFする回路</li>
+            <li>異常表示や注意喚起など、目立たせたい時に使う</li>
+            <li>点滅条件とフリッカ信号を分けて考えると追いやすい</li>
+            <li>タイマーやクロックパルスでフリッカ信号を作ることが多い</li>
+            <li>点滅表示は多用しすぎず、意味をそろえて使う</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="timer-circuit-basic.html">
+              <h3>タイマー回路とは？</h3>
+              <p>フリッカ信号を作る時に使うタイマーの基本を確認できます。</p>
+            </a>
+            <a class="related-card" href="lamp-indicator-circuit-basic.html">
+              <h3>ランプ表示回路とは？</h3>
+              <p>点灯表示と点滅表示の使い分けを理解しやすくなります。</p>
+            </a>
+            <a class="related-card" href="alarm-hold-circuit-basic.html">
+              <h3>異常保持回路とは？</h3>
+              <p>異常を保持して点滅表示につなげる考え方と相性が良い記事です。</p>
+            </a>
+            <a class="related-card" href="buzzer-circuit-basic.html">
+              <h3>ブザー回路とは？</h3>
+              <p>ランプ点滅とあわせて使う通知回路を整理できます。</p>
+            </a>
+            <a class="related-card" href="one-shot-circuit-basic.html">
+              <h3>ワンショット回路とは？</h3>
+              <p>一瞬だけONする信号との違いを比較して理解できます。</p>
+            </a>
+            <a class="related-card" href="gxw3-one-shot-rise-fall-detection.html">
+              <h3>立上り・立下り検出とは？</h3>
+              <p>一瞬の信号変化を扱う考え方をさらに学べます。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#overview">全体像</a></li>
+            <li><a href="#operation">基本動作</a></li>
+            <li><a href="#comparison">点灯との違い</a></li>
+            <li><a href="#ladder">簡略ラダー例</a></li>
+            <li><a href="#checks">確認ポイント</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この回路で見るポイント</h3>
+          <ul>
+            <li>点滅条件が入っているか</li>
+            <li>フリッカ信号が動いているか</li>
+            <li>出力がON/OFFしているか</li>
+            <li>点滅周期が見やすいか</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

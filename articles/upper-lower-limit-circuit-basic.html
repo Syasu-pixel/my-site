@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>上限・下限リミット回路とは？行き過ぎを止める基本をやさしく解説</title>
+  <meta name="description" content="上限・下限リミット回路とは何かを初心者向けにやさしく整理。上限LS・下限LSで行き過ぎを止める考え方、前進後退・上昇下降との関係、インターロックとの違い、簡略ラダー例、現場での確認ポイントまで解説します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/upper-lower-limit-circuit-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="上限・下限リミット回路とは？行き過ぎを止める基本をやさしく解説">
+  <meta property="og:description" content="上限LS・下限LSで設備の行き過ぎを止める、上限・下限リミット回路の基本をやさしく整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/upper-lower-limit-circuit-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="上限・下限リミット回路とは？行き過ぎを止める基本をやさしく解説">
+  <meta name="twitter:description" content="上限LS・下限LS、前進後退、上昇下降、行き過ぎ防止の考え方を初心者向けに解説します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --muted-2:#64748b;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+      --line-header:#dbe7f3;
+    }
+
+    *{box-sizing:border-box}
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+      -webkit-text-size-adjust:100%;
+    }
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Meiryo",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      overflow-x:hidden;
+      padding-top:var(--header-h);
+    }
+    img{
+      display:block;
+      max-width:100%;
+      height:auto;
+    }
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+      transition:.2s ease;
+    }
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+
+    .container{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      padding:0 14px 40px;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:var(--blue-deep);
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item{margin:0}
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+
+    .key-highlight,
+    .field-highlight{
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .ladder-box{
+      margin:18px 0;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      background:#0f172a;
+      color:#e5edff;
+      overflow:auto;
+      box-shadow:0 10px 22px rgba(15,23,42,.08);
+    }
+    .ladder-row{
+      display:grid;
+      grid-template-columns:72px minmax(680px,1fr);
+      border-top:1px solid rgba(226,232,240,.16);
+    }
+    .ladder-row:first-child{border-top:none}
+    .ladder-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 10px;
+      background:rgba(37,99,235,.18);
+      color:#bfdbfe;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .ladder-line{
+      padding:14px 16px;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:13px;
+      line-height:1.7;
+      white-space:nowrap;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(90deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.48) 44%,rgba(255,255,255,.18) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .site-header-inner{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header{
+        padding:8px 10px;
+      }
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+      }
+      .header-search{
+        flex:0 0 156px;
+        min-height:38px;
+      }
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+      .top-summary,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+      .section-card{padding:22px}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+      .talk-avatar img{width:66px}
+    }
+
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+    }
+
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+        padding:0 10px 36px;
+      }
+      .breadcrumb{margin-top:14px}
+      .article-hero::before{
+        background:url("../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .hero-actions,
+      .btn{width:100%}
+      .mini-toc{gap:8px}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .ladder-row{
+        grid-template-columns:52px minmax(620px,1fr);
+      }
+      .ladder-label{
+        font-size:12px;
+        padding:12px 8px;
+      }
+      .ladder-line{
+        font-size:12px;
+        padding:12px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">回路の基礎</a>
+      <span>›</span>
+      <span>上限・下限リミット回路とは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">回路の基礎</span>
+        <h1 id="page-title">上限・下限リミット回路とは？<br>行き過ぎを止める基本をやさしく解説</h1>
+        <p class="hero-lead">
+          上限・下限リミット回路は、<span class="mark">設備が行き過ぎないように止める</span>ための基本回路です。
+          上昇・下降、前進・後退などの動作で、リミットスイッチを使って動ける方向を制限します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#overview">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>上限LS・下限LSの使い方を知りたい人</li>
+          <li>前進後退・上昇下降の停止条件を整理したい人</li>
+          <li>GX Works3でリミット条件を追いたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>安全リミットや安全PLCの詳細設計を知りたい人</li>
+          <li>サーボのソフトリミット設定を詳しく知りたい人</li>
+          <li>メーカー別の実回路図そのものを確認したい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>上限・下限リミット回路は、<span class="mark">行き過ぎる方向を止める回路</span>です。</li>
+          <li>上限に当たったら上昇を止め、下限に当たったら下降を止めます。</li>
+          <li>反対方向へ戻せるようにする考え方が大切です。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#overview">全体像</a>
+        <a href="#operation">基本動作</a>
+        <a href="#comparison">インターロックとの違い</a>
+        <a href="#ladder">簡略ラダー例</a>
+        <a href="#checks">確認ポイント</a>
+        <a href="#related-title">関連記事</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="overview">
+          <h2>上限・下限リミット回路の全体像</h2>
+          <p>
+            上限・下限リミット回路は、設備の動きが決められた範囲を超えないようにするための回路です。
+            上昇する装置なら上限リミット、下降する装置なら下限リミットを使って、行き過ぎる方向の出力を止めます。
+          </p>
+          <p>
+            たとえば、昇降装置が上限に到達したら、さらに上昇する出力を止めます。
+            ただし、下へ戻る動作はできるようにしておく必要があります。
+            ここを間違えると、リミットに当たった後に動けなくなることがあります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-overview.png" alt="上限リミットと下限リミットで動作範囲を制限する全体構成図" loading="lazy" decoding="async">
+            <figcaption>上限LSは上昇方向を止め、下限LSは下降方向を止める、という方向ごとの考え方が基本です。</figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>リミットは「全部止める」ではなく「行き過ぎる方向を止める」</h3>
+            <p>
+              上限に当たった時は上昇を止めますが、下降して戻る動きは必要です。
+              下限に当たった時も同じで、下降は止め、上昇して戻れるようにします。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>上限に当たったら、上へ行く出力だけ止める。下へ戻す出力まで止めると復帰できなくなることがあるよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>リミットに当たった時は、止める方向と戻す方向を分けて見るんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="operation">
+          <h2>上限LS・下限LSの基本動作</h2>
+          <p>
+            上限LSは、装置が上側の限界位置に来たことを知らせる入力です。
+            下限LSは、装置が下側の限界位置に来たことを知らせる入力です。
+          </p>
+          <p>
+            回路では、上限LSが入っている時は上昇出力を出さない、下限LSが入っている時は下降出力を出さない、という形で使います。
+            反対方向の出力は許可して、リミット位置から戻せるようにします。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>上限LS</h3>
+              <p>上側の限界位置を検出します。上昇方向の出力を止める条件に使います。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>下限LS</h3>
+              <p>下側の限界位置を検出します。下降方向の出力を止める条件に使います。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>上昇出力</h3>
+              <p>上限に当たっていない時だけ出せるようにします。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>下降出力</h3>
+              <p>下限に当たっていない時だけ出せるようにします。</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>リミット入力のa接点・b接点は設備仕様で確認する</h3>
+            <p>
+              リミットスイッチの信号は、通常時ONでリミット到達時OFFにする場合もあります。
+              ラダー上の接点の見た目だけで判断せず、実際の入力仕様とモニタ状態を確認することが大切です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>インターロックとの違い</h2>
+          <p>
+            上限・下限リミット回路は、インターロック回路と似て見えることがあります。
+            どちらも「条件が合わない時に出力を止める」という意味では近いですが、見る目的が少し違います。
+          </p>
+          <p>
+            インターロックは、同時に動かしてはいけない動作や危険な組み合わせを防ぐ考え方です。
+            上限・下限リミットは、動作範囲の端に来た時に、行き過ぎる方向だけを止める考え方です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-comparison.png" alt="上限・下限リミット回路とインターロック回路の違いを比較した図" loading="lazy" decoding="async">
+            <figcaption>リミット回路は動作範囲を守るため、インターロックは動作の組み合わせを制限するために使います。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>上限・下限リミット回路</th>
+                  <th>インターロック回路</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>主な目的</th>
+                  <td class="cell-orange">行き過ぎる方向を止める</td>
+                  <td class="cell-blue">同時動作や誤動作を防ぐ</td>
+                </tr>
+                <tr>
+                  <th>よく使う入力</th>
+                  <td>上限LS、下限LS、前進端、後退端</td>
+                  <td>反対動作中、異常中、許可なし、安全条件NG</td>
+                </tr>
+                <tr>
+                  <th>考え方</th>
+                  <td>端に来たら、その方向だけ止める</td>
+                  <td>条件が合わなければ出力させない</td>
+                </tr>
+                <tr>
+                  <th>注意点</th>
+                  <td>戻る方向まで止めない</td>
+                  <td>必要な動作まで止めすぎない</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>リミットとインターロックは組み合わせて使うことが多い</h3>
+            <p>
+              実際の設備では、上限・下限リミットに加えて、反対動作中のインターロックや異常条件も入ります。
+              どの条件が何を止めているのかを分けて見ると、ラダーが追いやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>簡略ラダー例</h2>
+          <p>
+            上限・下限リミット回路を簡略化すると、上昇出力には上限LSの禁止条件を入れ、下降出力には下限LSの禁止条件を入れます。
+            ここでは、上限到達中は上昇できない、下限到達中は下降できないという考え方で表しています。
+          </p>
+
+          <div class="ladder-box" role="img" aria-label="上限・下限リミット回路の簡略ラダー例">
+            <div class="ladder-row">
+              <div class="ladder-label">上昇</div>
+              <div class="ladder-line">[ X0 上昇PB ] [ /X10 上限LS ] [ M20 運転許可 ] ---- ( Y0 上昇出力 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">下降</div>
+              <div class="ladder-line">[ X1 下降PB ] [ /X11 下限LS ] [ M20 運転許可 ] ---- ( Y1 下降出力 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">表示</div>
+              <div class="ladder-line">[ X10 上限LS ] -------------------------------------- ( Y10 上限表示 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">表示</div>
+              <div class="ladder-line">[ X11 下限LS ] -------------------------------------- ( Y11 下限表示 )</div>
+            </div>
+          </div>
+
+          <p>
+            この例では、上限LSが入っている時は上昇出力が出ないようにしています。
+            ただし下降出力側には上限LSを入れていないため、上限位置から下へ戻ることができます。
+          </p>
+
+          <div class="key-highlight">
+            <h3>反対方向へ戻せるかを必ず確認する</h3>
+            <p>
+              リミット条件を入れる時は、止めることだけでなく、復帰できることも確認します。
+              上限で上昇も下降も止まってしまうと、設備がその場から動けなくなることがあります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="checks">
+          <h2>現場での確認ポイント</h2>
+          <p>
+            上限・下限リミット回路を見る時は、入力のON/OFF、止めている方向、戻せる方向、表示の有無を順番に確認します。
+            ラダー上の接点だけでなく、実際のリミットスイッチの取付位置や動作状態も大切です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-check-flow.png" alt="上限・下限リミット回路で確認するポイントをSTEP形式で整理した図" loading="lazy" decoding="async">
+            <figcaption>リミット入力、止める方向、戻す方向、出力状態の順で見ると、原因を追いやすくなります。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>上限LS・下限LSが入っているか</h3>
+              <p>入力モニタで、実際の位置と入力状態が合っているか確認します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>止める方向が合っているか</h3>
+              <p>上限で上昇、下限で下降を止めるようになっているか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>戻す方向が生きているか</h3>
+              <p>上限から下降、下限から上昇できる条件になっているか見ます。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>接点の使い方が合っているか</h3>
+              <p>a接点・b接点、通常時ON/OFFの仕様とラダーの使い方を照合します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>取付位置がずれていないか</h3>
+              <p>リミットスイッチのドグ位置、検出位置、機械側のズレを確認します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>安全回路と混同していないか</h3>
+              <p>通常制御のリミットと、安全停止用のリミットは役割を分けて考えます。</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>リミット回路だけで安全を担保しない</h3>
+            <p>
+              上限・下限リミットは、通常制御の範囲制限として使われることが多いです。
+              人の安全に関わる部分は、安全リレー、安全PLC、非常停止回路など、設備仕様に合わせた安全設計が必要です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ</h2>
+          <p>
+            上限・下限リミット回路は、設備が決められた範囲を超えて行き過ぎないようにするための基本回路です。
+            上限に当たったら上昇を止め、下限に当たったら下降を止めるように考えます。
+          </p>
+          <p>
+            大切なのは、リミットに当たった時に全部を止めるのではなく、行き過ぎる方向だけを止め、反対方向へ戻せるようにすることです。
+            ラダーを見る時は、リミット入力、止める方向、戻す方向、運転許可、出力状態を順番に確認すると分かりやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>上限・下限リミット回路は、行き過ぎる方向を止める回路</li>
+            <li>上限LSは上昇方向、下限LSは下降方向を止める条件に使う</li>
+            <li>リミットに当たっても反対方向へ戻せるようにする</li>
+            <li>インターロックとは目的が少し違うが、組み合わせて使うことが多い</li>
+            <li>安全回路とは分けて考える</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="limit-switch-basic.html">
+              <h3>リミットスイッチとは？</h3>
+              <p>リミット回路で使う部品の基本を先に確認できます。</p>
+            </a>
+            <a class="related-card" href="interlock-basic.html">
+              <h3>インターロック回路とは？</h3>
+              <p>条件で動作を止める考え方をあわせて整理できます。</p>
+            </a>
+            <a class="related-card" href="forward-reverse-circuit-basic.html">
+              <h3>正転逆転回路とは？</h3>
+              <p>前進・後退や上昇・下降の方向制御と組み合わせて理解できます。</p>
+            </a>
+            <a class="related-card" href="jog-operation-circuit-basic.html">
+              <h3>ジョグ運転回路とは？</h3>
+              <p>手動で少し動かす時のリミット条件の見方につながります。</p>
+            </a>
+            <a class="related-card" href="manual-auto-selector-circuit-basic.html">
+              <h3>手動・自動切替回路とは？</h3>
+              <p>手動操作と自動操作でリミット条件をどう使うか整理できます。</p>
+            </a>
+            <a class="related-card" href="sensor-basic.html">
+              <h3>センサーとは？</h3>
+              <p>位置検出や入力信号の基本を広く確認できます。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#overview">全体像</a></li>
+            <li><a href="#operation">基本動作</a></li>
+            <li><a href="#comparison">インターロックとの違い</a></li>
+            <li><a href="#ladder">簡略ラダー例</a></li>
+            <li><a href="#checks">確認ポイント</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この回路で見るポイント</h3>
+          <ul>
+            <li>上限LS・下限LSが入っているか</li>
+            <li>止める方向が合っているか</li>
+            <li>反対方向へ戻せるか</li>
+            <li>安全回路と混同していないか</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

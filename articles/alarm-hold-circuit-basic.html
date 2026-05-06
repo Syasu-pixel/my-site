@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説</title>
+  <meta name="description" content="異常保持回路とは何かを初心者向けにやさしく整理。異常入力を一度受けたらリセットまで状態を残す考え方、表示灯・ブザーとの関係、自己保持回路との違い、簡略ラダー例、現場での確認ポイントまで解説します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/alarm-hold-circuit-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説">
+  <meta property="og:description" content="異常入力を一度受けたらリセットまで状態を残す、異常保持回路の基本をやさしく整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/alarm-hold-circuit-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説">
+  <meta name="twitter:description" content="異常入力・保持フラグ・リセット・表示灯・ブザーの関係を、初心者向けに整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --muted-2:#64748b;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+      --line-header:#dbe7f3;
+    }
+
+    *{box-sizing:border-box}
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+      -webkit-text-size-adjust:100%;
+    }
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Meiryo",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      overflow-x:hidden;
+      padding-top:var(--header-h);
+    }
+    img{
+      display:block;
+      max-width:100%;
+      height:auto;
+    }
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+      transition:.2s ease;
+    }
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+
+    .container{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      padding:0 14px 40px;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{min-width:0}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:var(--blue-deep);
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item{margin:0}
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{
+      padding:20px;
+    }
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+
+    .key-highlight,
+    .field-highlight{
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .ladder-box{
+      margin:18px 0;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      background:#0f172a;
+      color:#e5edff;
+      overflow:auto;
+      box-shadow:0 10px 22px rgba(15,23,42,.08);
+    }
+    .ladder-row{
+      display:grid;
+      grid-template-columns:72px minmax(680px,1fr);
+      border-top:1px solid rgba(226,232,240,.16);
+    }
+    .ladder-row:first-child{border-top:none}
+    .ladder-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 10px;
+      background:rgba(37,99,235,.18);
+      color:#bfdbfe;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .ladder-line{
+      padding:14px 16px;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:13px;
+      line-height:1.7;
+      white-space:nowrap;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(90deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.48) 44%,rgba(255,255,255,.18) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{
+        padding:20px 18px;
+      }
+      .summary-card h2{
+        font-size:17px;
+      }
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .site-header-inner{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .site-header{
+        padding:8px 10px;
+      }
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+      }
+      .header-search{
+        flex:0 0 156px;
+        min-height:38px;
+      }
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+      .top-summary,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        grid-template-columns:1fr;
+      }
+      .section-card{padding:22px}
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+      .talk-avatar img{width:66px}
+    }
+
+    @media (max-width:768px){
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+    }
+
+    @media (max-width:640px){
+      .container{
+        width:min(100%,calc(100% - 20px));
+        padding:0 10px 36px;
+      }
+      .breadcrumb{margin-top:14px}
+      .article-hero::before{
+        background:url("../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .hero-actions,
+      .btn{width:100%}
+      .mini-toc{gap:8px}
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+      .ladder-row{
+        grid-template-columns:52px minmax(620px,1fr);
+      }
+      .ladder-label{
+        font-size:12px;
+        padding:12px 8px;
+      }
+      .ladder-line{
+        font-size:12px;
+        padding:12px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html#top" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="グローバルナビゲーション">
+        <a href="../index.html#top" class="header-link">ホーム</a>
+        <a href="../index.html#featured" class="header-link">人気記事</a>
+        <a href="../index.html#category" class="header-link">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">回路の基礎</a>
+      <span>›</span>
+      <span>異常保持回路とは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">回路の基礎</span>
+        <h1 id="page-title">異常保持回路とは？<br>一度出た異常をリセットまで残す基本をやさしく解説</h1>
+        <p class="hero-lead">
+          異常保持回路は、<span class="mark">一度出た異常をリセットまで残す</span>ための基本回路です。
+          一瞬だけ異常入力が入った場合でも、作業者が確認してリセットするまで異常状態を残せます。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#overview">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>異常入力を見逃さない回路を知りたい人</li>
+          <li>異常表示灯やブザーをリセットまで残したい人</li>
+          <li>GX Works3で異常フラグの保持を追いたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>安全PLCや安全リレーの詳細設計を知りたい人</li>
+          <li>タッチパネルの警報履歴管理を詳しく知りたい人</li>
+          <li>メーカー別の実回路図そのものを確認したい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>異常保持回路は、<span class="mark">一度出た異常をリセットまで残す回路</span>です。</li>
+          <li>異常入力が一瞬だけでも、保持フラグで状態を残せます。</li>
+          <li>表示灯・ブザー・リセット回路と組み合わせて、原因確認に使います。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#overview">全体像</a>
+        <a href="#hold">異常保持の基本動作</a>
+        <a href="#comparison">自己保持回路との違い</a>
+        <a href="#ladder">簡略ラダー例</a>
+        <a href="#checks">確認ポイント</a>
+        <a href="#related-title">関連記事</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="overview">
+          <h2>異常保持回路の全体像</h2>
+          <p>
+            異常保持回路は、異常入力が一度ONしたら、その入力がOFFに戻っても
+            <span class="mark">異常状態を保持して残す</span>ための回路です。
+          </p>
+          <p>
+            たとえば、センサー異常やサーマル異常が一瞬だけ入った場合、その瞬間を見逃すと原因が分からなくなることがあります。
+            異常保持回路を使うと、異常入力が消えても内部の異常保持フラグが残るため、作業者が後から確認できます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-overview.png" alt="異常入力を保持フラグで残し、表示灯やブザーへつなぐ全体構成図" loading="lazy" decoding="async">
+            <figcaption>異常入力を一度受けたら、保持フラグで状態を残し、表示灯やブザーで作業者へ知らせます。</figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>異常保持は「一瞬の異常を見逃さない」ための考え方</h3>
+            <p>
+              入力が一瞬だけONしてすぐ戻ると、通常の表示だけでは気づけないことがあります。
+              異常保持を入れておくと、リセットするまで異常状態が残るので、原因確認に入りやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>異常保持は、異常を「出た瞬間だけ」で終わらせず、確認できる状態で残しておくための回路だよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩の案内キャラクター">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">後輩</span>異常入力が消えても、異常があったことをフラグで残すんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="hold">
+          <h2>異常入力・保持フラグ・リセットの関係</h2>
+          <p>
+            異常保持回路では、異常入力、異常保持フラグ、リセットPB、表示灯・ブザーの関係を分けて考えると分かりやすいです。
+            異常入力がONすると保持フラグがONし、その後に異常入力がOFFに戻っても、保持フラグはリセットされるまで残ります。
+          </p>
+          <p>
+            重要なのは、リセット操作を「原因確認後」に行うことです。
+            原因を見ないままリセットできてしまうと、どの異常で止まったのかが分からなくなります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>異常入力</h3>
+              <p>センサー異常、サーマル異常、圧力異常など、保持したい異常信号です。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>異常保持フラグ</h3>
+              <p>異常入力を受けた後、リセットまでON状態を残す内部リレーです。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>リセットPB</h3>
+              <p>原因確認後に、異常保持フラグを解除するための操作です。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>表示灯・ブザー</h3>
+              <p>異常保持フラグを使って、異常表示やブザー出力へつなげます。</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>保持フラグを中心に見ると追いやすい</h3>
+            <p>
+              GX Works3で確認する時は、まず異常保持フラグがONしているかを見ます。
+              その左側に異常入力やリセット条件が入っているため、どこで保持され、どこで解除されるかを追いやすくなります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>自己保持回路との違い</h2>
+          <p>
+            異常保持回路は、形だけ見ると自己保持回路に似ています。
+            どちらも「一度ONした状態を条件が変わっても残す」という点では近い考え方です。
+          </p>
+          <p>
+            ただし、目的が違います。
+            自己保持回路は運転状態を継続するために使うことが多く、異常保持回路は異常状態を確認できるまで残すために使います。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-comparison.png" alt="自己保持回路と異常保持回路の目的の違いを比較した図" loading="lazy" decoding="async">
+            <figcaption>自己保持は運転を続けるため、異常保持は異常を見逃さないために使います。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>自己保持回路</th>
+                  <th>異常保持回路</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>主な目的</th>
+                  <td class="cell-blue">運転状態を継続する</td>
+                  <td class="cell-orange">異常状態を確認まで残す</td>
+                </tr>
+                <tr>
+                  <th>よく使う場面</th>
+                  <td>起動ボタンを押した後、運転を継続する</td>
+                  <td>異常入力が一瞬でも、異常表示を残す</td>
+                </tr>
+                <tr>
+                  <th>解除条件</th>
+                  <td>停止PB、停止条件、安全条件など</td>
+                  <td>原因確認後のリセットPBなど</td>
+                </tr>
+                <tr>
+                  <th>見方のポイント</th>
+                  <td>なぜ運転が保持されているかを見る</td>
+                  <td>どの異常で保持されたかを見る</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>「保持」という形だけで判断しない</h3>
+            <p>
+              同じ保持回路でも、運転を続けるためなのか、異常を残すためなのかで設計の見方が変わります。
+              異常保持では、原因確認前に簡単に消えないことが大切です。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>簡略ラダー例</h2>
+          <p>
+            異常保持回路を簡略化すると、異常入力と異常保持フラグをORでつなぎ、リセット条件で保持を解除する形になります。
+            その保持フラグを使って、異常表示灯やブザー出力をONします。
+          </p>
+
+          <div class="ladder-box" role="img" aria-label="異常保持回路の簡略ラダー例">
+            <div class="ladder-row">
+              <div class="ladder-label">保持</div>
+              <div class="ladder-line">[ X10 異常入力 ] OR [ M100 異常保持 ] [ /X20 リセット ] ---- ( M100 異常保持 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">表示</div>
+              <div class="ladder-line">[ M100 異常保持 ] ------------------------------------------ ( Y10 異常表示灯 )</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">ブザー</div>
+              <div class="ladder-line">[ M100 異常保持 ] ------------------------------------------ ( Y11 ブザー )</div>
+            </div>
+          </div>
+
+          <p>
+            この例では、X10が一度ONするとM100がONします。
+            X10がOFFに戻ってもM100自身の接点で保持され、X20リセットが入るまでM100は残ります。
+          </p>
+
+          <div class="key-highlight">
+            <h3>実際のGX Works3では設備仕様に合わせて作る</h3>
+            <p>
+              ここでは考え方を追いやすくするために簡略化しています。
+              実機では、異常入力の種類、リセット条件、非常停止、安全回路、タッチパネル表示などに合わせて設計します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="checks">
+          <h2>現場での確認ポイント</h2>
+          <p>
+            異常保持回路の確認では、異常入力だけでなく、保持フラグ、リセット条件、表示灯・ブザー出力を順番に見ます。
+            「異常が出たのに残らない」「リセットしても消えない」「表示灯だけ点かない」など、症状によって見る場所が変わります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-check-flow.png" alt="異常保持回路で確認するポイントをSTEP形式で整理した図" loading="lazy" decoding="async">
+            <figcaption>異常入力、保持フラグ、リセット条件、表示灯・ブザーの順で確認すると原因を追いやすくなります。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>異常入力が入ったか</h3>
+              <p>対象の異常入力が一瞬でもONしたか、入力モニタで確認します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>保持フラグがONしているか</h3>
+              <p>異常入力後に、異常保持フラグが残っているか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>リセット条件が正しいか</h3>
+              <p>リセットPB、原因復帰条件、異常解除条件の組み方を確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>表示灯・ブザーがONしているか</h3>
+              <p>保持フラグから表示灯やブザー出力へつながっているかを見ます。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>原因確認前にリセットしていないか</h3>
+              <p>すぐリセットできる設計だと、原因を見逃すことがあります。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>安全回路と混同していないか</h3>
+              <p>非常停止や安全リレーは別扱いです。異常保持だけで安全を担保しないようにします。</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>異常保持は安全回路そのものではない</h3>
+            <p>
+              異常保持回路は、異常を確認しやすくするための回路です。
+              非常停止や安全扉などの安全機能は、専用の安全回路・安全リレー・安全PLCの考え方に従って設計します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>まとめ</h2>
+          <p>
+            異常保持回路は、一度出た異常をリセットまで残すための基本回路です。
+            異常入力が一瞬だけでも、保持フラグで状態を残し、表示灯やブザーへつなげることで、作業者が原因を確認しやすくなります。
+          </p>
+          <p>
+            自己保持回路と形は似ていますが、目的は違います。
+            自己保持は運転を続けるため、異常保持は異常を見逃さないために使います。
+            リセットは、原因確認後に行う流れにしておくと、現場での切り分けがしやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>異常保持回路は、一度出た異常をリセットまで残す回路</li>
+            <li>異常入力がOFFに戻っても、保持フラグで異常状態を残せる</li>
+            <li>表示灯・ブザー・リセット回路と組み合わせて使うことが多い</li>
+            <li>自己保持回路と似ているが、目的は運転継続ではなく異常確認</li>
+            <li>非常停止や安全回路とは分けて考える</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="self-hold-circuit.html">
+              <h3>自己保持回路とは？</h3>
+              <p>保持回路の基本形を先に確認したい方向けです。</p>
+            </a>
+            <a class="related-card" href="buzzer-circuit-basic.html">
+              <h3>ブザー回路とは？</h3>
+              <p>異常保持と組み合わせる通知回路を学べます。</p>
+            </a>
+            <a class="related-card" href="lamp-indicator-circuit-basic.html">
+              <h3>ランプ表示回路とは？</h3>
+              <p>異常表示灯や運転表示の基本を整理できます。</p>
+            </a>
+            <a class="related-card" href="reset-circuit-basic.html">
+              <h3>リセット回路とは？</h3>
+              <p>保持解除の条件設計に役立ちます。</p>
+            </a>
+            <a class="related-card" href="interlock-basic.html">
+              <h3>インターロック回路とは？</h3>
+              <p>誤動作防止との役割分担を確認できます。</p>
+            </a>
+            <a class="related-card" href="timer-circuit-basic.html">
+              <h3>タイマー回路とは？</h3>
+              <p>遅延解除など、時限条件の基礎を学べます。</p>
+            </a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#overview">全体像</a></li>
+            <li><a href="#hold">異常保持の基本動作</a></li>
+            <li><a href="#comparison">自己保持回路との違い</a></li>
+            <li><a href="#ladder">簡略ラダー例</a></li>
+            <li><a href="#checks">確認ポイント</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>この回路で見るポイント</h3>
+          <ul>
+            <li>異常入力が入ったか</li>
+            <li>保持フラグが残っているか</li>
+            <li>リセット条件が正しいか</li>
+            <li>表示灯・ブザーに出力されているか</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

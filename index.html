@@ -3411,27 +3411,27 @@
             </div>
 
             <div class="finder-pills">
-              <button class="finder-pill category-filter active" type="button" data-category-filter="all" aria-pressed="true">すべて</button>
-              <button class="finder-pill category-filter" type="button" data-category-filter="control" aria-pressed="false">制御の基礎</button>
-              <button class="finder-pill category-filter" type="button" data-category-filter="circuit" aria-pressed="false">回路</button>
-              <button class="finder-pill category-filter" type="button" data-category-filter="tools" aria-pressed="false">工具</button>
-              <button class="finder-pill category-filter" type="button" data-category-filter="compare" aria-pressed="false">比較・使い分け</button>
+              <button class="finder-pill category-filter active" type="button" data-category-filter="all" data-filter="all" aria-pressed="true">すべて</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="control" data-filter="control" aria-pressed="false">制御の基礎</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="circuit" data-filter="circuit" aria-pressed="false">回路</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="tools" data-filter="tools" aria-pressed="false">工具</button>
+              <button class="finder-pill category-filter" type="button" data-category-filter="compare" data-filter="compare" aria-pressed="false">比較・使い分け</button>
             </div>
 
             <div class="mobile-shortcuts" aria-label="スマホ用ショートカット">
-              <a href="#shelf-control" class="mobile-shortcut blue">
+              <a href="#shelf-control" class="mobile-shortcut blue" data-filter="control">
                 <div class="mobile-shortcut-circle">📘</div>
                 <span>制御の基礎</span>
               </a>
-              <a href="#shelf-circuit" class="mobile-shortcut green">
+              <a href="#shelf-circuit" class="mobile-shortcut green" data-filter="circuit">
                 <div class="mobile-shortcut-circle">🔁</div>
                 <span>回路</span>
               </a>
-              <a href="#shelf-tools" class="mobile-shortcut orange">
+              <a href="#shelf-tools" class="mobile-shortcut orange" data-filter="tools">
                 <div class="mobile-shortcut-circle">🛠</div>
                 <span>工具</span>
               </a>
-              <a href="#shelf-compare" class="mobile-shortcut purple">
+              <a href="#shelf-compare" class="mobile-shortcut purple" data-filter="compare">
                 <div class="mobile-shortcut-circle">⚖️</div>
                 <span>比較</span>
               </a>
@@ -3813,12 +3813,14 @@
       });
     }
 
-    const categoryFilterButtons = document.querySelectorAll('[data-category-filter]');
+    const categoryFilterButtons = document.querySelectorAll('[data-category-filter], [data-filter]');
     const categoryShelves = document.querySelectorAll('[data-category-shelf]');
+
+    const getFilterValue = (button) => button.dataset.categoryFilter || button.dataset.filter || 'all';
 
     const applyCategoryFilter = (selectedCategory) => {
       categoryFilterButtons.forEach((button) => {
-        const isSelected = button.dataset.categoryFilter === selectedCategory;
+        const isSelected = getFilterValue(button) === selectedCategory;
         button.classList.toggle('active', isSelected);
         button.classList.toggle('is-active', isSelected);
         button.setAttribute('aria-pressed', String(isSelected));
@@ -3833,7 +3835,21 @@
 
     categoryFilterButtons.forEach((button) => {
       button.addEventListener('click', () => {
-        applyCategoryFilter(button.dataset.categoryFilter || 'all');
+        applyCategoryFilter(getFilterValue(button));
+      });
+    });
+
+    const mobileShortcutLinks = document.querySelectorAll('.mobile-shortcut[data-filter], .mobile-shortcut[data-category-filter]');
+    mobileShortcutLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const selectedCategory = getFilterValue(link);
+        applyCategoryFilter(selectedCategory);
+
+        const targetShelf = document.querySelector(`[data-category-shelf="${selectedCategory}"]`);
+        if (targetShelf) {
+          targetShelf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     });
 

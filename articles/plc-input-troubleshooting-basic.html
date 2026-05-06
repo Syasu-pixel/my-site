@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLC入力が入らない時の確認手順｜電源・COM・センサー・配線の見方 | 電気制御ラボ</title>
+  <meta name="description" content="PLC入力が入らない時に、電源、COM、センサー、配線、PLC入力LEDをどの順番で確認するかを初心者向けに整理。NPN/PNP、DC24V、入力ユニット、センサーランプの見方も現場目線で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-input-troubleshooting-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLC入力が入らない時の確認手順｜電源・COM・センサー・配線の見方">
+  <meta property="og:description" content="PLC入力が入らない時に見るべき順番を、電源、COM、センサー、配線、PLC入力LEDに分けて初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-input-troubleshooting-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-ogp.png">
+  <meta property="og:site_name" content="電気制御ラボ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLC入力が入らない時の確認手順｜電源・COM・センサー・配線の見方">
+  <meta name="twitter:description" content="PLC入力が入らない時の確認順を、電源・COM・センサー・配線・PLC入力LEDの流れでやさしく整理。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .caution-character-box{
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr);
+      gap:10px;
+      align-items:center;
+    }
+
+    .caution-character{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .caution-character img{
+      width:36px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card-thumb{
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:1px solid #dbe6f1;
+      background:#fff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
+      }
+
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px 18px;
+        border-radius:24px;
+      }
+
+      .talk-avatar{
+        flex-basis:68px;
+        width:68px;
+      }
+
+      .talk-avatar img{
+        width:64px;
+      }
+
+      .talk-bubble{
+        max-width:calc(100% - 80px);
+      }
+    }
+
+    @media (max-width:768px){
+      .container{
+        width:min(100% - 20px,var(--container));
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .brand-logo{
+        height:40px;
+      }
+
+      .brand-title{
+        font-size:14px;
+      }
+
+      .header-search{
+        flex:0 0 150px;
+        min-height:38px;
+      }
+
+      .search-box-input{
+        font-size:11px;
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .article-hero-copy{
+        padding:30px 18px;
+      }
+
+      h1{
+        font-size:27px;
+      }
+
+      .hero-actions{
+        width:100%;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .top-summary{
+        gap:12px;
+      }
+
+      .summary-card,
+      .mini-toc-card,
+      .side-card{
+        border-radius:20px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .related-card{
+        padding:14px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:380px;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.28;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.18) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:380px;
+        padding:42px 34px;
+      }
+
+      h1{
+        font-size:36px;
+      }
+
+      .hero-lead{
+        max-width:38ch;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      :root{
+        --header-h:66px;
+      }
+
+      body{
+        padding-top:var(--header-h);
+      }
+
+      html{
+        scroll-padding-top:82px;
+      }
+
+      .site-header{
+        padding:7px 8px;
+      }
+
+      .brand-logo{
+        height:36px;
+      }
+
+      .brand-title{
+        font-size:13px;
+        max-width:124px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-width:0;
+        max-width:168px;
+      }
+
+      .search-box{
+        padding:0 10px;
+      }
+
+      .search-box-panel{
+        position:fixed;
+        top:64px;
+        left:10px;
+        right:10px;
+        width:auto;
+        max-height:70vh;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-hero.png") right -48px bottom -10px / 190% auto no-repeat;
+        opacity:.18;
+      }
+
+      .article-hero-copy{
+        min-height:340px;
+        padding:28px 16px;
+      }
+
+      h1{
+        font-size:25px;
+      }
+
+      .hero-label{
+        font-size:11px;
+      }
+
+      .summary-card{
+        padding:18px 16px;
+      }
+
+      .mini-toc a{
+        width:100%;
+        justify-content:center;
+      }
+
+      .section-card{
+        padding:20px 16px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:row;
+      }
+
+      .talk-avatar{
+        flex:0 0 54px;
+        width:54px;
+      }
+
+      .talk-avatar img{
+        width:52px;
+      }
+
+      .talk-bubble{
+        max-width:calc(100% - 66px);
+        padding:12px 14px;
+      }
+
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .caution-character-box{
+        grid-template-columns:36px minmax(0,1fr);
+      }
+
+      .caution-character img{
+        width:30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="電気制御ラボ ホーム">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気制御ラボ">
+        <span class="brand-copy">
+          <span class="brand-title">電気制御ラボ</span>
+          <span class="brand-sub">電気工事・PLC・制御を基礎から学ぶ実務ガイド</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="サイト内メニュー">
+        <a class="header-link" href="../index.html">ホーム</a>
+        <a class="header-link" href="../index.html#featured">人気記事</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#category">制御の基礎</a>
+        <span>›</span>
+        <span>PLC入力が入らない時の確認手順</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎</span>
+          <h1>PLC入力が入らない時の確認手順</h1>
+          <p class="hero-lead">
+            センサーは反応しているのにPLC入力が入らない。そんな時に、電源、COM、センサー、配線、入力LEDをどの順番で見るかを現場目線で整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#check-flow">確認手順を見る</a>
+            <a class="btn btn-secondary" href="#common-mistakes">よくある原因を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="記事の要点">
+        <div class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>PLC入力LEDが点かない原因を順番に見たい人</li>
+            <li>センサー、COM、DC24Vの関係がまだあいまいな人</li>
+            <li>現場で何から測ればよいか迷いやすい人</li>
+          </ul>
+        </div>
+
+        <div class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>安全回路やサーボの詳細診断だけを見たい人</li>
+            <li>PLCプログラムの高度な解析をしたい人</li>
+            <li>メーカー固有のエラーコード一覧を探している人</li>
+          </ul>
+        </div>
+
+        <div class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>入力が入らない時は、PLCだけでなく電源とCOMから見る</li>
+            <li>センサーランプ点灯とPLC入力LED点灯は別で確認する</li>
+            <li>NPN/PNPや入力ユニットの方式違いも原因になりやすい</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="目次">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">入力信号の基本</a>
+          <a href="#signal-flow">信号の流れ</a>
+          <a href="#comparison">症状別の見方</a>
+          <a href="#check-flow">確認手順</a>
+          <a href="#common-mistakes">よくある原因</a>
+          <a href="#related">関連記事</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>PLC入力は「センサーがON」だけでは決まらない</h2>
+            <p>
+              PLC入力が入らない時、最初に見たくなるのはPLC本体の入力LEDです。ただ、実際にはその前に
+              <span class="mark">DC24V電源、0V、COM、センサー出力、入力ユニット</span>
+              がつながっていて、どこか1か所が合っていないだけでも入力は入りません。
+            </p>
+            <p>
+              つまり「センサーが反応しているか」と「PLCに入力として届いているか」は、分けて考える必要があります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-overview.png" alt="PLC入力信号の基本構成を示す図">
+              <figcaption>
+                PLC入力は、センサー、電源、COM、入力ユニットの組み合わせで成立します。センサー単体の反応だけで判断しないことが大切です。
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>まず分けて考える</h3>
+              <p>
+                センサー側でONしているか、PLC入力端子まで電圧が来ているか、PLC入力LEDが点いているか。この3つを分けて見ると原因を追いやすくなります。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>センサーのランプは点いているのに、PLC側の入力が入りません。センサーは悪くないって考えていいですか？</p>
+                </div>
+              </div>
+
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>センサーランプは「センサーが検出した」表示で、PLC入力まで信号が届いた証拠ではないよ。端子台、COM、入力方式まで順番に見よう。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="signal-flow">
+            <h2>入力信号の流れをざっくり見る</h2>
+            <p>
+              PLC入力は、ざっくり言うと「電源からセンサーを通り、PLC入力ユニットへ信号が届く」流れです。
+              ただし、NPN入力かPNP入力か、入力COMをどちらに接続するかで、電圧の見え方が変わります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-check-flow.png" alt="PLC入力が入らない時の確認フロー図">
+              <figcaption>
+                現場では、電源、センサー、配線、PLC入力LEDの順に追うと、原因を切り分けやすくなります。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>確認すること</th>
+                    <th>よくある状態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">DC24V電源</td>
+                    <td>24Vと0Vが出ているか</td>
+                    <td>電源OFF、ヒューズ切れ、電圧降下</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">センサー</td>
+                    <td>検出ランプが点くか、出力線が変化するか</td>
+                    <td>ランプは点くが出力線がPLCへ届いていない</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">COM</td>
+                    <td>入力ユニットのCOM接続が方式と合っているか</td>
+                    <td>NPN/PNPの考え方が合っていない</td>
+                  </tr>
+                  <tr>
+                    <td>PLC入力LED</td>
+                    <td>対象入力番号のLEDが点くか</td>
+                    <td>端子番号違い、アドレス違い、配線先違い</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩キャラクター">
+              </div>
+              <div>
+                <h3>PLC入力LEDだけで判断しない</h3>
+                <p>
+                  PLC入力LEDが消えている時は、プログラムより先に、電源・COM・端子番号・センサー出力を確認した方が早い場面が多いです。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="comparison">
+            <h2>症状別に見ると原因を絞りやすい</h2>
+            <p>
+              入力が入らないと言っても、症状はいくつかに分かれます。センサーランプが点くのか、PLC入力LEDが点くのか、モニタ上の入力がONするのかを分けて確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/plc-input-troubleshooting-basic/plc-input-troubleshooting-basic-comparison.png" alt="PLC入力が入らない時の症状別比較図">
+              <figcaption>
+                センサーランプ、PLC入力LED、PLCモニタのどこまで反応しているかを見ると、原因の位置を絞りやすくなります。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>症状</th>
+                    <th>考えやすい原因</th>
+                    <th>最初に見る場所</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">センサーランプも点かない</td>
+                    <td>電源なし、センサー不良、検出距離・対象物の問題</td>
+                    <td>DC24V、0V、センサー本体</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">センサーランプは点くがPLC LEDが点かない</td>
+                    <td>出力線断線、COM違い、NPN/PNP違い、端子番号違い</td>
+                    <td>出力線、COM、入力端子</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC LEDは点くが画面上でONしない</td>
+                    <td>アドレス違い、見ているデバイス違い、プログラム条件違い</td>
+                    <td>入力番号、PLCモニタ、ラダー</td>
+                  </tr>
+                  <tr>
+                    <td>たまにしか入らない</td>
+                    <td>接触不良、配線ゆるみ、電圧降下、検出位置のズレ</td>
+                    <td>端子の締付、電圧、センサー位置</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現場では「どこまでは来ているか」を見る</h3>
+              <p>
+                原因探しは、悪い部品を決めつけるよりも、信号がどこまで届いているかを順番に追う方が安全です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="check-flow">
+            <h2>PLC入力が入らない時の確認手順</h2>
+            <p>
+              初心者のうちは、あちこち同時に見るより、順番を固定した方が迷いにくいです。ここでは、現場で使いやすい基本の確認順に整理します。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. DC24V電源を確認する</h3>
+                <p>
+                  まず24Vと0Vが正常に出ているかを確認します。電源が不安定だと、センサーもPLC入力も正しく動きません。
+                </p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>2. センサー本体の反応を見る</h3>
+                <p>
+                  検出ランプが点くか、対象物との距離が合っているか、センサーの向きや汚れがないかを見ます。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>3. センサー出力線を測る</h3>
+                <p>
+                  検出時に出力線の電圧が変化するかを確認します。ランプ点灯だけで判断しないのがポイントです。
+                </p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>4. COMと入力方式を確認する</h3>
+                <p>
+                  NPN/PNPやシンク/ソースの考え方が合っていないと、配線がつながっていても入力が入りません。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>5. PLC入力端子番号を見る</h3>
+                <p>
+                  実際に配線されている端子番号と、図面・ラダーで見ている入力番号が一致しているかを確認します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--important">
+                <h3>6. PLC入力LEDとモニタを確認する</h3>
+                <p>
+                  入力LEDが点くか、PLCモニタ上で対象デバイスがONするかを確認し、配線側かプログラム側かを切り分けます。
+                </p>
+              </div>
+            </div>
+
+            <div class="danger-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意点を案内する先輩キャラクター">
+              </div>
+              <div>
+                <h3>通電中の確認は無理をしない</h3>
+                <p>
+                  電圧測定や端子確認は、短絡や感電、設備の急な動作に注意が必要です。不安な場合は必ず経験者と一緒に確認してください。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="common-mistakes">
+            <h2>よくある原因と見落としポイント</h2>
+            <p>
+              PLC入力が入らない原因は、センサー故障だけではありません。実際には、配線先、COM、図面の読み違い、入力番号違いのような基本部分で止まっていることも多いです。
+            </p>
+
+            <h3>センサーランプだけ見て判断している</h3>
+            <p>
+              センサーランプが点いていても、PLC入力まで信号が届いているとは限りません。センサー出力線、端子台、PLC入力端子まで順番に確認します。
+            </p>
+
+            <h3>COMの考え方が合っていない</h3>
+            <p>
+              入力ユニットのCOMが24V側なのか0V側なのか、使用しているセンサー方式と合っているかを確認します。NPN/PNPの違いは初心者がつまずきやすい部分です。
+            </p>
+
+            <h3>見ている入力番号が違う</h3>
+            <p>
+              配線図ではX10、実際の端子はX11、ラダーで見ているのはX12のように、図面・配線・プログラムの入力番号がずれている場合があります。
+            </p>
+
+            <h3>端子のゆるみや断線</h3>
+            <p>
+              たまに入る、振動で入ったり切れたりする場合は、端子の締付、断線しかけ、コネクタの差し込み不足も確認します。
+            </p>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="確認する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>入力が入らない時って、すぐセンサー交換を考えがちでした。</p>
+                </div>
+              </div>
+
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>交換前に、電源、COM、出力線、入力LEDを見よう。原因が配線や設定なら、部品を替えても直らないからね。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-tips">
+            <h2>現場での見方のコツ</h2>
+            <p>
+              PLC入力トラブルでは、いきなりラダーを深く追うよりも、まず入力LEDと現物の動きを合わせて見ると整理しやすいです。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--field">
+                <h3>現物の動きと入力LEDを同時に見る</h3>
+                <p>
+                  センサーにワークを近づけた時、センサーランプとPLC入力LEDがどう変わるかを一緒に見ます。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>図面の端子番号を追う</h3>
+                <p>
+                  センサー線が端子台のどこに入り、PLCのどの入力へ行くかを図面と現物で照合します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>入力方式を決めつけない</h3>
+                <p>
+                  同じDC24V入力でも、ユニットや配線の考え方が違う場合があります。COMの接続を必ず確認します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--important">
+                <h3>最後にプログラム側を見る</h3>
+                <p>
+                  PLC入力LEDが点いているのに動作しない場合は、ラダー条件、インターロック、デバイス番号を確認します。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="コツを案内する先輩キャラクター">
+              </div>
+              <div>
+                <h3>「入力LEDが点くか」で大きく分ける</h3>
+                <p>
+                  入力LEDが点かないなら配線・電源・COM側、入力LEDが点くならアドレス・ラダー・条件側、と大きく切り分けると迷いにくくなります。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい関連記事</h2>
+            <p>
+              PLC入力の確認は、I/O、センサー、NPN/PNP、DC24V電源の理解とつながっています。あわせて読むと、現場での切り分けがしやすくなります。
+            </p>
+
+            <div class="related-grid">
+              <a class="related-card" href="plc-io-unit-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png" alt="PLC I/Oユニットの基本記事">
+                </div>
+                <h3>PLC I/Oユニットの基本</h3>
+                <p>入力ユニットと出力ユニットの役割、端子、COMの見方を整理します。</p>
+              </a>
+
+              <a class="related-card" href="input-output-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/input-output-basic/input-output-basic-hero.png" alt="入力と出力の違いの記事">
+                </div>
+                <h3>入力と出力の違い</h3>
+                <p>PLCでいう入力と出力を、現場機器との関係でやさしく整理します。</p>
+              </a>
+
+              <a class="related-card" href="npn-pnp-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-hero.png" alt="NPNとPNPの基本記事">
+                </div>
+                <h3>NPNとPNPの基本</h3>
+                <p>センサー配線でつまずきやすいNPN/PNPの考え方を整理します。</p>
+              </a>
+
+              <a class="related-card" href="sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/sensor-basic/sensor-basic-hero.png" alt="センサーの基本記事">
+                </div>
+                <h3>センサーの基本</h3>
+                <p>制御で使うセンサーの役割と、検出信号の基本をまとめています。</p>
+              </a>
+
+              <a class="related-card" href="proximity-sensor-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/proximity-sensor-basic/proximity-sensor-basic-hero.png" alt="近接センサーの基本記事">
+                </div>
+                <h3>近接センサーの基本</h3>
+                <p>金属検出でよく使う近接センサーの見方と注意点を整理します。</p>
+              </a>
+
+              <a class="related-card" href="dc24v-power-supply-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-hero.png" alt="DC24V電源の基本記事">
+                </div>
+                <h3>DC24V電源の基本</h3>
+                <p>PLCやセンサーの電源としてよく使うDC24Vの基本を整理します。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>入力が入らない時は電源とCOMから見る</li>
+              <li>センサーランプとPLC入力LEDは分けて確認する</li>
+              <li>NPN/PNPや入力方式の違いに注意する</li>
+              <li>入力LEDが点くかどうかで切り分ける</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>確認する順番</h3>
+            <ul>
+              <li><a href="#overview">入力信号の基本</a></li>
+              <li><a href="#signal-flow">信号の流れ</a></li>
+              <li><a href="#comparison">症状別の見方</a></li>
+              <li><a href="#check-flow">確認手順</a></li>
+              <li><a href="#common-mistakes">よくある原因</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>現場メモ</h3>
+            <ul>
+              <li>センサー交換前に配線とCOMを確認する</li>
+              <li>入力LEDが点くならプログラム側も見る</li>
+              <li>入力LEDが点かないなら配線側を優先する</li>
+              <li>図面・端子番号・PLCアドレスを照合する</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
+</body>
+</html>

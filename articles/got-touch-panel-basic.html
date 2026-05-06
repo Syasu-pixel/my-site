@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GOT・タッチパネルの基本｜PLCと画面のつながりを初心者向けに整理 | 電気制御ラボ</title>
+  <meta name="description" content="GOT・タッチパネルとは何かを、電気工事士・制御初心者向けにやさしく整理。PLCとのつながり、画面表示、操作スイッチ、デバイス、通信、現場で確認するポイントまで解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/got-touch-panel-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GOT・タッチパネルの基本｜PLCと画面のつながりを初心者向けに整理">
+  <meta property="og:description" content="GOT・タッチパネルの基本を初心者向けに整理。PLCとの通信、画面表示、操作、デバイス、現場で見るポイントをやさしく解説します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/got-touch-panel-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-basic-ogp.png">
+  <meta property="og:site_name" content="電気制御ラボ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GOT・タッチパネルの基本｜PLCと画面のつながりを初心者向けに整理">
+  <meta name="twitter:description" content="GOT・タッチパネルとPLCの関係、表示・操作・通信・デバイスの基本を初心者向けに整理。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/got-touch-panel-basic/got-touch-panel-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .caution-character-box{
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr);
+      gap:10px;
+      align-items:center;
+    }
+
+    .caution-character{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .caution-character img{
+      width:36px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card-thumb{
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:1px solid #dbe6f1;
+      background:#fff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
+      }
+
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/got-touch-panel-basic/got-touch-panel-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px 18px;
+        border-radius:24px;
+      }
+
+      .talk-avatar{
+        flex-basis:68px;
+        width:68px;
+      }
+
+      .talk-avatar img{
+        width:64px;
+      }
+
+      .talk-bubble{
+        max-width:calc(100% - 80px);
+      }
+    }
+
+    @media (max-width:768px){
+      .container{
+        width:min(100% - 20px,var(--container));
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .brand-logo{
+        height:40px;
+      }
+
+      .brand-title{
+        font-size:14px;
+      }
+
+      .header-search{
+        flex:0 0 150px;
+        min-height:38px;
+      }
+
+      .search-box-input{
+        font-size:11px;
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .article-hero-copy{
+        padding:30px 18px;
+      }
+
+      h1{
+        font-size:27px;
+      }
+
+      .hero-actions{
+        width:100%;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .top-summary{
+        gap:12px;
+      }
+
+      .summary-card,
+      .mini-toc-card,
+      .side-card{
+        border-radius:20px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .related-card{
+        padding:14px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:380px;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/got-touch-panel-basic/got-touch-panel-basic-hero.png") right center / auto 92% no-repeat;
+        opacity:.28;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.18) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:380px;
+        padding:42px 34px;
+      }
+
+      h1{
+        font-size:36px;
+      }
+
+      .hero-lead{
+        max-width:38ch;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      :root{
+        --header-h:66px;
+      }
+
+      body{
+        padding-top:var(--header-h);
+      }
+
+      html{
+        scroll-padding-top:82px;
+      }
+
+      .site-header{
+        padding:7px 8px;
+      }
+
+      .brand-logo{
+        height:36px;
+      }
+
+      .brand-title{
+        font-size:13px;
+        max-width:124px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-width:0;
+        max-width:168px;
+      }
+
+      .search-box{
+        padding:0 10px;
+      }
+
+      .search-box-panel{
+        position:fixed;
+        top:64px;
+        left:10px;
+        right:10px;
+        width:auto;
+        max-height:70vh;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/got-touch-panel-basic/got-touch-panel-basic-hero.png") right -48px bottom -10px / 190% auto no-repeat;
+        opacity:.18;
+      }
+
+      .article-hero-copy{
+        min-height:340px;
+        padding:28px 16px;
+      }
+
+      h1{
+        font-size:25px;
+      }
+
+      .hero-label{
+        font-size:11px;
+      }
+
+      .summary-card{
+        padding:18px 16px;
+      }
+
+      .mini-toc a{
+        width:100%;
+        justify-content:center;
+      }
+
+      .section-card{
+        padding:20px 16px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:row;
+      }
+
+      .talk-avatar{
+        flex:0 0 54px;
+        width:54px;
+      }
+
+      .talk-avatar img{
+        width:52px;
+      }
+
+      .talk-bubble{
+        max-width:calc(100% - 66px);
+        padding:12px 14px;
+      }
+
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .caution-character-box{
+        grid-template-columns:36px minmax(0,1fr);
+      }
+
+      .caution-character img{
+        width:30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="電気制御ラボ ホーム">
+        <img class="brand-logo" src="../kougu_logo_middle.png" alt="電気制御ラボ">
+        <span class="brand-copy">
+          <span class="brand-title">電気制御ラボ</span>
+          <span class="brand-sub">電気工事・PLC・制御を基礎から学ぶ実務ガイド</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="サイト内メニュー">
+        <a class="header-link" href="../index.html">ホーム</a>
+        <a class="header-link" href="../index.html#featured">人気記事</a>
+        <a class="header-link" href="../index.html#category">カテゴリ</a>
+      </nav>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#category">制御の基礎</a>
+        <span>›</span>
+        <span>GOT・タッチパネルの基本</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">制御の基礎</span>
+          <h1>GOT・タッチパネルの基本</h1>
+          <p class="hero-lead">
+            タッチパネルは、設備の状態を見る画面であり、操作をPLCへ伝える入口でもあります。PLCとのつながり、表示、操作、通信の基本を整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">基本を見る</a>
+            <a class="btn btn-secondary" href="#check-flow">確認手順を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="記事の要点">
+        <div class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>GOTやタッチパネルが何をしているか知りたい人</li>
+            <li>PLCと画面の関係を初心者向けに整理したい人</li>
+            <li>画面表示や操作ボタンの信号の流れを知りたい人</li>
+          </ul>
+        </div>
+
+        <div class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>画面作画ソフトの細かい操作だけを見たい人</li>
+            <li>メーカー固有の通信設定一覧を探している人</li>
+            <li>高度なスクリプトやレシピ機能を詳しく学びたい人</li>
+          </ul>
+        </div>
+
+        <div class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>タッチパネルはPLCのデータを見たり書き込んだりする画面</li>
+            <li>表示はPLCデバイスを読み、操作はPLCデバイスへ書き込む</li>
+            <li>動かない時は電源、通信、デバイス、PLC側条件を順に見る</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="目次">
+        <h2>この記事で分かること</h2>
+        <div class="mini-toc">
+          <a href="#overview">タッチパネルの役割</a>
+          <a href="#signal-flow">PLCとのつながり</a>
+          <a href="#comparison">表示と操作の違い</a>
+          <a href="#check-flow">確認手順</a>
+          <a href="#common-mistakes">よくある注意点</a>
+          <a href="#related">関連記事</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>タッチパネルは「見える化」と「操作」の入口</h2>
+            <p>
+              GOTなどのタッチパネルは、設備の状態を画面に表示したり、作業者の操作をPLCへ伝えたりする機器です。
+              ランプ、数値、異常表示、運転ボタン、設定値入力など、現場で見える部分の多くがタッチパネルに集まります。
+            </p>
+            <p>
+              ただし、タッチパネル単体で設備を直接動かしているわけではありません。多くの場合は、
+              <span class="mark">タッチパネルがPLCのデータを読み書きし、PLCが実際の出力を制御する</span>
+              という関係です。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/got-touch-panel-basic/got-touch-panel-basic-overview.png" alt="GOT・タッチパネルとPLCの基本構成を示す図">
+              <figcaption>
+                タッチパネルはPLCのデータを表示し、操作内容をPLCへ伝える役割を持ちます。設備を直接動かす中心はPLC側です。
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>画面はPLCの中身を見ている</h3>
+              <p>
+                画面上のランプや数値は、PLC内のデバイスやデータを見て表示していることが多いです。画面だけでなく、PLC側の状態も合わせて確認します。
+              </p>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>タッチパネルのボタンを押すと、直接モーターやランプが動いているんですか？</p>
+                </div>
+              </div>
+
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>多くの場合、画面のボタンはPLCのデバイスをONする入口だよ。その後、PLCのラダー条件を通って出力が動くんだ。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="signal-flow">
+            <h2>PLCとタッチパネルの信号の流れ</h2>
+            <p>
+              タッチパネルは、PLCと通信してデータをやり取りします。
+              表示ではPLCのデータを読み、操作ではPLCのデータへ書き込みます。この「読む」と「書く」を分けて考えると理解しやすくなります。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>画面の動き</th>
+                    <th>信号の向き</th>
+                    <th>中身のイメージ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">ランプ表示</td>
+                    <td>PLC → タッチパネル</td>
+                    <td>PLC内のON/OFF情報を読み、画面上のランプ表示を切り替えます。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">数値表示</td>
+                    <td>PLC → タッチパネル</td>
+                    <td>現在値、カウント値、温度、圧力などをPLCから読みます。</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">操作ボタン</td>
+                    <td>タッチパネル → PLC</td>
+                    <td>運転、停止、リセットなどの操作をPLCデバイスへ書き込みます。</td>
+                  </tr>
+                  <tr>
+                    <td>設定値入力</td>
+                    <td>タッチパネル → PLC</td>
+                    <td>速度、時間、回数などの設定値をPLCのデータ領域へ書き込みます。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <h3>現場では通信とデバイスを見る</h3>
+              <p>
+                画面が表示されない、数値が変わらない、ボタンが効かない時は、通信状態と、画面部品が参照しているPLCデバイスを確認します。
+              </p>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩キャラクター">
+              </div>
+              <div>
+                <h3>画面だけ見ても原因は決まらない</h3>
+                <p>
+                  ボタンが効かない時でも、画面側、通信、PLC側条件、インターロックのどこが原因かは分けて確認します。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="comparison">
+            <h2>表示部品と操作部品の違い</h2>
+            <p>
+              タッチパネル画面には、状態を表示する部品と、作業者が操作する部品があります。
+              表示部品はPLCから読む、操作部品はPLCへ書く、と考えると整理しやすいです。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/got-touch-panel-basic/got-touch-panel-basic-comparison.png" alt="タッチパネルの表示部品と操作部品の違いを比較する図">
+              <figcaption>
+                表示部品はPLCの状態を読むためのもの、操作部品はPLCへ指令や設定値を書き込むためのものです。
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>部品の種類</th>
+                    <th>主な役割</th>
+                    <th>確認するポイント</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">表示ランプ</td>
+                    <td>運転中、停止中、異常中などを表示する</td>
+                    <td>参照デバイス、PLC側のON/OFF状態</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">数値表示</td>
+                    <td>現在値や設定値を表示する</td>
+                    <td>データレジスタ、単位、小数点、表示範囲</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">押しボタン</td>
+                    <td>運転、停止、リセットなどをPLCへ送る</td>
+                    <td>書込デバイス、モーメンタリ/オルタネート、PLC側条件</td>
+                  </tr>
+                  <tr>
+                    <td>数値入力</td>
+                    <td>設定値を作業者が入力する</td>
+                    <td>入力範囲、書込先、PLC側での扱い</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>「表示」と「操作」は逆向き</h3>
+              <p>
+                表示はPLCから画面へ、操作は画面からPLCへ、という向きの違いを意識すると、トラブル時の確認場所が見えやすくなります。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="check-flow">
+            <h2>タッチパネルがうまく動かない時の確認手順</h2>
+            <p>
+              タッチパネルのトラブルでは、画面本体だけでなく、電源、通信、PLC、画面部品の設定、PLC側のラダー条件を順番に確認します。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/got-touch-panel-basic/got-touch-panel-basic-check-flow.png" alt="タッチパネルが動かない時の確認手順を示すフロー図">
+              <figcaption>
+                画面表示や操作がうまくいかない時は、電源、通信、デバイス、PLC側条件の順に見ると切り分けやすくなります。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. 電源が入っているか</h3>
+                <p>
+                  タッチパネル本体の電源、画面表示、バックライト、ブレーカーやDC24V電源を確認します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--field">
+                <h3>2. 通信状態を確認する</h3>
+                <p>
+                  PLCとの通信エラー表示、ケーブル、接続先、通信設定、IPアドレスなどを確認します。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>3. 表示部品の参照先を見る</h3>
+                <p>
+                  ランプや数値表示が、PLCのどのデバイスを見ているかを確認します。参照先違いはよくあります。
+                </p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>4. 操作部品の書込先を見る</h3>
+                <p>
+                  ボタンがどのPLCデバイスへ書き込む設定かを確認します。書込先や動作方式の違いに注意します。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>5. PLC側の条件を見る</h3>
+                <p>
+                  画面から指令が入っていても、PLC側のインターロックや条件で出力が動かない場合があります。
+                </p>
+              </div>
+
+              <div class="check-item check-item--important">
+                <h3>6. 変更履歴を確認する</h3>
+                <p>
+                  画面データ、PLCプログラム、IP設定、機器交換など、直前に変更があった部分を優先して確認します。
+                </p>
+              </div>
+            </div>
+
+            <div class="danger-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意点を案内する先輩キャラクター">
+              </div>
+              <div>
+                <h3>画面操作で設備が動く場合がある</h3>
+                <p>
+                  タッチパネルのボタン操作は、設備の動作につながる場合があります。点検中は安全状態を確認し、必要に応じて関係者へ声をかけてから操作します。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="common-mistakes">
+            <h2>初心者がつまずきやすいポイント</h2>
+            <p>
+              タッチパネルは画面が見えるため、原因も画面側にあると思いがちです。しかし実際には、PLC側のデバイスや通信、ラダー条件が原因になっていることも多いです。
+            </p>
+
+            <h3>画面のボタンを押したのに設備が動かない</h3>
+            <p>
+              ボタンがPLCデバイスへ書き込んでいても、PLC側の条件が成立していなければ出力は動きません。非常停止、安全扉、原点条件、手動/自動モードなども確認します。
+            </p>
+
+            <h3>表示ランプが実際の状態と合わない</h3>
+            <p>
+              表示ランプが見ているデバイスが違う、PLC側の状態が違う、画面データが古いなどの可能性があります。画面表示とPLCモニタを照合します。
+            </p>
+
+            <h3>数値が変わらない</h3>
+            <p>
+              通信が止まっている、参照先データが違う、PLC側で値を更新していない、小数点やデータ型の設定が違うと、数値表示が正しく見えません。
+            </p>
+
+            <h3>画面データとPLCプログラムの組み合わせが違う</h3>
+            <p>
+              タッチパネルだけ交換した、PLCだけ更新した、画面データだけ古い、という場合は、参照デバイスのズレが起きることがあります。
+            </p>
+
+            <div class="talk-thread">
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="確認する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>画面のボタンを押しても動かない時は、画面が悪いと思っていました。</p>
+                </div>
+              </div>
+
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>画面はPLCへ指令を出す入口だね。指令がPLCへ入っているか、その後のラダー条件が成立しているかを分けて見よう。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-tips">
+            <h2>現場で見る時のコツ</h2>
+            <p>
+              タッチパネルの確認では、画面上の表示だけでなく、PLCモニタや図面と合わせて見ることが大切です。画面部品がどのデバイスを読んでいるか、どこへ書いているかを意識します。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--field">
+                <h3>画面表示とPLCモニタを比べる</h3>
+                <p>
+                  画面ランプがONなのにPLC側がOFF、またはその逆の場合は、参照先や通信を確認します。
+                </p>
+              </div>
+
+              <div class="check-item">
+                <h3>操作ボタンの書込先を見る</h3>
+                <p>
+                  運転ボタン、停止ボタン、リセットボタンが、PLCのどのデバイスへ書いているかを確認します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--warning">
+                <h3>モード条件を確認する</h3>
+                <p>
+                  手動モード、自動モード、保全モードなど、画面操作が有効になる条件を確認します。
+                </p>
+              </div>
+
+              <div class="check-item check-item--important">
+                <h3>変更前後を比べる</h3>
+                <p>
+                  画面データやPLCプログラムを変更した後に不具合が出た場合は、変更箇所を優先して見ます。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box caution-character-box">
+              <div class="caution-character">
+                <img src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="コツを案内する先輩キャラクター">
+              </div>
+              <div>
+                <h3>「読む画面」と「書く画面」で考える</h3>
+                <p>
+                  ランプや数値はPLCから読む、ボタンや入力欄はPLCへ書く。この向きを意識すると、画面トラブルの確認がかなり楽になります。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>あわせて読みたい関連記事</h2>
+            <p>
+              タッチパネルはPLC、I/O、デバイス、ロボシリンダーなどの制御機器とつながります。周辺の基礎も読むと、画面の役割が整理しやすくなります。
+            </p>
+
+            <div class="related-grid">
+              <a class="related-card" href="plc-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/plc-basic/plc-basic-hero.png" alt="PLCの基本記事">
+                </div>
+                <h3>PLCの基本</h3>
+                <p>タッチパネルと組み合わせて使うPLCの役割を基礎から整理します。</p>
+              </a>
+
+              <a class="related-card" href="plc-io-unit-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png" alt="PLC I/Oユニットの基本記事">
+                </div>
+                <h3>PLC I/Oユニットの基本</h3>
+                <p>PLCが外部機器とつながる入口・出口を理解するための記事です。</p>
+              </a>
+
+              <a class="related-card" href="input-output-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/input-output-basic/input-output-basic-hero.png" alt="入力と出力の違いの記事">
+                </div>
+                <h3>入力と出力の違い</h3>
+                <p>画面操作がPLCの入力や内部デバイスとどう関係するかを整理しやすくなります。</p>
+              </a>
+
+              <a class="related-card" href="iai-robocylinder-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-hero.png" alt="IAIロボシリンダーの基本記事">
+                </div>
+                <h3>IAIロボシリンダーの基本</h3>
+                <p>位置番号や完了信号など、画面表示と関係しやすい制御機器の基礎です。</p>
+              </a>
+
+              <a class="related-card" href="dc24v-power-supply-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-hero.png" alt="DC24V電源の基本記事">
+                </div>
+                <h3>DC24V電源の基本</h3>
+                <p>タッチパネルやPLC周辺で使われるDC24V電源の基本を整理します。</p>
+              </a>
+
+              <a class="related-card" href="interlock-basic.html">
+                <div class="related-card-thumb">
+                  <img src="../assets/images/interlock-basic/interlock-basic-hero.png" alt="インターロックの基本記事">
+                </div>
+                <h3>インターロックの基本</h3>
+                <p>画面ボタンを押しても動かない時に関係しやすい条件の考え方です。</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="補足情報">
+          <section class="side-card">
+            <h3>この記事の要点</h3>
+            <ul>
+              <li>タッチパネルはPLCのデータを表示・操作する機器</li>
+              <li>表示はPLCから読む、操作はPLCへ書く</li>
+              <li>画面だけでなくPLC側条件も確認する</li>
+              <li>通信と参照デバイスの確認が大切</li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>確認する順番</h3>
+            <ul>
+              <li><a href="#overview">タッチパネルの役割</a></li>
+              <li><a href="#signal-flow">PLCとのつながり</a></li>
+              <li><a href="#comparison">表示と操作の違い</a></li>
+              <li><a href="#check-flow">確認手順</a></li>
+              <li><a href="#common-mistakes">よくある注意点</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>現場メモ</h3>
+            <ul>
+              <li>画面表示とPLCモニタを照合する</li>
+              <li>操作ボタンの書込先を確認する</li>
+              <li>通信エラー表示を見落とさない</li>
+              <li>画面データとPLCプログラムの組み合わせを見る</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/site-search.js"></script>
+</body>
+</html>

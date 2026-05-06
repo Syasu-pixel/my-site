@@ -12,9 +12,29 @@
   const MIN_QUERY_LENGTH = 2;
   const MAX_RESULTS = 6;
 
+  const ensureHiddenStyle = () => {
+    if (document.getElementById('site-search-hidden-style')) return;
+    const style = document.createElement('style');
+    style.id = 'site-search-hidden-style';
+    style.textContent = '[hidden]{display:none!important;}';
+    document.head.appendChild(style);
+  };
+
+  ensureHiddenStyle();
+
+  panel.hidden = true;
+  emptyMessage.hidden = true;
+  resultsList.innerHTML = '';
+
   let indexEntries = [];
   let currentResults = [];
   let activeIndex = -1;
+  let hasSearched = false;
+  let isIndexLoaded = false;
+
+  currentResults = [];
+  activeIndex = -1;
+  hasSearched = false;
 
   const normalize = (value) => (value || '').toString().trim().toLowerCase();
 
@@ -66,6 +86,7 @@
     emptyMessage.hidden = true;
     currentResults = [];
     activeIndex = -1;
+    hasSearched = false;
   };
 
   const openPanel = () => {
@@ -90,6 +111,10 @@
     resultsList.innerHTML = '';
 
     if (!results.length) {
+      if (!hasSearched) {
+        closePanel();
+        return;
+      }
       openPanel();
       emptyMessage.hidden = false;
       return;
@@ -142,6 +167,13 @@
       closePanel();
       return;
     }
+
+    if (!isIndexLoaded) {
+      closePanel();
+      return;
+    }
+
+    hasSearched = true;
 
     currentResults = indexEntries
       .map((entry) => ({ entry, score: scoreEntry(entry, normalizedQuery) }))
@@ -221,12 +253,14 @@
       return response.json();
     })
     .then((data) => {
+      isIndexLoaded = true;
       if (!Array.isArray(data)) return;
       indexEntries = data
         .filter((entry) => entry && entry.title && entry.url)
         .map((entry) => ({ ...entry, _searchText: toSearchText(entry) }));
     })
     .catch(() => {
+      isIndexLoaded = true;
       indexEntries = [];
       closePanel();
     });

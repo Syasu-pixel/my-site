@@ -73,3 +73,68 @@
 - 導線追加は、画像表示確認まで完了し、ユーザーが確認用URLを見て明示OKした後のみ実施する。
 - Step 1〜5（候補選定〜画像表示確認）では、`index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml` を更新しない。
 - `/seo/sitemap.xml` は非運用のため変更禁止。
+
+
+## 新規記事HTML作成後のCodex報告形式
+
+Summary:
+- 作成した記事タイトル
+- 作成したHTMLファイル
+- コピー元テンプレート
+- 画像フォルダ
+- 画像5枚のファイル名
+- 導線追加は未実施
+
+Image handoff:
+- ChatGPTで生成する画像順
+- 各画像の用途
+- HTML内の画像パス
+
+Checks:
+- HTMLテンプレート維持
+- PNG参照
+- OGP/Twitter画像URL
+- レスポンシブCSS維持
+- iPad幅hero確認
+- 関連記事リンク実在確認
+- 旧サイト名なし
+
+判定:
+safe to move to image generation: YES / NO
+
+## 画像配置後のCodex報告形式
+
+Summary:
+- 配置した画像5枚
+- 更新したファイル
+- 表示確認したURL
+
+Checks:
+- hero表示OK
+- OGP画像パスOK
+- overview表示OK
+- comparison表示OK
+- check-flow表示OK
+- PC表示OK
+- スマホ表示OK
+- iPad / iPad Pro相当表示OK
+
+判定:
+safe to request route addition: YES / NO
+
+## 導線追加後のCodex報告形式
+
+Summary:
+- 導線追加した記事
+- 更新したファイル
+- 追加した場所
+
+Checks:
+- index.html に対象URLあり
+- categories/*.html に対象URLあり
+- search-index.json に対象URLあり
+- sitemap.xml に対象URLが1回だけあり
+- /seo/sitemap.xml 未変更
+
+判定:
+safe to close: YES / NO

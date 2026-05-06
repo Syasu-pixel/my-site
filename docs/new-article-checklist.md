@@ -525,3 +525,150 @@ button,input{
 - 画像5枚の雰囲気がバラついていたらNG
 - 画像生成後は自己検品（用途一致・キャラ一致・禁止要素なし）を実施する
 - 導線追加はユーザーOK後のみ行う
+
+
+## 画像ファイル名確定ルール
+
+Codexは画像生成を行わない。
+ただし、HTML作成時に画像フォルダ名・画像ファイル名・画像パスを必ず確定する。
+
+画像はChatGPTで後から生成するため、CodexはHTML内に予定ファイル名を .png で指定する。
+
+記事固有画像は原則 .png とする。
+記事固有画像に .svg を指定しない。
+
+基本の画像フォルダ:
+assets/images/[slug]/
+
+基本の画像5枚:
+- [slug]-hero.png
+- [slug]-ogp.png
+- [slug]-overview.png
+- [slug]-comparison.png
+- [slug]-check-flow.png
+
+HTML内の指定例:
+- hero背景: ../assets/images/[slug]/[slug]-hero.png
+- OGP画像: https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+- Twitter画像: https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+- overview本文画像: ../assets/images/[slug]/[slug]-overview.png
+- comparison本文画像: ../assets/images/[slug]/[slug]-comparison.png
+- check-flow本文画像: ../assets/images/[slug]/[slug]-check-flow.png
+
+Codexは、HTML完成後にユーザーへ以下を必ず報告する。
+
+- HTMLファイル名
+- 画像フォルダ名
+- 画像5枚のファイル名
+- HTML内で使っている画像パス
+- ChatGPTで画像生成すべき順番
+
+報告例:
+次にChatGPTで生成する画像:
+1. [slug]-hero.png
+2. [slug]-ogp.png
+3. [slug]-overview.png
+4. [slug]-comparison.png
+5. [slug]-check-flow.png
+
+## レスポンシブCSS維持ルール
+
+Codexは新規記事HTML作成時に、既存テンプレートのレスポンシブCSSを落とさない。
+
+必須維持:
+- @media (max-width:1100px)
+- @media (max-width:900px)
+- @media (max-width:768px)
+- @media (min-width:744px) and (max-width:1100px)
+- @media (max-width:640px)
+
+特に、iPad / iPad Pro相当幅でhero画像が過剰拡大しないように、以下の中間幅指定を維持する。
+
+例:
+@media (min-width:744px) and (max-width:1100px){
+  .article-hero::before{
+    background:url("../assets/images/[slug]/[slug]-hero.png") right center / auto 92% no-repeat;
+    opacity:.24;
+  }
+  .article-hero-copy{
+    width:min(100%,600px);
+    padding:42px 34px;
+  }
+}
+
+注意:
+- 背景画像を 128% auto などにして過剰拡大させない。
+- 既存テンプレートで安定している指定を優先する。
+- hero画像の表示が崩れる場合は、記事本文ではなく .article-hero::before の背景指定を確認する。
+
+## Codex用 HTML最終チェック
+
+新規記事HTMLを作成したら、Codexは以下を確認する。
+
+### 基本
+- title が記事内容に合っている
+- meta description が自然
+- canonical が正しい
+- og:url が正しい
+- og:image が .png
+- twitter:image が .png
+- h1 が記事タイトルと一致している
+- パンくず末尾が記事名になっている
+
+### 画像
+- 記事固有画像が .png 指定になっている
+- .svg が記事固有画像に残っていない
+- guide-characters配下の共通キャラ画像は変更していない
+- 画像フォルダ名がslugと一致している
+- 画像5枚のファイル名がルール通り
+- OGP画像は absolute URL
+- 本文画像は relative URL
+
+### テンプレート
+- header/search構造を維持している
+- site-search.js がbody終了直前に1回だけ
+- talk-thread構造を維持している
+- talk-avatar > img 構造を維持している
+- page-layout / main-column / side-rail を維持している
+- related-grid を維持している
+- check-grid を維持している
+
+### レスポンシブ
+- @media (min-width:744px) and (max-width:1100px) がある
+- iPad幅でhero背景が過剰拡大しない指定になっている
+- @media (max-width:900px) がある
+- @media (max-width:640px) がある
+
+### ブランド
+- 旧サイト名が残っていない
+- 旧ブランド文言が残っていない
+- 現行表示名「電気と制御の実務メモ」に合っている
+- Denki Control Lab 方針と矛盾しない
+
+### 関連記事
+- 関連記事リンクが実在している
+- 存在しないHTMLへリンクしていない
+- 自己リンクになっていない
+- 関連記事カード構造を維持している
+
+判定:
+上記にNGがある場合は safe to move to image generation: NO とする。
+すべてOKなら safe to move to image generation: YES とする。
+
+## Codex禁止事項
+
+Codexは新規記事作成時に以下を行わない。
+
+- 画像生成をしない
+- 記事固有画像に .svg を指定しない
+- 画像ファイル名をHTML作成後に勝手に変更しない
+- 既存テンプレートのCSSを作り直さない
+- header/search構造を作り直さない
+- site-search.js を複数回読み込まない
+- talk-thread構造を崩さない
+- guide-characters配下のキャラ画像を別名にしない
+- iPad用レスポンシブCSSを削除しない
+- ユーザーOK前に導線追加しない
+- /seo/sitemap.xml を触らない
+- 存在しない関連記事リンクを入れない
+- 旧サイト名・旧ブランド文言を残さない

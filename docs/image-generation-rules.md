@@ -529,3 +529,43 @@ hero画像の場合の必須要素:
 - 人物入り画像は `guide-characters` 参照を必須とし、参照なし生成は禁止。
 - 同一記事の後続4枚（ogp/overview/comparison/check-flow）は、guide-characters参照に加えて採用済みhero画像をアンカー参照にして統一感を維持する。
 - 生成後は記事画像ジェネレーターが自己検品し、NGなら該当画像だけ再生成する。
+
+
+## CodexからChatGPTへの画像生成引き渡し形式
+
+CodexはHTML作成後、以下の形式で画像生成情報を出力する。
+
+記事タイトル:
+[記事タイトル]
+
+slug:
+[slug]
+
+画像フォルダ:
+assets/images/[slug]/
+
+画像5枚:
+1. [slug]-hero.png
+2. [slug]-ogp.png
+3. [slug]-overview.png
+4. [slug]-comparison.png
+5. [slug]-check-flow.png
+
+各画像の役割:
+- hero: 記事上部のメイン画像。記事タイトルまたは記事テーマ文を入れる。
+- ogp: SNS共有用。大きなタイトル中心。
+- overview: 記事前半の基本説明図。
+- comparison: 違い・優先ルール・比較の整理図。
+- check-flow: 確認手順をSTEP形式で整理する図。
+
+ChatGPTでの生成順:
+1. hero
+2. ogp
+3. overview
+4. comparison
+5. check-flow
+
+注意:
+- Codexは画像生成しない。
+- Codexは画像ファイル名を途中で変更しない。
+- ChatGPT生成後に、ユーザーが画像ファイルを同名で配置する前提にする。

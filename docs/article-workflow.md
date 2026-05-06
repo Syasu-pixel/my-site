@@ -382,3 +382,157 @@ button,input{
 - `/seo/sitemap.xml` は非運用のため触らない。
 - HTML作成時点では画像未生成でも、記事固有画像の予定パスを `.png` で先に確定してよい。
 - 画像生成は記事単位（5枚単位）で進め、25枚一括生成は禁止。
+
+
+## 標準運用: CodexでHTML、ChatGPTで画像生成
+
+今後の新規記事作成は、原則として以下の分担で進める。
+
+- Codex:
+  - GitHub最新main確認
+  - 既存記事HTML確認
+  - docs確認
+  - 新規記事HTML作成
+  - HTML内の画像パス確定
+  - 画像ファイル名確定
+  - 画像フォルダ名確定
+  - レスポンシブCSS維持
+  - テンプレート構造維持
+  - GitHub反映
+  - 画像配置後のHTML表示確認
+  - ユーザーOK後の導線追加
+- ChatGPT:
+  - 記事画像5枚を生成
+  - hero / ogp / overview / comparison / check-flow を用途別に作る
+  - guide-characters のキャラクター雰囲気を維持する
+  - 生成画像をCodexが指定したファイル名に合わせる
+
+Codexは画像を生成しない。
+Codexは画像生成プロンプトを勝手に簡略化しない。
+CodexはHTML内で使う画像名と配置先を先に確定し、ユーザーがChatGPTで画像を作りやすい状態にする。
+
+## Codex用 新規記事作成フロー
+
+### Step 1: 最新状態確認
+
+Codexは作業前に必ず以下を確認する。
+
+- GitHub最新main
+- docs/article-workflow.md
+- docs/new-article-checklist.md
+- docs/image-generation-rules.md
+- 既存 articles/*.html
+- 関連する既存記事
+- 画像フォルダ命名ルール
+- search-index.json の既存形式
+- sitemap.xml の運用状態
+
+注意:
+- sitemap.xml だけで既存記事確認を済ませない。
+- 必ず articles/*.html を直接確認する。
+- /seo/sitemap.xml は非運用なので参照・更新しない。
+
+### Step 2: 重複確認
+
+新規記事候補が既存記事と重複していないか確認する。
+
+確認対象:
+- HTMLファイル名
+- slug
+- 記事タイトル
+- 近いテーマの記事
+- search-index.json
+- sitemap.xml
+
+重複が強い場合は作成せず、ユーザーに確認する。
+
+### Step 3: コピー元テンプレートを選ぶ
+
+新規記事HTMLは、完成済み記事HTMLを完全コピーして必要箇所だけ差し替える。
+
+候補テンプレート:
+- articles/relay-basic.html
+- articles/forward-reverse-circuit-basic.html
+- articles/lamp-indicator-circuit-basic.html
+- 必要に応じて、同カテゴリ・同シリーズの最新完成記事
+
+禁止:
+- ゼロからHTML構造を作り直さない。
+- CSSを新規設計しない。
+- クラス名を勝手に変えない。
+- 検索ヘッダーを作り直さない。
+- 会話構造を作り直さない。
+- 関連記事構造を作り直さない。
+
+### Step 4: HTMLを作成する
+
+Codexは、コピー元テンプレートを使って新規記事HTMLを作成する。
+
+差し替えるもの:
+- title
+- meta description
+- canonical
+- og:title
+- og:description
+- og:url
+- og:image
+- twitter:title
+- twitter:description
+- twitter:image
+- h1
+- hero lead
+- breadcrumb末尾
+- top-summary
+- mini-toc
+- section-card本文
+- article-figure画像パス
+- figcaption
+- 関連記事カード
+- side-rail目次
+- footer前後の必要文言
+
+変更しないもの:
+- CSS全体構造
+- クラス名
+- header/search構造
+- site-search.js読み込み位置
+- guide-characters画像パス
+- talk-thread構造
+- page-layout構造
+- related-grid構造
+- check-grid構造
+- レスポンシブメディアクエリ
+
+## 導線追加ルール
+
+Codexは、新規記事HTML作成直後に導線追加しない。
+
+導線追加は以下が完了した後に行う。
+
+1. 記事HTMLが完成
+2. ChatGPTで画像5枚が生成済み
+3. 画像が assets/images/[slug]/ に配置済み
+4. 公開ページで画像表示確認済み
+5. ユーザーが「OK」「導線追加して」と明示
+
+ユーザーOK前に触らない:
+- index.html
+- categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+
+導線追加時に触ってよい:
+- index.html
+- categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+
+絶対に触らない:
+- /seo/sitemap.xml
+
+導線追加後の確認:
+- index.html に対象URLがある
+- 該当 categories/*.html に対象URLがある
+- search-index.json に対象URLがある
+- sitemap.xml に対象URLが1回だけある
+- /seo/sitemap.xml を触っていない

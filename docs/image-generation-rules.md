@@ -569,3 +569,78 @@ ChatGPTでの生成順:
 - Codexは画像生成しない。
 - Codexは画像ファイル名を途中で変更しない。
 - ChatGPT生成後に、ユーザーが画像ファイルを同名で配置する前提にする。
+
+
+## 画像生成の担当
+
+記事画像はChatGPTで生成する。
+Codexは画像生成を行わない。
+
+CodexはHTML作成時に、ChatGPTが画像を作りやすいように以下を確定して報告する。
+
+- 記事タイトル
+- slug
+- 画像フォルダ名
+- 画像5枚のファイル名
+- HTML内の画像パス
+- 各画像の用途
+- ChatGPTで生成する順番
+
+基本画像5枚:
+- [slug]-hero.png
+- [slug]-ogp.png
+- [slug]-overview.png
+- [slug]-comparison.png
+- [slug]-check-flow.png
+
+ChatGPTでの生成順:
+1. [slug]-hero.png
+2. [slug]-ogp.png
+3. [slug]-overview.png
+4. [slug]-comparison.png
+5. [slug]-check-flow.png
+
+## CodexからChatGPTへの画像生成引き渡し形式
+
+CodexはHTML作成後、以下の形式でユーザーに報告する。
+
+記事タイトル:
+[記事タイトル]
+
+slug:
+[slug]
+
+HTMLファイル:
+articles/[slug].html
+
+画像フォルダ:
+assets/images/[slug]/
+
+画像5枚:
+1. [slug]-hero.png
+2. [slug]-ogp.png
+3. [slug]-overview.png
+4. [slug]-comparison.png
+5. [slug]-check-flow.png
+
+HTML内の画像パス:
+- hero: ../assets/images/[slug]/[slug]-hero.png
+- ogp: https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+- twitter: https://denkicontrol.com/assets/images/[slug]/[slug]-ogp.png
+- overview: ../assets/images/[slug]/[slug]-overview.png
+- comparison: ../assets/images/[slug]/[slug]-comparison.png
+- check-flow: ../assets/images/[slug]/[slug]-check-flow.png
+
+各画像の役割:
+- hero: 記事上部のメイン画像。記事タイトルまたは記事テーマ文を入れる。
+- ogp: SNS共有用。大きなタイトル中心。
+- overview: 記事前半の基本説明図。
+- comparison: 違い・優先ルール・比較の整理図。
+- check-flow: 確認手順をSTEP形式で整理する図。
+
+次の作業:
+ChatGPTで上記5枚を生成してください。
+
+判定:
+safe to move to image generation: YES / NO
+

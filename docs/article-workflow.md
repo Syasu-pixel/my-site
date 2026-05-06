@@ -536,3 +536,103 @@ Codexは、新規記事HTML作成直後に導線追加しない。
 - search-index.json に対象URLがある
 - sitemap.xml に対象URLが1回だけある
 - /seo/sitemap.xml を触っていない
+
+
+## 標準運用: GPTで候補確認、CodexでHTML、ChatGPTで画像生成
+
+今後の新規記事制作は、原則として以下の役割分担で進める。
+
+### GPT担当
+- GitHub最新mainの articles/*.html を確認する
+- 既存記事一覧を把握する
+- 既存記事と新規候補のテーマ重複を確認する
+- 記事候補を選定する
+- slug / カテゴリ / 関連記事候補を決める
+- Codexへ渡す記事作成指示を作る
+
+### Codex担当
+- GPTが重複確認済みとして渡した記事テーマをもとにHTMLを作成する
+- 既存完成記事テンプレートを完全コピーして必要箇所だけ差し替える
+- HTML内の画像フォルダ名・画像ファイル名・画像パスを確定する
+- 記事固有画像は .png で指定する
+- レスポンシブCSSを維持する
+- GitHubへHTMLを反映する
+- 画像配置後に表示確認する
+- ユーザーOK後にのみ導線追加する
+
+### ChatGPT担当
+- Codexが確定した画像ファイル名に合わせて記事画像を生成する
+- hero / ogp / overview / comparison / check-flow を用途別に作る
+- guide-characters の既存キャラクター雰囲気を維持する
+- 画像は原則 .png とする
+
+## 記事候補の重複確認ルール
+
+新規記事候補の重複確認は、原則としてGPTが行う。
+
+GPTはGitHub最新mainの articles/*.html を確認し、以下を見たうえで、新規記事候補が既存記事と重複していないか判断する。
+
+確認対象:
+- 既存HTMLファイル名
+- slug
+- title
+- h1
+- meta description
+- 本文テーマ
+- カテゴリ
+- 関連記事
+- search-index.json の既存登録
+- sitemap.xml の既存登録
+
+GPTが判断する内容:
+- 同じ記事がすでに存在しないか
+- タイトルは違うが検索意図が近すぎないか
+- 既存記事の一部として追記すべき内容ではないか
+- 独立記事として分ける価値があるか
+- カテゴリが適切か
+- 関連記事候補が実在するか
+
+Codexは、GPTが「重複確認済み」として渡した記事テーマをもとにHTML作成を行う。
+
+Codex側の最低限確認:
+- 同名HTMLファイルが存在しない
+- 同一slugが存在しない
+- 同一URLが search-index.json に存在しない
+- 同一URLが sitemap.xml に存在しない
+
+ただし、記事テーマの重複判断や候補選定はGPT側で行う。
+
+## 導線追加ルール
+
+Codexは、新規記事HTML作成直後に導線追加しない。
+
+導線追加は以下が完了した後に行う。
+
+1. 記事HTMLが完成
+2. ChatGPTで画像5枚が生成済み
+3. 画像が assets/images/[slug]/ に配置済み
+4. 公開ページで画像表示確認済み
+5. ユーザーが「OK」「導線追加して」と明示
+
+ユーザーOK前に触らない:
+- index.html
+- categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+
+導線追加時に触ってよい:
+- index.html
+- categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+
+絶対に触らない:
+- /seo/sitemap.xml
+
+導線追加後の確認:
+- index.html に対象URLがある
+- 該当 categories/*.html に対象URLがある
+- search-index.json に対象URLがある
+- sitemap.xml に対象URLが1回だけある
+- /seo/sitemap.xml を触っていない
+

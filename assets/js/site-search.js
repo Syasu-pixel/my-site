@@ -36,7 +36,31 @@
   activeIndex = -1;
   hasSearched = false;
 
-  const normalize = (value) => (value || '').toString().trim().toLowerCase();
+  const normalizeText = (value) =>
+    (value || '')
+      .toString()
+      .normalize('NFKC')
+      .toLowerCase()
+      .replace(/[‐‑‒–—―ｰ]/g, '-')
+      .replace(/[／⁄]/g, '/')
+      .replace(/[＿]/g, '_')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const katakanaToHiragana = (text) =>
+    text.replace(/[\u30a1-\u30f6]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0x60));
+
+  const getSearchVariants = (value) => {
+    const base = normalizeText(value);
+    if (!base) return [];
+    const hira = katakanaToHiragana(base);
+    const noLong = hira.replace(/ー+/g, '');
+    const compact = noLong.replace(/[-_/\\・･,.:;()[\]{}'"`~!?+*=<>|]/g, '').replace(/\s+/g, '');
+    const withSpace = noLong.replace(/[-_/]+/g, ' ');
+    const noSep = noLong.replace(/[-_/]+/g, '');
+    const collapsedSpace = noLong.replace(/\s+/g, '');
+    return [...new Set([base, hira, noLong, compact, withSpace, noSep, collapsedSpace].filter(Boolean))];
+  };
 
   const toSearchText = (entry) => {
     const fields = [
@@ -47,35 +71,40 @@
       ...(Array.isArray(entry.synonyms) ? entry.synonyms : [])
     ];
 
-    return fields.map(normalize).join(' ');
+    return fields.flatMap((field) => getSearchVariants(field)).join(' ');
   };
 
   const scoreEntry = (entry, query) => {
-    const title = normalize(entry.title);
-    const category = normalize(entry.category);
-    const description = normalize(entry.description);
-    const keywords = (Array.isArray(entry.keywords) ? entry.keywords : []).map(normalize);
-    const synonyms = (Array.isArray(entry.synonyms) ? entry.synonyms : []).map(normalize);
+    const queryVariants = getSearchVariants(query);
+    if (!queryVariants.length) return -1;
+
+    const title = getSearchVariants(entry.title);
+    const category = getSearchVariants(entry.category);
+    const description = getSearchVariants(entry.description);
+    const keywords = (Array.isArray(entry.keywords) ? entry.keywords : []).flatMap(getSearchVariants);
+    const synonyms = (Array.isArray(entry.synonyms) ? entry.synonyms : []).flatMap(getSearchVariants);
     const haystack = entry._searchText;
 
-    if (!haystack.includes(query)) return -1;
+    if (!queryVariants.some((variant) => haystack.includes(variant))) return -1;
+    const hasMatch = (values, fn) =>
+      queryVariants.some((qv) => values.some((value) => fn(value, qv)));
 
     let score = 0;
 
-    if (title === query) score += 150;
-    else if (title.startsWith(query)) score += 110;
-    else if (title.includes(query)) score += 90;
+    if (hasMatch(title, (v, q) => v === q)) score += 150;
+    else if (hasMatch(title, (v, q) => v.startsWith(q))) score += 110;
+    else if (hasMatch(title, (v, q) => v.includes(q))) score += 90;
 
-    if (keywords.some((kw) => kw === query)) score += 70;
-    else if (keywords.some((kw) => kw.startsWith(query))) score += 60;
-    else if (keywords.some((kw) => kw.includes(query))) score += 45;
+    if (hasMatch(keywords, (v, q) => v === q)) score += 70;
+    else if (hasMatch(keywords, (v, q) => v.startsWith(q))) score += 60;
+    else if (hasMatch(keywords, (v, q) => v.includes(q))) score += 45;
 
-    if (synonyms.some((syn) => syn === query)) score += 55;
-    else if (synonyms.some((syn) => syn.startsWith(query))) score += 45;
-    else if (synonyms.some((syn) => syn.includes(query))) score += 30;
+    if (hasMatch(synonyms, (v, q) => v === q)) score += 55;
+    else if (hasMatch(synonyms, (v, q) => v.startsWith(q))) score += 45;
+    else if (hasMatch(synonyms, (v, q) => v.includes(q))) score += 30;
 
-    if (category.includes(query)) score += category.startsWith(query) ? 18 : 10;
-    if (description.includes(query)) score += description.startsWith(query) ? 15 : 8;
+    if (hasMatch(category, (v, q) => v.includes(q))) score += hasMatch(category, (v, q) => v.startsWith(q)) ? 18 : 10;
+    if (hasMatch(description, (v, q) => v.includes(q))) score += hasMatch(description, (v, q) => v.startsWith(q)) ? 15 : 8;
 
     return score;
   };
@@ -161,7 +190,7 @@
   };
 
   const search = (query) => {
-    const normalizedQuery = normalize(query);
+    const normalizedQuery = normalizeText(query);
 
     if (normalizedQuery.length < MIN_QUERY_LENGTH) {
       closePanel();
@@ -197,7 +226,7 @@
   });
 
   input.addEventListener('focus', () => {
-    if (normalize(input.value).length >= MIN_QUERY_LENGTH) {
+    if (normalizeText(input.value).length >= MIN_QUERY_LENGTH) {
       search(input.value);
     }
   });

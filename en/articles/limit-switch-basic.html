@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Limit Switch Basics: How Mechanical Position Detection Works | Denki Control Lab</title>
+  <meta name="description" content="Learn what a limit switch is and how it detects mechanical position. This beginner-friendly guide explains actuator movement, NO/NC contacts, PLC input signals, wiring checks, mounting points, differences from proximity sensors, and field troubleshooting.">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/limit-switch-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/limit-switch-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/limit-switch-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/limit-switch-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Limit Switch Basics: How Mechanical Position Detection Works">
+  <meta property="og:description" content="A practical beginner-friendly guide to limit switches, mechanical position detection, PLC inputs, NO/NC contacts, wiring checks, mounting points, and troubleshooting.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/limit-switch-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/limit-switch-basic-en/limit-switch-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Limit Switch Basics: How Mechanical Position Detection Works">
+  <meta name="twitter:description" content="Understand how limit switches detect mechanical position and send signals to PLC inputs.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/limit-switch-basic-en/limit-switch-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+      scroll-padding-top:104px;
+    }
+
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue);
+      text-decoration:none;
+      transition:.2s ease;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff!important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:1 1 auto;
+      color:inherit;
+      text-decoration:none;
+      margin-right:auto;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      display:block;
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      display:block;
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:4px;
+    }
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .language-menu-icon{
+      font-size:15px;
+      line-height:1;
+    }
+
+    .language-menu-current{
+      white-space:nowrap;
+    }
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-panel[hidden]{
+      display:none;
+    }
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-item:hover{
+      background:#eff6ff;
+      color:#1d4ed8;
+      text-decoration:none;
+    }
+
+    .language-menu-item.is-active{
+      background:#e6f0ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-flag{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .language-menu-item strong{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:900;
+    }
+
+    .language-menu-item small{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      line-height:1.3;
+      color:#64748b;
+      font-weight:700;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:#64748b;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .breadcrumb a{
+      color:#1d4ed8;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);
+      min-height:410px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../../assets/images/limit-switch-basic-en/limit-switch-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,700px);
+      min-height:410px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+      color:#0f172a;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:46ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-points{
+      display:grid;
+      gap:8px;
+      margin:18px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .hero-points li{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      font-size:14px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .hero-points li::before{
+      content:"✓";
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:12px;
+      flex:0 0 auto;
+      margin-top:2px;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:24px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 10px;
+      font-size:23px;
+      line-height:1.4;
+      color:#0f172a;
+    }
+
+    .section-intro-line{
+      margin:0 0 18px;
+      padding-left:14px;
+      border-left:5px solid #bfdbfe;
+      font-size:14px;
+      color:#476178;
+      font-weight:700;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+      color:#0f172a;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .section-card ul,
+    .section-card ol{
+      margin:12px 0 0;
+      padding-left:22px;
+    }
+
+    .section-card li{
+      margin:8px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.75;
+    }
+
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .marker-green{
+      background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);
+      font-weight:900;
+    }
+
+    .marker-orange{
+      background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);
+      font-weight:900;
+    }
+
+    .point-strip{
+      margin:16px 0 18px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid #d7e4f3;
+      background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);
+      font-size:14px;
+      font-weight:800;
+      color:#334155;
+    }
+
+    .point-strip strong{
+      color:#1e3a8a;
+    }
+
+    .keyword-pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:8px 0 18px;
+      padding:0;
+      list-style:none;
+    }
+
+    .keyword-pills li{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #d6e3f2;
+      background:#f8fbff;
+      font-size:12px;
+      font-weight:900;
+      color:#1d4ed8;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure-inner{
+      background:#fff;
+      padding:18px;
+    }
+
+    .article-figure-inner img{
+      width:100%;
+      height:auto;
+      border-radius:16px;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .key-highlight,
+    .field-highlight{
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+
+    .key-highlight h3,
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .key-highlight h3{
+      color:#1d4ed8;
+    }
+
+    .field-highlight h3{
+      color:#15803d;
+    }
+
+    .key-highlight p,
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .flow-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin:16px 0 8px;
+    }
+
+    .flow-card{
+      position:relative;
+      padding:16px;
+      border-radius:20px;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+    }
+
+    .flow-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.4;
+      color:#1e3a8a;
+    }
+
+    .flow-card p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .flow-card::after{
+      content:"→";
+      position:absolute;
+      right:-11px;
+      top:50%;
+      transform:translateY(-50%);
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+    }
+
+    .flow-card:last-child::after{
+      display:none;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin:18px 0 8px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row.is-reverse{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      width:76px;
+      flex:0 0 76px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      background:none;
+      border:none;
+      box-shadow:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+    }
+
+    .talk-bubble{
+      max-width:min(100%,700px);
+      padding:14px 16px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid #d7e4f3;
+      box-shadow:0 6px 16px rgba(15,23,42,.04);
+    }
+
+    .talk-name{
+      display:inline-block;
+      margin:0 0 6px;
+      font-size:12px;
+      line-height:1.3;
+      font-weight:900;
+      color:#1d4ed8;
+    }
+
+    .talk-row.is-reverse .talk-name{
+      color:#15803d;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:14px;
+      line-height:1.75;
+      color:#334155;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+      color:#0f172a;
+    }
+
+    .side-card ul,
+    .side-card ol{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .side-note{
+      margin:0;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .side-link-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+    }
+
+    .side-link-list a{
+      display:block;
+      color:#334155;
+      font-size:12px;
+      line-height:1.5;
+      font-weight:700;
+      padding-left:12px;
+      position:relative;
+      text-decoration:none;
+    }
+
+    .side-link-list a::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.72em;
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#1d4ed8;
+    }
+
+    .support-card{
+      border:1px solid #dbeafe;
+      background:#fff;
+      box-shadow:0 4px 10px rgba(15,23,42,.04);
+    }
+
+    .support-card .support-card-title{
+      margin:0 0 6px;
+      padding-bottom:5px;
+      font-size:14px;
+      line-height:1.4;
+      font-weight:700;
+      color:#1e3a8a;
+      border-bottom:1px solid #dbeafe;
+    }
+
+    .support-card .support-card-text{
+      margin:0;
+      font-size:12px;
+      line-height:1.62;
+      color:#334155;
+      font-weight:500;
+    }
+
+    .support-card .support-card-actions{
+      margin-top:9px;
+      display:grid;
+      gap:7px;
+    }
+
+    .support-card .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:36px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.4;
+      text-align:center;
+      white-space:normal;
+      color:#1e3a8a;
+      background:#f8fbff;
+      text-decoration:none;
+    }
+
+    .support-card .support-link:hover{
+      border-color:#93c5fd;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .support-card .support-link--coffee{
+      border-color:#facc15;
+      color:#854d0e;
+      background:#fff3bf;
+    }
+
+    .support-card .support-link--paypal{
+      border-color:#93c5fd;
+      color:#0b5cad;
+      background:#eaf3ff;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      max-width:var(--container);
+      margin:28px auto 0;
+      padding:24px 14px 34px;
+      border-top:1px solid #dbe7f3;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:500;
+    }
+
+    .footer-copy{
+      margin:0;
+    }
+
+    .footer-links{
+      margin:10px 0 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      color:#334155;
+      font-weight:700;
+    }
+
+    .footer-separator{
+      color:#cbd5e1;
+    }
+
+    @media (max-width:1100px){
+      .language-menu-current{
+        display:none;
+      }
+
+      .language-menu-button{
+        width:38px;
+        min-width:38px;
+        padding:0;
+      }
+
+      .language-menu-panel{
+        right:0;
+        width:210px;
+      }
+
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .flow-grid{
+        grid-template-columns:1fr;
+      }
+
+      .flow-card::after{
+        display:none;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .site-header-inner{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:42px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        display:none;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
+
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../../assets/images/limit-switch-basic-en/limit-switch-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.20;
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:34ch;
+      }
+
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../../assets/images/limit-switch-basic-en/limit-switch-basic-hero-en.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:38ch;
+        font-size:14px;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../../assets/images/limit-switch-basic-en/limit-switch-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .hero-actions,
+      .btn{
+        width:100%;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p{
+        font-size:14px;
+      }
+
+      .talk-avatar{
+        width:58px;
+        flex:0 0 58px;
+      }
+
+      .talk-avatar img{
+        width:58px;
+      }
+
+      .talk-bubble{
+        padding:12px 14px;
+      }
+    }
+
+    @media (max-width:480px){
+      :root{
+        --header-h:72px;
+      }
+
+      .site-header{
+        padding:5px 6px;
+      }
+
+      .brand{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:32px;
+      }
+
+      .brand-title{
+        font-size:14px;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:34px;
+      }
+
+      .search-box-input{
+        font-size:11px;
+      }
+
+      .section-card{
+        padding:18px;
+        border-radius:22px;
+      }
+
+      .summary-card{
+        padding:18px;
+        border-radius:20px;
+      }
+
+      .mini-toc a{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="Go to English top page">
+        <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">Denki Control Lab</p>
+          <p class="brand-sub">Practical electrical control notes</p>
+        </div>
+      </a>
+
+      <div class="header-tools">
+        <div class="language-menu" aria-label="Language and region switch">
+          <button type="button" class="language-menu-button" id="languageMenuButton" aria-haspopup="true" aria-expanded="false" aria-controls="languageMenuPanel">
+            <span class="language-menu-icon" aria-hidden="true">🌐</span>
+            <span class="language-menu-current">United States</span>
+          </button>
+          <div class="language-menu-panel" id="languageMenuPanel" hidden>
+            <a href="../../articles/limit-switch-basic.html" class="language-menu-item">
+              <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+              <span>
+                <strong>Japan</strong>
+                <small>Japanese article</small>
+              </span>
+            </a>
+            <a href="./limit-switch-basic.html" class="language-menu-item is-active" aria-current="page">
+              <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+              <span>
+                <strong>United States</strong>
+                <small>English article</small>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <form class="header-search search-box" id="siteSearch" role="search" aria-label="Site search">
+          <label class="sr-only" for="site-search-input">Site search</label>
+          <input id="site-search-input" class="search-box-input" type="search" placeholder="Search this site" autocomplete="off" enterkeyhint="search">
+          <button class="search-box-button" type="submit" aria-label="Search">
+            <span class="header-search-icon" aria-hidden="true"></span>
+          </button>
+          <div class="search-box-panel" id="site-search-panel" hidden>
+            <ul class="search-box-results" id="site-search-results"></ul>
+            <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../">Home</a>
+      <span aria-hidden="true">›</span>
+      <a href="../categories/control-basics.html">Control Basics</a>
+      <span aria-hidden="true">›</span>
+      <span>Limit Switch Basics</span>
+    </nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Control Basics</span>
+        <h1>What Is a Limit Switch?</h1>
+        <p class="hero-lead">
+          A limit switch detects mechanical position by being physically operated by a moving part. It is often used to tell the PLC that something has reached an end position, home position, or safe confirmation point.
+        </p>
+
+        <ul class="hero-points">
+          <li>Understand how mechanical contact changes into an electrical signal.</li>
+          <li>Learn how limit switches connect to PLC inputs through NO and NC contacts.</li>
+          <li>Check mounting, actuator movement, wiring, and input monitor status in the field.</li>
+        </ul>
+
+        <div class="hero-actions">
+          <a href="#basic-idea" class="btn btn-primary">Start with the basic idea</a>
+          <a href="#troubleshooting" class="btn btn-secondary">Jump to troubleshooting</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning sensors, PLC inputs, and mechanical position detection.</li>
+          <li>People who want to understand rollers, levers, plungers, and contact behavior.</li>
+          <li>Electricians checking why an end-position signal does not turn on.</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--notyet">
+        <h2>Not necessary yet</h2>
+        <ul>
+          <li>If you need a model-specific wiring diagram, contact rating, or actuator catalog.</li>
+          <li>If the switch is part of a safety circuit that must follow site procedures.</li>
+          <li>If the machine uses non-contact sensors and no mechanical switch is involved.</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key takeaway</h2>
+        <ul>
+          <li>A limit switch detects position by physical contact.</li>
+          <li>The actuator movement changes an internal contact state.</li>
+          <li>Good checks separate mechanical movement, contact state, wiring, and PLC input status.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">Mini TOC</h2>
+      <div class="mini-toc">
+        <a href="#basic-idea">Basic idea</a>
+        <a href="#structure">Structure</a>
+        <a href="#plc-input">PLC input view</a>
+        <a href="#no-nc">NO / NC contacts</a>
+        <a href="#proximity-difference">Limit vs proximity</a>
+        <a href="#mounting">Mounting points</a>
+        <a href="#wiring-checks">Wiring checks</a>
+        <a href="#common-mistakes">Common mistakes</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#related">Related articles</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic-idea">
+          <h2>1. The basic idea: physical movement changes a contact</h2>
+          <p class="section-intro-line">A limit switch is a mechanical position sensor that changes contact state when its actuator is pushed or moved.</p>
+
+          <p>
+            A limit switch is often used when the machine needs to confirm a position. For example, a mechanism may reach the end of travel, a door may close, a workpiece may press a roller, or a cylinder may reach its home position.
+          </p>
+
+          <p>
+            When the moving part touches the switch actuator, the internal contact changes state. The control panel or PLC reads that change as an input signal. In other words, the switch converts mechanical position into an electrical signal.
+          </p>
+
+          <p class="point-strip">
+            <strong>Short version:</strong> moving part touches actuator → contact changes → PLC input changes → program uses the position signal.
+          </p>
+
+          <ul class="keyword-pills" aria-label="Main limit switch ideas">
+            <li>Mechanical position</li>
+            <li>Actuator</li>
+            <li>Roller lever</li>
+            <li>NO / NC contact</li>
+            <li>PLC input</li>
+            <li>End position</li>
+          </ul>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-overview-en.png" alt="Limit switch basic operation overview" loading="lazy">
+            </div>
+            <figcaption>
+              A limit switch is useful when a machine position should be confirmed by physical contact.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>The first question to ask</h3>
+            <p>
+              When troubleshooting a limit switch, do not start only from the electrical side. First confirm whether the mechanism actually operates the switch enough to change the contact.
+            </p>
+          </div>
+
+          <div class="talk-thread" aria-label="Conversation example">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>A limit switch is a sensor, but it is a mechanical one. The machine must physically move the actuator.</p>
+              </div>
+            </div>
+
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Junior</span><br>So if the PLC input is off, the problem may be mechanical position, not just wiring?</p>
+              </div>
+            </div>
+
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>Exactly. Check the actuator movement before assuming the switch is broken.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="structure">
+          <h2>2. Main parts of a limit switch</h2>
+          <p class="section-intro-line">A limit switch is simple, but each part affects how reliably the signal changes.</p>
+
+          <p>
+            Most limit switch checks become easier if you separate the outside mechanism from the inside contact. The outside part is operated by the machine. The inside part changes the electrical contact state.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Part</th>
+                  <th>Role</th>
+                  <th>Field check point</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Actuator</td>
+                  <td>The moving part of the switch, such as a roller lever, plunger, or lever.</td>
+                  <td>Does the machine hit it smoothly and fully?</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Internal contact</td>
+                  <td>The electrical contact that opens or closes when the actuator moves.</td>
+                  <td>Does continuity change when the actuator is operated?</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Terminals</td>
+                  <td>Connection points for NO, NC, and common contacts.</td>
+                  <td>Are the wires connected to the intended contact terminals?</td>
+                </tr>
+                <tr>
+                  <td>Mounting bracket</td>
+                  <td>Holds the switch at the correct position and angle.</td>
+                  <td>Is it loose, bent, shifted, or installed too far away?</td>
+                </tr>
+                <tr>
+                  <td>Cable / connector</td>
+                  <td>Carries the signal to the panel or PLC input.</td>
+                  <td>Is there damage, oil, pulling force, or connector looseness?</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-structure-en.png" alt="Limit switch actuator contact and terminal structure" loading="lazy">
+            </div>
+            <figcaption>
+              The actuator movement and the internal contact change are both important. Do not check only one side.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="plc-input">
+          <h2>3. How a limit switch appears to the PLC</h2>
+          <p class="section-intro-line">From the PLC side, a limit switch is usually read as an ON/OFF input signal.</p>
+
+          <p>
+            The PLC does not directly know where the machine is. It only reads the input signal. The program gives that input a meaning, such as “home position,” “forward end,” “door closed,” “part present,” or “mechanism limit reached.”
+          </p>
+
+          <div class="flow-grid" aria-label="Limit switch to PLC input flow">
+            <div class="flow-card">
+              <h3>1. Machine moves</h3>
+              <p>A part, cam, door, or cylinder position reaches the switch.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Switch operates</h3>
+              <p>The actuator moves and the internal contact changes state.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. PLC input changes</h3>
+              <p>The input monitor turns ON or OFF and the program uses that condition.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-plc-input-en.png" alt="Limit switch signal to PLC input flow" loading="lazy">
+            </div>
+            <figcaption>
+              The PLC input monitor helps confirm whether the switch signal is actually reaching the PLC.
+            </figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>Field-friendly view</h3>
+            <p>
+              If the mechanism touches the switch but the PLC input does not change, check the actuator stroke, contact terminal, wire, common wiring, and input monitor separately.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="no-nc">
+          <h2>4. NO and NC contacts in a limit switch</h2>
+          <p class="section-intro-line">A limit switch may have NO and NC contacts, so the terminal choice changes the signal behavior.</p>
+
+          <p>
+            Many limit switches provide both normally open and normally closed contacts. The same physical switch can therefore be wired in different ways. This is why checking only the switch movement is not enough; you also need to confirm which terminals are used.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Contact type</th>
+                  <th>Normal state</th>
+                  <th>When actuator is operated</th>
+                  <th>Common use image</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">NO contact</td>
+                  <td>Open</td>
+                  <td>Closes</td>
+                  <td>Signal turns ON when the switch is pressed.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">NC contact</td>
+                  <td>Closed</td>
+                  <td>Opens</td>
+                  <td>Signal turns OFF when the switch is pressed.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>Normal state matters</h3>
+            <p>
+              “Normal” means the switch is not being operated. If the machine normally holds the switch pressed, the PLC signal may look opposite from what a beginner expects.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="proximity-difference">
+          <h2>5. Limit switch vs proximity sensor</h2>
+          <p class="section-intro-line">A limit switch detects by physical contact. A proximity sensor detects without contact.</p>
+
+          <p>
+            Both devices can be used for position detection, but the way they detect is different. A limit switch has mechanical movement and contact wear. A proximity sensor has no mechanical actuator, but it depends on target material, sensing distance, mounting, and output type.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Limit switch</th>
+                  <th>Proximity sensor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Detection method</td>
+                  <td>Physical contact with actuator.</td>
+                  <td>Non-contact detection within sensing range.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Strong point</td>
+                  <td>Easy to understand mechanically and visually.</td>
+                  <td>No mechanical contact and less wear from operation.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Common concern</td>
+                  <td>Wear, actuator damage, mounting shift, mechanical shock.</td>
+                  <td>Distance, target material, metal chips, output type mismatch.</td>
+                </tr>
+                <tr>
+                  <td>Typical check</td>
+                  <td>Does the mechanism press the actuator fully?</td>
+                  <td>Is the target within the detection range?</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-vs-proximity-en.png" alt="Limit switch and proximity sensor comparison" loading="lazy">
+            </div>
+            <figcaption>
+              Limit switches are easy to understand physically, but mechanical adjustment and wear are important check points.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="mounting">
+          <h2>6. Mounting and adjustment points</h2>
+          <p class="section-intro-line">Many limit switch problems come from position, angle, stroke, looseness, or mechanical wear.</p>
+
+          <p>
+            A limit switch can be electrically normal but still fail to send the expected signal if the machine does not operate it correctly. Brackets can shift, rollers can wear, levers can bend, cams can miss the actuator, and moving parts can stop slightly short.
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Actuator stroke</h3>
+              <p>Is the actuator moved far enough to reliably change the internal contact?</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Approach direction</h3>
+              <p>Does the moving part hit the roller or lever from the correct direction and angle?</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Mounting looseness</h3>
+              <p>Is the switch body or bracket loose, bent, cracked, or shifted from the original position?</p>
+            </div>
+            <div class="check-item">
+              <h3>Mechanical wear</h3>
+              <p>Is the roller, lever, cam, or contact point worn enough to change the timing?</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>Practical view</h3>
+            <p>
+              If a limit signal becomes unstable after adjustment, part replacement, or mechanical repair, check the physical operating position before replacing electrical parts.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="wiring-checks">
+          <h2>7. Practical wiring checks</h2>
+          <p class="section-intro-line">Separate the mechanical operation, contact state, wiring path, and PLC input monitor.</p>
+
+          <p>
+            A good limit switch check does not stop at “the lever moves.” You need to confirm that the correct contact changes state and that the signal reaches the PLC input terminal. A continuity check and PLC input monitor check are both useful.
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>1. Operate the actuator</h3>
+              <p>Move the actuator by hand only when safe, or watch whether the machine operates it fully.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>2. Check contact state</h3>
+              <p>Use the drawing or terminal numbers to confirm whether the used contact is NO or NC.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>3. Check wiring continuity</h3>
+              <p>Check for broken wires, loose terminals, connector issues, or damaged cable near moving parts.</p>
+            </div>
+            <div class="check-item">
+              <h3>4. Check PLC input</h3>
+              <p>Compare the actual switch state with the PLC input monitor and program condition.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-wiring-check-en.png" alt="Limit switch wiring and PLC input check procedure" loading="lazy">
+            </div>
+            <figcaption>
+              A practical check order: actuator operation, contact state, wiring continuity, and PLC input monitor.
+            </figcaption>
+          </figure>
+
+          <div class="danger-box">
+            <h3>Be careful with moving machinery</h3>
+            <p>
+              A limit switch may be near moving parts. Follow site rules, lockout/tagout procedures, and safe measurement methods before touching or bypassing anything.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="common-mistakes">
+          <h2>8. Common beginner mistakes</h2>
+          <p class="section-intro-line">Limit switch mistakes often happen when mechanical movement and electrical contact behavior are mixed together.</p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Mistake 1: judging by appearance only</h3>
+              <p>The switch may look pressed, but the actuator may not have moved far enough to change the internal contact.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Mistake 2: mixing up NO and NC</h3>
+              <p>The same switch body may have multiple terminals. Using a different contact changes the signal behavior.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Mistake 3: ignoring mounting shift</h3>
+              <p>A slightly bent bracket or loose screw can cause unstable detection even if the switch itself is normal.</p>
+            </div>
+            <div class="check-item">
+              <h3>Mistake 4: checking only the switch</h3>
+              <p>The contact may change correctly, but the PLC input may still be off due to wiring, common, or input unit issues.</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>Mechanical and electrical checks are both needed</h3>
+            <p>
+              A limit switch problem may be mechanical, electrical, or both. The safest approach is to check the movement first, then the contact, then the PLC input.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="troubleshooting">
+          <h2>9. Troubleshooting limit switch problems</h2>
+          <p class="section-intro-line">Move from the machine side toward the PLC side step by step.</p>
+
+          <div class="flow-grid" aria-label="Limit switch troubleshooting flow">
+            <div class="flow-card">
+              <h3>Machine position</h3>
+              <p>Does the moving part actually reach and operate the switch correctly?</p>
+            </div>
+            <div class="flow-card">
+              <h3>Contact change</h3>
+              <p>Does the internal contact open or close when the actuator moves?</p>
+            </div>
+            <div class="flow-card">
+              <h3>PLC input</h3>
+              <p>Does the PLC input monitor change in the same way the drawing expects?</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/limit-switch-basic-en/limit-switch-basic-troubleshooting-en.png" alt="Limit switch troubleshooting checklist" loading="lazy">
+            </div>
+            <figcaption>
+              The most reliable check order is mechanical position, actuator movement, contact state, wiring path, and PLC input status.
+            </figcaption>
+          </figure>
+
+          <div class="talk-thread">
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Junior</span><br>The cylinder reaches the end, but the PLC input does not turn on. Should I replace the switch?</p>
+              </div>
+            </div>
+
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>Check whether the actuator is pressed fully, then check the contact and the PLC input. The switch may not be the first problem.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="safety-notes">
+          <h2>10. Practical safety notes</h2>
+          <p class="section-intro-line">A limit switch can affect movement, interlocks, alarms, and stop conditions.</p>
+
+          <p>
+            Some limit switches are used only for position confirmation. Others may affect stop conditions, interlocks, home position checks, door confirmation, or abnormal travel detection. Always check the drawing and site rules before changing wiring, moving brackets, bypassing the switch, or forcing an input.
+          </p>
+
+          <div class="danger-box">
+            <h3>Do not bypass casually</h3>
+            <p>
+              Forcing a limit switch signal can make equipment move unexpectedly. Follow lockout/tagout rules and machine-specific procedures before testing.
+            </p>
+          </div>
+
+          <div class="note-box">
+            <h3>Keep learning in layers</h3>
+            <p>
+              Limit switch checks become easier when you understand sensors, PLC inputs, NO/NC contacts, self-holding circuits, and interlock circuits.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>11. Related articles</h2>
+          <p class="section-intro-line">These are good next steps after learning limit switch basics.</p>
+
+          <div class="related-grid">
+            <a href="./sensor-basic.html" class="related-card">
+              <h3>Sensor Basics</h3>
+              <p>Review how sensors send field signals to PLC inputs.</p>
+            </a>
+
+            <a href="./no-nc-basic.html" class="related-card">
+              <h3>NO vs NC Contacts</h3>
+              <p>Understand contact behavior before reading limit switch terminals.</p>
+            </a>
+
+            <a href="./interlock-basic.html" class="related-card">
+              <h3>Interlock Circuit Basics</h3>
+              <p>See how switch signals can be used to prevent conflicting operations.</p>
+            </a>
+          </div>
+
+          <div class="article-footer-nav">
+            <a href="../categories/control-basics.html" class="btn btn-primary">Back to Control Basics</a>
+            <a href="../" class="btn btn-secondary">Back to English Home</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Article sidebar">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul>
+            <li><a href="#basic-idea">Basic idea</a></li>
+            <li><a href="#structure">Structure</a></li>
+            <li><a href="#plc-input">PLC input view</a></li>
+            <li><a href="#no-nc">NO / NC contacts</a></li>
+            <li><a href="#proximity-difference">Limit vs proximity</a></li>
+            <li><a href="#mounting">Mounting points</a></li>
+            <li><a href="#wiring-checks">Wiring checks</a></li>
+            <li><a href="#common-mistakes">Common mistakes</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>Quick reminder</h3>
+          <p class="side-note">
+            A limit switch detects position by physical contact. Check mechanical movement, contact state, wiring, and PLC input status separately.
+          </p>
+        </section>
+
+        <section class="side-card support-card" aria-label="Support this site">
+          <h3 class="support-card-title">Support this site</h3>
+          <p class="support-card-text">
+            Your support helps me continue creating practical guides and improving Denki Control Lab.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Support on Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener noreferrer">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Category links</h3>
+          <ul class="side-link-list">
+            <li><a href="../categories/control-basics.html">Control Basics</a></li>
+            <li><a href="../categories/circuit-basics.html">Circuit Basics</a></li>
+            <li><a href="../">English home</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">Practical notes for learning electrical control, PLC basics, and circuit concepts without getting lost.</p>
+    <p class="footer-links">
+      <a href="../privacy-policy/">Privacy Policy</a>
+      <span class="footer-separator">|</span>
+      <a href="../contact/">Contact</a>
+      <span class="footer-separator">|</span>
+      <a href="../../articles/limit-switch-basic.html">Japanese</a>
+    </p>
+  </footer>
+
+  <script src="../../assets/js/site-search.js" defer></script>
+  <script>
+    const languageMenuButton = document.getElementById('languageMenuButton');
+    const languageMenuPanel = document.getElementById('languageMenuPanel');
+
+    if (languageMenuButton && languageMenuPanel) {
+      languageMenuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isHidden = languageMenuPanel.hasAttribute('hidden');
+
+        if (isHidden) {
+          languageMenuPanel.removeAttribute('hidden');
+          languageMenuButton.setAttribute('aria-expanded', 'true');
+        } else {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const isInsideMenu = languageMenuPanel.contains(event.target) || languageMenuButton.contains(event.target);
+
+        if (!isInsideMenu) {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

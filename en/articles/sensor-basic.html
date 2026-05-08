@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Sensor Basics: How Sensors Send Signals to PLCs | Denki Control Lab</title>
+  <meta name="description" content="Learn what sensors do in electrical control. This beginner-friendly guide explains sensor roles, common sensor types, PLC input signals, NPN/PNP and NO/NC basics, wiring checks, mounting points, and troubleshooting steps.">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/sensor-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/sensor-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/sensor-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/sensor-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Sensor Basics: How Sensors Send Signals to PLCs">
+  <meta property="og:description" content="A practical beginner-friendly guide to sensors in electrical control, including sensor types, PLC inputs, wiring checks, NPN/PNP, NO/NC, and troubleshooting.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/sensor-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/sensor-basic-en/sensor-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sensor Basics: How Sensors Send Signals to PLCs">
+  <meta name="twitter:description" content="Understand what sensors detect, how they send signals to PLC inputs, and how to check them in the field.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/sensor-basic-en/sensor-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+      scroll-padding-top:104px;
+    }
+
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue);
+      text-decoration:none;
+      transition:.2s ease;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff!important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:1 1 auto;
+      color:inherit;
+      text-decoration:none;
+      margin-right:auto;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+    }
+
+    .brand-title{
+      display:block;
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+
+    .brand-sub{
+      display:block;
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .header-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:4px;
+    }
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .language-menu-icon{
+      font-size:15px;
+      line-height:1;
+    }
+
+    .language-menu-current{
+      white-space:nowrap;
+    }
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-panel[hidden]{
+      display:none;
+    }
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-item:hover{
+      background:#eff6ff;
+      color:#1d4ed8;
+      text-decoration:none;
+    }
+
+    .language-menu-item.is-active{
+      background:#e6f0ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-flag{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .language-menu-item strong{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:900;
+    }
+
+    .language-menu-item small{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      line-height:1.3;
+      color:#64748b;
+      font-weight:700;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:#64748b;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      font-size:11px;
+      color:#64748b;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .breadcrumb a{
+      color:#1d4ed8;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);
+      min-height:410px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../../assets/images/sensor-basic-en/sensor-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,700px);
+      min-height:410px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+      color:#0f172a;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:46ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-points{
+      display:grid;
+      gap:8px;
+      margin:18px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .hero-points li{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      font-size:14px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .hero-points li::before{
+      content:"✓";
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:12px;
+      flex:0 0 auto;
+      margin-top:2px;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:24px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 10px;
+      font-size:23px;
+      line-height:1.4;
+      color:#0f172a;
+    }
+
+    .section-intro-line{
+      margin:0 0 18px;
+      padding-left:14px;
+      border-left:5px solid #bfdbfe;
+      font-size:14px;
+      color:#476178;
+      font-weight:700;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+      color:#0f172a;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .section-card ul,
+    .section-card ol{
+      margin:12px 0 0;
+      padding-left:22px;
+    }
+
+    .section-card li{
+      margin:8px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.75;
+    }
+
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .marker-green{
+      background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);
+      font-weight:900;
+    }
+
+    .marker-orange{
+      background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);
+      font-weight:900;
+    }
+
+    .point-strip{
+      margin:16px 0 18px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid #d7e4f3;
+      background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);
+      font-size:14px;
+      font-weight:800;
+      color:#334155;
+    }
+
+    .point-strip strong{
+      color:#1e3a8a;
+    }
+
+    .keyword-pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:8px 0 18px;
+      padding:0;
+      list-style:none;
+    }
+
+    .keyword-pills li{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #d6e3f2;
+      background:#f8fbff;
+      font-size:12px;
+      font-weight:900;
+      color:#1d4ed8;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure-inner{
+      background:#fff;
+      padding:18px;
+    }
+
+    .article-figure-inner img{
+      width:100%;
+      height:auto;
+      border-radius:16px;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .key-highlight,
+    .field-highlight{
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+
+    .key-highlight h3,
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .key-highlight h3{
+      color:#1d4ed8;
+    }
+
+    .field-highlight h3{
+      color:#15803d;
+    }
+
+    .key-highlight p,
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .flow-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin:16px 0 8px;
+    }
+
+    .flow-card{
+      position:relative;
+      padding:16px;
+      border-radius:20px;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+    }
+
+    .flow-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.4;
+      color:#1e3a8a;
+    }
+
+    .flow-card p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .flow-card::after{
+      content:"→";
+      position:absolute;
+      right:-11px;
+      top:50%;
+      transform:translateY(-50%);
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+    }
+
+    .flow-card:last-child::after{
+      display:none;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin:18px 0 8px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row.is-reverse{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      width:76px;
+      flex:0 0 76px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      background:none;
+      border:none;
+      box-shadow:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+    }
+
+    .talk-bubble{
+      max-width:min(100%,700px);
+      padding:14px 16px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid #d7e4f3;
+      box-shadow:0 6px 16px rgba(15,23,42,.04);
+    }
+
+    .talk-name{
+      display:inline-block;
+      margin:0 0 6px;
+      font-size:12px;
+      line-height:1.3;
+      font-weight:900;
+      color:#1d4ed8;
+    }
+
+    .talk-row.is-reverse .talk-name{
+      color:#15803d;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:14px;
+      line-height:1.75;
+      color:#334155;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+      color:#0f172a;
+    }
+
+    .side-card ul,
+    .side-card ol{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .side-note{
+      margin:0;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    .side-link-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+    }
+
+    .side-link-list a{
+      display:block;
+      color:#334155;
+      font-size:12px;
+      line-height:1.5;
+      font-weight:700;
+      padding-left:12px;
+      position:relative;
+      text-decoration:none;
+    }
+
+    .side-link-list a::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.72em;
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#1d4ed8;
+    }
+
+    .support-card{
+      border:1px solid #dbeafe;
+      background:#fff;
+      box-shadow:0 4px 10px rgba(15,23,42,.04);
+    }
+
+    .support-card .support-card-title{
+      margin:0 0 6px;
+      padding-bottom:5px;
+      font-size:14px;
+      line-height:1.4;
+      font-weight:700;
+      color:#1e3a8a;
+      border-bottom:1px solid #dbeafe;
+    }
+
+    .support-card .support-card-text{
+      margin:0;
+      font-size:12px;
+      line-height:1.62;
+      color:#334155;
+      font-weight:500;
+    }
+
+    .support-card .support-card-actions{
+      margin-top:9px;
+      display:grid;
+      gap:7px;
+    }
+
+    .support-card .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:36px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.4;
+      text-align:center;
+      white-space:normal;
+      color:#1e3a8a;
+      background:#f8fbff;
+      text-decoration:none;
+    }
+
+    .support-card .support-link:hover{
+      border-color:#93c5fd;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .support-card .support-link--coffee{
+      border-color:#facc15;
+      color:#854d0e;
+      background:#fff3bf;
+    }
+
+    .support-card .support-link--paypal{
+      border-color:#93c5fd;
+      color:#0b5cad;
+      background:#eaf3ff;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      max-width:var(--container);
+      margin:28px auto 0;
+      padding:24px 14px 34px;
+      border-top:1px solid #dbe7f3;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:500;
+    }
+
+    .footer-copy{
+      margin:0;
+    }
+
+    .footer-links{
+      margin:10px 0 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      color:#334155;
+      font-weight:700;
+    }
+
+    .footer-separator{
+      color:#cbd5e1;
+    }
+
+    @media (max-width:1100px){
+      .language-menu-current{
+        display:none;
+      }
+
+      .language-menu-button{
+        width:38px;
+        min-width:38px;
+        padding:0;
+      }
+
+      .language-menu-panel{
+        right:0;
+        width:210px;
+      }
+
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .flow-grid{
+        grid-template-columns:1fr;
+      }
+
+      .flow-card::after{
+        display:none;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .site-header-inner{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:42px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        display:none;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:40px;
+      }
+
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../../assets/images/sensor-basic-en/sensor-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;
+        opacity:.20;
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:34ch;
+      }
+
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../../assets/images/sensor-basic-en/sensor-basic-hero-en.png") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:38ch;
+        font-size:14px;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../../assets/images/sensor-basic-en/sensor-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .hero-actions,
+      .btn{
+        width:100%;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p{
+        font-size:14px;
+      }
+
+      .talk-avatar{
+        width:58px;
+        flex:0 0 58px;
+      }
+
+      .talk-avatar img{
+        width:58px;
+      }
+
+      .talk-bubble{
+        padding:12px 14px;
+      }
+    }
+
+    @media (max-width:480px){
+      :root{
+        --header-h:72px;
+      }
+
+      .site-header{
+        padding:5px 6px;
+      }
+
+      .brand{
+        gap:8px;
+      }
+
+      .brand-logo{
+        height:32px;
+      }
+
+      .brand-title{
+        font-size:14px;
+      }
+
+      .header-search{
+        flex:1 1 auto;
+        min-height:34px;
+      }
+
+      .search-box-input{
+        font-size:11px;
+      }
+
+      .section-card{
+        padding:18px;
+        border-radius:22px;
+      }
+
+      .summary-card{
+        padding:18px;
+        border-radius:20px;
+      }
+
+      .mini-toc a{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="Go to English top page">
+        <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">Denki Control Lab</p>
+          <p class="brand-sub">Practical electrical control notes</p>
+        </div>
+      </a>
+
+      <div class="header-tools">
+        <div class="language-menu" aria-label="Language and region switch">
+          <button type="button" class="language-menu-button" id="languageMenuButton" aria-haspopup="true" aria-expanded="false" aria-controls="languageMenuPanel">
+            <span class="language-menu-icon" aria-hidden="true">🌐</span>
+            <span class="language-menu-current">United States</span>
+          </button>
+          <div class="language-menu-panel" id="languageMenuPanel" hidden>
+            <a href="../../articles/sensor-basic.html" class="language-menu-item">
+              <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+              <span>
+                <strong>Japan</strong>
+                <small>Japanese article</small>
+              </span>
+            </a>
+            <a href="./sensor-basic.html" class="language-menu-item is-active" aria-current="page">
+              <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+              <span>
+                <strong>United States</strong>
+                <small>English article</small>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <form class="header-search search-box" id="siteSearch" role="search" aria-label="Site search">
+          <label class="sr-only" for="site-search-input">Site search</label>
+          <input id="site-search-input" class="search-box-input" type="search" placeholder="Search this site" autocomplete="off" enterkeyhint="search">
+          <button class="search-box-button" type="submit" aria-label="Search">
+            <span class="header-search-icon" aria-hidden="true"></span>
+          </button>
+          <div class="search-box-panel" id="site-search-panel" hidden>
+            <ul class="search-box-results" id="site-search-results"></ul>
+            <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../">Home</a>
+      <span aria-hidden="true">›</span>
+      <a href="../categories/control-basics.html">Control Basics</a>
+      <span aria-hidden="true">›</span>
+      <span>Sensor Basics</span>
+    </nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Control Basics</span>
+        <h1>What Is a Sensor in Electrical Control?</h1>
+        <p class="hero-lead">
+          A sensor detects a condition in the machine and sends a signal to the control system. For a PLC, a sensor is often the part that tells it <span class="marker-blue">what is happening in the field</span>.
+        </p>
+
+        <ul class="hero-points">
+          <li>Understand what sensors do from a PLC input point of view.</li>
+          <li>Learn common sensor types such as proximity, photoelectric, limit, pressure, level, flow, and temperature sensors.</li>
+          <li>Use power, output, wiring, mounting, and PLC input checks to troubleshoot sensor problems.</li>
+        </ul>
+
+        <div class="hero-actions">
+          <a href="#basic-idea" class="btn btn-primary">Start with the basic idea</a>
+          <a href="#troubleshooting" class="btn btn-secondary">Jump to troubleshooting</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning PLC inputs, sensors, and control panel wiring.</li>
+          <li>People who know sensor names but are unsure what the PLC actually reads.</li>
+          <li>Electricians checking why a sensor LED is on but the machine does not respond.</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--notyet">
+        <h2>Not necessary yet</h2>
+        <ul>
+          <li>If you need a model-specific sensor manual, teach procedure, or IO-Link settings.</li>
+          <li>If the device is part of a safety circuit that must follow site rules and safety documentation.</li>
+          <li>If the sensor uses special analog scaling or network communication that requires a separate guide.</li>
+        </ul>
+      </div>
+
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key takeaway</h2>
+        <ul>
+          <li>A sensor detects a physical condition.</li>
+          <li>The PLC reads the sensor through an input signal.</li>
+          <li>Good troubleshooting separates detection, wiring, and PLC input status.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">Mini TOC</h2>
+      <div class="mini-toc">
+        <a href="#basic-idea">Basic idea</a>
+        <a href="#plc-view">PLC view</a>
+        <a href="#sensor-types">Sensor types</a>
+        <a href="#signals">Signal types</a>
+        <a href="#mounting">Mounting points</a>
+        <a href="#wiring-checks">Wiring checks</a>
+        <a href="#common-mistakes">Common mistakes</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#related">Related articles</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="basic-idea">
+          <h2>1. The basic idea: a sensor tells the PLC what is happening</h2>
+          <p class="section-intro-line">A sensor changes a physical condition into an electrical signal that the control system can use.</p>
+
+          <p>
+            In factory equipment, the PLC cannot “see” the machine directly. It needs signals. A sensor detects something in the machine, such as a part arriving, a cylinder reaching the end position, pressure rising, liquid level changing, or temperature going above a set value.
+          </p>
+
+          <p>
+            The sensor then sends an electrical signal to the PLC input. The PLC program uses that signal to decide the next action, such as turning on a lamp, moving a cylinder, starting a conveyor, stopping an operation, or showing an alarm.
+          </p>
+
+          <p class="point-strip">
+            <strong>Short version:</strong> physical condition → sensor detection → electrical signal → PLC input → machine logic.
+          </p>
+
+          <ul class="keyword-pills" aria-label="Main sensor ideas">
+            <li>Detection</li>
+            <li>Signal</li>
+            <li>PLC input</li>
+            <li>Field device</li>
+            <li>Wiring check</li>
+            <li>Input monitor</li>
+          </ul>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sensor-basic-en/sensor-basic-overview-en.png" alt="Sensor role in electrical control" loading="lazy">
+            </div>
+            <figcaption>
+              A sensor is the bridge between the physical machine condition and the PLC input signal.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>The first question to ask</h3>
+            <p>
+              When a machine does not respond, do not ask only “is the sensor broken?” Ask whether the sensor detects, whether its output changes, and whether the PLC input receives the signal.
+            </p>
+          </div>
+
+          <div class="talk-thread" aria-label="Conversation example">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>A sensor is not just a part with a light on it. It is a signal source for the PLC.</p>
+              </div>
+            </div>
+
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Junior</span><br>So if the sensor lamp is on, I still need to check whether the PLC input is on?</p>
+              </div>
+            </div>
+
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>Exactly. Detection, output, wiring, and PLC input status are separate checkpoints.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="plc-view">
+          <h2>2. How the PLC sees a sensor</h2>
+          <p class="section-intro-line">The PLC usually reads the sensor as an input signal, not as the physical object itself.</p>
+
+          <p>
+            From the PLC side, a sensor is often just an ON/OFF input. The PLC does not know whether the object is metal, light is blocked, pressure is high, or a float moved unless the wiring and program give that input a meaning.
+          </p>
+
+          <div class="flow-grid" aria-label="Sensor to PLC signal flow">
+            <div class="flow-card">
+              <h3>1. Detect</h3>
+              <p>The sensor detects a target, position, level, pressure, flow, or temperature condition.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Output</h3>
+              <p>The sensor output changes state, such as ON/OFF or an analog value.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. Input</h3>
+              <p>The PLC input receives the signal and the program uses it as a condition.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sensor-basic-en/sensor-basic-plc-signal-flow-en.png" alt="Sensor signal flow to PLC input" loading="lazy">
+            </div>
+            <figcaption>
+              The PLC input monitor is one of the most useful places to confirm whether the sensor signal is actually reaching the PLC.
+            </figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>Field-friendly view</h3>
+            <p>
+              If the sensor detects but the PLC input does not change, the problem may be output type, power supply, common wiring, terminal connection, cable damage, or input unit compatibility.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="sensor-types">
+          <h2>3. Common sensor types in control work</h2>
+          <p class="section-intro-line">Different sensors detect different physical conditions, but they all become signals for the control system.</p>
+
+          <p>
+            Beginners often try to memorize sensor names first. A better approach is to ask what the sensor detects and what signal it sends. Once you know the detection target, the wiring and PLC input check become easier to understand.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sensor type</th>
+                  <th>What it detects</th>
+                  <th>Typical use</th>
+                  <th>Common check point</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Proximity sensor</td>
+                  <td>Object near the sensing face, often metal depending on sensor type.</td>
+                  <td>Part detection, cylinder position, jig position.</td>
+                  <td>Distance, mounting position, target material, output type.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Photoelectric sensor</td>
+                  <td>Light received, reflected, or blocked.</td>
+                  <td>Workpiece passing, object presence, conveyor detection.</td>
+                  <td>Lens dirt, alignment, reflection, sensitivity setting.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Limit switch</td>
+                  <td>Mechanical contact by lever, roller, or actuator.</td>
+                  <td>End position, door position, mechanical confirmation.</td>
+                  <td>Actuator movement, contact wear, mounting looseness.</td>
+                </tr>
+                <tr>
+                  <td>Pressure switch</td>
+                  <td>Pressure reaching a set point.</td>
+                  <td>Air pressure confirmation, vacuum confirmation.</td>
+                  <td>Set value, actual pressure, tubing, response delay.</td>
+                </tr>
+                <tr>
+                  <td>Float / level switch</td>
+                  <td>Liquid level or float movement.</td>
+                  <td>Tank level, overflow prevention, low-level detection.</td>
+                  <td>Float movement, sticking, orientation, cable condition.</td>
+                </tr>
+                <tr>
+                  <td>Temperature sensor</td>
+                  <td>Temperature value or temperature threshold.</td>
+                  <td>Heater control, cooling check, abnormal temperature detection.</td>
+                  <td>Sensor type, scaling, broken wire, controller setting.</td>
+                </tr>
+                <tr>
+                  <td>Flow switch</td>
+                  <td>Flow present, stopped, or above a set point.</td>
+                  <td>Cooling water, air flow, pump confirmation.</td>
+                  <td>Actual flow, clogging, direction, set point.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sensor-basic-en/sensor-basic-types-en.png" alt="Common sensor types in electrical control" loading="lazy">
+            </div>
+            <figcaption>
+              Sensor types differ, but troubleshooting always comes back to detection condition, output signal, and PLC input status.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="signals">
+          <h2>4. Sensor signal types: ON/OFF, analog, NPN, PNP, NO, and NC</h2>
+          <p class="section-intro-line">A sensor name alone is not enough. You also need to know what kind of signal it sends.</p>
+
+          <p>
+            Many basic sensors send a digital ON/OFF signal. Other sensors send analog values such as 0-10V or 4-20mA. In practical PLC input work, you also need to check whether the output is NPN or PNP, and whether the contact behavior is NO or NC.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Signal / output idea</th>
+                  <th>What it means</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Digital ON/OFF</td>
+                  <td>The signal is mainly ON or OFF.</td>
+                  <td>Used for many PLC input checks and ladder conditions.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Analog signal</td>
+                  <td>The signal changes as a value, such as voltage or current.</td>
+                  <td>Used for pressure, temperature, level, flow, and position values.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">NPN / PNP</td>
+                  <td>How the sensor output switches the PLC input circuit.</td>
+                  <td>A mismatch can make the PLC input stay off even when the sensor detects.</td>
+                </tr>
+                <tr>
+                  <td>NO / NC</td>
+                  <td>Whether the contact is open or closed in the normal state.</td>
+                  <td>Important for stop signals, interlocks, alarms, and input logic.</td>
+                </tr>
+                <tr>
+                  <td>2-wire / 3-wire</td>
+                  <td>How the sensor power and output are wired.</td>
+                  <td>Wiring method affects voltage checks and replacement work.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>Do not replace only by shape</h3>
+            <p>
+              Two sensors may look similar but have different output type, sensing distance, power supply, wiring method, or signal behavior. Always check the model and specifications.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="mounting">
+          <h2>5. Mounting and adjustment points</h2>
+          <p class="section-intro-line">Many sensor problems are caused by position, distance, dirt, vibration, or mechanical changes rather than a broken sensor.</p>
+
+          <p>
+            Before assuming the sensor has failed, check whether the target reaches the detection area correctly. In actual equipment, brackets can loosen, workpieces can shift, air cylinders can stop slightly short, reflective surfaces can change, and dust or oil can cover the sensing face.
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Detection distance</h3>
+              <p>Is the target close enough, and is the sensor type suitable for the target material or surface?</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Mounting position</h3>
+              <p>Has the bracket moved, bent, loosened, or been replaced at a slightly different angle?</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Environment</h3>
+              <p>Is there dust, oil, water, metal chips, vibration, light interference, or cable stress?</p>
+            </div>
+            <div class="check-item">
+              <h3>Adjustment setting</h3>
+              <p>Does the sensitivity, threshold, teach setting, or pressure set point match the actual process?</p>
+            </div>
+          </div>
+
+          <div class="field-highlight">
+            <h3>Practical view</h3>
+            <p>
+              If a sensor problem appears after maintenance, setup change, product change, or mechanical work, check alignment and mechanical position before replacing electrical parts.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="wiring-checks">
+          <h2>6. Practical wiring checks</h2>
+          <p class="section-intro-line">Sensor troubleshooting becomes easier when you separate power supply, output signal, and PLC input monitor.</p>
+
+          <p>
+            A common mistake is checking only the sensor indicator light. The indicator is useful, but it does not prove that the PLC input is receiving the correct signal. The signal must pass through wiring, terminals, common wiring, and the input unit.
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>1. Check sensor power</h3>
+              <p>Confirm that the sensor has the correct power supply, such as DC24V, and that polarity is correct.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>2. Check detection state</h3>
+              <p>Confirm whether the sensor indicator changes when the target is present or absent.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>3. Check output signal</h3>
+              <p>Measure the output wire or contact state while the sensor is ON and OFF.</p>
+            </div>
+            <div class="check-item">
+              <h3>4. Check PLC input</h3>
+              <p>Compare the measured signal with the PLC input monitor and the program condition.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sensor-basic-en/sensor-basic-wiring-check-en.png" alt="Sensor wiring and PLC input check procedure" loading="lazy">
+            </div>
+            <figcaption>
+              A practical check order: power, detection, output signal, terminal wiring, and PLC input monitor.
+            </figcaption>
+          </figure>
+
+          <div class="danger-box">
+            <h3>Be careful with live measurements</h3>
+            <p>
+              Follow site rules and safe measurement procedures. If the circuit involves moving machinery, safety devices, or hazardous energy, do not bypass sensors casually.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="common-mistakes">
+          <h2>7. Common beginner mistakes</h2>
+          <p class="section-intro-line">Sensor checks become unreliable when the physical detection and electrical signal are mixed together.</p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Mistake 1: sensor lamp ON means PLC input ON</h3>
+              <p>The sensor may detect correctly, but wiring, output type, input common, or terminal connection can still prevent the PLC input from turning on.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Mistake 2: replacing by appearance only</h3>
+              <p>The same shape may have different output type, cable length, sensing distance, response, connector pinout, or NO/NC behavior.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Mistake 3: ignoring mechanical position</h3>
+              <p>The sensor may be normal, but the target may not reach the detection range due to bracket movement, cylinder stroke, or workpiece variation.</p>
+            </div>
+            <div class="check-item">
+              <h3>Mistake 4: checking only the field side</h3>
+              <p>Always compare the physical sensor status with the PLC input monitor and the program logic.</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>Small difference, big effect</h3>
+            <p>
+              A sensor problem can look like a PLC problem, a wiring problem, a mechanical problem, or a process problem. That is why separating the checks is important.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="troubleshooting">
+          <h2>8. Troubleshooting sensor problems</h2>
+          <p class="section-intro-line">When a sensor-related problem happens, move from the field condition toward the PLC input step by step.</p>
+
+          <div class="flow-grid" aria-label="Sensor troubleshooting flow">
+            <div class="flow-card">
+              <h3>Field condition</h3>
+              <p>Is the target, pressure, level, flow, position, or temperature condition actually present?</p>
+            </div>
+            <div class="flow-card">
+              <h3>Sensor response</h3>
+              <p>Does the indicator or output status change when the condition changes?</p>
+            </div>
+            <div class="flow-card">
+              <h3>PLC input</h3>
+              <p>Does the PLC input monitor change in the same way the drawing expects?</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sensor-basic-en/sensor-basic-troubleshooting-en.png" alt="Sensor troubleshooting checklist" loading="lazy">
+            </div>
+            <figcaption>
+              Sensor troubleshooting is more reliable when physical condition, sensor output, wiring, and PLC input are checked separately.
+            </figcaption>
+          </figure>
+
+          <div class="talk-thread">
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Junior</span><br>The sensor light turns on, but the machine still waits. Should I replace the sensor?</p>
+              </div>
+            </div>
+
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name">Senior</span><br>Not yet. Check the output wire, terminal, common wiring, PLC input monitor, and the program condition first.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="safety-notes">
+          <h2>9. Practical safety notes</h2>
+          <p class="section-intro-line">Sensors can be part of machine operation, interlocks, alarms, and safety-related systems.</p>
+
+          <p>
+            Some sensors only provide process information. Others may be used in stop conditions, interlocks, position confirmation, vacuum confirmation, pressure confirmation, or safety-related functions. Always check the drawing and site procedure before changing wiring, bypassing a signal, or replacing a sensor.
+          </p>
+
+          <div class="danger-box">
+            <h3>Do not bypass casually</h3>
+            <p>
+              Temporarily forcing or bypassing a sensor can move equipment unexpectedly. Follow lockout/tagout rules, machine-specific procedures, and instructions from responsible personnel.
+            </p>
+          </div>
+
+          <div class="note-box">
+            <h3>Keep learning in layers</h3>
+            <p>
+              Sensor checks become easier when you understand PLC inputs, NO/NC contacts, NPN/PNP output types, DC24V wiring, and how to use the PLC input monitor.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>10. Related articles</h2>
+          <p class="section-intro-line">These are good next steps after learning sensor basics.</p>
+
+          <div class="related-grid">
+            <a href="./npn-pnp-basic.html" class="related-card">
+              <h3>NPN vs PNP Sensors</h3>
+              <p>Learn how sensor output wiring must match the PLC input unit.</p>
+            </a>
+
+            <a href="./no-nc-basic.html" class="related-card">
+              <h3>NO vs NC Contacts</h3>
+              <p>Understand contact behavior before reading sensor and relay input circuits.</p>
+            </a>
+
+            <a href="./input-output-basic.html" class="related-card">
+              <h3>PLC Input and Output Basics</h3>
+              <p>Review how PLC inputs receive field signals and outputs control devices.</p>
+            </a>
+          </div>
+
+          <div class="article-footer-nav">
+            <a href="../categories/control-basics.html" class="btn btn-primary">Back to Control Basics</a>
+            <a href="../" class="btn btn-secondary">Back to English Home</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Article sidebar">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul>
+            <li><a href="#basic-idea">Basic idea</a></li>
+            <li><a href="#plc-view">PLC view</a></li>
+            <li><a href="#sensor-types">Sensor types</a></li>
+            <li><a href="#signals">Signal types</a></li>
+            <li><a href="#mounting">Mounting points</a></li>
+            <li><a href="#wiring-checks">Wiring checks</a></li>
+            <li><a href="#common-mistakes">Common mistakes</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>Quick reminder</h3>
+          <p class="side-note">
+            A sensor detects a physical condition. The PLC only uses it after the sensor output reaches the PLC input correctly.
+          </p>
+        </section>
+
+        <section class="side-card support-card" aria-label="Support this site">
+          <h3 class="support-card-title">Support this site</h3>
+          <p class="support-card-text">
+            Your support helps me continue creating practical guides and improving Denki Control Lab.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Support on Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener noreferrer">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Category links</h3>
+          <ul class="side-link-list">
+            <li><a href="../categories/control-basics.html">Control Basics</a></li>
+            <li><a href="../categories/circuit-basics.html">Circuit Basics</a></li>
+            <li><a href="../">English home</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">Practical notes for learning electrical control, PLC basics, and circuit concepts without getting lost.</p>
+    <p class="footer-links">
+      <a href="../privacy-policy/">Privacy Policy</a>
+      <span class="footer-separator">|</span>
+      <a href="../contact/">Contact</a>
+      <span class="footer-separator">|</span>
+      <a href="../../articles/sensor-basic.html">Japanese</a>
+    </p>
+  </footer>
+
+  <script src="../../assets/js/site-search.js" defer></script>
+  <script>
+    const languageMenuButton = document.getElementById('languageMenuButton');
+    const languageMenuPanel = document.getElementById('languageMenuPanel');
+
+    if (languageMenuButton && languageMenuPanel) {
+      languageMenuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isHidden = languageMenuPanel.hasAttribute('hidden');
+
+        if (isHidden) {
+          languageMenuPanel.removeAttribute('hidden');
+          languageMenuButton.setAttribute('aria-expanded', 'true');
+        } else {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const isInsideMenu = languageMenuPanel.contains(event.target) || languageMenuButton.contains(event.target);
+
+        if (!isInsideMenu) {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

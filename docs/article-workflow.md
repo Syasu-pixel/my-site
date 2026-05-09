@@ -258,6 +258,39 @@ button,input{
 
 ## 先輩チビキャラ画像の運用（記事制作時）
 
+## 先輩・後輩会話パートの画像参照ルール
+
+新規記事・英語記事で `talk-thread` を使う場合、会話パートのキャラクター画像は必ず `assets/images/guide-characters/` に実在する既存ファイルだけを使う。
+
+必須ルール:
+- HTML出力前に `assets/images/guide-characters/` の実在ファイル名を確認する
+- 存在しないファイル名を推測で書かない
+- `senpai` 発言には先輩キャラ画像を使う
+- `kouhai` 発言には後輩キャラ画像を使う
+- 先輩・後輩の役割を逆にしない
+- `div.talk-avatar > img` 構造を維持する
+- alt属性は英語記事では英語、日本語記事では日本語で自然に書く
+- 画像パスは記事階層に合わせて正しい相対パスにする
+
+禁止:
+- `kouhai-chibi-question.png` など、実在確認していないファイル名を使わない
+- 生成画像や記事固有画像を会話アイコンとして使わない
+- 先輩・後輩以外の新キャラを勝手に追加しない
+- 頭身の高い立ち絵や別テイストの人物画像を混ぜない
+- `.talk-avatar` 構造を崩さない
+- 丸トリミングや独自装飾を追加しない
+
+確認コマンド例:
+ls -la assets/images/guide-characters
+rg -n "talk-avatar|guide-characters|senpai|kouhai" articles/*.html en/articles/*.html
+
+HTML出力前チェック:
+- `src` に書いた guide-characters 画像が実在するか
+- 後輩発言に後輩画像が使われているか
+- 先輩発言に先輩画像が使われているか
+- `div.talk-avatar > img` になっているか
+- 存在しない画像名を推測で入れていないか
+
 - 記事内の注意喚起・補足・覚え方には、まず以下の3画像を使う。
   - `assets/images/guide-characters/senpai-chibi-pointing.png`
   - `assets/images/guide-characters/senpai-chibi-guide.png`
@@ -676,4 +709,3 @@ Codexは、新規記事HTML作成直後に導線追加しない。
 - search-index.json に対象URLがある
 - sitemap.xml に対象URLが1回だけある
 - /seo/sitemap.xml を触っていない
-

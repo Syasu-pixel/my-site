@@ -113,6 +113,7 @@ GX Works3命令語シリーズでは、原則として以下の5枚を**別フ�
 - 上記の中間幅指定では、`.article-hero`、`.article-hero::before`、`.article-hero::after`、`.article-hero-copy`、`h1`、`.hero-lead`、`.top-summary`、`.side-rail` の補正を落とさない
 - `.article-hero::before` の中間幅指定では、ヒーロー背景画像の過剰拡大を防ぐため `right center / auto 92% no-repeat` 相当の指定を維持する
 - コピー元に古いフッターがあっても流用せず、必ず固定フッターへ差し替える
+- 英語記事 `en/articles/*.html` では、右カラム `Support this site` に `section.side-card.support-card`（2ボタン: `Buy me a coffee` / `Support via PayPal`）を必ず維持し、1ボタンの `support-button` 版へ変更しない
 
 articles/*.html 用の固定フッター：
 

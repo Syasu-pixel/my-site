@@ -92,6 +92,47 @@
 
 固定ヘッダーを修正する場合は、記事本文修正とは別タスクにする。
 
+
+## 英語記事の Support this site 固定ルール
+
+英語記事 `en/articles/*.html` では、右カラムの `Support this site` は収益導線として扱う。
+記事ごとに独自の簡易カードを作らず、既存英語記事で使っている `support-card` の2ボタン構成を固定パーツとして使う。
+
+必須構造:
+- `section.side-card.support-card`
+- `h3.support-card-title`
+- `p.support-card-text`
+- `div.support-card-actions`
+- `a.support-link.support-link--coffee`
+- `a.support-link.support-link--paypal`
+
+必須ボタン:
+- `Buy me a coffee`
+- `Support via PayPal`
+
+禁止:
+- 1ボタンだけの `support-button` 版にしない
+- `Support this site` を省略しない
+- 右カラムから収益導線を外さない
+- 記事ごとに文言やCSSを再設計しない
+- `support-card` 系CSSを削除しない
+- supportリンクの href / target / rel を勝手に変えない
+
+英語記事で使う標準HTML:
+
+```html
+<section class="side-card support-card">
+  <h3 class="support-card-title">Support this site</h3>
+  <p class="support-card-text">
+    If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
+  </p>
+  <div class="support-card-actions">
+    <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+    <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+  </div>
+</section>
+```
+
 ## 固定フッターの扱い（新規記事HTML）
 
 新規記事HTMLのフッターは、トップページ `index.html` の最新フッター文言・導線を基準にする。  

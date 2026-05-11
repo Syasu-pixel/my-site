@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Encoder Basics: Wiring, Pulse Signals, and A/B/Z Phases Explained | Denki Control Lab</title>
+  <meta name="description" content="Learn what an encoder does, how pulse signals work, the difference between incremental and absolute encoders, A/B/Z phase basics, PLC high-speed input wiring, and field checking points.">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/encoder-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/encoder-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/encoder-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/encoder-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Encoder Basics: Wiring, Pulse Signals, and A/B/Z Phases Explained">
+  <meta property="og:description" content="A beginner-friendly field guide to encoders, pulse signals, A/B/Z phases, PLC high-speed inputs, and wiring checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/encoder-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/encoder-basic-en/encoder-basic-ogp.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Encoder Basics: Wiring, Pulse Signals, and A/B/Z Phases Explained">
+  <meta name="twitter:description" content="Understand encoder pulse signals, A/B/Z phases, PLC high-speed input wiring, and field checks.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/encoder-basic-en/encoder-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;
+      --text:#1e293b;--muted:#5f7288;--blue:#1d4ed8;--blue-deep:#1e3a8a;
+      --green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);--shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;--header-h:76px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}
+    img{max-width:100%;display:block}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease}
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:auto;color:inherit;text-decoration:none}
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}
+    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
+    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-result-item{margin:0}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .breadcrumb a{color:#1d4ed8}
+
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/encoder-basic-en/encoder-basic-hero.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure-inner{background:#fff;padding:18px}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .key-highlight h3{color:#1d4ed8}
+    .field-highlight h3{color:#15803d}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row.is-reverse{flex-direction:row-reverse}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none}
+    .talk-avatar img{width:76px;height:auto;display:block}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8}
+    .talk-row.is-reverse .talk-name{color:#15803d}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+    .side-card a{font-weight:800}
+    .side-link-list{list-style:none!important;padding-left:0!important;display:grid;gap:8px}
+    .side-link-list li{margin:0!important}
+    .side-link-list a{display:block;padding:9px 10px;border:1px solid #dbe7f3;border-radius:12px;background:#f8fbff;color:#334155;font-size:13px;line-height:1.45;text-decoration:none}
+    .side-link-list a:hover{border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;text-decoration:none}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04)}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-card .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-card .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue)}
+    .related-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500}
+    .footer-copy{margin:0}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+    .footer-links a{color:#334155;font-weight:700}
+    .footer-separator{color:#cbd5e1}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:72px}
+      .site-header{padding:8px 10px}
+      .site-header-inner{gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-search{flex:0 0 160px;min-height:36px}
+      .search-box-input{font-size:11px}
+      .article-hero{min-height:auto;border-radius:22px}
+      .article-hero::before{background-position:right bottom;background-size:auto 82%;opacity:.22}
+      .article-hero-copy{min-height:360px;padding:34px 22px}
+      h1{font-size:30px}
+      .top-summary,.page-layout,.related-grid{grid-template-columns:1fr}
+      .side-rail{position:static}
+      .section-card{padding:20px}
+      .check-grid{grid-template-columns:1fr}
+      .talk-row,.talk-row.is-reverse{flex-direction:row}
+      .talk-bubble{max-width:100%}
+    }
+    @media (max-width:480px){
+      :root{--header-h:72px}
+      .site-header{padding:5px 6px}
+      .brand{gap:8px}
+      .brand-logo{height:32px}
+      .brand-title{font-size:14px}
+      .header-search{flex:0 0 136px;min-height:34px}
+      .container{width:min(100% - 20px,var(--container))}
+      .article-hero-copy{min-height:340px;padding:28px 18px}
+      h1{font-size:27px}
+      .hero-actions .btn{width:100%}
+      .section-card{padding:18px;border-radius:22px}
+      .talk-avatar{width:58px;flex-basis:58px}
+      .talk-avatar img{width:58px}
+      .talk-bubble{padding:12px 14px}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English home">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical PLC and electrical control guides</span>
+        </span>
+      </a>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/encoder-basic.html" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span>
+              <strong>日本語記事</strong>
+              <small>Japanese article</small>
+            </span>
+          </a>
+          <a class="language-menu-item is-active" href="encoder-basic.html" lang="en" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span>
+              <strong>English article</strong>
+              <small>Current page</small>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search articles</label>
+        <input class="search-box-input" id="site-search-input" type="search" name="q" autocomplete="off" placeholder="Search">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="../categories/control-basics.html">Control Basics</a>
+        <span aria-hidden="true">›</span>
+        <span>Encoder Basics</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">Control Basics</span>
+          <h1>Encoder Basics: Wiring, Pulse Signals, and A/B/Z Phases Explained</h1>
+          <p class="hero-lead">
+            An encoder converts rotation or movement into electrical signals. This guide explains pulse signals, A/B/Z phases, incremental and absolute types, and basic PLC input checks.
+          </p>
+          <ul class="hero-points">
+            <li>Understand what an encoder tells a control system.</li>
+            <li>Learn the meaning of A phase, B phase, and Z phase.</li>
+            <li>Check wiring, signal type, and PLC high-speed input conditions calmly.</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">Start with the overview</a>
+            <a class="btn btn-secondary" href="#checks">Jump to field checks</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit">
+          <h2>Good for</h2>
+          <ul>
+            <li>Beginners learning what an encoder does.</li>
+            <li>People checking pulse signals and PLC high-speed inputs.</li>
+            <li>Field workers who want to understand A/B/Z phase basics.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--notyet">
+          <h2>Not the first topic if</h2>
+          <ul>
+            <li>You need a manufacturer-specific wiring manual.</li>
+            <li>You are setting servo parameters without the official documentation.</li>
+            <li>You have not confirmed the encoder model, output type, and PLC input module.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--conclusion">
+          <h2>Main conclusion</h2>
+          <ul>
+            <li>An encoder outputs position or movement information as signals.</li>
+            <li>A/B phase helps detect movement direction and amount.</li>
+            <li>Wiring and input specifications must match the PLC or controller.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Table of contents">
+        <h2>Quick navigation</h2>
+        <div class="mini-toc">
+          <a href="#overview">Overview</a>
+          <a href="#types">Encoder types</a>
+          <a href="#pulse">Pulse signals</a>
+          <a href="#abz">A/B/Z phases</a>
+          <a href="#wiring">Wiring basics</a>
+          <a href="#checks">Field checks</a>
+          <a href="#summary">Summary</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>What is an encoder?</h2>
+            <p class="section-intro-line">An encoder is a device that converts rotation, position, or movement into electrical signals.</p>
+            <p>
+              In factory automation, encoders are used when a controller needs to know <span class="marker-blue">how far something moved</span>, <span class="marker-blue">how fast it is rotating</span>, or <span class="marker-blue">where a shaft or mechanism is positioned</span>.
+            </p>
+            <p>
+              A simple sensor may only tell ON or OFF. An encoder gives more detailed movement information, often as pulses or digital position data.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/encoder-basic-en/encoder-basic-overview.png" alt="Overview of an encoder converting shaft rotation into electrical pulse signals for a PLC or controller">
+              </div>
+              <figcaption>
+                An encoder reads rotation or movement and sends signal information to a PLC, counter, servo amplifier, or controller.
+              </figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior</span>
+                  <p>An encoder is not just an ON/OFF sensor. It gives the controller information about movement, count, speed, or position.</p>
+                </div>
+              </div>
+              <div class="talk-row is-reverse">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Junior</span>
+                  <p>So when I see encoder wiring, I should think about pulse signals, input speed, and whether the controller can read those signals correctly.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>Model differences matter</h3>
+              <p>Output method, power supply voltage, resolution, maximum response frequency, connector pinout, and wiring method differ by encoder model. Always confirm the official manual for the actual device.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="types">
+            <h2>Incremental and absolute encoders</h2>
+            <p class="section-intro-line">The two common ideas are incremental counting and absolute position information.</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Basic idea</th>
+                    <th>Field image</th>
+                    <th>Common caution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">Incremental encoder</td>
+                    <td>Outputs pulses as movement occurs.</td>
+                    <td>The controller counts pulses to know movement amount and direction.</td>
+                    <td>Position may need origin return or reference after power reset.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Absolute encoder</td>
+                    <td>Outputs position information as a value.</td>
+                    <td>The controller can know the current position more directly.</td>
+                    <td>Communication method, battery, and parameter settings may be involved.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>Beginner takeaway</h3>
+              <p>If you see A phase, B phase, or Z phase pulses, you are usually dealing with incremental encoder-style signals. If you see communication data or absolute position values, the checking method may be different.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="pulse">
+            <h2>Pulse signals: how movement becomes count information</h2>
+            <p class="section-intro-line">With an incremental encoder, rotation is converted into repeated pulse signals.</p>
+            <p>
+              Each pulse can represent a small amount of movement. The controller counts these pulses to calculate movement amount, speed, or rotation.
+            </p>
+            <p>
+              The number of pulses per rotation is often called resolution. A higher resolution can provide finer movement information, but the controller input must be able to read the pulse frequency.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/encoder-basic-en/encoder-basic-pulse-signal.png" alt="Encoder pulse signal concept showing rotation converted into repeated pulses for a counter or PLC high-speed input">
+              </div>
+              <figcaption>
+                The faster the shaft rotates, the faster the pulses arrive. The PLC or counter input must support that speed.
+              </figcaption>
+            </figure>
+
+            <div class="danger-box">
+              <h3>Normal inputs may not be enough</h3>
+              <p>Fast encoder pulses often require a high-speed counter input or dedicated module. A normal PLC input may miss pulses if the frequency is too high.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="abz">
+            <h2>A phase, B phase, and Z phase</h2>
+            <p class="section-intro-line">A/B phase is commonly used for direction and count. Z phase is often used as an origin or reference pulse.</p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/encoder-basic-en/encoder-basic-abz-phase.png" alt="A phase B phase and Z phase encoder signal explanation">
+              </div>
+              <figcaption>
+                A and B phases are shifted from each other. That phase difference helps determine direction. Z phase is usually a once-per-rotation reference pulse.
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>A phase</h3>
+                <p>One of the main pulse signals used for counting movement.</p>
+              </div>
+              <div class="check-item check-item--important">
+                <h3>B phase</h3>
+                <p>Another pulse signal shifted from A phase, used to determine direction.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>Z phase</h3>
+                <p>A reference pulse that is often used for origin or one-rotation reference.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>Direction mismatch</h3>
+                <p>If direction is reversed, check A/B phase wiring and controller settings before changing logic.</p>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>Terminology may vary</h3>
+              <p>Some manuals use A, B, Z. Others may show phase names, channel names, or differential signal names. Always check the actual wiring diagram and terminal names.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="wiring">
+            <h2>Basic wiring points</h2>
+            <p class="section-intro-line">Encoder wiring must match power supply, signal type, input circuit, and cable shielding requirements.</p>
+            <p>
+              Encoder troubleshooting often starts from simple wiring checks. Confirm the power supply voltage, 0V/common, signal output type, shield connection, and whether the input module is suitable for the encoder.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Check item</th>
+                    <th>What to confirm</th>
+                    <th>Why it matters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Power supply</td>
+                    <td>Voltage rating, polarity, 0V/common.</td>
+                    <td>Wrong voltage or missing common can stop signal output.</td>
+                  </tr>
+                  <tr>
+                    <td>Output type</td>
+                    <td>NPN/PNP, voltage output, open collector, line driver, differential output.</td>
+                    <td>The PLC input must match the signal type.</td>
+                  </tr>
+                  <tr>
+                    <td>Input speed</td>
+                    <td>High-speed input or counter module specification.</td>
+                    <td>If the pulse frequency is too high, counts may be missed.</td>
+                  </tr>
+                  <tr>
+                    <td>Shield and cable</td>
+                    <td>Shielded cable, grounding method, routing away from noise sources.</td>
+                    <td>Noise can cause false counts or unstable signals.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="field-highlight">
+              <h3>Use the drawing and manual together</h3>
+              <p>The machine drawing tells you how the site intended to wire it. The encoder and PLC manuals tell you what the device actually requires.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="checks">
+            <h2>Field checks when an encoder signal looks wrong</h2>
+            <p class="section-intro-line">Do not start by replacing the encoder. Separate power, wiring, signal, input, and mechanical conditions.</p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/encoder-basic-en/encoder-basic-wiring-checks.png" alt="Field checklist for encoder wiring signal and PLC high-speed input troubleshooting">
+              </div>
+              <figcaption>
+                Check power, common, output type, input module, shield, and mechanical coupling before judging the encoder.
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. Check power</h3>
+                <p>Confirm encoder supply voltage and 0V/common at the connector or terminal.</p>
+              </div>
+              <div class="check-item">
+                <h3>2. Check signal type</h3>
+                <p>Confirm whether the output is NPN, PNP, open collector, line driver, or another type.</p>
+              </div>
+              <div class="check-item">
+                <h3>3. Check input specification</h3>
+                <p>Confirm the PLC high-speed input or counter module can read the expected pulse frequency.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>4. Check A/B/Z wiring</h3>
+                <p>Confirm terminal names, polarity, and direction-related wiring before changing settings.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>5. Check noise and shield</h3>
+                <p>Look for poor shielding, long cable runs, and routing near motors, inverters, or power lines.</p>
+              </div>
+              <div class="check-item">
+                <h3>6. Check mechanical side</h3>
+                <p>Confirm coupling looseness, shaft slip, mounting gap, vibration, or mechanical damage.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>Summary</h2>
+            <p>
+              An encoder is used when a control system needs movement, speed, count, or position information. Incremental encoders commonly output pulse signals such as A phase, B phase, and Z phase.
+            </p>
+            <p>
+              In the field, encoder problems should be checked in order: power supply, wiring, signal type, input module, pulse frequency, shielding, and mechanical mounting. Do not judge the encoder only from one symptom.
+            </p>
+
+            <div class="key-highlight">
+              <h3>Final takeaway</h3>
+              <p>An encoder is a movement information device. To troubleshoot it, check both the electrical signal path and the mechanical side that creates the movement.</p>
+            </div>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">Related articles</h2>
+            <p class="section-intro-line">Read these next to connect encoder signals with servo motors, shielded cables, and PLC input checks.</p>
+            <div class="related-grid">
+              <a class="related-card" href="servo-motor-basic.html">
+                <h3>Servo Motor Basics</h3>
+                <p>Understand how servo motors use feedback and control to move accurately.</p>
+              </a>
+              <a class="related-card" href="shielded-cable-basic.html">
+                <h3>Shielded Cable Basics</h3>
+                <p>Learn why shielded cables matter for weak signals and noise-sensitive wiring.</p>
+              </a>
+              <a class="related-card" href="plc-input-troubleshooting-basic.html">
+                <h3>PLC Input Troubleshooting</h3>
+                <p>Review a calm checking order for field signals, wiring, and PLC input status.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="Side navigation">
+          <section class="side-card">
+            <h3>On this page</h3>
+            <ul class="side-link-list">
+              <li><a href="#overview">Overview</a></li>
+              <li><a href="#types">Encoder types</a></li>
+              <li><a href="#pulse">Pulse signals</a></li>
+              <li><a href="#abz">A/B/Z phases</a></li>
+              <li><a href="#wiring">Wiring basics</a></li>
+              <li><a href="#checks">Field checks</a></li>
+              <li><a href="#summary">Summary</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card support-card">
+            <h3 class="support-card-title">Support this site</h3>
+            <p class="support-card-text">
+              If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
+            </p>
+            <div class="support-card-actions">
+              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">&copy; 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
+    <div class="footer-links">
+      <a href="../index.html">English Home</a>
+      <span class="footer-separator">/</span>
+      <a href="../../index.html">日本語トップ</a>
+      <span class="footer-separator">/</span>
+      <a href="../categories/control-basics.html">Control Basics</a>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const menu = document.querySelector(".language-menu");
+      if(!menu) return;
+
+      const button = menu.querySelector(".language-menu-button");
+      const panel = menu.querySelector(".language-menu-panel");
+      if(!button || !panel) return;
+
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+
+      document.addEventListener("click", function(event){
+        if(menu.contains(event.target)) return;
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+      });
+
+      document.addEventListener("keydown", function(event){
+        if(event.key !== "Escape") return;
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js"></script>
+</body>
+</html>

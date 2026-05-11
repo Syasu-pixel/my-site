@@ -168,6 +168,35 @@
 </section>
 ```
 
+
+## 英語記事作成時の日本語記事側言語メニュー接続ルール
+
+英語記事 `en/articles/{slug}.html` を作成した場合、英語記事本体だけでなく、対応する日本語記事 `articles/{slug}.html` の言語選択メニューも必ず確認する。
+
+基本ルール:
+- 日本語記事側の言語メニューから、英語トップ `../en/` や `../en/index.html` に飛ばさない。
+- 対応する英語記事が存在する場合は、必ず同一テーマの英語記事へ直接リンクする。
+- 日本語記事 `articles/{slug}.html` から英語記事へ飛ぶリンクは、原則 `../en/articles/{slug}.html` とする。
+- 英語記事 `en/articles/{slug}.html` から日本語記事へ戻るリンクは、原則 `../../articles/{slug}.html` とする。
+
+日本語記事側の推奨表示:
+```html
+<a class="language-menu-item is-active" href="{slug}.html" lang="ja" aria-current="page">
+  <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+  <span>
+    <strong>日本語記事</strong>
+    <small>現在のページ</small>
+  </span>
+</a>
+<a class="language-menu-item" href="../en/articles/{slug}.html" lang="en">
+  <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+  <span>
+    <strong>English article</strong>
+    <small>英語版の記事を開く</small>
+  </span>
+</a>
+```
+
 ## 固定フッターの扱い（新規記事HTML）
 
 新規記事HTMLのフッターは、トップページ `index.html` の最新フッター文言・導線を基準にする。  

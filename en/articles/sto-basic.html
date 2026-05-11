@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>STO Basics: Safe Torque Off for Inverters and Servo Drives | Denki Control Lab</title>
+  <meta name="description" content="Learn what STO, or Safe Torque Off, means for inverters and servo drives. This beginner-friendly guide explains torque removal, emergency stop relation, safety relays, drive inputs, reset conditions, and field check points.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/sto-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/sto-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/sto-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/sto-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="STO Basics: Safe Torque Off for Inverters and Servo Drives">
+  <meta property="og:description" content="A practical beginner-friendly guide to Safe Torque Off, drive torque removal, emergency stop relation, safety relays, reset conditions, and field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/sto-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/sto-basic-en/sto-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="STO Basics: Safe Torque Off for Inverters and Servo Drives">
+  <meta name="twitter:description" content="Understand how STO removes motor torque permission in inverters and servo drives, and what to check when the drive will not restart.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/sto-basic-en/sto-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --green-deep:#166534;
+      --orange:#ea580c;
+      --orange-deep:#9a3412;
+      --red:#dc2626;
+      --red-deep:#991b1b;
+      --red-soft:#fff1f2;
+      --yellow:#f59e0b;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .site-header{
+      position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;
+      background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;
+      padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;
+      color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;
+      border:1px solid #dbe7f3;border-radius:16px;background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{
+      display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;
+      padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
+
+    .header-search{
+      position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;
+      border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-result-item{margin:0;}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none;}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none;}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
+
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);min-height:410px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../../assets/images/sto-basic-en/sto-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.60) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,720px);min-height:410px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{
+      content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+      border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:var(--blue-deep);}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card p:last-child{margin-bottom:0;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
+
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-red{background:linear-gradient(transparent 58%,rgba(248,113,113,.26) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .point-strip{margin:16px 0 18px;padding:12px 14px;border-radius:16px;border:1px solid #d7e4f3;background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);font-size:14px;font-weight:800;color:#334155;}
+    .point-strip strong{color:#1e3a8a;}
+    .keyword-pills{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px;padding:0;list-style:none;}
+    .keyword-pills li{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid #d6e3f2;background:#f8fbff;font-size:12px;font-weight:900;color:#1d4ed8;}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1d4ed8;}
+    .field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
+    td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b;}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;color:#1e3a8a;}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+    .flow-card:last-child::after{display:none;}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
+    .side-card a{font-weight:800;}
+    .side-note{margin:0;color:#64748b;font-size:12px;line-height:1.65;font-weight:700;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
+    .footer-copy{margin:0;}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
+    .footer-separator{color:#cbd5e1;}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none;}
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:1fr;}
+      .flow-card::after{display:none;}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px;}
+      html{scroll-padding-top:92px;}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .brand-logo{height:42px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{display:none;}
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/sto-basic-en/sto-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
+      h1{font-size:30px;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/sto-basic-en/sto-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
+      h1{font-size:34px;}
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{background:url("../../assets/images/sto-basic-en/sto-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14;}
+      h1{font-size:28px;}
+      .hero-actions,.btn{width:100%;}
+      .section-card h2{font-size:20px;}
+      .section-card p{font-size:14px;}
+      .talk-avatar{width:58px;flex-basis:58px;}
+      .talk-avatar img{width:58px;}
+      .talk-bubble{padding:12px 13px;}
+      .table-wrap table{min-width:640px;}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English top">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical PLC and control basics</span>
+        </span>
+      </a>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/sto-basic.html">
+            <span class="language-menu-flag">🇯🇵</span>
+            <span><strong>日本語</strong><small>日本語記事</small></span>
+          </a>
+          <a class="language-menu-item is-active" href="./sto-basic.html" aria-current="page">
+            <span class="language-menu-flag">🇺🇸</span>
+            <span><strong>English</strong><small>English article</small></span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search by keyword</label>
+        <input class="search-box-input" id="site-search-input" type="search" placeholder="Search by keyword" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">English top</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">Control Basics</a>
+      <span>›</span>
+      <span>STO Basics</span>
+    </nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Control Basics</span>
+        <h1>STO Basics: Safe Torque Off for Inverters and Servo Drives</h1>
+        <p class="hero-lead">
+          STO, or Safe Torque Off, is a safety function used in many inverters and servo drives. It removes the drive’s ability to produce motor torque, so the motor cannot continue driving the machine through normal torque output.
+        </p>
+        <ul class="hero-points">
+          <li>STO removes torque permission inside the drive</li>
+          <li>It is different from an ordinary stop command</li>
+          <li>Emergency stop, safety relay, and reset conditions must be checked together</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#what-sto-does">Understand STO</a>
+          <a class="btn btn-secondary" href="#field-check">Field check points</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning safety functions on inverters and servo drives</li>
+          <li>People who want to understand STO and emergency stop relation</li>
+          <li>Field workers checking why a drive will not restart</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>Not the focus here</h2>
+        <ul>
+          <li>Complete safety system design</li>
+          <li>Performance level or safety category calculation</li>
+          <li>Manufacturer-specific STO terminal wiring rules</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key conclusion</h2>
+        <ul>
+          <li>STO prevents the drive from producing motor torque</li>
+          <li>It is not the same as a normal run/stop command</li>
+          <li>If the drive will not run, STO input, safety relay, reset, and alarms should be checked</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="Mini table of contents">
+      <h2>Mini table of contents</h2>
+      <div class="mini-toc">
+        <a href="#what-sto-does">What STO does</a>
+        <a href="#ordinary-stop">STO vs normal stop</a>
+        <a href="#safety-circuit">Safety circuit relation</a>
+        <a href="#drive-flow">Drive signal flow</a>
+        <a href="#restart">Why it will not restart</a>
+        <a href="#field-check">Field checks</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="what-sto-does">
+          <h2>What STO does</h2>
+          <p class="section-intro-line">
+            STO means Safe Torque Off. In simple terms, it makes the drive unable to output motor torque.
+          </p>
+          <p>
+            In an inverter or servo drive, a normal stop command tells the drive to stop operation through its control logic. STO is different. It is a <span class="marker-blue">safety-related function</span> that removes the drive’s ability to create torque at the motor.
+          </p>
+          <p>
+            When STO is active, the drive may still have power and the display may still be on. However, the drive should not generate torque to move the motor through normal output operation.
+          </p>
+          <p>
+            This is why STO often appears together with emergency stop switches, safety relays, safety door switches, safety controllers, and servo or inverter enable circuits.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-overview-en.png" alt="Overview of STO safe torque off in an inverter or servo drive with safety relay and motor">
+            </div>
+            <figcaption>
+              STO removes torque permission inside the drive. The motor cannot continue driving the machine through normal torque output.
+            </figcaption>
+          </figure>
+
+          <div class="point-strip">
+            <strong>Practical point:</strong> STO is not simply “turning the power off.” The drive display may remain on while the torque-producing function is disabled.
+          </div>
+        </section>
+
+        <section class="section-card" id="ordinary-stop">
+          <h2>STO vs ordinary stop command</h2>
+          <p class="section-intro-line">
+            A normal stop command and STO can both stop motion, but they do not mean the same thing.
+          </p>
+          <p>
+            A normal stop command is part of ordinary operation. The PLC or drive command tells the motor to decelerate, stop, or end a cycle.
+          </p>
+          <p>
+            STO is used as a safety function. It removes the ability to produce torque so the motor cannot be driven by the inverter or servo output.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Ordinary stop command</th>
+                  <th>STO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Main purpose</td>
+                  <td>Stop operation as part of normal control</td>
+                  <td>Remove torque-producing permission as a safety function</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Typical signal source</td>
+                  <td>PLC output, operation panel, drive command, or program logic</td>
+                  <td>Safety relay, safety controller, safety PLC, or emergency stop circuit</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Drive state</td>
+                  <td>The drive stops according to the command and settings</td>
+                  <td>The drive cannot output torque while STO is active</td>
+                </tr>
+                <tr>
+                  <td class="cell-red">Troubleshooting focus</td>
+                  <td>Run command, speed command, interlock, parameter, alarm</td>
+                  <td>STO input, safety relay output, reset condition, wiring, safety alarm</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-stop-vs-sto-en.png" alt="Comparison between an ordinary stop command and STO safe torque off">
+            </div>
+            <figcaption>
+              A normal stop command belongs to ordinary operation. STO belongs to the safety-related path that disables torque output.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="safety-circuit">
+          <h2>How STO relates to emergency stop and safety relays</h2>
+          <p class="section-intro-line">
+            STO is often used as the output side of a safety circuit.
+          </p>
+          <p>
+            For example, an emergency stop switch or safety door switch may connect to a safety relay or safety controller. The safety device checks whether the input channels are healthy and whether the reset condition is satisfied.
+          </p>
+          <p>
+            If the safety condition is not satisfied, the safety device opens its safety outputs. Those outputs may be connected to the STO terminals of an inverter or servo drive.
+          </p>
+          <p>
+            When the STO input is removed, the drive enters a state where torque cannot be produced. This is why STO, emergency stop, safety door switches, safety relays, and reset buttons are often checked together.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-safety-relay-en.png" alt="Emergency stop and safety relay connected to STO inputs of an inverter or servo drive">
+            </div>
+            <figcaption>
+              In many systems, the emergency stop or safety door input is checked by a safety relay, and the relay output controls the drive’s STO input.
+            </figcaption>
+          </figure>
+
+          <div class="note-box">
+            <h3>Do not judge the safety function by one wire only</h3>
+            <p>
+              The actual safety function depends on the switch, wiring, safety relay or controller, drive STO terminals, reset logic, and machine design. Always check the full circuit and the manufacturer’s manual.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="drive-flow">
+          <h2>Basic drive signal flow</h2>
+          <p class="section-intro-line">
+            When STO is involved, it helps to separate the normal run command from the safety permission path.
+          </p>
+
+          <div class="flow-grid">
+            <div class="flow-card">
+              <h3>1. Normal control</h3>
+              <p>The PLC or controller sends run, speed, or position commands to the drive.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Safety permission</h3>
+              <p>The safety relay or safety controller provides the STO permission path.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. Torque output</h3>
+              <p>The drive can produce motor torque only when the required conditions are satisfied.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-drive-flow-en.png" alt="Basic signal flow showing PLC command, safety relay STO permission, drive, and motor torque output">
+            </div>
+            <figcaption>
+              A drive needs both normal operation commands and the required safety permission before it can output torque.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>Simple way to remember</h3>
+            <p>
+              The PLC may command the drive to run, but if STO is active, the drive cannot output torque. Normal command and safety permission must both be understood.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="restart">
+          <h2>Why the drive may not restart after STO</h2>
+          <p class="section-intro-line">
+            If the motor will not run after an emergency stop or safety stop, the cause may not be the motor or drive output itself.
+          </p>
+          <p>
+            After STO is activated, the system may require a proper release and reset sequence. The emergency stop must be released, the safety relay must return to the ready state, the drive may need its alarm cleared, and the PLC may need to send a new run command.
+          </p>
+          <p>
+            Some systems also require a manual reset button after the safety condition returns to normal. This prevents the machine from restarting unexpectedly just because the emergency stop was released.
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Emergency stop released</h3>
+              <p>Confirm the emergency stop switch is fully released and its contacts returned correctly.</p>
+            </div>
+            <div class="check-item">
+              <h3>Safety relay ready</h3>
+              <p>Check safety relay LEDs, input channels, output channels, and reset status.</p>
+            </div>
+            <div class="check-item">
+              <h3>STO input restored</h3>
+              <p>Confirm the drive’s STO input or safety input is receiving the required signal.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Drive alarm cleared</h3>
+              <p>Check whether the drive requires an alarm reset or power cycle according to the manual.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-restart-flow-en.png" alt="Restart flow after STO showing release emergency stop, reset safety relay, restore STO input, clear drive alarm, and command run">
+            </div>
+            <figcaption>
+              When a drive will not restart, check the release and reset sequence instead of assuming the motor or drive is broken.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>Field check points</h2>
+          <p class="section-intro-line">
+            STO troubleshooting should be done carefully because it belongs to the safety-related control path.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/sto-basic-en/sto-basic-field-check-en.png" alt="Field check points for STO safe torque off on an inverter or servo drive">
+            </div>
+            <figcaption>
+              Separate the check into emergency stop, safety relay, STO input, drive alarm, reset condition, and normal run command.
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Emergency stop or safety door</h3>
+              <p>Confirm whether a safety switch is pressed, open, locked, or not fully returned.</p>
+            </div>
+            <div class="check-item">
+              <h3>Safety relay inputs</h3>
+              <p>Check input channel status and whether both channels are healthy if the system uses dual-channel wiring.</p>
+            </div>
+            <div class="check-item">
+              <h3>Safety relay outputs</h3>
+              <p>Confirm whether the safety output that feeds STO is actually closed or active.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Drive STO terminals</h3>
+              <p>Check whether the drive’s STO or safety input terminals are receiving the correct signal according to the manual.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Reset condition</h3>
+              <p>Confirm whether manual reset is required after the safety condition returns to normal.</p>
+            </div>
+            <div class="check-item">
+              <h3>Run command and alarm</h3>
+              <p>After STO is restored, check whether a new run command is present and whether drive alarms are cleared.</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>Do not bypass STO casually</h3>
+            <p>
+              STO is part of a safety-related function. Do not short or bypass STO terminals just to make a machine run. Follow site rules, lockout procedures, and the manufacturer’s manual.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="common-mistakes">
+          <h2>Common beginner mistakes</h2>
+          <p class="section-intro-line">
+            STO problems are often misunderstood because the drive may still look powered on.
+          </p>
+          <ul>
+            <li>Thinking STO is the same as turning off the main power.</li>
+            <li>Thinking a PLC run command alone is enough to make the drive output torque.</li>
+            <li>Checking only the motor and ignoring the safety relay or STO input.</li>
+            <li>Forgetting that a manual reset may be required after the safety condition returns.</li>
+            <li>Assuming a drive display means the drive is ready to output torque.</li>
+            <li>Trying to bypass STO terminals during troubleshooting.</li>
+          </ul>
+          <div class="note-box">
+            <h3>STO does not explain every stop condition</h3>
+            <p>
+              A drive may also stop because of alarms, overcurrent, overvoltage, communication errors, interlocks, missing run commands, or parameter settings. STO is one important check point, not the only one.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="conversation">
+          <h2>Short conversation</h2>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>If the drive display is on but the motor will not run, do not check only the run command. STO may be active.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/kouhai.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Kouhai</span>
+                <p>So the drive can have power, but still be unable to output torque?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>Exactly. STO disables torque output. The control power or display may still be alive, but the drive is not allowed to produce motor torque.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/kouhai.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Kouhai</span>
+                <p>Then I should check the safety relay, STO input, reset condition, and drive alarm too.</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>Yes. Separate normal control commands from safety permission. That makes troubleshooting much clearer.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>Summary</h2>
+          <p>
+            STO, or Safe Torque Off, is a safety function that removes the drive’s ability to produce motor torque. It is commonly used with inverters and servo drives, especially when emergency stop switches, safety relays, safety door switches, or safety controllers are involved.
+          </p>
+          <p>
+            A normal stop command and STO are not the same. The PLC may request motion, but if STO is active, the drive cannot output torque. In the field, check the emergency stop or safety switch, safety relay, STO terminals, reset condition, drive alarm, and normal run command separately.
+          </p>
+          <div class="related-grid">
+            <a class="related-card" href="./emergency-stop-switch-basic.html">
+              <h3>Emergency Stop Switch Basics</h3>
+              <p>Review emergency stop switches, NC contacts, safety relays, and reset conditions.</p>
+            </a>
+            <a class="related-card" href="./dc-motor-control-basic.html">
+              <h3>DC Motor Control Basics</h3>
+              <p>Learn the difference between control commands, drive output, and motor behavior.</p>
+            </a>
+            <a class="related-card" href="./relay-basic.html">
+              <h3>Relay Basics</h3>
+              <p>Understand coils and contacts before reading safety relay and drive circuit examples.</p>
+            </a>
+          </div>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">Back to Control Basics</a>
+            <a class="btn btn-primary" href="../index.html">Back to English top</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Side navigation">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul class="side-link-list">
+            <li><a href="#what-sto-does">What STO does</a></li>
+            <li><a href="#ordinary-stop">STO vs normal stop</a></li>
+            <li><a href="#safety-circuit">Safety circuit relation</a></li>
+            <li><a href="#drive-flow">Drive signal flow</a></li>
+            <li><a href="#restart">Restart checks</a></li>
+            <li><a href="#field-check">Field checks</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>Key points</h3>
+          <ul>
+            <li>STO means Safe Torque Off.</li>
+            <li>It removes torque-producing permission.</li>
+            <li>It is different from a normal stop command.</li>
+            <li>Safety relay, reset, and drive alarms matter.</li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card">
+          <h3 class="support-card-title">Support Denki Control Lab</h3>
+          <p class="support-card-text">
+            If this guide helped you, a small support helps keep practical control articles coming.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Related basics</h3>
+          <ul>
+            <li><a href="./emergency-stop-switch-basic.html">Emergency stop switch</a></li>
+            <li><a href="./dc-motor-control-basic.html">DC motor control</a></li>
+            <li><a href="./relay-basic.html">Relay basics</a></li>
+          </ul>
+          <p class="side-note">
+            STO becomes easier to understand when you separate normal control commands from safety permission.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
+    <div class="footer-links">
+      <a href="../index.html">English top</a>
+      <span class="footer-separator">/</span>
+      <a href="../../">Japanese top</a>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel) return;
+
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+        const expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        panel.hidden = expanded;
+      });
+
+      document.addEventListener("click", function(event){
+        if(panel.hidden) return;
+        if(!panel.contains(event.target) && !button.contains(event.target)){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

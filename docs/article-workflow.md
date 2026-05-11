@@ -355,6 +355,35 @@ HTML出力前チェック:
 - `div.talk-avatar > img` になっているか
 - 存在しない画像名を推測で入れていないか
 
+### 英語記事の会話ラベル固定ルール
+
+英語記事 `en/articles/*.html` で `talk-thread` を使う場合、会話パートは原則として `Senior` と `Junior` の2者会話として扱う。
+
+必須ルール:
+- 先輩側の表示名は `Senior` を基本にする
+- 後輩側の表示名は `Junior` を基本にする
+- 後輩側を `Field note`、`Tip`、`Check note` などの別ラベルに置き換えない
+- `Senior` 発言には先輩キャラ画像を使う
+- `Junior` 発言には後輩キャラ画像を使う
+- 先輩画像を Junior 側に使い回さない
+- 後輩画像が存在しない場合は、推測で別画像を使わず、実在ファイルを確認してから設定する
+- 会話は「先輩が教える」「後輩が質問・確認する」関係性を維持する
+
+禁止:
+- `Field note` など、会話キャラではないラベルに置き換える
+- 先輩・後輩の役割を曖昧にする
+- 同じ先輩画像を両方の発言に使う
+- 記事固有の生成画像を会話アイコンとして使う
+- ガイドキャラ以外の人物画像を混ぜる
+
+HTML出力前チェック:
+- 会話1人目が `Senior` になっているか
+- 会話2人目が `Junior` になっているか
+- `Senior` 側に先輩画像が使われているか
+- `Junior` 側に後輩画像が使われているか
+- `Field note` などに置き換わっていないか
+- 画像パスが `assets/images/guide-characters/` 内の実在ファイルか
+
 - 記事内の注意喚起・補足・覚え方には、まず以下の3画像を使う。
   - `assets/images/guide-characters/senpai-chibi-pointing.png`
   - `assets/images/guide-characters/senpai-chibi-guide.png`

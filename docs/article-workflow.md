@@ -744,3 +744,115 @@ Codexは、新規記事HTML作成直後に導線追加しない。
 - search-index.json に対象URLがある
 - sitemap.xml に対象URLが1回だけある
 - /seo/sitemap.xml を触っていない
+
+## 英語記事の画像フォルダ・画像パス運用
+
+英語記事 `en/articles/*.html` で記事固有画像を使う場合、原則として日本語記事用画像フォルダとは分けて、英語用フォルダを作る。
+
+基本形:
+- 日本語記事用: `assets/images/{slug}/`
+- 英語記事用: `assets/images/{slug}-en/`
+
+例:
+- 日本語記事: `assets/images/photoelectric-sensor-basic/`
+- 英語記事: `assets/images/photoelectric-sensor-basic-en/`
+
+ルール:
+- 英語記事HTMLから記事固有画像を参照する場合は、`../../assets/images/{slug}-en/` を使う。
+- `og:image` と `twitter:image` も英語用画像フォルダを見る。
+- `.article-hero::before` の hero 背景画像も英語用画像フォルダを見る。
+- 日本語記事画像フォルダ `assets/images/{slug}/` を英語記事から流用しない。ただし意図的に共通画像として使う場合は、理由を明記して報告する。
+- フォルダ名に `-en` が付く場合、画像ファイル名には原則 `-en` を重ねない。
+
+推奨ファイル名:
+- `{slug}-hero.png`
+- `{slug}-ogp.png`
+- `{slug}-type-overview.png`
+- `{slug}-comparison.png`
+- `{slug}-plc-signal-flow.png`
+- `{slug}-field-checks.png`
+
+HTML内チェック:
+- `meta property="og:image"` が `assets/images/{slug}-en/{slug}-ogp.png` を参照している
+- `meta name="twitter:image"` が `assets/images/{slug}-en/{slug}-ogp.png` を参照している
+- `.article-hero::before` が `assets/images/{slug}-en/{slug}-hero.png` を参照している
+- 本文画像が `assets/images/{slug}-en/` を参照している
+- 日本語用フォルダ `assets/images/{slug}/` が英語記事内に残っていない
+
+## 英語記事の右カラム運用
+
+英語記事の右カラム `aside.side-rail` は、基本的に以下の2カードを標準とする。
+
+1. `On this page`
+2. `Support this site`
+
+ルール:
+- 本文内にチェックリストや図解がある場合、右カラムに同内容の `Key checks` カードを重複追加しない。
+- 右カラムにカードを増やす場合は、本文との重複がないか確認する。
+- `Support this site` は削除しない。
+- 右カラムの収益導線が下に埋もれすぎる場合は、重複カードを削る。
+- 記事ごとに右カラムを独自再設計しない。
+
+禁止:
+- `Key checks` を毎回機械的に追加する
+- 本文のチェック項目と同じ内容を右カラムに重複させる
+- `Support this site` を削除する
+- 寄付リンクやsupport-card構造を変更する
+
+## 英語記事の会話キャラ画像パス確認
+
+英語記事で `talk-thread` を使う場合、会話キャラ画像は推測で書かない。
+
+必須:
+- `assets/images/guide-characters/` の実在ファイルを確認する。
+- `assets/images/common/senpai-character.png` や `assets/images/common/kouhai-character.png` のような未確認パスを使わない。
+- 既存記事で実際に表示されている先輩・後輩画像パスを確認してから使う。
+- `div.talk-avatar > img` 構造は維持する。
+- 先輩発言には先輩画像、後輩発言には後輩画像を使う。
+- 画像パスは `en/articles/*.html` から見た相対パスにする。
+
+確認コマンド例:
+- `ls -la assets/images/guide-characters`
+- `rg -n "talk-avatar|guide-characters|senpai|kouhai" articles/*.html en/articles/*.html`
+
+禁止:
+- 存在しないファイル名を推測で書く
+- `assets/images/common/` にキャラ画像がある前提で書く
+- 記事固有画像を会話アイコンとして使う
+- 会話キャラ構造を変更する
+
+## 英語記事の2ステップ公開フロー補足
+
+英語記事を新規作成した直後は、まず確認用URLで記事単体を確認する。
+確認OKが出るまでは、導線追加に進まない。
+
+Step 1で触らないもの:
+- `en/index.html`
+- `en/categories/*.html`
+- `assets/data/search-index.json`
+- `sitemap.xml`
+- `seo/sitemap.xml`
+
+Step 1で確認するもの:
+- canonical
+- hreflang
+- OGP / twitter image
+- 英語用画像フォルダ参照
+- hero画像
+- 本文画像
+- 会話キャラ画像
+- 右カラム
+- Support this site
+- site-search.js の読み込み
+- 確認用URL
+
+Step 2は、ユーザーが確認用URLでOKした後だけ行う。
+
+変更してはいけないファイル:
+- 記事HTML
+- 画像ファイル
+- en/index.html
+- en/categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+- seo/sitemap.xml

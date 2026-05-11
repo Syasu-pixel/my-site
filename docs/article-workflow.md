@@ -885,3 +885,65 @@ Step 2は、ユーザーが確認用URLでOKした後だけ行う。
 - assets/data/search-index.json
 - sitemap.xml
 - seo/sitemap.xml
+
+## 英語記事の画像参照チェックルール
+
+英語記事 `en/articles/{slug}.html` で記事固有画像を使う場合、HTML側で想定したファイル名ではなく、GitHub main 上に実在する画像ファイル名を正とする。
+
+基本ルール:
+- 英語用画像フォルダは原則 `assets/images/{slug}-en/` を使う。
+- HTML出力・修正前に、必ず `assets/images/{slug}-en/` の実在ファイル名を確認する。
+- `og:image`、`twitter:image`、`.article-hero::before` の hero画像は、実在する画像ファイル名に合わせる。
+- 存在しない推測ファイル名をHTMLに書かない。
+- 画像ファイルをリネームするより、HTML側を実在ファイル名に合わせることを優先する。
+
+確認コマンド例:
+```bash
+ls -la assets/images/{slug}-en
+rg -n "og:image|twitter:image|article-hero::before|assets/images/{slug}-en" en/articles/{slug}.html
+```
+
+## hero / OGP と本文画像を分けて確認するルール
+
+画像不具合の修正では、hero / OGP / 本文画像を分けて確認する。
+
+ルール:
+- 公開ページで本文画像が表示されている場合、本文画像の `src` はむやみに変更しない。
+- hero画像だけ表示されない場合は `.article-hero::before` の background URL だけ確認する。
+- OGP画像だけズレている場合は `og:image` と `twitter:image` だけ確認する。
+- 「画像参照がズレている」と判断して、表示できている本文画像まで一括置換しない。
+- 修正範囲は、実際に不具合が出ている画像種別に限定する。
+
+確認項目:
+- hero画像が表示される
+- OGP / twitter画像が実在ファイルを参照している
+- 本文画像が表示されている場合は、本文画像のsrcを変更していない
+- alt文だけ表示される画像がない
+
+## 英語記事作成時の日本語記事側言語メニュー接続ルール
+
+英語記事 `en/articles/{slug}.html` を作成した場合、対応する日本語記事 `articles/{slug}.html` の言語選択メニューも必ず確認する。
+
+基本ルール:
+- 日本語記事側の言語メニューから、英語トップ `../en/` や `../en/index.html` に飛ばさない。
+- 対応する英語記事が存在する場合は、必ず同一テーマの英語記事へ直接リンクする。
+- 日本語記事 `articles/{slug}.html` から英語記事へ飛ぶリンクは、原則 `../en/articles/{slug}.html` とする。
+- 英語記事 `en/articles/{slug}.html` から日本語記事へ戻るリンクは、原則 `../../articles/{slug}.html` とする。
+
+日本語記事側の推奨表示:
+- 日本語記事: 現在のページ
+- English article: 英語版の記事を開く
+
+英語記事側の推奨表示:
+- 日本語記事: Japanese article
+- English article: Current page
+
+禁止:
+- 対応英語記事があるのに英語トップへ飛ばす
+- 英語トップへのリンクを `English article` と表示する
+- 日本語記事側だけ未接続のまま完了扱いにする
+
+確認項目:
+- 日本語記事 → 英語版同一記事へ飛べる
+- 英語記事 → 日本語版同一記事へ戻れる
+- どちらもトップページではなく、同一テーマの記事同士で相互リンクしている

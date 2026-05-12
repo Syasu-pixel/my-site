@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>DIN Rail Basics: Why Control Panels Use DIN Rails | Denki Control Lab</title>
+  <meta name="description" content="Learn what a DIN rail is, why control panels use it, what devices are mounted on it, how it differs from direct mounting, and what to check in the field.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/din-rail-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/din-rail-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/din-rail-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/din-rail-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="DIN Rail Basics: Why Control Panels Use DIN Rails">
+  <meta property="og:description" content="A beginner-friendly guide to DIN rails in control panels, including mounted devices, direct mounting differences, installation flow, and field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/din-rail-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/din-rail-basic-en/din-rail-basic-ogp.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DIN Rail Basics: Why Control Panels Use DIN Rails">
+  <meta name="twitter:description" content="Understand what a DIN rail does in a control panel and what to check during installation or inspection.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/din-rail-basic-en/din-rail-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img{max-width:100%;display:block}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease}
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff!important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+    }
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:auto;color:inherit;text-decoration:none}
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:#64748b;
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-result-item{margin:0}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .breadcrumb a{color:#1d4ed8}
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);
+      min-height:410px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../../assets/images/din-rail-basic-en/din-rail-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,700px);
+      min-height:410px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700}
+    .hero-points li::before{
+      content:"✓";
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:12px;
+      flex:0 0 auto;
+      margin-top:2px;
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure-inner{background:#fff;padding:18px}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .key-highlight h3{color:#1d4ed8}
+    .field-highlight h3{color:#15803d}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row.is-reverse{flex-direction:row-reverse}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none}
+    .talk-avatar img{width:76px;height:auto;display:block}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8}
+    .talk-row.is-reverse .talk-name{color:#15803d}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 6px}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#f8fbff;border:1px solid #d7e4f3}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.45;color:#1e3a8a}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted)}
+    .flow-card::after{
+      content:"→";
+      position:absolute;
+      right:-11px;
+      top:50%;
+      transform:translateY(-50%);
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+    }
+    .flow-card:last-child::after{display:none}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+    .side-card a{font-weight:800}
+    .side-link-list{list-style:none!important;padding-left:0!important;display:grid;gap:8px}
+    .side-link-list li{margin:0!important}
+    .side-link-list a{display:block;padding:9px 10px;border:1px solid #dbe7f3;border-radius:12px;background:#f8fbff;color:#334155;font-size:13px;line-height:1.45;text-decoration:none}
+    .side-link-list a:hover{border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;text-decoration:none}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04)}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
+    .support-card .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:36px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.4;
+      text-align:center;
+      white-space:normal;
+      color:#1e3a8a;
+      background:#f8fbff;
+      text-decoration:none;
+    }
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-card .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-card .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue)}
+    .related-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500}
+    .footer-copy{margin:0}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+    .footer-links a{color:#334155;font-weight:700}
+    .footer-separator{color:#cbd5e1}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+      .page-layout{grid-template-columns:1fr}
+      .side-rail{position:static}
+      .flow-grid{grid-template-columns:1fr}
+      .flow-card::after{display:none}
+    }
+    @media (max-width:900px){
+      :root{--header-h:72px}
+      .site-header{padding:8px 10px}
+      .site-header-inner{gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px}
+      .brand-sub{display:none}
+      .header-search{flex:0 0 160px;min-height:36px}
+      .search-box-input{font-size:11px}
+      .article-hero{min-height:auto;border-radius:22px}
+      .article-hero::before{background-position:right bottom;background-size:auto 82%;opacity:.22}
+      .article-hero-copy{min-height:360px;padding:34px 22px}
+      h1{font-size:30px}
+      .top-summary,.related-grid,.check-grid{grid-template-columns:1fr}
+      .section-card{padding:20px}
+      .talk-row,.talk-row.is-reverse{flex-direction:row}
+      .talk-bubble{max-width:100%}
+    }
+    @media (max-width:480px){
+      :root{--header-h:72px}
+      .site-header{padding:5px 6px}
+      .brand{gap:8px}
+      .brand-logo{height:32px}
+      .brand-title{font-size:14px}
+      .header-search{flex:0 0 136px;min-height:34px}
+      .container{width:min(100% - 20px,var(--container))}
+      .article-hero-copy{min-height:340px;padding:28px 18px}
+      h1{font-size:27px}
+      .hero-actions .btn{width:100%}
+      .section-card{padding:18px;border-radius:22px}
+      .talk-avatar{width:58px;flex-basis:58px}
+      .talk-avatar img{width:58px}
+      .talk-bubble{padding:12px 14px}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English home">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical PLC and electrical control guides</span>
+        </span>
+      </a>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/din-rail-basic.html" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span>
+              <strong>日本語記事</strong>
+              <small>Japanese article</small>
+            </span>
+          </a>
+          <a class="language-menu-item is-active" href="din-rail-basic.html" lang="en" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span>
+              <strong>English article</strong>
+              <small>Current page</small>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search articles</label>
+        <input class="search-box-input" id="site-search-input" type="search" name="q" autocomplete="off" placeholder="Search">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="../categories/control-basics.html">Control Basics</a>
+        <span aria-hidden="true">›</span>
+        <span>DIN Rail Basics</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">Control Panel Basics</span>
+          <h1>DIN Rail Basics: Why Control Panels Use DIN Rails</h1>
+          <p class="hero-lead">
+            A DIN rail is the metal rail used inside many control panels to mount terminal blocks, relays, PLC units, power supplies, and breakers in a clean and maintainable way.
+          </p>
+          <ul class="hero-points">
+            <li>Understand what a DIN rail does inside a control panel.</li>
+            <li>Learn which devices are commonly mounted on DIN rails.</li>
+            <li>Check rail mounting, end stops, space, and wiring clearance in the field.</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">Start with the overview</a>
+            <a class="btn btn-secondary" href="#checks">Jump to field checks</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit">
+          <h2>Good for</h2>
+          <ul>
+            <li>Beginners learning what DIN rails are used for.</li>
+            <li>People who work around control panels and mounted devices.</li>
+            <li>Field workers checking installation, spacing, and wiring around panel components.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--notyet">
+          <h2>Not enough by itself if</h2>
+          <ul>
+            <li>You need a mechanical strength calculation for a panel design.</li>
+            <li>You are selecting exact rail material, thickness, or mounting hardware.</li>
+            <li>You are working on equipment that requires a manufacturer-specific mounting method.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--conclusion">
+          <h2>Main conclusion</h2>
+          <ul>
+            <li>DIN rails make panel devices easier to align, replace, and organize.</li>
+            <li>They are not just “metal bars”; they are a common mounting standard.</li>
+            <li>In the field, loose rails and poor spacing can cause real maintenance trouble.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Table of contents">
+        <h2>What you will learn</h2>
+        <div class="mini-toc">
+          <a href="#overview">Overview</a>
+          <a href="#why">Why panels use DIN rails</a>
+          <a href="#devices">Mounted devices</a>
+          <a href="#direct">DIN rail vs direct mounting</a>
+          <a href="#install">Mounting flow</a>
+          <a href="#checks">Field checks</a>
+          <a href="#related">Related articles</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>What is a DIN rail?</h2>
+            <p class="section-intro-line">A DIN rail is a standard metal rail used to mount electrical and control devices inside a panel.</p>
+            <p>
+              In a control panel, many small devices need to be installed in a limited space: terminal blocks, relays, PLC units, power supplies, breakers, interface modules, and more. A DIN rail gives these devices a shared mounting base.
+            </p>
+            <p>
+              Instead of drilling a separate mounting pattern for every device, many panel components can be clipped onto the rail. This makes the panel easier to assemble, modify, replace, and inspect.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/din-rail-basic-en/din-rail-basic-overview.png" alt="Overview of a DIN rail inside a control panel with several devices mounted on it">
+              </div>
+              <figcaption>
+                A DIN rail acts as a common mounting base for control panel components.
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>The simple way to think about it</h3>
+              <p>
+                A DIN rail is like a standardized mounting track. Devices can be lined up, clipped on, moved, or replaced more easily than if each device were mounted directly to the panel plate.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="why">
+            <h2>Why control panels use DIN rails</h2>
+            <p class="section-intro-line">DIN rails help keep a panel organized, serviceable, and easier to modify.</p>
+            <p>
+              The biggest benefit is not only neat appearance. DIN rails make it easier to build a panel in a repeatable way. When devices share the same mounting rail, the wiring route, spacing, labels, and replacement work become easier to manage.
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>Easy alignment</h3>
+                <p>Devices can be lined up along one rail, which makes the panel easier to read and maintain.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>Easy replacement</h3>
+                <p>Many devices can be removed from the rail without redesigning the whole mounting plate.</p>
+              </div>
+              <div class="check-item">
+                <h3>Flexible layout</h3>
+                <p>Additional terminal blocks or small devices can often be added if space remains on the rail.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>Cleaner wiring</h3>
+                <p>When devices are aligned, wire routes and labels are easier to follow during field checks.</p>
+              </div>
+            </div>
+
+            <div class="talk-thread" aria-label="Conversation">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician explaining DIN rail basics">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior</span>
+                  <p>When a panel is easy to read, troubleshooting becomes much faster. DIN rails help create that clean structure.</p>
+                </div>
+              </div>
+              <div class="talk-row is-reverse">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician asking about DIN rail mounting">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Junior</span>
+                  <p>So it is not only for mounting parts. It also affects future maintenance and inspection.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="devices">
+            <h2>Common devices mounted on DIN rails</h2>
+            <p class="section-intro-line">Many control panel components are designed to clip onto DIN rails.</p>
+            <p>
+              The exact devices depend on the panel, but the following parts are often mounted on DIN rails. In many cases, a device has a spring clip or locking tab on the back that catches the rail.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/din-rail-basic-en/din-rail-basic-mounted-devices.png" alt="Examples of devices mounted on a DIN rail such as terminal blocks, relay, PLC unit, power supply, and breaker">
+              </div>
+              <figcaption>
+                Terminal blocks, relays, PLC units, power supplies, and small breakers are common examples of DIN rail mounted devices.
+              </figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Device</th>
+                    <th>Why it is mounted on a DIN rail</th>
+                    <th>Field point</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">Terminal blocks</td>
+                    <td>They are often arranged in a row to connect field wiring and internal panel wiring.</td>
+                    <td>Check labels, end plates, jumpers, and loose screws.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Relays</td>
+                    <td>Relay sockets can be aligned and replaced more easily.</td>
+                    <td>Check socket locking, coil wiring, and contact wiring.</td>
+                  </tr>
+                  <tr>
+                    <td>PLC units</td>
+                    <td>Compact PLCs and I/O modules are often mounted in a row.</td>
+                    <td>Check module locking, connector clearance, and cable bend radius.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Power supplies and breakers</td>
+                    <td>Small power devices can be installed neatly with enough wiring space.</td>
+                    <td>Check heat, terminal torque, and spacing from neighboring parts.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="section-card" id="direct">
+            <h2>DIN rail mounting vs direct mounting</h2>
+            <p class="section-intro-line">DIN rail mounting is convenient, but direct mounting is still used when the device or structure requires it.</p>
+            <p>
+              DIN rail mounting is common for small and medium control components. Direct mounting means fastening the device directly to the panel plate using screws. Some large, heavy, or heat-producing devices may be better suited for direct mounting.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mounting method</th>
+                    <th>Good points</th>
+                    <th>Be careful about</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">DIN rail mounting</td>
+                    <td>Easy to align, replace, and modify. Good for many small panel devices.</td>
+                    <td>The rail itself must be firmly fixed, and end stops may be needed.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Direct mounting</td>
+                    <td>Good for larger or heavier devices, or devices with specific mounting requirements.</td>
+                    <td>Each mounting pattern must be prepared correctly, and replacement may take more work.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>Do not decide only by appearance</h3>
+              <p>
+                Always follow the device manual and panel design requirements. A part that looks small may still have heat, weight, spacing, or grounding requirements.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="install">
+            <h2>Basic mounting flow</h2>
+            <p class="section-intro-line">The basic flow is rail fixing, device clipping, spacing check, and wiring clearance check.</p>
+            <p>
+              The actual procedure depends on the panel and the device, but the general idea is easy to understand. First the rail is fixed to the panel plate. Then devices are clipped onto the rail and arranged with enough space for wiring, heat, labels, and future maintenance.
+            </p>
+
+            <div class="flow-grid">
+              <div class="flow-card">
+                <h3>1. Fix the rail</h3>
+                <p>Mount the rail straight and firmly so it does not move when devices are attached or removed.</p>
+              </div>
+              <div class="flow-card">
+                <h3>2. Clip the devices</h3>
+                <p>Hook the device onto the rail and lock it according to the device structure.</p>
+              </div>
+              <div class="flow-card">
+                <h3>3. Check space</h3>
+                <p>Confirm wiring space, terminal access, heat clearance, labels, and future removal space.</p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>Work safely</h3>
+              <p>
+                Do not install, remove, or touch control panel devices on live equipment unless the work procedure specifically allows it and proper safety measures are in place.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="checks">
+            <h2>Field checks for DIN rails</h2>
+            <p class="section-intro-line">A DIN rail problem often appears as loose parts, poor wiring space, or difficult maintenance.</p>
+            <p>
+              During inspection, do not only look at whether the devices are present. Check whether they are firmly mounted, whether the rail is fixed, and whether there is enough room to work safely around the parts.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/din-rail-basic-en/din-rail-basic-check-flow.png" alt="Field check flow for DIN rail mounting including rail fixing, end stops, wiring space, removal clearance, and deformation">
+              </div>
+              <figcaption>
+                A simple check order helps you find loose mounting, missing end stops, poor wiring clearance, and rail deformation.
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. Rail fixing</h3>
+                <p>Check whether the rail is firmly fixed to the panel plate and does not rattle or bend.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>2. End stops</h3>
+                <p>For terminal blocks and rows of small parts, confirm that parts cannot slide sideways unexpectedly.</p>
+              </div>
+              <div class="check-item">
+                <h3>3. Wiring space</h3>
+                <p>Check whether wires can be routed without sharp bends, pulling, or blocking terminal access.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>4. Removal clearance</h3>
+                <p>Confirm that devices can be replaced later without having to remove unrelated parts unnecessarily.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>Common mistakes to avoid</h2>
+            <p class="section-intro-line">DIN rails look simple, but small layout mistakes can make maintenance harder.</p>
+            <ul>
+              <li>Filling the rail completely and leaving no room for future changes.</li>
+              <li>Forgetting end stops on terminal block rows.</li>
+              <li>Installing parts so close together that terminal screws or connectors are hard to access.</li>
+              <li>Leaving poor wire bend space around power supplies, PLC modules, or breakers.</li>
+              <li>Ignoring rail looseness, rust, deformation, or poor grounding where grounding is required by the design.</li>
+            </ul>
+
+            <div class="key-highlight">
+              <h3>Simple field mindset</h3>
+              <p>
+                A DIN rail is not only a mounting part. It affects wiring, replacement work, labeling, and future troubleshooting. A clean rail layout makes the whole panel easier to understand.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>Related articles</h2>
+            <p class="section-intro-line">These articles connect naturally with DIN rail and control panel basics.</p>
+            <div class="related-grid">
+              <a class="related-card" href="relay-basic.html">
+                <h3>Relay Basics</h3>
+                <p>Review coils, contacts, and relay sockets commonly mounted inside control panels.</p>
+              </a>
+              <a class="related-card" href="air-breaker-basic.html">
+                <h3>Air Breaker Basics</h3>
+                <p>Learn the role of breakers in control panels and electrical equipment.</p>
+              </a>
+              <a class="related-card" href="input-output-basic.html">
+                <h3>PLC Input and Output Basics</h3>
+                <p>Understand the basic relationship between field devices, PLC inputs, and outputs.</p>
+              </a>
+              <a class="related-card" href="no-nc-basic.html">
+                <h3>NO and NC Contact Basics</h3>
+                <p>Learn normally open and normally closed contacts used in many panel devices.</p>
+              </a>
+              <a class="related-card" href="pressure-gauge-basic.html">
+                <h3>Pressure Gauge Basics</h3>
+                <p>See another field component guide focused on practical inspection points.</p>
+              </a>
+              <a class="related-card" href="plc-input-troubleshooting-basic.html">
+                <h3>PLC Input Troubleshooting</h3>
+                <p>Learn a practical check order when input signals do not behave as expected.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="Side navigation">
+          <section class="side-card">
+            <h3>On this page</h3>
+            <ul class="side-link-list">
+              <li><a href="#overview">Overview</a></li>
+              <li><a href="#why">Why panels use DIN rails</a></li>
+              <li><a href="#devices">Mounted devices</a></li>
+              <li><a href="#direct">DIN rail vs direct mounting</a></li>
+              <li><a href="#install">Mounting flow</a></li>
+              <li><a href="#checks">Field checks</a></li>
+              <li><a href="#mistakes">Common mistakes</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>Key points</h3>
+            <ul>
+              <li>A DIN rail is a standard mounting rail.</li>
+              <li>Many panel devices are designed to clip onto it.</li>
+              <li>Good spacing makes wiring and replacement easier.</li>
+              <li>Loose rails and missing end stops can cause maintenance problems.</li>
+            </ul>
+          </section>
+
+          <section class="side-card support-card">
+            <h3 class="support-card-title">Support this site</h3>
+            <p class="support-card-text">
+              If this guide helped you, a small support helps keep practical control articles coming.
+            </p>
+            <div class="support-card-actions">
+              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy Me a Coffee</a>
+              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© Denki Control Lab. Practical electrical control guides.</p>
+    <div class="footer-links">
+      <a href="../privacy-policy.html">Privacy Policy</a>
+      <span class="footer-separator">|</span>
+      <a href="../contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      var button = document.getElementById('languageMenuButton');
+      var panel = document.getElementById('languageMenuPanel');
+      if(!button || !panel) return;
+      button.addEventListener('click', function(){
+        var expanded = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', String(!expanded));
+        panel.hidden = expanded;
+      });
+      document.addEventListener('click', function(event){
+        if(panel.hidden) return;
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute('aria-expanded','false');
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener('keydown', function(event){
+        if(event.key === 'Escape'){
+          button.setAttribute('aria-expanded','false');
+          panel.hidden = true;
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

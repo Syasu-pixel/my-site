@@ -102,6 +102,41 @@ Checks:
 判定:
 safe to move to image generation: YES / NO
 
+## GPTが英語記事HTMLを書き出す場合の報告形式
+
+英語記事HTMLをCodexではなくGPTが直接作成する場合も、いきなりHTMLだけを出さず、先に以下の形式で整理する。
+Step 1 / Step 2 の分離は維持し、導線追加はユーザー確認後のStep 2でのみ実施する。
+
+Summary:
+- 作成する英語記事タイトル
+- 作成するHTMLファイル
+- 日本語元記事
+- コピー元テンプレート
+- 画像フォルダ
+- 画像5枚のファイル名
+- 導線追加は未実施であること
+
+Image handoff:
+- 画像生成順
+- 各画像の用途
+- HTML内の画像パス
+- OGP/Twitter画像パス
+
+Checks:
+- テンプレート構造維持
+- Support this site 2ボタン維持
+- site-search.js 1回のみ
+- レスポンシブCSS維持
+- 関連記事リンク実在確認
+- 旧サイト名なし
+- Step 1では index.html / categories/*.html / assets/data/search-index.json / sitemap.xml を触らない
+- /seo/sitemap.xml は非運用なので触らない
+
+判定:
+safe to move to image generation: YES / NO
+
+その後にHTML本体を書き出す。
+
 ## 画像配置後のCodex報告形式
 
 Summary:

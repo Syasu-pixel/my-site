@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Analog Input Basics: How PLCs Read 0-10V and 4-20mA Signals | Denki Control Lab</title>
+  <meta name="description" content="Learn the basics of analog inputs for PLCs. This beginner-friendly guide explains 0-10V and 4-20mA signals, how analog values differ from ON/OFF inputs, scaling, wiring, and field check points.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/analog-input-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/analog-input-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/analog-input-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/analog-input-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Analog Input Basics: How PLCs Read 0-10V and 4-20mA Signals">
+  <meta property="og:description" content="A practical beginner-friendly guide to PLC analog inputs, 0-10V, 4-20mA, scaling, wiring, sensor signals, and field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/analog-input-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/analog-input-basic-en/analog-input-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Analog Input Basics: How PLCs Read 0-10V and 4-20mA Signals">
+  <meta name="twitter:description" content="Understand how PLC analog input modules read 0-10V and 4-20mA signals and convert them into usable values.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/analog-input-basic-en/analog-input-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --cyan:#0891b2;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+      scroll-padding-top:104px;
+    }
+
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff!important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:1 1 auto;
+      color:inherit;
+      text-decoration:none;
+      margin-right:auto;
+    }
+
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
+
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:4px;
+    }
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-panel[hidden]{display:none;}
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:#64748b;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-result-item{margin:0;}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none;}
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none;}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);
+      min-height:410px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../../assets/images/analog-input-basic-en/analog-input-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,720px);
+      min-height:410px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #a5f3fc;background:#ecfeff;color:#0e7490;font-size:12px;font-weight:900;margin-bottom:16px;}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#cffafe;color:#0e7490;font-size:12px;flex:0 0 auto;margin-top:2px;}
+
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(8,145,178,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:#0e7490;}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #a5f3fc;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card p:last-child{margin-bottom:0;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
+
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .marker-cyan{background:linear-gradient(transparent 58%,rgba(103,232,249,.30) 58%);font-weight:900;}
+    .marker-purple{background:linear-gradient(transparent 58%,rgba(167,139,250,.24) 58%);font-weight:900;}
+
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#ecfeff;
+      border:1px solid #a5f3fc;
+      color:#0e7490;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #a5f3fc;background:linear-gradient(180deg,#ecfeff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#0e7490;}
+    .field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#ecfeff;border-color:#a5f3fc;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
+    .check-item--purple{background:#f5f3ff;border-color:#ddd6fe;}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
+    td.cell-cyan{background:#ecfeff;font-weight:800;color:#155e75;}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:15px;border-radius:18px;background:#f8fbff;border:1px solid #d7e4f3;}
+    .flow-card h3{margin:0 0 8px;font-size:15px;line-height:1.4;color:#155e75;}
+    .flow-card p{margin:0;font-size:13px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#cffafe;color:#0e7490;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+    .flow-card:last-child::after{display:none;}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#0e7490;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
+    .side-card a{font-weight:800;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#0e7490;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
+    .footer-copy{margin:0;}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
+    .footer-separator{color:#cbd5e1;}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none;}
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .flow-card::after{display:none;}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px;}
+      html{scroll-padding-top:92px;}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .brand-logo{height:42px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{display:none;}
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/analog-input-basic-en/analog-input-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
+      h1{font-size:30px;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid,.flow-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/analog-input-basic-en/analog-input-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
+      h1{font-size:34px;}
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{background:url("../../assets/images/analog-input-basic-en/analog-input-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14;}
+      h1{font-size:28px;}
+      .hero-actions,.btn{width:100%;}
+      .section-card h2{font-size:20px;}
+      .section-card p{font-size:14px;}
+      .talk-avatar{width:58px;flex:0 0 58px;}
+      .talk-avatar img{width:58px;}
+      .talk-bubble{padding:12px 14px;}
+      .table-wrap table{min-width:680px;}
+    }
+
+    @media (max-width:480px){
+      :root{--header-h:72px;}
+      .site-header{padding:5px 6px;}
+      .brand{gap:8px;}
+      .brand-logo{height:32px;}
+      .brand-title{font-size:14px;}
+      .header-search{flex:1 1 auto;min-height:34px;}
+      .search-box{padding:0 8px;}
+      .search-box-input{font-size:11px;}
+      .language-menu-button{width:34px;min-width:34px;height:34px;}
+      .breadcrumb{font-size:11px;}
+      .article-hero-copy{padding:28px 18px;min-height:350px;}
+      .hero-points li{font-size:13px;}
+      .summary-card,.mini-toc-card{border-radius:20px;}
+      .section-card{padding:18px;border-radius:22px;}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English home">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl-180.png" alt="Denki Control Lab logo" width="46" height="46">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical PLC and electrical control guides</span>
+        </span>
+      </a>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/analog-input-basic.html" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span>
+              <strong>日本語記事</strong>
+              <small>Japanese article</small>
+            </span>
+          </a>
+          <a class="language-menu-item is-active" href="./analog-input-basic.html" lang="en" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span>
+              <strong>English article</strong>
+              <small>Current page</small>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search articles</label>
+        <input class="search-box-input" id="site-search-input" type="search" name="q" autocomplete="off" placeholder="Search">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="../categories/control-basics.html">Control Basics</a>
+        <span aria-hidden="true">›</span>
+        <span>Analog Input Basics</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">PLC Analog Signals</span>
+          <h1>Analog Input Basics: How PLCs Read 0-10V and 4-20mA Signals</h1>
+          <p class="hero-lead">
+            Analog inputs let a PLC read changing values such as pressure, temperature, flow, level, and speed. This guide explains 0-10V and 4-20mA signals in a beginner-friendly way.
+          </p>
+          <ul class="hero-points">
+            <li>Understand how analog inputs differ from ON/OFF inputs.</li>
+            <li>Learn the basic meaning of 0-10V and 4-20mA signals.</li>
+            <li>See how scaling turns raw input values into engineering values.</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#overview">Start with analog input</a>
+            <a class="btn btn-secondary" href="#scaling">See scaling flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit">
+          <h2>Good for</h2>
+          <ul>
+            <li>Beginners learning PLC analog input modules.</li>
+            <li>People checking pressure, temperature, level, or flow signals.</li>
+            <li>Technicians who want to understand 0-10V and 4-20mA basics.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--notyet">
+          <h2>Not the main focus</h2>
+          <ul>
+            <li>Advanced signal filtering or control loop tuning.</li>
+            <li>Manufacturer-specific analog module parameter screens.</li>
+            <li>Detailed process instrumentation design.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--conclusion">
+          <h2>Quick conclusion</h2>
+          <ul>
+            <li>Analog input reads a changing value, not just ON or OFF.</li>
+            <li>Common field signals are 0-10V and 4-20mA.</li>
+            <li>PLC scaling converts raw input into pressure, temperature, level, or flow.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <div class="mini-toc">
+          <a href="#overview">Overview</a>
+          <a href="#digital-vs-analog">Digital vs analog</a>
+          <a href="#signal-types">0-10V / 4-20mA</a>
+          <a href="#scaling">Scaling</a>
+          <a href="#field-check">Field checks</a>
+          <a href="#common-mistakes">Common mistakes</a>
+          <a href="#safety">Safety notes</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="overview">
+            <h2>What is an analog input?</h2>
+            <p class="section-intro-line">
+              An analog input is a PLC input that reads a continuously changing value.
+            </p>
+            <p>
+              A normal ON/OFF input tells the PLC whether a signal is simply ON or OFF. An analog input is different. It reads a signal that changes gradually, such as <span class="marker-cyan">pressure</span>, <span class="marker-green">temperature</span>, <span class="marker-blue">level</span>, or <span class="marker-orange">flow</span>.
+            </p>
+            <p>
+              In control panels, analog input modules are often connected to transmitters and sensors that output signals such as <span class="term">0-10V</span> or <span class="term">4-20mA</span>. The PLC then converts that signal into a number that can be used in the program or displayed on an HMI.
+            </p>
+
+            <div class="key-highlight">
+              <h3>The basic idea</h3>
+              <p>
+                Digital input answers “ON or OFF?” Analog input answers “How much?” That difference is the first point to understand.
+              </p>
+            </div>
+
+            <div class="talk-thread" aria-label="Conversation">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior</span>
+                  <p>With an ON/OFF input, the PLC only knows whether the signal is present. With analog input, the PLC reads a changing value.</p>
+                </div>
+              </div>
+              <div class="talk-row is-reverse">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Junior</span>
+                  <p>So analog input is used when the PLC needs a number, like pressure or temperature?</p>
+                </div>
+              </div>
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior</span>
+                  <p>Exactly. The signal is converted into a value the PLC can calculate, compare, or display.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="digital-vs-analog">
+            <h2>Digital input vs analog input</h2>
+            <p class="section-intro-line">
+              Digital inputs read states. Analog inputs read amounts.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Digital input</th>
+                    <th>Analog input</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">Main meaning</td>
+                    <td>ON or OFF</td>
+                    <td>Changing value</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Typical devices</td>
+                    <td>Push button, limit switch, proximity sensor, photoelectric sensor</td>
+                    <td>Pressure transmitter, temperature transmitter, level sensor, flow sensor</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-cyan">PLC data</td>
+                    <td>Bit value such as ON/OFF, 1/0, TRUE/FALSE</td>
+                    <td>Numeric value such as raw count, pressure, temperature, level, or flow</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Common field signals</td>
+                    <td>24V DC ON/OFF signal</td>
+                    <td>0-10V, 1-5V, 4-20mA, 0-20mA</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>Simple way to remember</h3>
+              <p>
+                If the PLC only needs to know whether a device is ON, it is usually digital. If the PLC needs to know how high, how hot, how much, or how fast, it is usually analog.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="signal-types">
+            <h2>0-10V and 4-20mA signal basics</h2>
+            <p class="section-intro-line">
+              The two signals beginners often meet first are 0-10V voltage signals and 4-20mA current signals.
+            </p>
+            <p>
+              A <span class="term">0-10V</span> signal changes its voltage according to the measured value. A <span class="term">4-20mA</span> signal changes its current according to the measured value. Both are used to send analog information from a sensor or transmitter to a PLC analog input module.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/analog-input-basic-en/analog-input-basic-signal-types-en.png" alt="Diagram comparing 0-10V and 4-20mA analog input signals connected from sensors or transmitters to a PLC analog input module" loading="lazy">
+              </div>
+              <figcaption>
+                0-10V is a voltage signal. 4-20mA is a current signal. Both can represent a changing process value.
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>0-10V signal</h3>
+                <p>The voltage changes between 0V and 10V. It is easy to understand with a voltmeter.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>4-20mA signal</h3>
+                <p>The current changes between 4mA and 20mA. It is common in industrial transmitters.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>Input range setting</h3>
+                <p>The PLC analog input module must be set for the correct signal type.</p>
+              </div>
+              <div class="check-item check-item--purple">
+                <h3>Wiring difference</h3>
+                <p>Voltage and current input wiring can be different, so check the module manual and drawing.</p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>Why 4-20mA starts at 4mA</h3>
+              <p>
+                In many systems, 4mA represents the lower end of the measurement range. If the signal is 0mA, it may indicate a broken wire, missing power, or signal failure rather than a real zero measurement.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="scaling">
+            <h2>Scaling: converting the signal into a usable value</h2>
+            <p class="section-intro-line">
+              The PLC usually receives a raw analog value first, then converts it into an engineering value.
+            </p>
+            <p>
+              For example, a pressure transmitter may output 4-20mA for 0-1.0 MPa. The PLC analog input reads the signal and converts it into a value that represents pressure. This conversion is often called <span class="marker-cyan">scaling</span>.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/analog-input-basic-en/analog-input-basic-scaling-flow-en.png" alt="Diagram showing analog input scaling flow from 4mA to 20mA or 0-10V into engineering values in a PLC" loading="lazy">
+              </div>
+              <figcaption>
+                Scaling turns a raw analog signal into a useful engineering value such as pressure, temperature, flow, or level.
+              </figcaption>
+            </figure>
+
+            <div class="flow-grid">
+              <div class="flow-card">
+                <h3>1. Sensor measures</h3>
+                <p>A device measures pressure, temperature, level, or flow.</p>
+              </div>
+              <div class="flow-card">
+                <h3>2. Signal changes</h3>
+                <p>The transmitter outputs 0-10V or 4-20mA.</p>
+              </div>
+              <div class="flow-card">
+                <h3>3. AI module reads</h3>
+                <p>The PLC analog input module reads the signal.</p>
+              </div>
+              <div class="flow-card">
+                <h3>4. PLC scales</h3>
+                <p>The raw value is converted into an engineering value.</p>
+              </div>
+              <div class="flow-card">
+                <h3>5. Program uses it</h3>
+                <p>The PLC compares, displays, records, or controls using the value.</p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Example</th>
+                    <th>Low signal</th>
+                    <th>High signal</th>
+                    <th>Meaning after scaling</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-cyan">Pressure transmitter</td>
+                    <td>4mA</td>
+                    <td>20mA</td>
+                    <td>0 to 1.0 MPa</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Level sensor</td>
+                    <td>0V</td>
+                    <td>10V</td>
+                    <td>0 to 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Temperature transmitter</td>
+                    <td>4mA</td>
+                    <td>20mA</td>
+                    <td>0 to 200°C</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>Important point</h3>
+              <p>
+                The analog signal and the displayed value are not always the same thing. The PLC may read a raw value first, then convert it by scaling.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-check">
+            <h2>Field check points for analog input problems</h2>
+            <p class="section-intro-line">
+              When the analog value is wrong, check the sensor, wiring, input range, and scaling instead of guessing one part.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/analog-input-basic-en/analog-input-basic-field-check-en.png" alt="Diagram showing field check points for analog input problems including sensor power, signal wiring, COM or 0V, input range, scaling, and PLC monitor value" loading="lazy">
+              </div>
+              <figcaption>
+                A practical check order: sensor power, signal wiring, common/0V, input range, scaling setting, and PLC monitor value.
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>Sensor or transmitter power</h3>
+                <p>Check whether the device has the correct supply voltage and is operating normally.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>Signal wiring</h3>
+                <p>Check polarity, terminal number, shield, broken wire, and loose terminal screws.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>Input range</h3>
+                <p>Confirm that the PLC analog input is set for voltage or current as required.</p>
+              </div>
+              <div class="check-item check-item--purple">
+                <h3>Scaling and monitor value</h3>
+                <p>Compare the field signal, raw PLC value, scaled value, and HMI display.</p>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>Do not change analog parameters without checking the drawing</h3>
+              <p>
+                Changing input range or scaling settings can affect displayed values and machine behavior. Confirm the drawing, device range, and program meaning first.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="common-mistakes">
+            <h2>Common mistakes with analog inputs</h2>
+            <p class="section-intro-line">
+              Many analog input problems come from range mismatch, wiring errors, or misunderstanding raw values.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mistake</th>
+                    <th>Why it causes trouble</th>
+                    <th>Better check</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-cyan">Voltage/current range mismatch</td>
+                    <td>A 4-20mA signal connected to a voltage input may not read correctly.</td>
+                    <td>Check the module setting and wiring terminals.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">Ignoring scaling</td>
+                    <td>The PLC raw value may not directly equal the real pressure or temperature.</td>
+                    <td>Check the scaling range and engineering units.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Checking only the HMI value</td>
+                    <td>The displayed value may already include program calculation or formatting.</td>
+                    <td>Compare field signal, raw value, scaled value, and display.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-blue">Forgetting the common or 0V side</td>
+                    <td>A missing reference line can make the analog signal unstable or wrong.</td>
+                    <td>Check signal line, common, 0V, and shield treatment as shown on the drawing.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>Beginner-friendly rule</h3>
+              <p>
+                When an analog value looks wrong, do not ask only “is the sensor bad?” Ask “is the field signal correct, and is the PLC converting it correctly?”
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="safety">
+            <h2>Safety notes before checking analog input wiring</h2>
+            <p class="section-intro-line">
+              Analog input wiring may be low voltage, but it is still part of a control panel and process control system.
+            </p>
+            <p>
+              Always follow the site rules and drawings. Do not short terminals with meter probes, and do not change wiring or parameters while the machine is operating unless you are qualified and permitted to do so.
+            </p>
+            <p>
+              If the analog value is used for pressure, temperature, level, or flow control, an incorrect value can affect machine operation. Treat signal checks and parameter changes carefully.
+            </p>
+
+            <div class="danger-box">
+              <h3>Analog values can affect control behavior</h3>
+              <p>
+                A wrong analog value may cause incorrect alarms, bad control decisions, or unsafe machine conditions. Check the system impact before making changes.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>Related articles</h2>
+            <p class="section-intro-line">
+              These articles connect naturally to analog inputs, PLC I/O, sensors, and 24V control wiring.
+            </p>
+            <div class="related-grid">
+              <a class="related-card" href="./plc-io-unit-basic.html">
+                <h3>PLC I/O Unit Basics</h3>
+                <p>Understand how PLC input and output modules connect field devices.</p>
+              </a>
+              <a class="related-card" href="./input-output-basic.html">
+                <h3>Inputs, Outputs, and Control Signals</h3>
+                <p>Review the difference between input signals and output signals in control systems.</p>
+              </a>
+              <a class="related-card" href="./sensor-basic.html">
+                <h3>Sensor Basics</h3>
+                <p>Learn how sensors send signals to PLC inputs and control panels.</p>
+              </a>
+              <a class="related-card" href="./dc24v-power-supply-basic.html">
+                <h3>DC 24V Power Supply Basics</h3>
+                <p>Review the 24V DC power source used by PLCs, sensors, and control devices.</p>
+              </a>
+              <a class="related-card" href="./dc24v-power-troubleshooting-basic.html">
+                <h3>DC 24V Power Troubleshooting</h3>
+                <p>Check what to do when 24V DC disappears, drops, or becomes unstable.</p>
+              </a>
+              <a class="related-card" href="./plc-input-troubleshooting-basic.html">
+                <h3>PLC Input Troubleshooting</h3>
+                <p>Check input signals, common wiring, input LEDs, and PLC monitor status.</p>
+              </a>
+            </div>
+
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../categories/control-basics.html">Back to Control Basics</a>
+              <a class="btn btn-primary" href="../index.html">Back to English Home</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="Side navigation">
+          <section class="side-card">
+            <h3>On this page</h3>
+            <ul class="side-link-list">
+              <li><a href="#overview">Overview</a></li>
+              <li><a href="#digital-vs-analog">Digital vs analog</a></li>
+              <li><a href="#signal-types">0-10V / 4-20mA</a></li>
+              <li><a href="#scaling">Scaling</a></li>
+              <li><a href="#field-check">Field checks</a></li>
+              <li><a href="#common-mistakes">Common mistakes</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card support-card">
+            <h3 class="support-card-title">Support this site</h3>
+            <p class="support-card-text">
+              If this guide helped you, small support helps keep practical control articles available.
+            </p>
+            <div class="support-card-actions">
+              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h3>Category links</h3>
+            <ul class="side-link-list">
+              <li><a href="../categories/control-basics.html">Control Basics</a></li>
+              <li><a href="../categories/circuit-basics.html">Circuit Basics</a></li>
+              <li><a href="../index.html">English Home</a></li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© Denki Control Lab. Practical electrical control notes for learning and field work.</p>
+    <div class="footer-links">
+      <a href="../index.html">Home</a>
+      <span class="footer-separator">/</span>
+      <a href="../categories/control-basics.html">Control Basics</a>
+      <span class="footer-separator">/</span>
+      <a href="../../articles/analog-input-basic.html" lang="ja">日本語</a>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+
+      if(!button || !panel) return;
+
+      function closePanel(){
+        panel.hidden = true;
+        button.setAttribute("aria-expanded","false");
+      }
+
+      function openPanel(){
+        panel.hidden = false;
+        button.setAttribute("aria-expanded","true");
+      }
+
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+        if(panel.hidden){
+          openPanel();
+        }else{
+          closePanel();
+        }
+      });
+
+      document.addEventListener("click", function(event){
+        if(!panel.hidden && !panel.contains(event.target) && event.target !== button){
+          closePanel();
+        }
+      });
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          closePanel();
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js"></script>
+</body>
+</html>

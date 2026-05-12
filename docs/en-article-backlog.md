@@ -42,7 +42,6 @@
 - [ ] crimping-tools
 - [ ] current-transformer-basic
 - [ ] cutting-tools
-- [ ] dc24v-power-troubleshooting-basic
 - [ ] delayed-start-circuit-basic
 - [ ] din-rail-cutter
 - [ ] driver

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Home Return Circuit Basics: Move Equipment Back to the Reference Position | Denki Control Lab</title>
+  <meta name="description" content="Learn what a home return circuit is, how equipment moves back to a reference position, how home sensors and limit switches relate, and what to check in ladder logic and field troubleshooting.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/home-return-circuit-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/home-return-circuit-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/home-return-circuit-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/home-return-circuit-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Home Return Circuit Basics: Move Equipment Back to the Reference Position">
+  <meta property="og:description" content="Understand home return circuits, reference positions, home sensors, return direction, completion conditions, interlocks, and field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/home-return-circuit-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/home-return-circuit-basic-en/home-return-circuit-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Home Return Circuit Basics: Move Equipment Back to the Reference Position">
+  <meta name="twitter:description" content="A beginner-friendly guide to home return circuits, home sensors, reference positions, ladder logic, and field checks.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/home-return-circuit-basic-en/home-return-circuit-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --green-deep:#166534;
+      --orange:#ea580c;
+      --orange-deep:#9a3412;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .site-header{
+      position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;
+      background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;
+      padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;
+      color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;
+      border:1px solid #dbe7f3;border-radius:16px;background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{
+      display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;
+      padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
+
+    .header-search{
+      position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;
+      border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-result-item{margin:0;}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none;}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none;}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
+
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);min-height:410px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.60) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,710px);min-height:410px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{
+      content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+      border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:var(--blue-deep);}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card p:last-child{margin-bottom:0;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
+
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .point-strip{margin:16px 0 18px;padding:12px 14px;border-radius:16px;border:1px solid #d7e4f3;background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);font-size:14px;font-weight:800;color:#334155;}
+    .point-strip strong{color:#1e3a8a;}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1d4ed8;}
+    .field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;color:#1e3a8a;}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+    .flow-card:last-child::after{display:none;}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
+    .side-card a{font-weight:800;}
+    .side-note{margin:0;color:#64748b;font-size:12px;line-height:1.65;font-weight:700;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
+    .footer-copy{margin:0;}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
+    .footer-separator{color:#cbd5e1;}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none;}
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:1fr;}
+      .flow-card::after{display:none;}
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:74px;}
+      html{scroll-padding-top:92px;}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .brand-logo{height:42px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{display:none;}
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
+      h1{font-size:30px;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
+      h1{font-size:34px;}
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{background:url("../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14;}
+      h1{font-size:28px;}
+      .hero-actions,.btn{width:100%;}
+      .section-card h2{font-size:20px;}
+      .section-card p{font-size:14px;}
+      .talk-avatar{width:58px;flex-basis:58px;}
+      .talk-avatar img{width:58px;}
+      .talk-bubble{padding:12px 13px;}
+      .table-wrap table{min-width:640px;}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English top">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical PLC and control basics</span>
+        </span>
+      </a>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/home-return-circuit-basic.html">
+            <span class="language-menu-flag">🇯🇵</span>
+            <span><strong>日本語</strong><small>日本語記事</small></span>
+          </a>
+          <a class="language-menu-item is-active" href="./home-return-circuit-basic.html" aria-current="page">
+            <span class="language-menu-flag">🇺🇸</span>
+            <span><strong>English</strong><small>English article</small></span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search by keyword</label>
+        <input class="search-box-input" id="site-search-input" type="search" placeholder="Search by keyword" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">English top</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">Circuit Basics</a>
+      <span>›</span>
+      <span>Home Return Circuit Basics</span>
+    </nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Circuit Basics</span>
+        <h1>Home Return Circuit Basics: Move Equipment Back to the Reference Position</h1>
+        <p class="hero-lead">
+          A home return circuit moves equipment back to a known reference position. It is used before automatic operation, after maintenance, or when the machine needs to know where its starting point is.
+        </p>
+        <ul class="hero-points">
+          <li>Understand what “home position” means in equipment control</li>
+          <li>Learn how home sensors, return direction, and completion conditions relate</li>
+          <li>Check inputs, outputs, interlocks, and mechanical movement separately</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#what-is">Understand the basics</a>
+          <a class="btn btn-secondary" href="#field-check">Field check points</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning basic machine movement circuits</li>
+          <li>People who want to understand origin return and reference positions</li>
+          <li>Field workers checking home sensors, limits, and return direction</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>Not the focus here</h2>
+        <ul>
+          <li>Detailed servo homing parameters</li>
+          <li>Manufacturer-specific motion instructions</li>
+          <li>Full automatic sequence programming</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key conclusion</h2>
+        <ul>
+          <li>Home return brings the machine back to a known reference point</li>
+          <li>The home sensor and limit conditions must be checked carefully</li>
+          <li>Return complete should be separated from just “sensor ON”</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="Mini table of contents">
+      <h2>Mini table of contents</h2>
+      <div class="mini-toc">
+        <a href="#what-is">What it is</a>
+        <a href="#home-sensor">Home sensor</a>
+        <a href="#return-flow">Return flow</a>
+        <a href="#complete">Completion condition</a>
+        <a href="#interlock">Interlocks</a>
+        <a href="#field-check">Field checks</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="what-is">
+          <h2>What is a home return circuit?</h2>
+          <p class="section-intro-line">
+            A home return circuit moves a machine part back to a known reference position.
+          </p>
+          <p>
+            In many machines, an axis, table, cylinder, conveyor stopper, or moving unit needs a known starting point. This known point is often called the home position, origin position, or reference position.
+          </p>
+          <p>
+            The purpose of home return is to make the machine state clear before automatic operation. If the machine does not know where the moving part is, the next automatic step may move in the wrong direction or stop at the wrong position.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-overview-en.png" alt="Overview of a home return circuit moving equipment back to a reference position">
+            </div>
+            <figcaption>
+              Home return moves equipment back to a known reference position before the next operation starts.
+            </figcaption>
+          </figure>
+
+          <div class="point-strip">
+            <strong>Simple idea:</strong> Start home return → move toward home → detect home sensor → stop movement → set home return complete.
+          </div>
+        </section>
+
+        <section class="section-card" id="home-sensor">
+          <h2>The role of the home sensor</h2>
+          <p class="section-intro-line">
+            The home sensor tells the PLC that the moving part has reached the reference area.
+          </p>
+          <p>
+            A home sensor may be a limit switch, proximity sensor, photoelectric sensor, reed switch, or other position detection device. The important point is not the sensor type itself, but what the signal means in the sequence.
+          </p>
+          <p>
+            In a simple circuit, the machine moves in the return direction until the home sensor turns ON. Then the movement output turns OFF and a home complete bit may be set.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-home-sensor-en.png" alt="Home sensor detecting the reference position of a moving mechanism">
+            </div>
+            <figcaption>
+              The home sensor is the signal that tells the control system the moving part has reached the reference area.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>Sensor ON is not always the same as complete</h3>
+            <p>
+              In some machines, the home complete condition may require the sensor to turn ON, movement to stop, a timer to finish, or a confirmation bit to be set. Do not assume that sensor ON alone always means the sequence is complete.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="return-flow">
+          <h2>Basic home return flow</h2>
+          <p class="section-intro-line">
+            A home return circuit is easier to understand when you separate command, movement, detection, and completion.
+          </p>
+
+          <div class="flow-grid">
+            <div class="flow-card">
+              <h3>1. Start command</h3>
+              <p>The operator or sequence starts the home return operation.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Move to home</h3>
+              <p>The machine moves in the return direction while conditions are safe.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. Complete</h3>
+              <p>The home sensor is detected and the home complete condition is set.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-return-flow-en.png" alt="Home return flow from command to movement to home complete">
+            </div>
+            <figcaption>
+              Home return is a sequence: command, movement, sensor detection, stop, and complete confirmation.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="complete">
+          <h2>Home return complete condition</h2>
+          <p class="section-intro-line">
+            The complete condition should tell the rest of the program that the machine is ready to continue.
+          </p>
+          <p>
+            The home complete bit is often used as a permission for automatic operation. If home return has not been completed, the automatic cycle may be blocked or an alarm may be shown.
+          </p>
+          <p>
+            A clear complete condition helps the next person troubleshoot the machine. It also prevents a sequence from starting while the machine position is unknown.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-complete-condition-en.png" alt="Home return complete condition in a PLC sequence">
+            </div>
+            <figcaption>
+              A home complete bit is often used as a condition for automatic operation or the next sequence step.
+            </figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Signal / condition</th>
+                  <th>Role</th>
+                  <th>Typical check</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Home return command</td>
+                  <td>Starts the return operation.</td>
+                  <td>Check push button, HMI command, or internal sequence bit.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Home sensor</td>
+                  <td>Detects the reference position.</td>
+                  <td>Check sensor signal, wiring, PLC input, and mechanical position.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Home complete bit</td>
+                  <td>Confirms the machine is ready for the next operation.</td>
+                  <td>Check whether it is set after movement stops and conditions are satisfied.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="interlock">
+          <h2>Interlocks and limit conditions</h2>
+          <p class="section-intro-line">
+            A home return circuit should not move blindly toward the reference position.
+          </p>
+          <p>
+            Even during home return, the machine should respect safety conditions, mode conditions, limit switches, and direction interlocks. For example, movement may be allowed only in manual mode or only when an emergency stop condition is cleared.
+          </p>
+          <p>
+            A lower limit, upper limit, mechanical stopper, or overtravel condition may also affect the return direction. If the wrong direction is commanded, the machine may move away from the home sensor instead of toward it.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-interlock-safety-en.png" alt="Interlock and limit conditions for a home return circuit">
+            </div>
+            <figcaption>
+              Home return should include mode conditions, safe movement conditions, direction checks, and limit-related interlocks.
+            </figcaption>
+          </figure>
+
+          <div class="danger-box">
+            <h3>Return direction matters</h3>
+            <p>
+              If the machine moves in the wrong direction during home return, do not only check the sensor. Check the output direction, motor direction, valve direction, wiring, and mechanical movement together.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>Field check points</h2>
+          <p class="section-intro-line">
+            When home return does not finish, separate the command, movement, sensor, and complete bit.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/home-return-circuit-basic-en/home-return-circuit-basic-field-check-en.png" alt="Field check points for home return circuit troubleshooting">
+            </div>
+            <figcaption>
+              Check the home return command, movement output, return direction, home sensor input, and complete condition in order.
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Home return command</h3>
+              <p>Confirm the command turns ON from the button, HMI, or sequence condition.</p>
+            </div>
+            <div class="check-item">
+              <h3>Return movement output</h3>
+              <p>Check whether the PLC output, relay, valve, motor driver, or servo command turns ON.</p>
+            </div>
+            <div class="check-item">
+              <h3>Return direction</h3>
+              <p>Confirm the machine actually moves toward the home sensor, not away from it.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Home sensor input</h3>
+              <p>Check the physical sensor, signal lamp, wiring, and PLC input monitor.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Limit and safety conditions</h3>
+              <p>Check emergency stop, guards, limit switches, overtravel signals, and mode conditions.</p>
+            </div>
+            <div class="check-item">
+              <h3>Home complete bit</h3>
+              <p>Confirm the complete bit is set only after the correct conditions are satisfied.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="conversation">
+          <h2>Short conversation</h2>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Home return is used to bring the machine back to a known reference position.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Junior</span>
+                <p>So it is not just moving backward. It has to detect the home sensor and confirm completion?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Exactly. The direction, sensor, and complete condition all need to be checked separately.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Junior</span>
+                <p>If home return does not finish, I should not look only at the sensor?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Right. Check command, output, movement direction, sensor input, interlocks, and the home complete bit in order.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>Summary</h2>
+          <p>
+            A home return circuit moves equipment back to a known reference position. It is important before automatic operation because the machine needs to know where the starting point is.
+          </p>
+          <p>
+            When troubleshooting, separate the home return command, movement output, return direction, home sensor input, interlocks, and home complete bit. This makes the problem much easier to trace.
+          </p>
+          <div class="related-grid">
+            <a class="related-card" href="./jog-operation-circuit-basic.html">
+              <h3>Jog Operation Circuit Basics</h3>
+              <p>Learn how a machine moves only while the jog button is pressed during manual operation.</p>
+            </a>
+            <a class="related-card" href="./upper-lower-limit-circuit-basic.html">
+              <h3>Upper and Lower Limit Circuit Basics</h3>
+              <p>Understand how limit switches prevent overtravel and relate to movement direction.</p>
+            </a>
+            <a class="related-card" href="./proximity-sensor-basic.html">
+              <h3>Proximity Sensor Basics</h3>
+              <p>Review the sensor basics often used for position detection in control circuits.</p>
+            </a>
+          </div>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">Back to Circuit Basics</a>
+            <a class="btn btn-primary" href="../index.html">Back to English top</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Side navigation">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul class="side-link-list">
+            <li><a href="#what-is">What it is</a></li>
+            <li><a href="#home-sensor">Home sensor</a></li>
+            <li><a href="#return-flow">Return flow</a></li>
+            <li><a href="#complete">Completion condition</a></li>
+            <li><a href="#interlock">Interlocks</a></li>
+            <li><a href="#field-check">Field checks</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card">
+          <h3 class="support-card-title">Support Denki Control Lab</h3>
+          <p class="support-card-text">
+            If this guide helped you, a small support helps keep practical control articles coming.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Related basics</h3>
+          <ul>
+            <li><a href="./jog-operation-circuit-basic.html">Jog operation circuit basics</a></li>
+            <li><a href="./upper-lower-limit-circuit-basic.html">Upper and lower limit circuit basics</a></li>
+            <li><a href="./proximity-sensor-basic.html">Proximity sensor basics</a></li>
+          </ul>
+          <p class="side-note">
+            Home return becomes easier to understand when command, movement, sensor, and complete condition are checked separately.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
+    <div class="footer-links">
+      <a href="../index.html">English top</a>
+      <span class="footer-separator">/</span>
+      <a href="../../">Japanese top</a>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel) return;
+
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+        const expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        panel.hidden = expanded;
+      });
+
+      document.addEventListener("click", function(event){
+        if(panel.hidden) return;
+        if(!panel.contains(event.target) && !button.contains(event.target)){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

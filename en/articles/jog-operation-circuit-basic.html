@@ -4,24 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <title>Alternating Operation Circuit Basics: Toggle ON/OFF Each Time a Button Is Pressed | Denki Control Lab</title>
-  <meta name="description" content="Learn the basics of an alternating operation circuit where each button press toggles the output ON and OFF. This beginner-friendly guide explains toggle flags, ladder logic flow, field checks, and common mistakes.">
-  <link rel="canonical" href="https://denkicontrol.com/en/articles/alternate-operation-circuit-basic.html">
-  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
-  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/alternate-operation-circuit-basic.html">
-  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
+  <title>Jog Operation Circuit Basics: Move Only While the Button Is Pressed | Denki Control Lab</title>
+  <meta name="description" content="Learn what a jog operation circuit is, how it moves a machine only while the button is pressed, why self-holding is not used, and what to check in ladder logic and field troubleshooting.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/jog-operation-circuit-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/jog-operation-circuit-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/jog-operation-circuit-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/jog-operation-circuit-basic.html">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Alternating Operation Circuit Basics: Toggle ON/OFF Each Time a Button Is Pressed">
-  <meta property="og:description" content="Understand the basic toggle circuit where pressing a button turns an output ON, and pressing it again turns the output OFF.">
-  <meta property="og:url" content="https://denkicontrol.com/en/articles/alternate-operation-circuit-basic.html">
-  <meta property="og:image" content="https://denkicontrol.com/assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-ogp.png">
+  <meta property="og:title" content="Jog Operation Circuit Basics: Move Only While the Button Is Pressed">
+  <meta property="og:description" content="Understand jog operation circuits, momentary movement, press-and-hold behavior, no self-holding, basic ladder logic, and practical field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/jog-operation-circuit-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-ogp-en.png">
   <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Alternating Operation Circuit Basics">
-  <meta name="twitter:description" content="Learn how a toggle-style alternating operation circuit works in PLC ladder logic.">
-  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-ogp.png">
+  <meta name="twitter:title" content="Jog Operation Circuit Basics: Move Only While the Button Is Pressed">
+  <meta name="twitter:description" content="A beginner-friendly guide to jog operation circuits, momentary movement, ladder logic, and field checks.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-ogp-en.png">
   <meta name="theme-color" content="#f8fbff">
 
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
@@ -31,231 +33,324 @@
 
   <style>
     :root{
-      --bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;
-      --text:#1e293b;--muted:#5f7288;--blue:#1d4ed8;--blue-deep:#1e3a8a;
-      --green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;
-      --purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --green-deep:#166534;
+      --orange:#ea580c;
+      --orange-deep:#9a3412;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
       --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-      --container:1180px;--header-h:76px;
+      --container:1180px;
+      --header-h:76px;
     }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
-    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}
-    img{max-width:100%;display:block}
-    a{color:var(--blue);text-decoration:none;transition:.2s ease}
-    a:hover{text-decoration:underline}
-    button,input{font:inherit}
-    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
-    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
-    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:auto;color:inherit;text-decoration:none}
-    .brand:hover{text-decoration:none}
-    .brand-logo{width:auto;height:46px;flex:0 0 auto}
-    .brand-copy{min-width:0}
-    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em}
-    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
-    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}
-    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}
-    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
-    .language-menu-icon{font-size:15px;line-height:1}
-    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}
-    .language-menu-panel[hidden]{display:none}
-    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}
-    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
-    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
-    .language-menu-flag{font-size:18px;line-height:1}
-    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
-    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .site-header{
+      position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;
+      background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
 
-    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}
-    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
-    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
-    .search-box-input::placeholder{color:#94a3b8}
-    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
-    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
-    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}
-    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-    .search-result-item{margin:0}
-    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}
-    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none}
-    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
-    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700}
-    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}
-    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .header-nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:flex-end;flex:1 1 auto;margin-left:auto;margin-right:4px;}
+    .header-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;text-decoration:none;white-space:nowrap;box-shadow:0 6px 14px rgba(15,23,42,.05);}
+    .header-link:hover,.header-link:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;text-decoration:none;}
 
-    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
-    .breadcrumb a{color:#1d4ed8}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;
+      padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;
+      color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;
+      border:1px solid #dbe7f3;border-radius:16px;background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{
+      display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;
+      padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
 
-    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}
-    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-hero.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}
-    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
-    .article-hero-copy{width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}
-    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
-    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a}
-    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155}
-    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
-    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700}
-    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}
-    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}
-    .btn:hover{text-decoration:none}
-    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
-    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .header-search{
+      position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;
+      border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-result-item{margin:0;}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none;}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none;}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
 
-    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
-    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
-    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
-    .summary-card ul{margin:0;padding-left:18px}
-    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
-    .summary-card--fit h2{color:#0f766e}
-    .summary-card--notyet h2{color:#b45309}
-    .summary-card--conclusion h2{color:var(--blue-deep)}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
 
-    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
-    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
-    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
-    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none}
-    .mini-toc a:hover{background:#eff6ff;text-decoration:none}
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);min-height:410px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.60) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,710px);min-height:410px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{
+      content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+      border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
 
-    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
-    .main-column{min-width:0}
-    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
-    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
-    .section-card{padding:28px;margin-bottom:20px}
-    .side-card{padding:20px}
-    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
-    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
-    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a}
-    .section-card p{margin:0 0 14px;font-size:15px}
-    .section-card p:last-child{margin-bottom:0}
-    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
-    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
-    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:var(--blue-deep);}
 
-    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
-    .article-figure-inner{background:#fff;padding:18px}
-    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
-    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
 
-    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}
-    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
-    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
-    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5}
-    .key-highlight h3{color:#1d4ed8}
-    .field-highlight h3{color:#15803d}
-    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card p:last-child{margin-bottom:0;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
 
-    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
-    .note-box{background:#fff8ea;border-color:#f7dba2}
-    .danger-box{background:var(--red-soft);border-color:#fecaca}
-    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
-    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .point-strip{margin:16px 0 18px;padding:12px 14px;border-radius:16px;border:1px solid #d7e4f3;background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);font-size:14px;font-weight:800;color:#334155;}
+    .point-strip strong{color:#1e3a8a;}
 
-    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
-    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
-    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
-    .check-item p{margin:0;font-size:14px;color:var(--muted)}
-    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
-    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
-    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
 
-    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
-    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
-    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
-    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
-    tr:last-child td{border-bottom:none}
-    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
-    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
-    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1d4ed8;}
+    .field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
 
-    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
-    .talk-row{display:flex;align-items:flex-start;gap:12px}
-    .talk-row.is-reverse{flex-direction:row-reverse}
-    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none}
-    .talk-avatar img{width:76px;height:auto;display:block}
-    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
-    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8}
-    .talk-row.is-reverse .talk-name{color:#15803d}
-    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
 
-    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
-    .side-card ul{margin:0;padding-left:18px}
-    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
-    .side-card a{font-weight:800}
-    .side-link-list{list-style:none!important;padding-left:0!important;display:grid;gap:8px}
-    .side-link-list li{margin:0!important}
-    .side-link-list a{display:block;padding:9px 10px;border:1px solid #dbe7f3;border-radius:12px;background:#f8fbff;color:#334155;font-size:13px;line-height:1.45;text-decoration:none}
-    .side-link-list a:hover{border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
 
-    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04)}
-    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
-    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500}
-    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
-    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none}
-    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none}
-    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
-    .support-card .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
-    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
-    .support-card .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
 
-    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
-    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
-    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
-    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue)}
-    .related-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;color:#1e3a8a;}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+    .flow-card:last-child::after{display:none;}
 
-    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500}
-    .footer-copy{margin:0}
-    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-    .footer-links a{color:#334155;font-weight:700}
-    .footer-separator{color:#cbd5e1}
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
+    .side-card a{font-weight:800;}
+    .side-note{margin:0;color:#64748b;font-size:12px;line-height:1.65;font-weight:700;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
+    .footer-copy{margin:0;}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
+    .footer-separator{color:#cbd5e1;}
 
     @media (max-width:1100px){
-      .language-menu-current{display:none}
-      .language-menu-button{width:38px;min-width:38px;padding:0}
-      .language-menu-panel{right:0;width:210px}
+      .language-menu-current{display:none;}
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:1fr;}
+      .flow-card::after{display:none;}
     }
+
     @media (max-width:900px){
-      :root{--header-h:72px}
-      .site-header{padding:8px 10px}
-      .site-header-inner{gap:8px}
-      .brand-logo{height:40px}
-      .brand-title{font-size:15px}
-      .brand-sub{display:none}
-      .header-search{flex:0 0 160px;min-height:36px}
-      .search-box-input{font-size:11px}
-      .article-hero{min-height:auto;border-radius:22px}
-      .article-hero::before{background-position:right bottom;background-size:auto 82%;opacity:.22}
-      .article-hero-copy{min-height:360px;padding:34px 22px}
-      h1{font-size:30px}
-      .top-summary,.page-layout,.related-grid{grid-template-columns:1fr}
-      .side-rail{position:static}
-      .section-card{padding:20px}
-      .check-grid{grid-template-columns:1fr}
-      .talk-row,.talk-row.is-reverse{flex-direction:row}
-      .talk-bubble{max-width:100%}
+      :root{--header-h:74px;}
+      html{scroll-padding-top:92px;}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .header-nav{display:none;}
+      .brand-logo{height:42px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{display:none;}
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
+      h1{font-size:30px;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
     }
-    @media (max-width:480px){
-      :root{--header-h:72px}
-      .site-header{padding:5px 6px}
-      .brand{gap:8px}
-      .brand-logo{height:32px}
-      .brand-title{font-size:14px}
-      .header-search{flex:0 0 136px;min-height:34px}
-      .container{width:min(100% - 20px,var(--container))}
-      .article-hero-copy{min-height:340px;padding:28px 18px}
-      h1{font-size:27px}
-      .hero-actions .btn{width:100%}
-      .section-card{padding:18px;border-radius:22px}
-      .talk-avatar{width:58px;flex-basis:58px}
-      .talk-avatar img{width:58px}
-      .talk-bubble{padding:12px 14px}
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
+      h1{font-size:34px;}
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{background:url("../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14;}
+      h1{font-size:28px;}
+      .hero-actions,.btn{width:100%;}
+      .section-card h2{font-size:20px;}
+      .section-card p{font-size:14px;}
+      .talk-avatar{width:58px;flex-basis:58px;}
+      .talk-avatar img{width:58px;}
+      .talk-bubble{padding:12px 13px;}
+      .table-wrap table{min-width:640px;}
     }
   </style>
 </head>
@@ -263,418 +358,532 @@
 <body>
   <header class="site-header">
     <div class="site-header-inner">
-      <a class="brand" href="../index.html" aria-label="Denki Control Lab English home">
-        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English top">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo">
         <span class="brand-copy">
           <span class="brand-title">Denki Control Lab</span>
-          <span class="brand-sub">Practical PLC and electrical control guides</span>
+          <span class="brand-sub">Practical PLC and control basics</span>
         </span>
       </a>
 
+      <nav class="header-nav" aria-label="Header links">
+        <a class="header-link" href="../index.html">Home</a>
+        <a class="header-link" href="../categories/circuit-basics.html">Circuit Basics</a>
+      </nav>
+
       <div class="language-menu">
-        <button class="language-menu-button" type="button" aria-expanded="false" aria-controls="languageMenuPanel">
-          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon">🌐</span>
           <span class="language-menu-current">English</span>
         </button>
         <div class="language-menu-panel" id="languageMenuPanel" hidden>
-          <a class="language-menu-item" href="../../articles/alternate-operation-circuit-basic.html" lang="ja">
-            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
-            <span>
-              <strong>日本語記事</strong>
-              <small>Japanese article</small>
-            </span>
+          <a class="language-menu-item" href="../../articles/jog-operation-circuit-basic.html">
+            <span class="language-menu-flag">🇯🇵</span>
+            <span><strong>日本語</strong><small>日本語記事</small></span>
           </a>
-          <a class="language-menu-item is-active" href="alternate-operation-circuit-basic.html" lang="en" aria-current="page">
-            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
-            <span>
-              <strong>English article</strong>
-              <small>Current page</small>
-            </span>
+          <a class="language-menu-item is-active" href="./jog-operation-circuit-basic.html" aria-current="page">
+            <span class="language-menu-flag">🇺🇸</span>
+            <span><strong>English</strong><small>English article</small></span>
           </a>
         </div>
       </div>
 
       <form class="header-search search-box" id="siteSearch" role="search">
-        <label class="sr-only" for="site-search-input">Search articles</label>
-        <input class="search-box-input" id="site-search-input" type="search" name="q" autocomplete="off" placeholder="Search">
+        <label class="sr-only" for="site-search-input">Search by keyword</label>
+        <input class="search-box-input" id="site-search-input" type="search" placeholder="Search by keyword" autocomplete="off">
         <button class="search-box-button" type="submit" aria-label="Search">
           <span class="header-search-icon" aria-hidden="true"></span>
         </button>
         <div class="search-box-panel" id="site-search-panel" hidden>
           <ul class="search-box-results" id="site-search-results"></ul>
-          <p class="search-box-empty" id="site-search-empty" hidden>No articles found.</p>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
         </div>
       </form>
     </div>
   </header>
 
-  <main>
-    <div class="container">
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="../index.html">Home</a>
-        <span aria-hidden="true">›</span>
-        <a href="../categories/circuit-basics.html">Circuit Basics</a>
-        <span aria-hidden="true">›</span>
-        <span>Alternating Operation Circuit Basics</span>
-      </nav>
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">English top</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">Circuit Basics</a>
+      <span>›</span>
+      <span>Jog Operation Circuit Basics</span>
+    </nav>
 
-      <section class="article-hero">
-        <div class="article-hero-copy">
-          <span class="hero-label">Circuit Basics</span>
-          <h1>Alternating Operation Circuit Basics: Toggle ON/OFF Each Time a Button Is Pressed</h1>
-          <p class="hero-lead">
-            An alternating operation circuit changes the output state every time the button is pressed. Press once to turn ON, press again to turn OFF.
-          </p>
-          <ul class="hero-points">
-            <li>Understand the basic ON/OFF toggle behavior.</li>
-            <li>Learn why a one-shot or edge signal is usually needed.</li>
-            <li>Check flags, output state, and button input calmly in the field.</li>
-          </ul>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#overview">Start with the overview</a>
-            <a class="btn btn-secondary" href="#checks">Jump to field checks</a>
-          </div>
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Circuit Basics</span>
+        <h1>Jog Operation Circuit Basics: Move Only While the Button Is Pressed</h1>
+        <p class="hero-lead">
+          A jog operation circuit moves a machine only while the button is being pressed. It is used for small manual movements, positioning adjustments, and safe setup work.
+        </p>
+        <ul class="hero-points">
+          <li>Understand jog operation as momentary movement</li>
+          <li>Learn why self-holding is usually not used for jog</li>
+          <li>Check button input, output, interlocks, and movement direction separately</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#what-is">Understand the basics</a>
+          <a class="btn btn-secondary" href="#field-check">Field check points</a>
         </div>
-      </section>
-
-      <section class="top-summary" aria-label="Article summary">
-        <div class="summary-card summary-card--fit">
-          <h2>Good for</h2>
-          <ul>
-            <li>Beginners learning toggle-style ladder logic.</li>
-            <li>People who want to understand press once ON, press again OFF.</li>
-            <li>Field workers checking push buttons, toggle flags, and output state.</li>
-          </ul>
-        </div>
-        <div class="summary-card summary-card--notyet">
-          <h2>Not the first topic if</h2>
-          <ul>
-            <li>You have not learned basic input and output circuits yet.</li>
-            <li>You need a simple press-and-hold operation.</li>
-            <li>The circuit is safety-related and must follow a formal design rule.</li>
-          </ul>
-        </div>
-        <div class="summary-card summary-card--conclusion">
-          <h2>Main conclusion</h2>
-          <ul>
-            <li>The circuit changes state on each button press.</li>
-            <li>A toggle flag or memory bit is commonly used.</li>
-            <li>Without edge handling, one long press may cause unexpected switching.</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="mini-toc-card" aria-label="Table of contents">
-        <h2>Quick navigation</h2>
-        <div class="mini-toc">
-          <a href="#overview">Overview</a>
-          <a href="#toggle-flow">Toggle flow</a>
-          <a href="#ladder">Ladder logic</a>
-          <a href="#differences">Similar circuits</a>
-          <a href="#checks">Field checks</a>
-          <a href="#summary">Summary</a>
-        </div>
-      </section>
-
-      <div class="page-layout">
-        <article class="main-column">
-          <section class="section-card" id="overview">
-            <h2>What is an alternating operation circuit?</h2>
-            <p class="section-intro-line">It is a circuit where each button press alternates the output between ON and OFF.</p>
-            <p>
-              In an alternating operation circuit, the same push button can be used to change the output state. The first press turns the output ON. The next press turns it OFF.
-            </p>
-            <p>
-              This is different from a press-and-hold circuit because the output does not simply follow the button. It remembers the current state and changes it when a new press is detected.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-overview.png" alt="Overview of an alternating operation circuit where a button press toggles output ON and OFF">
-              </div>
-              <figcaption>
-                The output state changes each time the button is pressed: OFF to ON, then ON to OFF.
-              </figcaption>
-            </figure>
-
-            <div class="talk-thread">
-              <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
-                </div>
-                <div class="talk-bubble">
-                  <span class="talk-name">Senior</span>
-                  <p>Think of this as a toggle circuit. It does not just look at whether the button is currently ON. It uses the button press as a trigger to change the stored state.</p>
-                </div>
-              </div>
-              <div class="talk-row is-reverse">
-                <div class="talk-avatar">
-                  <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
-                </div>
-                <div class="talk-bubble">
-                  <span class="talk-name">Junior</span>
-                  <p>So I should watch not only the button input, but also the internal flag or memory bit that remembers ON or OFF.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-card" id="toggle-flow">
-            <h2>Toggle flow: press once ON, press again OFF</h2>
-            <p class="section-intro-line">The basic idea is simple, but the PLC must detect one button press as one switching action.</p>
-            <p>
-              When the output is OFF, a valid button press changes the state to ON. When the output is already ON, the next valid button press changes the state to OFF.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-toggle-flow.png" alt="Toggle flow showing press once output ON and press again output OFF">
-              </div>
-              <figcaption>
-                The key is to change the state once per press, not repeatedly while the button is held.
-              </figcaption>
-            </figure>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Current state</th>
-                    <th>Button action</th>
-                    <th>Next state</th>
-                    <th>Field image</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell-orange">Output OFF</td>
-                    <td>Button is pressed once.</td>
-                    <td class="cell-blue">Output ON</td>
-                    <td>The lamp, relay, or operation turns ON.</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-blue">Output ON</td>
-                    <td>Button is pressed once again.</td>
-                    <td class="cell-orange">Output OFF</td>
-                    <td>The lamp, relay, or operation turns OFF.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="key-highlight">
-              <h3>Beginner takeaway</h3>
-              <p>The circuit needs a remembered state. That is why an internal relay, memory bit, or flag is often used.</p>
-            </div>
-          </section>
-
-          <section class="section-card" id="ladder">
-            <h2>Basic ladder logic idea</h2>
-            <p class="section-intro-line">Many toggle circuits use an edge signal and an internal flag to avoid repeated switching during one long press.</p>
-            <p>
-              A common beginner mistake is to use the push button input directly as the switching condition. If the PLC scans many times while the button is held, the state may switch repeatedly.
-            </p>
-            <p>
-              To prevent that, the logic usually detects the moment the button changes from OFF to ON. This is often called rising-edge detection, one-shot processing, or pulse generation.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-ladder-logic.png" alt="Basic ladder logic idea for alternating operation using a push button edge and toggle flag">
-              </div>
-              <figcaption>
-                The button press is converted into one trigger, and that trigger switches the stored ON/OFF state.
-              </figcaption>
-            </figure>
-
-            <div class="note-box">
-              <h3>Instruction names differ by PLC</h3>
-              <p>Different PLC brands use different instruction names for edge detection, pulses, set/reset, or alternation. Always check the actual PLC manual and project rule.</p>
-            </div>
-          </section>
-
-          <section class="section-card" id="differences">
-            <h2>Difference from press-and-hold and self-holding circuits</h2>
-            <p class="section-intro-line">The same push button can behave very differently depending on the circuit pattern.</p>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Circuit type</th>
-                    <th>What happens</th>
-                    <th>Key difference</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell-blue">Press-and-hold</td>
-                    <td>Output is ON only while the button is pressed.</td>
-                    <td>No memory state is needed.</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">Self-holding</td>
-                    <td>Output turns ON and stays ON until a stop condition turns it OFF.</td>
-                    <td>Start and stop conditions are usually separated.</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">Alternating operation</td>
-                    <td>The same button alternates ON and OFF with each valid press.</td>
-                    <td>A toggle flag or remembered state is used.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="field-highlight">
-              <h3>Watch the operating behavior</h3>
-              <p>If one button turns the output ON and the next press turns it OFF, you are probably looking at a toggle-style alternating operation circuit.</p>
-            </div>
-          </section>
-
-          <section class="section-card" id="checks">
-            <h2>Field checks when toggle operation does not work</h2>
-            <p class="section-intro-line">Check the button input, edge trigger, toggle flag, output coil, and any interlocks in order.</p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/alternate-operation-circuit-basic-en/alternate-operation-circuit-basic-field-checks.png" alt="Field checks for an alternating operation circuit including button input edge trigger toggle flag and output coil">
-              </div>
-              <figcaption>
-                The problem may be at the input, the one-shot trigger, the internal flag, the output, or the device side.
-              </figcaption>
-            </figure>
-
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>1. Button input</h3>
-                <p>Press the button and confirm the PLC input monitor turns ON correctly.</p>
-              </div>
-              <div class="check-item">
-                <h3>2. Edge trigger</h3>
-                <p>Confirm the logic creates only one trigger for one button press.</p>
-              </div>
-              <div class="check-item">
-                <h3>3. Toggle flag</h3>
-                <p>Watch the internal memory bit or flag that stores the ON/OFF state.</p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>4. Output coil</h3>
-                <p>Check whether the final output coil follows the stored state correctly.</p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>5. Interlocks</h3>
-                <p>Stop, alarm, permission, or safety conditions may block the final output.</p>
-              </div>
-              <div class="check-item">
-                <h3>6. Device side</h3>
-                <p>Check relay, lamp, solenoid, motor starter, wiring, and power supply.</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-card" id="summary">
-            <h2>Summary</h2>
-            <p>
-              An alternating operation circuit toggles the output state every time the button is pressed. Press once to turn ON, press again to turn OFF.
-            </p>
-            <p>
-              The important point is that the circuit must detect one button press as one action. In PLC ladder logic, this often means using edge detection, a one-shot signal, and an internal flag.
-            </p>
-
-            <div class="key-highlight">
-              <h3>Final takeaway</h3>
-              <p>Do not read this circuit as simple ON/OFF input logic. Read it as a state-changing circuit: button press → switch the stored state → output follows that state.</p>
-            </div>
-          </section>
-
-          <section class="section-card" aria-labelledby="related-title">
-            <h2 id="related-title">Related articles</h2>
-            <p class="section-intro-line">Read these next to connect alternating operation with basic button circuits and PLC logic.</p>
-            <div class="related-grid">
-              <a class="related-card" href="start-stop-circuit-basic.html">
-                <h3>Start/Stop Circuit Basics</h3>
-                <p>Learn the basic start and stop circuit pattern used before more advanced ladder logic.</p>
-              </a>
-              <a class="related-card" href="while-pressed-circuit-basic.html">
-                <h3>Press-and-Hold Circuit Basics</h3>
-                <p>Understand the simple circuit where the output is ON only while the button is pressed.</p>
-              </a>
-              <a class="related-card" href="plc-basic.html">
-                <h3>PLC Basics</h3>
-                <p>Review how PLCs read inputs, execute logic, and drive outputs in control systems.</p>
-              </a>
-            </div>
-          </section>
-        </article>
-
-        <aside class="side-rail" aria-label="Side navigation">
-          <section class="side-card">
-            <h3>On this page</h3>
-            <ul class="side-link-list">
-              <li><a href="#overview">Overview</a></li>
-              <li><a href="#toggle-flow">Toggle flow</a></li>
-              <li><a href="#ladder">Ladder logic</a></li>
-              <li><a href="#differences">Similar circuits</a></li>
-              <li><a href="#checks">Field checks</a></li>
-              <li><a href="#summary">Summary</a></li>
-            </ul>
-          </section>
-
-          <section class="side-card support-card">
-            <h3 class="support-card-title">Support this site</h3>
-            <p class="support-card-text">
-              If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
-            </p>
-            <div class="support-card-actions">
-              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
-              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
-            </div>
-          </section>
-        </aside>
       </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning manual operation circuits</li>
+          <li>People who want to understand jog and inching movement</li>
+          <li>Field workers checking why a machine moves only while pressed</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>Not the focus here</h2>
+        <ul>
+          <li>Detailed servo jog parameter settings</li>
+          <li>Manufacturer-specific PLC instructions</li>
+          <li>Full automatic sequence design</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key conclusion</h2>
+        <ul>
+          <li>Jog operation is usually press-and-hold movement</li>
+          <li>Self-holding is avoided because the movement should stop when released</li>
+          <li>Safety interlocks and direction conditions are important</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="Mini table of contents">
+      <h2>Mini table of contents</h2>
+      <div class="mini-toc">
+        <a href="#what-is">What it is</a>
+        <a href="#operation-flow">Operation flow</a>
+        <a href="#no-self-hold">No self-holding</a>
+        <a href="#ladder">Basic ladder idea</a>
+        <a href="#safety">Safety points</a>
+        <a href="#field-check">Field checks</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="what-is">
+          <h2>What is a jog operation circuit?</h2>
+          <p class="section-intro-line">
+            Jog operation means moving a machine little by little while an operator holds a button.
+          </p>
+          <p>
+            In factory equipment, jog operation is used when an operator needs to move a conveyor, cylinder, motor, table, or axis by a small amount. It is often used during setup, adjustment, maintenance, and manual positioning.
+          </p>
+          <p>
+            The key idea is simple: <span class="marker-blue">the machine moves while the jog button is pressed, and stops when the button is released</span>.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-overview-en.png" alt="Overview of a jog operation circuit">
+            </div>
+            <figcaption>
+              Jog operation is a momentary manual movement used to move a machine only while the operator is pressing the button.
+            </figcaption>
+          </figure>
+
+          <div class="point-strip">
+            <strong>Simple idea:</strong> Press jog button → output turns ON → machine moves → release button → output turns OFF → machine stops.
+          </div>
+        </section>
+
+        <section class="section-card" id="operation-flow">
+          <h2>Basic operation flow</h2>
+          <p class="section-intro-line">
+            A jog circuit is usually easier to understand as a direct flow from button input to movement output.
+          </p>
+          <p>
+            When the jog button input turns ON, the PLC program turns ON the output for the motor, solenoid valve, or command relay. When the button input turns OFF, the output also turns OFF.
+          </p>
+
+          <div class="flow-grid">
+            <div class="flow-card">
+              <h3>1. Press button</h3>
+              <p>The operator presses and holds the jog button.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Output ON</h3>
+              <p>The PLC turns ON the output only while the condition is true.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. Release to stop</h3>
+              <p>When the button is released, the output turns OFF.</p>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-operation-flow-en.png" alt="Jog operation flow from button press to machine movement">
+            </div>
+            <figcaption>
+              Jog operation is based on press-and-hold behavior: movement starts when pressed and stops when released.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="no-self-hold">
+          <h2>Why self-holding is usually not used</h2>
+          <p class="section-intro-line">
+            Jog operation should normally stop as soon as the operator releases the button.
+          </p>
+          <p>
+            A self-holding circuit keeps an output ON after the start button is released. That behavior is useful for normal run/stop control, but it is usually not suitable for jog operation.
+          </p>
+          <p>
+            In jog operation, the operator often needs fine control. If self-holding is added by mistake, the machine may continue moving after the operator releases the button.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-no-self-hold-en.png" alt="Difference between jog operation and self-holding operation">
+            </div>
+            <figcaption>
+              Jog operation stops when the button is released. Self-holding operation continues until a stop condition turns it OFF.
+            </figcaption>
+          </figure>
+
+          <div class="danger-box">
+            <h3>Do not confuse jog with normal run operation</h3>
+            <p>
+              If a jog circuit accidentally behaves like a self-holding circuit, the machine may keep moving when the operator expects it to stop.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>Basic ladder logic idea</h2>
+          <p class="section-intro-line">
+            The simplest jog logic is close to a press-and-hold circuit, but with safety and direction conditions added.
+          </p>
+          <p>
+            In a basic example, the jog button, manual mode condition, safety condition, and direction interlock are placed in series before the output coil. When all conditions are true, the output turns ON.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-ladder-basic-en.png" alt="Basic ladder logic idea for jog operation">
+            </div>
+            <figcaption>
+              A jog output usually depends on the jog button, manual mode, safety conditions, and interlocks.
+            </figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Condition</th>
+                  <th>Role</th>
+                  <th>Typical check</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Jog button</td>
+                  <td>Operator command for momentary movement.</td>
+                  <td>Check the PLC input turns ON while the button is pressed.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Manual mode</td>
+                  <td>Allows jog only during manual or setup operation.</td>
+                  <td>Check mode selector, HMI mode, or internal mode bit.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Interlock / safety</td>
+                  <td>Prevents movement when unsafe or conflicting conditions exist.</td>
+                  <td>Check door, limit, emergency stop, reverse command, and other permissive conditions.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="safety">
+          <h2>Safety and interlock points</h2>
+          <p class="section-intro-line">
+            Jog operation is manual, but it still needs proper interlocks.
+          </p>
+          <p>
+            Because jog operation moves the machine by operator command, it should be allowed only when the machine is in the correct mode and the movement is safe. For example, a forward jog and reverse jog should not be ON at the same time.
+          </p>
+          <p>
+            Limit switches, area sensors, guards, emergency stop circuits, and mechanical end positions may also affect whether jog movement is allowed.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-safety-interlock-en.png" alt="Safety and interlock points for jog operation">
+            </div>
+            <figcaption>
+              Jog operation should include mode conditions, direction interlocks, limit checks, and safety-related permissive conditions.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>Jog is not the same as bypassing safety</h3>
+            <p>
+              Jog operation is often used during setup, but it should still follow the machine’s safety concept. Do not remove necessary interlocks just because the operation is manual.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="comparison">
+          <h2>Jog, press-and-hold, and self-holding</h2>
+          <p class="section-intro-line">
+            Jog operation is close to press-and-hold, but the purpose is machine movement adjustment.
+          </p>
+          <p>
+            Press-and-hold describes the behavior. Jog operation describes the machine operation purpose. Self-holding is different because it keeps the output ON after the button is released.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pattern</th>
+                  <th>Behavior</th>
+                  <th>Typical use</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">Press-and-hold</td>
+                  <td>Output is ON while the button is pressed.</td>
+                  <td>Momentary operation, simple manual control.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Jog operation</td>
+                  <td>Machine moves only while the jog command is held.</td>
+                  <td>Small movement, setup, adjustment, positioning.</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Self-holding</td>
+                  <td>Output stays ON after the start button is released.</td>
+                  <td>Normal run/stop operation, holding a machine state.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>Same-looking contacts can have different meaning</h3>
+            <p>
+              The ladder structure may look simple, but the operation purpose changes depending on mode, interlocks, and whether a holding contact is used.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>Field check points</h2>
+          <p class="section-intro-line">
+            When jog operation does not work, check the command, mode, interlock, output, and actual machine movement separately.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/jog-operation-circuit-basic-en/jog-operation-circuit-basic-field-check-en.png" alt="Field check points for jog operation circuit troubleshooting">
+            </div>
+            <figcaption>
+              Check the jog button input, manual mode, safety conditions, direction interlock, output signal, and mechanical movement.
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Jog button input</h3>
+              <p>Confirm the PLC input turns ON only while the button is pressed.</p>
+            </div>
+            <div class="check-item">
+              <h3>Manual mode condition</h3>
+              <p>Check whether the machine is actually in manual, setup, or jog-enabled mode.</p>
+            </div>
+            <div class="check-item">
+              <h3>Interlock condition</h3>
+              <p>Check limit switches, opposite direction commands, guards, and permissive signals.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Output and device</h3>
+              <p>Check the PLC output, relay, contactor, solenoid valve, motor driver, or servo command.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Stops when released</h3>
+              <p>Confirm the output turns OFF when the button is released.</p>
+            </div>
+            <div class="check-item">
+              <h3>Mechanical movement</h3>
+              <p>Check for binding, end position, abnormal load, air pressure, motor brake, or mechanical lock.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="conversation">
+          <h2>Short conversation</h2>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Jog operation is used when you want to move a machine little by little during manual operation.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Junior</span>
+                <p>So it moves only while I keep pressing the button?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Exactly. When you release the jog button, the output should turn OFF and the movement should stop.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Junior</span>
+                <p>Then I should not add self-holding to the jog output?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senior</span>
+                <p>Right. For jog operation, stopping when released is usually the important behavior.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>Summary</h2>
+          <p>
+            A jog operation circuit moves a machine only while the jog button is pressed. It is useful for small manual movements, setup work, and position adjustment.
+          </p>
+          <p>
+            The key point is to avoid unintended holding behavior. Check the jog input, manual mode, interlocks, output, and actual machine movement separately.
+          </p>
+          <div class="related-grid">
+            <a class="related-card" href="./while-pressed-circuit-basic.html">
+              <h3>Press-and-Hold Circuit Basics</h3>
+              <p>Learn the circuit pattern where an output stays ON only while the button is pressed.</p>
+            </a>
+            <a class="related-card" href="./self-hold-circuit.html">
+              <h3>Self-Holding Circuit Basics</h3>
+              <p>Understand how holding circuits keep an output ON after a start signal is released.</p>
+            </a>
+            <a class="related-card" href="./forward-reverse-circuit-basic.html">
+              <h3>Forward and Reverse Circuit Basics</h3>
+              <p>Review direction control and interlock ideas used with motor movement circuits.</p>
+            </a>
+          </div>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">Back to Circuit Basics</a>
+            <a class="btn btn-primary" href="../index.html">Back to English top</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Side navigation">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul class="side-link-list">
+            <li><a href="#what-is">What it is</a></li>
+            <li><a href="#operation-flow">Operation flow</a></li>
+            <li><a href="#no-self-hold">No self-holding</a></li>
+            <li><a href="#ladder">Basic ladder idea</a></li>
+            <li><a href="#safety">Safety points</a></li>
+            <li><a href="#field-check">Field checks</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card">
+          <h3 class="support-card-title">Support Denki Control Lab</h3>
+          <p class="support-card-text">
+            If this guide helped you, a small support helps keep practical control articles coming.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Related basics</h3>
+          <ul>
+            <li><a href="./while-pressed-circuit-basic.html">Press-and-hold circuit basics</a></li>
+            <li><a href="./self-hold-circuit.html">Self-holding circuit basics</a></li>
+            <li><a href="./forward-reverse-circuit-basic.html">Forward and reverse circuit basics</a></li>
+          </ul>
+          <p class="side-note">
+            Jog operation becomes easier to understand when you separate button input, manual mode, interlock, output, and actual movement.
+          </p>
+        </section>
+      </aside>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p class="footer-copy">&copy; 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
+    <p class="footer-copy">© 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
     <div class="footer-links">
-      <a href="../index.html">English Home</a>
+      <a href="../index.html">English top</a>
       <span class="footer-separator">/</span>
-      <a href="../../index.html">日本語トップ</a>
-      <span class="footer-separator">/</span>
-      <a href="../categories/circuit-basics.html">Circuit Basics</a>
+      <a href="../../">Japanese top</a>
     </div>
   </footer>
 
   <script>
     (function(){
-      const menu = document.querySelector(".language-menu");
-      if(!menu) return;
-
-      const button = menu.querySelector(".language-menu-button");
-      const panel = menu.querySelector(".language-menu-panel");
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
       if(!button || !panel) return;
 
-      button.addEventListener("click", function(){
-        const isOpen = button.getAttribute("aria-expanded") === "true";
-        button.setAttribute("aria-expanded", String(!isOpen));
-        panel.hidden = isOpen;
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+        const expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        panel.hidden = expanded;
       });
 
       document.addEventListener("click", function(event){
-        if(menu.contains(event.target)) return;
-        button.setAttribute("aria-expanded", "false");
-        panel.hidden = true;
+        if(panel.hidden) return;
+        if(!panel.contains(event.target) && !button.contains(event.target)){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+        }
       });
 
       document.addEventListener("keydown", function(event){
-        if(event.key !== "Escape") return;
-        button.setAttribute("aria-expanded", "false");
-        panel.hidden = true;
+        if(event.key === "Escape"){
+          panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+          button.focus();
+        }
       });
     })();
   </script>
-  <script src="../../assets/js/site-search.js"></script>
+  <script src="../../assets/js/site-search.js" defer></script>
 </body>
 </html>

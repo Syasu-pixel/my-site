@@ -96,5 +96,4 @@
 - [ ] thermal-relay-basic
 - [ ] timer-relay-basic
 - [ ] tool-belt
-- [ ] wire-number-marker-basic
 - [ ] wiring-duct-basic

@@ -45,7 +45,6 @@
 - [ ] dc24v-power-supply-basic
 - [ ] dc24v-power-troubleshooting-basic
 - [ ] delayed-start-circuit-basic
-- [ ] din-rail-basic
 - [ ] din-rail-cutter
 - [ ] driver
 - [ ] earth-leakage-breaker-basic

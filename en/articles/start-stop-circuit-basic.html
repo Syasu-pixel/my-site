@@ -4,24 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <title>Start/Stop Circuit Basics: How a Start Button and Stop Button Control a Motor | Denki Control Lab</title>
-  <meta name="description" content="Learn the basics of a start/stop circuit using a start button, stop button, self-holding contact, output coil, and simple ladder logic. This beginner-friendly guide explains the operating flow and field checks.">
+  <title>Start/Stop Circuit Basics: How Pushbutton Control Works | Denki Control Lab</title>
+  <meta name="description" content="Learn the basic start/stop circuit used in electrical control. This beginner-friendly guide explains the stop button, start button, self-holding contact, output coil, ladder logic flow, and practical field checks.">
+  <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/en/articles/start-stop-circuit-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/start-stop-circuit-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/start-stop-circuit-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/start-stop-circuit-basic.html">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Start/Stop Circuit Basics: How a Start Button and Stop Button Control a Motor">
-  <meta property="og:description" content="Understand how a start button, stop button, self-holding contact, and output coil work together in a basic start/stop circuit.">
+  <meta property="og:title" content="Start/Stop Circuit Basics: How Pushbutton Control Works">
+  <meta property="og:description" content="Understand how a basic start/stop circuit works, why the stop button is normally closed, how self-holding keeps the output on, and what to check in the field.">
   <meta property="og:url" content="https://denkicontrol.com/en/articles/start-stop-circuit-basic.html">
-  <meta property="og:image" content="https://denkicontrol.com/assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ogp.png">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ogp-en.png">
   <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Start/Stop Circuit Basics">
-  <meta name="twitter:description" content="Learn how start/stop control works with a stop contact, start contact, self-holding contact, and output coil.">
-  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ogp.png">
+  <meta name="twitter:title" content="Start/Stop Circuit Basics: How Pushbutton Control Works">
+  <meta name="twitter:description" content="A beginner-friendly guide to stop buttons, start buttons, self-holding contacts, output coils, and field checks in a basic start/stop circuit.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ogp-en.png">
   <meta name="theme-color" content="#f8fbff">
 
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
@@ -31,235 +33,329 @@
 
   <style>
     :root{
-      --bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;
-      --text:#1e293b;--muted:#5f7288;--blue:#1d4ed8;--blue-deep:#1e3a8a;
-      --green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;
-      --purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --green-deep:#166534;
+      --orange:#ea580c;
+      --orange-deep:#9a3412;
+      --yellow:#f59e0b;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
       --shadow-soft:0 8px 20px rgba(15,23,42,.05);
-      --container:1180px;--header-h:76px;
+      --container:1180px;
+      --header-h:76px;
     }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
-    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}
-    img{max-width:100%;display:block}
-    a{color:var(--blue);text-decoration:none;transition:.2s ease}
-    a:hover{text-decoration:underline}
-    button,input{font:inherit}
-    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
-    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
-    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:auto;color:inherit;text-decoration:none}
-    .brand:hover{text-decoration:none}
-    .brand-logo{width:auto;height:46px;flex:0 0 auto}
-    .brand-copy{min-width:0}
-    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em}
-    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
-    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}
-    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}
-    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
-    .language-menu-icon{font-size:15px;line-height:1}
-    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}
-    .language-menu-panel[hidden]{display:none}
-    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}
-    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
-    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
-    .language-menu-flag{font-size:18px;line-height:1}
-    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
-    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .site-header{
+      position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;
+      background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
 
-    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}
-    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
-    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
-    .search-box-input::placeholder{color:#94a3b8}
-    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
-    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
-    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}
-    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-    .search-result-item{margin:0}
-    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}
-    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none}
-    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
-    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700}
-    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}
-    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;
+      padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;
+      color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;
+      border:1px solid #dbe7f3;border-radius:16px;background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{
+      display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;
+      padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
 
-    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
-    .breadcrumb a{color:#1d4ed8}
+    .header-search{
+      position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;
+      border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-result-item{margin:0;}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none;}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none;}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
 
-    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}
-    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-hero.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}
-    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
-    .article-hero-copy{width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}
-    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
-    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a}
-    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155}
-    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
-    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700}
-    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}
-    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}
-    .btn:hover{text-decoration:none}
-    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
-    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
 
-    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
-    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
-    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
-    .summary-card ul{margin:0;padding-left:18px}
-    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
-    .summary-card--fit h2{color:#0f766e}
-    .summary-card--notyet h2{color:#b45309}
-    .summary-card--conclusion h2{color:var(--blue-deep)}
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
+      box-shadow:var(--shadow);min-height:410px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-hero-en.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:46ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{
+      content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+      border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
 
-    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
-    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
-    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
-    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none}
-    .mini-toc a:hover{background:#eff6ff;text-decoration:none}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}
+    .summary-card--notyet h2{color:#b45309;}
+    .summary-card--conclusion h2{color:var(--blue-deep);}
 
-    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
-    .main-column{min-width:0}
-    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
-    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
-    .section-card{padding:28px;margin-bottom:20px}
-    .side-card{padding:20px}
-    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
-    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
-    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a}
-    .section-card p{margin:0 0 14px;font-size:15px}
-    .section-card p:last-child{margin-bottom:0}
-    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
-    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
 
-    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
-    .article-figure-inner{background:#fff;padding:18px}
-    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
-    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card p:last-child{margin-bottom:0;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
 
-    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}
-    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
-    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
-    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5}
-    .key-highlight h3{color:#1d4ed8}
-    .field-highlight h3{color:#15803d}
-    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .point-strip{margin:16px 0 18px;padding:12px 14px;border-radius:16px;border:1px solid #d7e4f3;background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);font-size:14px;font-weight:800;color:#334155;}
+    .point-strip strong{color:#1e3a8a;}
+    .keyword-pills{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px;padding:0;list-style:none;}
+    .keyword-pills li{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid #d6e3f2;background:#f8fbff;font-size:12px;font-weight:900;color:#1d4ed8;}
 
-    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
-    .note-box{background:#fff8ea;border-color:#f7dba2}
-    .danger-box{background:var(--red-soft);border-color:#fecaca}
-    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
-    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
 
-    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
-    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
-    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
-    .check-item p{margin:0;font-size:14px;color:var(--muted)}
-    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
-    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
-    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1d4ed8;}
+    .field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
 
-    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
-    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
-    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
-    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
-    tr:last-child td{border-bottom:none}
-    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
-    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
-    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
 
-    .ladder-box{margin:18px 0;border:1px solid #d7e4f3;border-radius:20px;background:#fbfdff;padding:18px;overflow:auto}
-    .ladder-row{display:grid;grid-template-columns:72px minmax(680px,1fr);gap:10px;align-items:center;margin:10px 0;font-size:14px;font-weight:800;color:#334155}
-    .ladder-label{color:#1d4ed8;font-weight:900}
-    .ladder-line{border:1px solid #cbdced;background:#fff;border-radius:14px;padding:12px 14px;white-space:nowrap;font-family:"Yu Gothic",Meiryo,sans-serif}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
 
-    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
-    .talk-row{display:flex;align-items:flex-start;gap:12px}
-    .talk-row.is-reverse{flex-direction:row-reverse}
-    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none}
-    .talk-avatar img{width:76px;height:auto;display:block}
-    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
-    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8}
-    .talk-row.is-reverse .talk-name{color:#15803d}
-    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
 
-    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
-    .side-card ul{margin:0;padding-left:18px}
-    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
-    .side-card a{font-weight:800}
-    .side-link-list{list-style:none!important;padding-left:0!important;display:grid;gap:8px}
-    .side-link-list li{margin:0!important}
-    .side-link-list a{display:block;padding:9px 10px;border:1px solid #dbe7f3;border-radius:12px;background:#f8fbff;color:#334155;font-size:13px;line-height:1.45;text-decoration:none}
-    .side-link-list a:hover{border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#f8fbff;border:1px solid #d7e4f3;}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;color:#1e3a8a;}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+    .flow-card:last-child::after{display:none;}
 
-    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04)}
-    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
-    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500}
-    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
-    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none}
-    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none}
-    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
-    .support-card .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
-    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
-    .support-card .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+    .ladder-box{margin:18px 0;border:1px solid #d7e4f3;border-radius:20px;background:#fbfdff;padding:18px;overflow:auto;}
+    .ladder-row{display:grid;grid-template-columns:96px minmax(620px,1fr);gap:10px;align-items:center;margin:10px 0;font-size:14px;font-weight:800;color:#334155;}
+    .ladder-label{color:#1d4ed8;font-weight:900;}
+    .ladder-line{border:1px solid #cbdced;background:#fff;border-radius:14px;padding:12px 14px;white-space:nowrap;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;}
 
-    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
-    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
-    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
-    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue)}
-    .related-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
 
-    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500}
-    .footer-copy{margin:0}
-    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-    .footer-links a{color:#334155;font-weight:700}
-    .footer-separator{color:#cbd5e1}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
+    .side-card a{font-weight:800;}
+    .side-note{margin:0;color:#64748b;font-size:12px;line-height:1.65;font-weight:700;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
+    .footer-copy{margin:0;}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
+    .footer-separator{color:#cbd5e1;}
 
     @media (max-width:1100px){
-      .language-menu-current{display:none}
-      .language-menu-button{width:38px;min-width:38px;padding:0}
-      .language-menu-panel{right:0;width:210px}
+      .language-menu-current{display:none;}
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:1fr;}
+      .flow-card::after{display:none;}
     }
+
     @media (max-width:900px){
-      :root{--header-h:72px}
-      .site-header{padding:8px 10px}
-      .site-header-inner{gap:8px}
-      .brand-logo{height:40px}
-      .brand-title{font-size:15px}
-      .brand-sub{display:none}
-      .header-search{flex:0 0 160px;min-height:36px}
-      .search-box-input{font-size:11px}
-      .article-hero{min-height:auto;border-radius:22px}
-      .article-hero::before{background-position:right bottom;background-size:auto 82%;opacity:.22}
-      .article-hero-copy{min-height:360px;padding:34px 22px}
-      h1{font-size:30px}
-      .top-summary,.page-layout,.related-grid{grid-template-columns:1fr}
-      .side-rail{position:static}
-      .section-card{padding:20px}
-      .check-grid{grid-template-columns:1fr}
-      .talk-row,.talk-row.is-reverse{flex-direction:row}
-      .talk-bubble{max-width:100%}
+      :root{--header-h:74px;}
+      html{scroll-padding-top:92px;}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .brand-logo{height:42px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{display:none;}
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
+      h1{font-size:30px;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
     }
-    @media (max-width:480px){
-      :root{--header-h:72px}
-      .site-header{padding:5px 6px}
-      .brand{gap:8px}
-      .brand-logo{height:32px}
-      .brand-title{font-size:14px}
-      .header-search{flex:0 0 136px;min-height:34px}
-      .container{width:min(100% - 20px,var(--container))}
-      .article-hero-copy{min-height:340px;padding:28px 18px}
-      h1{font-size:27px}
-      .hero-actions .btn{width:100%}
-      .section-card{padding:18px;border-radius:22px}
-      .talk-avatar{width:58px;flex-basis:58px}
-      .talk-avatar img{width:58px}
-      .talk-bubble{padding:12px 14px}
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
+      h1{font-size:34px;}
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{background:url("../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14;}
+      h1{font-size:28px;}
+      .hero-actions,.btn{width:100%;}
+      .section-card h2{font-size:20px;}
+      .section-card p{font-size:14px;}
+      .talk-avatar{width:58px;flex-basis:58px;}
+      .talk-avatar img{width:58px;}
+      .talk-bubble{padding:12px 13px;}
+      .table-wrap table{min-width:640px;}
+      .ladder-row{grid-template-columns:70px minmax(520px,1fr);}
     }
   </style>
 </head>
@@ -267,431 +363,554 @@
 <body>
   <header class="site-header">
     <div class="site-header-inner">
-      <a class="brand" href="../index.html" aria-label="Denki Control Lab English home">
-        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab English top">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo">
         <span class="brand-copy">
           <span class="brand-title">Denki Control Lab</span>
-          <span class="brand-sub">Practical PLC and electrical control guides</span>
+          <span class="brand-sub">Practical PLC and control basics</span>
         </span>
       </a>
 
       <div class="language-menu">
         <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
-          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-icon">🌐</span>
           <span class="language-menu-current">English</span>
         </button>
         <div class="language-menu-panel" id="languageMenuPanel" hidden>
-          <a class="language-menu-item" href="../../articles/start-stop-circuit-basic.html" lang="ja">
-            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
-            <span>
-              <strong>日本語記事</strong>
-              <small>Japanese article</small>
-            </span>
+          <a class="language-menu-item" href="../../articles/start-stop-circuit-basic.html">
+            <span class="language-menu-flag">🇯🇵</span>
+            <span><strong>日本語</strong><small>日本語記事</small></span>
           </a>
-          <a class="language-menu-item is-active" href="start-stop-circuit-basic.html" lang="en" aria-current="page">
-            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
-            <span>
-              <strong>English article</strong>
-              <small>Current page</small>
-            </span>
+          <a class="language-menu-item is-active" href="./start-stop-circuit-basic.html" aria-current="page">
+            <span class="language-menu-flag">🇺🇸</span>
+            <span><strong>English</strong><small>English article</small></span>
           </a>
         </div>
       </div>
 
       <form class="header-search search-box" id="siteSearch" role="search">
-        <label class="sr-only" for="site-search-input">Search articles</label>
-        <input class="search-box-input" id="site-search-input" type="search" name="q" autocomplete="off" placeholder="Search">
+        <label class="sr-only" for="site-search-input">Search by keyword</label>
+        <input class="search-box-input" id="site-search-input" type="search" placeholder="Search by keyword" autocomplete="off">
         <button class="search-box-button" type="submit" aria-label="Search">
           <span class="header-search-icon" aria-hidden="true"></span>
         </button>
         <div class="search-box-panel" id="site-search-panel" hidden>
           <ul class="search-box-results" id="site-search-results"></ul>
-          <p class="search-box-empty" id="site-search-empty" hidden>No articles found.</p>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
         </div>
       </form>
     </div>
   </header>
 
-  <main>
-    <div class="container">
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="../index.html">Home</a>
-        <span aria-hidden="true">›</span>
-        <a href="../categories/circuit-basics.html">Circuit Basics</a>
-        <span aria-hidden="true">›</span>
-        <span>Start/Stop Circuit Basics</span>
-      </nav>
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">English top</a>
+      <span>›</span>
+      <a href="../categories/circuit-basics.html">Circuit Basics</a>
+      <span>›</span>
+      <span>Start/Stop Circuit Basics</span>
+    </nav>
 
-      <section class="article-hero">
-        <div class="article-hero-copy">
-          <span class="hero-label">Circuit Basics</span>
-          <h1>Start/Stop Circuit Basics: How a Start Button and Stop Button Control a Motor</h1>
-          <p class="hero-lead">
-            A start/stop circuit is one of the most common control patterns. This guide explains how a start button, stop button, self-holding contact, and output coil work together.
-          </p>
-          <ul class="hero-points">
-            <li>Understand why the stop contact is normally closed.</li>
-            <li>Learn how the start button and self-holding contact keep the output ON.</li>
-            <li>Check the circuit calmly when it does not start or does not stop.</li>
-          </ul>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#overview">Start with the overview</a>
-            <a class="btn btn-secondary" href="#checks">Jump to field checks</a>
-          </div>
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Circuit Basics</span>
+        <h1>Start/Stop Circuit Basics: How Pushbutton Control Works</h1>
+        <p class="hero-lead">
+          A start/stop circuit is one of the most common basic control circuits. It uses a stop button, a start button, and a self-holding contact so a motor, lamp, relay, or PLC output can keep running after the start button is released.
+        </p>
+        <ul class="hero-points">
+          <li>Stop button first: normally closed for safe interruption</li>
+          <li>Start button next: normally open command to begin operation</li>
+          <li>Self-holding contact: keeps the output on after release</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#basic-flow">See the basic flow</a>
+          <a class="btn btn-secondary" href="#field-check">Field check points</a>
         </div>
-      </section>
-
-      <section class="top-summary" aria-label="Article summary">
-        <div class="summary-card summary-card--fit">
-          <h2>Good for</h2>
-          <ul>
-            <li>Beginners learning basic motor control circuits.</li>
-            <li>People who want to understand start, stop, and self-holding logic.</li>
-            <li>Field workers checking push buttons, contactors, and PLC outputs.</li>
-          </ul>
-        </div>
-        <div class="summary-card summary-card--notyet">
-          <h2>Not the first topic if</h2>
-          <ul>
-            <li>You have not learned NO and NC contacts yet.</li>
-            <li>You need a certified safety circuit design.</li>
-            <li>The equipment uses a dedicated controller with special start conditions.</li>
-          </ul>
-        </div>
-        <div class="summary-card summary-card--conclusion">
-          <h2>Main conclusion</h2>
-          <ul>
-            <li>The stop contact is placed in series to break the circuit.</li>
-            <li>The start contact gives the first ON command.</li>
-            <li>The self-holding contact keeps the coil ON after Start is released.</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="mini-toc-card" aria-label="Table of contents">
-        <h2>What you will learn</h2>
-        <div class="mini-toc">
-          <a href="#overview">Overview</a>
-          <a href="#contacts">Start and stop contacts</a>
-          <a href="#self-hold">Self-holding logic</a>
-          <a href="#ladder">Simple ladder example</a>
-          <a href="#checks">Field checks</a>
-          <a href="#related">Related articles</a>
-        </div>
-      </section>
-
-      <div class="page-layout">
-        <article class="main-column">
-          <section class="section-card" id="overview">
-            <h2>What is a start/stop circuit?</h2>
-            <p class="section-intro-line">A start/stop circuit turns a machine or output ON with a Start button and turns it OFF with a Stop button.</p>
-            <p>
-              The basic idea is simple: press <strong>Start</strong> once to energize the output, and press <strong>Stop</strong> to release it. In many relay and PLC circuits, the output must stay ON even after the Start button is released. That is why a self-holding contact is used.
-            </p>
-            <p>
-              In the field, this pattern appears in motor control, pump control, fan operation, conveyor operation, and many other basic machine circuits. The exact wiring and safety design depend on the equipment, so always check the actual drawings and manuals before changing a real circuit.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-overview.png" alt="Overview of a start stop circuit with a stop button, start button, self-holding contact, and output coil">
-              </div>
-              <figcaption>
-                A start/stop circuit can be understood as four main parts: Stop contact, Start contact, self-holding contact, and output coil.
-              </figcaption>
-            </figure>
-
-            <div class="key-highlight">
-              <h3>The important point</h3>
-              <p>
-                The Start button only gives the first command. The circuit keeps running because the self-holding contact creates another path after the coil turns ON.
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="contacts">
-            <h2>Start button and stop button contacts</h2>
-            <p class="section-intro-line">A common start/stop circuit uses a normally open Start contact and a normally closed Stop contact.</p>
-            <p>
-              The <strong>Start button</strong> is usually a normally open contact. It does not conduct in the normal state. When the operator presses Start, the contact closes and gives the ON command.
-            </p>
-            <p>
-              The <strong>Stop button</strong> is usually a normally closed contact in the control path. It conducts in the normal state. When the operator presses Stop, the contact opens and breaks the control circuit.
-            </p>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Part</th>
-                    <th>Usual contact</th>
-                    <th>Normal state</th>
-                    <th>Role in the circuit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell-blue">Start button</td>
-                    <td>Normally open (NO)</td>
-                    <td>Open</td>
-                    <td>Closes only while pressed and gives the first ON command.</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">Stop button</td>
-                    <td>Normally closed (NC)</td>
-                    <td>Closed</td>
-                    <td>Opens when pressed and interrupts the control circuit.</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">Self-holding contact</td>
-                    <td>NO auxiliary contact</td>
-                    <td>Open until the coil energizes</td>
-                    <td>Closes after the coil turns ON and keeps the circuit energized.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="danger-box">
-              <h3>Do not treat this as a safety design manual</h3>
-              <p>
-                This article explains the basic control idea. Safety circuits, emergency stops, overload protection, and machine stopping categories require proper design according to the equipment, standards, and manufacturer manuals.
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="self-hold">
-            <h2>How self-holding keeps the output ON</h2>
-            <p class="section-intro-line">Self-holding means the circuit keeps its own ON state after the Start button is released.</p>
-            <p>
-              If a Start button is only a momentary push button, the output would turn OFF as soon as the operator releases the button. To prevent that, an auxiliary contact from the relay, contactor, or internal PLC bit is placed in parallel with the Start contact.
-            </p>
-            <p>
-              When Start is pressed, the coil energizes. Once the coil is ON, its auxiliary contact closes. After that, current or logic can continue through the auxiliary contact even when the Start button opens again.
-            </p>
-
-            <div class="talk-thread" aria-label="Conversation">
-              <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character explaining start stop circuit basics">
-                </div>
-                <div class="talk-bubble">
-                  <span class="talk-name">Senior</span>
-                  <p>Think of Start as the first trigger. After the coil turns ON, the self-holding contact takes over and keeps the circuit ON.</p>
-                </div>
-              </div>
-              <div class="talk-row is-reverse">
-                <div class="talk-avatar">
-                  <img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character asking about self-holding contact">
-                </div>
-                <div class="talk-bubble">
-                  <span class="talk-name">Junior</span>
-                  <p>So if the self-holding contact does not close, the output may turn ON only while I keep pressing Start?</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="field-highlight">
-              <h3>Field hint</h3>
-              <p>
-                If a motor or output turns ON only while Start is pressed, check the self-holding contact, auxiliary contact wiring, PLC internal seal-in bit, and the output coil condition.
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="ladder">
-            <h2>Simple ladder logic example</h2>
-            <p class="section-intro-line">The basic ladder pattern is Stop in series, Start in parallel with self-hold, and an output coil at the end.</p>
-            <p>
-              The following is a simplified example. The symbol names are only examples. Real PLC addresses, terminal names, and wiring depend on the actual machine and manufacturer.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ladder-logic.png" alt="Simple ladder logic example for a start stop circuit with stop, start, self-hold, and output coil">
-              </div>
-              <figcaption>
-                A basic ladder example places the stop condition before the start/self-hold branch, then drives the output coil.
-              </figcaption>
-            </figure>
-
-            <div class="ladder-box" aria-label="Simplified ladder example">
-              <div class="ladder-row">
-                <div class="ladder-label">Rung 1</div>
-                <div class="ladder-line">[ STOP condition ] --+-- [ START ] -------- ( RUN output )</div>
-              </div>
-              <div class="ladder-row">
-                <div class="ladder-label"></div>
-                <div class="ladder-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-- [ RUN self-hold ] --</div>
-              </div>
-            </div>
-
-            <p>
-              In PLC logic, the physical NC stop push button is often represented according to how the PLC input is wired and how the program instruction reads that input. Do not copy ladder symbols without checking the real input state in the PLC monitor.
-            </p>
-
-            <div class="note-box">
-              <h3>Check the actual ON/OFF state</h3>
-              <p>
-                When troubleshooting, do not rely only on the name “NC” or “NO.” Watch the PLC input monitor and confirm what the program sees when the button is pressed and released.
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="checks">
-            <h2>Field checks when it does not start or does not stop</h2>
-            <p class="section-intro-line">When a start/stop circuit behaves strangely, separate the problem into input, logic, output, and wiring checks.</p>
-            <p>
-              A start/stop circuit is simple, but troubleshooting can become confusing if you look everywhere at once. Start from the Stop side, then the Start side, then the self-holding path, and finally the output side.
-            </p>
-
-            <figure class="article-figure">
-              <div class="article-figure-inner">
-                <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-field-checks.png" alt="Field check flow for a start stop circuit showing stop contact, start contact, self-hold, output coil, and wiring checks">
-              </div>
-              <figcaption>
-                A calm check order helps prevent guessing: Stop contact, Start contact, self-holding path, output coil, and field wiring.
-              </figcaption>
-            </figure>
-
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>1. Check the Stop input</h3>
-                <p>Confirm whether the stop circuit is healthy and whether the PLC or relay circuit sees the normal stop condition.</p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>2. Check the Start input</h3>
-                <p>Press Start and confirm that the input changes correctly. If it does not change, check the button, wiring, and terminal.</p>
-              </div>
-              <div class="check-item">
-                <h3>3. Check the self-hold path</h3>
-                <p>If the output drops when Start is released, the self-holding contact or seal-in bit may not be closing.</p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>4. Check the output side</h3>
-                <p>If the logic is ON but the motor does not run, check the output module, contactor coil, overload contact, and power circuit.</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-card" id="mistakes">
-            <h2>Common mistakes to avoid</h2>
-            <p class="section-intro-line">Most start/stop mistakes come from mixing up contact state, program logic, and field wiring.</p>
-            <ul>
-              <li>Thinking the Start button alone can keep the output ON.</li>
-              <li>Forgetting the self-holding contact or putting it in the wrong branch.</li>
-              <li>Checking only the ladder screen and not the actual input monitor.</li>
-              <li>Assuming all machines use the same terminal names or contact arrangement.</li>
-              <li>Treating a basic start/stop circuit as a substitute for a proper safety circuit.</li>
-            </ul>
-            <div class="key-highlight">
-              <h3>Simple way to remember</h3>
-              <p>
-                Start gives the first push, self-hold keeps it running, and Stop breaks the path. If you keep this order in mind, the circuit becomes much easier to read.
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="related">
-            <h2>Related articles</h2>
-            <p class="section-intro-line">These topics connect naturally with start/stop circuit basics.</p>
-            <div class="related-grid">
-              <a class="related-card" href="self-hold-circuit.html">
-                <h3>Self-Holding Circuit Basics</h3>
-                <p>Learn how a circuit keeps itself ON after a momentary start signal.</p>
-              </a>
-              <a class="related-card" href="relay-basic.html">
-                <h3>Relay Basics</h3>
-                <p>Review contacts, coils, and the relay logic behind many control circuits.</p>
-              </a>
-              <a class="related-card" href="interlock-basic.html">
-                <h3>Interlock Circuit Basics</h3>
-                <p>Understand how circuits prevent conflicting or unsafe operations.</p>
-              </a>
-              <a class="related-card" href="forward-reverse-circuit-basic.html">
-                <h3>Forward/Reverse Circuit Basics</h3>
-                <p>See how start/stop thinking expands into motor direction control.</p>
-              </a>
-              <a class="related-card" href="while-pressed-circuit-basic.html">
-                <h3>Press-and-Hold Circuit Basics</h3>
-                <p>Compare momentary operation with self-holding operation.</p>
-              </a>
-              <a class="related-card" href="timer-circuit-basic.html">
-                <h3>Timer Circuit Basics</h3>
-                <p>Learn the next step after simple ON/OFF control: adding time conditions.</p>
-              </a>
-            </div>
-          </section>
-        </article>
-
-        <aside class="side-rail" aria-label="Side navigation">
-          <section class="side-card">
-            <h3>On this page</h3>
-            <ul class="side-link-list">
-              <li><a href="#overview">Overview</a></li>
-              <li><a href="#contacts">Start and stop contacts</a></li>
-              <li><a href="#self-hold">Self-holding logic</a></li>
-              <li><a href="#ladder">Ladder example</a></li>
-              <li><a href="#checks">Field checks</a></li>
-              <li><a href="#mistakes">Common mistakes</a></li>
-            </ul>
-          </section>
-
-          <section class="side-card">
-            <h3>Key idea</h3>
-            <ul>
-              <li>Stop breaks the circuit.</li>
-              <li>Start gives the first ON command.</li>
-              <li>Self-hold keeps the output ON.</li>
-              <li>Actual wiring and PLC logic must be checked on the real machine.</li>
-            </ul>
-          </section>
-
-          <section class="side-card support-card">
-            <h3 class="support-card-title">Support this site</h3>
-            <p class="support-card-text">
-              If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
-            </p>
-            <div class="support-card-actions">
-              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
-              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
-            </div>
-          </section>
-        </aside>
       </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <div class="summary-card summary-card--fit">
+        <h2>Good fit for</h2>
+        <ul>
+          <li>Beginners learning relay or PLC ladder logic</li>
+          <li>People who want to understand start and stop pushbutton circuits</li>
+          <li>Field workers checking why a machine does not keep running</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--notyet">
+        <h2>Not the focus here</h2>
+        <ul>
+          <li>Detailed motor protection design</li>
+          <li>Full safety circuit design</li>
+          <li>Manufacturer-specific PLC programming rules</li>
+        </ul>
+      </div>
+      <div class="summary-card summary-card--conclusion">
+        <h2>Key conclusion</h2>
+        <ul>
+          <li>The stop button is usually NC and placed before the start command</li>
+          <li>The start button gives a momentary ON command</li>
+          <li>The self-holding contact keeps the circuit energized until stop opens the path</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="Mini table of contents">
+      <h2>Mini table of contents</h2>
+      <div class="mini-toc">
+        <a href="#what-it-does">What it does</a>
+        <a href="#main-parts">Main parts</a>
+        <a href="#stop-nc">Stop button NC</a>
+        <a href="#self-hold">Self-holding</a>
+        <a href="#basic-flow">Basic ladder flow</a>
+        <a href="#field-check">Field checks</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="what-it-does">
+          <h2>What a start/stop circuit does</h2>
+          <p class="section-intro-line">
+            The job of a start/stop circuit is simple: start an output with a momentary command, then keep it on until a stop command breaks the path.
+          </p>
+          <p>
+            In a basic control panel, the operator often presses a <span class="marker-blue">start button</span> only for a moment. If the circuit only depended on that button, the output would turn off as soon as the button was released.
+          </p>
+          <p>
+            A start/stop circuit solves this by using a <span class="marker-green">self-holding contact</span>. After the output turns on, an auxiliary contact creates another path that keeps the output energized.
+          </p>
+          <p>
+            This idea appears in motor start/stop operation, conveyor commands, lamp circuits, relay control, PLC internal logic, and many basic machine-control sequences.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-overview-en.png" alt="Overview of a basic start stop circuit with stop button, start button, self holding contact, and output coil">
+            </div>
+            <figcaption>
+              A basic start/stop circuit separates the stop path, start command, holding path, and output coil so the operation can be checked step by step.
+            </figcaption>
+          </figure>
+
+          <div class="point-strip">
+            <strong>Practical point:</strong> When troubleshooting, do not look only at the output coil. First separate the stop path, start button, holding contact, and output device.
+          </div>
+        </section>
+
+        <section class="section-card" id="main-parts">
+          <h2>Main parts of the circuit</h2>
+          <p class="section-intro-line">
+            The basic circuit is easier to understand when each part has a clear role.
+          </p>
+          <ul class="keyword-pills">
+            <li>Stop button</li>
+            <li>Start button</li>
+            <li>Output coil</li>
+            <li>Self-holding contact</li>
+          </ul>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Part</th>
+                  <th>Usual contact type</th>
+                  <th>Role in the circuit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-orange">Stop pushbutton</td>
+                  <td>NC contact</td>
+                  <td>Normally closed during normal operation. Pressing stop opens the path and turns the output off.</td>
+                </tr>
+                <tr>
+                  <td class="cell-blue">Start pushbutton</td>
+                  <td>NO contact</td>
+                  <td>Normally open. Pressing start closes the path and gives the first ON command.</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Output coil</td>
+                  <td>Relay, contactor, PLC internal relay, or output command</td>
+                  <td>Turns on when the circuit path is complete.</td>
+                </tr>
+                <tr>
+                  <td>Self-holding auxiliary contact</td>
+                  <td>Usually NO auxiliary contact linked to the output</td>
+                  <td>Closes after the output turns on and keeps the circuit energized after the start button is released.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="stop-nc">
+          <h2>Why the stop button is normally closed</h2>
+          <p class="section-intro-line">
+            In many basic control circuits, the stop button is placed before the start command and is normally closed.
+          </p>
+          <p>
+            When everything is normal, the stop path is already closed. That means the circuit is ready to receive a start command. When the operator presses stop, the NC contact opens and the output drops out.
+          </p>
+          <p>
+            This also makes certain open-circuit problems easier to notice. For example, if a wire in the stop path is broken, the circuit may fail to start or may drop out instead of silently ignoring the stop path.
+          </p>
+          <div class="note-box">
+            <h3>Important note</h3>
+            <p>
+              A normally closed stop button is a basic control-circuit idea. It does not, by itself, make a machine safe. Safety circuits, emergency stops, risk assessment, and standards must be designed separately.
+            </p>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-pushbutton-flow-en.png" alt="Stop button and start button flow in a basic start stop control circuit">
+            </div>
+            <figcaption>
+              The stop contact is usually checked first because it must stay closed before the start command can energize the output.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="self-hold">
+          <h2>How self-holding works</h2>
+          <p class="section-intro-line">
+            Self-holding is the part that keeps the output on after the start button is released.
+          </p>
+          <p>
+            The start button closes only while it is being pressed. Once the output coil turns on, an auxiliary contact linked to that output also closes. This auxiliary contact is placed in parallel with the start button.
+          </p>
+          <p>
+            After that, releasing the start button does not stop the circuit. Current or logic continuity can still pass through the self-holding contact. The output stays on until the stop button opens the path.
+          </p>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-self-hold-en.png" alt="Self holding contact keeping a start stop circuit energized after the start button is released">
+            </div>
+            <figcaption>
+              The holding contact is the key part that changes a momentary start command into a maintained output state.
+            </figcaption>
+          </figure>
+
+          <div class="key-highlight">
+            <h3>Simple way to remember</h3>
+            <p>
+              The start button turns the output on once. The self-holding contact keeps it on. The stop button breaks the path and turns it off.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="basic-flow">
+          <h2>Basic ladder flow</h2>
+          <p class="section-intro-line">
+            The same idea can be followed as a simple ladder-logic flow without depending on a specific PLC brand.
+          </p>
+          <div class="flow-grid">
+            <div class="flow-card">
+              <h3>1. Ready state</h3>
+              <p>The stop contact is closed, but the start button is still open.</p>
+            </div>
+            <div class="flow-card">
+              <h3>2. Start command</h3>
+              <p>Pressing start closes the command path and turns the output on.</p>
+            </div>
+            <div class="flow-card">
+              <h3>3. Holding state</h3>
+              <p>The auxiliary contact closes and keeps the output energized.</p>
+            </div>
+          </div>
+
+          <div class="ladder-box" aria-label="Conceptual start stop ladder flow">
+            <div class="ladder-row">
+              <div class="ladder-label">Step 1</div>
+              <div class="ladder-line">STOP contact closed</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">Step 2</div>
+              <div class="ladder-line">START button pressed</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">Step 3</div>
+              <div class="ladder-line">Output coil turns ON</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">Step 4</div>
+              <div class="ladder-line">Output auxiliary contact closes</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">Step 5</div>
+              <div class="ladder-line">START button released, output remains ON through self-holding</div>
+            </div>
+            <div class="ladder-row">
+              <div class="ladder-label">Step 6</div>
+              <div class="ladder-line">STOP button pressed, output turns OFF</div>
+            </div>
+          </div>
+
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-ladder-flow-en.png" alt="Conceptual ladder flow of a start stop circuit from start command to self holding and stop command">
+            </div>
+            <figcaption>
+              In the ladder flow, the output can remain on only if the holding path closes after the first start command.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="where-used">
+          <h2>Common places this circuit appears</h2>
+          <p class="section-intro-line">
+            Start/stop logic is a basic pattern that appears in many practical control panels and PLC programs.
+          </p>
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Motor start/stop operation</h3>
+              <p>Often used before driving a contactor or motor command, together with protection and interlocks.</p>
+            </div>
+            <div class="check-item">
+              <h3>Conveyor start/stop command</h3>
+              <p>A start button begins operation, while stop or interlock conditions remove the run command.</p>
+            </div>
+            <div class="check-item">
+              <h3>Control panel pushbuttons</h3>
+              <p>Operator panels commonly use separate start and stop buttons for clear manual control.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>PLC internal logic</h3>
+              <p>The same structure can be used as internal logic before turning on a real PLC output.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>Field check points</h2>
+          <p class="section-intro-line">
+            When a start/stop circuit does not work, check the path in order instead of guessing from the output side only.
+          </p>
+          <figure class="article-figure">
+            <div class="article-figure-inner">
+              <img src="../../assets/images/start-stop-circuit-basic-en/start-stop-circuit-basic-field-check-en.png" alt="Field check points for troubleshooting a start stop circuit">
+            </div>
+            <figcaption>
+              A practical check starts from the stop path, then moves through the start button, output coil, and self-holding contact.
+            </figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>Stop button contact</h3>
+              <p>Confirm the NC contact is wired correctly and closes during normal operation.</p>
+            </div>
+            <div class="check-item">
+              <h3>Start button contact</h3>
+              <p>Confirm the NO contact closes only while the start button is pressed.</p>
+            </div>
+            <div class="check-item">
+              <h3>Output behavior</h3>
+              <p>Check whether the output energizes only while pressing start, or remains on after release.</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>Holding contact</h3>
+              <p>Confirm the auxiliary or internal holding contact closes after the output turns on.</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>Stop operation</h3>
+              <p>Press stop and verify the output reliably drops out.</p>
+            </div>
+            <div class="check-item">
+              <h3>Interlock conditions</h3>
+              <p>Check whether an emergency stop, guard, overload, or interlock is preventing operation.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="common-mistakes">
+          <h2>Common beginner mistakes</h2>
+          <p class="section-intro-line">
+            Most start/stop circuit mistakes come from mixing up contact type, contact position, or the meaning of PLC input status.
+          </p>
+          <ul>
+            <li>Using an NO contact for the stop button by mistake.</li>
+            <li>Forgetting the self-holding contact, so the output turns off when the start button is released.</li>
+            <li>Placing the self-holding contact in the wrong position.</li>
+            <li>Confusing a physical NC contact with how the signal appears in the PLC monitor.</li>
+            <li>Assuming the output coil is bad without checking the stop and start path first.</li>
+          </ul>
+          <div class="danger-box">
+            <h3>Do not bypass stop or safety-related circuits casually</h3>
+            <p>
+              For troubleshooting, always follow your site rules. Do not temporarily bypass stop, emergency stop, or interlock wiring unless the work is properly controlled and authorized.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="conversation">
+          <h2>Short conversation</h2>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>If the motor stops as soon as you release the start button, the first thing I would check is the holding path.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/kouhai.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Kouhai</span>
+                <p>So the start button itself is not supposed to keep the motor running?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>Right. The start button only gives the first command. After the output turns on, the self-holding contact keeps the command path closed.</p>
+              </div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/kouhai.png" alt="Junior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Kouhai</span>
+                <p>And the stop button is normally closed because the circuit should open when we press stop?</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../../assets/images/common/senpai.png" alt="Senior technician character">
+              </div>
+              <div class="talk-bubble">
+                <span class="talk-name">Senpai</span>
+                <p>Exactly. During normal operation the stop path is closed. Pressing stop opens that path and drops the output.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>Summary</h2>
+          <p>
+            A start/stop circuit is a basic but important control pattern. The start button gives the initial command, the stop button breaks the command path, and the self-holding contact keeps the output on after the start button is released.
+          </p>
+          <p>
+            In the field, troubleshooting becomes much easier when you separate the circuit into four parts: the stop path, the start path, the output coil, and the holding contact.
+          </p>
+          <div class="related-grid">
+            <a class="related-card" href="./self-hold-circuit.html">
+              <h3>Self-Holding Circuit Basics</h3>
+              <p>Learn the holding contact idea that keeps an output on after a momentary command.</p>
+            </a>
+            <a class="related-card" href="./relay-basic.html">
+              <h3>Relay Basics</h3>
+              <p>Review how relay coils and contacts work before reading more circuit examples.</p>
+            </a>
+            <a class="related-card" href="./timer-circuit-basic.html">
+              <h3>Timer Circuit Basics</h3>
+              <p>See how delay timing is added after basic relay and start/stop logic.</p>
+            </a>
+          </div>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/circuit-basics.html">Back to Circuit Basics</a>
+            <a class="btn btn-primary" href="../index.html">Back to English top</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="Side navigation">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul class="side-link-list">
+            <li><a href="#what-it-does">What it does</a></li>
+            <li><a href="#main-parts">Main parts</a></li>
+            <li><a href="#stop-nc">Stop button NC</a></li>
+            <li><a href="#self-hold">Self-holding</a></li>
+            <li><a href="#basic-flow">Basic ladder flow</a></li>
+            <li><a href="#field-check">Field checks</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>Key points</h3>
+          <ul>
+            <li>Stop is usually NC.</li>
+            <li>Start is usually NO.</li>
+            <li>The holding contact keeps the output on.</li>
+            <li>Stop breaks the path and turns the output off.</li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card">
+          <h3 class="support-card-title">Support Denki Control Lab</h3>
+          <p class="support-card-text">
+            If this guide helped you, a small support helps keep practical control articles coming.
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy Me a Coffee</a>
+            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+          </div>
+        </section>
+
+        <section class="side-card">
+          <h3>Related basics</h3>
+          <ul>
+            <li><a href="./self-hold-circuit.html">Self-holding circuit</a></li>
+            <li><a href="./relay-basic.html">Relay basics</a></li>
+            <li><a href="./timer-circuit-basic.html">Timer circuit basics</a></li>
+          </ul>
+          <p class="side-note">
+            Start/stop logic becomes much easier once you understand self-holding and relay contacts.
+          </p>
+        </section>
+      </aside>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p class="footer-copy">© Denki Control Lab. Practical electrical control guides.</p>
+    <p class="footer-copy">© 2026 Denki Control Lab. Practical guides for electrical control and PLC basics.</p>
     <div class="footer-links">
-      <a href="../privacy-policy.html">Privacy Policy</a>
-      <span class="footer-separator">|</span>
-      <a href="../contact.html">Contact</a>
+      <a href="../index.html">English top</a>
+      <span class="footer-separator">/</span>
+      <a href="../../">Japanese top</a>
     </div>
   </footer>
 
   <script>
     (function(){
-      var button = document.getElementById('languageMenuButton');
-      var panel = document.getElementById('languageMenuPanel');
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
       if(!button || !panel) return;
-      button.addEventListener('click', function(){
-        var expanded = button.getAttribute('aria-expanded') === 'true';
-        button.setAttribute('aria-expanded', String(!expanded));
+
+      button.addEventListener("click", function(event){
+        event.stopPropagation();
+        const expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
         panel.hidden = expanded;
       });
-      document.addEventListener('click', function(event){
+
+      document.addEventListener("click", function(event){
         if(panel.hidden) return;
-        if(!button.contains(event.target) && !panel.contains(event.target)){
-          button.setAttribute('aria-expanded','false');
+        if(!panel.contains(event.target) && !button.contains(event.target)){
           panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
         }
       });
-      document.addEventListener('keydown', function(event){
-        if(event.key === 'Escape'){
-          button.setAttribute('aria-expanded','false');
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
           panel.hidden = true;
+          button.setAttribute("aria-expanded", "false");
+          button.focus();
         }
       });
     })();

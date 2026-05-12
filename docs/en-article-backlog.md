@@ -94,7 +94,6 @@
 - [ ] tajima-sef-boxes
 - [ ] temperature-sensor-basic
 - [ ] tepra-vs-lettertwin
-- [ ] terminal-block-jumper-basic
 - [ ] tester
 - [ ] thermal-relay-basic
 - [ ] timer-relay-basic

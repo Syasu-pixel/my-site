@@ -74,7 +74,6 @@
 - [ ] panel-heater-basic
 - [ ] pilot-lamp-basic
 - [ ] pipe-wiring-tips
-- [ ] plc-io-unit-basic
 - [ ] pliers
 - [ ] pneumatic-silencer-basic
 - [ ] power-signal-wiring-separation-basic

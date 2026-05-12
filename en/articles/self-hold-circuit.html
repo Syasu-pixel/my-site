@@ -4,22 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <title>What Is a Self-Holding Circuit? Start/Stop Control Explained | Denki Control Lab</title>
-  <meta name="description" content="Learn how a self-holding circuit works in relay and PLC ladder logic. This beginner-friendly guide explains start and stop pushbuttons, holding contacts, output coils, troubleshooting checks, and practical safety notes.">
+  <title>Self-Holding Circuit Basics: Why a Motor Keeps Running After START | Denki Control Lab</title>
+  <meta name="description" content="Learn the basics of a self-holding circuit. This beginner-friendly guide explains start and stop pushbuttons, holding contacts, relay and PLC ladder logic, why the output stays on, and what to check when it does not hold.">
+  <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/en/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/self-hold-circuit.html">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="What Is a Self-Holding Circuit? Start/Stop Control Explained">
-  <meta property="og:description" content="A practical beginner-friendly guide to self-holding circuits, holding contacts, start/stop pushbuttons, and basic PLC ladder logic.">
+  <meta property="og:title" content="Self-Holding Circuit Basics: Why a Motor Keeps Running After START">
+  <meta property="og:description" content="A practical beginner-friendly guide to self-holding circuits, start/stop pushbuttons, holding contacts, relay control, and PLC ladder logic.">
   <meta property="og:url" content="https://denkicontrol.com/en/articles/self-hold-circuit.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/self-hold-circuit-en/self-hold-circuit-ogp-en.png">
   <meta property="og:site_name" content="Denki Control Lab">
+  <meta property="og:locale" content="en_US">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="What Is a Self-Holding Circuit? Start/Stop Control Explained">
+  <meta name="twitter:title" content="Self-Holding Circuit Basics: Why a Motor Keeps Running After START">
   <meta name="twitter:description" content="Understand why a start button can keep a relay or PLC output running, and what to check when the circuit does not stay on.">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/self-hold-circuit-en/self-hold-circuit-ogp-en.png">
   <meta name="theme-color" content="#f8fbff">
@@ -32,7 +34,6 @@
   <style>
     :root{
       --bg:#f4f7fb;
-      --bg-soft:#f8fbff;
       --card:#ffffff;
       --line:#d8e3f0;
       --line-header:#dbe7f3;
@@ -43,7 +44,7 @@
       --green:#16a34a;
       --green-deep:#166534;
       --orange:#ea580c;
-      --yellow:#f59e0b;
+      --orange-deep:#9a3412;
       --red:#dc2626;
       --red-soft:#fff1f2;
       --purple:#7c3aed;
@@ -70,29 +71,12 @@
       word-break:break-word;
       padding-top:var(--header-h);
     }
-    img,svg{max-width:100%; display:block;}
-    a{
-      color:var(--blue);
-      text-decoration:none;
-      transition:.2s ease;
-    }
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
     a:hover{text-decoration:underline;}
     button,input{font:inherit;}
-    .container{
-      width:min(var(--container),calc(100% - 28px));
-      margin:0 auto;
-    }
-    .sr-only{
-      position:absolute;
-      width:1px;
-      height:1px;
-      padding:0;
-      margin:-1px;
-      overflow:hidden;
-      clip:rect(0,0,0,0);
-      white-space:nowrap;
-      border:0;
-    }
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
     .site-header{
       position:fixed;
@@ -125,11 +109,7 @@
       margin-right:auto;
     }
     .brand:hover{text-decoration:none;}
-    .brand-logo{
-      width:auto;
-      height:46px;
-      flex:0 0 auto;
-    }
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
     .brand-copy{min-width:0;}
     .brand-title{
       display:block;
@@ -148,8 +128,6 @@
       color:#475569;
       font-weight:700;
     }
-
-    .header-nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:flex-end;flex:1 1 auto;margin-left:auto;margin-right:4px;}
 
     .language-menu{
       position:relative;
@@ -182,10 +160,7 @@
       background:#eff6ff;
       border-color:#bfdbfe;
     }
-    .language-menu-icon{
-      font-size:15px;
-      line-height:1;
-    }
+    .language-menu-icon{font-size:15px;line-height:1;}
     .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .language-menu-panel{
       position:absolute;
@@ -210,33 +185,11 @@
       color:#334155;
       text-decoration:none;
     }
-    .language-menu-item:hover{
-      background:#eff6ff;
-      color:#1d4ed8;
-      text-decoration:none;
-    }
-    .language-menu-item.is-active{
-      background:#e6f0ff;
-      color:#1d4ed8;
-    }
-    .language-menu-flag{
-      font-size:18px;
-      line-height:1;
-    }
-    .language-menu-item strong{
-      display:block;
-      font-size:12px;
-      line-height:1.25;
-      font-weight:900;
-    }
-    .language-menu-item small{
-      display:block;
-      margin-top:2px;
-      font-size:10px;
-      line-height:1.3;
-      color:#64748b;
-      font-weight:700;
-    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
 
     .header-search{
       position:relative;
@@ -311,13 +264,7 @@
       padding:8px 8px 10px;
       z-index:1200;
     }
-    .search-box-results{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:grid;
-      gap:6px;
-    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
     .search-result-item{margin:0;}
     .search-result-item a{
       display:block;
@@ -334,51 +281,11 @@
       background:#eff6ff;
       text-decoration:none;
     }
-    .search-result-title{
-      margin:0;
-      font-size:13px;
-      line-height:1.45;
-      color:#0f172a;
-      font-weight:800;
-    }
-    .search-result-meta{
-      margin:4px 0 0;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-      font-size:11px;
-      color:#64748b;
-      line-height:1.5;
-      font-weight:700;
-    }
-    .search-result-category{
-      font-size:11px;
-      line-height:1;
-      padding:4px 8px;
-      border-radius:999px;
-      background:#e6f0ff;
-      color:#1d4ed8;
-      font-weight:700;
-    }
-    .search-result-description{
-      margin:6px 0 0;
-      font-size:12px;
-      line-height:1.5;
-      color:#64748b;
-      display:-webkit-box;
-      -webkit-line-clamp:2;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
-    .search-box-empty{
-      margin:0;
-      padding:14px 10px;
-      text-align:center;
-      color:#64748b;
-      font-size:12px;
-      font-weight:700;
-    }
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800;}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700;}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700;}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
 
     .breadcrumb{
       display:flex;
@@ -397,9 +304,7 @@
       overflow:hidden;
       border:1px solid var(--line);
       border-radius:30px;
-      background:
-        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
-        #f8fbff;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;
       box-shadow:var(--shadow);
       min-height:410px;
       isolation:isolate;
@@ -417,12 +322,12 @@
       content:"";
       position:absolute;
       inset:0;
-      background:linear-gradient(90deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.18) 70%,rgba(255,255,255,0) 100%);
+      background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 40%,rgba(255,255,255,.24) 72%,rgba(255,255,255,0) 100%);
       pointer-events:none;
       z-index:1;
     }
     .article-hero-copy{
-      width:min(100%,680px);
+      width:min(100%,710px);
       min-height:410px;
       display:flex;
       flex-direction:column;
@@ -445,34 +350,10 @@
       font-weight:900;
       margin-bottom:16px;
     }
-    h1{
-      margin:0 0 14px;
-      font-size:40px;
-      line-height:1.22;
-      letter-spacing:.01em;
-      color:#0f172a;
-    }
-    .hero-lead{
-      margin:0;
-      max-width:44ch;
-      font-size:15px;
-      color:#334155;
-    }
-    .hero-points{
-      display:grid;
-      gap:8px;
-      margin:18px 0 0;
-      padding:0;
-      list-style:none;
-    }
-    .hero-points li{
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-      font-size:14px;
-      color:#334155;
-      font-weight:700;
-    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
     .hero-points li::before{
       content:"✓";
       display:inline-flex;
@@ -487,12 +368,7 @@
       flex:0 0 auto;
       margin-top:2px;
     }
-    .hero-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:24px;
-    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
     .btn{
       display:inline-flex;
       align-items:center;
@@ -507,691 +383,141 @@
       border:1px solid transparent;
     }
     .btn:hover{text-decoration:none;}
-    .btn-primary{
-      background:linear-gradient(135deg,#16a34a,#22c55e);
-      color:#fff;
-      box-shadow:0 12px 24px rgba(34,197,94,.18);
-    }
-    .btn-secondary{
-      background:#fff;
-      color:var(--text);
-      border-color:#d3dfec;
-    }
+    .btn-primary{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;box-shadow:0 12px 24px rgba(34,197,94,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
 
-    .top-summary{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:16px;
-      margin:18px 0 22px;
-    }
-    .summary-card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px 20px;
-      box-shadow:var(--shadow);
-    }
-    .summary-card h2{
-      margin:0 0 12px;
-      font-size:18px;
-      line-height:1.4;
-    }
-    .summary-card ul{
-      margin:0;
-      padding-left:18px;
-    }
-    .summary-card li{
-      margin:8px 0 0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.7;
-    }
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
     .summary-card--fit h2{color:#0f766e;}
     .summary-card--notyet h2{color:#b45309;}
     .summary-card--conclusion h2{color:var(--blue-deep);}
 
-    .mini-toc-card{
-      margin:0 0 22px;
-      padding:22px 20px 16px;
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:var(--card);
-      box-shadow:var(--shadow);
-    }
-    .mini-toc-card h2{
-      margin:0 0 14px;
-      font-size:17px;
-      line-height:1.5;
-    }
-    .mini-toc{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-    .mini-toc a{
-      display:inline-flex;
-      align-items:center;
-      min-height:38px;
-      padding:0 14px;
-      border-radius:999px;
-      background:#f8fbff;
-      border:1px solid #cfdded;
-      color:var(--blue);
-      font-size:13px;
-      font-weight:900;
-      text-decoration:none;
-    }
-    .mini-toc a:hover{
-      background:#eff6ff;
-      text-decoration:none;
-    }
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
 
-    .page-layout{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) 310px;
-      gap:24px;
-      align-items:start;
-      margin-bottom:48px;
-    }
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
     .main-column{min-width:0;}
-    .side-rail{
-      position:sticky;
-      top:98px;
-      display:grid;
-      gap:16px;
-    }
-    .section-card,
-    .side-card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-    }
-    .section-card{
-      padding:28px;
-      margin-bottom:20px;
-    }
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
     .side-card{padding:20px;}
-    .section-card h2{
-      margin:0 0 10px;
-      font-size:23px;
-      line-height:1.4;
-      color:#0f172a;
-    }
-    .section-intro-line{
-      margin:0 0 18px;
-      padding-left:14px;
-      border-left:5px solid #bfdbfe;
-      font-size:14px;
-      color:#476178;
-      font-weight:700;
-    }
-    .section-card h3{
-      margin:22px 0 10px;
-      font-size:17px;
-      line-height:1.5;
-      color:#0f172a;
-    }
-    .section-card p{
-      margin:0 0 14px;
-      font-size:15px;
-    }
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bbf7d0;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
     .section-card p:last-child{margin-bottom:0;}
-    .section-card ul,
-    .section-card ol{
-      margin:12px 0 0;
-      padding-left:22px;
-    }
-    .section-card li{
-      margin:8px 0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.75;
-    }
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
 
-    .marker-blue{
-      background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);
-      font-weight:900;
-    }
-    .marker-green{
-      background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);
-      font-weight:900;
-    }
-    .marker-yellow{
-      background:linear-gradient(transparent 58%,rgba(253,224,71,.35) 58%);
-      font-weight:900;
-    }
-    .point-strip{
-      margin:16px 0 18px;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid #d7e4f3;
-      background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);
-      font-size:14px;
-      font-weight:800;
-      color:#334155;
-    }
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .point-strip{margin:16px 0 18px;padding:12px 14px;border-radius:16px;border:1px solid #d7e4f3;background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);font-size:14px;font-weight:800;color:#334155;}
     .point-strip strong{color:#1e3a8a;}
 
-    .keyword-pills{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin:8px 0 18px;
-      padding:0;
-      list-style:none;
-    }
-    .keyword-pills li{
-      display:inline-flex;
-      align-items:center;
-      min-height:34px;
-      padding:0 12px;
-      border-radius:999px;
-      border:1px solid #d6e3f2;
-      background:#f8fbff;
-      font-size:12px;
-      font-weight:900;
-      color:#1d4ed8;
-    }
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
 
-    .article-figure{
-      margin:20px 0;
-      border:1px solid var(--line);
-      border-radius:22px;
-      overflow:hidden;
-      background:#f8fbff;
-    }
-    .article-figure-inner{
-      background:#fff;
-      padding:18px;
-    }
-    .article-figure figcaption{
-      padding:12px 16px 14px;
-      border-top:1px solid #dbe6f1;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.65;
-      background:#fff;
-    }
-
-    .key-highlight,
-    .field-highlight{
-      border-radius:20px;
-      padding:18px;
-      margin:18px 0;
-    }
-    .key-highlight{
-      border:1px solid #bfdbfe;
-      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
-    }
-    .field-highlight{
-      border:1px solid #bbf7d0;
-      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
-    }
-    .key-highlight h3,
-    .field-highlight h3{
-      margin:0 0 10px;
-      font-size:16px;
-      line-height:1.5;
-    }
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
     .key-highlight h3{color:#1d4ed8;}
     .field-highlight h3{color:#15803d;}
-    .key-highlight p,
-    .field-highlight p{
-      margin:0;
-      color:#334155;
-      font-size:14px;
-    }
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
 
-    .note-box,
-    .danger-box{
-      padding:18px;
-      border-radius:20px;
-      margin:18px 0;
-      border:1px solid transparent;
-    }
-    .note-box{
-      background:#fff8ea;
-      border-color:#f7dba2;
-    }
-    .danger-box{
-      background:var(--red-soft);
-      border-color:#fecaca;
-    }
-    .note-box h3,
-    .danger-box h3{
-      margin:0 0 10px;
-      font-size:16px;
-      line-height:1.5;
-    }
-    .note-box p,
-    .danger-box p{
-      margin:0;
-      font-size:14px;
-      color:var(--muted);
-    }
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}
+    .danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
 
-    .check-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:14px;
-      margin-top:16px;
-    }
-    .check-item{
-      background:#f8fbff;
-      border:1px solid #d7e4f3;
-      border-radius:20px;
-      padding:16px;
-    }
-    .check-item h3{
-      margin:0 0 8px;
-      font-size:16px;
-      line-height:1.5;
-    }
-    .check-item p{
-      margin:0;
-      font-size:14px;
-      color:var(--muted);
-    }
-    .check-item--important{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-    }
-    .check-item--field{
-      background:#ecfdf3;
-      border-color:#bbf7d0;
-    }
-    .check-item--warning{
-      background:#fff7e8;
-      border-color:#f7dba2;
-    }
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}
+    .check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0;}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2;}
 
-    .table-wrap{
-      overflow:auto;
-      margin:18px 0 6px;
-      border:1px solid var(--line);
-      border-radius:18px;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:720px;
-      background:#fff;
-    }
-    th,td{
-      padding:13px 14px;
-      border-bottom:1px solid #dfe8f2;
-      text-align:left;
-      vertical-align:top;
-      font-size:14px;
-      line-height:1.7;
-    }
-    th{
-      background:#f8fbff;
-      color:#0f172a;
-      font-weight:900;
-      white-space:nowrap;
-    }
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap;}
     tr:last-child td{border-bottom:none;}
-    td.cell-blue{
-      background:#eff6ff;
-      font-weight:800;
-      color:#1e3a8a;
-    }
-    td.cell-green{
-      background:#ecfdf3;
-      font-weight:800;
-      color:#166534;
-    }
-    td.cell-orange{
-      background:#fff7e8;
-      font-weight:800;
-      color:#92400e;
-    }
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}
 
-    .flow-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:14px;
-      margin:16px 0 8px;
-    }
-    .flow-card{
-      position:relative;
-      padding:16px;
-      border-radius:20px;
-      background:#f8fbff;
-      border:1px solid #d7e4f3;
-    }
-    .flow-card h3{
-      margin:0 0 8px;
-      font-size:16px;
-      line-height:1.4;
-    }
-    .flow-card p{
-      margin:0;
-      font-size:14px;
-      color:var(--muted);
-    }
-    .flow-card::after{
-      content:"→";
-      position:absolute;
-      right:-11px;
-      top:50%;
-      transform:translateY(-50%);
-      width:22px;
-      height:22px;
-      border-radius:50%;
-      background:#dbeafe;
-      color:#1d4ed8;
-      font-size:13px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-    }
+    .flow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#f8fbff;border:1px solid #d7e4f3;}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;}
     .flow-card:last-child::after{display:none;}
 
-    .ladder-box{
-      margin:18px 0;
-      border:1px solid #d7e4f3;
-      border-radius:20px;
-      background:#fbfdff;
-      padding:18px;
-      overflow:auto;
-    }
-    .ladder-row{
-      display:grid;
-      grid-template-columns:64px minmax(620px,1fr);
-      gap:10px;
-      align-items:center;
-      margin:10px 0;
-      font-size:14px;
-      font-weight:800;
-      color:#334155;
-    }
-    .ladder-label{
-      color:#1d4ed8;
-      font-weight:900;
-    }
-    .ladder-line{
-      border:1px solid #cbdced;
-      background:#fff;
-      border-radius:14px;
-      padding:12px 14px;
-      white-space:nowrap;
-      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
-    }
+    .ladder-box{margin:18px 0;border:1px solid #d7e4f3;border-radius:20px;background:#fbfdff;padding:18px;overflow:auto;}
+    .ladder-row{display:grid;grid-template-columns:64px minmax(620px,1fr);gap:10px;align-items:center;margin:10px 0;font-size:14px;font-weight:800;color:#334155;}
+    .ladder-label{color:#1d4ed8;font-weight:900;}
+    .ladder-line{border:1px solid #cbdced;background:#fff;border-radius:14px;padding:12px 14px;white-space:nowrap;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;}
 
-    .talk-thread{
-      display:grid;
-      gap:12px;
-      margin:18px 0 8px;
-    }
-    .talk-row{
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-    }
-    .talk-row.is-reverse{
-      flex-direction:row-reverse;
-    }
-    .talk-avatar{
-      width:76px;
-      flex:0 0 76px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      background:none;
-      border:none;
-      box-shadow:none;
-    }
-    .talk-avatar img{
-      width:76px;
-      height:auto;
-      display:block;
-    }
-    .talk-row.is-reverse .talk-avatar{
-      background:none;
-      border:none;
-    }
-    .talk-bubble{
-      max-width:min(100%,700px);
-      padding:14px 16px;
-      border-radius:18px;
-      background:#fff;
-      border:1px solid #d7e4f3;
-      box-shadow:0 6px 16px rgba(15,23,42,.04);
-    }
-    .talk-name{
-      display:inline-block;
-      margin:0 0 6px;
-      font-size:12px;
-      line-height:1.3;
-      font-weight:900;
-      color:#1d4ed8;
-    }
-    .talk-row.is-reverse .talk-name{
-      color:#15803d;
-    }
-    .talk-bubble p{
-      margin:0;
-      font-size:14px;
-      line-height:1.75;
-      color:#334155;
-    }
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}
+    .talk-row{display:flex;align-items:flex-start;gap:12px;}
+    .talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}
+    .talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}
+    .talk-row.is-reverse .talk-name{color:#15803d;}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
 
-    .side-card h3{
-      margin:0 0 12px;
-      padding-bottom:12px;
-      border-bottom:1px solid #dbe6f1;
-      font-size:16px;
-      line-height:1.5;
-      color:#0f172a;
-    }
-    .side-card ul,
-    .side-card ol{
-      margin:0;
-      padding-left:18px;
-    }
-    .side-card li{
-      margin:9px 0 0;
-      font-size:14px;
-      line-height:1.7;
-      color:var(--muted);
-    }
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}
     .side-card a{font-weight:800;}
-    .side-note{
-      margin:0;
-      color:#64748b;
-      font-size:12px;
-      line-height:1.65;
-      font-weight:700;
-    }
-    .side-link-list{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:grid;
-      gap:8px;
-    }
-    .side-link-list a{
-      display:block;
-      color:#334155;
-      font-size:12px;
-      line-height:1.5;
-      font-weight:700;
-      padding-left:12px;
-      position:relative;
-      text-decoration:none;
-    }
-    .side-link-list a::before{
-      content:"";
-      position:absolute;
-      left:0;
-      top:.72em;
-      width:4px;
-      height:4px;
-      border-radius:50%;
-      background:#16a34a;
-    }
+    .side-note{margin:0;color:#64748b;font-size:12px;line-height:1.65;font-weight:700;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#16a34a;}
 
-    .support-card{
-      border:1px solid #dbeafe;
-      background:#fff;
-      box-shadow:0 4px 10px rgba(15,23,42,.04);
-    }
-    .support-card .support-card-title{
-      margin:0 0 6px;
-      padding-bottom:5px;
-      font-size:14px;
-      line-height:1.4;
-      font-weight:700;
-      color:#1e3a8a;
-      border-bottom:1px solid #dbeafe;
-    }
-    .support-card .support-card-text{
-      margin:0;
-      font-size:12px;
-      line-height:1.62;
-      color:#334155;
-      font-weight:500;
-    }
-    .support-card .support-card-actions{
-      margin-top:9px;
-      display:grid;
-      gap:7px;
-    }
-    .support-card .support-link{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      min-height:36px;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid #cbdcf2;
-      font-size:12px;
-      font-weight:700;
-      line-height:1.4;
-      text-align:center;
-      white-space:normal;
-      color:#1e3a8a;
-      background:#f8fbff;
-      text-decoration:none;
-    }
-    .support-card .support-link:hover{
-      border-color:#93c5fd;
-      background:#eff6ff;
-      text-decoration:none;
-    }
-    .support-card .support-link--coffee{
-      border-color:#facc15;
-      color:#854d0e;
-      background:#fff3bf;
-    }
-    .support-card .support-link--coffee:hover{
-      border-color:#eab308;
-      background:#fde68a;
-    }
-    .support-card .support-link--paypal{
-      border-color:#93c5fd;
-      color:#0b5cad;
-      background:#eaf3ff;
-    }
-    .support-card .support-link--paypal:hover{
-      border-color:#60a5fa;
-      background:#dbeafe;
-    }
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
 
-    .related-grid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:14px;
-      margin-top:16px;
-    }
-    .related-card{
-      display:block;
-      background:#f8fbff;
-      border:1px solid #d7e4f3;
-      border-radius:20px;
-      padding:16px;
-      color:var(--text);
-      text-decoration:none;
-    }
-    .related-card:hover{
-      text-decoration:none;
-      border-color:#bfd4ec;
-      background:#fbfdff;
-    }
-    .related-card h3{
-      margin:0 0 8px;
-      font-size:16px;
-      line-height:1.5;
-      color:var(--blue);
-    }
-    .related-card p{
-      margin:0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.75;
-    }
-    .article-footer-nav{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:18px;
-    }
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
 
-    .site-footer{
-      max-width:var(--container);
-      margin:28px auto 0;
-      padding:24px 14px 34px;
-      border-top:1px solid #dbe7f3;
-      text-align:center;
-      color:#64748b;
-      font-size:12px;
-      font-weight:500;
-    }
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}
     .footer-copy{margin:0;}
-    .footer-links{
-      margin:10px 0 0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .footer-links a{
-      color:#334155;
-      font-weight:700;
-    }
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .footer-links a{color:#334155;font-weight:700;}
     .footer-separator{color:#cbd5e1;}
 
     @media (max-width:1100px){
       .language-menu-current{display:none;}
-      .language-menu-button{
-        width:38px;
-        min-width:38px;
-        padding:0;
-      }
-      .language-menu-panel{
-        right:0;
-        width:210px;
-      }
-      .page-layout{
-        grid-template-columns:minmax(0,1fr);
-      }
-      .side-rail{
-        position:static;
-        grid-template-columns:repeat(3,minmax(0,1fr));
-      }
-      .flow-grid{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-      }
-      .flow-card:nth-child(2)::after,
-      .flow-card:nth-child(4)::after{
-        display:none;
-      }
+      .language-menu-button{width:38px;min-width:38px;padding:0;}
+      .language-menu-panel{right:0;width:210px;}
+      .page-layout{grid-template-columns:minmax(0,1fr);}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .flow-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .flow-card::after{display:none;}
     }
 
     @media (max-width:900px){
@@ -1202,98 +528,38 @@
       .brand-logo{height:42px;}
       .brand-title{font-size:15px;}
       .brand-sub{display:none;}
-      .header-search{
-        flex:1 1 auto;
-        min-height:40px;
-      }
-      .container{
-        width:min(100%,calc(100% - 20px));
-      }
-      .article-hero{
-        min-height:auto;
-        border-radius:24px;
-        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
-      }
-      .article-hero::before{
-        background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;
-        opacity:.20;
-      }
-      .article-hero-copy{
-        min-height:360px;
-        padding:34px 22px;
-        justify-content:flex-start;
-      }
+      .header-search{flex:1 1 auto;min-height:40px;}
+      .container{width:min(100%,calc(100% - 20px));}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}
       h1{font-size:30px;}
-      .hero-lead{
-        font-size:14px;
-        max-width:34ch;
-      }
-      .top-summary,
-      .side-rail,
-      .related-grid,
-      .check-grid,
-      .flow-grid{
-        grid-template-columns:1fr;
-      }
-      .section-card{
-        padding:22px;
-      }
-      .flow-card::after{display:none;}
+      .hero-lead{font-size:14px;max-width:34ch;}
+      .top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr;}
+      .section-card{padding:22px;}
     }
 
     @media (min-width:744px) and (max-width:1100px){
-      .article-hero{
-        min-height:360px;
-        border-radius:28px;
-        background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;
-      }
-      .article-hero::before{
-        background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right center / auto 92% no-repeat;
-        opacity:.24;
-      }
-      .article-hero-copy{
-        width:min(100%,600px);
-        min-height:360px;
-        padding:40px 34px;
-        justify-content:center;
-      }
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}
+      .article-hero::before{background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right center / auto 92% no-repeat;opacity:.24;}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center;}
       h1{font-size:34px;}
-      .hero-lead{
-        max-width:38ch;
-        font-size:14px;
-      }
-      .top-summary{
-        grid-template-columns:repeat(3,minmax(0,1fr));
-        gap:14px;
-      }
+      .hero-lead{max-width:38ch;font-size:14px;}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
     }
 
     @media (max-width:640px){
-      .article-hero::before{
-        background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;
-        opacity:.14;
-      }
-      h1{font-size:28px;}
-      .hero-actions,
-      .btn{
-        width:100%;
-      }
-      .section-card h2{font-size:20px;}
-      .section-card p{font-size:14px;}
-      .ladder-row{
-        grid-template-columns:54px minmax(560px,1fr);
-        font-size:13px;
-      }
-      .talk-avatar{
-        width:58px;
-        flex:0 0 58px;
-      }
-      .talk-avatar img{
-        width:58px;
-      }
-      .talk-bubble{
-        padding:12px 14px;
-      }
+      .article-hero::before{background:url("../../assets/images/self-hold-circuit-en/self-hold-circuit-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.18;}
+      .hero-actions{display:grid;width:100%;}
+      .btn{width:100%;text-align:center;}
+      .section-card{padding:18px;border-radius:22px;}
+      .summary-card,.mini-toc-card{border-radius:20px;}
+      .talk-row,.talk-row.is-reverse{gap:8px;}
+      .talk-avatar{width:54px;flex-basis:54px;}
+      .talk-avatar img{width:54px;}
+      .talk-bubble{padding:12px 14px;}
+      .table-wrap{border-radius:16px;}
+      .flow-grid{grid-template-columns:1fr;}
     }
 
     @media (max-width:480px){
@@ -1302,611 +568,565 @@
       .brand{gap:8px;}
       .brand-logo{height:32px;}
       .brand-title{font-size:14px;}
-      .header-search{
-        flex:1 1 auto;
-        min-height:34px;
-      }
+      .header-search{flex:0 1 136px;min-height:34px;}
+      .search-box{padding:0 8px;}
       .search-box-input{font-size:11px;}
-      .section-card{
-        padding:18px;
-        border-radius:22px;
-      }
-      .summary-card{
-        padding:18px;
-        border-radius:20px;
-      }
-      .mini-toc a{width:100%;}
+      .language-menu-button{width:34px;min-width:34px;height:34px;}
+      .breadcrumb{font-size:11px;}
+      h1{font-size:27px;}
+      .article-hero-copy{padding:28px 18px;min-height:350px;}
+      .hero-points li{font-size:13px;}
+      .section-card h2{font-size:21px;}
     }
   </style>
 </head>
 
 <body>
   <header class="site-header">
-  <div class="site-header-inner">
-    <a href="../index.html" class="brand" aria-label="Go to English top page">
-      <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
-      <div class="brand-copy">
-        <p class="brand-title">Denki Control Lab</p>
-        <p class="brand-sub">Practical electrical control notes</p>
-      </div>
-    </a>
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab home">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl-180.png" alt="Denki Control Lab logo" width="46" height="46">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical guides for electrical control and PLC basics</span>
+        </span>
+      </a>
 
-
-    <div class="language-menu" aria-label="Language and region switch">
-      <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="Switch language and region">
-        <span class="language-menu-icon" aria-hidden="true">🌐</span>
-        <span class="language-menu-current">United States</span>
-      </button>
-
-      <div class="language-menu-panel" id="languageMenuPanel" hidden>
-        <a href="../../articles/self-hold-circuit.html" class="language-menu-item" lang="ja">
-          <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
-          <span>
-            <strong>Japan</strong>
-            <small>Japanese top</small>
-          </span>
-        </a>
-
-        <a href="./self-hold-circuit.html" class="language-menu-item is-active" lang="en" aria-current="page">
-          <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
-          <span>
-            <strong>United States</strong>
-            <small>English top</small>
-          </span>
-        </a>
-      </div>
-    </div>
-
-    <form class="header-search search-box" id="siteSearch" aria-label="Site search" role="search">
-      <label class="sr-only" for="site-search-input">Site search</label>
-      <input id="site-search-input" class="search-box-input" type="search" placeholder="Search by keyword" autocomplete="off" enterkeyhint="search">
-      <button class="search-box-button" type="submit" aria-label="Search">
-        <span class="header-search-icon" aria-hidden="true"></span>
-      </button>
-      <div class="search-box-panel" id="site-search-panel" hidden>
-        <ul class="search-box-results" id="site-search-results"></ul>
-        <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
-      </div>
-    </form>
-  </div>
-</header>
-
-  <main class="container">
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="../">Home</a>
-      <span aria-hidden="true">›</span>
-      <a href="../categories/circuit-basics.html">Circuit Basics</a>
-      <span aria-hidden="true">›</span>
-      <span>Self-Holding Circuit</span>
-    </nav>
-
-    <section class="article-hero">
-      <div class="article-hero-copy">
-        <span class="hero-label">Circuit Basics</span>
-        <h1>What Is a Self-Holding Circuit?</h1>
-        <p class="hero-lead">
-          A <span class="marker-green">self-holding circuit</span>, also called a <span class="marker-blue">seal-in circuit</span>, keeps an output energized even after the start pushbutton is released. It is one of the most important start/stop patterns in relay control and PLC ladder logic.
-        </p>
-
-        <ul class="hero-points">
-          <li>You can understand the idea without advanced PLC knowledge.</li>
-          <li>The article focuses on what actually matters in the field.</li>
-          <li>It also shows what to check when the output does not stay on.</li>
-        </ul>
-
-        <div class="hero-actions">
-          <a href="#how-it-works" class="btn btn-primary">Start with the basic idea</a>
-          <a href="#troubleshooting" class="btn btn-secondary">Jump to troubleshooting</a>
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a class="language-menu-item" href="../../articles/self-hold-circuit.html" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span>
+              <strong>日本語記事</strong>
+              <small>日本語版の記事を開く</small>
+            </span>
+          </a>
+          <a class="language-menu-item is-active" href="./self-hold-circuit.html" lang="en" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span>
+              <strong>English article</strong>
+              <small>Current page</small>
+            </span>
+          </a>
         </div>
       </div>
-    </section>
 
-    <section class="top-summary" aria-label="Article summary">
-      <div class="summary-card summary-card--fit">
-        <h2>Good fit for</h2>
-        <ul>
-          <li>Understanding <strong>basic start/stop control</strong>.</li>
-          <li>Learning why a motor, lamp, or PLC output can stay on after a momentary start signal.</li>
-          <li>Reading <strong>simple relay circuits</strong> and <strong>PLC ladder diagrams</strong>.</li>
-        </ul>
-      </div>
+      <form class="header-search search-box" id="siteSearch" role="search">
+        <label class="sr-only" for="site-search-input">Search articles</label>
+        <input class="search-box-input" id="site-search-input" type="search" name="q" placeholder="Search" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
 
-      <div class="summary-card summary-card--notyet">
-        <h2>Not necessary yet</h2>
-        <ul>
-          <li>If you only need <strong>hold-to-run</strong> or <strong>jog</strong> operation.</li>
-          <li>If the machine should stop as soon as the button is released.</li>
-          <li>If the real issue is <strong>safety-circuit design</strong> rather than basic control logic.</li>
-        </ul>
-      </div>
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="../categories/circuit-basics.html">Circuit Basics</a>
+        <span aria-hidden="true">›</span>
+        <span>Self-Holding Circuit Basics</span>
+      </nav>
 
-      <div class="summary-card summary-card--conclusion">
-        <h2>Key takeaway</h2>
-        <ul>
-          <li>The start button turns the output on first.</li>
-          <li>The output’s own contact then creates a <strong>holding path</strong>.</li>
-          <li>The stop button opens the circuit and the output turns off.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
-      <h2 id="mini-toc-title">Mini TOC</h2>
-      <div class="mini-toc">
-        <a href="#how-it-works">What it does</a>
-        <a href="#holding-path">Holding path</a>
-        <a href="#stop-button">Stop button</a>
-        <a href="#ladder-example">Ladder example</a>
-        <a href="#troubleshooting">Troubleshooting</a>
-        <a href="#safety-notes">Safety notes</a>
-        <a href="#related">Related articles</a>
-      </div>
-    </section>
-
-    <div class="page-layout">
-      <article class="main-column">
-        <section class="section-card" id="how-it-works">
-          <h2>1. What a self-holding circuit does</h2>
-          <p class="section-intro-line">First, only remember one thing: <strong>the circuit keeps itself on after the start button is released.</strong></p>
-
-          <p>
-            A self-holding circuit is a basic control pattern that keeps an output on after a momentary start signal has been removed. In other words, you press the start pushbutton once, the output turns on, and the circuit continues running even after you take your finger off the button.
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">Circuit Basics</span>
+          <h1>Self-Holding Circuit Basics: Why a Motor Keeps Running After START</h1>
+          <p class="hero-lead">
+            A self-holding circuit is the basic pattern that lets an output stay on after a momentary START pushbutton is released. This article explains the idea using relay contacts and simple PLC ladder logic.
           </p>
-
-          <p class="point-strip">
-            <strong>Short version:</strong> the start button gives the first command, and then <strong>another path takes over</strong> so the output can keep running.
-          </p>
-
-          <p>
-            This idea appears in both <span class="marker-blue">hardwired relay control</span> and <span class="marker-green">PLC ladder logic</span>. The symbols or software screens may look different, but the logic is the same: the circuit creates a holding path that keeps the output energized.
-          </p>
-
-          <ul class="keyword-pills" aria-label="Key concepts">
-            <li>Start pushbutton</li>
-            <li>Holding contact</li>
-            <li>Output coil</li>
-            <li>Stop pushbutton</li>
+          <ul class="hero-points">
+            <li>Understand what a holding contact does.</li>
+            <li>See why the STOP button is normally placed before the holding branch.</li>
+            <li>Learn what to check when the circuit turns on but does not stay on.</li>
           </ul>
-
-          <figure class="article-figure">
-            <div class="article-figure-inner">
-              <img src="../../assets/images/self-hold-circuit-en/how-a-self-holding-circuit-works.png" alt="How a self-holding circuit works" loading="lazy">
-            </div>
-            <figcaption>
-              Visual summary: the circuit does not keep running because the start button stays active. It keeps running because the <strong>holding path takes over</strong>.
-            </figcaption>
-          </figure>
-
-          <div class="key-highlight">
-            <h3>Think of it as a “memory” pattern</h3>
-            <p>
-              The circuit “remembers” that the start command was given. That does not mean advanced memory logic is required. It simply means the output creates a path that keeps itself energized until another condition, usually the stop button, breaks the path.
-            </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#basic">Start with the basic idea</a>
+            <a class="btn btn-secondary" href="#troubleshooting">Check troubleshooting points</a>
           </div>
+        </div>
+      </section>
 
-          <!-- Shared chibi character assets are referenced from the same common path used by the Japanese site. -->
-          <div class="talk-thread" aria-label="Conversation example">
-            <div class="talk-row">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Senior</span><br>The most common beginner mistake is thinking the start button stays “active.” It does not. The output stays on because the <strong>holding contact closes</strong> after the output turns on.</p>
-              </div>
-            </div>
-            <div class="talk-row is-reverse">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Junior</span><br>So if the output only stays on while I keep pressing START, I should first check whether the holding path is actually being made, right?</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section-card" id="holding-path">
-          <h2>2. Why the circuit stays on after the start button is released</h2>
-          <p class="section-intro-line">This section is the core idea of the whole article.</p>
-
-          <p>
-            The start pushbutton is usually a <span class="marker-blue">normally open contact</span>. When the button is not pressed, the contact is open. When you press it, the contact closes and allows the output coil to energize.
-          </p>
-
-          <p>
-            The important part is that the output also has its own <span class="marker-green">normally open auxiliary contact</span>, often called a <strong>holding contact</strong> or <strong>seal-in contact</strong>. This contact is placed in parallel with the start pushbutton.
-          </p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Part</th>
-                  <th>Typical English term</th>
-                  <th>Role in the circuit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="cell-blue">Start button</td>
-                  <td>Start pushbutton / normally open contact</td>
-                  <td>Provides the first command that energizes the output coil.</td>
-                </tr>
-                <tr>
-                  <td class="cell-green">Output contact</td>
-                  <td>Holding contact / seal-in contact</td>
-                  <td>Creates a parallel path so the coil can stay energized after the start button opens again.</td>
-                </tr>
-                <tr>
-                  <td class="cell-orange">Output coil</td>
-                  <td>Output coil / relay coil / PLC output</td>
-                  <td>Turns on the load or command, and closes the holding contact linked to that output.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="flow-grid" aria-label="Step flow">
-            <div class="flow-card">
-              <h3>1. Press START</h3>
-              <p>The start contact closes for a moment.</p>
-            </div>
-            <div class="flow-card">
-              <h3>2. Output turns ON</h3>
-              <p>The coil energizes and changes state.</p>
-            </div>
-            <div class="flow-card">
-              <h3>3. Holding contact closes</h3>
-              <p>A parallel path is now available.</p>
-            </div>
-            <div class="flow-card">
-              <h3>4. Release START</h3>
-              <p>The output stays on through the holding path.</p>
-            </div>
-          </div>
-
-          <div class="field-highlight">
-            <h3>The one sentence to remember</h3>
-            <p>
-              Press start → the output coil turns on → the holding contact closes → release start → <strong>the holding contact keeps the circuit on</strong>.
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Senior</span><br>If you understand this sequence, you already understand most basic self-holding circuits. Everything else is usually just extra conditions added around the same idea.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section-card" id="stop-button">
-          <h2>3. How the stop button breaks the holding path</h2>
-          <p class="section-intro-line">Start makes the circuit run. Stop breaks the path and resets the circuit.</p>
-
-          <p>
-            A basic self-holding circuit also needs a clear way to turn off. That is the role of the stop pushbutton. In a typical start/stop control circuit, the stop pushbutton is treated as a <span class="marker-yellow">normally closed contact</span> in the control path.
-          </p>
-
-          <p class="point-strip">
-            <strong>Important reading point:</strong> a <strong>normally closed stop contact</strong> is closed during normal operation and opens when the stop button is pressed.
-          </p>
-
-          <p>
-            When the stop button is not pressed, the contact remains closed and the circuit can operate. When the stop button is pressed, that path opens. The output coil drops out, and once the output turns off, the holding contact opens as well.
-          </p>
-
-          <div class="note-box">
-            <h3>Do not confuse “pressed” with “contact state”</h3>
-            <p>
-              A normally closed stop contact is closed during normal operation and opens when the stop button is pressed. This is one reason beginners sometimes get confused when reading ladder logic or wiring diagrams.
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row is-reverse">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Junior</span><br>I see. So the “normal” state of the stop contact is closed, even though pressing STOP makes it open.</p>
-              </div>
-            </div>
-            <div class="talk-row">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Senior</span><br>Exactly. That is why you should not rely only on the label. Always think about the <strong>actual contact state</strong> during operation.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section-card" id="ladder-example">
-          <h2>4. Basic ladder logic example</h2>
-          <p class="section-intro-line">You do not need perfect ladder notation to understand the logic. Follow the path from left to right.</p>
-
-          <p>
-            A common ladder-style self-holding rung can be described like this:
-          </p>
-
-          <div class="ladder-box" aria-label="Text-based ladder logic example">
-            <div class="ladder-row">
-              <span class="ladder-label">Rung</span>
-              <span class="ladder-line">[ Stop NC ] --+-- [ Start NO ] -------- ( Output Coil )</span>
-            </div>
-            <div class="ladder-row">
-              <span class="ladder-label"></span>
-              <span class="ladder-line">              |-- [ Output Holding Contact NO ] --|</span>
-            </div>
-          </div>
-
-          <figure class="article-figure">
-            <div class="article-figure-inner">
-              <img src="../../assets/images/self-hold-circuit-en/self-holding-ladder-logic.png" alt="Self-holding ladder logic" loading="lazy">
-            </div>
-            <figcaption>
-              The stop contact is in series with the rung. The start contact and the output holding contact are in parallel. That parallel branch is what lets the output <strong>hold itself on</strong>.
-            </figcaption>
-          </figure>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>When START is pressed</h3>
-              <p>The start contact closes, the rung becomes true, and the output coil turns on.</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>After START is released</h3>
-              <p>The start contact opens again, but the holding contact is now closed, so the output remains on.</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>When STOP is pressed</h3>
-              <p>The stop contact opens, the rung becomes false, and the output coil turns off.</p>
-            </div>
-            <div class="check-item">
-              <h3>After the output turns off</h3>
-              <p>The holding contact opens too, so the circuit is reset and waits for the next start command.</p>
-            </div>
-          </div>
-
-          <p>
-            In Mitsubishi PLC work, you may see this idea expressed with devices, labels, contacts, and coils inside ladder logic. The exact addresses and symbols depend on the project, but the reasoning is still the same: a contact linked to the output provides the self-holding path.
-          </p>
-        </section>
-
-        <section class="section-card" id="hardwired-vs-plc">
-          <h2>5. Relay wiring and PLC ladder logic use the same idea</h2>
-          <p class="section-intro-line">Different hardware, same control logic.</p>
-
-          <p>
-            A self-holding circuit can be built with physical relays, or it can be written as PLC ladder logic. The hardware may be different, but the logic pattern is very similar.
-          </p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Viewpoint</th>
-                  <th>Hardwired relay circuit</th>
-                  <th>PLC ladder logic</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="cell-blue">Holding path</td>
-                  <td>Made with an auxiliary relay contact.</td>
-                  <td>Made with a contact instruction linked to an output or internal bit.</td>
-                </tr>
-                <tr>
-                  <td class="cell-green">Output</td>
-                  <td>Relay coil, magnetic contactor coil, or lamp circuit.</td>
-                  <td>Output coil, internal relay, or control bit in the program.</td>
-                </tr>
-                <tr>
-                  <td class="cell-orange">Troubleshooting</td>
-                  <td>Check wiring, contact state, coil voltage, and terminal connections.</td>
-                  <td>Check input status, device state, duplicate coils, interlocks, and reset logic.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character"></div>
-              <div class="talk-bubble">
-                <p><span class="talk-name">Senior</span><br>If you already understand relay contacts and coils, PLC ladder logic becomes much easier. You can still read it as a path made of <strong>contacts</strong> and <strong>coils</strong>.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section-card" id="troubleshooting">
-          <h2>6. What to check when the circuit does not stay on</h2>
-          <p class="section-intro-line">If it only stays on while you keep pressing START, think “holding path” first.</p>
-
-          <p>
-            If the circuit turns on only while the start button is pressed, the holding path is probably not being completed. The cause may be wiring, device assignment, ladder logic, or another condition that is opening the rung.
-          </p>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>1. Is the holding contact linked to the correct output?</h3>
-              <p>The holding contact should follow the same output coil or control bit that you expect to hold. If the wrong device is used, the circuit will not latch.</p>
-            </div>
-
-            <div class="check-item">
-              <h3>2. Is the holding contact placed in parallel with START?</h3>
-              <p>If the holding contact is placed in the wrong series position, it may not create a bypass path around the start pushbutton.</p>
-            </div>
-
-            <div class="check-item check-item--warning">
-              <h3>3. Is the STOP contact logic correct?</h3>
-              <p>A normally closed stop contact is a common source of confusion. Check the actual input state and the ladder instruction state, not just the button name.</p>
-            </div>
-
-            <div class="check-item check-item--field">
-              <h3>4. Is another interlock opening the rung?</h3>
-              <p>Overload contacts, safety-related conditions, limit switches, permissive signals, and alarm bits may all prevent the output from staying on.</p>
-            </div>
-
-            <div class="check-item">
-              <h3>5. Is the same output being reset somewhere else?</h3>
-              <p>In PLC programs, another rung, reset instruction, function block, or sequence step may turn the same output off.</p>
-            </div>
-
-            <div class="check-item">
-              <h3>6. Are you watching the live status?</h3>
-              <p>During troubleshooting, monitor the actual input and output states. A drawing alone may not show a broken wire, failed contact, or unexpected field condition.</p>
-            </div>
-          </div>
-
-          <figure class="article-figure">
-            <div class="article-figure-inner">
-              <img src="../../assets/images/self-hold-circuit-en/why-self-holding-circuit-does-not-stay-on.png" alt="Troubleshooting a self-holding circuit" loading="lazy">
-            </div>
-            <figcaption>
-              For beginners, this troubleshooting order works well: <strong>start with the holding contact</strong>, then check stop logic, interlocks, and anything else that may open the rung.
-            </figcaption>
-          </figure>
-
-          <div class="field-highlight">
-            <h3>Field-friendly way to read it</h3>
-            <p>
-              Do not start by memorizing symbols. Follow the path: <strong>stop condition closed</strong> → <strong>start or holding path closed</strong> → <strong>output coil energized</strong>. If one part of that path is open, the circuit will not stay on.
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="safety-notes">
-          <h2>7. Practical safety notes</h2>
-          <p class="section-intro-line">A self-holding circuit explains the control idea, but it is not a full safety design by itself.</p>
-
-          <p>
-            A self-holding circuit is a basic control pattern, not a complete safety design. It can explain why a machine keeps running, but it does not replace proper safety circuits, emergency stop design, risk assessment, lockout/tagout procedures, or site-specific rules.
-          </p>
-
-          <div class="danger-box">
-            <h3>Do not use this article as wiring approval</h3>
-            <p>
-              Actual machine wiring and PLC changes must follow your site specifications, local regulations, applicable standards, and the judgment of qualified personnel. Always verify the machine state safely before testing or changing control logic.
-            </p>
-          </div>
-
-          <p>
-            In real equipment, the self-holding rung may also include permissive contacts, overload contacts, door switch status, auto/manual mode conditions, or safety relay outputs. For learning, it is best to understand the simple version first, then add each real-world condition one at a time.
-          </p>
-        </section>
-
-        <section class="section-card" id="related">
-          <h2>8. Related articles</h2>
-          <p class="section-intro-line">These are good next steps after learning the self-holding pattern.</p>
-
-          <div class="related-grid">
-            <a href="../categories/circuit-basics.html" class="related-card">
-              <h3>Circuit Basics</h3>
-              <p>Return to the English top for basic relay and ladder circuit patterns.</p>
-            </a>
-
-            <a href="../../articles/start-stop-circuit-basic.html" class="related-card">
-              <h3>Start/Stop Circuit Basics</h3>
-              <p>Japanese temporary link. Replace with the English article after it is created.</p>
-            </a>
-
-            <a href="../../articles/timer-circuit-basic.html" class="related-card">
-              <h3>Timer Circuit Basics</h3>
-              <p>Japanese temporary link. Useful after understanding the basic holding circuit.</p>
-            </a>
-          </div>
-
-          <div class="article-footer-nav">
-            <a href="../categories/circuit-basics.html" class="btn btn-primary">Back to Circuit Basics</a>
-            <a href="../" class="btn btn-secondary">Back to English Home</a>
-          </div>
-        </section>
-      </article>
-
-      <aside class="side-rail" aria-label="Article sidebar">
-        <section class="side-card">
-          <h3>On this page</h3>
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit">
+          <h2>Good for</h2>
           <ul>
-            <li><a href="#how-it-works">What it does</a></li>
-            <li><a href="#holding-path">Holding path</a></li>
-            <li><a href="#stop-button">Stop button</a></li>
-            <li><a href="#ladder-example">Ladder example</a></li>
-            <li><a href="#troubleshooting">Troubleshooting</a></li>
-            <li><a href="#safety-notes">Safety notes</a></li>
+            <li>Beginners learning relay or PLC ladder circuits.</li>
+            <li>People who want to understand start/stop control.</li>
+            <li>Technicians checking why an output will not stay on.</li>
           </ul>
-        </section>
-        <section class="side-card">
-          <h3>Quick reminder</h3>
-          <p class="side-note">
-            If the output only stays on while the start button is pressed, check the <strong>holding path</strong> first. That is the most common beginner mistake.
-          </p>
-        </section>
-
-        <section class="side-card support-card" aria-label="Support this site">
-          <h3 class="support-card-title">Support this site</h3>
-          <p class="support-card-text">
-            Your support helps me continue creating practical guides and improving Denki Control Lab.
-          </p>
-          <div class="support-card-actions">
-            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Support on Buy Me a Coffee</a>
-            <a class="support-link support-link--paypal" href="https://paypal.me/denkicontrol" target="_blank" rel="noopener noreferrer">Support via PayPal</a>
-          </div>
-        </section>
-
-        <section class="side-card">
-          <h3>Category links</h3>
-          <ul class="side-link-list">
-            <li><a href="../categories/circuit-basics.html">Circuit Basics</a></li>
-            <li><a href="../categories/control-basics.html">Control Basics</a></li>
-            <li><a href="../">English home</a></li>
+        </div>
+        <div class="summary-card summary-card--notyet">
+          <h2>Not the main focus</h2>
+          <ul>
+            <li>Detailed motor protection design.</li>
+            <li>Advanced sequence control with many interlocks.</li>
+            <li>Manufacturer-specific PLC instruction syntax.</li>
           </ul>
-        </section>
-      </aside>
+        </div>
+        <div class="summary-card summary-card--conclusion">
+          <h2>Quick conclusion</h2>
+          <ul>
+            <li>The START button turns the output on.</li>
+            <li>The output’s own contact keeps the circuit on.</li>
+            <li>The STOP button breaks the path and resets the hold.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <div class="mini-toc">
+          <a href="#basic">Basic idea</a>
+          <a href="#parts">Main parts</a>
+          <a href="#flow">Operation flow</a>
+          <a href="#ladder">Ladder example</a>
+          <a href="#stop">How STOP releases it</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+          <a href="#safety">Safety notes</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="basic">
+            <h2>What is a self-holding circuit?</h2>
+            <p class="section-intro-line">
+              In simple terms, a self-holding circuit is a circuit that keeps its own output energized after the START button is released.
+            </p>
+            <p>
+              A START pushbutton is usually a momentary contact. It only closes while someone is pressing it. If the circuit were made only with that pushbutton, the motor or relay would stop as soon as the button was released.
+            </p>
+            <p>
+              A <span class="marker-green">self-holding circuit</span> solves this by using an auxiliary contact from the same relay, contactor, or PLC output. Once the output turns on, its own contact creates another path around the START button.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-overview-en.png" alt="Overview diagram of a self-holding circuit with start button, stop button, output coil, and holding contact" loading="lazy">
+              </div>
+              <figcaption>
+                Basic self-holding idea: the START button turns the output on once, and the holding contact keeps the circuit energized after START is released.
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>The key point</h3>
+              <p>
+                The holding contact is not a separate command. It is a feedback path that becomes true only after the output has already turned on.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="parts">
+            <h2>Main parts of a self-holding circuit</h2>
+            <p class="section-intro-line">
+              The circuit is easier to understand when you separate the STOP contact, START contact, holding contact, and output coil.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Part</th>
+                    <th>Typical role</th>
+                    <th>Beginner-friendly explanation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-orange">STOP button</td>
+                    <td>Normally closed contact</td>
+                    <td>It normally allows current or logic continuity. Pressing STOP opens the path and releases the hold.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-blue">START button</td>
+                    <td>Normally open contact</td>
+                    <td>It gives the first ON signal only while pressed.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Holding contact</td>
+                    <td>Auxiliary contact or PLC output contact</td>
+                    <td>It creates a parallel path around the START button after the output is energized.</td>
+                  </tr>
+                  <tr>
+                    <td>Output coil</td>
+                    <td>Relay, contactor, or PLC output</td>
+                    <td>This is the device or internal output that is kept ON by the holding path.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="note-box">
+              <h3>Why is the STOP contact normally closed?</h3>
+              <p>
+                In a common start/stop circuit, the STOP contact is placed in series before the START and holding branch. This makes it possible to break both the START path and the holding path with one action.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="flow">
+            <h2>How the circuit turns on and stays on</h2>
+            <p class="section-intro-line">
+              The easiest way to understand self-holding is to follow the state change in order.
+            </p>
+
+            <div class="flow-grid">
+              <div class="flow-card">
+                <h3>1. Waiting</h3>
+                <p>The STOP contact is closed, START is open, and the output is off.</p>
+              </div>
+              <div class="flow-card">
+                <h3>2. Press START</h3>
+                <p>The START contact closes and energizes the output coil.</p>
+              </div>
+              <div class="flow-card">
+                <h3>3. Holding contact closes</h3>
+                <p>The output’s own contact closes and creates another ON path.</p>
+              </div>
+              <div class="flow-card">
+                <h3>4. Release START</h3>
+                <p>The output remains on through the holding contact.</p>
+              </div>
+            </div>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-operation-flow-en.png" alt="Step-by-step flow showing how a self-holding circuit turns on and stays on after the start button is released" loading="lazy">
+              </div>
+              <figcaption>
+                The START button is only needed at the beginning. After that, the holding contact keeps the output path active.
+              </figcaption>
+            </figure>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/common/mentor-worker.png" alt="Senior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior technician</span>
+                  <p>Think of the START button as the first push, and the holding contact as the circuit saying, “I can keep myself on now.”</p>
+                </div>
+              </div>
+              <div class="talk-row is-reverse">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/common/junior-worker.png" alt="Junior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Junior technician</span>
+                  <p>So if the holding contact does not close, the output turns on only while I press START?</p>
+                </div>
+              </div>
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../../assets/images/common/mentor-worker.png" alt="Senior technician character" loading="lazy">
+                </div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior technician</span>
+                  <p>Exactly. That is one of the first things to check when a circuit starts but does not stay on.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="ladder">
+            <h2>Simple ladder logic example</h2>
+            <p class="section-intro-line">
+              In ladder logic, the holding contact is usually drawn in parallel with the START contact.
+            </p>
+            <p>
+              The example below is simplified. The STOP contact is in series, and the START contact and holding contact are in parallel. The output coil turns on when either START is pressed or the holding contact is already on.
+            </p>
+
+            <div class="ladder-box" aria-label="Simplified self-holding ladder example">
+              <div class="ladder-row">
+                <div class="ladder-label">Rung</div>
+                <div class="ladder-line">--[/ STOP ]----+----[ START ]----------------( RUN )</div>
+              </div>
+              <div class="ladder-row">
+                <div class="ladder-label"></div>
+                <div class="ladder-line">              |</div>
+              </div>
+              <div class="ladder-row">
+                <div class="ladder-label"></div>
+                <div class="ladder-line">              +----[ RUN ]-------------------</div>
+              </div>
+            </div>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-ladder-example-en.png" alt="Simple PLC ladder diagram of a self-holding circuit with stop, start, run contact, and run coil" loading="lazy">
+              </div>
+              <figcaption>
+                A simplified ladder image of the same idea: the RUN contact is placed in parallel with START and keeps the RUN coil energized.
+              </figcaption>
+            </figure>
+
+            <div class="field-highlight">
+              <h3>Field-friendly way to read it</h3>
+              <p>
+                Read the rung from left to right: STOP must be OK, and then either START or the RUN holding contact must be ON for the RUN coil to stay ON.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="stop">
+            <h2>How the STOP button releases the hold</h2>
+            <p class="section-intro-line">
+              Pressing STOP opens the common path before both the START contact and the holding contact.
+            </p>
+            <p>
+              When STOP is pressed, the circuit path is broken. The output coil turns off, and the holding contact also opens. After that, releasing STOP alone does not restart the output because the holding contact is no longer closed.
+            </p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-stop-release-en.png" alt="Diagram showing the stop button opening the self-holding circuit path and turning the output off" loading="lazy">
+              </div>
+              <figcaption>
+                The STOP button must break the path that feeds both the START branch and the holding branch. That is why its position matters.
+              </figcaption>
+            </figure>
+
+            <div class="danger-box">
+              <h3>Do not use self-holding as a safety circuit by itself</h3>
+              <p>
+                A self-holding circuit is a control pattern, not a complete safety design. Emergency stop, safety relay, guard switch, and risk assessment requirements must be handled separately according to the machine and applicable standards.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="troubleshooting">
+            <h2>What to check when it does not stay on</h2>
+            <p class="section-intro-line">
+              If the output turns on only while START is pressed, the holding path is usually not being established.
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. Is the output actually turning on?</h3>
+                <p>If the output coil or relay never turns on, the holding contact cannot close either.</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>2. Is the holding contact the correct address?</h3>
+                <p>In PLC logic, confirm that the contact used for holding is linked to the correct output or internal relay.</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>3. Is STOP still closed?</h3>
+                <p>A faulty STOP button, broken wire, or open interlock can prevent the holding path from being maintained.</p>
+              </div>
+              <div class="check-item">
+                <h3>4. Is another condition resetting it?</h3>
+                <p>Some circuits include overload, alarm, mode, or interlock conditions that release the output immediately.</p>
+              </div>
+            </div>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-troubleshooting-en.png" alt="Troubleshooting checklist for a self-holding circuit that does not stay on" loading="lazy">
+              </div>
+              <figcaption>
+                When the circuit starts but does not hold, check the output state, holding contact, STOP circuit, and reset conditions in that order.
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>Common beginner mistake</h3>
+              <p>
+                Do not only look at the START button. If the circuit turns on while START is pressed, START is probably doing its job. The next focus should be the holding contact and the conditions before it.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="safety">
+            <h2>Practical safety and design notes</h2>
+            <p class="section-intro-line">
+              A self-holding circuit is simple, but it is often connected to real machines. Treat it carefully.
+            </p>
+            <p>
+              In real equipment, the self-holding rung is rarely just STOP, START, and RUN. It may also include overload contacts, safety conditions, mode selections, automatic stop signals, and interlocks.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Design point</th>
+                    <th>Why it matters</th>
+                    <th>Typical field check</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-orange">Stop and reset behavior</td>
+                    <td>The machine should not unexpectedly restart just because a stop condition is released.</td>
+                    <td>Confirm that START must be pressed again after STOP or fault reset.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">Interlocks</td>
+                    <td>Other machine conditions may need to block the hold.</td>
+                    <td>Check guards, pressure, position, mode, and ready signals.</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-blue">Output feedback</td>
+                    <td>In some systems, the command and actual device feedback are different.</td>
+                    <td>Check both PLC output state and real relay or contactor operation.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/self-hold-circuit-en/self-hold-circuit-safety-notes-en.png" alt="Safety and interlock notes around a self-holding circuit" loading="lazy">
+              </div>
+              <figcaption>
+                In real panels, a self-holding circuit is usually combined with interlocks, fault contacts, and safety-related circuits.
+              </figcaption>
+            </figure>
+
+            <div class="note-box">
+              <h3>Best way to practice</h3>
+              <p>
+                First learn the basic three-part pattern: STOP, START, and holding contact. After that, add one condition at a time, such as overload, auto stop, or interlock. This makes the ladder much easier to read.
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card">
+            <h2>Related articles</h2>
+            <p class="section-intro-line">
+              After learning self-holding, the next useful step is to compare it with basic relay, interlock, and one-shot circuits.
+            </p>
+            <div class="related-grid">
+              <a class="related-card" href="./relay-basic.html">
+                <h3>Relay Basics</h3>
+                <p>Review how relay coils and contacts work before applying them to holding circuits.</p>
+              </a>
+              <a class="related-card" href="./interlock-basic.html">
+                <h3>Interlock Basics</h3>
+                <p>Learn how conditions are used to prevent unsafe or conflicting operation.</p>
+              </a>
+              <a class="related-card" href="./one-shot-circuit-basic.html">
+                <h3>One-Shot Circuit Basics</h3>
+                <p>Compare a maintained output with a pulse that turns on for only one PLC scan.</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../categories/circuit-basics.html">Back to Circuit Basics</a>
+              <a class="btn btn-primary" href="../index.html">Back to English Home</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="Article sidebar">
+          <section class="side-card">
+            <h3>Quick navigation</h3>
+            <ul class="side-link-list">
+              <li><a href="#basic">Basic idea</a></li>
+              <li><a href="#parts">Main parts</a></li>
+              <li><a href="#flow">Operation flow</a></li>
+              <li><a href="#ladder">Ladder example</a></li>
+              <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+          </section>
+
+          <section class="side-card">
+            <h3>Key terms</h3>
+            <ul>
+              <li>START pushbutton</li>
+              <li>STOP pushbutton</li>
+              <li>Holding contact</li>
+              <li>Output coil</li>
+              <li>Self-hold / seal-in</li>
+            </ul>
+          </section>
+
+          <section class="side-card support-card">
+            <h3 class="support-card-title">Support this site</h3>
+            <p class="support-card-text">
+              If this guide helped you, small support helps keep practical control articles growing.
+            </p>
+            <div class="support-card-actions">
+              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+            </div>
+          </section>
+
+          <section class="side-card">
+            <h3>Article note</h3>
+            <p class="side-note">
+              This article explains a basic control pattern. For real machines, always confirm the actual wiring diagram, safety circuit, and site rules.
+            </p>
+          </section>
+        </aside>
+      </div>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p class="footer-copy">Practical notes for learning electrical control, PLC basics, and circuit concepts without getting lost.</p>
-    <p class="footer-links">
-      <a href="../privacy-policy/">Privacy Policy</a>
-      <span class="footer-separator">|</span>
-      <a href="../contact/">Contact</a>
-      <span class="footer-separator">|</span>
-      <a href="../../articles/self-hold-circuit.html">Japanese</a>
-    </p>
+    <p class="footer-copy">© Denki Control Lab. Practical electrical control notes for learning and field work.</p>
+    <div class="footer-links">
+      <a href="../index.html">Home</a>
+      <span class="footer-separator">/</span>
+      <a href="../categories/circuit-basics.html">Circuit Basics</a>
+      <span class="footer-separator">/</span>
+      <a href="../../articles/self-hold-circuit.html" lang="ja">日本語</a>
+    </div>
   </footer>
 
-  <script src="../../assets/js/site-search.js" defer></script>
   <script>
-    const languageMenuButton = document.getElementById('languageMenuButton');
-    const languageMenuPanel = document.getElementById('languageMenuPanel');
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
 
-    if (languageMenuButton && languageMenuPanel) {
-      languageMenuButton.addEventListener('click', (event) => {
+      if(!button || !panel) return;
+
+      function closePanel(){
+        panel.hidden = true;
+        button.setAttribute("aria-expanded","false");
+      }
+
+      function openPanel(){
+        panel.hidden = false;
+        button.setAttribute("aria-expanded","true");
+      }
+
+      button.addEventListener("click", function(event){
         event.stopPropagation();
-        const isHidden = languageMenuPanel.hasAttribute('hidden');
-        if (isHidden) {
-          languageMenuPanel.removeAttribute('hidden');
-          languageMenuButton.setAttribute('aria-expanded', 'true');
-        } else {
-          languageMenuPanel.setAttribute('hidden', '');
-          languageMenuButton.setAttribute('aria-expanded', 'false');
+        if(panel.hidden){
+          openPanel();
+        }else{
+          closePanel();
         }
       });
 
-      document.addEventListener('click', (event) => {
-        const isInsideMenu = languageMenuPanel.contains(event.target) || languageMenuButton.contains(event.target);
-        if (!isInsideMenu) {
-          languageMenuPanel.setAttribute('hidden', '');
-          languageMenuButton.setAttribute('aria-expanded', 'false');
+      document.addEventListener("click", function(event){
+        if(!panel.hidden && !panel.contains(event.target) && event.target !== button){
+          closePanel();
         }
       });
 
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          languageMenuPanel.setAttribute('hidden', '');
-          languageMenuButton.setAttribute('aria-expanded', 'false');
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          closePanel();
         }
       });
-    }
+    })();
   </script>
+  <script src="../../assets/js/site-search.js"></script>
 </body>
 </html>

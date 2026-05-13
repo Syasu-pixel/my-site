@@ -235,18 +235,18 @@ https://denkicontrol.com/articles/slug.html
 1. 記事候補を決める
 2. GitHub最新の既存HTMLを確認し、重複がないか確認する
 3. 公式情報・命令語の基本動作を確認する
-4. Codexで新規記事HTMLを作成する
-5. GPTがHTMLを確認する
-6. 必要ならCodexで修正する
-7. safe to merge: YES になったらマージする
-8. 画像を生成する
-9. 画像を配置してGitHub登録する
-10. 確認用URLを発行して共有する
+4. ChatGPTが新規記事HTML（完成HTML本文）を作成する
+5. ChatGPTが画像生成ルールに従って画像を1枚ずつ作成する
+6. ユーザーがHTMLと画像をGitHubへ追加する（またはCodexへ「完成HTMLと画像の配置のみ」を依頼する）
+7. Codexが関与する場合は、完成HTMLと画像の配置・静的確認のみを実施する
+8. Codexは完成HTML本文を勝手に再構成せず、CSS/テンプレート構造の省略・圧縮・再設計を行わない
+9. Step 1時点では導線追加を実施しない
+10. safe to merge: YES / NO を報告し、確認用URLを共有する
 
 ### 11.2 Step 2（ユーザーOK後のみ）
 1. ユーザーが確認用URLを確認する
 2. ユーザー明示OKを受ける（この確認は必須）
-3. 導線追加を実施する（`index.html` / `categories/*.html` / `assets/data/search-index.json` / `sitemap.xml`）
+3. 導線追加を実施する（日本語記事側の言語メニュー / `en/index.html` / `en/categories/*.html` / `assets/data/search-index.json` / `sitemap.xml` / `docs/en-article-backlog.md`）
 4. 公開後監査を実施する（search-index missing / extra / duplicate、sitemap重複、件数整合）
 5. 最後に `safe to close: YES / NO` を出す
 
@@ -865,3 +865,29 @@ Codexは新規記事HTML作成時に、既存テンプレートのレスポン�
 - 中間幅で background-size:128% auto などにしてhero画像を過剰拡大させない
 - iPad用レスポンシブCSSを削除しない
 - max-width系メディアクエリを省略しない
+
+
+## 12. ChatGPT / Codex 役割分担
+- ChatGPT
+  - 記事テーマ選定補助
+  - 元記事確認
+  - 公式情報確認方針の整理
+  - 英語記事HTML本文作成
+  - メタ情報・関連記事案・画像名設計
+  - 画像生成
+  - 画像採用判定
+- Codex
+  - GitHub上のファイル配置
+  - 完成HTMLの静的チェック
+  - 画像ファイル存在確認
+  - 関連記事リンク実在確認
+  - Step 2導線追加
+  - search-index / sitemap / backlog の整合確認
+  - PR作成・報告
+- Codexの禁止
+  - 完成HTML本文を勝手に大幅改稿しない
+  - 記事の技術説明を独自判断で増減しない
+  - 画像を1枚にまとめない
+  - Step 1中に導線追加ファイルを触らない
+  - Step 2中に記事本文や画像を触らない
+  - `/seo/sitemap.xml` を触らない

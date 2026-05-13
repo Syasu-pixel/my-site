@@ -28,7 +28,6 @@
 - [ ] charging-tools
 - [ ] charging-tools-accessories
 - [ ] circuit-protector-basic
-- [ ] control-panel-label-basic
 - [ ] control-panel-light-basic
 - [ ] control-panel-outlet-basic
 - [ ] counter-circuit-basic

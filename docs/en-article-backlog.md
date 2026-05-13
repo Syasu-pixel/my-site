@@ -26,7 +26,6 @@
 - [ ] cable-cutter
 - [ ] charging-tools
 - [ ] charging-tools-accessories
-- [ ] counter-circuit-basic
 - [ ] crimping-hydraulic-vs-electric
 - [ ] crimping-tips
 - [ ] crimping-tools

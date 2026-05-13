@@ -21,7 +21,6 @@
 - [ ] air-regulator-basic
 - [ ] air-tube-fitting-basic
 - [ ] alarm-hold-circuit-basic
-- [ ] analog-output-basic
 - [ ] anchor-fixing
 - [ ] bandsaw
 - [ ] buzzer-circuit-basic

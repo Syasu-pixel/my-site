@@ -22,7 +22,6 @@
 - [ ] alarm-hold-circuit-basic
 - [ ] anchor-fixing
 - [ ] bandsaw
-- [ ] buzzer-circuit-basic
 - [ ] cable-cutter
 - [ ] charging-tools
 - [ ] charging-tools-accessories

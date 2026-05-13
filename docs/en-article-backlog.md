@@ -43,7 +43,6 @@
 - [ ] electrician-knife
 - [ ] electromagnetic-contactor-vs-switch
 - [ ] float-switch-basic
-- [ ] fuse-holder-basic
 - [ ] got-touch-panel-basic
 - [ ] gxw3-add-sub-instruction-basic
 - [ ] gxw3-comparison-instruction-basic

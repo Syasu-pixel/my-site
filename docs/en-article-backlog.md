@@ -58,7 +58,6 @@
 - [ ] nipper
 - [ ] no-fuse-breaker-basic
 - [ ] noise-filter-basic
-- [ ] panel-heater-basic
 - [ ] pilot-lamp-basic
 - [ ] pipe-wiring-tips
 - [ ] pliers

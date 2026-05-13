@@ -16,7 +16,6 @@
 
 ## Backlog
 
-- [ ] a-contact-b-contact-basic
 - [ ] air-filter-regulator-lubricator-basic
 - [ ] air-regulator-basic
 - [ ] air-tube-fitting-basic

@@ -1,11 +1,30 @@
 # CODEX反映ルール（codex update rules）
 
 ## 前提
-- 記事HTMLと画像はユーザーが先にGitHubへ入れる。
-- CODEXはメタ更新・導線更新を中心に反映する。
+- 記事HTMLと画像（完成HTML）は、ChatGPT作成後にユーザーまたはChatGPTから受領したものを前提にする。
+- Codexは記事本文をゼロから執筆せず、配置・整合チェック・導線更新を中心に反映する。
 - 記事制作は原則2ステップ完了フローで進める。Step 1では記事HTML・画像・確認用URLまで作成し、導線追加は行わない。ユーザーが確認用URLを確認してOKした後のみ、Step 2として index.html、categories/*.html、assets/data/search-index.json、sitemap.xml へ導線追加する。
 - 途中確認は原則不要。ただし、導線追加前（Step 2開始前）のユーザー確認は必須。
 - 導線追加エージェントは、ユーザー明示OK前に実行しない。
+
+
+## Codexタスクの分離（必須）
+
+### A. Step 1 配置タスク
+- ユーザーまたはChatGPTが完成HTMLを渡す。
+- Codexは指定パスへ配置する。
+- Codexは画像ファイルの配置を確認する。
+- Codexは記事本文を大きく書き換えない。
+- Codexは導線追加をしない。
+- 報告は `safe to merge: YES / NO`。
+
+### B. Step 2 導線追加タスク
+- 確認用URLをユーザーが確認済みであることを前提に開始する。
+- Codexは導線追加を行う。
+- `index / category / search-index / sitemap / backlog` を更新する。
+- 記事HTMLと画像は原則変更しない。
+- `/seo/sitemap.xml` は非運用なので触らない。
+- 報告は `safe to close: YES / NO`。
 
 ## 一括反映ルール
 - 記事HTMLと画像は、1記事ずつユーザーがGitHubへ追加する。
@@ -84,7 +103,7 @@
 - `/seo/sitemap.xml` は非運用のため変更禁止。
 
 
-## 新規記事HTML作成後のCodex報告形式
+## Step 1 配置タスク後のCodex報告形式
 
 Summary:
 - 作成した記事タイトル

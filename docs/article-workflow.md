@@ -3,9 +3,66 @@
 ## 基本方針
 - このファイルは「方針・優先順位・標準フロー」を扱う。
 - 実作業の詳細チェックは `docs/new-article-checklist.md` を優先して確認する。
-- 新規記事HTMLは**コピー方式**で作成する。
+- 新規記事HTMLは**コピー方式**を前提に、ChatGPTが完成HTML本文を作成する。
 - 完成済み記事HTMLを**完全コピー**し、必要箇所のみ差し替える。
-- 既存テンプレートのレイアウト一貫性を優先し、構造改変は最小限にする。
+- Codexは完成HTML本文をゼロから執筆せず、既存テンプレートの一貫性を維持したまま配置・反映と整合確認を担当する。
+
+
+## ChatGPT / Codex 役割分担
+- ChatGPT:
+  - 記事テーマ選定補助
+  - 元記事確認
+  - 公式情報確認方針の整理
+  - 英語記事HTML本文作成
+  - メタ情報・関連記事案・画像名設計
+  - 画像生成
+  - 画像採用判定
+- Codex:
+  - GitHub上のファイル配置
+  - 完成HTMLの静的チェック
+  - 画像ファイル存在確認
+  - 関連記事リンク実在確認
+  - Step 2導線追加
+  - search-index / sitemap / backlog の整合確認
+  - PR作成・報告
+- Codexの禁止:
+  - 完成HTML本文を勝手に大幅改稿しない
+  - 記事の技術説明を独自判断で増減しない
+  - 画像を1枚にまとめない
+  - Step 1中に導線追加ファイルを触らない
+  - Step 2中に記事本文や画像を触らない
+  - `/seo/sitemap.xml` を触らない
+
+## 2ステップ完了フロー（標準）
+### Step 1（ChatGPT作成 / 配置タスク）
+- ChatGPT が英語記事HTML本文（完成HTML）を作成する。
+- ChatGPT が `docs/image-generation-rules.md` に従って画像を1枚ずつ作成する。
+- ユーザーがHTMLと画像をGitHubへ追加する、またはCodexへ「完成HTMLと画像の配置のみ」を依頼する。
+- Codexが関与する場合、完成HTMLと画像の配置・静的確認のみを行う。
+- CodexはHTML本文をゼロから執筆せず、構造・本文・CSS・画像パスを勝手に大きく書き換えない。
+- Step 1では以下の導線追加ファイルを触らない。
+  - `index.html`
+  - `en/index.html`
+  - `categories/**`
+  - `en/categories/**`
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - `docs/en-article-backlog.md`
+  - `seo/sitemap.xml`
+- Step 1の報告は `safe to merge: YES / NO` とする。
+
+### Step 2（導線追加タスク）
+- ユーザーが確認用URLを確認し、明示OKした後のみ実施する。
+- Codexが導線追加を行う。
+  - 日本語記事側の言語メニュー
+  - 英語トップ（`en/index.html`）
+  - 英語カテゴリ（`en/categories/**`）
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - `docs/en-article-backlog.md`
+- Step 2では記事HTMLと画像は原則変更しない。
+- `/seo/sitemap.xml` は非運用なので触らない。
+- Step 2の報告は `safe to close: YES / NO` とする。
 
 ## 基準記事（コピー元の明記）
 - 新規記事HTMLは、完成済み記事を**完全コピー**して必要箇所だけ差し替える。
@@ -446,14 +503,14 @@ HTML出力前チェック:
 1. 記事候補を決める
 2. GitHub最新の既存HTMLを確認し、重複がないか確認する
 3. 公式情報・命令語の基本動作を確認する
-4. Codexで新規記事HTMLを作成する
+4. ChatGPTで新規記事HTML（完成HTML本文）を作成する
 5. GPTがHTMLを確認する
 6. 必要ならCodexで修正する
 7. safe to merge: YES になったらマージする
 8. 画像5枚を生成する
 9. ユーザーが画像フォルダを作り、画像を配置する
 10. 確認用URLで表示確認する
-11. 表示OK後、導線追加をCodexに依頼する
+11. 表示OK後、Step 2として導線追加をCodexに依頼する
 12. sitemap.xml / assets/data/search-index.json / categories/circuit-basics.html / index.html の記事数を更新する
 13. GPTが導線反映を確認する
 14. 1記事完了として次の記事へ進む

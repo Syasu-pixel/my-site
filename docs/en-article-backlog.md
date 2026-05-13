@@ -82,4 +82,4 @@
 - [ ] thermal-relay-basic
 - [ ] timer-relay-basic
 - [ ] tool-belt
-- [ ] wiring-duct-basic
+- [x] wiring-duct-basic

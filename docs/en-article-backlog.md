@@ -33,7 +33,6 @@
 - [ ] control-panel-label-basic
 - [ ] control-panel-light-basic
 - [ ] control-panel-outlet-basic
-- [ ] control-panel-wire-color-basic
 - [ ] control-transformer-basic
 - [ ] counter-circuit-basic
 - [ ] crimping-hydraulic-vs-electric

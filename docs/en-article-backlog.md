@@ -19,7 +19,6 @@
 - [ ] air-filter-regulator-lubricator-basic
 - [ ] air-regulator-basic
 - [ ] air-tube-fitting-basic
-- [ ] alarm-hold-circuit-basic
 - [ ] anchor-fixing
 - [ ] bandsaw
 - [ ] cable-cutter

@@ -62,7 +62,7 @@
 - [ ] pliers
 - [x] pneumatic-silencer-basic
 - [x] power-signal-wiring-separation-basic
-- [ ] push-button-switch-basic
+- [x] push-button-switch-basic
 - [ ] ratchet-wrench
 - [ ] relay-socket-basic
 - [x] reset-circuit-basic

@@ -1,5 +1,37 @@
 # 新規記事作成チェックリスト
 
+## 0. 正式ドメイン固定ルール（最重要）
+- このサイトの正式ドメインは `https://denkicontrol.com` とする
+- `https://denki-control.com` は使用しない
+- GitHub Pages の旧URL `https://syasu-pixel.github.io/my-site/` を canonical / og:url / sitemap に使わない
+- CNAME は `denkicontrol.com` の1行のみ
+- canonical は必ず `https://denkicontrol.com/...` にする
+- og:url は必ず `https://denkicontrol.com/...` にする
+- og:image / twitter:image は必ず `https://denkicontrol.com/assets/...` にする
+- hreflang の href も必ず `https://denkicontrol.com/...` にする
+- sitemap.xml の `<loc>` は必ず `https://denkicontrol.com/...` にする
+- `/seo/sitemap.xml` は非運用なので触らない
+- `denki-control.com` と `denkicontrol.com` を混同しない
+- ドメイン修正作業の前後には必ず `rg` で誤ドメイン残存を確認する
+
+確認コマンド例:
+```bash
+rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME index.html en/index.html articles/*.html en/articles/*.html categories/*.html en/categories/*.html privacy-policy/index.html contact/index.html sitemap.xml robots.txt docs/*.md
+```
+
+期待結果:
+- 本番対象HTML / sitemap / CNAME には `denki-control.com` が残っていない
+- `syasu-pixel.github.io` / `github.io/my-site` が canonical / og:url / sitemap に残っていない
+- docs内で注意書きとして `denki-control.com` を禁止例に出す場合はOK
+
+正しい例:
+```html
+<link rel="canonical" href="https://denkicontrol.com/articles/slug.html">
+<meta property="og:url" content="https://denkicontrol.com/articles/slug.html">
+<meta property="og:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
+<meta name="twitter:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
+```
+
 ## 1. 記事テーマ・カテゴリ確認
 - 記事テーマが既存記事と重複しすぎていないか確認する
 - カテゴリを決める

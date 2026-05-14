@@ -52,7 +52,7 @@
 - [ ] lan-checker
 - [ ] light-curtain-basic
 - [ ] limit-switch-troubleshooting-basic
-- [ ] manual-auto-selector-circuit-basic
+- [x] manual-auto-selector-circuit-basic
 - [ ] mega
 - [ ] nipper
 - [x] no-fuse-breaker-basic

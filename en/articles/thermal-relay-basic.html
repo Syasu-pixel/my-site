@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Thermal Relay Basics: Protecting Motors from Overload | Denki Control Lab</title>
+  <meta name="description" content="Learn the basics of thermal relays used with magnetic contactors to protect motors from overload. This beginner-friendly guide explains overload trips, auxiliary contacts, reset checks, and field troubleshooting.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/thermal-relay-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/thermal-relay-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/thermal-relay-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/thermal-relay-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Thermal Relay Basics: Protecting Motors from Overload">
+  <meta property="og:description" content="Understand what a thermal relay does, how it works with a magnetic contactor, and what to check before resetting an overload trip.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/thermal-relay-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/thermal-relay-basic-en/thermal-relay-basic-ogp.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Thermal Relay Basics">
+  <meta name="twitter:description" content="Learn how thermal relays protect motors from overload and what to check around trips and resets.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/thermal-relay-basic-en/thermal-relay-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h);}
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;}
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;}
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;}
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
+
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);}
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;}
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
+
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate;}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/thermal-relay-basic-en/thermal-relay-basic-hero.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0;}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1;}
+    .article-hero-copy{width:min(100%,720px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;}
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}.summary-card--notyet h2{color:#b45309;}.summary-card--conclusion h2{color:#1e3a8a;}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .term{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:900;white-space:nowrap;}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#fff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1e3a8a;}.field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}.danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}.check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}.check-item--field{background:#ecfdf3;border-color:#bbf7d0;}.check-item--warning{background:#fff7e8;border-color:#f7dba2;}.check-item--danger{background:#fff1f2;border-color:#fecaca;}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#eff6ff;color:#0f172a;font-weight:900;white-space:nowrap;} tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b;}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:15px;border-radius:18px;background:#f8fbff;border:1px solid #d7e4f3;}
+    .flow-card h3{margin:0 0 8px;font-size:15px;line-height:1.4;color:#1e3a8a;}.flow-card p{margin:0;font-size:13px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:900;}.flow-card:last-child::after{display:none;}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}.talk-row{display:flex;align-items:flex-start;gap:12px;}.talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}.talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}.talk-row.is-reverse .talk-name{color:#15803d;}.talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}.side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}.side-card a{font-weight:800;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}.side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}.side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}.support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}.support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}.support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}.support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}.support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}.support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}.support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}.related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}.footer-copy{margin:0;}.footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}.footer-links a{color:#334155;font-weight:700;}.footer-separator{color:#cbd5e1;}
+
+    @media (max-width:1100px){.language-menu-current{display:none;}.language-menu-button{width:38px;min-width:38px;padding:0;}.language-menu-panel{right:0;width:210px;}.page-layout{grid-template-columns:minmax(0,1fr);}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}.flow-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.flow-card::after{display:none;}}
+    @media (max-width:900px){:root{--header-h:74px;}html{scroll-padding-top:92px;}.site-header{padding:8px 10px;}.site-header-inner{gap:8px;}.brand-logo{height:42px;}.brand-title{font-size:15px;}.brand-sub{display:none;}.header-search{flex:1 1 auto;min-height:40px;}.container{width:min(100%,calc(100% - 20px));}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}.article-hero::before{background:url("../../assets/images/thermal-relay-basic-en/thermal-relay-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}h1{font-size:30px;}.hero-lead{font-size:14px;max-width:34ch;}.top-summary,.side-rail,.related-grid,.check-grid,.flow-grid{grid-template-columns:1fr;}.section-card{padding:22px;}}
+    @media (min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}.article-hero::before{background:url("../../assets/images/thermal-relay-basic-en/thermal-relay-basic-hero.png") right center / auto 92% no-repeat;opacity:.30;}.article-hero-copy{width:min(100%,640px);min-height:360px;padding:38px 32px;}h1{font-size:34px;}.hero-lead{max-width:42ch;}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));}.side-rail{grid-template-columns:repeat(3,minmax(0,1fr));}}
+    @media (max-width:640px){.article-hero-copy{min-height:330px;padding:28px 18px;}h1{font-size:26px;}.hero-actions{width:100%;}.btn{width:100%;min-height:44px;}.talk-row,.talk-row.is-reverse{flex-direction:column;}.talk-avatar{width:64px;flex:0 0 auto;}.talk-avatar img{width:64px;}table{min-width:680px;}}
+    @media (max-width:480px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}.container{width:min(100%,calc(100% - 16px));}.article-hero::before{background:url("../../assets/images/thermal-relay-basic-en/thermal-relay-basic-hero.png") right -46px bottom -16px / 178% auto no-repeat;opacity:.15;}.section-card,.side-card,.summary-card,.mini-toc-card{border-radius:20px;}.section-card{padding:18px;}.summary-card{padding:18px 16px;}.top-summary{gap:12px;}th,td{padding:11px 12px;font-size:13px;}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="Go to English top page">
+        <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">Denki Control Lab</p>
+          <p class="brand-sub">Practical electrical control notes</p>
+        </div>
+      </a>
+      <div class="language-menu" aria-label="Language and region switch">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="Switch language and region">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">United States</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="../../articles/thermal-relay-basic.html" class="language-menu-item" lang="ja"><span class="language-menu-flag" aria-hidden="true">🇯🇵</span><span><strong>Japan</strong><small>Japanese article</small></span></a>
+          <a href="./thermal-relay-basic.html" class="language-menu-item is-active" lang="en" aria-current="page"><span class="language-menu-flag" aria-hidden="true">🇺🇸</span><span><strong>United States</strong><small>English article</small></span></a>
+        </div>
+      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="Site search" role="search">
+        <label class="sr-only" for="site-search-input">Site search</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="Search by keyword" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="Search"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div id="site-search-panel" class="search-box-panel" hidden><ul id="site-search-results" class="search-box-results"></ul><p id="site-search-empty" class="search-box-empty" hidden>No matching articles found.</p></div>
+      </form>
+    </div>
+  </header>
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../categories/control-basics.html">Control Basics</a><span aria-hidden="true">/</span><span>Thermal Relay Basics</span></nav>
+    <section class="article-hero"><div class="article-hero-copy"><span class="hero-label">Control Basics</span><h1>Thermal Relay Basics: Protecting Motors from Overload</h1><p class="hero-lead">A thermal relay is a motor protection device used with a magnetic contactor. It trips when overload continues long enough to heat the protection element.</p><ul class="hero-points"><li>Learn what a thermal relay protects.</li><li>Understand how it opens the control circuit.</li><li>Check the cause before resetting a trip.</li></ul><div class="hero-actions"><a class="btn btn-primary" href="#what">Start with the basic role</a><a class="btn btn-secondary" href="#reset">Jump to reset checks</a></div></div></section>
+    <div class="top-summary" aria-label="Article summary"><section class="summary-card summary-card--fit"><h2>Good fit for</h2><ul><li>Beginners learning magnetic contactor circuits.</li><li>People who want to understand motor overload trips.</li><li>Field technicians checking why a motor stopped.</li></ul></section><section class="summary-card summary-card--notyet"><h2>Not the main topic</h2><ul><li>Detailed motor protection coordination calculations.</li><li>Exact setting values for a specific motor model.</li><li>Replacing official manuals or site safety procedures.</li></ul></section><section class="summary-card summary-card--conclusion"><h2>Quick conclusion</h2><ul><li>A thermal relay protects a motor from overload.</li><li>It is commonly combined with a magnetic contactor.</li><li>After a trip, find the cause before resetting.</li></ul></section></div>
+    <section class="mini-toc-card" aria-labelledby="toc-heading"><h2 id="toc-heading">Mini table of contents</h2><div class="mini-toc"><a href="#what">What it does</a><a href="#trip-flow">Trip flow</a><a href="#contacts">Contacts</a><a href="#settings">Settings</a><a href="#reset">Field checks</a><a href="#related">Related articles</a></div></section>
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="what"><h2>What is a thermal relay?</h2><p class="section-intro-line">A thermal relay is a protective device that detects motor overload and helps stop the motor through the control circuit.</p><p>A motor can draw too much current when the load is heavy, the machine is jammed, a phase is missing, or the motor is not running normally. If that condition continues, the motor can overheat. A <span class="marker-blue">thermal relay</span> is used to detect this overload condition and trip before damage becomes worse.</p><p>In many control panels, the thermal relay is mounted together with a magnetic contactor. The contactor switches motor power, and the thermal relay monitors the load current. When overload continues, the relay trips and its auxiliary contact opens the contactor coil circuit.</p><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/thermal-relay-basic-en/thermal-relay-basic-overview.png" alt="Basic overview of a thermal relay protecting a motor from overload" loading="lazy"></div><figcaption>A thermal relay is usually understood as part of a motor starter: contactor for switching, thermal relay for overload protection.</figcaption></figure><div class="key-highlight"><h3>Think of it as motor overload protection</h3><p>A thermal relay is not mainly for detecting a wiring short circuit. Short-circuit protection is usually handled by breakers or fuses. The thermal relay focuses on overload conditions that heat the motor over time.</p></div></section>
+        <section class="section-card" id="trip-flow"><h2>How a thermal relay trips</h2><p class="section-intro-line">The basic flow is current increase, heating, trip operation, and contactor coil interruption.</p><p>When the motor load becomes too heavy, motor current rises. If the overload continues, the internal thermal element or electronic detection circuit operates. Then the thermal relay changes its auxiliary contact state, usually opening the normally closed trip contact in the contactor control circuit.</p><div class="flow-grid" aria-label="Thermal relay trip flow"><div class="flow-card"><h3>1. Motor runs</h3><p>The contactor is energized and motor current flows through the thermal relay.</p></div><div class="flow-card"><h3>2. Overload continues</h3><p>The motor draws more current than expected for a sustained period.</p></div><div class="flow-card"><h3>3. Thermal relay trips</h3><p>The overload detection mechanism operates and changes the auxiliary contact.</p></div><div class="flow-card"><h3>4. Contactor drops out</h3><p>The control circuit opens, the contactor turns off, and the motor stops.</p></div></div><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/thermal-relay-basic-en/thermal-relay-basic-motor-protection-flow.png" alt="Thermal relay overload trip flow from motor current to contactor dropout" loading="lazy"></div><figcaption>The thermal relay often stops the motor indirectly by opening the contactor coil circuit, not by becoming the main switching device itself.</figcaption></figure></section>
+        <section class="section-card" id="contacts"><h2>How it connects to the control circuit</h2><p class="section-intro-line">In many motor circuits, the thermal relay contact is placed in series with the contactor coil circuit.</p><p>A common arrangement is to use the thermal relay's normally closed contact in the control circuit. During normal operation, this contact allows the contactor coil to stay energized. When the thermal relay trips, the contact opens, the coil turns off, and the main contactor opens.</p><p>The exact terminal numbers and contact names depend on the device. Many thermal overload relays have contacts used for trip interruption and alarm indication, but you should always confirm the actual terminal numbers in the manufacturer's manual.</p><div class="table-wrap"><table><thead><tr><th>Part</th><th>Basic role</th><th>Field point</th></tr></thead><tbody><tr><td class="cell-blue">Magnetic contactor</td><td>Switches motor power on and off.</td><td>Check coil voltage, main contacts, and control signal.</td></tr><tr><td class="cell-green">Thermal relay</td><td>Detects motor overload and trips.</td><td>Check current setting, trip state, and reset method.</td></tr><tr><td class="cell-orange">Control circuit</td><td>Holds or releases the contactor coil.</td><td>Check whether the thermal contact has opened the circuit.</td></tr></tbody></table></div><div class="talk-thread"><div class="talk-row"><div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior technician"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">Senior</span>When a motor has stopped, do not look only at the contactor. Check whether the thermal relay has tripped and opened the coil circuit.</p></div></div><div class="talk-row is-reverse"><div class="talk-avatar"><img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior technician"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">Junior</span>So the contactor may be normal, but the thermal relay contact can still be preventing the coil from turning on.</p></div></div></div></section>
+        <section class="section-card" id="settings"><h2>Current setting and reset are not just formal steps</h2><p class="section-intro-line">A thermal relay setting should match the motor and equipment conditions, not a guessed value.</p><p>Thermal relays often have an adjustable current setting range. The setting must be selected according to the motor nameplate, circuit design, load conditions, and the manufacturer's instructions. Do not copy another machine's setting without checking the actual motor and circuit.</p><p>Some models reset manually, while others can be set for automatic reset. In many field situations, manual reset is safer because it forces someone to check why the overload occurred before restarting the machine.</p><div class="danger-box"><h3>Do not simply reset and restart</h3><p>If a thermal relay trips, the equipment is telling you that something may be wrong. Repeatedly resetting without checking the load, current, wiring, motor, and mechanical side can lead to repeated trips or damage.</p></div></section>
+        <section class="section-card" id="reset"><h2>Field checks before resetting a thermal relay</h2><p class="section-intro-line">Before resetting, check both the electrical side and the mechanical load side.</p><p>When a thermal relay trips, the cause is not always the relay itself. The motor may be overloaded, the machine may be jammed, a bearing may be heavy, one phase may be abnormal, or the setting may not match the motor.</p><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/thermal-relay-basic-en/thermal-relay-basic-reset-checks.png" alt="Field checks before resetting a tripped thermal relay" loading="lazy"></div><figcaption>Resetting is the final step. First check why the thermal relay tripped.</figcaption></figure><div class="check-grid"><div class="check-item check-item--important"><h3>Check the load</h3><p>Look for jams, heavy mechanical movement, stuck parts, or abnormal operating conditions.</p></div><div class="check-item check-item--field"><h3>Check the motor current</h3><p>Measure current where appropriate and compare it with the motor rating and design conditions.</p></div><div class="check-item check-item--warning"><h3>Check the setting</h3><p>Confirm that the thermal relay setting matches the motor and the manufacturer's instructions.</p></div><div class="check-item check-item--danger"><h3>Check for repeated trips</h3><p>Repeated trips mean the cause has not been solved. Do not treat reset as the repair itself.</p></div></div><div class="note-box"><h3>Always check the actual device manual</h3><p>Terminal names, reset methods, setting ranges, trip classes, and auxiliary contacts differ by manufacturer and model. Use this article as a basic guide, and confirm the actual details in the official manual for the equipment you are working on.</p></div></section>
+        <section class="section-card" id="related"><h2>Related articles</h2><p class="section-intro-line">These articles connect naturally with motor protection, control circuits, and panel troubleshooting.</p><div class="related-grid"><a class="related-card" href="no-fuse-breaker-basic.html"><h3>No-Fuse Breaker Basics</h3><p>Understand overcurrent and short-circuit protection in control panels.</p></a><a class="related-card" href="earth-leakage-breaker-basic.html"><h3>Earth Leakage Breaker Basics</h3><p>Learn how leakage detection differs from standard overcurrent protection.</p></a><a class="related-card" href="current-transformer-basic.html"><h3>Current Transformer Basics</h3><p>Learn how load current can be detected safely in control panels.</p></a><a class="related-card" href="relay-socket-basic.html"><h3>Relay Socket Basics</h3><p>Understand relay bases, terminal numbers, and replacement points.</p></a><a class="related-card" href="ssr-basic.html"><h3>SSR Basics</h3><p>Compare contact-based switching with solid state relay behavior.</p></a></div><div class="article-footer-nav"><a class="btn btn-secondary" href="../categories/control-basics.html">Back to Control Basics</a><a class="btn btn-primary" href="../index.html">Back to English top</a></div></section>
+      </article>
+      <aside class="side-rail" aria-label="Article sidebar"><section class="side-card"><h3>On this page</h3><ul class="side-link-list"><li><a href="#what">What it does</a></li><li><a href="#trip-flow">Trip flow</a></li><li><a href="#contacts">Contacts</a></li><li><a href="#settings">Settings</a></li><li><a href="#reset">Field checks</a></li><li><a href="#related">Related articles</a></li></ul></section><section class="side-card"><h3>Key points</h3><ul><li>Thermal relays protect motors from overload.</li><li>They are commonly used with magnetic contactors.</li><li>A trip means the cause should be checked before reset.</li></ul></section><section class="side-card support-card"><h3 class="support-card-title">Support this site</h3><p class="support-card-text">If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a></div></section></aside>
+    </div>
+  </main>
+  <footer class="site-footer"><p class="footer-copy">Denki Control Lab helps you learn electrical control, PLC basics, and practical wiring step by step.</p><div class="footer-links"><a href="../privacy-policy/">Privacy policy</a><span class="footer-separator">|</span><a href="../contact/">Contact</a></div></footer>
+  <script>(function () { var button = document.getElementById('languageMenuButton'); var panel = document.getElementById('languageMenuPanel'); if (!button || !panel) return; function closePanel() { panel.hidden = true; button.setAttribute('aria-expanded', 'false'); } button.addEventListener('click', function () { var willOpen = panel.hidden; panel.hidden = !willOpen; button.setAttribute('aria-expanded', String(willOpen)); }); document.addEventListener('click', function (event) { if (panel.hidden) return; if (!event.target.closest('.language-menu')) closePanel(); }); document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !panel.hidden) { closePanel(); button.focus(); } }); })();</script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

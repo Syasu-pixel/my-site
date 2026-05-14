@@ -60,7 +60,7 @@
 - [x] pilot-lamp-basic
 - [ ] pipe-wiring-tips
 - [ ] pliers
-- [ ] pneumatic-silencer-basic
+- [x] pneumatic-silencer-basic
 - [ ] power-signal-wiring-separation-basic
 - [ ] push-button-switch-basic
 - [ ] ratchet-wrench

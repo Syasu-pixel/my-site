@@ -13,27 +13,16 @@
   - `sitemap.xml`
 - `/seo/sitemap.xml` は非運用なので対象外。
 - 次の英語化候補を選ぶときは、このリストと英語トップ・英語カテゴリ内の日本語リンク残りを合わせて確認する。
+- 英語サイトでは当面、工具系記事と一般的な比較系記事は英語化対象外とし、Control Basics / Circuit Basics / PLC / Sensor 系を優先する。
 
 ## Backlog
 
 - [x] air-filter-regulator-lubricator-basic
 - [x] air-regulator-basic
 - [x] air-tube-fitting-basic
-- [ ] anchor-fixing
-- [ ] bandsaw
-- [ ] cable-cutter
-- [ ] charging-tools
-- [ ] charging-tools-accessories
-- [ ] crimping-hydraulic-vs-electric
-- [ ] crimping-tips
-- [ ] crimping-tools
 - [x] current-transformer-basic
-- [ ] cutting-tools
 - [ ] delayed-start-circuit-basic
-- [ ] din-rail-cutter
-- [ ] driver
 - [x] earth-leakage-breaker-basic
-- [ ] electrician-knife
 - [x] electromagnetic-contactor-vs-switch
 - [ ] float-switch-basic
 - [ ] got-touch-panel-basic
@@ -45,25 +34,18 @@
 - [ ] gxw3-one-shot-rise-fall-detection
 - [ ] gxw3-out-set-rst-coil-usage
 - [ ] gxw3-timer-ton-toff-retentive
-- [ ] hydraulic-punch
 - [ ] ladder-reading
 - [ ] ladder-work-platform
 - [ ] lamp-indicator-circuit-basic
-- [ ] lan-checker
 - [ ] light-curtain-basic
 - [ ] limit-switch-troubleshooting-basic
 - [x] manual-auto-selector-circuit-basic
-- [ ] mega
-- [ ] nipper
 - [x] no-fuse-breaker-basic
 - [x] noise-filter-basic
 - [x] pilot-lamp-basic
-- [ ] pipe-wiring-tips
-- [ ] pliers
 - [x] pneumatic-silencer-basic
 - [x] power-signal-wiring-separation-basic
 - [x] push-button-switch-basic
-- [ ] ratchet-wrench
 - [x] relay-socket-basic
 - [x] reset-circuit-basic
 - [ ] safety-door-switch-interlock-basic
@@ -73,13 +55,7 @@
 - [x] solenoid-valve-manual-override-basic
 - [x] ssr-basic
 - [ ] star-delta-start-basic
-- [ ] steel-wire
-- [ ] stripper
-- [ ] tajima-sef-boxes
 - [ ] temperature-sensor-basic
-- [ ] tepra-vs-lettertwin
-- [ ] tester
 - [x] thermal-relay-basic
 - [x] timer-relay-basic
-- [ ] tool-belt
 - [x] wiring-duct-basic

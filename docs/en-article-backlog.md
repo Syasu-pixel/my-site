@@ -70,7 +70,7 @@
 - [ ] selector-switch-basic
 - [ ] shielded-cable-basic
 - [x] signal-tower-light-basic
-- [ ] solenoid-valve-manual-override-basic
+- [x] solenoid-valve-manual-override-basic
 - [ ] ssr-basic
 - [ ] star-delta-start-basic
 - [ ] steel-wire

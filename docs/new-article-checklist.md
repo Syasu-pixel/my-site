@@ -229,6 +229,126 @@ articles/*.html 用の固定フッター：
 - 上記未解消のまま Step 2 導線追加へ進まない
 - 画像参照修正のために固定ヘッダー、レスポンシブCSS、本文、Support this site、Related articles を触らない
 
+
+### 英語記事テンプレート再発防止・必須確認（Step 1完了前）
+以下は**任意ではなく必須確認**とする。未達が1つでもある場合、Step 1 完了扱いにしない。
+
+#### 1) talk-thread / talk-avatar 画像表示（必須）
+- 対象: `en/articles/*.html` で `talk-thread` / `talk-avatar` を使う場合
+- `talk-avatar img` の `src` が GitHub main 上で実在する
+- 先輩画像が `assets/images/guide-characters/` の共通画像を参照している
+- 後輩画像が `assets/images/guide-characters/` の共通画像を参照している
+- 公開確認URLで先輩・後輩画像が実際に表示されている
+- altテキストだけが表示されていない
+- altテキストだけ表示されている状態では Step 1 完了扱いにしない
+- 画像参照修正が必要な場合は `img src` のみ修正し、CSSやtalk-thread構造を触らない
+
+標準参照:
+- 先輩: `../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png`
+- 後輩: `../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png`
+
+禁止:
+- `../../assets/images/common/senpai-character.png`
+- `../../assets/images/common/kouhai-character.png`
+- 実在確認なしの推測ファイル名
+- 記事固有画像フォルダ内の画像を会話アイコンに流用すること
+- 新しい別キャラを勝手に作ること
+
+#### 2) HTML内の全画像参照チェック（必須）
+英語記事HTML作成・配置・PR確認時、以下を一覧化して確認する。
+- `img src`
+- `og:image`
+- `twitter:image`
+- CSS内の `background:url(...)`
+- `article-hero::before` の画像参照
+
+必須確認:
+- 記事固有画像は `assets/images/{slug}-en/` を参照している
+- 会話キャラ画像は `assets/images/guide-characters/` を参照している
+- ロゴやfaviconは `assets/images/common/` を参照している
+- 他記事slugの画像フォルダを参照していない
+- 404になる画像参照がない
+- hero / ogp / 本文図のファイル名がHTML指定と一致している
+
+禁止:
+- 別記事の画像フォルダ参照を残すこと
+- hero画像とOGP画像の指定を取り違えること
+- 実在確認なしで画像パスを書くこと
+
+#### 3) 固定ヘッダー比較確認（必須）
+英語記事作成・配置・PR確認時、固定ヘッダーを対象言語の基準ページと比較する。
+
+英語記事の基準:
+- `en/index.html`
+- または直近の完成済み英語記事
+
+必須確認:
+- 固定ヘッダーを記事ごとに再設計していない
+- `header.site-header` の基本構造が基準と一致している
+- ロゴが表示される
+- `brand-title` が表示される
+- スマホ幅で `brand-sub` が非表示になる
+- `language-menu` が `header-search` の左側にある
+- `header-search` が右側で見切れない
+- `site-search.js` が1回だけ読み込まれている
+
+禁止:
+- 必要のない `header-nav` / `header-link` / Home / Featured / Categories などの独自ボタンを記事側へ勝手に追加しない
+- 固定ヘッダーCSSを記事ごとに再設計しない
+- レスポンシブCSSを短縮・圧縮・統合しない
+- 既存 `@media` ブロックを雑に編集しない
+
+#### 4) Support this site リンク確認（必須）
+英語記事 `en/articles/*.html` では、右カラムの `Support this site` を必須確認項目にする。
+
+必須構造:
+- `section.side-card.support-card`
+- `h3.support-card-title`
+- `p.support-card-text`
+- `div.support-card-actions`
+- `a.support-link.support-link--coffee`
+- `a.support-link.support-link--paypal`
+
+必須ボタン:
+- `Buy me a coffee`
+- `Support via PayPal`
+
+必須確認:
+- 2ボタン構成になっている
+- href が空ではない
+- href が壊れたURLではない
+- `target="_blank"` と `rel="noopener"` が維持されている
+- 公開ページでボタンが表示されている
+
+禁止:
+- 1ボタン版にしない
+- `Support this site` を省略しない
+- 右カラムから外さない
+- 記事ごとにCSSや文言を再設計しない
+- supportリンクの href / target / rel を勝手に変えない
+
+#### 5) Step 1完了前の公開URL表示確認（必須）
+英語記事の Step 1 完了前に、確認用URLをPC幅とスマホ幅で確認する。
+
+確認対象:
+- ロゴ表示
+- 固定ヘッダー
+- language-menu
+- 検索フォーム
+- hero画像
+- 本文画像
+- 会話キャラ画像
+- Support this site
+- Related articles
+- `site-search.js` の重複なし
+
+完了条件:
+- 画像がaltテキストだけになっていない
+- 固定ヘッダーが崩れていない
+- スマホ幅で検索欄が見切れていない
+- Support this site が2ボタンで表示されている
+- Related articles に404候補がない
+
 ### 英語記事作成時の language-menu チェック（日本語記事側含む）
 - 日本語記事側 language-menu の英語項目が `English article / 英語記事を開く` になっているか
 - 日本語記事側 language-menu の英語項目が `English top / United States` のまま残っていないか

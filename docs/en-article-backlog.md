@@ -69,7 +69,7 @@
 - [ ] safety-door-switch-interlock-basic
 - [ ] selector-switch-basic
 - [ ] shielded-cable-basic
-- [ ] signal-tower-light-basic
+- [x] signal-tower-light-basic
 - [ ] solenoid-valve-manual-override-basic
 - [ ] ssr-basic
 - [ ] star-delta-start-basic

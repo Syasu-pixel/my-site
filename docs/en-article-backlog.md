@@ -34,7 +34,7 @@
 - [ ] driver
 - [x] earth-leakage-breaker-basic
 - [ ] electrician-knife
-- [ ] electromagnetic-contactor-vs-switch
+- [x] electromagnetic-contactor-vs-switch
 - [ ] float-switch-basic
 - [ ] got-touch-panel-basic
 - [ ] gxw3-add-sub-instruction-basic

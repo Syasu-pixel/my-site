@@ -79,7 +79,7 @@
 - [ ] temperature-sensor-basic
 - [ ] tepra-vs-lettertwin
 - [ ] tester
-- [ ] thermal-relay-basic
+- [x] thermal-relay-basic
 - [x] timer-relay-basic
 - [ ] tool-belt
 - [x] wiring-duct-basic

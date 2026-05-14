@@ -65,7 +65,7 @@
 - [ ] push-button-switch-basic
 - [ ] ratchet-wrench
 - [ ] relay-socket-basic
-- [ ] reset-circuit-basic
+- [x] reset-circuit-basic
 - [ ] safety-door-switch-interlock-basic
 - [ ] selector-switch-basic
 - [ ] shielded-cable-basic

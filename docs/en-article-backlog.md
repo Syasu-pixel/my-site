@@ -67,7 +67,7 @@
 - [ ] relay-socket-basic
 - [x] reset-circuit-basic
 - [ ] safety-door-switch-interlock-basic
-- [ ] selector-switch-basic
+- [x] selector-switch-basic
 - [x] shielded-cable-basic
 - [x] signal-tower-light-basic
 - [x] solenoid-valve-manual-override-basic

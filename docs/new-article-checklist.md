@@ -166,6 +166,29 @@ GX Works3命令語シリーズでは、原則として以下の5枚を**別フ�
 @media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
 ```
 
+### 英語記事 language-menu 表示チェック（必須）
+- 対象: `en/articles/*.html`
+- `language-menu-button` の表示が既存英語記事テンプレと一致しているか確認する
+- `.language-menu-icon` に `"Language"` などの長い文字列を入れない
+- `.language-menu-icon` は `🌐` など短いアイコン表示、または既存テンプレと同等の短い表示にする
+- `.language-menu-current` は `English` など現在言語のみを表示する
+- 公開表示で `"Language English"` のような重複・不自然表示になっていないか確認する
+- `language-menu-panel` の JA / EN リンクが正しいか確認する
+- 英語記事側の日本語リンクは `../../articles/{slug}.html`
+- 英語記事側の英語リンクは `{slug}.html` または既存テンプレ同等の自己リンク
+- `language-menu` の開閉JSが効くか確認する
+- クリックで開く、外側クリックで閉じる、Escapeで閉じることを確認する
+- `site-search.js` は1回だけ読み込む
+- 検索フォーム構造を壊さない
+
+正しい例:
+```html
+<button class="language-menu-button" type="button" aria-expanded="false" aria-controls="language-menu-panel">
+  <span class="language-menu-icon" aria-hidden="true">🌐</span>
+  <span class="language-menu-current">English</span>
+</button>
+```
+
 禁止:
 - スマホで `.brand-copy` を `display:none` にしない
 - `.brand-title` を消さない

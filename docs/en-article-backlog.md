@@ -68,7 +68,7 @@
 - [x] reset-circuit-basic
 - [ ] safety-door-switch-interlock-basic
 - [ ] selector-switch-basic
-- [ ] shielded-cable-basic
+- [x] shielded-cable-basic
 - [x] signal-tower-light-basic
 - [x] solenoid-valve-manual-override-basic
 - [ ] ssr-basic

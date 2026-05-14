@@ -184,6 +184,55 @@
 
 固定ヘッダーを修正する場合は、記事本文修正とは別タスクにする。
 
+## スマホ固定ヘッダー正規化ルール（日本語/英語共通）
+
+今後の新規記事作成・英語記事作成・既存記事移植では、スマホ表示の固定ヘッダーを以下ルールで正規化する。
+
+背景:
+- 日本語ページ（`articles/*.html` + `categories/*.html`）は最終監査で A=140 / C=0 まで正規化済み。
+- 英語ページ（`en/articles/*.html` + `en/categories/*.html`）は既存A判定4件を含めて主要74件をOK扱い。
+- `en/articles/pilot-lamp-basic.html` は作成直後記事のため別途手動修正予定。
+- 今後は新規作成時点でこの基準を維持し、後追い修正を増やさない。
+
+### 期待仕様（スマホ固定ヘッダー）
+- スマホでは `.brand-sub` を表示しない。
+- スマホでも `.brand-title` は表示する。
+- `.brand-copy` / `.brand-title` を `display:none` にしない。
+- `language-menu` は `header-search` の左側に置く。
+- `language-menu-current` は狭幅で非表示にする。
+- `header-search` は右側で見切れないように圧縮する。
+- `site-search.js` は各ページ1回のみ読み込む。
+
+### 比較基準（監査時）
+- 日本語ページ `articles/*.html` / `categories/*.html` は `index.html` を基準にする。
+- 英語ページ `en/articles/*.html` / `en/categories/*.html` は `en/index.html` を基準にする。
+- 英語ページ監査で日本語 `index.html` を基準にしない。
+- 日本語ページ監査で `en/index.html` を基準にしない。
+
+### 標準補正方法（後勝ちCSS 1行追加）
+- 必要なページでは、既存 `@media` ブロックを書き換えず、`</style>` 直前へ後勝ちCSSとして1行追加する。
+- 既存 `@media` ブロック内に差し込まない（巻き込み編集を避ける）。
+
+```css
+@media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
+```
+
+### 禁止事項（ヘッダー補正タスク）
+- スマホで `.brand-copy` を安易に `display:none` にしない。
+- `.brand-title` を消さない。
+- `.brand-sub` を表示したままにしない。
+- `language-menu` と `header-search` の順番を入れ替えない。
+- `header-search` を固定幅で大きくしすぎない。
+- 既存記事の `article-hero` / `talk` / `section-card` / `summary-card` / `mini-toc` など本文側スマホCSSを巻き込んで編集しない。
+- 既存 `@media` ブロックを雑に編集しない。
+- `site-search.js` を重複読み込みしない。
+- `sitemap.xml` / `assets/data/search-index.json` / `/seo/sitemap.xml` をヘッダー補正タスクで触らない。
+
+### 監査の考え方（空白・改行差を無視）
+- CSSは1行でも複数行でも、必須指定セットが揃っていればOK判定とする。
+- 空白・改行・インデント差は判定条件にしない。
+- 同じ指定が揃っていないページは C 判定として修正対象にする。
+
 
 ## 英語記事の Support this site 固定ルール
 

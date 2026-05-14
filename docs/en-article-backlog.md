@@ -32,7 +32,7 @@
 - [ ] delayed-start-circuit-basic
 - [ ] din-rail-cutter
 - [ ] driver
-- [ ] earth-leakage-breaker-basic
+- [x] earth-leakage-breaker-basic
 - [ ] electrician-knife
 - [ ] electromagnetic-contactor-vs-switch
 - [ ] float-switch-basic

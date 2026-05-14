@@ -55,7 +55,7 @@
 - [ ] manual-auto-selector-circuit-basic
 - [ ] mega
 - [ ] nipper
-- [ ] no-fuse-breaker-basic
+- [x] no-fuse-breaker-basic
 - [x] noise-filter-basic
 - [x] pilot-lamp-basic
 - [ ] pipe-wiring-tips

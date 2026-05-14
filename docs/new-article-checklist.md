@@ -145,6 +145,38 @@ GX Works3命令語シリーズでは、原則として以下の5枚を**別フ�
 - コピー元に古いフッターがあっても流用せず、必ず固定フッターへ差し替える
 - 英語記事 `en/articles/*.html` では、右カラム `Support this site` に `section.side-card.support-card`（2ボタン: `Buy me a coffee` / `Support via PayPal`）を必ず維持し、1ボタンの `support-button` 版へ変更しない
 
+### スマホ固定ヘッダー正規化チェック（必須）
+- スマホ幅で `.brand-sub` が非表示か確認したか
+- スマホ幅で `.brand-title` が表示されるか確認したか
+- `.brand-copy` / `.brand-title` を `display:none` にしていないか確認したか
+- `language-menu` が検索欄（`header-search`）の左側にあるか確認したか
+- `language-menu-current` が狭幅で非表示になるか確認したか
+- `header-search` が右側で見切れていないか確認したか
+- `site-search.js` が1回だけ読み込まれているか確認したか
+- 日本語記事は `index.html` 基準、英語記事は `en/index.html` 基準で確認したか
+- 英語記事監査で日本語 `index.html` を基準にしていないか確認したか
+- 日本語記事監査で `en/index.html` を基準にしていないか確認したか
+- CSS全文を空白正規化（空白・改行差を無視）して、必須指定セットが揃っているか確認したか
+- 1行CSSでも複数行CSSでも、同一指定が揃っていればOK判定にしているか
+- 必須指定が欠けるページは C 判定として修正対象にしているか
+
+標準補正CSS（必要ページのみ、`</style>` 直前に後勝ち追加）:
+
+```css
+@media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
+```
+
+禁止:
+- スマホで `.brand-copy` を `display:none` にしない
+- `.brand-title` を消さない
+- `.brand-sub` を表示したままにしない
+- `language-menu` と `header-search` の順番を入れ替えない
+- `header-search` を固定幅で大きくしすぎない
+- 本文側スマホCSS（`article-hero` / `talk` / `section-card` / `summary-card` / `mini-toc` など）を巻き込んで編集しない
+- 既存 `@media` ブロックを雑に編集しない
+- `site-search.js` を重複読み込みしない
+- `sitemap.xml` / `assets/data/search-index.json` / `/seo/sitemap.xml` をヘッダー補正タスクで触らない
+
 articles/*.html 用の固定フッター：
 
 ```html

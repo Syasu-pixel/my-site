@@ -201,6 +201,13 @@ articles/*.html 用の固定フッター：
 - articles/forward-reverse-circuit-basic.html
 - articles/lamp-indicator-circuit-basic.html
 
+
+### 英語記事作成時の language-menu チェック（日本語記事側含む）
+- 日本語記事側 language-menu の英語項目が `English article / 英語記事を開く` になっているか
+- 日本語記事側 language-menu の英語項目が `English top / United States` のまま残っていないか
+- 日本語記事側 language-menu 英語項目の `href` が `../en/articles/{slug}.html` になっているか
+- 英語記事側 language-menu から `../../articles/{slug}.html` で日本語記事へ戻れるか
+
 ## 6. HTMLで差し替えるもの
 - title
 - meta description

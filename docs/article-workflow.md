@@ -234,6 +234,29 @@
 - 同じ指定が揃っていないページは C 判定として修正対象にする。
 
 
+
+## 英語記事作成時の language-menu 表示文言ルール（日本語記事側）
+
+英語記事 `en/articles/{slug}.html` を作成した場合、対応する日本語記事 `articles/{slug}.html` の language-menu 英語項目は、リンク先と表示文言を記事単位で一致させる。
+
+### 表示文言ルール（日本語記事側）
+- `strong`: `English article`
+- `small`: `英語記事を開く`
+
+### 禁止文言（対応する英語記事が存在するページ）
+以下の文言を英語項目に残さない。
+- `United States`
+- `English top`
+- `English site`
+- `英語トップ`
+- `英語サイト`
+
+### リンク先整合ルール
+表示文言だけでなく、`href` も必ず確認する。
+
+- 日本語記事 → 英語記事: `../en/articles/{slug}.html`
+- 英語記事 → 日本語記事: `../../articles/{slug}.html`
+
 ## 英語記事の Support this site 固定ルール
 
 英語記事 `en/articles/*.html` では、右カラムの `Support this site` は収益導線として扱う。

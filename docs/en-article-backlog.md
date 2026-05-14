@@ -56,7 +56,7 @@
 - [ ] mega
 - [ ] nipper
 - [ ] no-fuse-breaker-basic
-- [ ] noise-filter-basic
+- [x] noise-filter-basic
 - [x] pilot-lamp-basic
 - [ ] pipe-wiring-tips
 - [ ] pliers

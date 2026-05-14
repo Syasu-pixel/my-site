@@ -80,6 +80,6 @@
 - [ ] tepra-vs-lettertwin
 - [ ] tester
 - [ ] thermal-relay-basic
-- [ ] timer-relay-basic
+- [x] timer-relay-basic
 - [ ] tool-belt
 - [x] wiring-duct-basic

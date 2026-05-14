@@ -71,7 +71,7 @@
 - [x] shielded-cable-basic
 - [x] signal-tower-light-basic
 - [x] solenoid-valve-manual-override-basic
-- [ ] ssr-basic
+- [x] ssr-basic
 - [ ] star-delta-start-basic
 - [ ] steel-wire
 - [ ] stripper

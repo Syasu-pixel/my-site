@@ -57,7 +57,7 @@
 - [ ] nipper
 - [ ] no-fuse-breaker-basic
 - [ ] noise-filter-basic
-- [ ] pilot-lamp-basic
+- [x] pilot-lamp-basic
 - [ ] pipe-wiring-tips
 - [ ] pliers
 - [ ] pneumatic-silencer-basic

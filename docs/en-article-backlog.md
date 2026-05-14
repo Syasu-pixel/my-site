@@ -17,7 +17,7 @@
 ## Backlog
 
 - [ ] air-filter-regulator-lubricator-basic
-- [ ] air-regulator-basic
+- [x] air-regulator-basic
 - [ ] air-tube-fitting-basic
 - [ ] anchor-fixing
 - [ ] bandsaw

@@ -27,7 +27,7 @@
 - [ ] crimping-hydraulic-vs-electric
 - [ ] crimping-tips
 - [ ] crimping-tools
-- [ ] current-transformer-basic
+- [x] current-transformer-basic
 - [ ] cutting-tools
 - [ ] delayed-start-circuit-basic
 - [ ] din-rail-cutter

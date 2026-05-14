@@ -16,7 +16,7 @@
 
 ## Backlog
 
-- [ ] air-filter-regulator-lubricator-basic
+- [x] air-filter-regulator-lubricator-basic
 - [x] air-regulator-basic
 - [ ] air-tube-fitting-basic
 - [ ] anchor-fixing

@@ -202,6 +202,33 @@ articles/*.html 用の固定フッター：
 - articles/lamp-indicator-circuit-basic.html
 
 
+
+### 英語記事の先輩・後輩会話画像ルール（必須）
+- 対象: `en/articles/*.html` で `talk-thread` / `talk-avatar` を使う場合
+- 先輩・後輩画像は `assets/images/guide-characters/` の共通画像を必ず使う
+- 記事個別フォルダや古い `assets/images/common/` 画像を推測で使わない
+- `img src` は GitHub `main` 上で実在確認済みのパスのみ使う
+- 標準参照（英語記事）
+  - 先輩: `../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png`
+  - 後輩: `../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png`
+
+### 英語記事HTML作成・配置・PR確認時の必須チェック（talk-avatar）
+- `talk-avatar img` の `src` が実在する
+- 先輩画像がブラウザで表示される
+- 後輩画像がブラウザで表示される
+- alt テキストだけ表示されていない
+- `../../assets/images/common/senpai-character.png` や `../../assets/images/common/kouhai-character.png` のような古い参照を残していない
+- 記事個別画像フォルダ内に会話キャラ画像を置かない
+- `guide-characters` の共通画像を使う
+- CSS や `talk-thread` 構造を変更せず、必要な場合は `img src` のみ修正する
+
+### 禁止事項（英語記事の会話画像）
+- 先輩・後輩画像を記事ごとに別名で推測して参照しない
+- 実在確認なしで画像パスを書かない
+- alt 表示だけになっている状態で Step 1 完了扱いにしない
+- 上記未解消のまま Step 2 導線追加へ進まない
+- 画像参照修正のために固定ヘッダー、レスポンシブCSS、本文、Support this site、Related articles を触らない
+
 ### 英語記事作成時の language-menu チェック（日本語記事側含む）
 - 日本語記事側 language-menu の英語項目が `English article / 英語記事を開く` になっているか
 - 日本語記事側 language-menu の英語項目が `English top / United States` のまま残っていないか

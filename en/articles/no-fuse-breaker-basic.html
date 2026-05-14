@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>No-Fuse Breaker Basics: Protecting Wires from Overcurrent and Short Circuits | Denki Control Lab</title>
+  <meta name="description" content="Learn the basics of no-fuse breakers used in control panels and electrical distribution. This beginner-friendly guide explains overcurrent protection, short-circuit tripping, the difference from earth leakage breakers, and field checks.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/no-fuse-breaker-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/no-fuse-breaker-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/no-fuse-breaker-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/no-fuse-breaker-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="No-Fuse Breaker Basics: Protecting Wires from Overcurrent and Short Circuits">
+  <meta property="og:description" content="Understand what a no-fuse breaker does, how it trips during overcurrent or short circuits, and how it differs from an earth leakage breaker.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/no-fuse-breaker-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-ogp.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="No-Fuse Breaker Basics">
+  <meta name="twitter:description" content="Learn how no-fuse breakers protect wiring and circuits from overcurrent and short circuits.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-header:#dbe7f3;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --red-soft:#fff1f2;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px;}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h);}
+    img,svg{max-width:100%;display:block;}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease;}
+    a:hover{text-decoration:underline;}
+    button,input{font:inherit;}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto;}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px;}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto;}
+    .brand:hover{text-decoration:none;}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto;}
+    .brand-copy{min-width:0;}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em;}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700;}
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px;}
+    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap;}
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .language-menu-icon{font-size:15px;line-height:1;}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300;}
+    .language-menu-panel[hidden]{display:none;}
+    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none;}
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none;}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8;}
+    .language-menu-flag{font-size:18px;line-height:1;}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900;}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700;}
+
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft);}
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px;}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700;}
+    .search-box-input::placeholder{color:#94a3b8;}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto;}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg);}
+    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200;}
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700;}
+
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800;}
+    .breadcrumb a{color:#1d4ed8;}
+
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate;}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-hero.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0;}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1;}
+    .article-hero-copy{width:min(100%,720px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;}
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px;}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a;}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155;}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700;}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px;}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent;}
+    .btn:hover{text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18);}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec;}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow);}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4;}
+    .summary-card ul{margin:0;padding-left:18px;}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;}
+    .summary-card--fit h2{color:#0f766e;}.summary-card--notyet h2{color:#b45309;}.summary-card--conclusion h2{color:#1e3a8a;}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow);}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5;}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px;}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none;}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px;}
+    .main-column{min-width:0;}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px;}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);}
+    .section-card{padding:28px;margin-bottom:20px;}
+    .side-card{padding:20px;}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a;}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700;}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a;}
+    .section-card p{margin:0 0 14px;font-size:15px;}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px;}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75;}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900;}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900;}
+    .term{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:900;white-space:nowrap;}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;}
+    .article-figure-inner{background:#fff;padding:18px;}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px;}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff;}
+
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0;}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#fff 100%);}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5;}
+    .key-highlight h3{color:#1e3a8a;}.field-highlight h3{color:#15803d;}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px;}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;}
+    .note-box{background:#fff8ea;border-color:#f7dba2;}.danger-box{background:var(--red-soft);border-color:#fecaca;}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5;}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted);}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5;}.check-item p{margin:0;font-size:14px;color:var(--muted);}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe;}.check-item--field{background:#ecfdf3;border-color:#bbf7d0;}.check-item--warning{background:#fff7e8;border-color:#f7dba2;}.check-item--danger{background:#fff1f2;border-color:#fecaca;}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px;}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff;}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7;}
+    th{background:#eff6ff;color:#0f172a;font-weight:900;white-space:nowrap;} tr:last-child td{border-bottom:none;}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a;}td.cell-green{background:#ecfdf3;font-weight:800;color:#166534;}td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e;}td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b;}
+
+    .flow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 8px;}
+    .flow-card{position:relative;padding:15px;border-radius:18px;background:#f8fbff;border:1px solid #d7e4f3;}
+    .flow-card h3{margin:0 0 8px;font-size:15px;line-height:1.4;color:#1e3a8a;}.flow-card p{margin:0;font-size:13px;color:var(--muted);}
+    .flow-card::after{content:"→";position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:900;}.flow-card:last-child::after{display:none;}
+
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px;}.talk-row{display:flex;align-items:flex-start;gap:12px;}.talk-row.is-reverse{flex-direction:row-reverse;}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center;background:none;border:none;box-shadow:none;}.talk-avatar img{width:76px;height:auto;display:block;}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04);}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8;}.talk-row.is-reverse .talk-name{color:#15803d;}.talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155;}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a;}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px;}.side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted);}.side-card a{font-weight:800;}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}.side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none;}.side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8;}
+
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04);}.support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe;}.support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500;}.support-card .support-card-actions{margin-top:9px;display:grid;gap:7px;}.support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none;}.support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none;}.support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf;}.support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff;}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none;}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff;}.related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue);}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75;}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;}
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500;}.footer-copy{margin:0;}.footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}.footer-links a{color:#334155;font-weight:700;}.footer-separator{color:#cbd5e1;}
+
+    @media (max-width:1100px){.language-menu-current{display:none;}.language-menu-button{width:38px;min-width:38px;padding:0;}.language-menu-panel{right:0;width:210px;}.page-layout{grid-template-columns:minmax(0,1fr);}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr));}.flow-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.flow-card::after{display:none;}}
+    @media (max-width:900px){:root{--header-h:74px;}html{scroll-padding-top:92px;}.site-header{padding:8px 10px;}.site-header-inner{gap:8px;}.brand-logo{height:42px;}.brand-title{font-size:15px;}.brand-sub{display:none;}.header-search{flex:1 1 auto;min-height:40px;}.container{width:min(100%,calc(100% - 20px));}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;}.article-hero::before{background:url("../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20;}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start;}h1{font-size:30px;}.hero-lead{font-size:14px;max-width:34ch;}.top-summary,.side-rail,.related-grid,.check-grid,.flow-grid{grid-template-columns:1fr;}.section-card{padding:22px;}}
+    @media (min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff;}.article-hero::before{background:url("../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-hero.png") right center / auto 92% no-repeat;opacity:.30;}.article-hero-copy{width:min(100%,640px);min-height:360px;padding:38px 32px;}h1{font-size:34px;}.hero-lead{max-width:42ch;}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));}.side-rail{grid-template-columns:repeat(3,minmax(0,1fr));}}
+    @media (max-width:640px){.article-hero-copy{min-height:330px;padding:28px 18px;}h1{font-size:26px;}.hero-actions{width:100%;}.btn{width:100%;min-height:44px;}.talk-row,.talk-row.is-reverse{flex-direction:column;}.talk-avatar{width:64px;flex:0 0 auto;}.talk-avatar img{width:64px;}table{min-width:680px;}}
+    @media (max-width:480px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}.container{width:min(100%,calc(100% - 16px));}.article-hero::before{background:url("../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-hero.png") right -46px bottom -16px / 178% auto no-repeat;opacity:.15;}.section-card,.side-card,.summary-card,.mini-toc-card{border-radius:20px;}.section-card{padding:18px;}.summary-card{padding:18px 16px;}.top-summary{gap:12px;}th,td{padding:11px 12px;font-size:13px;}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="../index.html" aria-label="Denki Control Lab home">
+        <img class="brand-logo" src="../../assets/images/common/site-logo-dcl-120.png" alt="Denki Control Lab logo" width="120" height="120">
+        <span class="brand-copy">
+          <span class="brand-title">Denki Control Lab</span>
+          <span class="brand-sub">Practical guides for electrical control, PLCs, and field wiring</span>
+        </span>
+      </a>
+
+      <form class="header-search search-box" id="siteSearch" action="../search.html" role="search">
+        <label class="sr-only" for="site-search-input">Search articles</label>
+        <input class="search-box-input" id="site-search-input" type="search" name="q" placeholder="Search" autocomplete="off">
+        <button class="search-box-button" type="submit" aria-label="Search">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+
+      <div class="language-menu">
+        <button class="language-menu-button" type="button" aria-expanded="false" aria-controls="language-menu-panel">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">English</span>
+        </button>
+        <div class="language-menu-panel" id="language-menu-panel" hidden>
+          <a class="language-menu-item" href="../../articles/no-fuse-breaker-basic.html" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span><strong>日本語</strong><small>Japanese original</small></span>
+          </a>
+          <a class="language-menu-item is-active" href="no-fuse-breaker-basic.html" lang="en">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span><strong>English</strong><small>Current page</small></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Home</a>
+        <span>›</span>
+        <a href="../categories/control-basics.html">Control Basics</a>
+        <span>›</span>
+        <span>No-Fuse Breaker Basics</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">Electrical protection basics</span>
+          <h1>No-Fuse Breaker Basics: Protecting Wires from Overcurrent and Short Circuits</h1>
+          <p class="hero-lead">A no-fuse breaker is a basic protective device that trips when too much current flows. It protects wiring and circuits from overloads and short circuits before heat and damage become serious.</p>
+          <ul class="hero-points">
+            <li>Understand what a no-fuse breaker protects.</li>
+            <li>Learn the difference between overload, short circuit, and leakage current.</li>
+            <li>Check the key points before resetting a tripped breaker.</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is-nfb">Start with the basics</a>
+            <a class="btn btn-secondary" href="#nfb-vs-elb">Compare with earth leakage breakers</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit">
+          <h2>Good for</h2>
+          <ul>
+            <li>Beginners learning control panel parts.</li>
+            <li>People who confuse NFBs with earth leakage breakers.</li>
+            <li>Anyone who wants a field-oriented explanation of breaker trips.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--notyet">
+          <h2>Not enough by itself</h2>
+          <ul>
+            <li>Selecting breaker ratings for real equipment.</li>
+            <li>Replacing breakers under live power.</li>
+            <li>Judging a trip without checking the cause.</li>
+          </ul>
+        </div>
+        <div class="summary-card summary-card--conclusion">
+          <h2>Main takeaway</h2>
+          <ul>
+            <li>An NFB mainly protects wiring from overcurrent and short circuits.</li>
+            <li>An ELB focuses on detecting leakage current to ground.</li>
+            <li>A tripped breaker should not be reset repeatedly without investigation.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <div class="mini-toc">
+          <a href="#what-is-nfb">What is an NFB?</a>
+          <a href="#trip-flow">How it trips</a>
+          <a href="#nfb-vs-elb">NFB vs ELB</a>
+          <a href="#field-checks">Field checks</a>
+          <a href="#summary">Summary</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is-nfb">
+            <h2>What is a no-fuse breaker?</h2>
+            <p class="section-intro-line">A no-fuse breaker is a protective device that opens the circuit when abnormal current flows.</p>
+            <p>A <span class="term">no-fuse breaker</span>, often abbreviated as <span class="term">NFB</span>, is used to protect electrical wiring and equipment circuits. In many contexts it is similar to what is commonly called a molded-case circuit breaker or circuit breaker.</p>
+            <p>The important idea is simple: when too much current flows, the breaker trips and stops the circuit. This helps prevent wire overheating, insulation damage, equipment damage, and fire risk.</p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-overview.png" alt="No-fuse breaker protecting wiring from overcurrent in a control panel" width="1200" height="675" loading="lazy">
+              </div>
+              <figcaption>A no-fuse breaker is installed upstream of circuits so it can interrupt abnormal current before wiring or equipment is damaged.</figcaption>
+            </figure>
+
+            <div class="talk-thread" aria-label="Beginner explanation dialogue">
+              <div class="talk-row">
+                <div class="talk-avatar"><img src="../../assets/images/guide-characters/senpai.png" alt="Senior engineer character" width="152" height="152" loading="lazy"></div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Senior</span>
+                  <p>Think of the no-fuse breaker as a guard for the wiring. It does not wait for a fuse to melt; it trips mechanically when the current becomes abnormal.</p>
+                </div>
+              </div>
+              <div class="talk-row is-reverse">
+                <div class="talk-avatar"><img src="../../assets/images/guide-characters/kouhai.png" alt="Junior engineer character" width="152" height="152" loading="lazy"></div>
+                <div class="talk-bubble">
+                  <span class="talk-name">Junior</span>
+                  <p>So it is mainly watching for too much current, not just whether the equipment is running normally.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-card" id="trip-flow">
+            <h2>How a no-fuse breaker trips</h2>
+            <p class="section-intro-line">The breaker trips when the current exceeds what the circuit can safely handle.</p>
+            <p>There are two typical abnormal current situations to understand: <span class="marker-orange">overload</span> and <span class="marker-blue">short circuit</span>.</p>
+
+            <div class="flow-grid" aria-label="Trip flow">
+              <div class="flow-card"><h3>1. Load increases</h3><p>A motor, heater, or downstream circuit draws more current than expected.</p></div>
+              <div class="flow-card"><h3>2. Current rises</h3><p>The current exceeds the safe range for the circuit and wiring.</p></div>
+              <div class="flow-card"><h3>3. Breaker detects it</h3><p>The trip mechanism responds to the abnormal current condition.</p></div>
+              <div class="flow-card"><h3>4. Circuit opens</h3><p>The breaker turns off and disconnects the downstream circuit.</p></div>
+            </div>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-trip-flow.png" alt="Trip flow showing overload, current rise, breaker detection, and circuit opening" width="1200" height="675" loading="lazy">
+              </div>
+              <figcaption>The breaker does not fix the cause. It only disconnects the circuit so the abnormal current does not continue flowing.</figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Condition</th><th>What happens</th><th>Typical field image</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="cell-orange">Overload</td><td>Current is higher than normal for a period of time.</td><td>A motor is overloaded, equipment is jammed, or too many loads are connected.</td></tr>
+                  <tr><td class="cell-red">Short circuit</td><td>A very large current flows suddenly because conductors contact incorrectly.</td><td>Damaged insulation, wiring mistake, component failure, or contact between phases.</td></tr>
+                  <tr><td class="cell-blue">Normal load</td><td>Current stays within the intended range.</td><td>The breaker remains on and the circuit operates normally.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="danger-box">
+              <h3>Do not reset repeatedly without checking</h3>
+              <p>If a breaker trips again immediately, there may be a short circuit, equipment fault, wiring error, or serious overload. Repeatedly turning it back on can make the damage worse.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="nfb-vs-elb">
+            <h2>No-fuse breaker vs earth leakage breaker</h2>
+            <p class="section-intro-line">The easiest way to separate them is to ask: is the device protecting against overcurrent, leakage current, or both?</p>
+            <p>An NFB mainly protects against <span class="marker-blue">overcurrent and short circuits</span>. An earth leakage breaker focuses on detecting <span class="marker-green">leakage current to ground</span>, which is related to electric shock and insulation problems.</p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-nfb-elb-comparison.png" alt="Comparison of no-fuse breaker and earth leakage breaker protection targets" width="1200" height="675" loading="lazy">
+              </div>
+              <figcaption>NFBs and earth leakage breakers are both protective devices, but the abnormal condition they watch for is not the same.</figcaption>
+            </figure>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Item</th><th>No-fuse breaker</th><th>Earth leakage breaker</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Primary purpose</td><td>Protect wiring and circuits from overcurrent and short circuits.</td><td>Detect leakage current and reduce electric shock or leakage fire risk.</td></tr>
+                  <tr><td>Main abnormal condition</td><td>Too much current flowing through the circuit.</td><td>Current leaking to ground or to unintended paths.</td></tr>
+                  <tr><td>Typical field clue</td><td>Overload, short circuit, or downstream equipment fault.</td><td>Insulation deterioration, moisture, damaged cable, or leakage path.</td></tr>
+                  <tr><td>Simple memory aid</td><td>“Too much current.”</td><td>“Current leaking away.”</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>Important distinction</h3>
+              <p>A no-fuse breaker tripping does not automatically mean a leakage current problem. First separate overcurrent, short circuit, and leakage current in your thinking.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-checks">
+            <h2>Field checks before resetting a tripped breaker</h2>
+            <p class="section-intro-line">A breaker trip is a result. The real work is finding why it tripped.</p>
+            <p>Before turning the breaker back on, slow down and check the surrounding conditions. The correct action depends on whether the trip happened during startup, during operation, after maintenance, or immediately after wiring work.</p>
+
+            <figure class="article-figure">
+              <div class="article-figure-inner">
+                <img src="../../assets/images/no-fuse-breaker-basic-en/no-fuse-breaker-basic-field-checks.png" alt="Field checklist for inspecting a tripped no-fuse breaker" width="1200" height="675" loading="lazy">
+              </div>
+              <figcaption>Field checks should focus on load condition, wiring condition, recent work, abnormal smell or heat, and whether the breaker trips again immediately.</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important"><h3>When did it trip?</h3><p>At startup, during normal operation, after maintenance, or immediately after power was restored?</p></div>
+              <div class="check-item check-item--field"><h3>What changed?</h3><p>Check recent wiring work, replaced parts, added loads, or changes in operating conditions.</p></div>
+              <div class="check-item check-item--warning"><h3>Any signs of damage?</h3><p>Look for smell, heat, discoloration, loose terminals, damaged cable, or abnormal equipment noise.</p></div>
+              <div class="check-item check-item--danger"><h3>Does it trip again?</h3><p>If it trips immediately again, stop resetting and investigate the downstream circuit carefully.</p></div>
+            </div>
+
+            <div class="note-box">
+              <h3>Rating selection is a design task</h3>
+              <p>The breaker rating must match the wiring, load, short-circuit capacity, standards, and panel design. This article explains the basic concept, not final selection for real equipment.</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>Summary</h2>
+            <p>A no-fuse breaker is one of the most basic protective devices in electrical panels. Its main role is to stop abnormal current before wiring and equipment are damaged.</p>
+            <ul>
+              <li>An NFB mainly protects against overcurrent and short circuits.</li>
+              <li>An earth leakage breaker detects leakage current, so its protection target is different.</li>
+              <li>A breaker trip should be treated as a clue, not just an inconvenience.</li>
+              <li>Do not repeatedly reset a breaker without checking the cause.</li>
+            </ul>
+          </section>
+
+          <section class="section-card" id="related">
+            <h2>Related articles</h2>
+            <p class="section-intro-line">These English articles already exist and are safe to link from this page.</p>
+            <div class="related-grid">
+              <a class="related-card" href="earth-leakage-breaker-basic.html">
+                <h3>Earth Leakage Breaker Basics</h3>
+                <p>Learn how leakage current is detected and how earth leakage breakers differ from overcurrent protection.</p>
+              </a>
+              <a class="related-card" href="current-transformer-basic.html">
+                <h3>Current Transformer Basics</h3>
+                <p>Understand how current is measured safely in control panels and monitoring circuits.</p>
+              </a>
+              <a class="related-card" href="noise-filter-basic.html">
+                <h3>Noise Filter Basics</h3>
+                <p>Review another common panel component used to reduce electrical noise problems.</p>
+              </a>
+              <a class="related-card" href="power-signal-wiring-separation-basic.html">
+                <h3>Power and Signal Wiring Separation</h3>
+                <p>Learn why power wiring and signal wiring should be separated in control panels.</p>
+              </a>
+              <a class="related-card" href="shielded-cable-basic.html">
+                <h3>Shielded Cable Basics</h3>
+                <p>Understand how shielded cables help protect weak signals from noise.</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-secondary" href="../categories/control-basics.html">Back to Control Basics</a>
+              <a class="btn btn-primary" href="../index.html">Back to English home</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="Sidebar">
+          <section class="side-card">
+            <h3>On this page</h3>
+            <ul class="side-link-list">
+              <li><a href="#what-is-nfb">What is an NFB?</a></li>
+              <li><a href="#trip-flow">How it trips</a></li>
+              <li><a href="#nfb-vs-elb">NFB vs ELB</a></li>
+              <li><a href="#field-checks">Field checks</a></li>
+              <li><a href="#summary">Summary</a></li>
+            </ul>
+          </section>
+          <section class="side-card">
+            <h3>Key idea</h3>
+            <p>A no-fuse breaker protects wiring from too much current. A leakage breaker detects current escaping through an unintended path.</p>
+          </section>
+          <section class="side-card support-card">
+            <h3 class="support-card-title">Support this site</h3>
+            <p class="support-card-text">If this guide helped you, a small support helps keep Denki Control Lab running.</p>
+            <div class="support-card-actions">
+              <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/syasuuu" target="_blank" rel="noopener">Buy me a coffee</a>
+              <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/syasuuu" target="_blank" rel="noopener">PayPal</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© Denki Control Lab. Practical guides for electrical control and field work.</p>
+    <p class="footer-links">
+      <a href="../index.html">English home</a>
+      <span class="footer-separator">/</span>
+      <a href="../../index.html">Japanese home</a>
+    </p>
+  </footer>
+
+  <script>
+    (function(){
+      const menu = document.querySelector('.language-menu');
+      if(!menu) return;
+      const button = menu.querySelector('.language-menu-button');
+      const panel = menu.querySelector('.language-menu-panel');
+      if(!button || !panel) return;
+      button.addEventListener('click', function(){
+        const isOpen = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener('click', function(event){
+        if(!menu.contains(event.target)){
+          button.setAttribute('aria-expanded','false');
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener('keydown', function(event){
+        if(event.key === 'Escape'){
+          button.setAttribute('aria-expanded','false');
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

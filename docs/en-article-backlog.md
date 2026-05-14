@@ -61,7 +61,7 @@
 - [ ] pipe-wiring-tips
 - [ ] pliers
 - [x] pneumatic-silencer-basic
-- [ ] power-signal-wiring-separation-basic
+- [x] power-signal-wiring-separation-basic
 - [ ] push-button-switch-basic
 - [ ] ratchet-wrench
 - [ ] relay-socket-basic

@@ -64,7 +64,7 @@
 - [x] power-signal-wiring-separation-basic
 - [x] push-button-switch-basic
 - [ ] ratchet-wrench
-- [ ] relay-socket-basic
+- [x] relay-socket-basic
 - [x] reset-circuit-basic
 - [ ] safety-door-switch-interlock-basic
 - [x] selector-switch-basic

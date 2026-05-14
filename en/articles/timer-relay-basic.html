@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Timer Relay Basics: ON Delay, OFF Delay, and Field Checks | Denki Control Lab</title>
+  <meta name="description" content="Learn what a timer relay does in hardwired control circuits, how ON-delay and OFF-delay timers differ, how hardware timers compare with PLC software timers, and what to check during troubleshooting.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/timer-relay-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/timer-relay-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/timer-relay-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/timer-relay-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Timer Relay Basics: ON Delay, OFF Delay, and Field Checks">
+  <meta property="og:description" content="A beginner-friendly guide to timer relays, ON-delay and OFF-delay operation, hardware timer checks, PLC timer differences, and troubleshooting points.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/timer-relay-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/timer-relay-basic-en/timer-relay-basic-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Timer Relay Basics: ON Delay, OFF Delay, and Field Checks">
+  <meta name="twitter:description" content="Understand how timer relays switch contacts after a set time and what to check in hardwired control panels.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/timer-relay-basic-en/timer-relay-basic-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{
+      --bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;--text:#1e293b;--muted:#5f7288;
+      --blue:#1d4ed8;--blue-deep:#1e3a8a;--green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;
+      --yellow:#facc15;--purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);--shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;--header-h:76px
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}
+    img,svg{max-width:100%;display:block}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease}
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:1 1 auto;color:inherit;text-decoration:none;margin-right:auto}
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a;letter-spacing:.01em}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .header-nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:flex-end;flex:1 1 auto;margin-left:auto;margin-right:4px}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:4px}
+    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+    .language-menu-icon{font-size:15px}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
+    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-result-item{margin:0}
+    .search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff;text-decoration:none}
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#64748b;line-height:1.5;font-weight:700}
+    .search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}
+    .search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .breadcrumb a{color:#1d4ed8}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/timer-relay-basic-en/timer-relay-basic-hero-en.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.58) 38%,rgba(255,255,255,.22) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,720px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em;color:#0f172a}
+    .hero-lead{margin:0;max-width:48ch;font-size:15px;color:#334155}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+    .hero-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#334155;font-weight:700}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:#1e3a8a}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none}
+    .mini-toc a:hover{background:#eff6ff;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5;color:#0f172a}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .marker-green{background:linear-gradient(transparent 58%,rgba(74,222,128,.22) 58%);font-weight:900}
+    .marker-orange{background:linear-gradient(transparent 58%,rgba(251,146,60,.26) 58%);font-weight:900}
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure-inner{background:#fff;padding:18px}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#fff 100%)}
+    .field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .key-highlight h3{color:#1e3a8a}.field-highlight h3{color:#15803d}
+    .key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    .flow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 8px}
+    .flow-card{position:relative;padding:16px;border-radius:20px;background:#f8fbff;border:1px solid #d7e4f3}
+    .flow-card h3{margin:0 0 8px;font-size:16px;line-height:1.4;color:#1e3a8a}
+    .flow-card p{margin:0;font-size:14px;color:var(--muted)}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900}
+    .flow-card:last-child::after{display:none}
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row.is-reverse{flex-direction:row-reverse}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center}
+    .talk-avatar img{width:76px;height:auto}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;line-height:1.3;font-weight:900;color:#1d4ed8}
+    .talk-row.is-reverse .talk-name{color:#15803d}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+    .side-card a{font-weight:800}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8}
+    .support-card{border:1px solid #dbeafe;background:#fff;box-shadow:0 4px 10px rgba(15,23,42,.04)}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;line-height:1.4;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155;font-weight:500}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
+    .support-card .support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;line-height:1.4;text-align:center;white-space:normal;color:#1e3a8a;background:#f8fbff;text-decoration:none}
+    .support-card .support-link:hover{border-color:#93c5fd;background:#eff6ff;text-decoration:none}
+    .support-card .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-card .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{max-width:var(--container);margin:28px auto 0;padding:24px 14px 34px;border-top:1px solid #dbe7f3;text-align:center;color:#64748b;font-size:12px;font-weight:500}
+    .footer-copy{margin:0}
+    .footer-links{margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+    .footer-links a{color:#334155;font-weight:700}
+    .footer-separator{color:#cbd5e1}
+    @media (max-width:1100px){.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr)).flow-grid{grid-template-columns:1fr}.flow-card::after{display:none}}
+    @media (max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.site-header{padding:8px 10px}.site-header-inner{gap:8px}.brand-logo{height:42px}.brand-title{font-size:15px}.brand-sub{display:none}.header-search{flex:1 1 auto;min-height:40px}.container{width:min(100%,calc(100% - 20px))}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../../assets/images/timer-relay-basic-en/timer-relay-basic-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.20}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.hero-lead{font-size:14px;max-width:34ch}.top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr}.section-card{padding:22px}}
+    @media (min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff}.article-hero::before{background:url("../../assets/images/timer-relay-basic-en/timer-relay-basic-hero-en.png") right center / auto 92% no-repeat;opacity:.24}.article-hero-copy{width:min(100%,620px);min-height:360px;padding:40px 34px;justify-content:center}h1{font-size:34px}.hero-lead{max-width:40ch;font-size:14px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}}
+    @media (max-width:640px){.article-hero::before{background:url("../../assets/images/timer-relay-basic-en/timer-relay-basic-hero-en.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14}h1{font-size:28px}.hero-actions,.btn{width:100%}.section-card h2{font-size:20px}.section-card p{font-size:14px}.talk-avatar{width:58px;flex:0 0 58px}.talk-avatar img{width:58px}.talk-bubble{padding:12px 14px}}
+    @media (max-width:480px){:root{--header-h:72px}.site-header{padding:5px 6px}.brand{gap:8px}.brand-logo{height:32px}.brand-title{font-size:14px}.header-search{flex:1 1 auto;min-height:34px}.search-box-input{font-size:11px}.section-card{padding:18px;border-radius:22px}.summary-card{padding:18px;border-radius:20px}.mini-toc a{width:100%}}
+    @media (max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px;letter-spacing:0}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="Go to English top page">
+        <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">Denki Control Lab</p>
+          <p class="brand-sub">Practical electrical control notes</p>
+        </div>
+      </a>
+      <div class="language-menu" aria-label="Language and region switch">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="Switch language and region">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">United States</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="../../articles/timer-relay-basic.html" class="language-menu-item" lang="ja">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span><strong>Japan</strong><small>Japanese article</small></span>
+          </a>
+          <a href="./timer-relay-basic.html" class="language-menu-item is-active" lang="en" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span><strong>United States</strong><small>English article</small></span>
+          </a>
+        </div>
+      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="Site search" role="search">
+        <label class="sr-only" for="site-search-input">Site search</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="Search by keyword" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="Search"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../">Home</a><span aria-hidden="true">›</span><a href="../categories/control-basics.html">Control basics</a><span aria-hidden="true">›</span><span>Timer Relay Basics</span></nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">Timer Relay Basics</span>
+        <h1>Timer Relay Basics: ON Delay, OFF Delay, and Field Checks</h1>
+        <p class="hero-lead">A practical guide to hardwired timer relays, the difference between ON-delay and OFF-delay operation, PLC timer differences, and troubleshooting points in control panels.</p>
+        <ul class="hero-points">
+          <li>Understand what changes after the set time</li>
+          <li>Compare ON-delay and OFF-delay behavior</li>
+          <li>Check power, setting, contacts, and timing safely</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#what-is-timer-relay">Start with the basics</a>
+          <a class="btn btn-secondary" href="#troubleshooting">Jump to field checks</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="Article summary">
+      <article class="summary-card summary-card--fit"><h2>Good for you if</h2><ul><li>You see timer relays in hardwired control panels.</li><li>You want to understand ON-delay and OFF-delay differences.</li><li>You need a simple field-check order before replacing a timer.</li></ul></article>
+      <article class="summary-card summary-card--notyet"><h2>Maybe not needed yet if</h2><ul><li>You only need PLC instruction programming details.</li><li>You are looking for a specific model parameter table.</li><li>You already know the timer contact chart in the manual.</li></ul></article>
+      <article class="summary-card summary-card--conclusion"><h2>Main takeaway</h2><ul><li>A timer relay changes contacts after a set time condition.</li><li>ON-delay and OFF-delay behave differently when the input changes.</li><li>Always confirm supply, setting range, contact type, and actual timing.</li></ul></article>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">Mini table of contents</h2>
+      <nav class="mini-toc" aria-label="In-page navigation">
+        <a href="#what-is-timer-relay">What is a timer relay?</a>
+        <a href="#on-delay">ON-delay</a>
+        <a href="#off-delay">OFF-delay</a>
+        <a href="#plc-vs-hardware">PLC vs hardware timer</a>
+        <a href="#reading-panel">How to read it in a panel</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#summary">Summary</a>
+      </nav>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="what-is-timer-relay">
+          <h2>What is a timer relay?</h2>
+          <p class="section-intro-line">A timer relay is a hardwired control component that changes its contacts based on a time condition.</p>
+          <p>In a normal relay, the contact state changes almost immediately when the coil is energized or de-energized. A timer relay adds a time condition between the input signal and the contact change.</p>
+          <p>This makes it useful when a machine needs a short waiting time, a delayed start, a delayed stop, or a sequence that must not happen immediately.</p>
+          <figure class="article-figure">
+            <div class="article-figure-inner"><img src="../../assets/images/timer-relay-basic-en/timer-relay-basic-overview-en.png" alt="Timer relay overview showing input signal, timer unit, and delayed contact output"></div>
+            <figcaption>Overview image: the timer relay receives an input, counts the set time, and then changes its output contacts.</figcaption>
+          </figure>
+          <div class="key-highlight"><h3>Do not treat every timer as the same.</h3><p>The most important first check is whether the timer is ON-delay, OFF-delay, flicker, interval, or another timing mode.</p></div>
+        </section>
+
+        <section class="section-card" id="on-delay">
+          <h2>ON-delay timer: the contact changes after the input turns on</h2>
+          <p>An ON-delay timer starts counting when its input or coil is energized. After the set time has elapsed, the timed contact changes state.</p>
+          <p>For example, if the timer is set to 5 seconds, the output contact does not change immediately when the start signal enters. It changes after the 5-second delay.</p>
+          <figure class="article-figure">
+            <div class="article-figure-inner"><img src="../../assets/images/timer-relay-basic-en/timer-relay-basic-on-delay-en.png" alt="ON-delay timer timing chart showing input on, waiting time, and delayed output"></div>
+            <figcaption>ON-delay image: the input turns on first, then the output changes after the preset delay time.</figcaption>
+          </figure>
+          <div class="flow-grid">
+            <div class="flow-card"><h3>1. Input turns on</h3><p>The timer receives power or a start signal.</p></div>
+            <div class="flow-card"><h3>2. Time counts</h3><p>The timer waits for the preset time.</p></div>
+            <div class="flow-card"><h3>3. Contact changes</h3><p>The timed contact switches after the delay.</p></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="off-delay">
+          <h2>OFF-delay timer: the contact stays active after the input turns off</h2>
+          <p>An OFF-delay timer behaves differently. The output contact may change when the input is on, but when the input turns off, the output stays in its timed state for a set period before returning.</p>
+          <p>This is often used when something should continue for a short time after the command disappears, such as keeping a fan, lamp, or relay output active briefly after a stop condition.</p>
+          <figure class="article-figure">
+            <div class="article-figure-inner"><img src="../../assets/images/timer-relay-basic-en/timer-relay-basic-off-delay-en.png" alt="OFF-delay timer timing chart showing output remaining on after input off"></div>
+            <figcaption>OFF-delay image: the output remains active for the preset time after the input turns off.</figcaption>
+          </figure>
+          <div class="note-box"><h3>Common field mistake</h3><p>Many timing troubles come from confusing ON-delay and OFF-delay operation. Always check the timing chart printed on the timer or in the manual.</p></div>
+        </section>
+
+        <section class="section-card" id="plc-vs-hardware">
+          <h2>Hardware timer relay vs PLC software timer</h2>
+          <p>A hardware timer relay is a physical device in the panel. A PLC software timer is an instruction inside the PLC program. Both can create time-based behavior, but the checking method is different.</p>
+          <p>With a hardware timer, you check the supply voltage, dial or setting value, contact terminals, timing mode, and output contact state. With a PLC timer, you check the program condition, timer current value, preset value, and output bit.</p>
+          <figure class="article-figure">
+            <div class="article-figure-inner"><img src="../../assets/images/timer-relay-basic-en/timer-relay-basic-plc-vs-hardware-en.png" alt="Comparison between a hardware timer relay and a PLC software timer"></div>
+            <figcaption>Comparison image: a panel-mounted timer relay is checked physically, while a PLC timer is checked in the program and monitor screen.</figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Point</th><th>Hardware timer relay</th><th>PLC software timer</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-blue">Where it exists</td><td>Physical device in the control panel.</td><td>Instruction and data inside the PLC program.</td></tr>
+                <tr><td class="cell-green">Typical check</td><td>Power, setting dial, mode, terminals, contacts.</td><td>Input condition, preset value, current value, output bit.</td></tr>
+                <tr><td class="cell-orange">Field caution</td><td>Wrong timing range or mode can cause confusion.</td><td>Program condition may not be true even if the device is normal.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="reading-panel">
+          <h2>How to read a timer relay in a control panel</h2>
+          <p>When you find a timer relay in a panel, do not start by turning the dial. First identify what signal drives the timer and what contact the timer output controls.</p>
+          <p>Look for the coil or input terminals, the timed contacts, the selected timing range, and the wiring destination. This helps you understand whether the timer is controlling a lamp, relay, contactor, valve, or PLC input.</p>
+          <div class="check-grid">
+            <div class="check-item check-item--important"><h3>Input side</h3><p>Which signal energizes or starts the timer?</p></div>
+            <div class="check-item check-item--field"><h3>Timed contact</h3><p>Which contact changes after the set time?</p></div>
+            <div class="check-item"><h3>Time range</h3><p>Is the scale seconds, minutes, or another range?</p></div>
+            <div class="check-item check-item--warning"><h3>Mode setting</h3><p>Does the selected mode match the expected operation?</p></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="troubleshooting">
+          <h2>Troubleshooting timer relay problems</h2>
+          <p>When a timer relay does not operate as expected, split the problem into input, timing, contact output, and load side. This avoids replacing the timer before checking the circuit around it.</p>
+          <figure class="article-figure">
+            <div class="article-figure-inner"><img src="../../assets/images/timer-relay-basic-en/timer-relay-basic-troubleshooting-en.png" alt="Timer relay troubleshooting flow for supply, setting, timing, contacts, and load side"></div>
+            <figcaption>Troubleshooting image: check supply, input signal, setting range, timed contact, and the load side in order.</figcaption>
+          </figure>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar"><img src="../../assets/images/common/senpai-character.png" alt="Senior technician"></div>
+              <div class="talk-bubble"><span class="talk-name">Senior</span><p>Before replacing the timer, check whether the input signal is actually reaching it and whether the timing mode matches the circuit.</p></div>
+            </div>
+            <div class="talk-row is-reverse">
+              <div class="talk-avatar"><img src="../../assets/images/common/kouhai-character.png" alt="Junior technician"></div>
+              <div class="talk-bubble"><span class="talk-name">Junior</span><p>So I should check the input, time setting, contact output, and load side step by step instead of judging only from the delay behavior.</p></div>
+            </div>
+          </div>
+          <div class="check-grid">
+            <div class="check-item check-item--important"><h3>Supply voltage</h3><p>Confirm the timer has the correct rated voltage.</p></div>
+            <div class="check-item"><h3>Input condition</h3><p>Check whether the start signal or coil signal is present.</p></div>
+            <div class="check-item check-item--warning"><h3>Setting and range</h3><p>Confirm seconds/minutes scale and selected operation mode.</p></div>
+            <div class="check-item check-item--field"><h3>Timed contact</h3><p>Measure whether the output contact changes after the set time.</p></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>Summary</h2>
+          <p>A timer relay is a practical hardwired component that changes contacts based on a time condition. It is often used when a control circuit needs a delay before starting, a delay before stopping, or a clear time-based sequence.</p>
+          <p>The key beginner point is to separate ON-delay and OFF-delay behavior. Then check the supply voltage, input condition, timing range, operation mode, timed contact, and load side in order.</p>
+          <div class="field-highlight"><h3>Field-friendly way to remember it</h3><p>Timer relay troubleshooting is not only “is the timer broken?” It is “did the timer receive the right signal, count the right time, and switch the right contact?”</p></div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">Related articles</h2>
+          <div class="related-grid">
+            <a class="related-card" href="./relay-basic.html"><h3>Relay Circuit Basics</h3><p>Understand relay coils, contacts, and how relays switch loads and signals.</p></a>
+            <a class="related-card" href="./relay-socket-basic.html"><h3>Relay Socket Basics</h3><p>Learn how relay bases make wiring and replacement easier in control panels.</p></a>
+            <a class="related-card" href="./no-nc-basic.html"><h3>NO vs NC Contacts</h3><p>Compare normally open and normally closed contacts with practical examples.</p></a>
+          </div>
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">Back to control basics</a>
+            <a class="btn btn-primary" href="../">Go to English top</a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="Sidebar">
+        <section class="side-card">
+          <h3>On this page</h3>
+          <ul class="side-link-list">
+            <li><a href="#what-is-timer-relay">What is a timer relay?</a></li>
+            <li><a href="#on-delay">ON-delay</a></li>
+            <li><a href="#off-delay">OFF-delay</a></li>
+            <li><a href="#plc-vs-hardware">PLC vs hardware timer</a></li>
+            <li><a href="#reading-panel">Panel reading</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </section>
+        <section class="side-card support-card">
+          <h3 class="support-card-title">Support this site</h3>
+          <p class="support-card-text">If this practical note helped you, small support helps keep future English control articles going.</p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support with PayPal</a>
+          </div>
+        </section>
+        <section class="side-card">
+          <h3>Key checks</h3>
+          <ul>
+            <li>Supply voltage</li>
+            <li>Timing mode</li>
+            <li>Time range and setting</li>
+            <li>Input signal</li>
+            <li>Timed contact output</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-copy">&copy; Denki Control Lab. Practical electrical control notes for field engineers.</p>
+    <div class="footer-links"><a href="../">English top</a><span class="footer-separator">/</span><a href="../../">Japanese top</a></div>
+  </footer>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

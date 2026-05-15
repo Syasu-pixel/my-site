@@ -38,7 +38,7 @@
 - [ ] ladder-work-platform
 - [ ] lamp-indicator-circuit-basic
 - [x] light-curtain-basic
-- [ ] limit-switch-troubleshooting-basic
+- [x] limit-switch-troubleshooting-basic
 - [x] manual-auto-selector-circuit-basic
 - [x] no-fuse-breaker-basic
 - [x] noise-filter-basic

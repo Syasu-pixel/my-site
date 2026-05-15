@@ -37,7 +37,7 @@
 - [ ] ladder-reading
 - [ ] ladder-work-platform
 - [ ] lamp-indicator-circuit-basic
-- [ ] light-curtain-basic
+- [x] light-curtain-basic
 - [ ] limit-switch-troubleshooting-basic
 - [x] manual-auto-selector-circuit-basic
 - [x] no-fuse-breaker-basic

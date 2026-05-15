@@ -21,7 +21,7 @@
 - [x] air-regulator-basic
 - [x] air-tube-fitting-basic
 - [x] current-transformer-basic
-- [ ] delayed-start-circuit-basic
+- [x] delayed-start-circuit-basic
 - [x] earth-leakage-breaker-basic
 - [x] electromagnetic-contactor-vs-switch
 - [ ] float-switch-basic

@@ -15,6 +15,29 @@
 - 次の英語化候補を選ぶときは、このリストと英語トップ・英語カテゴリ内の日本語リンク残りを合わせて確認する。
 - 英語サイトでは当面、工具系記事と一般的な比較系記事は英語化対象外とし、Control Basics / Circuit Basics / PLC / Sensor 系を優先する。
 
+
+## 現在の英語化優先対象
+
+### Control Basics
+- `temperature-sensor-basic`
+
+### Circuit Basics
+- `lamp-indicator-circuit-basic`
+- `ladder-reading`
+
+### PLC / GX Works3
+- `gxw3-add-sub-instruction-basic`
+- `gxw3-comparison-instruction-basic`
+- `gxw3-counter-up-down-reset`
+- `gxw3-mov-instruction-basic`
+- `gxw3-mul-div-instruction-basic`
+- `gxw3-one-shot-rise-fall-detection`
+- `gxw3-out-set-rst-coil-usage`
+- `gxw3-timer-ton-toff-retentive`
+
+### HMI / GOT
+- `got-touch-panel-basic`
+
 ## Backlog
 
 - [x] air-filter-regulator-lubricator-basic

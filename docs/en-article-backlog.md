@@ -24,7 +24,7 @@
 - [x] delayed-start-circuit-basic
 - [x] earth-leakage-breaker-basic
 - [x] electromagnetic-contactor-vs-switch
-- [ ] float-switch-basic
+- [x] float-switch-basic
 - [ ] got-touch-panel-basic
 - [ ] gxw3-add-sub-instruction-basic
 - [ ] gxw3-comparison-instruction-basic

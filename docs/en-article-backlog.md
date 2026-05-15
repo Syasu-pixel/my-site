@@ -48,7 +48,7 @@
 - [x] push-button-switch-basic
 - [x] relay-socket-basic
 - [x] reset-circuit-basic
-- [ ] safety-door-switch-interlock-basic
+- [x] safety-door-switch-interlock-basic
 - [x] selector-switch-basic
 - [x] shielded-cable-basic
 - [x] signal-tower-light-basic

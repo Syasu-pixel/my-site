@@ -54,7 +54,7 @@
 - [x] signal-tower-light-basic
 - [x] solenoid-valve-manual-override-basic
 - [x] ssr-basic
-- [ ] star-delta-start-basic
+- [x] star-delta-start-basic
 - [ ] temperature-sensor-basic
 - [x] thermal-relay-basic
 - [x] timer-relay-basic

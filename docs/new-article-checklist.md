@@ -562,6 +562,9 @@ https://denkicontrol.com/articles/slug.html
 3. 導線追加を実施する（日本語記事側の言語メニュー / `en/index.html` / `en/categories/*.html` / `assets/data/search-index.json` / `sitemap.xml` / `docs/en-article-backlog.md`）
 4. 公開後監査を実施する（search-index missing / extra / duplicate、sitemap重複、件数整合）
 5. 最後に `safe to close: YES / NO` を出す
+6. `en/index.html` の `Popular articles` は10件以内か確認する
+7. 新記事を `Popular articles` に入れる場合は、単純追加ではなく入れ替えにする
+8. `Popular articles` が11件以上になっている場合は `safe to close: NO` とする
 
 補足：
 - 通常は1記事ずつ完了フローを使う。

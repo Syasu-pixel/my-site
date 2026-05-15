@@ -198,6 +198,16 @@ GX Works3命令語シリーズでは、原則として以下の5枚を**別フ�
 @media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
 ```
 
+
+### 日本語記事 language-menu 表示チェック（必須）
+- 対象: `articles/*.html`
+- 日本語記事側の言語メニューで、英語版記事が存在する場合は英語リンクを `../en/articles/{slug}.html` にする
+- 日本語記事側の自己リンクは `./{slug}.html` にする
+- 記事ページでは `日本語トップ` / `English top` と表示しない
+- 記事ページでは small 文言を `日本語記事` / `English article` にする
+- トップページ用文言と記事ページ用文言を混同しない
+- リンク先だけでなく、表示文言も記事ページ用になっているか確認する
+
 ### 英語記事 language-menu 表示チェック（必須）
 - 対象: `en/articles/*.html`
 - `language-menu-button` の表示が既存英語記事テンプレと一致しているか確認する

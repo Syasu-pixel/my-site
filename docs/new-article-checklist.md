@@ -53,7 +53,14 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 - 英語記事側の自己リンクが `{slug}.html` または既存テンプレ同等になっているか
 - 英語カテゴリページ `en/categories/{category}.html` に記事カードまたは記事リンクが追加されているか
 - 英語トップ `en/index.html` に追加する場合は、トップ棚の表示リンク数ルールを守っているか
-- トップ棚は原則4件表示を維持し、追加で5件以上に増やさない
+- 英語トップ `en/index.html` の `New articles` は6件固定。新規追加時は古い1件を押し出し、7件以上にしない
+- 日本語トップ `index.html` の `新着記事` も6件固定。新規追加時は古い1件を押し出し、7件以上にしない
+- トップ棚へ追加する場合は、4件固定を守り、5件目として追加しない
+- トップ棚の `View all` / `すべてを見る` と記事数表示を戻さない
+- 棚のカテゴリトップ導線は、左側のラベル・画像・説明エリアのリンクで担保する
+- 右側の1〜4記事リンクは個別記事リンクとして維持する
+- 英語トップの `Series` カードは戻さない
+- 英語トップの `Popular articles` は10件固定
 - `assets/data/search-index.json` に英語記事URL `/en/articles/{slug}.html` が追加されているか
 - `sitemap.xml` に `https://denkicontrol.com/en/articles/{slug}.html` が追加されているか
 - `docs/en-article-backlog.md` の該当slugが完了済み `[x]` になっているか

@@ -32,6 +32,39 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 <meta name="twitter:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
 ```
 
+## 0.5. 英語記事化・導線追加チェック（最重要）
+英語記事 `en/articles/{slug}.html` を作成・追加した場合は、記事本体だけでなく、必ず以下を1セットで確認する。
+
+対象ファイル:
+- `articles/{slug}.html`
+- `en/articles/{slug}.html`
+- `en/index.html`
+- `en/categories/{category}.html`
+- `assets/data/search-index.json`
+- `sitemap.xml`
+- `docs/en-article-backlog.md`
+
+必須確認:
+- 日本語記事 `articles/{slug}.html` の language-menu から、英語記事 `../en/articles/{slug}.html` へ直接リンクしているか
+- 日本語記事側の自己リンクが `./{slug}.html` になっているか
+- 日本語記事側の language-menu small 文言が `日本語記事` / `English article` になっているか
+- 日本語記事側に `日本語トップ` / `English top` が残っていないか
+- 英語記事 `en/articles/{slug}.html` の language-menu から、日本語記事 `../../articles/{slug}.html` へ戻れるか
+- 英語記事側の自己リンクが `{slug}.html` または既存テンプレ同等になっているか
+- 英語カテゴリページ `en/categories/{category}.html` に記事カードまたは記事リンクが追加されているか
+- 英語トップ `en/index.html` に追加する場合は、トップ棚の表示リンク数ルールを守っているか
+- トップ棚は原則4件表示を維持し、追加で5件以上に増やさない
+- `assets/data/search-index.json` に英語記事URL `/en/articles/{slug}.html` が追加されているか
+- `sitemap.xml` に `https://denkicontrol.com/en/articles/{slug}.html` が追加されているか
+- `docs/en-article-backlog.md` の該当slugが完了済み `[x]` になっているか
+- `/seo/sitemap.xml` は非運用なので触らない
+
+注意:
+- 「英語記事を公開した」だけでは完了扱いにしない。
+- 日本語記事から英語記事へ切り替えられること、英語記事から日本語記事へ戻れることを必ず確認する。
+- カテゴリ・トップ・検索・sitemap が通っていても、language-menu が古いままなら未完了とする。
+- 導線追加タスクでは、対象が英語側だけに見えても `articles/{slug}.html` の日本語記事側 language-menu を必ず確認する。
+
 ## 1. 記事テーマ・カテゴリ確認
 - 記事テーマが既存記事と重複しすぎていないか確認する
 - カテゴリを決める

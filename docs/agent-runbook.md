@@ -14,6 +14,7 @@
 - 画像生成の正本テンプレートは `assets/images/character-templates/senpai-kouhai-character-template.png`。
 - `senpai-kouhai-chibi-character-template.png` は補助参照または旧テンプレート。
 - `assets/images/guide-characters/` はHTML会話ブロック表示用で、画像生成テンプレートとは用途が異なる。
+- Agent / ChatGPT / Codex は、画像生成時に `assets/images/guide-characters/` を正本テンプレートとして扱わない。
 - hero採用後は、正本テンプレート + 採用済みhero の両方を後続画像で参照する。
 
 ## 記事更新時の要点
@@ -35,3 +36,4 @@
 - `https://www.paypal.com/paypalme/denkicontrol` のような未確認URLを使わない。
 - `href="#"` や空リンクを残さない。
 - `target="_blank"` の外部リンクには `rel="noopener"` を付ける。
+- 支援リンクの正式URLが未確定の間は、既存記事テンプレートから PayPal / Buy me a coffee リンクをコピーして新規記事へ入れず、未確認URLが入っている既存記事の修正は別タスクで行う。

@@ -55,6 +55,120 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 - 公式情報の確認結果は、記事作成時の報告またはPR説明に「確認した公式参照元」として簡潔に記載する。
 
 
+### 公式用語・ラダー表記・命令語の安定化ルール
+- GX Works3 / MELSEC / GOT / PLC命令語 / ラダー図 / 制御機器に関わる記事では、本文・画像に使う用語、デバイス名、命令語、ラダー表記を公式資料ベースで整理してから作成する。
+- ChatGPT / Codex は、公式資料で確認していないデバイス名・命令語・機能名・画面名・設定名を、推測で本文や画像に入れない。
+- 画像内の簡易ラダー図や命令語風表現は、実在ソフト画面の再現ではなく、公式資料で確認した表記を参考にした「概念図」として作る。
+- 実在GX Works3画面、実在GOT画面、実在メーカーUI、メーカー公式画面スクリーンショット風の画像は作らない。
+- 三菱電機ロゴ、GOTロゴ、GX Works3ロゴ、メーカー製品ロゴ、型式銘板、実在製品ラベルは画像に入れない。
+- 公式資料で確認した表記であっても、画像内では読みやすさを優先し、細かいパラメータ、実機画面の詳細、長文説明を詰め込まない。
+- 型式固有、機種固有、シリーズ固有の仕様・配線・通信・パラメータ・アラーム・安全事項は、公式資料で確認できた範囲だけを書く。
+- 公式資料で確認できない場合は、本文では一般的な考え方として表現し、画像では汎用的な概念図に留める。
+- 公式英語資料がある英語記事では、英語公式資料の用語を優先する。
+- 日本語記事では日本語公式資料の用語を優先する。
+- 日本語元記事を英語化する場合は、日本語用語をそのまま直訳せず、英語公式資料で使われる用語に合わせる。
+- 日本語版と英語版で用語・説明範囲が異なる場合、英語記事では英語版公式資料を優先する。
+- 英語公式資料が見つからない場合は、日本語公式資料を参照してもよいが、英語記事では一般化して書き、型式固有情報は断定しない。
+
+公式資料で確認してから使う対象:
+
+- PLCデバイス表記
+  - 入力デバイス
+  - 出力デバイス
+  - 内部リレー
+  - ラッチリレー
+  - アナンシェータ
+  - ステップリレー
+  - タイマ
+  - カウンタ
+  - データレジスタ
+  - ファイルレジスタ
+  - インデックスレジスタ
+  - リンクデバイス
+  - 特殊リレー
+  - 特殊レジスタ
+
+- ラダー図の基本表記
+  - a接点 / NO contact
+  - b接点 / NC contact
+  - コイル / coil
+  - 出力コイル / output coil
+  - セット / SET
+  - リセット / RST
+  - 立上り / rising edge
+  - 立下り / falling edge
+  - パルス / pulse
+  - インターロック / interlock
+  - 自己保持 / self-holding / seal-in
+  - タイマ回路
+  - カウンタ回路
+
+- 基本命令・応用命令
+  - OUT
+  - SET
+  - RST
+  - MOV
+  - 比較命令
+  - 加算
+  - 減算
+  - 乗算
+  - 除算
+  - タイマ命令
+  - カウンタ命令
+  - 立上り検出
+  - 立下り検出
+  - ワンショット
+  - データ転送
+  - 演算
+  - 変換
+  - 比較
+  - シフト
+  - ラッチ
+  - リセット
+
+- GOT / HMI 用語
+  - GOT
+  - HMI
+  - screen
+  - object
+  - switch
+  - lamp
+  - numerical display
+  - numerical input
+  - alarm
+  - recipe
+  - monitor
+  - device monitor
+  - communication setting
+  - connection
+  - PLC connection
+  - screen design
+
+- サーボ / インバーター / モーション用語
+  - servo motor
+  - servo amplifier
+  - positioning
+  - origin return / home return
+  - jog operation
+  - pulse train
+  - electronic gear
+  - parameter
+  - alarm
+  - inverter
+  - frequency
+  - acceleration time
+  - deceleration time
+  - speed command
+  - torque
+  - simple motion
+  - motion module
+  - network
+  - communication
+
+注意:
+上記は「確認対象カテゴリ」であり、未確認のまま固定用語として扱わない。
+記事ごとに公式資料で確認した範囲だけを採用する。
+
 ### 英語記事の公式参照元ルール
 - 英語記事 `en/articles/{slug}.html` を作成する場合は、原則としてメーカーの英語公式ページ、Global / US / International 公式ページ、英語版公式マニュアル、英語版カタログ、英語版ダウンロードページを優先して確認する。
 - 日本語記事を元に英語化する場合でも、英語記事では英語公式資料を優先する。

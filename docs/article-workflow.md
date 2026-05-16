@@ -195,6 +195,21 @@ docs/reference-notes/{slug}.md
 - 支援リンクの正式URLが未確定の間は、既存記事テンプレートから PayPal / Buy me a coffee リンクをコピーして新規記事に入れず、未確認URLが入っている既存記事の修正は別タスクで行う。
 - `target="_blank"` を使う場合は `rel="noopener"` を必ず付ける。
 
+## 記事HTML内の全href確認ルール
+- 記事HTMLを作成・更新・PR確認する場合、関連記事カードだけでなくHTML内のすべての `href` を確認する。
+- 対象は、パンくず、ヒーローボタン、記事下部ボタン、右カラムリンク、カテゴリリンク、language-menu、関連記事カード、フッター、Support this site、その他すべての `<a href="...">` とする。
+- 内部リンクは GitHub `main` 上で実在するファイルだけに向ける。
+- 存在未確認のカテゴリページへリンクしない。
+- `../categories/plc.html`、`../categories/hmi.html`、`../categories/gxw3.html` のようなカテゴリURLは、実在確認できない限り使わない。
+- カテゴリページが未作成なら、実在する記事ページへ向けるか、トップへ戻すか、ボタン自体を削除する。
+- ボタン文言とリンク先を一致させる。
+  - `Back to English Home` なら `../` または `../index.html`
+  - `See PLC basics` なら実在する `./plc-basic.html` または実在確認済みカテゴリページ
+- `href="#"`、空の `href=""`、未確認の仮リンクを残さない。
+- 外部リンクはユーザー確認済みまたは公式URLのみ使用する。
+- 未確認リンク、404疑いリンク、仮リンクが1つでもある場合は `safe to merge: NO` とする。
+- 詳細チェックは `docs/new-article-checklist.md` の `0.7. HTML内リンク実在確認ルール` に従う。
+
 ### 関連記事カードのリンク先ルール
 - 関連記事カードには、GitHub最新`main`で実在確認済みの記事だけを入れる。
 - 推測でリンクを書かない。

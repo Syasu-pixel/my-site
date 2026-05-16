@@ -28,6 +28,14 @@
 - 英語記事: `en/articles/{slug}.html` + `assets/images/{slug}-en/` + `docs/reference-notes/{slug}.md`
 - Step 1では `index.html` / `categories/**` / `search-index` / `sitemap` / `backlog` を変更しない。
 
+## HTML内リンク確認の要点
+- 記事HTMLを作成・更新・PR確認する場合、HTML内のすべての `href` を確認する。
+- 関連記事カードだけでなく、パンくず、記事下部ボタン、右カラム、カテゴリリンク、language-menu、フッター、Support this site も確認対象にする。
+- 内部リンクは GitHub `main` 上で実在するファイルだけに向ける。
+- 存在未確認のカテゴリページ、仮リンク、未確認支援リンクを入れない。
+- ボタン文言とリンク先が一致しているか確認する。
+- 未確認リンクが残る場合は `safe to merge: NO` とする。
+- 詳細は `docs/new-article-checklist.md` の `0.7. HTML内リンク実在確認ルール` を参照する。
 
 ## Support this site 支援リンク運用ルール
 - Support this site の PayPal / Buy me a coffee リンクは、ユーザー確認済みの正式URLだけを使う。

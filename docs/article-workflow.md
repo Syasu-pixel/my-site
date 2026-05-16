@@ -183,16 +183,14 @@ docs/reference-notes/{slug}.md
 
 
 ## Support this site 支援リンク固定ルール
-- 英語記事・日本語記事の `Support this site` / 支援カードでは、Buy me a coffee と PayPal のリンクをテンプレートから勝手に推測して作らない。
-- PayPalリンクは、ユーザーが確認済みの正式URLだけを使う。
-- `https://www.paypal.com/paypalme/denkicontrol` のような未確認・不正確な PayPal.Me 風URLを入れない。
-- PayPal.Me を使う場合は、正式形式 `https://paypal.me/{account}` のように、ユーザーが確認済みのURLだけを使う。
-- PayPal donation / business payment URL を使う場合も、ユーザーが確認済みの正式URLだけを使う。
-- Buy me a coffee のURLも、ユーザーが確認済みの正式URLだけを使う。
+- Support this site の正式リンクは以下で固定する。
+  - Buy me a coffee: `https://buymeacoffee.com/denkicontrol`
+  - PayPal: `https://www.paypal.com/paypalme/denkicontrol`
+- 英語記事・日本語記事の `Support this site` / 支援カードで PayPal / Buy me a coffee を入れる場合は、上記の固定URLだけを使う。
 - Codex / ChatGPT は、支援リンクを推測・補完・自動生成しない。
+- `https://www.paypal.com/donate`、`https://paypal.me/...` など固定URL以外へ勝手に置き換えない。
 - 既存テンプレートからコピーする場合でも、支援リンクの `href` は必ず確認する。
-- 正式URLが未確認の場合は、支援リンクを新規追加しない、または `href="#"` のような仮リンクを残さず、ユーザー確認待ちにする。
-- 支援リンクの正式URLが未確定の間は、既存記事テンプレートから PayPal / Buy me a coffee リンクをコピーして新規記事に入れず、未確認URLが入っている既存記事の修正は別タスクで行う。
+- `href="#"` や空リンクを残さない。
 - `target="_blank"` を使う場合は `rel="noopener"` を必ず付ける。
 
 ## 記事HTML内の全href確認ルール

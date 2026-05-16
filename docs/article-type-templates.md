@@ -10,6 +10,27 @@
 - 画像は `hero / overview / comparison / check-flow / ogp` を1用途1枚で使い分ける。
 - `img` のaltは具体的に、`figcaption` は文脈補足として重複させない。
 
+### 本文の軽い強調ルール（全テンプレート共通）
+- 本文は淡々としすぎないよう、重要語だけを既存スタイルで軽く強調する。
+- 使用可能: `<strong>...</strong>` / `<span class="term">...</span>` / `<span class="marker-blue">...</span>`。
+- CSS追加・新規class追加は禁止。
+- 1段落の強調は最小限にし、色付きspanは1〜2個程度まで。
+- 全専門語を装飾せず、読者（初心者）が理解の軸にする語を優先する。
+- 意味を変える改稿は行わず、既存文脈のまま軽く視認性を上げる。
+
+使い分け目安:
+- `<span class="term">...</span>`: 中心用語・短い技術語・summaryで残す語。
+- `<span class="marker-blue">...</span>`: 文中で特に目に留めたい語や短いフレーズ。
+- `<strong>...</strong>`: 注意点・確認項目・安全上の重要語・表内重要語。
+
+セクション別目安:
+- 冒頭: 中心語を2〜4個だけ強調。
+- 仕組み説明: 信号の流れや装置関係語を軽く強調。
+- 表: 重要語のみ `<strong>`（表構造は変更しない）。
+- 注意点: safety / interlock / emergency stop / official manual などは太字で保持。
+- Summary: 最後に覚える語を `<span class="term">...</span>` で整理可。
+
+
 ## 1) 基礎解説記事（Fundamentals）
 推奨構成:
 1. 概要（What it is）

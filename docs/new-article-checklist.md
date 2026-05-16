@@ -62,7 +62,19 @@ PR確認時:
 - Step 1では完成HTMLと画像配置のみに限定し、`index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触らない。
 - Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
 - PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。
+- 本文に重要語の軽い強調が入っているかを確認する。
+- 強調が多すぎないか（1段落で過密になっていないか）を確認する。
+- 強調が既存クラス（`term` / `marker-blue`）と`<strong>`だけで構成されているかを確認する。
+- CSS追加や新規class追加がないかを確認する。
+- 強調の追加で本文の意味が変わっていないかを確認する。
 
+### 0.6.1 本文の軽い強調チェック（テンプレート運用）
+- 記事本文では、初心者が重要語を追いやすいように必要最小限の強調を入れる。
+- 使用可能: `<strong>...</strong>` / `<span class="term">...</span>` / `<span class="marker-blue">...</span>`。
+- 色付きspanは1段落あたり1〜2個程度までを目安にする。
+- すべての専門語を強調しない。理解の軸になる語のみを対象にする。
+- 強調のために文章を大幅改稿しない。
+- 禁止: CSS追加 / 新規class追加 / 過剰装飾 / SEO目的だけの不自然な強調。
 
 ## 0.7. HTML内リンク実在確認ルール
 - 新規記事HTML作成時、記事更新時、PR確認時には、関連記事カードだけでなくHTML内内部リンク全体を確認する。

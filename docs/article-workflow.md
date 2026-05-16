@@ -181,6 +181,49 @@ docs/reference-notes/{slug}.md
 ## 記事内容ルール
 - 回路記事は基本ラダー例を入れる。
 
+## 本文の軽い強調ルール
+- 記事本文では、初心者が重要語を追いやすいように、必要最小限の強調を入れる。
+- 使用してよい表現は `<strong>...</strong>` / `<span class="term">...</span>` / `<span class="marker-blue">...</span>` のみとする。
+- CSSは追加しない。
+- 新しい強調用classは作らない。
+- 既存クラスだけを使う。
+- 1段落に強調を入れすぎない。
+- 色付きspan（`term` / `marker-blue`）は1段落あたり1〜2個程度までにする。
+- すべての専門語を強調しない。
+- 初心者が理解の軸にする語だけを強調する。
+- 本文の意味を変えない。
+- 強調のために文章を大幅に書き換えない。
+
+強調するとよい対象:
+- 記事テーマの中心語
+- PLC / HMI / GOT / sensor / relay / inverter などの主役語
+- 入力 / 出力 / field signal / PLC device / screen object などの関係語
+- linked device / PLC logic / communication / field feedback など確認手順の軸
+- safety / interlock / emergency stop / official manual など注意・安全・公式確認に関わる語
+
+使い分け:
+- `<span class="term">...</span>`: 記事の中心用語、短い技術用語、summaryで残したい語に使う。
+- `<span class="marker-blue">...</span>`: 文中で特に目に留めたい1語または短いフレーズに使う。
+- `<strong>...</strong>`: 注意点、確認項目、安全上の重要語、表内の重要語に使う。
+
+セクション別の目安:
+- 冒頭セクション: 記事テーマの中心語を2〜4個だけ強調する。
+- 仕組み説明: 信号の流れ、装置同士の関係語を軽く強調する。
+- 表: セル内の重要語だけ `<strong>` で強調し、表構造は変更しない。
+- 注意点: 危険・安全・公式マニュアル確認に関わる語は太字で残す。
+- Summary: 最後に覚えてほしい重要語を `<span class="term">...</span>` で整理してよい。
+
+禁止事項:
+- CSS追加
+- 新規class追加
+- 強調の入れすぎ
+- 1文内にspanを大量に入れる
+- 全専門語の装飾
+- 色が多すぎる装飾
+- 文章意味の変更
+- SEO目的だけの不自然な強調
+- Support this site / 関連記事 / 画像パス / language-menu など無関係部分の変更
+
 
 ## Support this site 支援リンク固定ルール
 - Support this site の正式リンクは以下で固定する。

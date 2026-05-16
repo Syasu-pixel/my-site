@@ -32,6 +32,28 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 <meta name="twitter:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
 ```
 
+## 0.3. 公式一次情報参照ルール（GOT / GX Works3 / MELSEC系は最重要）
+- GOT / HMI / タッチパネル / GX Works3 / MELSEC / ラダー命令語 / PLC命令語に関わる記事では、本文作成前に必ず三菱電機FA公式情報を確認する。
+- GOT / HMI記事では、三菱電機FA公式のマニュアル検索ページを一次参照元とする。
+  - https://www.mitsubishielectric.com/fa/download/search.page?mode=manual
+- GOT / HMI記事で優先して確認する公式マニュアル名:
+  - GOT2000 Series User's Manual (Hardware)
+  - GOT2000 Series User's Manual (Utility)
+  - GOT2000 Series Connection Manual (Mitsubishi Electric Products) For GT Works3
+  - GT Designer3 (GOT2000) Screen Design Manual
+- GX Works3 / ラダー / 命令語 / PLC命令語に関わる記事では、三菱電機FA公式の GX Works3 / MELSEC系マニュアルを一次参照元とする。
+- GX Works3 / MELSEC系で優先して確認する公式マニュアル名:
+  - GX Works3 Operating Manual
+  - MELSEC iQ-F FX5 User's Manual (Application)
+  - MELSEC iQ-R Programming Manual (Instructions, Standard Functions/Function Blocks)
+- 記事内の簡易ラダー図、接点、コイル、内部リレー、命令語風の表現は、GX Works3 / MELSEC系の表記を基準にする。
+- ただし、記事画像では実在メーカーUIの完全再現、公式画面スクリーンショット風の生成、三菱電機ロゴやGOTロゴの使用は避ける。
+- 画像は初心者向けの概念図として簡略化し、実在UIではなく「概念的な画面」「概念的なラダー図」として作成する。
+- 非公式ブログ、販売店ページ、個人サイトだけを根拠にして本文を作らない。
+- PDF直リンクだけに依存せず、公式マニュアル検索ページと公式マニュアル名を確認したうえで、記事テーマに合う公式資料を参照する。
+- 公式情報で確認できない内容は、断定表現を避ける。
+- 公式情報の確認結果は、記事作成時の報告またはPR説明に「確認した公式参照元」として簡潔に記載する。
+
 ## 0.5. 英語記事化・導線追加チェック（最重要）
 英語記事 `en/articles/{slug}.html` を作成・追加した場合は、記事本体だけでなく、必ず以下を1セットで確認する。
 

@@ -26,3 +26,12 @@
 - 日本語記事: `articles/{slug}.html` + `assets/images/{slug}/` + `docs/reference-notes/{slug}.md`
 - 英語記事: `en/articles/{slug}.html` + `assets/images/{slug}-en/` + `docs/reference-notes/{slug}.md`
 - Step 1では `index.html` / `categories/**` / `search-index` / `sitemap` / `backlog` を変更しない。
+
+
+## Support this site 支援リンク運用ルール
+- Support this site の PayPal / Buy me a coffee リンクは、ユーザー確認済みの正式URLだけを使う。
+- Agent / ChatGPT / Codex は、支援リンクURLを推測して作らない。
+- 支援リンクの正式URLが不明な場合は、記事HTMLへ新規追加せず、ユーザー確認待ちにする。
+- `https://www.paypal.com/paypalme/denkicontrol` のような未確認URLを使わない。
+- `href="#"` や空リンクを残さない。
+- `target="_blank"` の外部リンクには `rel="noopener"` を付ける。

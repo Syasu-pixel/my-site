@@ -78,7 +78,7 @@
 - [x] solenoid-valve-manual-override-basic
 - [x] ssr-basic
 - [x] star-delta-start-basic
-- [ ] temperature-sensor-basic
+- [x] temperature-sensor-basic
 - [x] thermal-relay-basic
 - [x] timer-relay-basic
 - [x] wiring-duct-basic

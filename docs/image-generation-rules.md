@@ -970,3 +970,12 @@ safe to move to image generation: YES / NO
 - 手順・トラブル対応記事: check-flow を重視し、STEP順が迷わず追える構成にする。
 - 記事HTML側で `figure`/`figcaption` を使う前提で、画像は「図の役割」が一目で伝わる内容にする。
 - alt想定文とfigcaption想定文が重複しないよう、画像内情報を整理してから生成する。
+
+
+### 2.3) キャラクターテンプレート正本と用途の定義
+- 画像生成用の正本テンプレート（primary）は `assets/images/character-templates/senpai-kouhai-character-template.png` とする。
+- `assets/images/character-templates/senpai-kouhai-chibi-character-template.png` は補助参照または旧テンプレートとして扱う。必須正本とはしない。
+- `assets/images/guide-characters/` はHTML本文の会話ブロック用画像であり、画像生成用テンプレートと混同しない。
+- 人物入り記事画像を生成する前に必ず確認する正本は `assets/images/character-templates/senpai-kouhai-character-template.png` とする。
+- hero採用後は、character template + 採用済みhero の両方を後続画像の参照にする。
+- キャラクターの顔、服装、ヘルメット色、雰囲気、関係性が正本から外れた場合は不採用とする。

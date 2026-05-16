@@ -88,7 +88,7 @@
 ### Step 1（ChatGPT作成 / 配置タスク）
 - ChatGPT が英語記事HTML本文（完成HTML）を作成する。
 - ChatGPT が `docs/image-generation-rules.md` に従って画像を1枚ずつ作成する。
-- 記事画像生成で人物キャラクターを含める場合は、GitHub `main` の `assets/images/character-templates/senpai-kouhai-character-template.png` を最初に確認する。
+- 記事画像生成で人物キャラクターを含める場合は、GitHub `main` の正本テンプレート `assets/images/character-templates/senpai-kouhai-character-template.png` を最初に確認する。
 - ユーザーが毎回キャラクターテンプレートを渡さなくても、GitHub上のテンプレートを基準として使う。
 - 記事画像の一貫性を保つため、採用済み `hero` 画像がある場合は後続画像生成の参照に含める。
 - ユーザーがHTMLと画像をGitHubへ追加する、またはCodexへ「完成HTMLと画像の配置のみ」を依頼する。
@@ -121,6 +121,17 @@ assets/images/{slug}-en/{slug}-ogp.png
 assets/images/{slug}-en/{slug}-overview.png
 assets/images/{slug}-en/{slug}-comparison.png
 assets/images/{slug}-en/{slug}-checkpoints.png
+docs/reference-notes/{slug}.md
+```
+
+日本語記事の例:
+```text
+articles/{slug}.html
+assets/images/{slug}/{slug}-hero.png
+assets/images/{slug}/{slug}-ogp.png
+assets/images/{slug}/{slug}-overview.png
+assets/images/{slug}/{slug}-comparison.png
+assets/images/{slug}/{slug}-{optional-purpose}.png
 docs/reference-notes/{slug}.md
 ```
 
@@ -1269,3 +1280,36 @@ Step 2確認:
 ## 記事タイプ別構成の明文化
 - 記事タイプ別の本文構成は `docs/article-type-templates.md` を参照する。
 - 新規記事作成時は、記事タイプ（基礎解説 / 比較 / 手順・トラブル対応）を先に決めてから見出し設計する。
+
+
+## 記事更新フロー
+- 記事更新では、原則として全文を丸ごと書き換えない。
+- まず更新理由を確認する。
+  - 公式マニュアル更新
+  - 新しい機器・仕様・用語の追加
+  - 英語公式資料の追加
+  - 古い説明の修正
+  - 画像・導線・SEOの改善
+  - 読者に誤解を与える可能性がある記述の修正
+- 次に、新情報の公式参照元を確認する。
+- 既存記事内の影響範囲を特定する。
+- 必要箇所だけ差分更新する。
+- 記事全体の流れが崩れる場合だけ、章構成を調整する。
+- 公式資料・reference-notes・採用用語も必要に応じて更新する。
+- 英語記事が存在する場合は、日本語記事と英語記事の両方に影響するか確認する。
+- 画像内の用語や図解にも影響する場合は、画像更新の必要性を別途判断する。
+- 更新PRでは「変更理由」「更新した範囲」「更新しなかった範囲」「確認した公式参照元」を報告する。
+- 既存記事の雰囲気、会話構造、検索ヘッダー、関連記事、固定フッター、レスポンシブCSSは維持する。
+- Codexは、更新理由と影響範囲が明確でない状態で記事本文を大幅改稿しない。
+
+記事更新時の確認項目:
+- 更新理由が明確か
+- 公式参照元が確認されているか
+- 差分更新で足りるか
+- 全文書き換えが必要な理由があるか
+- reference-notes を更新する必要があるか
+- terminology を更新する必要があるか
+- 画像更新が必要か
+- 日英記事の同期が必要か
+- search-index / sitemap / backlog に影響するか
+- safe to merge: YES / NO を報告しているか

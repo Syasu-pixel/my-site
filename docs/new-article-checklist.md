@@ -35,6 +35,8 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 
 
 ## 0.6. PR確認時の必須チェック
+- キャラクター入り記事画像を作る場合は、画像生成前に `assets/images/character-templates/senpai-kouhai-character-template.png` の存在確認を行う。
+- 会話ブロック用画像（`assets/images/guide-characters/`）と画像生成用テンプレート（`assets/images/character-templates/`）を混同しない。
 - 変更ファイルが依頼された許可範囲内か、Step 1/Step 2が混在していないかを確認する。
 - 記事HTML禁止タスクで記事HTMLを変更していないか、画像禁止タスクで `assets/images/**` を変更していないかを確認する。
 - `/seo/sitemap.xml` を変更していないことを確認する。

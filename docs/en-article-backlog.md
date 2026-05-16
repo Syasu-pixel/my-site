@@ -59,7 +59,7 @@
 - [ ] gxw3-timer-ton-toff-retentive
 - [ ] ladder-reading
 - [ ] ladder-work-platform
-- [ ] lamp-indicator-circuit-basic
+- [x] lamp-indicator-circuit-basic
 - [x] light-curtain-basic
 - [x] limit-switch-troubleshooting-basic
 - [x] manual-auto-selector-circuit-basic

@@ -42,3 +42,11 @@
 ## 日英SEO導線ルール
 - canonical / og:url / hreflang / sitemap は `https://denkicontrol.com` で統一する。
 - Step 2で `en/index.html`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`docs/en-article-backlog.md` の更新整合を確認する。
+
+
+## 記事更新フロー
+- 記事更新では、原則として全文を丸ごと書き換えない。
+- 更新理由・公式参照元・影響範囲を先に整理し、必要箇所だけ差分更新する。
+- 全文書き換えは、章構成の破綻など明確な理由がある場合に限る。
+- 日英記事の同期、画像更新、reference-notes / terminology 更新の必要性を確認する。
+- 更新PRでは「変更理由」「更新した範囲」「更新しなかった範囲」「確認した公式参照元」「safe to merge: YES / NO」を報告する。

@@ -75,6 +75,26 @@ PR確認時:
 - トップ戻り時は表示文言を `English Home` / `Back to English Home` などリンク先に合わせる。
 - 同一URLを右カラムに重複配置しない。
 
+
+## Category links 運用ルール
+- `Category links` 枠は、コピー元テンプレートに存在していても自動で残さない。
+- 実在するカテゴリページがある場合のみ表示する。
+- 対応カテゴリページが未作成の場合は、`Category links` 枠ごと削除する。
+- `English Home` だけを `Category links` に入れない。
+- `../index.html` へ退避する場合は、パンくずや記事下部ボタンに留める。
+- `PLC / GX Works3`、`PLC basics`、`HMI / GOT` などカテゴリ風の文言で `../index.html` にリンクしない。
+- 同じURLのリンクを右カラム内に重複して並べない。
+
+NG例:
+```html
+<section class="side-card">
+  <h3>Category links</h3>
+  <ul>
+    <li><a href="../index.html">English Home</a></li>
+  </ul>
+</section>
+```
+
 ### 関連記事リンク確認
 - `href="./xxx.html"` は現在位置基準で解決した実在パスを確認する。
 - 英語記事では `en/articles/xxx.html` が実在する場合のみ入れる。

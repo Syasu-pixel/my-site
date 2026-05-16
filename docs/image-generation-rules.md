@@ -111,6 +111,18 @@ NG例：
 - 後続画像では、キャラクターの顔・服装・ヘルメット・線の太さ・配色・図解トーンを `hero` に合わせる。
 - OK判定前に次の用途画像へ進まない。
 
+### 2.2) キャラクターテンプレート参照の必須運用
+- 記事画像に先輩・後輩キャラクターを含める場合は、画像生成前に必ず `assets/images/character-templates/senpai-kouhai-character-template.png` を参照する。
+- ユーザーが毎回チャットで同じテンプレート画像を再アップロードしなくても、GitHub `main` 上の `assets/images/character-templates/senpai-kouhai-character-template.png` を正本として扱う。
+- `assets/images/character-templates/` は画像生成用の参照テンプレート置き場として扱う。
+- `assets/images/guide-characters/` はHTML本文の会話ブロック用画像として扱い、用途を混同しない。
+- キャラクター入り画像は、参照テンプレート未確認のまま生成しない。
+- `hero` 画像を採用した後は、残り画像生成時に次の2つを必ず同時参照する。
+  1. character template（`assets/images/character-templates/senpai-kouhai-character-template.png`）
+  2. 採用済みhero画像
+- 後続画像では、見た目・服装・ヘルメット色・雰囲気・関係性を `hero` とテンプレートに揃える。
+- テンプレートと明らかに異なる見た目（別人、服装違い、ヘルメット色違い、雰囲気違い）の画像は不採用とする。
+
 ### 3) `guide-characters` と `character-templates` の役割違い
 - `assets/images/guide-characters/`
   - 記事HTML本文内の会話ブロック、注意ボックス、本文中のキャラ素材として使う。

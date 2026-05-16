@@ -88,6 +88,9 @@
 ### Step 1（ChatGPT作成 / 配置タスク）
 - ChatGPT が英語記事HTML本文（完成HTML）を作成する。
 - ChatGPT が `docs/image-generation-rules.md` に従って画像を1枚ずつ作成する。
+- 記事画像生成で人物キャラクターを含める場合は、GitHub `main` の `assets/images/character-templates/senpai-kouhai-character-template.png` を最初に確認する。
+- ユーザーが毎回キャラクターテンプレートを渡さなくても、GitHub上のテンプレートを基準として使う。
+- 記事画像の一貫性を保つため、採用済み `hero` 画像がある場合は後続画像生成の参照に含める。
 - ユーザーがHTMLと画像をGitHubへ追加する、またはCodexへ「完成HTMLと画像の配置のみ」を依頼する。
 - Codexが関与する場合、完成HTMLと画像の配置・静的確認のみを行う。
 - CodexはHTML本文をゼロから執筆せず、構造・本文・CSS・画像パスを勝手に大きく書き換えない。

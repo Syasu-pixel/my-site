@@ -34,6 +34,22 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 
 
 
+
+
+## Support this site 支援リンク確認
+記事HTMLを作成・更新・導線追加する場合、Support this site カードがあるなら以下を確認する。
+
+- PayPalリンクがユーザー確認済みの正式URLか
+- Buy me a coffeeリンクがユーザー確認済みの正式URLか
+- PayPalリンクに `https://www.paypal.com/paypalme/denkicontrol` のような未確認URLが入っていないか
+- `href="#"` や空リンクを残していないか
+- `target="_blank"` の外部リンクに `rel="noopener"` が付いているか
+- 支援リンクをテンプレートからコピーしただけで未確認のまま使っていないか
+
+PR確認時:
+- Support this site の2ボタンとhrefを必ず確認する。
+- 支援リンクが未確認・不正確な場合は `safe to merge: NO` または `safe to close: NO` とする。
+
 ## 0.6. PR確認時の必須チェック
 - キャラクター入り記事画像を作る場合は、画像生成前に `assets/images/character-templates/senpai-kouhai-character-template.png` の存在確認を行う。
 - 会話ブロック用画像（`assets/images/guide-characters/`）と画像生成用テンプレート（`assets/images/character-templates/`）を混同しない。

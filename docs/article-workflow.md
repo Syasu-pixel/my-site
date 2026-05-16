@@ -181,6 +181,19 @@ docs/reference-notes/{slug}.md
 ## 記事内容ルール
 - 回路記事は基本ラダー例を入れる。
 
+
+## Support this site 支援リンク固定ルール
+- 英語記事・日本語記事の `Support this site` / 支援カードでは、Buy me a coffee と PayPal のリンクをテンプレートから勝手に推測して作らない。
+- PayPalリンクは、ユーザーが確認済みの正式URLだけを使う。
+- `https://www.paypal.com/paypalme/denkicontrol` のような未確認・不正確な PayPal.Me 風URLを入れない。
+- PayPal.Me を使う場合は、正式形式 `https://paypal.me/{account}` のように、ユーザーが確認済みのURLだけを使う。
+- PayPal donation / business payment URL を使う場合も、ユーザーが確認済みの正式URLだけを使う。
+- Buy me a coffee のURLも、ユーザーが確認済みの正式URLだけを使う。
+- Codex / ChatGPT は、支援リンクを推測・補完・自動生成しない。
+- 既存テンプレートからコピーする場合でも、支援リンクの `href` は必ず確認する。
+- 正式URLが未確認の場合は、支援リンクを新規追加しない、または `href="#"` のような仮リンクを残さず、ユーザー確認待ちにする。
+- `target="_blank"` を使う場合は `rel="noopener"` を必ず付ける。
+
 ### 関連記事カードのリンク先ルール
 - 関連記事カードには、GitHub最新`main`で実在確認済みの記事だけを入れる。
 - 推測でリンクを書かない。

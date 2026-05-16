@@ -949,3 +949,12 @@ ChatGPTで上記5枚を生成してください。
 判定:
 safe to move to image generation: YES / NO
 
+
+
+## Z. 記事タイプ別の画像設計補足
+- 記事タイプ別の本文構成は `docs/article-type-templates.md` を基準にし、画像用途もそれに合わせる。
+- 基礎解説記事: overview を重視し、1枚で全体像が掴める図を優先する。
+- 比較記事: comparison を重視し、比較軸が即読できるレイアウトにする。
+- 手順・トラブル対応記事: check-flow を重視し、STEP順が迷わず追える構成にする。
+- 記事HTML側で `figure`/`figcaption` を使う前提で、画像は「図の役割」が一目で伝わる内容にする。
+- alt想定文とfigcaption想定文が重複しないよう、画像内情報を整理してから生成する。

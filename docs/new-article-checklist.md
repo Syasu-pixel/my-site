@@ -32,6 +32,17 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 <meta name="twitter:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
 ```
 
+
+
+## 0.6. PR確認時の必須チェック
+- 変更ファイルが依頼された許可範囲内か、Step 1/Step 2が混在していないかを確認する。
+- 記事HTML禁止タスクで記事HTMLを変更していないか、画像禁止タスクで `assets/images/**` を変更していないかを確認する。
+- `/seo/sitemap.xml` を変更していないことを確認する。
+- 正式ドメイン `https://denkicontrol.com` 以外（`denki-control.com` / `syasu-pixel.github.io/my-site`）が canonical / og:url / sitemap に残っていないか確認する。
+- Step 1では完成HTMLと画像配置のみに限定し、`index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触らない。
+- Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
+- PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。
+
 ## 0.3. 公式一次情報参照ルール（GOT / GX Works3 / MELSEC系は最重要）
 - GOT / HMI / タッチパネル / GX Works3 / MELSEC / ラダー命令語 / PLC命令語に関わる記事では、本文作成前に必ず三菱電機FA公式情報を確認する。
 - GOT / HMI記事では、三菱電機FA公式のマニュアル検索ページを一次参照元とする。

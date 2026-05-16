@@ -32,6 +32,75 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 <meta name="twitter:image" content="https://denkicontrol.com/assets/images/slug/slug-ogp.png">
 ```
 
+## 0.3. 公式一次情報参照ルール（GOT / GX Works3 / MELSEC系は最重要）
+- GOT / HMI / タッチパネル / GX Works3 / MELSEC / ラダー命令語 / PLC命令語に関わる記事では、本文作成前に必ず三菱電機FA公式情報を確認する。
+- GOT / HMI記事では、三菱電機FA公式のマニュアル検索ページを一次参照元とする。
+  - https://www.mitsubishielectric.com/fa/download/search.page?mode=manual
+- GOT / HMI記事で優先して確認する公式マニュアル名:
+  - GOT2000 Series User's Manual (Hardware)
+  - GOT2000 Series User's Manual (Utility)
+  - GOT2000 Series Connection Manual (Mitsubishi Electric Products) For GT Works3
+  - GT Designer3 (GOT2000) Screen Design Manual
+- GX Works3 / ラダー / 命令語 / PLC命令語に関わる記事では、三菱電機FA公式の GX Works3 / MELSEC系マニュアルを一次参照元とする。
+- GX Works3 / MELSEC系で優先して確認する公式マニュアル名:
+  - GX Works3 Operating Manual
+  - MELSEC iQ-F FX5 User's Manual (Application)
+  - MELSEC iQ-R Programming Manual (Instructions, Standard Functions/Function Blocks)
+- 記事内の簡易ラダー図、接点、コイル、内部リレー、命令語風の表現は、GX Works3 / MELSEC系の表記を基準にする。
+- ただし、記事画像では実在メーカーUIの完全再現、公式画面スクリーンショット風の生成、三菱電機ロゴやGOTロゴの使用は避ける。
+- 画像は初心者向けの概念図として簡略化し、実在UIではなく「概念的な画面」「概念的なラダー図」として作成する。
+- 非公式ブログ、販売店ページ、個人サイトだけを根拠にして本文を作らない。
+- PDF直リンクだけに依存せず、公式マニュアル検索ページと公式マニュアル名を確認したうえで、記事テーマに合う公式資料を参照する。
+- 公式情報で確認できない内容は、断定表現を避ける。
+- 公式情報の確認結果は、記事作成時の報告またはPR説明に「確認した公式参照元」として簡潔に記載する。
+
+### 周辺機器メーカー記事の公式参照ルール
+- センサー、画像センサー、バーコードリーダ、ロボシリンダ、電動アクチュエータ、空圧機器、電磁弁、エアシリンダ、FRL、スピードコントローラ、圧力スイッチなど、特定メーカー機器に近い記事では、メーカー公式情報を一次参照元として確認する。
+- 周辺機器記事では、以下のメーカー公式サイト・公式資料・公式マニュアル検索ページ・公式カタログ入口を優先して確認する。
+
+#### 公式参照元URL
+
+三菱電機FA:
+- https://www.mitsubishielectric.com/fa/download/search.page?mode=manual
+
+KEYENCE:
+- https://www.keyence.co.jp/
+- https://www.keyence.co.jp/download/
+- https://www.keyence.com/downloads/
+
+IAI:
+- https://www.iai-robot.co.jp/
+- https://www.iai-robot.co.jp/download/
+- https://www.intelligentactuator.com/
+
+SMC:
+- https://www.smcworld.com/
+- https://www.smcworld.com/catalog/
+- https://www.smcworld.com/catalog/en/
+
+CKD:
+- https://www.ckd.co.jp/
+- https://www.ckd.co.jp/kiki/
+- https://www.ckd.co.jp/kiki/en/
+
+- メーカー名、シリーズ名、型式、仕様値、配線方式、通信方式、設定項目、注意事項を扱う場合は、公式資料で確認できた範囲だけを書く。
+- 公式資料で確認できない型式固有の仕様は断定しない。
+- 販売店ページ、通販ページ、個人ブログ、二次情報だけを根拠に仕様説明を作らない。
+- 公式資料が見つからない場合は、記事内では一般的な考え方に留め、「機種ごとの詳細はメーカー資料を確認する」と明記する。
+- PDF直リンクは版数変更やURL変更の可能性があるため、原則として公式トップ、公式ダウンロード入口、公式カタログ入口、公式マニュアル検索ページをルールに記載する。
+- 生成画像では、メーカーの実在UI、実在ロゴ、実在製品ラベル、型式銘板の完全再現は避ける。
+- 画像は「概念図」「模式図」「一般的な機器イメージ」として作成する。
+- 記事作成時の報告またはPR説明に、確認した公式参照元を簡潔に記載する。
+
+| 対象 | 優先参照元 | 主な確認内容 |
+|---|---|---|
+| 三菱電機 GOT / HMI | 三菱電機FA公式マニュアル検索、GOT2000 / GT Designer3関連マニュアル | GOT本体、接続、画面設計、表示部品、通信 |
+| 三菱電機 GX Works3 / MELSEC | 三菱電機FA公式マニュアル検索、GX Works3 / MELSEC iQ-F / iQ-R関連マニュアル | ラダー、接点、コイル、命令語、内部デバイス、モニタ |
+| KEYENCE | KEYENCE公式サイト、公式マニュアル、公式ダウンロード、商品情報 | センサー、画像処理、測定器、バーコードリーダ、PLC/通信、設定項目 |
+| IAI | IAI公式サイト、取扱説明書、カタログ、コントローラ資料 | ロボシリンダ、電動アクチュエータ、コントローラ、I/O信号 |
+| SMC | SMC公式サイト、Webカタログ、取扱説明書、製品個別資料 | 空圧機器、電磁弁、エアシリンダ、FRL、圧力スイッチ |
+| CKD | CKD公式サイト、商品情報、取扱説明書、カタログ | 空圧機器、電磁弁、シリンダ、流体制御機器 |
+
 ## 0.5. 英語記事化・導線追加チェック（最重要）
 英語記事 `en/articles/{slug}.html` を作成・追加した場合は、記事本体だけでなく、必ず以下を1セットで確認する。
 

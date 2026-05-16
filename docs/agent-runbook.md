@@ -38,10 +38,10 @@
 - 詳細は `docs/new-article-checklist.md` の `0.7. HTML内リンク実在確認ルール` を参照する。
 
 ## Support this site 支援リンク運用ルール
-- Support this site の PayPal / Buy me a coffee リンクは、ユーザー確認済みの正式URLだけを使う。
-- Agent / ChatGPT / Codex は、支援リンクURLを推測して作らない。
-- 支援リンクの正式URLが不明な場合は、記事HTMLへ新規追加せず、ユーザー確認待ちにする。
-- `https://www.paypal.com/paypalme/denkicontrol` のような未確認URLを使わない。
+- 正式な支援リンクは以下で固定する。
+  - Buy me a coffee: `https://buymeacoffee.com/denkicontrol`
+  - PayPal: `https://www.paypal.com/paypalme/denkicontrol`
+- Agent / ChatGPT / Codex は、上記以外の支援リンクURLを推測して使わない。
+- 支援カードを追加・復旧する場合は、この2つのURLを使う。
 - `href="#"` や空リンクを残さない。
 - `target="_blank"` の外部リンクには `rel="noopener"` を付ける。
-- 支援リンクの正式URLが未確定の間は、既存記事テンプレートから PayPal / Buy me a coffee リンクをコピーして新規記事へ入れず、未確認URLが入っている既存記事の修正は別タスクで行う。

@@ -57,7 +57,7 @@
 - [ ] gxw3-one-shot-rise-fall-detection
 - [ ] gxw3-out-set-rst-coil-usage
 - [ ] gxw3-timer-ton-toff-retentive
-- [ ] ladder-reading
+- [x] ladder-reading
 - [ ] ladder-work-platform
 - [x] lamp-indicator-circuit-basic
 - [x] light-curtain-basic

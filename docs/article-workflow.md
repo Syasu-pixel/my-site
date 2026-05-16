@@ -1327,3 +1327,71 @@ Step 2確認:
 - 日英記事の同期が必要か
 - search-index / sitemap / backlog に影響するか
 - safe to merge: YES / NO を報告しているか
+
+
+## HTML内リンク実在確認ルール
+- 新規記事HTML作成時、記事更新時、PR確認時には、関連記事カードだけでなく、HTML内の内部リンク全体を実在確認する。
+- 対象: パンくず / 記事下部の戻るボタン / 右カラム Category links / language-menu / 関連記事カード / フッター内リンク / 画像 `src` / OGP画像パス / ヒーロー背景画像パス。
+
+### カテゴリリンク確認
+- 日本語記事では `categories/*.html`、英語記事では `en/categories/*.html` の実在を確認する。
+- `plc-basics.html`、`plc.html`、`hmi.html`、`gxw3.html` などを推測で作らない。
+- 実在しないカテゴリURLを、パンくず・記事下部ボタン・右カラムCategory linksに入れない。
+- 対応カテゴリ未作成時は暫定でトップへ戻す（日本語/英語とも `../index.html` または `../`）。
+- トップへ戻す場合は表示文言をリンク先に合わせる（`English Home` / `Back to English Home` など）。
+- `../index.html` に飛ばすのにカテゴリ名表示を残さない。
+- 右カラムで同一URLを重複掲載しない。
+
+
+## Category links 運用ルール
+- `Category links` 枠は、コピー元テンプレートに存在していても自動で残さない。
+- 実在するカテゴリページがある場合のみ表示する。
+- 対応カテゴリページが未作成の場合は、`Category links` 枠ごと削除する。
+- `English Home` だけを `Category links` に入れない。
+- `../index.html` へ退避する場合は、パンくずや記事下部ボタンに留める。
+- `PLC / GX Works3`、`PLC basics`、`HMI / GOT` などカテゴリ風の文言で `../index.html` にリンクしない。
+- 同じURLのリンクを右カラム内に重複して並べない。
+
+NG例:
+```html
+<section class="side-card">
+  <h3>Category links</h3>
+  <ul>
+    <li><a href="../index.html">English Home</a></li>
+  </ul>
+</section>
+```
+
+### 関連記事リンク確認
+- `href="./xxx.html"` は、現在ファイル位置から解決した実在パスを確認する。
+- 英語記事は `en/articles/xxx.html` が実在する場合のみ掲載する。
+- 未作成記事へのカードを入れない。
+- 「後で作る予定」の記事を先行リンクしない。
+
+### language-menu確認
+- 日本語記事と英語記事の相互リンク先実在を確認する。
+- Step 1時点で相互リンク先が未配置なら、Step 2修正対象として明記する。
+- 記事ページの small 文言は `日本語記事` / `English article` を使う。
+- 記事ページの言語メニューに `日本語トップ` / `English top` を残さない。
+
+### 画像リンク確認
+- HTML内 `src` と CSS背景画像 `url(...)` が、Step 1で用意する画像ファイル名と一致するか確認する。
+- 別記事slugの画像パスを混入させない。
+- OGP画像・twitter画像も配置予定の画像名と一致させる。
+
+### 新規HTML納品前の報告項目
+- 実在確認したカテゴリリンク
+- カテゴリ未作成でトップ戻りにした箇所
+- 実在確認した関連記事リンク
+- HTML内画像パス一覧
+- language-menuのリンク先
+- Step 1で触らないファイル一覧
+
+### PR確認時の必須確認
+- 存在しないカテゴリhrefが残っていない
+- `href="../index.html"` なのにカテゴリ名文言が残っていない
+- 右カラムで同じURLが重複していない
+- 関連記事カードが実在記事だけを指している
+- 画像srcが実在ファイルを指している
+- `/seo/sitemap.xml` を触っていない
+- Step 1/Step 2が混在していない

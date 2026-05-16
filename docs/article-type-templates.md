@@ -50,3 +50,32 @@
 - 全文書き換えは、章構成の破綻など明確な理由がある場合に限る。
 - 日英記事の同期、画像更新、reference-notes / terminology 更新の必要性を確認する。
 - 更新PRでは「変更理由」「更新した範囲」「更新しなかった範囲」「確認した公式参照元」「safe to merge: YES / NO」を報告する。
+
+
+## HTML内リンク実在確認テンプレートルール
+- テンプレート適用時は、関連記事カードに加えて、パンくず・戻るボタン・右カラムCategory links・language-menu・フッター内リンク・画像 `src`・OGP/twitter画像・ヒーロー背景画像の実在確認を行う。
+- カテゴリURLは推測で作らず、日本語は `categories/*.html`、英語は `en/categories/*.html` の実在確認後に設定する。
+- 対応カテゴリ未作成時は暫定で `../index.html`（または `../`）へ戻し、表示文言を `English Home` / `Back to English Home` などに合わせる。
+- 右カラムで同一URLを重複配置しない。
+- 関連記事は実在記事のみ（英語記事は `en/articles/*.html` 実在のみ）を掲載し、未作成記事を先行リンクしない。
+- language-menuは日英記事の相互リンク実在を確認し、small文言は `日本語記事` / `English article` を使う。
+
+
+## Category links 運用ルール
+- `Category links` 枠は、コピー元テンプレートに存在していても自動で残さない。
+- 実在するカテゴリページがある場合のみ表示する。
+- 対応カテゴリページが未作成の場合は、`Category links` 枠ごと削除する。
+- `English Home` だけを `Category links` に入れない。
+- `../index.html` へ退避する場合は、パンくずや記事下部ボタンに留める。
+- `PLC / GX Works3`、`PLC basics`、`HMI / GOT` などカテゴリ風の文言で `../index.html` にリンクしない。
+- 同じURLのリンクを右カラム内に重複して並べない。
+
+NG例:
+```html
+<section class="side-card">
+  <h3>Category links</h3>
+  <ul>
+    <li><a href="../index.html">English Home</a></li>
+  </ul>
+</section>
+```

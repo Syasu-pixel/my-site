@@ -62,6 +62,124 @@ PR確認時:
 - Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
 - PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。
 
+
+## 0.7. HTML内リンク実在確認ルール
+- 新規記事HTML作成時、記事更新時、PR確認時には、関連記事カードだけでなくHTML内内部リンク全体を確認する。
+- 対象: パンくず / 記事下部の戻るボタン / 右カラム Category links / language-menu / 関連記事カード / フッター内リンク / 画像 `src` / OGP画像 / ヒーロー背景画像。
+
+### カテゴリリンク確認
+- 日本語記事は `categories/*.html`、英語記事は `en/categories/*.html` の実在確認を行う。
+- カテゴリURLを推測で作らない（例: `plc-basics.html`、`plc.html`、`hmi.html`、`gxw3.html`）。
+- 実在しないカテゴリURLをパンくず・記事下部ボタン・右カラムCategory linksに入れない。
+- カテゴリ未作成時は暫定で `../index.html` または `../` へ戻す。
+- トップ戻り時は表示文言を `English Home` / `Back to English Home` などリンク先に合わせる。
+- 同一URLを右カラムに重複配置しない。
+
+
+## Category links 運用ルール
+- `Category links` 枠は、コピー元テンプレートに存在していても自動で残さない。
+- 実在するカテゴリページがある場合のみ表示する。
+- 対応カテゴリページが未作成の場合は、`Category links` 枠ごと削除する。
+- `English Home` だけを `Category links` に入れない。
+- `../index.html` へ退避する場合は、パンくずや記事下部ボタンに留める。
+- `PLC / GX Works3`、`PLC basics`、`HMI / GOT` などカテゴリ風の文言で `../index.html` にリンクしない。
+- 同じURLのリンクを右カラム内に重複して並べない。
+
+NG例:
+```html
+<section class="side-card">
+  <h3>Category links</h3>
+  <ul>
+    <li><a href="../index.html">English Home</a></li>
+  </ul>
+</section>
+```
+
+### 関連記事リンク確認
+- `href="./xxx.html"` は現在位置基準で解決した実在パスを確認する。
+- 英語記事では `en/articles/xxx.html` が実在する場合のみ入れる。
+- 未作成記事や「後で作る予定」記事を先行リンクしない。
+
+### language-menu確認
+- 日英相互リンク先の実在を確認する。
+- Step 1で未配置ならStep 2修正対象として明記する。
+- small文言は `日本語記事` / `English article` を使う。
+- 記事ページの言語メニューに `日本語トップ` / `English top` を残さない。
+
+### 画像リンク確認
+- `src` と CSS `url(...)` がStep 1で用意した画像名と一致するか確認する。
+- 別slug画像を混入させない。
+- OGP / twitter画像名も配置予定名と一致させる。
+
+### 新規HTML納品前の報告項目
+- 実在確認したカテゴリリンク
+- カテゴリ未作成でトップ戻りにした箇所
+- 実在確認した関連記事リンク
+- HTML内画像パス一覧
+- language-menuリンク先
+- Step 1では触らないファイル一覧
+
+### PR確認時の必須確認（HTML内部リンク観点）
+- 存在しないカテゴリhrefがない
+- `href="../index.html"` なのにカテゴリ名文言が残っていない
+- 右カラム同一URL重複がない
+- 関連記事カードが実在記事のみ
+- 画像srcが実在ファイルを指す
+- `/seo/sitemap.xml` を触っていない
+- Step 1/Step 2が混在していない
+
+### 監査コマンド例
+```bash
+python - <<'PY'
+from pathlib import Path
+import re, posixpath
+
+root = Path(".")
+html_files = (
+    list(root.glob("*.html")) +
+    list(root.glob("articles/*.html")) +
+    list(root.glob("categories/*.html")) +
+    list(root.glob("en/*.html")) +
+    list(root.glob("en/articles/*.html")) +
+    list(root.glob("en/categories/*.html")) +
+    list(root.glob("privacy-policy/*.html")) +
+    list(root.glob("contact/*.html"))
+)
+existing = {p.as_posix() for p in root.rglob("*") if p.is_file()}
+
+def resolve(src, href):
+    if not href:
+        return None
+    if href.startswith(("#", "mailto:", "tel:", "javascript:")):
+        return None
+    if href.startswith(("http://", "https://")):
+        return None
+    href = href.split("#", 1)[0].split("?", 1)[0]
+    if not href:
+        return None
+    resolved = posixpath.normpath(posixpath.join(src.parent.as_posix(), href))
+    if href.endswith("/"):
+        resolved = posixpath.join(resolved, "index.html")
+    return resolved
+
+broken = []
+for src in html_files:
+    text = src.read_text(encoding="utf-8", errors="ignore")
+    for href in re.findall(r'href=["\']([^"\']+)["\']', text):
+        target = resolve(src, href)
+        if target and target not in existing:
+            broken.append((src.as_posix(), href, target))
+
+if broken:
+    print("BROKEN HREFS")
+    for src, href, target in broken:
+        print(f"{src} => {href} => {target}")
+    raise SystemExit(1)
+
+print("Internal href check passed")
+PY
+```
+
 ## 0.3. 公式一次情報参照ルール（GOT / GX Works3 / MELSEC系は最重要）
 - GOT / HMI / タッチパネル / GX Works3 / MELSEC / ラダー命令語 / PLC命令語に関わる記事では、本文作成前に必ず三菱電機FA公式情報を確認する。
 - GOT / HMI記事では、三菱電機FA公式のマニュアル検索ページを一次参照元とする。

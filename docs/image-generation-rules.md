@@ -45,7 +45,7 @@
 ### 1.6) 同一記事5枚セットの統一ルール
 - 同一記事の5枚画像は、バラバラに作らず統一感を持たせる。
 - 最初に `hero` を作ってアンカー画像とする。
-- `overview / comparison / check-flow / ogp` は、guide-characters参照画像に加えて、採用済み `hero` 画像も参照して作る。
+- `overview / comparison / check-flow / ogp` は、character template と採用済み `hero` 画像を参照して作る。
 - 後続画像では、キャラクターの顔、服装、ヘルメット、線の太さ、配色、図解トーンを `hero` に合わせる。
 - 5枚のうち1枚だけ別テイストになっている場合はNGとする。
 - NGの場合は、該当画像だけ再生成する。
@@ -55,11 +55,11 @@
 - 参照先：
   - `assets/images/character-templates/senpai-kouhai-character-template.png`
   - `assets/images/character-templates/senpai-kouhai-chibi-character-template.png`
-- 人物キャラクターを含む画像では、必ず `assets/images/guide-characters/` の参照画像を使う。
+- 人物キャラクターを含む画像では、必ず `assets/images/character-templates/senpai-kouhai-character-template.png` を正本として参照する。
 - 参照なしで人物キャラクターを生成しない。
 - 新しい別キャラを勝手に作らない。
 - 先輩・後輩キャラは、既存記事と同じ人物・同じ雰囲気として扱う。
-- 人物キャラクターを含む画像では、必ず `guide-characters` の参照画像を一緒に使う。
+- HTML本文の会話ブロックでは `guide-characters` の画像を使用する。画像生成時の正本とは混同しない。
 - 参照なしで人物キャラクターを生成しない。
 - 新しい別キャラを勝手に作らない。
 - 毎回別人のように見えるデザイン変更はしない。
@@ -107,7 +107,7 @@ NG例：
 ### 2.1) 同一記事5枚セットの統一ルール
 - 同一記事の画像5枚はバラバラに作らず、1セットとして統一感を持たせる。
 - 最初に `hero` を作成し、アンカー画像として採用する。
-- `overview` / `comparison` / `check-flow` / `ogp` は、`guide-characters` 参照画像に加えて、採用済み `hero` 画像も参照して作る。
+- `overview` / `comparison` / `check-flow` / `ogp` は、character template と採用済み `hero` 画像を参照して作る。
 - 後続画像では、キャラクターの顔・服装・ヘルメット・線の太さ・配色・図解トーンを `hero` に合わせる。
 - OK判定前に次の用途画像へ進まない。
 
@@ -292,7 +292,8 @@ NG例：
 
 ### 5.85) キャラクター固定強化ルール
 - 先輩・後輩は「似た雰囲気の別キャラ」ではなく、共通テンプレートと同じ人物として扱う。
-- 人物入り画像の生成前に、必ず `assets/images/character-templates/senpai-kouhai-chibi-character-template.png` を確認する。
+- 人物入り画像の生成前に、必ず `assets/images/character-templates/senpai-kouhai-character-template.png` を正本として確認する。
+- `assets/images/character-templates/senpai-kouhai-chibi-character-template.png` は補助参照または旧テンプレートとして扱う。
 - 人物入り画像では、先輩・後輩の基本設定（服装、ヘルメット、役割、性別風）を毎回明示する。
 - 先輩と後輩の見た目・役割を入れ替えない。
 - 先輩と後輩のどちらかだけを別テイストにしない。

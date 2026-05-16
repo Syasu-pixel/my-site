@@ -45,6 +45,7 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 - `href="#"` や空リンクを残していないか
 - `target="_blank"` の外部リンクに `rel="noopener"` が付いているか
 - 支援リンクをテンプレートからコピーしただけで未確認のまま使っていないか
+- 支援リンクの正式URLが未確定なら、既存記事テンプレートからPayPal / Buy me a coffeeリンクをコピーして新規記事へ入れない（既存記事側の未確認URL修正は別タスク）。
 
 PR確認時:
 - Support this site の2ボタンとhrefを必ず確認する。

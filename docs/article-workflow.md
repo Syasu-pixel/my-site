@@ -102,6 +102,25 @@
   - `seo/sitemap.xml`
 - Step 1の報告は `safe to merge: YES / NO` とする。
 
+
+
+## Step 1納品物の公開フォルダ構成ルール
+- Step 1でChatGPTがHTMLや画像をファイルとして渡す場合は、原則として公開配置と同じフォルダ構成で渡す。
+- ユーザーにリネーム作業を発生させない。
+- ユーザーに配置先を判断させない。
+- ダウンロード用ZIPを作る場合は、可能な限り以下の構成にする。
+
+英語記事の例:
+```text
+en/articles/{slug}.html
+assets/images/{slug}-en/{slug}-hero.png
+assets/images/{slug}-en/{slug}-ogp.png
+assets/images/{slug}-en/{slug}-overview.png
+assets/images/{slug}-en/{slug}-comparison.png
+assets/images/{slug}-en/{slug}-checkpoints.png
+docs/reference-notes/{slug}.md
+```
+
 ### Step 2（導線追加タスク）
 - ユーザーが確認用URLを確認し、明示OKした後のみ実施する。
 - Codexが導線追加を行う。
@@ -1187,3 +1206,63 @@ rg -n "og:image|twitter:image|article-hero::before|assets/images/{slug}-en" en/a
 - 日本語記事 → 英語版同一記事へ飛べる
 - 英語記事 → 日本語版同一記事へ戻れる
 - どちらもトップページではなく、同一テーマの記事同士で相互リンクしている
+
+
+## PR確認チェックリスト
+PR確認時は、作業内容に応じて以下を必ず確認する。
+
+共通確認:
+- 変更ファイルが依頼された許可範囲内か
+- Step 1 と Step 2 が混ざっていないか
+- 記事本文・画像を触ってよいタスクか
+- 記事HTMLを触らない指定のタスクで、記事HTMLが変更されていないか
+- 画像を触らない指定のタスクで、assets/images/** が変更されていないか
+- `/seo/sitemap.xml` を触っていないか
+- 正式ドメインが `https://denkicontrol.com` になっているか
+- `denki-control.com` や `syasu-pixel.github.io/my-site` が canonical / og:url / sitemap に入っていないか
+- 変更理由と確認結果がPR本文に書かれているか
+
+Step 1確認:
+- 完成HTMLと画像配置のみになっているか
+- `index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触っていないか
+- HTMLファイル名が公開配置名と一致しているか
+- ユーザーにリネーム作業を発生させていないか
+- 画像パスと実ファイル名が一致しているか
+- 画像フォルダが `assets/images/{slug}-en/` など、HTML参照と一致しているか
+- safe to merge: YES / NO を報告しているか
+
+Step 2確認:
+- 日本語記事の language-menu が英語記事へ直接リンクしているか
+- 英語記事の language-menu が日本語記事へ直接リンクしているか
+- 英語カテゴリに記事カードまたはリンクが追加されているか
+- 英語トップの New articles は6件固定か
+- 日本語トップの新着記事は6件固定か
+- 英語トップ Popular articles は10件固定か
+- トップ棚は4件固定か
+- View all / すべてを見る / Articles count / 記事数表示 / Seriesカードを戻していないか
+- `assets/data/search-index.json` のJSON構文が壊れていないか
+- `sitemap.xml` に正式URLが追加されているか
+- `docs/en-article-backlog.md` が適切に更新されているか
+- safe to close: YES / NO を報告しているか
+
+
+## 日英SEO導線と品質統一ルール
+- 日本語記事と英語記事は、language-menuで相互に直接リンクする。
+- canonical / og:url / hreflang / sitemap のURLは `https://denkicontrol.com` に統一する。
+- 英語記事の導線追加時は、`en/index.html` / `en/categories/**` / `assets/data/search-index.json` / `sitemap.xml` / `docs/en-article-backlog.md` の整合を同時確認する。
+
+## 画像alt / figcaptionルール
+- 記事内の `img` には内容が伝わる具体的な alt を付ける。
+- 装飾目的画像は空alt（`alt=""`）を検討し、読み上げノイズを増やさない。
+- `figure` を使う画像は、必要に応じて `figcaption` で「何の図か」を簡潔に示す。
+- altとfigcaptionは重複文を避け、altは画像内容、figcaptionは文脈補足に分担する。
+
+## 英語記事の自然化ルール
+- 英語記事は直訳調を避け、英語公式資料・既存英語記事に寄せた自然な技術英語を使う。
+- 不自然な和製英語や機械翻訳調の語順を避け、短く明確な文を優先する。
+- 英語見出しは「読者が次に知りたいこと」の順に配置し、抽象語を多用しない。
+- 用語は記事内で統一し、同じ概念に複数表現を混在させない。
+
+## 記事タイプ別構成の明文化
+- 記事タイプ別の本文構成は `docs/article-type-templates.md` を参照する。
+- 新規記事作成時は、記事タイプ（基礎解説 / 比較 / 手順・トラブル対応）を先に決めてから見出し設計する。

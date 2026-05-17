@@ -60,6 +60,10 @@ PR確認時:
 - `/seo/sitemap.xml` を変更していないことを確認する。
 - 正式ドメイン `https://denkicontrol.com` 以外（`denki-control.com` / `syasu-pixel.github.io/my-site`）が canonical / og:url / sitemap に残っていないか確認する。
 - Step 1では完成HTMLと画像配置のみに限定し、`index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触らない。
+
+- Step 1担当固定: ChatGPTが英語記事HTML作成と画像生成、ユーザーがHTML/画像ZIPのGitHubアップロードを行っているか（CodexがStep 1を勝手に進めていないか）を確認する。
+- Step 2担当固定: Step 1完了・ユーザー確認後にのみCodexが導線追加を実施しているかを確認する。
+- Step 1とStep 2が混在しているPRは `safe to merge: NO` または `safe to close: NO` とする。
 - Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
 - Step 2の language-menu 相互リンク確認では、日本語記事側 `articles/{slug}.html` と英語記事側 `en/articles/{slug}.html` の双方を確認する。
 - PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。

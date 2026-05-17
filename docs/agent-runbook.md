@@ -23,6 +23,15 @@
 - 更新PRで、変更理由・更新範囲・未更新範囲・参照元を報告する。
 - `safe to merge: YES / NO` を明記する。
 
+
+## 英語記事制作の担当固定（Step 1 / Step 2）
+- Step 1（記事本体と画像の作成・アップロード）は ChatGPT + ユーザー担当とし、Codexは原則担当しない。
+- Step 1では、ChatGPTが英語記事HTML作成と画像生成を行い、ユーザーがHTMLと画像ZIPをGitHubへアップロードする。
+- Step 2（導線追加）は、Step 1完了とユーザー確認後にCodexへ依頼する。
+- CodexはStep 2として、language-menu / hreflang 相互リンク確認、`en/index.html`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`docs/en-article-backlog.md` の更新を担当する。
+- Step 2で日本語記事 `articles/{slug}.html` を変更する場合は、language-menu / hreflang 相互リンクの該当箇所に限定する。
+- Codexは「英語記事を作る」等の曖昧依頼だけで、Step 1とStep 2を一括実行しない。
+
 ## Codex指示の標準ルール
 Codexへ作業を依頼する場合は、以下を必ず明記する。
 

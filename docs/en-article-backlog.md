@@ -51,7 +51,7 @@
 - [x] gxw3-comparison-instruction-basic
 - [x] gxw3-counter-up-down-reset
 - [x] gxw3-mov-instruction-basic
-- [ ] gxw3-mul-div-instruction-basic
+- [x] gxw3-mul-div-instruction-basic
 - [ ] gxw3-one-shot-rise-fall-detection
 - [ ] gxw3-out-set-rst-coil-usage
 - [ ] gxw3-timer-ton-toff-retentive

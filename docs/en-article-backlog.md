@@ -36,7 +36,6 @@
 - `gxw3-timer-ton-toff-retentive`
 
 ### HMI / GOT
-- `got-touch-panel-basic`
 
 ## Backlog
 
@@ -48,7 +47,7 @@
 - [x] earth-leakage-breaker-basic
 - [x] electromagnetic-contactor-vs-switch
 - [x] float-switch-basic
-- [ ] got-touch-panel-basic
+- [x] got-touch-panel-basic
 - [ ] gxw3-add-sub-instruction-basic
 - [ ] gxw3-comparison-instruction-basic
 - [ ] gxw3-counter-up-down-reset

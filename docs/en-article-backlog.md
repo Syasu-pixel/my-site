@@ -55,7 +55,7 @@
 - [x] gxw3-mul-div-instruction-basic
 - [x] gxw3-one-shot-rise-fall-detection
 - [x] gxw3-out-set-rst-coil-usage
-- [ ] gxw3-timer-ton-toff-retentive
+- [x] gxw3-timer-ton-toff-retentive
 - [x] ladder-reading
 - [x] lamp-indicator-circuit-basic
 - [x] light-curtain-basic

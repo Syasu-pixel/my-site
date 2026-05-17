@@ -22,6 +22,14 @@
 - ユーザーに毎回長い依頼文を求めない。
 - ChatGPT は必要な確認・調査・設計を自動で展開し、以下を順番に確認してから作業方針を出す。
 
+### Codex依頼文の標準形式（テンプレート運用）
+- Codexへ作業依頼する際は、`docs/agent-runbook.md` の「Codex指示の標準ルール」に従って依頼文を作る。
+- 依頼文には必ず `対象リポジトリ: Syasu-pixel/my-site` を明記する。
+- `今回触ってよいファイル` と `触らないファイル` を明示し、許可ファイルを最小化する。
+- 対象外タスクでは、`articles/**`、`en/articles/**`、`assets/**`、`index.html`、`en/index.html`、`categories/**`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`seo/sitemap.xml`、`docs/en-article-backlog.md` を禁止に含める。
+- 修正範囲（対象セクション / class / 文言）を具体指定し、変更前後のコードを提示する。
+- 禁止事項・確認項目・報告形式（`変更ファイル / 修正内容 / 確認結果 / safe to merge`）を依頼文に含める。
+
 標準で自動確認するもの:
 - GitHub main の最新状態
 - docs/article-workflow.md

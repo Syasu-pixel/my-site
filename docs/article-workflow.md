@@ -153,8 +153,36 @@ docs/reference-notes/{slug}.md
   - `sitemap.xml`
   - `docs/en-article-backlog.md`
 - Step 2では記事HTMLと画像は原則変更しない。
+- ただし、language-menu / hreflang の日英相互リンク確認に必要な場合のみ、日本語元記事 `articles/{slug}.html` の該当箇所を変更してよい。
+- 日本語記事側を変更する場合、変更範囲は language-menu / hreflang 相互リンクだけに限定する（本文、画像、Support this site、Category links、関連記事本文は変更しない）。
 - `/seo/sitemap.xml` は非運用なので触らない。
 - Step 2の報告は `safe to close: YES / NO` とする。
+
+#### Step 2 language-menu 相互リンク完了条件
+英語記事の Step 2 導線追加では、以下を必ず確認する。
+
+1. 英語記事側の language-menu
+   - `en/articles/{slug}.html` から `../../articles/{slug}.html` または既存構造に合う日本語記事へリンクできること。
+   - small文言は `English article` / `Japanese article` など記事ページ用になっていること。
+   - `English top` / `Japanese top` のようなトップページ用文言を記事ページに残さないこと。
+
+2. 日本語記事側の language-menu
+   - `articles/{slug}.html` から `../en/articles/{slug}.html` へリンクできること。
+   - small文言は `日本語記事` / `English article` を使うこと。
+   - `日本語トップ` / `English top` のようなトップページ用文言を記事ページに残さないこと。
+
+3. PR報告の必須項目（Step 2）
+   - 英語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事から英語記事への href
+   - 英語記事から日本語記事への href
+   - `日本語トップ` / `English top` が記事ページの language-menu に残っていないこと
+   - language-menu 未確認の場合は `safe to close: NO`
+
+4. safe to close 判定
+   - 日本語記事 → 英語記事のリンクが未確認なら `safe to close: NO`
+   - 英語記事 → 日本語記事のリンクが未確認なら `safe to close: NO`
+   - 文言がトップページ用のままなら `safe to close: NO`
 
 ## 基準記事（コピー元の明記）
 - 新規記事HTMLは、完成済み記事を**完全コピー**して必要箇所だけ差し替える。

@@ -49,7 +49,7 @@
 - [x] got-touch-panel-basic
 - [x] gxw3-add-sub-instruction-basic
 - [x] gxw3-comparison-instruction-basic
-- [ ] gxw3-counter-up-down-reset
+- [x] gxw3-counter-up-down-reset
 - [x] gxw3-mov-instruction-basic
 - [ ] gxw3-mul-div-instruction-basic
 - [ ] gxw3-one-shot-rise-fall-detection

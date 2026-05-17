@@ -56,6 +56,88 @@
 - Step 1 では記事HTML本文と画像のみを扱い、トップ、カテゴリ、search-index、sitemap、backlog は触らない。
 - Step 2 はユーザーが確認用URLを確認し、明示OKした後のみ実施する。
 
+
+## 英語記事制作のStep 1 / Step 2 担当固定ルール
+英語記事制作は、以下の流れを標準とする。
+
+### Step 1: 記事本体と画像の作成・アップロード
+Step 1は、ChatGPTとユーザーで進める。
+
+1. ChatGPTが英語記事HTMLを作成する。
+2. ユーザーが作成されたHTMLをGitHubへアップロードする。
+3. ChatGPTが記事画像を生成する。
+4. ChatGPTがリネーム済み画像をZIPで渡す。
+5. ユーザーが画像をGitHubへアップロードする。
+
+ここまでをStep 1とする。
+
+Step 1で扱うもの:
+- `en/articles/{slug}.html`
+- `assets/images/{slug}-en/**`
+- 必要に応じて `docs/reference-notes/{slug}.md`
+
+Step 1でCodexに原則依頼しないもの:
+- 英語記事HTMLの新規作成
+- 英語記事本文の執筆
+- 記事画像の生成
+- 画像のリネームZIP作成
+- 画像のアップロード
+- トップ導線追加
+- カテゴリ導線追加
+- search-index更新
+- sitemap更新
+- backlog更新
+
+Step 1で触らないもの:
+- `index.html`
+- `en/index.html`
+- `categories/**`
+- `en/categories/**`
+- `assets/data/search-index.json`
+- `sitemap.xml`
+- `seo/sitemap.xml`
+- `docs/en-article-backlog.md`
+
+### Step 2: 導線追加
+Step 2は、Step 1完了後にCodexへ依頼する。
+
+Step 2を開始する条件:
+- 英語記事HTMLがGitHubにアップロード済み
+- 英語記事画像がGitHubにアップロード済み
+- ユーザーが記事URLまたはGitHub上の内容を確認済み
+- ユーザーが「導線追加してよい」と判断した後
+
+Step 2でCodexが担当するもの:
+- 日本語記事側の language-menu / hreflang
+- 英語記事側の language-menu / hreflang 確認
+- `en/index.html`
+- `en/categories/**`
+- `assets/data/search-index.json`
+- `sitemap.xml`
+- `docs/en-article-backlog.md`
+
+Step 2でCodexが触ってはいけないもの:
+- 英語記事本文の大幅変更
+- 画像ファイルの変更
+- 記事内画像パスの独自変更
+- Support this siteリンクの独自変更
+- 関連記事本文の独自変更
+- `/seo/sitemap.xml`
+
+ただし、日本語記事側の language-menu / hreflang 相互リンク修正に必要な場合のみ、対象の `articles/{slug}.html` の該当箇所だけ変更してよい。
+
+## Codexへの注意
+- Codexは、英語記事制作のStep 1を勝手に進めない。
+- Codexは、ユーザーから明示的に依頼されたStep 2導線追加から担当する。
+- 「次の記事を進める」「英語記事を作る」などの依頼だけで、Codexが記事HTML作成・画像作成・画像配置・導線追加を一括実行しない。
+
+## PR確認時のチェック（Step 1 / Step 2分離）
+- Step 1タスクなのに `en/index.html` / `en/categories/**` / `search-index.json` / `sitemap.xml` / `docs/en-article-backlog.md` を触っていないか
+- Step 2タスクなのに英語記事本文や画像を勝手に変更していないか
+- Step 2で日本語記事を触る場合、変更範囲が language-menu / hreflang に限定されているか
+- `/seo/sitemap.xml` を触っていないか
+- Step 1 / Step 2 が混ざっている場合は `safe to merge: NO` または `safe to close: NO` とする
+
 ## ChatGPT / Codex 役割分担
 - ChatGPT:
   - 記事テーマ選定補助

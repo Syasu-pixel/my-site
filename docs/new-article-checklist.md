@@ -61,6 +61,7 @@ PR確認時:
 - 正式ドメイン `https://denkicontrol.com` 以外（`denki-control.com` / `syasu-pixel.github.io/my-site`）が canonical / og:url / sitemap に残っていないか確認する。
 - Step 1では完成HTMLと画像配置のみに限定し、`index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触らない。
 - Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
+- Step 2の language-menu 相互リンク確認では、日本語記事側 `articles/{slug}.html` と英語記事側 `en/articles/{slug}.html` の双方を確認する。
 - PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。
 - 本文に重要語の軽い強調が入っているかを確認する。
 - 強調が多すぎないか（1段落で過密になっていないか）を確認する。
@@ -137,6 +138,37 @@ NG例:
 - Step 1で未配置ならStep 2修正対象として明記する。
 - small文言は `日本語記事` / `English article` を使う。
 - 記事ページの言語メニューに `日本語トップ` / `English top` を残さない。
+
+### Step 2 language-menu 相互リンク完了条件
+英語記事の Step 2 導線追加では、以下を必ず確認する。
+
+1. 英語記事側の language-menu
+   - `en/articles/{slug}.html` から `../../articles/{slug}.html` または既存構造に合う日本語記事へリンクできること。
+   - small文言は `English article` / `Japanese article` など記事ページ用になっていること。
+   - `English top` / `Japanese top` のようなトップページ用文言を記事ページに残さないこと。
+
+2. 日本語記事側の language-menu
+   - `articles/{slug}.html` から `../en/articles/{slug}.html` へリンクできること。
+   - small文言は `日本語記事` / `English article` を使うこと。
+   - `日本語トップ` / `English top` のようなトップページ用文言を記事ページに残さないこと。
+
+3. Step 2で日本語記事を触ってよい条件
+   - 日本語記事側の language-menu / hreflang / 相互リンク確認に必要な場合のみ、`articles/{slug}.html` を変更してよい。
+   - 変更範囲は language-menu / hreflang 相互リンクだけに限定する。
+   - 本文、画像、Support this site、Category links、関連記事本文は変更しない。
+
+4. PR報告の必須項目
+   - 英語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事から英語記事への href
+   - 英語記事から日本語記事への href
+   - `日本語トップ` / `English top` が記事ページの language-menu に残っていないこと
+   - language-menu 未確認の場合は `safe to close: NO`
+
+5. safe to close 判定
+   - 日本語記事 → 英語記事のリンクが未確認なら `safe to close: NO`
+   - 英語記事 → 日本語記事のリンクが未確認なら `safe to close: NO`
+   - 文言がトップページ用のままなら `safe to close: NO`
 
 ### 画像リンク確認
 - `src` と CSS `url(...)` がStep 1で用意した画像名と一致するか確認する。

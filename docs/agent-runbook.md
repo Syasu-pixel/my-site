@@ -104,6 +104,37 @@ safe to merge: YES / NO
 - 英語記事: `en/articles/{slug}.html` + `assets/images/{slug}-en/` + `docs/reference-notes/{slug}.md`
 - Step 1では `index.html` / `categories/**` / `search-index` / `sitemap` / `backlog` を変更しない。
 
+## Step 2 language-menu 相互リンク完了条件
+英語記事の Step 2 導線追加では、以下を必ず確認する。
+
+1. 英語記事側の language-menu
+   - `en/articles/{slug}.html` から `../../articles/{slug}.html` または既存構造に合う日本語記事へリンクできること。
+   - small文言は `English article` / `Japanese article` など記事ページ用になっていること。
+   - `English top` / `Japanese top` のようなトップページ用文言を記事ページに残さないこと。
+
+2. 日本語記事側の language-menu
+   - `articles/{slug}.html` から `../en/articles/{slug}.html` へリンクできること。
+   - small文言は `日本語記事` / `English article` を使うこと。
+   - `日本語トップ` / `English top` のようなトップページ用文言を記事ページに残さないこと。
+
+3. Step 2で日本語記事を触ってよい条件
+   - 日本語記事側の language-menu / hreflang / 相互リンク確認に必要な場合のみ、`articles/{slug}.html` を変更してよい。
+   - 変更範囲は language-menu / hreflang 相互リンクだけに限定する。
+   - 本文、画像、Support this site、Category links、関連記事本文は変更しない。
+
+4. PR報告の必須項目（Step 2）
+   - 英語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事側 language-menu: 修正済み / 既に正しい / 未確認
+   - 日本語記事から英語記事への href
+   - 英語記事から日本語記事への href
+   - `日本語トップ` / `English top` が記事ページの language-menu に残っていないこと
+   - language-menu 未確認の場合は `safe to close: NO`
+
+5. safe to close 判定
+   - 日本語記事 → 英語記事のリンクが未確認なら `safe to close: NO`
+   - 英語記事 → 日本語記事のリンクが未確認なら `safe to close: NO`
+   - 文言がトップページ用のままなら `safe to close: NO`
+
 ## HTML内リンク確認の要点
 - 記事HTMLを作成・更新・PR確認する場合、HTML内のすべての `href` を確認する。
 - 関連記事カードだけでなく、パンくず、記事下部ボタン、右カラム、カテゴリリンク、language-menu、フッター、Support this site も確認対象にする。

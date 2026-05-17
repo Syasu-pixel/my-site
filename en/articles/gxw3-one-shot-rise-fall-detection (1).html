@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GX Works3 One-Shot Rising and Falling Edge Detection: Run Logic Once | Denki Control Lab</title>
+  <meta name="description" content="Learn the basic idea of one-shot rising and falling edge detection in GX Works3 and MELSEC PLC programming. This beginner-friendly guide explains LDP/LDF, PLS/PLF, one-scan execution, counters, SET/RST combinations, and field checks.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/gxw3-one-shot-rise-fall-detection.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/gxw3-one-shot-rise-fall-detection.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/gxw3-one-shot-rise-fall-detection.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/gxw3-one-shot-rise-fall-detection.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GX Works3 One-Shot Rising and Falling Edge Detection: Run Logic Once">
+  <meta property="og:description" content="A practical beginner guide to rising edge, falling edge, one-shot execution, LDP/LDF, PLS/PLF, and field troubleshooting checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/gxw3-one-shot-rise-fall-detection.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-ogp-en.png">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GX Works3 One-Shot Rising and Falling Edge Detection: Run Logic Once">
+  <meta name="twitter:description" content="Understand how rising edge and falling edge detection help run PLC logic for only one scan.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-ogp-en.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;--text:#1e293b;--muted:#5f7288;--blue:#1d4ed8;--blue-deep:#1e3a8a;--green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;--shadow:0 12px 30px rgba(15,23,42,.06);--shadow-soft:0 8px 20px rgba(15,23,42,.05);--container:1180px;--header-h:76px}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}
+    img{max-width:100%;display:block}
+    a{color:var(--blue);text-decoration:none;transition:.2s ease}
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+    .container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;color:inherit;text-decoration:none;margin-right:auto}
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}
+    .brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}
+    .language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
+    .search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}
+    .search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+    .header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}
+    .header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}
+    .search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-hero-en.png") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}
+    .hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;color:#0f172a}
+    .hero-lead{margin:0;max-width:46ch;font-size:15px;color:#334155}
+    .hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+    .hero-points li{display:flex;gap:10px;font-size:14px;color:#334155;font-weight:700}
+    .hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card,.mini-toc-card,.section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .summary-card{padding:22px 20px}
+    .summary-card h2{margin:0 0 12px;font-size:18px}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;font-size:13px;font-weight:900;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card{padding:28px;margin-bottom:20px;border-radius:28px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}
+    .section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}
+    .section-card h3{margin:22px 0 10px;font-size:17px}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}
+    .section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}
+    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .term{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:900;white-space:nowrap}
+    .point-strip,.key-highlight,.field-highlight,.note-box,.danger-box{border-radius:20px;padding:16px;margin:18px 0}
+    .point-strip{border:1px solid #d7e4f3;background:#f8fbff;font-weight:800}
+    .key-highlight{border:1px solid #bfdbfe;background:#eff6ff}
+    .field-highlight{border:1px solid #bbf7d0;background:#ecfdf3}
+    .note-box{background:#fff8ea;border:1px solid #f7dba2}
+    .danger-box{background:var(--red-soft);border:1px solid #fecaca}
+    .key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .key-highlight p,.field-highlight p,.note-box p,.danger-box p{margin:0;font-size:14px;color:#334155}
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure-inner{background:#fff;padding:18px}
+    .article-figure-inner img{width:100%;height:auto;border-radius:16px}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .flow-grid,.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .flow-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .flow-card,.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .flow-card h3,.check-item h3{margin:0 0 8px;font-size:16px}
+    .flow-card p,.check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .flow-card{position:relative}
+    .flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900}
+    .flow-card:last-child::after{display:none}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+    .check-item--danger{background:#fff1f2;border-color:#fecaca}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    .talk-thread{display:grid;gap:12px;margin:18px 0 8px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row.is-reverse{flex-direction:row-reverse}
+    .talk-avatar{width:76px;flex:0 0 76px;display:flex;align-items:flex-start;justify-content:center}
+    .talk-avatar img{width:76px;height:auto}
+    .talk-bubble{max-width:min(100%,700px);padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #d7e4f3;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+    .talk-name{display:inline-block;margin:0 0 6px;font-size:12px;font-weight:900;color:#1d4ed8}
+    .talk-row.is-reverse .talk-name{color:#15803d}
+    .talk-bubble p{margin:0;font-size:14px;line-height:1.75;color:#334155}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}
+    .side-card ul,.side-card ol{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+    .side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+    .side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none}
+    .side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8}
+    .support-card{border:1px solid #dbeafe;background:#fff}
+    .support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}
+    .support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155}
+    .support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}
+    .support-link{display:flex;align-items:center;justify-content:center;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;text-align:center;color:#1e3a8a;background:#f8fbff;text-decoration:none}
+    .support-link:hover{text-decoration:none}
+    .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+    @media (max-width:1100px){.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}
+    @media (min-width:744px) and (max-width:1100px){.article-hero{min-height:390px}.article-hero::before{background:url("../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-hero-en.png") right center / auto 92% no-repeat;opacity:.28}.article-hero::after{background:linear-gradient(90deg,rgba(255,255,255,.86) 0%,rgba(255,255,255,.62) 46%,rgba(255,255,255,.22) 78%,rgba(255,255,255,0) 100%)}.article-hero-copy{width:min(100%,650px);min-height:390px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.side-rail{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.site-header{padding:8px 10px}.brand-logo{height:42px}.brand-title{font-size:15px}.brand-sub{display:none}.header-search{flex:1 1 auto;min-width:0}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-hero-en.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.top-summary,.side-rail,.related-grid,.check-grid,.flow-grid{grid-template-columns:1fr}.flow-card::after{display:none}.talk-avatar{width:64px;flex-basis:64px}.talk-avatar img{width:64px}}
+    @media (max-width:768px){body{line-height:1.85}.section-card p{font-size:15px}.article-figure-inner{padding:12px}}
+    @media (max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px;letter-spacing:0}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}.container{width:min(100% - 20px,var(--container))}.article-hero-copy{min-height:350px;padding:30px 18px}h1{font-size:28px}.btn{width:100%}.section-card{padding:20px 16px}.talk-row,.talk-row.is-reverse{flex-direction:column}.talk-row.is-reverse .talk-avatar{align-self:flex-end}.talk-avatar{width:54px;flex-basis:54px}.talk-avatar img{width:54px}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="Go to English top page">
+        <img src="../../assets/images/common/site-logo-dcl.png" alt="Denki Control Lab logo" class="brand-logo">
+        <div><p class="brand-title">Denki Control Lab</p><p class="brand-sub">Practical electrical control notes</p></div>
+      </a>
+      <div class="language-menu" aria-label="Language switch">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="Switch language"><span class="language-menu-icon" aria-hidden="true">🌐</span><span class="language-menu-current">English</span></button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="../../articles/gxw3-one-shot-rise-fall-detection.html" class="language-menu-item" lang="ja"><span class="language-menu-flag" aria-hidden="true">🇯🇵</span><span><strong>Japan</strong><small>Japanese article</small></span></a>
+          <a href="./gxw3-one-shot-rise-fall-detection.html" class="language-menu-item is-active" lang="en" aria-current="page"><span class="language-menu-flag" aria-hidden="true">🇺🇸</span><span><strong>English</strong><small>English article</small></span></a>
+        </div>
+      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="Site search" role="search">
+        <label class="sr-only" for="site-search-input">Site search</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="Search by keyword" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="Search"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p></div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">English Home</a><span>/</span><span>GX Works3 One-Shot Rising and Falling Edge Detection</span></nav>
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">PLC / GX Works3</span>
+          <h1>GX Works3 One-Shot Rising and Falling Edge Detection: Run Logic Once</h1>
+          <p class="hero-lead">One-shot logic is used when you want an operation to run only once at a signal change. The key is to separate normal ON/OFF conditions from rising-edge and falling-edge detection.</p>
+          <ul class="hero-points"><li>Understand rising edge and falling edge detection.</li><li>Read LDP/LDF and PLS/PLF as one-scan style logic.</li><li>Check counters, SET/RST combinations, scan timing, and repeated execution carefully.</li></ul>
+          <div class="hero-actions"><a class="btn btn-primary" href="#basic">Start with one-shot logic</a><a class="btn btn-secondary" href="#field-check">Field check points</a></div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="Article summary">
+        <div class="summary-card summary-card--fit"><h2>Good for</h2><ul><li>Beginners who want to understand one-shot logic in GX Works3.</li><li>People who are confused by LDP, LDF, PLS, PLF, rising edge, or falling edge.</li><li>Field engineers checking why a counter, SET/RST, or calculation runs too many times.</li></ul></div>
+        <div class="summary-card summary-card--notyet"><h2>Not the main focus</h2><ul><li>Full instruction-list coverage for every Mitsubishi Electric CPU series.</li><li>Advanced edge-detection patterns in large sequence programs.</li><li>Replacing official manuals or project-specific design documents.</li></ul></div>
+        <div class="summary-card summary-card--conclusion"><h2>Quick conclusion</h2><ul><li>Rising edge detects OFF → ON.</li><li>Falling edge detects ON → OFF.</li><li>One-shot logic helps run an action for only one scan.</li></ul></div>
+      </section>
+
+      <section class="mini-toc-card" aria-label="Mini table of contents"><h2>What you will learn</h2><div class="mini-toc"><a href="#basic">Basic idea</a><a href="#rising">Rising edge</a><a href="#falling">Falling edge</a><a href="#plsp">PLS / PLF</a><a href="#use-cases">Use cases</a><a href="#scan">Scan timing</a><a href="#field-check">Field checks</a><a href="#summary">Summary</a></div></section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="basic">
+            <h2>1. What is one-shot rising and falling edge detection?</h2>
+            <p class="section-intro-line">Think of one-shot logic as “detect the moment a signal changes, then run only once.”</p>
+            <p>In ladder programs, a normal contact may stay ON for many scans. If you use that condition directly, a counter, calculation, SET/RST, or other action may execute repeatedly while the condition remains true.</p>
+            <p>One-shot rising and falling edge detection helps avoid that. It detects a <span class="term">moment of change</span> instead of a continuous ON state.</p>
+            <div class="point-strip"><strong>Simple image:</strong> signal changes → edge is detected → action runs for one scan.</div>
+            <figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-overview-en.png" alt="Overview of one-shot rising and falling edge detection in PLC ladder logic"></div><figcaption>One-shot logic is useful when a condition should trigger an action once, not repeatedly every scan.</figcaption></figure>
+            <div class="talk-thread">
+              <div class="talk-row"><div class="talk-avatar"><img src="../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="Senior character"></div><div class="talk-bubble"><span class="talk-name">Senior</span><p>When a signal stays ON, normal logic may keep executing. One-shot logic focuses on the instant of change.</p></div></div>
+              <div class="talk-row is-reverse"><div class="talk-avatar"><img src="../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="Junior character"></div><div class="talk-bubble"><span class="talk-name">Junior</span><p>So if I want a counter to count only once when a button turns ON, I should think about edge detection.</p></div></div>
+            </div>
+          </section>
+
+          <section class="section-card" id="conclusion">
+            <h2>2. Quick conclusion: detect the change, not just the state</h2>
+            <p class="section-intro-line">The important difference is whether you are watching a continuous state or the moment it changes.</p>
+            <p>A normal ON condition can remain true for many scans. Rising-edge detection focuses on <strong>OFF → ON</strong>. Falling-edge detection focuses on <strong>ON → OFF</strong>. One-shot logic then lets the related action run for only a short scan-based moment.</p>
+            <div class="flow-grid" aria-label="Basic edge detection flow"><div class="flow-card"><h3>Signal state</h3><p>The input or internal bit changes.</p></div><div class="flow-card"><h3>Edge detection</h3><p>Rising or falling edge is detected.</p></div><div class="flow-card"><h3>One-shot action</h3><p>The target logic runs once.</p></div></div>
+            <div class="note-box"><h3>Check official manuals for exact details</h3><p>Instruction names, contact symbols, and pulse behavior can depend on CPU series and instruction format. Use this article as a beginner guide, and check the official Mitsubishi Electric manual or GX Works3 help for actual design work.</p></div>
+          </section>
+
+          <section class="section-card" id="rising">
+            <h2>3. Rising edge detection: OFF → ON</h2>
+            <p class="section-intro-line">Rising edge detection is used when you want to react to the moment a signal turns ON.</p>
+            <p>In beginner terms, a rising edge is the moment a signal changes from OFF to ON. In GX Works3-style ladder reading, instructions or contacts such as <span class="term">LDP</span> are commonly associated with rising-edge detection.</p>
+            <p>For example, if a push button is held ON for one second, a normal contact may stay ON for many scans. A rising-edge condition is used when you want the related action to run only at the moment the button turns ON.</p>
+            <div class="field-highlight"><h3>Field reading point</h3><p>If a counter increments too many times while a button or sensor remains ON, check whether the program is using normal ON logic instead of rising-edge one-shot logic.</p></div>
+          </section>
+
+          <section class="section-card" id="falling">
+            <h2>4. Falling edge detection: ON → OFF</h2>
+            <p class="section-intro-line">Falling edge detection is used when you want to react to the moment a signal turns OFF.</p>
+            <p>A falling edge is the moment a signal changes from ON to OFF. In GX Works3-style ladder reading, instructions or contacts such as <span class="term">LDF</span> are commonly associated with falling-edge detection.</p>
+            <p>This is useful when the end of a signal matters. For example, you may want to process a result when a sensor turns OFF, or trigger a reset when an operation signal drops.</p>
+            <div class="key-highlight"><h3>Do not mix the timing</h3><p>Rising edge and falling edge are opposite timing points. If the action happens one step too early or too late, check whether the program is detecting the correct edge.</p></div>
+          </section>
+
+          <section class="section-card" id="plsp">
+            <h2>5. PLS / PLF and one-scan pulse output</h2>
+            <p class="section-intro-line">PLS and PLF are often discussed when you want an internal bit to turn ON for one scan.</p>
+            <p>Beginner explanations often connect <span class="term">PLS</span> with a rising-edge style pulse and <span class="term">PLF</span> with a falling-edge style pulse. The practical idea is to create a short one-scan signal that can be used by the next part of the ladder program.</p>
+            <figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-comparison-en.png" alt="Comparison of normal contact, rising edge, falling edge, PLS, and PLF logic"></div><figcaption>Normal contacts follow the state. Edge detection and pulse instructions focus on the moment of change.</figcaption></figure>
+            <div class="table-wrap"><table><thead><tr><th>Idea</th><th>Beginner reading</th><th>Field check</th></tr></thead><tbody><tr><td class="cell-blue">Rising edge</td><td>Detects OFF → ON.</td><td>Good for “count once when signal turns ON.”</td></tr><tr><td class="cell-green">Falling edge</td><td>Detects ON → OFF.</td><td>Good for “act once when signal turns OFF.”</td></tr><tr><td class="cell-orange">Pulse output</td><td>Creates a short one-scan signal.</td><td>Check where the pulse bit is used later.</td></tr></tbody></table></div>
+          </section>
+
+          <section class="section-card" id="use-cases">
+            <h2>6. Common field use cases</h2>
+            <p class="section-intro-line">One-shot logic is often used when repeated execution would cause trouble.</p>
+            <ul><li>Counting a sensor detection only once.</li><li>Adding or subtracting a value only once per button press.</li><li>Setting an internal flag when a signal first turns ON.</li><li>Resetting a sequence when an operation signal turns OFF.</li><li>Starting a one-time process when a condition changes.</li><li>Preventing repeated operation while a button is held down.</li></ul>
+            <div class="note-box"><h3>Connected article flow</h3><p>ADD/SUB, counters, and SET/RST often need one-shot logic when you want “one action per event” instead of “action every scan while ON.”</p></div>
+          </section>
+
+          <section class="section-card" id="scan">
+            <h2>7. Why scan timing matters</h2>
+            <p class="section-intro-line">One-shot logic is closely tied to PLC scan behavior.</p>
+            <p>A PLC program repeats its scan. If a condition is true, the related logic may be evaluated again and again. One-shot logic is a way to limit an action to a scan-based moment rather than a long continuous condition.</p>
+            <p>When troubleshooting, do not only check whether the input is ON. Check when it changed, where the one-shot signal is created, and where that signal is used.</p>
+            <div class="danger-box"><h3>Common failure pattern</h3><p>A push button is intended to add 1 once, but the value increases many times while the button is held ON. This often means the program is using a continuous ON condition where edge detection is needed.</p></div>
+          </section>
+
+          <section class="section-card" id="counter-set-rst">
+            <h2>8. Combining one-shot logic with counters and SET/RST</h2>
+            <p class="section-intro-line">Counters, SET/RST, and arithmetic instructions are common places to check one-shot behavior.</p>
+            <p>One-shot logic is especially useful when a later instruction should respond to an event once. Counters may need a one-shot input to prevent repeated counting. ADD/SUB may need one-shot logic to avoid repeated value changes. SET/RST may need careful timing so that flags are not set or reset unexpectedly.</p>
+            <div class="check-grid"><div class="check-item check-item--important"><h3>Counter input</h3><p>Check whether the count signal is continuous or one-shot.</p></div><div class="check-item check-item--field"><h3>SET / RST</h3><p>Check whether the flag is latched and reset at the intended timing.</p></div><div class="check-item"><h3>Arithmetic</h3><p>Check whether ADD/SUB runs once or every scan.</p></div><div class="check-item check-item--warning"><h3>Pulse bit reuse</h3><p>Search where the one-shot bit is used later in the program.</p></div></div>
+          </section>
+
+          <section class="section-card" id="field-check">
+            <h2>9. Field check points when one-shot logic does not work</h2>
+            <p class="section-intro-line">Check the signal change, edge type, pulse bit, and destination action in order.</p>
+            <ol><li>Confirm whether the original signal actually changes from OFF to ON or ON to OFF.</li><li>Check whether the program should use rising edge or falling edge.</li><li>Check whether a pulse bit is created and where it is used.</li><li>Monitor the target action, such as counter input, ADD/SUB, SET, or RST.</li><li>Search for another rung that overwrites or resets the same internal bit.</li><li>Check whether the action is triggered every scan instead of once.</li><li>Review the official manual or GX Works3 help before changing instruction variants.</li></ol>
+            <figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-check-flow-en.png" alt="Field check flow for one-shot rising and falling edge detection troubleshooting"></div><figcaption>A practical check flow helps separate signal-change problems, edge-type mistakes, pulse-bit issues, and destination-action problems.</figcaption></figure>
+          </section>
+
+          <section class="section-card" id="monitoring">
+            <h2>10. GX Works3 monitoring points</h2>
+            <p class="section-intro-line">Monitor before, during, and after the one-shot point.</p>
+            <p>When monitoring one-shot logic, watch the original signal, the edge or pulse signal, and the target instruction together. If you only watch the final result, it may be difficult to see whether the pulse happened for one scan.</p>
+            <div class="field-highlight"><h3>Three-point monitoring</h3><p>Watch <strong>original signal</strong>, <strong>edge/pulse bit</strong>, and <strong>target action</strong> together. This makes it easier to tell whether the problem is before or after the one-shot logic.</p></div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>11. Common beginner mistakes</h2>
+            <p class="section-intro-line">Most mistakes come from confusing continuous ON with one-time execution.</p>
+            <ul><li><strong>Using normal ON logic:</strong> The action repeats while the condition remains true.</li><li><strong>Choosing the wrong edge:</strong> Rising edge and falling edge happen at different timing points.</li><li><strong>Forgetting where the pulse bit is used:</strong> A one-shot signal is only useful if the later rung uses it correctly.</li><li><strong>Expecting to see the pulse easily:</strong> A one-scan signal may be hard to catch during monitoring.</li><li><strong>Missing overwrites:</strong> Another rung may reset or overwrite the same internal bit.</li><li><strong>Skipping official references:</strong> Instruction details should be confirmed for the target CPU series.</li></ul>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>12. Summary</h2>
+            <p>One-shot rising and falling edge detection is a basic but important idea in GX Works3 ladder programming. Rising edge focuses on <span class="term">OFF → ON</span>, falling edge focuses on <span class="term">ON → OFF</span>, and pulse-style logic helps run an action for one scan.</p>
+            <p>If you understand this flow, counters, ADD/SUB, SET/RST, push buttons, sensors, and sequence triggers become easier to troubleshoot.</p>
+            <figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-one-shot-rise-fall-detection-en/gxw3-one-shot-rise-fall-detection-ogp-en.png" alt="Summary image for GX Works3 one-shot rising and falling edge detection basics"></div><figcaption>One-shot logic is not only a special instruction. It is a way to control when an action happens in the PLC scan.</figcaption></figure>
+          </section>
+
+          <section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">Related articles</h2>
+            <p>These articles connect naturally with one-shot rising and falling edge detection.</p>
+            <div class="related-grid">
+              <a class="related-card" href="./gxw3-counter-up-down-reset.html"><h3>GX Works3 Counter Instruction Basics</h3><p>Connect one-shot input with count-up, current value, set value, and reset behavior.</p></a>
+              <a class="related-card" href="./gxw3-add-sub-instruction-basic.html"><h3>GX Works3 ADD and SUB Instruction Basics</h3><p>Review why arithmetic instructions may need one-shot execution.</p></a>
+              <a class="related-card" href="./gxw3-out-set-rst-coil-usage.html"><h3>GX Works3 OUT, SET, and RST Coil Usage</h3><p>Understand how one-shot timing connects with coil and latch behavior.</p></a>
+              <a class="related-card" href="./ladder-reading.html"><h3>How to Read Ladder Diagrams</h3><p>Review the basic way to follow contacts, coils, and scan execution.</p></a>
+            </div>
+          </section>
+
+          <div class="article-footer-nav"><a class="btn btn-primary" href="../">Back to English Home</a></div>
+        </article>
+
+        <aside class="side-rail" aria-label="Article sidebar">
+          <section class="side-card"><h3>Quick navigation</h3><ul class="side-link-list"><li><a href="#basic">Basic idea</a></li><li><a href="#rising">Rising edge</a></li><li><a href="#falling">Falling edge</a></li><li><a href="#plsp">PLS / PLF</a></li><li><a href="#field-check">Field checks</a></li></ul></section>
+          <section class="side-card"><h3>Key idea</h3><ul><li>Rising edge detects OFF → ON.</li><li>Falling edge detects ON → OFF.</li><li>One-shot logic helps run an action once.</li><li>Scan timing and pulse-bit usage are key checks.</li></ul></section>
+          <section class="side-card support-card"><h3 class="support-card-title">Support this site</h3><p class="support-card-text">If this guide helped you, a small support helps keep Denki Control Lab growing.</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy me a coffee</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">Support with PayPal</a></div></section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><p>Practical notes for electrical control, PLC basics, and field troubleshooting.<br><a href="../privacy-policy/">Privacy Policy</a> | <a href="../contact/">Contact</a></p></div></footer>
+  <script>
+    (function(){
+      const button=document.getElementById("languageMenuButton");
+      const panel=document.getElementById("languageMenuPanel");
+      if(!button||!panel){return;}
+      button.addEventListener("click",function(){
+        const isOpen=button.getAttribute("aria-expanded")==="true";
+        button.setAttribute("aria-expanded",String(!isOpen));
+        panel.hidden=isOpen;
+      });
+      document.addEventListener("click",function(event){
+        if(!button.contains(event.target)&&!panel.contains(event.target)){
+          button.setAttribute("aria-expanded","false");
+          panel.hidden=true;
+        }
+      });
+      document.addEventListener("keydown",function(event){
+        if(event.key==="Escape"){
+          button.setAttribute("aria-expanded","false");
+          panel.hidden=true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../../assets/js/site-search.js" defer></script>
+</body>
+</html>

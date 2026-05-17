@@ -51,7 +51,7 @@
 - [ ] gxw3-add-sub-instruction-basic
 - [ ] gxw3-comparison-instruction-basic
 - [ ] gxw3-counter-up-down-reset
-- [ ] gxw3-mov-instruction-basic
+- [x] gxw3-mov-instruction-basic
 - [ ] gxw3-mul-div-instruction-basic
 - [ ] gxw3-one-shot-rise-fall-detection
 - [ ] gxw3-out-set-rst-coil-usage

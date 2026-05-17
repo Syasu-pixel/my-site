@@ -26,7 +26,6 @@
 - `ladder-reading`
 
 ### PLC / GX Works3
-- `gxw3-add-sub-instruction-basic`
 - `gxw3-comparison-instruction-basic`
 - `gxw3-counter-up-down-reset`
 - `gxw3-mov-instruction-basic`
@@ -48,7 +47,7 @@
 - [x] electromagnetic-contactor-vs-switch
 - [x] float-switch-basic
 - [x] got-touch-panel-basic
-- [ ] gxw3-add-sub-instruction-basic
+- [x] gxw3-add-sub-instruction-basic
 - [x] gxw3-comparison-instruction-basic
 - [ ] gxw3-counter-up-down-reset
 - [x] gxw3-mov-instruction-basic

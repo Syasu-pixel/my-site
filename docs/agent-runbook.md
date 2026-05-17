@@ -23,6 +23,82 @@
 - 更新PRで、変更理由・更新範囲・未更新範囲・参照元を報告する。
 - `safe to merge: YES / NO` を明記する。
 
+## Codex指示の標準ルール
+Codexへ作業を依頼する場合は、以下を必ず明記する。
+
+1. 対象リポジトリ
+- 必ず `Syasu-pixel/my-site` と書く。
+
+2. 目的
+- 何を直すタスクかを1〜3行で明記する。
+- 「リンク修正」「本文強調」「Step 2導線追加」「整形のみ」など、作業種別を明確にする。
+
+3. 変更してよいファイル
+- `今回触ってよいファイル` を必ず列挙する。
+- 可能な限り最小ファイル数にする。
+
+4. 触ってはいけないファイル
+- `触らないファイル` を必ず列挙する。
+- 特に以下は、対象外なら必ず禁止する。
+  - `articles/**`
+  - `en/articles/**`
+  - `assets/**`
+  - `index.html`
+  - `en/index.html`
+  - `categories/**`
+  - `en/categories/**`
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - `seo/sitemap.xml`
+  - `docs/en-article-backlog.md`
+
+5. 修正対象の範囲
+- 可能なら、対象セクション・対象class・対象文言・対象行の目印を明記する。
+- 例:
+  - `aside.side-rail` 内だけ
+  - `New articles` の `<ul>` 内だけ
+  - `support-card` だけ
+  - `thermal-relay-basic` の `<li>` だけ
+
+6. 作業内容
+- 変更前と変更後をできるだけコードで示す。
+- 抽象的な「自然に直して」だけで依頼しない。
+- 既存構造・既存class・既存リンクルールに合わせることを書く。
+
+7. 禁止事項
+- 本文を変えない
+- CSSを追加しない
+- 新規classを作らない
+- リンクを推測しない
+- 画像パスを変えない
+- sitemap/search-index/backlogを触らない
+など、今回のタスクで禁止することを明記する。
+
+8. 確認項目
+- 作業後にCodexが確認する項目を箇条書きで書く。
+- 例:
+  - 変更ファイルが許可範囲内か
+  - href="#" が追加されていないか
+  - 既存リンクを壊していないか
+  - Support this site の正式リンクが維持されているか
+  - /seo/sitemap.xml を触っていないか
+
+9. 報告形式
+Codexには最後に必ず以下の形式で報告させる。
+
+```text
+変更ファイル:
+- ...
+
+修正内容:
+- ...
+
+確認結果:
+- ...
+
+safe to merge: YES / NO
+```
+
 ## Step 1納品構成
 - 日本語記事: `articles/{slug}.html` + `assets/images/{slug}/` + `docs/reference-notes/{slug}.md`
 - 英語記事: `en/articles/{slug}.html` + `assets/images/{slug}-en/` + `docs/reference-notes/{slug}.md`

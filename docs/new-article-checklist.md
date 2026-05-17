@@ -68,6 +68,25 @@ PR確認時:
 - CSS追加や新規class追加がないかを確認する。
 - 強調の追加で本文の意味が変わっていないかを確認する。
 
+### 0.6.x Codex依頼文テンプレート確認
+- Codexへの依頼文に `対象リポジトリ: Syasu-pixel/my-site` があることを確認する。
+- 依頼文に `目的`（1〜3行）と作業種別（例: リンク修正 / 本文強調 / Step 2導線追加 / 整形のみ）があることを確認する。
+- 依頼文に `今回触ってよいファイル` が列挙され、最小ファイル数になっていることを確認する。
+- 依頼文に `触らないファイル` が列挙され、対象外タスクでは以下が禁止されていることを確認する。
+  - `articles/**`
+  - `en/articles/**`
+  - `assets/**`
+  - `index.html`
+  - `en/index.html`
+  - `categories/**`
+  - `en/categories/**`
+  - `assets/data/search-index.json`
+  - `sitemap.xml`
+  - `seo/sitemap.xml`
+  - `docs/en-article-backlog.md`
+- 依頼文に修正範囲（対象セクション / class / 文言 / 行の目印）が明記されていることを確認する。
+- 依頼文に変更前後コード、禁止事項、確認項目、報告形式（`変更ファイル / 修正内容 / 確認結果 / safe to merge`）が含まれていることを確認する。
+
 ### 0.6.1 本文の軽い強調チェック（テンプレート運用）
 - 記事本文では、初心者が重要語を追いやすいように必要最小限の強調を入れる。
 - 使用可能: `<strong>...</strong>` / `<span class="term">...</span>` / `<span class="marker-blue">...</span>`。

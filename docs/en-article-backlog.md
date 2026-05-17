@@ -14,6 +14,7 @@
 - `/seo/sitemap.xml` は非運用なので対象外。
 - 次の英語化候補を選ぶときは、このリストと英語トップ・英語カテゴリ内の日本語リンク残りを合わせて確認する。
 - 英語サイトでは当面、工具系記事と一般的な比較系記事は英語化対象外とし、Control Basics / Circuit Basics / PLC / Sensor 系を優先する。
+- Ladder/work-platform and general tool-introduction articles are currently out of scope for English translation, except selected tool categories.
 
 
 ## 現在の英語化優先対象
@@ -56,7 +57,6 @@
 - [x] gxw3-out-set-rst-coil-usage
 - [ ] gxw3-timer-ton-toff-retentive
 - [x] ladder-reading
-- [ ] ladder-work-platform
 - [x] lamp-indicator-circuit-basic
 - [x] light-curtain-basic
 - [x] limit-switch-troubleshooting-basic

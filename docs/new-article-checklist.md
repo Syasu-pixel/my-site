@@ -45,7 +45,8 @@ rg -n "denki-control\\.com|syasu-pixel\\.github\\.io|github\\.io/my-site" CNAME 
 - `https://www.paypal.com/donate` は使わない
 - `https://paypal.me/...` など、固定URL以外のPayPalリンクへ勝手に変更しない
 - `href="#"` や空リンクを残していないか
-- `target="_blank"` の外部リンクに `rel="noopener"` が付いているか
+- `target="_blank"` の外部リンクに `rel="noopener noreferrer"` が付いているか
+- Amazon / amzn.to はアフィリエイトリンクとして扱い、`target="_blank"` かつ `rel="nofollow noopener noreferrer sponsored"` になっているか（`href`は変更しない）
 - 支援リンクを推測・補完・別URLへ変更していないか
 
 PR確認時:
@@ -60,6 +61,8 @@ PR確認時:
 - `/seo/sitemap.xml` を変更していないことを確認する。
 - 正式ドメイン `https://denkicontrol.com` 以外（`denki-control.com` / `syasu-pixel.github.io/my-site`）が canonical / og:url / sitemap に残っていないか確認する。
 - Step 1では完成HTMLと画像配置のみに限定し、`index.html` / `en/index.html` / categories / search-index / sitemap / backlog を触らない。
+- 日本語ベーシック記事作成時は `docs/article-backlog.md` を標準確認対象に含める。
+- 記事公開後は、該当候補がある場合のみ `docs/article-backlog.md` の該当項目を `- [x]` に更新する。
 
 - Step 1担当固定: ChatGPTが英語記事HTML作成と画像生成、ユーザーがHTML/画像ZIPのGitHubアップロードを行っているか（CodexがStep 1を勝手に進めていないか）を確認する。
 - Step 2担当固定: Step 1完了・ユーザー確認後にのみCodexが導線追加を実施しているかを確認する。
@@ -88,6 +91,7 @@ PR確認時:
   - `assets/data/search-index.json`
   - `sitemap.xml`
   - `seo/sitemap.xml`
+  - `docs/article-backlog.md`
   - `docs/en-article-backlog.md`
 - 依頼文に修正範囲（対象セクション / class / 文言 / 行の目印）が明記されていることを確認する。
 - 依頼文に変更前後コード、禁止事項、確認項目、報告形式（`変更ファイル / 修正内容 / 確認結果 / safe to merge`）が含まれていることを確認する。
@@ -1105,7 +1109,7 @@ articles/*.html 用の固定フッター：
 - 2ボタン構成になっている
 - href が空ではない
 - href が壊れたURLではない
-- `target="_blank"` と `rel="noopener"` が維持されている
+- `target="_blank"` と `rel="noopener noreferrer"` が維持されている
 - 公開ページでボタンが表示されている
 
 禁止:

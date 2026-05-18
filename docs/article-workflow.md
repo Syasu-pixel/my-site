@@ -26,7 +26,7 @@
 - Codexへ作業依頼する際は、`docs/agent-runbook.md` の「Codex指示の標準ルール」に従って依頼文を作る。
 - 依頼文には必ず `対象リポジトリ: Syasu-pixel/my-site` を明記する。
 - `今回触ってよいファイル` と `触らないファイル` を明示し、許可ファイルを最小化する。
-- 対象外タスクでは、`articles/**`、`en/articles/**`、`assets/**`、`index.html`、`en/index.html`、`categories/**`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`seo/sitemap.xml`、`docs/en-article-backlog.md` を禁止に含める。
+- 対象外タスクでは、`articles/**`、`en/articles/**`、`assets/**`、`index.html`、`en/index.html`、`categories/**`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`seo/sitemap.xml`、`docs/article-backlog.md`、`docs/en-article-backlog.md` を禁止に含める。
 - 修正範囲（対象セクション / class / 文言）を具体指定し、変更前後のコードを提示する。
 - 禁止事項・確認項目・報告形式（`変更ファイル / 修正内容 / 確認結果 / safe to merge`）を依頼文に含める。
 
@@ -35,6 +35,7 @@
 - docs/article-workflow.md
 - docs/new-article-checklist.md
 - docs/image-generation-rules.md
+- docs/article-backlog.md（日本語ベーシック記事作成時に確認）
 - docs/en-article-backlog.md
 - 日本語元記事 articles/{slug}.html
 - 既存英語テンプレ en/articles/*.html
@@ -96,6 +97,7 @@ Step 1で触らないもの:
 - `assets/data/search-index.json`
 - `sitemap.xml`
 - `seo/sitemap.xml`
+- `docs/article-backlog.md`
 - `docs/en-article-backlog.md`
 
 ### Step 2: 導線追加
@@ -352,7 +354,9 @@ docs/reference-notes/{slug}.md
 - `https://www.paypal.com/donate`、`https://paypal.me/...` など固定URL以外へ勝手に置き換えない。
 - 既存テンプレートからコピーする場合でも、支援リンクの `href` は必ず確認する。
 - `href="#"` や空リンクを残さない。
-- `target="_blank"` を使う場合は `rel="noopener"` を必ず付ける。
+- `target="_blank"` を使う場合は `rel="noopener noreferrer"` を必ず付ける。
+- Amazon / amzn.to リンクはアフィリエイトリンクとして扱い、`target="_blank"` を維持したうえで `rel="nofollow noopener noreferrer sponsored"` に統一する。
+- Amazon / amzn.to リンクは `href` を変更せず、付与属性のみ整える。
 
 ## 記事HTML内の全href確認ルール
 - 記事HTMLを作成・更新・PR確認する場合、関連記事カードだけでなくHTML内のすべての `href` を確認する。
@@ -594,8 +598,8 @@ docs/reference-notes/{slug}.md
     If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
   </p>
   <div class="support-card-actions">
-    <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
-    <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
+    <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
+    <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">Support via PayPal</a>
   </div>
 </section>
 ```

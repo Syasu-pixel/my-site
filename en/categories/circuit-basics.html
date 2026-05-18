@@ -1508,5 +1508,60 @@
       });
     }
   </script>
+  <style>
+    .article-card-thumb{
+      width:94px;
+      aspect-ratio:16/10;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid #dbeafe;
+      background:#f8fbff;
+      box-shadow:0 8px 18px rgba(37,99,235,.08);
+      flex:0 0 auto;
+      display:block;
+    }
+    .article-card-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      display:block;
+    }
+    .article-row.has-thumb{
+      display:grid;
+      grid-template-columns:94px minmax(0,1fr);
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      min-height:126px;
+    }
+    .featured-article.has-thumb{
+      grid-template-columns:94px minmax(0,1fr);
+    }
+  </style>
+<script>
+(function(){
+  var fallback = "../assets/images/hero/hero-category-howto.png";
+  document.querySelectorAll('.article-row, .featured-article').forEach(function(card){
+    if(card.querySelector('.article-card-thumb')) return;
+    var href = card.getAttribute('href') || '';
+    var m = href.match(/\.\.\/articles\/([^\/]+)\.html$/);
+    if(!m) return;
+    var slug = m[1];
+    var thumb = document.createElement('span');
+    thumb.className = 'article-card-thumb';
+    var img = document.createElement('img');
+    img.src = '../assets/images/' + slug + '/' + slug + '-ogp.png';
+    img.alt = slug.replace(/-/g,' ') + ' thumbnail';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.onerror = function(){ this.onerror=null; this.src=fallback; };
+    thumb.appendChild(img);
+    card.insertBefore(thumb, card.firstElementChild);
+    card.classList.add('has-thumb');
+  });
+})();
+</script>
+
 </body>
 </html>

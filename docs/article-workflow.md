@@ -594,7 +594,7 @@ docs/reference-notes/{slug}.md
     If this guide helped you, please consider supporting Denki Control Lab. Your support helps keep practical control articles available.
   </p>
   <div class="support-card-actions">
-    <a class="support-link support-link--coffee" href="https://www.buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
+    <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener">Buy me a coffee</a>
     <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener">Support via PayPal</a>
   </div>
 </section>

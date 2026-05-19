@@ -49,10 +49,11 @@
   - 公開済み: `gx-works3-monitor-basic.html`
   - 想定slug: `gx-works3-monitor-basic`
   - 判定: 新規作成候補
-- [ ] GX Works3でデバイス値を見る方法
-  - 注意: `gx-works3-monitor-basic.html` と重複注意。作成する場合は、デバイス値の入力方法や検索方法、具体的な追跡手順など単体深掘りに限定する。
+- [x] GX Works3でデバイス値を見る方法
+  - 公開済み: `gx-works3-device-monitor-basic.html`
+  - 注意: `gx-works3-monitor-basic.html` と重複しないよう、デバイス値の入力方法、ラダー検索で使用箇所を順番に確認する流れ、具体的な追跡手順に限定して作成済み。
   - 想定slug: `gx-works3-device-monitor-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] GX Works3で強制ON/OFFする時の注意
   - 想定slug: `gx-works3-force-on-off-basic`
   - 判定: 新規作成候補

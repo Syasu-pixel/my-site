@@ -54,9 +54,11 @@
   - 注意: `gx-works3-monitor-basic.html` と重複しないよう、デバイス値の入力方法、ラダー検索で使用箇所を順番に確認する流れ、具体的な追跡手順に限定して作成済み。
   - 想定slug: `gx-works3-device-monitor-basic`
   - 判定: 作成済み
-- [ ] GX Works3で強制ON/OFFする時の注意
+- [x] GX Works3で強制ON/OFFする時の注意
+  - 公開済み: `gx-works3-force-on-off-basic.html`
+  - 注意: 強制ON/OFFの具体操作手順ではなく、設備状態、周囲安全、関係者共有、戻し忘れ防止、現場ルールの確認に絞って作成済み。
   - 想定slug: `gx-works3-force-on-off-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] GX Works3のクロスリファレンスとは？
   - 想定slug: `gx-works3-cross-reference-basic`
   - 判定: 新規作成候補

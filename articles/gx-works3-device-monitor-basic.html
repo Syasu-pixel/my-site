@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GX Works3でデバイス値を見る方法｜Dレジスタ・M・X・Yを検索して追う基本</title>
+  <meta name="description" content="GX Works3でデバイス値を見る方法を初心者向けに整理。Dレジスタ、M、X、Yなどのデバイス番号を入力して値を見る方法、コメントや検索から探す流れ、ラダー上で関連条件を追う基本を解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GX Works3でデバイス値を見る方法｜Dレジスタ・M・X・Yを検索して追う基本">
+  <meta property="og:description" content="GX Works3でDレジスタ、M、X、Yなどのデバイス値を確認し、コメントやラダー上の使用箇所から追う基本を整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GX Works3でデバイス値を見る方法">
+  <meta name="twitter:description" content="デバイス番号を入力して値を見る、コメントから探す、ラダー上で使われ方を追う基本を整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;--card:#ffffff;--line:#d8e3f0;--line-strong:#c4d5e8;--text:#1e293b;--muted:#5f7288;
+      --blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px;--muted-2:#64748b;--line-header:#dbe7f3;--shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;padding-top:var(--header-h);overflow-wrap:break-word;word-break:break-word}
+    img{display:block;max-width:100%;height:auto}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}.container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{width:auto;height:46px;flex:0 0 auto}.brand-copy{min-width:0;display:block}.brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}.language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}.language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-flag{font-size:18px;line-height:1}.language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:var(--muted-2);box-shadow:var(--shadow-soft)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-input::placeholder{color:#94a3b8}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}.search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}.search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:400px;isolation:isolate}.article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-hero.png") right center/auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}.hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}.btn:hover{text-decoration:none}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}.summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}.mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);font-size:13px;font-weight:900;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.section-card{padding:28px;margin-bottom:20px}.side-card{padding:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);border-radius:20px;padding:18px;margin:18px 0}.key-highlight h3{margin:0 0 10px;font-size:16px;color:#1d4ed8}.key-highlight p{margin:0;color:#334155;font-size:14px}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);border-radius:20px;padding:18px;margin:18px 0}.field-highlight h3{margin:0 0 10px;font-size:16px;color:#15803d}.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .simple-list{margin:0;padding-left:20px}.simple-list li{margin:10px 0 0;font-size:15px}.number-list{margin:0;padding-left:20px}.number-list li{margin:12px 0 0;font-size:15px;line-height:1.85}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}.note-box{background:#fff8ea;border-color:#f7dba2}.danger-box{background:#fff1f2;border-color:#fecaca}.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;padding-top:2px;background:transparent}.talk-avatar img{width:76px;height:auto;display:block;object-fit:contain;background:transparent}.talk-bubble{flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle}.talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}td.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}td.cell-green{background:#ecfdf3;font-weight:900;color:#166534}td.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}td.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue-deep)}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+    .support-card{border-color:#dbeafe}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;font-weight:900;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900;text-align:center;text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    @media(max-width:1100px){.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}
+    @media(max-width:980px){.brand-sub{display:none!important}.brand-title{white-space:nowrap}.header-search{flex:0 0 180px}}
+    @media(max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-hero.png") right -34px bottom -14px/162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.hero-lead{font-size:14px;max-width:32ch}.top-summary{grid-template-columns:1fr}.side-rail{grid-template-columns:1fr}.related-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}.section-card{padding:22px}.talk-avatar{flex-basis:72px;width:72px}.talk-avatar img{width:66px}}
+    @media(min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px}.article-hero::before{background:url("../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-hero.png") right center/auto 92% no-repeat;opacity:.24}.article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center}h1{font-size:34px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.summary-card{padding:20px 18px}.summary-card h2{font-size:17px}.summary-card li{font-size:13px}.side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}.article-hero::before{background:url("../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-hero.png") right -46px bottom -20px/178% auto no-repeat;opacity:.14}.container{width:min(100%,calc(100% - 20px))}.section-card h2{font-size:20px}.section-card p,.talk-bubble p,.simple-list li,.number-list li{font-size:14px}.talk-row,.talk-row--right{flex-direction:column;gap:8px}.talk-avatar{width:64px;flex-basis:auto}.talk-row--right .talk-avatar{align-self:flex-end}.talk-avatar img{width:60px}}
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">Japan</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./gx-works3-device-monitor-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span><strong>日本語記事</strong><small>日本語記事</small></span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>GX Works3でデバイス値を見る方法</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">GX Works3・デバイス値確認</span>
+        <h1 id="page-title">GX Works3でデバイス値を見る方法<br>Dレジスタ・M・X・Yを検索して追う基本</h1>
+        <p class="hero-lead">
+          GX Works3でデバイス値を見る時は、D100やM10のような番号だけでなく、コメント、表示形式、ラダー上の使われ方を合わせて確認すると迷いにくくなります。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#device-entry">入力して見る流れへ</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>GX Works3でDレジスタやMの値を見たい人</li>
+          <li>デバイス番号を直接入力して状態を確認したい人</li>
+          <li>コメントやラダー上の使用箇所から原因を追いたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>GX Works3のインストール手順を知りたい人</li>
+          <li>強制ON/OFFやデバイス値変更の操作を知りたい人</li>
+          <li>機種ごとの通信設定やオンライン接続を詳しく知りたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>値を見る前に、見たいデバイス番号と種類を整理します。</li>
+          <li>数値は、コメント・単位・表示形式とセットで確認します。</li>
+          <li>見つけた値は、ラダー上でどこに使われているかまで追います。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#before-check">見る前の準備</a>
+        <a href="#device-entry">番号入力</a>
+        <a href="#search-comment">コメント検索</a>
+        <a href="#trace-ladder">ラダーで追う</a>
+        <a href="#display-format">表示形式</a>
+        <a href="#caution">注意点</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論：デバイス値は「番号だけ」で見ない</h2>
+          <p>
+            GX Works3でデバイス値を見る時は、まず<span class="mark">何のデバイスを見たいのか</span>を整理します。
+            Dレジスタの数値を見たいのか、Mの内部条件を見たいのか、X入力やY出力のON/OFFを見たいのかで、確認する意味が変わります。
+          </p>
+          <p>
+            例えばD100という番号が分かっていても、それが圧力なのか、時間設定なのか、工程番号なのかはプログラムによって違います。
+            そのため、値だけを見て判断せず、コメント、仕様書、ラダー上の使われ方、現物の状態を合わせて見ることが大切です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事で扱う範囲</h3>
+            <p>
+              この記事では、デバイス番号を入力して状態を見る方法、コメントや検索で探す考え方、見つけたデバイスをラダー上で追う流れを整理します。
+              強制ON/OFF、オンライン書込み、デバイス値の変更手順は扱いません。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>D100を見る時も、数字だけじゃなくて「何の値として使っているか」まで見るのが大事だよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>同じD100でも、現場やプログラムによって意味が違うんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="before-check">
+          <h2>2. デバイス値を見る前に確認すること</h2>
+          <p>
+            デバイス値を見る前に、見たい対象を少し整理しておくと確認が早くなります。
+            特に、デバイス番号、デバイスの種類、コメント、表示形式、現物との関係を分けて考えると、画面上の値に振り回されにくくなります。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>デバイス番号</h3>
+              <p>D100、M10、X0、Y20など、種類と番号をセットで確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>コメント</h3>
+              <p>設定値、現在値、工程番号、異常条件など、何を表しているかを見ます。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>表示形式</h3>
+              <p>10進数、16進数、符号付き、BCDなどで見え方が変わることがあります。</p>
+            </div>
+            <div class="check-item check-item--purple">
+              <h3>使われ方</h3>
+              <p>そのデバイスが比較、条件、表示、演算のどこに使われているかを追います。</p>
+            </div>
+          </div>
+
+          <div class="note-box">
+            <h3>コメントがあるとは限らない</h3>
+            <p>
+              現場のプログラムでは、コメントが入っていない場合や、古いコメントが残っている場合もあります。
+              コメントは手がかりとして使い、最後はラダーの前後条件や現物の動きと合わせて判断します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="device-entry">
+          <h2>3. デバイス番号を入力して値を見る</h2>
+          <p>
+            デバイス番号が分かっている場合は、D100、M10、X0、Y20のように、デバイス種別と番号をセットで指定して状態を確認します。
+            ここで大切なのは、<strong>Dは数値、Mは内部条件、Xは入力、Yは出力</strong>のように、種類ごとの意味を分けて見ることです。
+          </p>
+          <p>
+            Dレジスタを見る時は、数値そのものだけでなく、その値が設定値なのか、現在値なのか、計算結果なのかを確認します。
+            MやX、Yを見る時は、ON/OFFしているかだけでなく、その信号が何の条件につながっているかも合わせて見ます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-device-entry.png" alt="GX Works3でデバイス番号を入力して値を見る概念図" loading="lazy" decoding="async">
+            <figcaption>D100、M10、X0、Y20のように、デバイス種別と番号をセットで確認します。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>デバイス例</th>
+                  <th>見る内容</th>
+                  <th>確認のポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">D100</td>
+                  <td>数値、設定値、現在値、工程番号など</td>
+                  <td>単位、表示形式、コメント、使われている比較条件を見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">M10</td>
+                  <td>内部条件、保持条件、インターロック条件など</td>
+                  <td>そのMをONさせている前段条件を追う</td>
+                </tr>
+                <tr>
+                  <td class="cell-purple">X0</td>
+                  <td>センサーや押しボタンなどの入力状態</td>
+                  <td>現物、入力LED、端子台、配線と合わせて見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">Y20</td>
+                  <td>ランプ、リレー、電磁弁などへの出力状態</td>
+                  <td>PLC内部のONと、負荷側が実際に動くことを分けて見る</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="search-comment">
+          <h2>4. コメントや図面からデバイスを探す</h2>
+          <p>
+            見たいデバイス番号が分からない時は、コメント、図面、仕様書、ラダー内の表記を手がかりにします。
+            例えば「シリンダ前進端」「運転準備」「設定時間」などのコメントがあれば、関連するX、M、D、Tなどを探しやすくなります。
+          </p>
+          <p>
+            ただし、似たようなコメントが複数ある場合は注意が必要です。
+            装置名、工程名、前後のラダー条件、実際の現物位置を合わせて見ないと、別のデバイスを見てしまうことがあります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-search-flow.png" alt="コメントや図面からデバイス番号を探す流れの図" loading="lazy" decoding="async">
+            <figcaption>コメント、図面、ラダー位置、現物確認をつなげて、目的のデバイスを絞り込みます。</figcaption>
+          </figure>
+
+          <ol class="number-list">
+            <li><strong>現物や症状を決める：</strong>どの機器、どの工程、どの動作を見たいのかを決めます。</li>
+            <li><strong>コメントを探す：</strong>機器名、工程名、異常名、設定名などで関連デバイスを探します。</li>
+            <li><strong>ラダー位置を見る：</strong>そのデバイスが条件側なのか、コイル側なのか、比較や演算に使われているのかを見ます。</li>
+            <li><strong>現物と照合する：</strong>センサー、ランプ、電磁弁、タッチパネル表示などと合わせて確認します。</li>
+          </ol>
+        </section>
+
+        <section class="section-card" id="trace-ladder">
+          <h2>5. 見つけたデバイスからラダーを追う</h2>
+          <p>
+            デバイス値を見つけたら、そこで終わりではありません。
+            その値がラダーのどこで使われているか、何をONさせているか、どの条件で書き換わるかを追うと、原因に近づきやすくなります。
+          </p>
+          <p>
+            例えばM10がOFFなら、M10を使っている場所だけでなく、M10をONさせる前段条件を探します。
+            D100の値がおかしいなら、D100を表示している場所だけでなく、D100へ値を入れている処理や、D100を比較している条件も確認します。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-trace-check.png" alt="見つけたデバイス値からラダーの前後条件を追う図" loading="lazy" decoding="async">
+            <figcaption>デバイスを見つけたら、作っている条件、使っている条件、現物側の状態を分けて追います。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>「使っている場所」と「作っている場所」を分ける</h3>
+            <p>
+              同じMやDでも、参照している場所と値を作っている場所は違うことがあります。
+              どこで使っているかだけでなく、どこでONしているか、どこで値が入っているかを分けて確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="display-format">
+          <h2>6. 数値を見る時は表示形式と単位に注意する</h2>
+          <p>
+            Dレジスタなどの数値を見る時は、表示されている数字だけで判断しないようにします。
+            10進数、16進数、BCD、符号付き、スケーリングの有無によって、同じ内部値でも見え方や意味が変わることがあります。
+          </p>
+          <p>
+            例えば、画面上では100と見えていても、それが100mmなのか、10.0秒なのか、100個なのか、100%なのかはプログラム次第です。
+            そのため、単位、コメント、タッチパネル表示、仕様書、ラダー内の比較条件を合わせて確認します。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>見る項目</th>
+                  <th>確認する理由</th>
+                  <th>現場での見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">10進数 / 16進数</td>
+                  <td>表示形式が違うと、同じ値でも見え方が変わる</td>
+                  <td>仕様書や既存コメントと照合する</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">単位</td>
+                  <td>数値だけでは、秒、mm、個数、温度などが分からない</td>
+                  <td>タッチパネル表示や図面の単位を見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-purple">スケーリング</td>
+                  <td>内部値と実際の物理量がそのまま一致しないことがある</td>
+                  <td>アナログ値や演算処理の前後を見る</td>
+                </tr>
+                <tr>
+                  <td class="cell-orange">符号</td>
+                  <td>マイナス値や範囲外の見え方で判断を誤ることがある</td>
+                  <td>設定範囲、比較条件、異常判定を確認する</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="caution">
+          <h2>7. デバイス値を見る時の注意点</h2>
+          <p>
+            デバイス値を見る作業と、デバイス値を変更する作業は別です。
+            値を見るだけなら状態確認ですが、値変更、強制ON/OFF、オンライン書込みは、設備の動作や安全に影響する可能性があります。
+          </p>
+          <p>
+            また、画面上でYがONしていても、実際の負荷が動くには出力ユニット、リレー、電磁弁、ランプ、負荷側電源、配線などの条件が必要です。
+            PLC内部の状態と現物側の状態は分けて確認します。
+          </p>
+
+          <div class="danger-box">
+            <h3>値変更・強制操作はこの記事では扱わない</h3>
+            <p>
+              デバイス値の変更や強制ON/OFFは、設備を動かす可能性があります。
+              実施する場合は、社内ルール、権限、設備停止状態、周囲安全、関係者への連絡を必ず確認してください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>8. まとめ</h2>
+          <p>
+            GX Works3でデバイス値を見る時は、デバイス番号だけで判断せず、種類、コメント、表示形式、ラダー上の使われ方を合わせて確認します。
+            値を見つけた後に、どこで作られ、どこで使われ、現物側ではどうなっているかを追うと、原因の切り分けがしやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>デバイスは、D、M、X、Yなどの種類と番号をセットで見る</li>
+            <li>Dレジスタは、値だけでなく単位・表示形式・コメントも確認する</li>
+            <li>MやYは、ON/OFF状態だけでなく前後条件を追う</li>
+            <li>コメントは手がかりだが、ラダーと現物で照合する</li>
+            <li>値を見る作業と、値を変更する作業は分けて考える</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="gx-works3-monitor-basic.html">モニタ表示の見方を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="plc-xymd-device-basic.html">
+              <h3>PLCのX・Y・M・Dとは？</h3>
+              <p>デバイス値を見る前に、X、Y、M、Dの役割を整理できます。</p>
+            </a>
+            <a class="related-card" href="gx-works3-monitor-basic.html">
+              <h3>GX Works3のモニタ表示の見方</h3>
+              <p>ラダーのON/OFFや現在値を画面上で見る基本を確認できます。</p>
+            </a>
+            <a class="related-card" href="plc-scan-basic.html">
+              <h3>PLCのスキャンとは？</h3>
+              <p>入力を読み、ラダーを処理し、出力へ反映する流れを整理できます。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#before-check">見る前の準備</a></li>
+            <li><a href="#device-entry">番号入力</a></li>
+            <li><a href="#search-comment">コメント検索</a></li>
+            <li><a href="#trace-ladder">ラダーで追う</a></li>
+            <li><a href="#display-format">表示形式</a></li>
+            <li><a href="#caution">注意点</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>見るポイント</h3>
+          <ul>
+            <li>デバイス番号を確認する</li>
+            <li>コメントと単位を見る</li>
+            <li>表示形式を意識する</li>
+            <li>作っている条件を追う</li>
+            <li>現物側と照合する</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel){return;}
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

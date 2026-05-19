@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCのX・Y・M・Dとは？デバイスの種類を初心者向けに整理</title>
+  <meta name="description" content="PLCでよく見るX・Y・M・Dデバイスの違いを初心者向けに整理。Xは入力、Yは出力、Mは内部リレー、Dはデータレジスタとして、ラダーを見る時の基本と注意点を現場目線で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-xymd-device-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-xymd-device-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-xymd-device-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCのX・Y・M・Dとは？デバイスの種類を初心者向けに整理">
+  <meta property="og:description" content="Xは入力、Yは出力、Mは内部リレー、Dはデータレジスタ。PLCのデバイスを初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-xymd-device-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/plc-xymd-device-basic/plc-xymd-device-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLCのX・Y・M・Dとは？デバイスの種類を初心者向けに整理">
+  <meta name="twitter:description" content="X・Y・M・Dの違いを、入力・出力・内部リレー・データレジスタに分けて整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/plc-xymd-device-basic/plc-xymd-device-basic-ogp.png">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{--bg:#f5f8fc;--card:#fff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--purple:#7c3aed;--red:#dc2626;--shadow:0 12px 30px rgba(15,23,42,.06);--header-h:76px;--container:1180px}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;padding-top:var(--header-h)}
+    img{display:block;max-width:100%;height:auto}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand-logo{height:46px}.brand-title{margin:0;font-size:17px;font-weight:900;line-height:1.25;color:#0f172a}.brand-sub{margin:2px 0 0;font-size:11px;color:#475569;font-weight:700}
+    .language-menu{position:relative;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05)}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-item strong{display:block;font-size:12px;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;color:#64748b;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#64748b;box-shadow:0 8px 20px rgba(15,23,42,.05)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;display:block}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:400px;isolation:isolate}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-hero.png") right center/auto 100% no-repeat;opacity:.34;z-index:0}
+    .article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);z-index:1}
+    .article-hero-copy{width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22}.hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;text-decoration:none;border:1px solid transparent}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 22px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}.summary-card h2{margin:0 0 12px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:var(--shadow)}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);font-size:13px;font-weight:900;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card,.side-card{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.section-card{padding:28px;margin-bottom:20px}.side-card{padding:20px}.section-card h2{margin:0 0 16px;font-size:22px}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}.key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}.key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px}.key-highlight h3{color:#1d4ed8}.field-highlight h3{color:#15803d}.key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .simple-list{margin:0;padding-left:20px}.simple-list li{margin:10px 0 0;font-size:15px}.number-list{margin:0;padding-left:20px}.number-list li{margin:12px 0 0;font-size:15px}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure img{width:100%}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;background:#fff}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}.note-box{background:#fff8ea;border-color:#f7dba2}.danger-box{background:#fff1f2;border-color:#fecaca}.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .talk-thread{display:grid;gap:12px;margin-top:18px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;justify-content:center}.talk-avatar img{width:76px}.talk-bubble{max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900}.talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px}
+    .check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}th{background:#f8fbff;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}.cell-green{background:#ecfdf3;font-weight:900;color:#166534}.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px}
+    .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue-deep)}.related-card p{margin:0;font-size:13px;color:var(--muted)}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;justify-content:center;align-items:center;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900;text-align:center;text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    @media(max-width:1100px){.page-layout{grid-template-columns:1fr}.side-rail{position:static;grid-template-columns:repeat(3,1fr)}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}
+    @media(max-width:900px){:root{--header-h:74px}.article-hero{min-height:auto;border-radius:24px}.article-hero::before{background:url("../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-hero.png") right -34px bottom -14px/162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.hero-lead{font-size:14px}.top-summary{grid-template-columns:1fr}.side-rail{grid-template-columns:1fr}.related-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}.section-card{padding:22px}}
+    @media(max-width:640px){:root{--header-h:66px}.site-header{padding:7px 8px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.header-search{flex:0 1 138px;min-height:36px}.search-box-input{font-size:11px}.container{width:min(100%,calc(100% - 20px))}.section-card h2{font-size:20px}.talk-row,.talk-row--right{flex-direction:column}.talk-bubble{max-width:none}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span><span class="language-menu-current">Japan</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./plc-xymd-device-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page"><span class="language-menu-flag" aria-hidden="true">🇯🇵</span><span><strong>日本語記事</strong><small>日本語記事</small></span></a>
+          <a href="../en/" class="language-menu-item" lang="en"><span class="language-menu-flag" aria-hidden="true">🇺🇸</span><span><strong>English top</strong><small>English top</small></span></a>
+        </div>
+      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>PLCのX・Y・M・Dとは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">PLC・制御の入口</span>
+        <h1 id="page-title">PLCのX・Y・M・Dとは？<br>デバイスの種類を初心者向けに整理</h1>
+        <p class="hero-lead">ラダーでよく見るX・Y・M・Dは、PLCの中で使う信号やデータの住所のようなものです。入力・出力・内部リレー・データレジスタに分けて、まずは役割から整理します。</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#conclusion">先に結論から読む</a><a class="btn btn-secondary" href="#overview">基本を順番に見る</a></div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit"><h2>向いている人</h2><ul><li>ラダーに出てくるX・Y・M・Dの意味で迷う人</li><li>入力と出力の次に、PLC内部の見方を知りたい人</li><li>GX Works3などでデバイスをモニタする前の基礎を押さえたい人</li></ul></section>
+      <section class="summary-card summary-card--notyet"><h2>まだ不要な人</h2><ul><li>CPUごとのデバイス範囲や詳細仕様を確認したい人</li><li>特殊リレー、特殊レジスタ、バッファメモリまで知りたい人</li><li>実機の割付・設定値・配線をこの記事だけで決めたい人</li></ul></section>
+      <section class="summary-card summary-card--conclusion"><h2>先に結論</h2><ul><li><strong>X</strong>は、押しボタンやセンサーなどの入力信号を見る時によく使います。</li><li><strong>Y</strong>は、ランプ・リレー・電磁弁などの出力信号を見る時によく使います。</li><li><strong>M</strong>は内部リレー、<strong>D</strong>は数値データを扱う場所として整理すると分かりやすいです。</li></ul></section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc"><a href="#conclusion">先に結論</a><a href="#overview">X・Y・M・Dとは</a><a href="#xy">XとY</a><a href="#m-device">Mデバイス</a><a href="#d-device">Dデバイス</a><a href="#ladder">ラダーでの見方</a><a href="#field-check">現場での注意</a><a href="#summary">まとめ</a></div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
+          <p>PLCのX・Y・M・Dは、ラダーやモニタ画面で信号や数値を扱うための<strong>デバイス</strong>です。最初は、細かい番号範囲を覚えるよりも、それぞれが何の役割で使われやすいかをつかむ方が大切です。</p>
+          <p>三菱電機系のPLCでは、現場でXを入力、Yを出力、Mを内部リレー、Dをデータレジスタとして見る場面が多くあります。ただし、使える範囲や細かな仕様はPLCの機種・CPU・プロジェクト設定によって変わるため、実機では必ず公式マニュアルやプロジェクト設定を確認します。</p>
+          <div class="key-highlight"><h3>まずは4つの役割だけ押さえる</h3><p>Xは外から入る信号、Yは外へ出す信号、MはPLCの中だけで使うメモ、Dは数値を入れておく箱。このイメージを持つと、ラダーの条件やコイルを追いやすくなります。</p></div>
+          <div class="talk-thread">
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>X・Y・M・Dは、最初から細かい番号を暗記しようとしなくていいよ。まずは「どんな役割か」を見るのが先だね。</p></div></div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">新人</span>入力はX、出力はY、PLC内部のメモはM、数値はD、という感じで入口をつかめばいいんですね。</p></div></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>2. X・Y・M・DはPLC内の住所のようなもの</h2>
+          <p>PLCのラダーでは、押しボタンやセンサーの状態、ランプや電磁弁を動かす命令、内部で一時的に覚えておく状態、数値データなどを扱います。それらを区別して見るために、X・Y・M・Dのようなデバイス表記が使われます。</p>
+          <p>たとえば、X0、Y10、M100、D200のように、アルファベットと番号を組み合わせて表すことがあります。この番号は「どこを見ているか」「どこへ書いているか」を示す目印になります。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-overview.png" alt="PLCのX・Y・M・Dデバイスの役割を整理した概要図" loading="lazy" decoding="async"><figcaption>X・Y・M・Dは、入力・出力・内部状態・数値データを分けて見るための基本的な手がかりです。</figcaption></figure>
+          <div class="table-wrap"><table><thead><tr><th>デバイス</th><th>よくある役割</th><th>初心者向けのイメージ</th></tr></thead><tbody><tr><td class="cell-blue">X</td><td>入力信号</td><td>押しボタン、センサー、リミットスイッチなど、外からPLCへ入る信号を見る。</td></tr><tr><td class="cell-green">Y</td><td>出力信号</td><td>ランプ、リレー、電磁弁など、PLCから外へ出す命令を見る。</td></tr><tr><td class="cell-purple">M</td><td>内部リレー</td><td>PLCの中だけで使うON/OFFメモ。条件の一時保存や状態保持に使う。</td></tr><tr><td class="cell-orange">D</td><td>データレジスタ</td><td>数値を入れる箱。カウント値、設定値、演算結果などを扱う。</td></tr></tbody></table></div>
+        </section>
+
+        <section class="section-card" id="xy">
+          <h2>3. XとYは、外部との入出力を見る時に使う</h2>
+          <p>XとYは、現場の機器とPLCをつなぐ入出力として見ることが多いデバイスです。Xはセンサーや押しボタンなどからPLCへ入ってくる信号、YはPLCからランプやリレーなどへ出ていく信号として整理できます。</p>
+          <p>ただし、実際のI/O割付は設備ごとに決まります。X0だから必ずこのセンサー、Y0だから必ずこのランプ、と決めつけるのではなく、図面・I/O表・PLCプログラムを合わせて確認します。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-device-map.png" alt="X入力とY出力が現場機器とPLCをつなぐイメージ図" loading="lazy" decoding="async"><figcaption>XはPLCへ入る入力側、YはPLCから出る出力側として見ると、信号の流れを追いやすくなります。</figcaption></figure>
+          <div class="check-grid"><div class="check-item check-item--important"><h3>Xを見る時</h3><p>押しボタンを押した時やセンサーが反応した時に、PLC入力としてON/OFFが変わるかを確認します。</p></div><div class="check-item check-item--field"><h3>Yを見る時</h3><p>ラダー条件が成立した時に、ランプ・リレー・電磁弁などへ出力が出ているかを確認します。</p></div></div>
+          <div class="danger-box"><h3>実配線はX/Yだけで判断しない</h3><p>X/Yは理解の入口として便利ですが、配線や端子番号、I/Oユニットの仕様は設備ごとに異なります。作業時は図面、I/O表、メーカー公式資料、現場ルールを優先してください。</p></div>
+        </section>
+
+        <section class="section-card" id="m-device">
+          <h2>4. MデバイスはPLC内部で使うON/OFFメモ</h2>
+          <p>Mデバイスは、内部リレーとして使われることが多いデバイスです。外部の端子に直接つながるというより、PLCの中で条件をまとめたり、状態を一時的に覚えたりするために使います。</p>
+          <p>たとえば、「自動運転中」「異常発生中」「準備完了」「一度押されたことを覚える」といった状態をMで持たせることがあります。XやYと違って、Mは現場の線が直接つながっているというより、ラダー内で使う内部の目印として見ると分かりやすいです。</p>
+          <div class="field-highlight"><h3>Mはラダーを読みやすくするための中継点にもなる</h3><p>条件が増えてくると、すべてを一つの回路に詰め込むと追いにくくなります。Mを使って「この条件が成立した」という状態を作ると、後段のラダーを整理しやすくなります。</p></div>
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">新人</span>Mって、実際のリレーみたいな部品が盤の中にあるわけではないんですか？</p></div></div>
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>そう。MはPLC内部で使うリレーのような考え方だね。現物のリレーと混同しないようにすると読みやすいよ。</p></div></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="d-device">
+          <h2>5. Dデバイスは数値を扱う場所</h2>
+          <p>Dデバイスは、データレジスタとして使われることが多いデバイスです。X・Y・MがON/OFFの状態を見るイメージなら、Dは数値を入れておく箱として考えると分かりやすくなります。</p>
+          <p>たとえば、カウンタの現在値、タイマの設定値、タッチパネルから入力した数値、センサーやアナログ値を変換した数値などを扱う時に使われます。ただし、数値の単位や意味はプログラムやコメントによって変わるため、D100という番号だけで中身を決めつけることはできません。</p>
+          <div class="check-grid"><div class="check-item check-item--warning"><h3>DはON/OFFではなく数値を見る</h3><p>0、100、2500のような値が入り、設定値や現在値として扱われることがあります。</p></div><div class="check-item check-item--purple"><h3>コメントと単位を見る</h3><p>Dデバイスは、何の数値なのか、単位が何なのかをコメントや仕様書で確認します。</p></div></div>
+          <div class="note-box"><h3>Dの中身は設備ごとに意味が違う</h3><p>同じD100でも、ある設備では設定温度、別の設備ではカウント数、さらに別の設備では位置データかもしれません。デバイスコメント、タッチパネル画面、仕様書、ラダーの使われ方を合わせて確認します。</p></div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>6. ラダーでは「条件」と「結果」に分けて見る</h2>
+          <p>ラダーを見る時は、X・M・Dなどが条件側に使われ、YやMなどが結果側に使われることがあります。たとえば、XがONしたらMをONする、MがONしたらYをONする、Dの値が一定以上ならMをONする、といった流れです。</p>
+          <p>初心者のうちは、どのデバイスが条件で、どのデバイスが結果として動いているのかを分けて見ると、ラダーを追いやすくなります。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-ladder-example.png" alt="X・M・D・Yをラダー条件と結果に分けて見る概念図" loading="lazy" decoding="async"><figcaption>ラダーでは、入力条件、内部状態、数値条件、出力結果を分けて見ると、信号の流れが整理しやすくなります。</figcaption></figure>
+          <div class="table-wrap"><table><thead><tr><th>見る場所</th><th>よく出るデバイス</th><th>確認すること</th></tr></thead><tbody><tr><td class="cell-blue">条件側</td><td>X、M、Dの比較条件など</td><td>入力が入っているか、内部条件が成立しているか、数値条件が合っているか。</td></tr><tr><td class="cell-green">結果側</td><td>Y、M、Dへの書き込みなど</td><td>出力を出しているか、内部状態を作っているか、数値を更新しているか。</td></tr><tr><td class="cell-orange">確認時</td><td>コメント、I/O表、図面</td><td>番号だけで判断せず、何の信号・何の数値なのかを合わせて見る。</td></tr></tbody></table></div>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>7. 現場で見る時の注意点</h2>
+          <p>X・Y・M・Dを読む時は、デバイス名だけで決めつけないことが大切です。特に、実機のトラブル確認では、画面上のON/OFFや数値だけでなく、現場の状態、図面、I/O表、コメントを合わせて見ます。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-xymd-device-basic/plc-xymd-device-basic-field-check.png" alt="PLCデバイスを見る時に図面、I/O表、コメント、現場状態を照合するチェック図" loading="lazy" decoding="async"><figcaption>デバイス番号だけで判断せず、現場機器・図面・I/O表・コメントを合わせて確認します。</figcaption></figure>
+          <ol class="number-list"><li><strong>まずコメントを見る：</strong>X10やM200だけで判断せず、デバイスコメントがあるか確認します。</li><li><strong>I/O表と照合する：</strong>XやYは、図面やI/O表で実際の機器と結びつけます。</li><li><strong>現場状態を見る：</strong>センサーランプ、押しボタン、表示灯、リレー、電磁弁などの状態を確認します。</li><li><strong>Dは単位を見る：</strong>Dデバイスの数値は、mm、秒、回数、温度など、何の単位かを確認します。</li></ol>
+          <div class="danger-box"><h3>強制ON/OFFや値変更は慎重に</h3><p>X・Y・M・Dのモニタや変更は便利ですが、Y出力や内部条件、Dの設定値を不用意に変えると設備が動く可能性があります。操作する場合は、設備状態、周囲確認、社内ルール、メーカー公式資料を確認してください。</p></div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>8. まとめ</h2>
+          <p>PLCのX・Y・M・Dは、ラダーを読むための基本的な目印です。最初は細かな仕様を覚えるよりも、Xは入力、Yは出力、Mは内部リレー、Dは数値データとして整理すると、ラダーの流れを追いやすくなります。</p>
+          <ul class="simple-list"><li>Xは、現場からPLCへ入る入力信号を見る時によく使う</li><li>Yは、PLCから現場機器へ出す出力信号を見る時によく使う</li><li>Mは、PLC内部で状態を覚えるON/OFFメモとして使う</li><li>Dは、設定値や現在値などの数値データを扱う</li><li>実機では、デバイスコメント、図面、I/O表、公式資料を合わせて確認する</li></ul>
+          <div class="article-footer-nav"><a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a><a class="btn btn-secondary" href="plc-io-unit-basic.html">PLC入出力ユニットを見る</a></div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="plc-basic.html"><h3>PLCとは？</h3><p>PLCの役割や入力・出力の基本を、最初から整理できます。</p></a>
+            <a class="related-card" href="input-output-basic.html"><h3>入力と出力の違いとは？</h3><p>X・Yを見る前に、入力と出力の信号の向きを整理できます。</p></a>
+            <a class="related-card" href="plc-io-unit-basic.html"><h3>PLC入出力ユニットとは？</h3><p>X/Yと実際の端子、I/Oユニット、配線のつながりを確認できます。</p></a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card"><h3>記事内メニュー</h3><ul><li><a href="#conclusion">先に結論</a></li><li><a href="#overview">X・Y・M・Dとは</a></li><li><a href="#xy">XとY</a></li><li><a href="#m-device">Mデバイス</a></li><li><a href="#d-device">Dデバイス</a></li><li><a href="#ladder">ラダーでの見方</a></li><li><a href="#field-check">現場での注意</a></li><li><a href="#summary">まとめ</a></li></ul></section>
+        <section class="side-card"><h3>見るポイント</h3><ul><li>Xは入力信号</li><li>Yは出力信号</li><li>Mは内部のON/OFFメモ</li><li>Dは数値を入れる箱</li><li>番号だけで判断しない</li></ul></section>
+        <section class="side-card"><h3>関連カテゴリ</h3><ul><li><a href="../categories/control-basics.html">制御の基礎</a></li><li><a href="../categories/circuit-basics.html">回路の基礎</a></li></ul></section>
+        <section class="side-card support-card" aria-label="サイト応援"><h3 class="support-card-title">このサイトを応援する</h3><p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a></div></section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel){return;}
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

@@ -20,37 +20,122 @@
 
 ---
 
-## 優先候補トップ10
+## 優先候補トップ10（再整理）
+
+### 完了済み・統合済み候補
 
 - [x] 入力と出力の違いとは？PLCの信号の流れを初心者向けに整理
+  - 公開済み: `input-output-basic.html`
 - [x] PLCのX・Y・M・Dとは？デバイスの種類を初心者向けに整理
+  - 公開済み: `plc-xymd-device-basic.html`
 - [x] PLCのスキャンとは？ラダーが上から順に動く考え方
+  - 公開済み: `plc-scan-basic.html`
 - [x] ラダーのAND・OR回路とは？直列・並列の考え方
+  - 公開済み: `ladder-and-or-basic.html`
 - [x] DC24Vのプラスコモン・マイナスコモンとは？
+  - 公開済み: `dc24v-common-basic.html`
 - [x] PLC入力がONしない時に見る順番
   - 既存記事 `articles/plc-input-troubleshooting-basic.html` に統合済み
 - [x] PLC出力がONしない時に見る順番
-  - 既存記事 `articles/plc-output-troubleshooting-basic.html` に統合済み
+  - 公開済み: `plc-output-troubleshooting-basic.html`
 - [x] 電磁弁が動かない時に見る順番
   - 既存記事 `articles/solenoid-valve-troubleshooting-basic.html` に統合済み
 - [x] エアシリンダが動かない時に見る順番
-  - 既存記事 `articles/air-cylinder-troubleshooting-basic.html` に統合済み
+  - 公開済み: `air-cylinder-troubleshooting-basic.html`
+
+### 次に作る候補（重複少なめ / 10〜15件）
+
+- [ ] GX Works3のモニタ表示の見方
+  - 想定slug: `gx-works3-monitor-basic`
+  - 判定: 新規作成候補
+- [ ] GX Works3でデバイス値を見る方法
+  - 想定slug: `gx-works3-device-monitor-basic`
+  - 判定: 新規作成候補
+- [ ] GX Works3で強制ON/OFFする時の注意
+  - 想定slug: `gx-works3-force-on-off-basic`
+  - 判定: 新規作成候補
+- [ ] GX Works3のクロスリファレンスとは？
+  - 想定slug: `gx-works3-cross-reference-basic`
+  - 判定: 新規作成候補
+- [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
+  - 想定slug: `plc-tc-device-basic`
+  - 判定: 新規作成候補
+- [ ] PLCのエラーランプが点いた時に見る順番
+  - 想定slug: `plc-error-lamp-troubleshooting-basic`
+  - 判定: 新規作成候補
+- [ ] PLCのI/O割付とは？入力と出力の住所を決める考え方
+  - 想定slug: `plc-io-allocation-basic`
+  - 判定: 新規作成候補
+- [ ] 2線式センサーとは？3線式との違い
+  - 想定slug: `sensor-2wire-3wire-basic`
+  - 判定: 新規作成候補
+- [ ] センサーの茶・青・黒の配線色の意味
+  - 想定slug: `sensor-wire-color-basic`
+  - 判定: 新規作成候補
+- [ ] センサーの表示灯の見方
+  - 想定slug: `sensor-indicator-basic`
+  - 判定: 新規作成候補
+- [ ] エア圧が低い時に見る順番
+  - 想定slug: `air-pressure-low-troubleshooting-basic`
+  - 判定: 新規作成候補
+- [ ] エア漏れを探す時の基本
+  - 想定slug: `air-leak-check-basic`
+  - 判定: 新規作成候補
+- [ ] 制御盤の中で電源はどう分かれる？主回路と制御回路
+  - 想定slug: `control-panel-main-control-power-basic`
+  - 判定: 新規作成候補
+- [ ] AC100V・AC200V・DC24Vの使い分け
+  - 想定slug: `ac100v-ac200v-dc24v-basic`
+  - 判定: 新規作成候補
+- [ ] 制御盤の線番を追う基本
+  - 想定slug: `control-panel-wire-number-trace-basic`
+  - 判定: 新規作成候補
+
+### 既存記事強化候補
+
 - [ ] 制御盤の端子台番号の見方
-  - 注意: `articles/terminal-block-basic.html` と重複しやすい。新規記事ではなく、既存記事強化候補として扱う。
+  - 判定: 既存記事強化候補（`terminal-block-basic.html` と重複しやすい）
+- [ ] PLCのXデバイスとは？入力信号の見方
+  - 判定: 既存記事強化候補（`plc-xymd-device-basic.html` と重複しやすい）
+- [ ] PLCのYデバイスとは？出力信号の見方
+  - 判定: 既存記事強化候補（`plc-xymd-device-basic.html` と重複しやすい）
+- [ ] PLCのMデバイスとは？内部リレーの基本
+  - 判定: 既存記事強化候補（`plc-xymd-device-basic.html` と重複しやすい）
+- [ ] PLCのDデバイスとは？データレジスタの基本
+  - 判定: 既存記事強化候補（`plc-xymd-device-basic.html` と重複しやすい）
+- [ ] PLCのスキャンタイムとは？
+  - 判定: 既存記事強化候補（`plc-scan-basic.html` と重複しやすい）
+- [ ] PLCの共通端子COMとは？
+  - 判定: 既存記事強化候補（`dc24v-common-basic.html` と重複しやすい）
+- [ ] PLCのシンク入力・ソース入力とは？
+  - 判定: 既存記事強化候補（`dc24v-common-basic.html` と重複しやすい）
+- [ ] PLCのリレー出力とは？
+  - 判定: 既存記事強化候補（`plc-output-troubleshooting-basic.html` と重複しやすい）
+- [ ] PLCのトランジスタ出力とは？
+  - 判定: 既存記事強化候補（`plc-output-troubleshooting-basic.html` と重複しやすい）
+- [ ] ラダーの直列回路とは？
+  - 判定: 既存記事強化候補（`ladder-and-or-basic.html` と重複しやすい）
+- [ ] ラダーの並列回路とは？
+  - 判定: 既存記事強化候補（`ladder-and-or-basic.html` と重複しやすい）
 
 ---
 
 ## PLC・GX Works3 基礎候補
 
 - [ ] PLCのXデバイスとは？入力信号の見方
-  - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
+  - 注意: plc-xymd-device-basic.html と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのYデバイスとは？出力信号の見方
-  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
-  - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
+  - 注意: plc-xymd-device-basic.html と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのMデバイスとは？内部リレーの基本
-  - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
+  - 注意: plc-xymd-device-basic.html と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのDデバイスとは？データレジスタの基本
-  - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
+  - 注意: plc-xymd-device-basic.html と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
 - [ ] GX Works3のモニタ表示の見方
 - [ ] GX Works3でデバイス値を見る方法
@@ -62,7 +147,8 @@
 - [ ] GX Works3の読出し・書込みの違い
 - [ ] GX Works3でラダーを追う時の基本手順
 - [ ] PLCのスキャンタイムとは？
-  - 注意: `plc-scan-basic.html` と重複注意。作成する場合は、スキャンタイムの確認方法・数値の見方・負荷増加時の考え方に限定する。
+  - 注意: `plc-scan-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCの停電保持とは？保持デバイスの考え方
 - [ ] PLCの初期化処理とは？起動時に何をリセットするか
 - [ ] PLCのバッテリーとは？何を保持しているのか
@@ -70,13 +156,17 @@
 - [ ] PLCのI/O割付とは？入力と出力の住所を決める考え方
 - [ ] PLCの入出力ユニット番号とは？
 - [ ] PLCの共通端子COMとは？
-  - 注意: `dc24v-common-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
+  - 注意: `dc24v-common-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのシンク入力・ソース入力とは？
-  - 注意: `dc24v-common-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
+  - 注意: `dc24v-common-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのリレー出力とは？
-  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのトランジスタ出力とは？
-  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] PLCのアナログ値をスケーリングする考え方
 - [ ] 0-10Vと4-20mAの違いとは？
 - [ ] PLCで小数を扱う時の考え方
@@ -92,9 +182,11 @@
 ## ラダー・回路基礎候補
 
 - [ ] ラダーの直列回路とは？AND条件の基本
-  - 注意: `ladder-and-or-basic.html` と重複注意。作成する場合は単体深掘りや実例特化に限定する。
+  - 注意: `ladder-and-or-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] ラダーの並列回路とは？OR条件の基本
-  - 注意: `ladder-and-or-basic.html` と重複注意。作成する場合は単体深掘りや実例特化に限定する。
+  - 注意: `ladder-and-or-basic.html` と重複注意。
+  - 判定: 既存記事強化候補
 - [ ] ラダーの否定条件とは？b接点の使い方
 - [ ] ラダーのコイルとは？出力と内部リレーの考え方
 - [ ] ラダーで条件が成立するとは？導通イメージで理解する

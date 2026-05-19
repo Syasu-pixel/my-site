@@ -45,10 +45,12 @@
 
 ### 次に作る候補（重複少なめ / 10〜15件）
 
-- [ ] GX Works3のモニタ表示の見方
+- [x] GX Works3のモニタ表示の見方
+  - 公開済み: `gx-works3-monitor-basic.html`
   - 想定slug: `gx-works3-monitor-basic`
   - 判定: 新規作成候補
 - [ ] GX Works3でデバイス値を見る方法
+  - 注意: `gx-works3-monitor-basic.html` と重複注意。作成する場合は、デバイス値の入力方法や検索方法、具体的な追跡手順など単体深掘りに限定する。
   - 想定slug: `gx-works3-device-monitor-basic`
   - 判定: 新規作成候補
 - [ ] GX Works3で強制ON/OFFする時の注意
@@ -137,8 +139,9 @@
   - 注意: plc-xymd-device-basic.html と重複注意。
   - 判定: 既存記事強化候補
 - [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
-- [ ] GX Works3のモニタ表示の見方
+- [x] GX Works3のモニタ表示の見方
 - [ ] GX Works3でデバイス値を見る方法
+  - 注意: `gx-works3-monitor-basic.html` と重複注意。作成する場合は、デバイス値の入力方法や検索方法、具体的な追跡手順など単体深掘りに限定する。
 - [ ] GX Works3で強制ON/OFFする時の注意
 - [ ] GX Works3でコメントを入れる基本
 - [ ] GX Works3のクロスリファレンスとは？
@@ -146,6 +149,7 @@
 - [ ] GX Works3のオンライン書込みとは？
 - [ ] GX Works3の読出し・書込みの違い
 - [ ] GX Works3でラダーを追う時の基本手順
+  - 注意: `gx-works3-monitor-basic.html` と重複注意。作成する場合は、デバイス値の入力方法や検索方法、具体的な追跡手順など単体深掘りに限定する。
 - [ ] PLCのスキャンタイムとは？
   - 注意: `plc-scan-basic.html` と重複注意。
   - 判定: 既存記事強化候補

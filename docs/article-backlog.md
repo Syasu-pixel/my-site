@@ -29,7 +29,8 @@
 - [x] DC24Vのプラスコモン・マイナスコモンとは？
 - [x] PLC入力がONしない時に見る順番
   - 既存記事 `articles/plc-input-troubleshooting-basic.html` に統合済み
-- [ ] PLC出力がONしない時に見る順番
+- [x] PLC出力がONしない時に見る順番
+  - 既存記事 `articles/plc-output-troubleshooting-basic.html` に統合済み
 - [x] 電磁弁が動かない時に見る順番
   - 既存記事 `articles/solenoid-valve-troubleshooting-basic.html` に統合済み
 - [ ] エアシリンダが動かない時に見る順番
@@ -44,6 +45,7 @@
 - [ ] PLCのXデバイスとは？入力信号の見方
   - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
 - [ ] PLCのYデバイスとは？出力信号の見方
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
   - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
 - [ ] PLCのMデバイスとは？内部リレーの基本
   - 注意: plc-xymd-device-basic.html と重複注意。作成する場合は各デバイス単体の深掘りに限定する。
@@ -72,7 +74,9 @@
 - [ ] PLCのシンク入力・ソース入力とは？
   - 注意: `dc24v-common-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
 - [ ] PLCのリレー出力とは？
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
 - [ ] PLCのトランジスタ出力とは？
+  - 注意: `plc-output-troubleshooting-basic.html` と重複注意。作成する場合は、単体テーマの深掘りや機器仕様の見方に限定する。
 - [ ] PLCのアナログ値をスケーリングする考え方
 - [ ] 0-10Vと4-20mAの違いとは？
 - [ ] PLCで小数を扱う時の考え方

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GX Works3でデバイス値を見る方法｜Dレジスタ・M・X・Yを検索して追う基本</title>
-  <meta name="description" content="GX Works3でデバイス値を見る方法を初心者向けに整理。Dレジスタ、M、X、Yなどのデバイス番号を入力して値を見る方法、コメントや検索から探す流れ、ラダー上で関連条件を追う基本を解説します。">
+  <meta name="description" content="GX Works3でデバイス値を見る方法を初心者向けに整理。デバイス番号を入力して値を見る方法、コメントやラダー検索で使用箇所を順番に確認する流れ、前後条件を追う基本を解説します。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
@@ -12,7 +12,7 @@
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="GX Works3でデバイス値を見る方法｜Dレジスタ・M・X・Yを検索して追う基本">
-  <meta property="og:description" content="GX Works3でDレジスタ、M、X、Yなどのデバイス値を確認し、コメントやラダー上の使用箇所から追う基本を整理します。">
+  <meta property="og:description" content="GX Works3でDレジスタ、M、X、Yなどのデバイス値を確認し、ラダー検索の結果を順番に見ながら使用箇所と前後条件を追う基本を整理します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/gx-works3-device-monitor-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
@@ -20,7 +20,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GX Works3でデバイス値を見る方法">
-  <meta name="twitter:description" content="デバイス番号を入力して値を見る、コメントから探す、ラダー上で使われ方を追う基本を整理します。">
+  <meta name="twitter:description" content="デバイス番号を入力して値を見る、コメントやラダー検索で使用箇所を順番に追う基本を整理します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/gx-works3-device-monitor-basic/gx-works3-device-monitor-basic-ogp.png">
 
   <meta name="theme-color" content="#f8fbff">
@@ -120,7 +120,7 @@
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
-          <a class="btn btn-secondary" href="#device-entry">入力して見る流れへ</a>
+          <a class="btn btn-secondary" href="#ladder-search-step">検索結果を追う流れへ</a>
         </div>
       </div>
     </section>
@@ -147,7 +147,7 @@
         <ul>
           <li>値を見る前に、見たいデバイス番号と種類を整理します。</li>
           <li>数値は、コメント・単位・表示形式とセットで確認します。</li>
-          <li>見つけた値は、ラダー上でどこに使われているかまで追います。</li>
+          <li>見つけた値は、検索結果を順番に見て、どこで作られどこで使われているかまで追います。</li>
         </ul>
       </section>
     </section>
@@ -159,6 +159,7 @@
         <a href="#before-check">見る前の準備</a>
         <a href="#device-entry">番号入力</a>
         <a href="#search-comment">コメント検索</a>
+        <a href="#ladder-search-step">検索結果を追う</a>
         <a href="#trace-ladder">ラダーで追う</a>
         <a href="#display-format">表示形式</a>
         <a href="#caution">注意点</a>
@@ -182,7 +183,7 @@
           <div class="key-highlight">
             <h3>この記事で扱う範囲</h3>
             <p>
-              この記事では、デバイス番号を入力して状態を見る方法、コメントや検索で探す考え方、見つけたデバイスをラダー上で追う流れを整理します。
+              この記事では、デバイス番号を入力して状態を見る方法、コメントや検索で探す考え方、検索結果を順番に見て使われ方を確認する流れを整理します。
               強制ON/OFF、オンライン書込み、デバイス値の変更手順は扱いません。
             </p>
           </div>
@@ -317,8 +318,45 @@
           </ol>
         </section>
 
+
+        <section class="section-card" id="ladder-search-step">
+          <h2>5. ラダー検索で使用箇所を順番に確認する</h2>
+          <p>
+            デバイス番号やコメントで検索した時は、最初に見つかった場所だけで判断しないようにします。
+            同じデバイスは、ラダー内で複数回使われていることがあります。
+          </p>
+          <p>
+            検索結果を順番に確認しながら、そのデバイスが<strong>接点側で条件として使われているのか</strong>、
+            <strong>コイル側で書き込まれているのか</strong>、比較・演算・転送の中で使われているのかを分けて見ます。
+          </p>
+
+          <ol class="number-list">
+            <li><strong>検索する文字を決める：</strong>D100、M10などのデバイス番号、またはコメントの一部を検索対象にします。</li>
+            <li><strong>検索結果へ移動する：</strong>検索結果から、関係しそうな使用箇所へ移動します。</li>
+            <li><strong>次の候補も見る：</strong>同じデバイスが複数箇所で使われていないか、検索結果を順番に確認します。</li>
+            <li><strong>使われ方を分ける：</strong>接点、コイル、比較条件、転送元、転送先、表示用など、役割を見分けます。</li>
+            <li><strong>原因側へ戻る：</strong>値を作っている場所、ONさせている条件、現物側の状態を順番に追います。</li>
+          </ol>
+
+          <div class="note-box">
+            <h3>検索結果は「全部見る」つもりで追う</h3>
+            <p>
+              最初に出た場所だけを見ると、値を表示しているだけの場所を原因だと思ってしまうことがあります。
+              値を作っている場所、値を比較している場所、出力条件に使っている場所を分けて確認します。
+            </p>
+          </div>
+
+          <div class="note-box">
+            <h3>具体的なキー操作名は環境で変わることがある</h3>
+            <p>
+              検索結果の送り方やショートカットは、GX Works3のバージョンや設定、表示中の画面によって異なる場合があります。
+              この記事では、キー名を断定せず、「検索結果を順番に確認し、使われ方を分ける」考え方を重視します。
+            </p>
+          </div>
+        </section>
+
         <section class="section-card" id="trace-ladder">
-          <h2>5. 見つけたデバイスからラダーを追う</h2>
+          <h2>6. 見つけたデバイスからラダーを追う</h2>
           <p>
             デバイス値を見つけたら、そこで終わりではありません。
             その値がラダーのどこで使われているか、何をONさせているか、どの条件で書き換わるかを追うと、原因に近づきやすくなります。
@@ -343,7 +381,7 @@
         </section>
 
         <section class="section-card" id="display-format">
-          <h2>6. 数値を見る時は表示形式と単位に注意する</h2>
+          <h2>7. 数値を見る時は表示形式と単位に注意する</h2>
           <p>
             Dレジスタなどの数値を見る時は、表示されている数字だけで判断しないようにします。
             10進数、16進数、BCD、符号付き、スケーリングの有無によって、同じ内部値でも見え方や意味が変わることがあります。
@@ -389,7 +427,7 @@
         </section>
 
         <section class="section-card" id="caution">
-          <h2>7. デバイス値を見る時の注意点</h2>
+          <h2>8. デバイス値を見る時の注意点</h2>
           <p>
             デバイス値を見る作業と、デバイス値を変更する作業は別です。
             値を見るだけなら状態確認ですが、値変更、強制ON/OFF、オンライン書込みは、設備の動作や安全に影響する可能性があります。
@@ -409,7 +447,7 @@
         </section>
 
         <section class="section-card" id="summary">
-          <h2>8. まとめ</h2>
+          <h2>9. まとめ</h2>
           <p>
             GX Works3でデバイス値を見る時は、デバイス番号だけで判断せず、種類、コメント、表示形式、ラダー上の使われ方を合わせて確認します。
             値を見つけた後に、どこで作られ、どこで使われ、現物側ではどうなっているかを追うと、原因の切り分けがしやすくなります。
@@ -419,6 +457,7 @@
             <li>デバイスは、D、M、X、Yなどの種類と番号をセットで見る</li>
             <li>Dレジスタは、値だけでなく単位・表示形式・コメントも確認する</li>
             <li>MやYは、ON/OFF状態だけでなく前後条件を追う</li>
+            <li>検索結果は1件だけで判断せず、同じデバイスの使用箇所を順番に確認する</li>
             <li>コメントは手がかりだが、ラダーと現物で照合する</li>
             <li>値を見る作業と、値を変更する作業は分けて考える</li>
           </ul>
@@ -456,6 +495,7 @@
             <li><a href="#before-check">見る前の準備</a></li>
             <li><a href="#device-entry">番号入力</a></li>
             <li><a href="#search-comment">コメント検索</a></li>
+            <li><a href="#ladder-search-step">検索結果を追う</a></li>
             <li><a href="#trace-ladder">ラダーで追う</a></li>
             <li><a href="#display-format">表示形式</a></li>
             <li><a href="#caution">注意点</a></li>
@@ -468,6 +508,7 @@
           <ul>
             <li>デバイス番号を確認する</li>
             <li>コメントと単位を見る</li>
+            <li>検索結果を順番に見る</li>
             <li>表示形式を意識する</li>
             <li>作っている条件を追う</li>
             <li>現物側と照合する</li>

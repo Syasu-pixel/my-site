@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ラダーのAND・OR回路とは？直列・並列の考え方を初心者向けに整理</title>
+  <meta name="description" content="ラダー回路でよく使うAND条件とOR条件を初心者向けに整理。直列はすべての条件が必要、並列はどれか1つの条件で成立するという考え方を、現場でのラダー読み取りに合わせて解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/ladder-and-or-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/ladder-and-or-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/ladder-and-or-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ラダーのAND・OR回路とは？直列・並列の考え方を初心者向けに整理">
+  <meta property="og:description" content="ラダーの直列と並列を、AND条件・OR条件として初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/ladder-and-or-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/ladder-and-or-basic/ladder-and-or-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ラダーのAND・OR回路とは？直列・並列の考え方">
+  <meta name="twitter:description" content="ラダーの直列はAND、並列はORとして考える入口を整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/ladder-and-or-basic/ladder-and-or-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;--card:#ffffff;--line:#d8e3f0;--line-strong:#c4d5e8;--text:#1e293b;--muted:#5f7288;
+      --blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px;--muted-2:#64748b;--line-header:#dbe7f3;--shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;padding-top:var(--header-h);overflow-wrap:break-word;word-break:break-word}
+    img{display:block;max-width:100%;height:auto}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}.container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{width:auto;height:46px;flex:0 0 auto}.brand-copy{min-width:0;display:block}.brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}.language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-flag{font-size:18px;line-height:1}.language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:var(--muted-2);box-shadow:var(--shadow-soft)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:400px;isolation:isolate}
+    .article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/ladder-and-or-basic/ladder-and-or-basic-hero.png") right center/auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}.hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}.btn:hover{text-decoration:none}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}.summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}.mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);font-size:13px;font-weight:900;text-decoration:none}.mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.section-card{padding:28px;margin-bottom:20px}.side-card{padding:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);border-radius:20px;padding:18px;margin:18px 0}.key-highlight h3{margin:0 0 10px;font-size:16px;color:#1d4ed8}.key-highlight p{margin:0;color:#334155;font-size:14px}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);border-radius:20px;padding:18px;margin:18px 0}.field-highlight h3{margin:0 0 10px;font-size:16px;color:#15803d}.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .simple-list{margin:0;padding-left:20px}.simple-list li{margin:10px 0 0;font-size:15px}.number-list{margin:0;padding-left:20px}.number-list li{margin:12px 0 0;font-size:15px;line-height:1.85}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}.note-box{background:#fff8ea;border-color:#f7dba2}.danger-box{background:#fff1f2;border-color:#fecaca}.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;padding-top:2px;background:transparent}.talk-avatar img{width:76px;height:auto;display:block;object-fit:contain;background:transparent}.talk-bubble{flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle}.talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}td.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}td.cell-green{background:#ecfdf3;font-weight:900;color:#166534}td.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}td.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue-deep)}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+    .support-card{border-color:#dbeafe}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;font-weight:900;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900;text-align:center;text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    @media(max-width:1100px){.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}
+    @media(max-width:980px){.brand-sub{display:none!important}.brand-title{white-space:nowrap}.header-search{flex:0 0 180px}}
+    @media(max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../assets/images/ladder-and-or-basic/ladder-and-or-basic-hero.png") right -34px bottom -14px/162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.hero-lead{font-size:14px;max-width:32ch}.top-summary{grid-template-columns:1fr}.side-rail{grid-template-columns:1fr}.related-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}.section-card{padding:22px}.talk-avatar{flex-basis:72px;width:72px}.talk-avatar img{width:66px}}
+    @media(min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px}.article-hero::before{background:url("../assets/images/ladder-and-or-basic/ladder-and-or-basic-hero.png") right center/auto 92% no-repeat;opacity:.24}.article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center}h1{font-size:34px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.summary-card{padding:20px 18px}.summary-card h2{font-size:17px}.summary-card li{font-size:13px}.side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}.article-hero::before{background:url("../assets/images/ladder-and-or-basic/ladder-and-or-basic-hero.png") right -46px bottom -20px/178% auto no-repeat;opacity:.14}.container{width:min(100%,calc(100% - 20px))}.section-card h2{font-size:20px}.section-card p,.talk-bubble p,.simple-list li,.number-list li{font-size:14px}.talk-row,.talk-row--right{flex-direction:column;gap:8px}.talk-avatar{width:64px;flex-basis:auto}.talk-row--right .talk-avatar{align-self:flex-end}.talk-avatar img{width:60px}}
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">Japan</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./ladder-and-or-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span><strong>日本語記事</strong><small>日本語記事</small></span>
+          </a>
+          <a href="../en/" class="language-menu-item" lang="en">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span><strong>English top</strong><small>English top</small></span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>ラダーのAND・OR回路とは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">ラダー・確認</span>
+        <h1 id="page-title">ラダーのAND・OR回路とは？<br>直列・並列の考え方</h1>
+        <p class="hero-lead">
+          ラダーで条件を読む時は、直列をAND、並列をORとして考えると理解しやすくなります。
+          起動条件や安全条件を追うための入口として、基本だけをやさしく整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#and-basic">ANDから見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>ラダーの直列・並列の意味で迷う人</li>
+          <li>AND条件とOR条件を現場目線で整理したい人</li>
+          <li>自己保持やインターロックに入る前の基礎を押さえたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>複雑な命令語や応用回路を詳しく知りたい人</li>
+          <li>メーカー固有の命令表記を細かく確認したい人</li>
+          <li>安全回路をこの記事だけで設計したい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>直列は、条件を全部満たすANDとして考えると分かりやすいです。</li>
+          <li>並列は、どれか1つ満たせばよいORとして考えると分かりやすいです。</li>
+          <li>現場では、起動許可・停止条件・安全条件を読む時によく使います。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#and-basic">AND条件</a>
+        <a href="#or-basic">OR条件</a>
+        <a href="#compare">直列と並列の違い</a>
+        <a href="#field-reading">現場での読み方</a>
+        <a href="#mistakes">よくある勘違い</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
+          <p>
+            ラダーのAND・OR回路は、条件の組み合わせを読むための基本です。
+            直列に並んだ条件は「すべて成立したら次へ進む」、並列に分かれた条件は「どれか1つ成立したら次へ進む」と考えると理解しやすくなります。
+          </p>
+          <p>
+            ただし、実際のPLCプログラムでは、接点の種類、否定条件、内部リレー、インターロック、自己保持などが組み合わさります。
+            この記事では、まずラダーを読む入口として、ANDとORの基本イメージに絞って整理します。
+          </p>
+
+          <div class="key-highlight">
+            <h3>直列はAND、並列はORとして入口をつかむ</h3>
+            <p>
+              「全部そろったら動く」がAND、「どれか1つで動く」がORです。
+              この考え方を持っておくと、起動条件や許可条件を追う時に迷いにくくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>ラダーの直列と並列は、最初は電気図面よりも「条件の組み合わせ」として見ると分かりやすいよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>直列は全部必要、並列はどれか1つでOK、という入口から見ればいいんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="and-basic">
+          <h2>2. AND条件とは？全部そろったら成立する考え方</h2>
+          <p>
+            AND条件は、複数の条件がすべて成立した時に次へ進む考え方です。
+            ラダーでは、複数の接点が直列に並んでいる形として見ることが多いです。
+          </p>
+          <p>
+            たとえば、「運転ボタンがON」「非常停止が解除」「扉が閉じている」の3つがそろった時だけモーターを動かしたい場合、考え方としてはAND条件になります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-and-or-basic/ladder-and-or-basic-and-overview.png" alt="ラダーのAND条件と直列回路の基本イメージ" loading="lazy" decoding="async">
+            <figcaption>AND条件は、すべての条件がそろった時に成立する考え方です。ラダーでは直列のイメージで理解すると入口として分かりやすくなります。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>全部必要</h3>
+              <p>1つでも条件が欠けると、後ろの出力条件には進みにくいと考えます。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>許可条件に多い</h3>
+              <p>自動運転許可、安全条件、原点確認、扉閉確認などでよく出ます。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="or-basic">
+          <h2>3. OR条件とは？どれか1つで成立する考え方</h2>
+          <p>
+            OR条件は、複数の条件のうち、どれか1つが成立すれば次へ進む考え方です。
+            ラダーでは、接点が並列に分かれている形として見ることが多いです。
+          </p>
+          <p>
+            たとえば、「手動ボタンでも動かす」「自動条件でも動かす」のように、複数の入口がある時はOR条件として整理できます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-and-or-basic/ladder-and-or-basic-or-overview.png" alt="ラダーのOR条件と並列回路の基本イメージ" loading="lazy" decoding="async">
+            <figcaption>OR条件は、複数の条件のうちどれか1つが成立すればよい考え方です。ラダーでは並列のイメージで理解できます。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>複数の入口をまとめる時に使う</h3>
+            <p>
+              手動運転、自動運転、別位置からの起動信号など、どれか1つの条件で同じ結果へ進めたい時にORの考え方が出てきます。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="compare">
+          <h2>4. 直列と並列の違いを表で整理</h2>
+          <p>
+            ANDとORは、言葉だけで覚えるよりも、直列・並列の見た目とセットで考えると覚えやすくなります。
+            ラダーを読む時は、接点が縦に分岐しているのか、横に続いているのかを落ち着いて見ます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-and-or-basic/ladder-and-or-basic-series-parallel-compare.png" alt="ラダーの直列と並列、AND条件とOR条件を比較した図" loading="lazy" decoding="async">
+            <figcaption>直列は全部必要、並列はどれか1つで成立という違いを、見た目と条件の意味で整理します。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>見た目</th>
+                  <th>考え方</th>
+                  <th>成立する条件</th>
+                  <th>現場での例</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">直列</td>
+                  <td>AND条件</td>
+                  <td>すべての条件が成立する</td>
+                  <td>起動ボタンON、停止条件なし、安全扉閉などが全部そろう</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">並列</td>
+                  <td>OR条件</td>
+                  <td>どれか1つの条件が成立する</td>
+                  <td>手動ボタンまたは自動条件、どちらかで動作許可する</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="field-reading">
+          <h2>5. 現場では「どの条件で止まっているか」を追う</h2>
+          <p>
+            ラダーを現場で見る時は、AND条件なら「どの条件が欠けているか」、OR条件なら「どの入口から成立しているか」を確認します。
+            入力が入っているのに動かない時は、途中のAND条件のどこかで止まっていることがあります。
+          </p>
+          <p>
+            反対に、思わぬタイミングで動く時は、並列の別ルートから条件が成立している可能性もあります。
+            そのため、1本の線だけでなく、分岐している条件も含めて見ることが大切です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/ladder-and-or-basic/ladder-and-or-basic-field-reading.png" alt="現場でAND条件とOR条件を確認するラダー読み取りの図" loading="lazy" decoding="async">
+            <figcaption>動かない時はAND条件の欠けを探し、意図せず動く時はOR条件の別ルートを確認します。</figcaption>
+          </figure>
+
+          <ol class="number-list">
+            <li><strong>まず出力条件を見る：</strong>どのYやMを動かしたいのかを確認します。</li>
+            <li><strong>AND条件を確認する：</strong>直列に並ぶ条件のうち、OFFになっているものがないか見ます。</li>
+            <li><strong>OR条件を確認する：</strong>並列ルートのどこから成立しているか見ます。</li>
+            <li><strong>コメントと図面を合わせる：</strong>デバイス番号だけでなく、何の信号かを確認します。</li>
+          </ol>
+        </section>
+
+        <section class="section-card" id="mistakes">
+          <h2>6. よくある勘違い</h2>
+          <p>
+            AND・ORの基本を知っていても、ラダーでは接点の種類や否定条件が入ると混乱しやすくなります。
+            まずは「その条件が成立している時に導通するのか」を落ち着いて見ることが大切です。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--warning">
+              <h3>並列なら全部ONではない</h3>
+              <p>並列は、どれか1つのルートが成立すればよい場合があります。全部ONが必要とは限りません。</p>
+            </div>
+            <div class="check-item check-item--purple">
+              <h3>b接点で逆になることがある</h3>
+              <p>停止ボタンや異常条件では、接点の考え方が逆に見えることがあります。接点の種類も確認します。</p>
+            </div>
+            <div class="check-item check-item--important">
+              <h3>安全条件は自己判断しない</h3>
+              <p>安全扉、非常停止、安全リレーなどに関わる部分は、ラダーだけで判断せず仕様書・図面・社内ルールを確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>見た目だけで断定しない</h3>
+              <p>分岐や内部リレーが多い場合は、クロスリファレンスやコメントを使って確認します。</p>
+            </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>安全回路の設計判断には使わない</h3>
+            <p>
+              この記事はラダーを読むための基礎整理です。
+              安全回路、非常停止、インターロック設計は、規格、仕様書、メーカー資料、社内基準に従って判断してください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>7. まとめ</h2>
+          <p>
+            ラダーのAND・OR回路は、条件の組み合わせを読むための基本です。
+            直列は全部そろう条件、並列はどれか1つで成立する条件として入口をつかむと、ラダーを追いやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>直列はAND条件として考えると分かりやすい</li>
+            <li>並列はOR条件として考えると分かりやすい</li>
+            <li>AND条件では、どの条件が欠けているかを見る</li>
+            <li>OR条件では、どのルートから成立しているかを見る</li>
+            <li>安全条件や実機動作は、図面・仕様書・社内ルールと合わせて確認する</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="plc-scan-basic.html">PLCのスキャンを見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="plc-scan-basic.html">
+              <h3>PLCのスキャンとは？</h3>
+              <p>ラダーが上から順に処理される考え方を先に整理できます。</p>
+            </a>
+            <a class="related-card" href="a-contact-b-contact-basic.html">
+              <h3>a接点・b接点の違い</h3>
+              <p>AND・ORを見る前後に、接点の基本を整理できます。</p>
+            </a>
+            <a class="related-card" href="interlock-basic.html">
+              <h3>インターロックとは？</h3>
+              <p>AND条件や停止条件が、現場でどう使われるかを確認できます。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#and-basic">AND条件</a></li>
+            <li><a href="#or-basic">OR条件</a></li>
+            <li><a href="#compare">直列と並列の違い</a></li>
+            <li><a href="#field-reading">現場での読み方</a></li>
+            <li><a href="#mistakes">よくある勘違い</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>見るポイント</h3>
+          <ul>
+            <li>直列はAND</li>
+            <li>並列はOR</li>
+            <li>ANDは全部そろう</li>
+            <li>ORはどれか1つ</li>
+            <li>安全条件は慎重に見る</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel){return;}
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

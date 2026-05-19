@@ -33,8 +33,8 @@
   - 既存記事 `articles/plc-output-troubleshooting-basic.html` に統合済み
 - [x] 電磁弁が動かない時に見る順番
   - 既存記事 `articles/solenoid-valve-troubleshooting-basic.html` に統合済み
-- [ ] エアシリンダが動かない時に見る順番
-  - 注意: `articles/solenoid-valve-troubleshooting-basic.html` と重複しやすい。作成する場合は、シリンダ本体・リードスイッチ・スピコン・機械干渉・エア圧切り分けに寄せる。
+- [x] エアシリンダが動かない時に見る順番
+  - 既存記事 `articles/air-cylinder-troubleshooting-basic.html` に統合済み
 - [ ] 制御盤の端子台番号の見方
   - 注意: `articles/terminal-block-basic.html` と重複しやすい。新規記事ではなく、既存記事強化候補として扱う。
 

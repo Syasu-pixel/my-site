@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCのスキャンとは？ラダーが上から順に動く考え方を初心者向けに整理</title>
+  <meta name="description" content="PLCのスキャンとは何かを初心者向けに整理。入力を読み取り、ラダーを上から順に処理し、出力へ反映する流れを、現場でラダーを追う時の見方とあわせて解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-scan-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-scan-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-scan-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCのスキャンとは？ラダーが上から順に動く考え方を初心者向けに整理">
+  <meta property="og:description" content="PLCが入力を読み、ラダーを上から順に処理し、出力へ反映する基本の流れを初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-scan-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/plc-scan-basic/plc-scan-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLCのスキャンとは？ラダーが上から順に動く考え方">
+  <meta name="twitter:description" content="PLCの入力読取、ラダー処理、出力反映の流れを初心者向けに整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/plc-scan-basic/plc-scan-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+      overflow-wrap:break-word;
+      word-break:break-word;
+    }
+    img{display:block;max-width:100%;height:auto}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    button,input{font:inherit}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0;display:block}
+    .brand-title{
+      display:block;
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      display:block;
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:auto}
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+    .language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}
+    .language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-result-item{margin:0}
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+    .search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+    .search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}
+    .search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/plc-scan-basic/plc-scan-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.76) 0%, rgba(255,255,255,.54) 38%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}
+    .hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}
+    .section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .mark{background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);font-weight:900}
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .key-highlight h3{margin:0 0 10px;font-size:16px;color:#1d4ed8;line-height:1.5}
+    .key-highlight p{margin:0;color:#334155;font-size:14px}
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+    .field-highlight h3{margin:0 0 10px;font-size:16px;color:#15803d;line-height:1.5}
+    .field-highlight p{margin:0;color:#334155;font-size:14px}
+
+    .simple-list{margin:0;padding-left:20px}
+    .simple-list li{margin:10px 0 0;font-size:15px}
+    .number-list{margin:0;padding-left:20px}
+    .number-list li{margin:12px 0 0;font-size:15px;line-height:1.85}
+
+    .article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}
+    .article-figure img{width:100%;height:auto}
+    .article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}
+    .note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{width:76px;height:auto;display:block;object-fit:contain;background:transparent;border:none;box-shadow:none;outline:none}
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}
+    .talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle}
+    .talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}
+    .talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}
+    .talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--important{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--field{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--warning{background:#fff7e8;border-color:#f7dba2}
+    .check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}
+    th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}
+    th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}
+    td.cell-green{background:#ecfdf3;font-weight:900;color:#166534}
+    td.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}
+    td.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5}
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7}
+
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+    .related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+
+    .support-card{border-color:#dbeafe}
+    .support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;line-height:1.5;font-weight:900;color:#1e3a8a}
+    .support-card-text{margin:0;font-size:13px;line-height:1.75;color:#334155}
+    .support-card-actions{margin-top:12px;display:grid;gap:8px}
+    .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:38px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.4;
+      text-align:center;
+      text-decoration:none;
+      white-space:normal;
+    }
+    .support-link:hover{text-decoration:none}
+    .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .site-header-inner{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+      .brand{min-width:0;gap:8px}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),#f8fbff}
+      .article-hero::before{background:url("../assets/images/plc-scan-basic/plc-scan-basic-hero.png") right -34px bottom -14px / 162% auto no-repeat;opacity:.2}
+      .article-hero::after{background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%)}
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{min-height:360px;border-radius:28px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.96) 42%,rgba(255,255,255,.78) 64%,rgba(255,255,255,.42) 82%,rgba(255,255,255,.16) 100%),#f8fbff}
+      .article-hero::before{background:url("../assets/images/plc-scan-basic/plc-scan-basic-hero.png") right center / auto 92% no-repeat;opacity:.24}
+      .article-hero::after{background:linear-gradient(90deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.48) 44%,rgba(255,255,255,.18) 72%,rgba(255,255,255,0) 100%)}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center}
+      h1{font-size:34px}
+      .hero-lead{max-width:36ch;font-size:14px;color:#334155}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{font-size:13px;line-height:1.65}
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:640px){
+      :root{--header-h:66px}
+      html{scroll-padding-top:82px}
+      .site-header{padding:7px 8px}
+      .site-header-inner{gap:6px}
+      .brand{gap:7px}
+      .brand-logo{height:36px}
+      .brand-title{font-size:13px;letter-spacing:0}
+      .brand-sub{display:none}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px}
+      .header-search{flex:0 1 138px;min-height:36px}
+      .search-box{padding:0 9px;gap:6px}
+      .search-box-input{font-size:11px}
+      .header-search-icon{width:14px;height:14px}
+      .search-box-panel{right:-48px;width:min(340px,94vw)}
+      .article-hero::before{background:url("../assets/images/plc-scan-basic/plc-scan-basic-hero.png") right -46px bottom -20px / 178% auto no-repeat;opacity:.14}
+      .article-hero::after{background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%)}
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,.side-card,.mini-toc-card,.summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,.talk-bubble p,.simple-list li,.number-list li{font-size:14px}
+      .talk-row,.talk-row--right{flex-direction:column;gap:8px}
+      .talk-avatar{width:64px;flex-basis:auto;padding-left:4px}
+      .talk-row--right .talk-avatar{align-self:flex-end;padding-right:4px}
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">Japan</span>
+        </button>
+
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./plc-scan-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span>
+              <strong>日本語記事</strong>
+              <small>日本語記事</small>
+            </span>
+          </a>
+          <a href="../en/" class="language-menu-item" lang="en">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span>
+              <strong>English top</strong>
+              <small>English top</small>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索">
+          <span class="header-search-icon" aria-hidden="true"></span>
+        </button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>PLCのスキャンとは？</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">PLC・制御の入口</span>
+        <h1 id="page-title">PLCのスキャンとは？<br>ラダーが上から順に動く考え方</h1>
+        <p class="hero-lead">
+          PLCは入力を見て、ラダーを処理して、出力へ反映する流れをくり返します。
+          「一瞬で全部同時に動く」のではなく、1周ずつ処理されるイメージで整理します。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#cycle">処理の流れを見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>ラダーがなぜ上から順に見えるのか知りたい人</li>
+          <li>入力がONしたのに出力がすぐ変わらないように見える理由を整理したい人</li>
+          <li>PLCの内部処理を初心者向けにざっくり理解したい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>CPUごとの正確なスキャンタイム仕様を確認したい人</li>
+          <li>割込み処理や高速カウンタなどの詳細まで知りたい人</li>
+          <li>機種固有の命令処理時間を調べたい人</li>
+        </ul>
+      </section>
+
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>PLCは、入力読取→プログラム処理→出力反映をくり返します。</li>
+          <li>ラダーは基本的に上から下、左から右へ条件を追うと理解しやすいです。</li>
+          <li>スキャンの考え方を知ると、自己保持・インターロック・出力条件を追いやすくなります。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#cycle">スキャンの流れ</a>
+        <a href="#ladder-order">上から順に読む理由</a>
+        <a href="#input-output">入力と出力の反映</a>
+        <a href="#scan-time">スキャンタイム</a>
+        <a href="#field-check">現場での見方</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
+          <p>
+            PLCのスキャンとは、PLCが入力の状態を読み取り、ラダーなどのプログラムを処理し、その結果を出力へ反映する一連の流れです。
+            この流れを高速にくり返すことで、設備が連続して動いているように見えます。
+          </p>
+          <p>
+            初心者のうちは、細かい処理時間よりも、<span class="mark">入力を読む、プログラムを処理する、出力へ反映する</span>という順番を押さえると理解しやすくなります。
+            ただし、実際の処理方式やスキャンタイムの見方はPLCの機種・CPU・設定によって異なるため、正確な仕様はメーカー公式マニュアルで確認します。
+          </p>
+
+          <div class="key-highlight">
+            <h3>スキャンは「PLCが1周している」と考える</h3>
+            <p>
+              1回だけ入力を見て終わりではなく、PLCは同じ処理を何度もくり返しています。
+              その1周の流れをイメージできると、ラダーの条件や出力が追いやすくなります。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>ラダーは画面上では止まって見えるけど、PLCの中では入力を見て、上から順に処理して、出力へ反映する流れをずっとくり返しているよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>1回だけ動いているんじゃなくて、ものすごく速く何周もしている、というイメージなんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="cycle">
+          <h2>2. PLCスキャンの基本的な流れ</h2>
+          <p>
+            PLCの処理は、ざっくり見ると「入力を読む」「プログラムを処理する」「出力へ反映する」という流れで考えられます。
+            これをくり返すことで、センサーや押しボタンの状態に応じて、ランプ・リレー・電磁弁などを動かします。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/plc-scan-basic/plc-scan-basic-cycle-overview.png" alt="PLCスキャンの入力読取、プログラム処理、出力反映の基本サイクル図" loading="lazy" decoding="async">
+            <figcaption>PLCは入力読取、プログラム処理、出力反映という流れをくり返して設備を制御します。</figcaption>
+          </figure>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>段階</th>
+                  <th>何をしているか</th>
+                  <th>初心者向けの見方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-blue">入力読取</td>
+                  <td>押しボタン、センサー、リミットスイッチなどの状態を読みます。</td>
+                  <td>今、現場からどんな信号が来ているかを見る段階。</td>
+                </tr>
+                <tr>
+                  <td class="cell-purple">プログラム処理</td>
+                  <td>読み取った入力や内部条件を使って、ラダーを処理します。</td>
+                  <td>条件が成立しているか、上から順に判断していく段階。</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">出力反映</td>
+                  <td>処理結果を出力へ反映し、ランプやリレーなどを動かします。</td>
+                  <td>判断結果を現場機器へ伝える段階。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note-box">
+            <h3>実際の処理は機種や設定で変わる</h3>
+            <p>
+              この記事では初心者向けに単純化しています。
+              実際にはCPU、I/O方式、割込み、通信、特殊ユニットなどによって処理の見方が変わる場合があります。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ladder-order">
+          <h2>3. ラダーは上から下、左から右へ追うと理解しやすい</h2>
+          <p>
+            ラダーを見る時は、基本的に上から下へ、各回路の中では左から右へ条件を追うと理解しやすくなります。
+            実際の内部処理はPLCや命令によって細かな違いがありますが、初心者がラダーを読む入口としては、この見方が役に立ちます。
+          </p>
+          <p>
+            たとえば、上の回路で作ったMデバイスを、下の回路の条件に使っている場合があります。
+            そのため、「どこで条件が作られて、どこで使われているか」を順番に追うことが大切です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/plc-scan-basic/plc-scan-basic-ladder-order.png" alt="ラダーを上から下、左から右へ読む順番の説明図" loading="lazy" decoding="async">
+            <figcaption>ラダーは条件の流れを上から順に追うと、MやYがどこで作られているか確認しやすくなります。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>上で作った条件が下で使われることがある</h3>
+            <p>
+              ラダーを途中から見ると、MやDの意味が分かりにくいことがあります。
+              その時は、そのデバイスが上の回路や別の場所でどのように作られているかを探します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="input-output">
+          <h2>4. 入力が変わっても、出力は処理結果として反映される</h2>
+          <p>
+            現場で押しボタンを押したり、センサーが反応したりすると、その状態はPLCの入力として読み取られます。
+            その後、ラダー条件が処理され、出力条件が成立すればY出力などへ反映されます。
+          </p>
+          <p>
+            つまり、入力が変わった瞬間にすべてが魔法のように変わるのではなく、PLCのスキャンの中で読み取られ、処理され、結果として出力へ反映されると考えると整理しやすくなります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/plc-scan-basic/plc-scan-basic-input-output-update.png" alt="入力変化がスキャン内で処理され出力へ反映される流れの図" loading="lazy" decoding="async">
+            <figcaption>入力の変化は、スキャンの流れの中で処理され、条件が成立すると出力へ反映されます。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>入力を見る</h3>
+              <p>センサーや押しボタンがONしているか、PLC入力モニタや入力LEDで確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>条件を見る</h3>
+              <p>入力がONしていても、インターロックや停止条件で出力が止まっていないか確認します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>出力を見る</h3>
+              <p>ラダー上の出力条件が成立しているか、実際の出力LEDや負荷側の電圧も確認します。</p>
+            </div>
+            <div class="check-item check-item--purple">
+              <h3>1周の流れで考える</h3>
+              <p>入力、内部条件、出力結果を別々に見ず、1つの流れとして確認します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="scan-time">
+          <h2>5. スキャンタイムは1周にかかる時間</h2>
+          <p>
+            スキャンタイムとは、PLCが一連の処理を1周するのにかかる時間として説明されることが多い言葉です。
+            ただし、正確な定義や表示方法はPLCの機種やソフトウェアによって変わります。
+          </p>
+          <p>
+            初心者の段階では、「PLCはとても速く同じ処理をくり返している」「プログラムが長くなったり処理が増えたりすると、1周にかかる時間も意識する必要が出る」と考えると十分です。
+          </p>
+
+          <div class="key-highlight">
+            <h3>この記事では数値の深掘りはしない</h3>
+            <p>
+              今回の記事は、スキャンタイムの正確な測定や機種ごとの仕様ではなく、ラダーがどのような流れで処理されるかを理解する入口です。
+              数値管理が必要な場合は、対象PLCの公式マニュアルで確認します。
+            </p>
+          </div>
+
+          <div class="danger-box">
+            <h3>高速処理が必要な場面では別確認が必要</h3>
+            <p>
+              高速入力、位置決め、通信、割込み処理、安全関連などは、単純なスキャンのイメージだけでは判断できない場合があります。
+              実機設計や改造では必ず公式資料と社内ルールを確認してください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="field-check">
+          <h2>6. 現場でラダーを追う時の見方</h2>
+          <p>
+            現場でトラブルを見る時は、「入力は入っているか」「ラダー条件は成立しているか」「出力は出ているか」を順番に分けて確認します。
+            スキャンの考え方を知っていると、どこで条件が止まっているかを追いやすくなります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/plc-scan-basic/plc-scan-basic-field-check.png" alt="現場でPLCスキャンを意識して入力、条件、出力を確認するチェック図" loading="lazy" decoding="async">
+            <figcaption>現場では、入力・条件・出力を分けて確認すると、どこで止まっているか切り分けやすくなります。</figcaption>
+          </figure>
+
+          <ol class="number-list">
+            <li><strong>入力を確認する：</strong>押しボタン、センサー、リミットスイッチなどの入力がPLCに入っているか見る。</li>
+            <li><strong>途中条件を確認する：</strong>Mデバイス、インターロック、異常条件、モード条件などが成立しているか見る。</li>
+            <li><strong>出力条件を確認する：</strong>Y出力や内部出力がONする条件がそろっているか見る。</li>
+            <li><strong>実機側を確認する：</strong>PLC出力だけでなく、リレー、電磁弁、ランプ、電源、配線も見る。</li>
+          </ol>
+
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>入力が入っているのに出力が出ない時は、途中の条件で止まっているかもしれないんですね。</p>
+              </div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>そう。スキャンの流れで見ると、入力だけ、出力だけを見て迷うより、途中の条件を順番に追いやすくなるよ。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>7. まとめ</h2>
+          <p>
+            PLCのスキャンは、入力を読み、ラダーを処理し、出力へ反映する流れをくり返す考え方です。
+            ラダーを読む時は、上から下、左から右へ条件を追い、入力・内部条件・出力結果を分けて見ると理解しやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>PLCは入力読取、プログラム処理、出力反映をくり返す</li>
+            <li>ラダーは基本的に上から下、左から右へ追うと分かりやすい</li>
+            <li>入力がONしても、途中条件が成立しなければ出力は出ない</li>
+            <li>スキャンタイムは1周にかかる時間として考えると入口として理解しやすい</li>
+            <li>高速処理や機種固有仕様は、必ず公式マニュアルで確認する</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="plc-xymd-device-basic.html">X・Y・M・Dを見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="plc-basic.html">
+              <h3>PLCとは？</h3>
+              <p>PLCの役割や入力・出力の基本を、最初から整理できます。</p>
+            </a>
+            <a class="related-card" href="plc-xymd-device-basic.html">
+              <h3>PLCのX・Y・M・Dとは？</h3>
+              <p>スキャンの中で扱う入力、出力、内部リレー、データレジスタの見方を整理できます。</p>
+            </a>
+            <a class="related-card" href="input-output-basic.html">
+              <h3>入力と出力の違いとは？</h3>
+              <p>PLCへ入る信号とPLCから出る命令の向きを先に整理できます。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#cycle">スキャンの流れ</a></li>
+            <li><a href="#ladder-order">上から順に読む理由</a></li>
+            <li><a href="#input-output">入力と出力の反映</a></li>
+            <li><a href="#scan-time">スキャンタイム</a></li>
+            <li><a href="#field-check">現場での見方</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>見るポイント</h3>
+          <ul>
+            <li>PLCは1周ずつ処理をくり返す</li>
+            <li>入力、処理、出力に分ける</li>
+            <li>ラダーは上から順に追う</li>
+            <li>途中条件で止まることがある</li>
+            <li>機種固有仕様は公式資料で確認する</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/circuit-basics.html">回路の基礎</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">
+              Buy Me a Coffeeで応援
+            </a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">
+              PayPalで応援
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+
+      if(!button || !panel){
+        return;
+      }
+
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

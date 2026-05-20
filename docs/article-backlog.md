@@ -64,9 +64,11 @@
   - 注意: `gx-works3-device-monitor-basic.html` と重複しないよう、デバイスの値を見る方法ではなく、デバイスの使用箇所を一覧で確認し、影響範囲や変更前確認に活かす内容に限定して作成済み。
   - 想定slug: `gx-works3-cross-reference-basic`
   - 判定: 作成済み
-- [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
+- [x] PLCのT・Cとは？タイマとカウンタのデバイス番号
+  - 公開済み: `plc-tc-device-basic.html`
+  - 注意: X・Y・M・Dの基本記事と重複しないよう、T=タイマ、C=カウンタのデバイス番号、現在値、設定値、接点としての使われ方、リセット条件の見方に絞って作成済み。
   - 想定slug: `plc-tc-device-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] PLCのエラーランプが点いた時に見る順番
   - 想定slug: `plc-error-lamp-troubleshooting-basic`
   - 判定: 新規作成候補
@@ -143,7 +145,7 @@
 - [ ] PLCのDデバイスとは？データレジスタの基本
   - 注意: plc-xymd-device-basic.html と重複注意。
   - 判定: 既存記事強化候補
-- [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
+- [x] PLCのT・Cとは？タイマとカウンタのデバイス番号
 - [x] GX Works3のモニタ表示の見方
 - [ ] GX Works3でデバイス値を見る方法
   - 注意: `gx-works3-monitor-basic.html` と重複注意。作成する場合は、デバイス値の入力方法や検索方法、具体的な追跡手順など単体深掘りに限定する。

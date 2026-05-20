@@ -79,9 +79,11 @@
   - 注意: `input-output-basic.html` と `plc-xymd-device-basic.html` と重複しないよう、入力/出力の概念説明ではなく、センサーやボタンを入力Xへ、ランプやバルブを出力Yへ対応させるI/O割付表・端子台・図面・ラダーのつながりに限定して作成済み。
   - 想定slug: `plc-io-allocation-basic`
   - 判定: 作成済み
-- [ ] 2線式センサーとは？3線式との違い
+- [x] 2線式センサーとは？3線式との違い
+  - 公開済み: `sensor-2wire-3wire-basic.html`
+  - 注意: `sensor-wire-color-basic` と `sensor-indicator-basic` と重複しないよう、配線色や表示灯の詳細ではなく、2線式と3線式の配線本数、電源線と信号線、PLC入力への入り方、漏れ電流、入力方式の注意点に限定して作成済み。
   - 想定slug: `sensor-2wire-3wire-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] センサーの茶・青・黒の配線色の意味
   - 想定slug: `sensor-wire-color-basic`
   - 判定: 新規作成候補

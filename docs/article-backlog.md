@@ -69,9 +69,11 @@
   - 注意: X・Y・M・Dの基本記事と重複しないよう、T=タイマ、C=カウンタのデバイス番号、現在値、設定値、接点としての使われ方、リセット条件の見方に絞って作成済み。
   - 想定slug: `plc-tc-device-basic`
   - 判定: 作成済み
-- [ ] PLCのエラーランプが点いた時に見る順番
+- [x] PLCのエラーランプが点いた時に見る順番
+  - 公開済み: `plc-error-lamp-troubleshooting-basic.html`
+  - 注意: PLC出力トラブル記事と重複しないよう、PLC本体のERR/ALMなどが点いた時に、設備状態、PLC本体ランプ、電源、I/O、通信、エラー履歴、復旧前確認の順番で見る内容に限定して作成済み。
   - 想定slug: `plc-error-lamp-troubleshooting-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] PLCのI/O割付とは？入力と出力の住所を決める考え方
   - 想定slug: `plc-io-allocation-basic`
   - 判定: 新規作成候補

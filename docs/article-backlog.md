@@ -74,9 +74,11 @@
   - 注意: PLC出力トラブル記事と重複しないよう、PLC本体のERR/ALMなどが点いた時に、設備状態、PLC本体ランプ、電源、I/O、通信、エラー履歴、復旧前確認の順番で見る内容に限定して作成済み。
   - 想定slug: `plc-error-lamp-troubleshooting-basic`
   - 判定: 作成済み
-- [ ] PLCのI/O割付とは？入力と出力の住所を決める考え方
+- [x] PLCのI/O割付とは？入力と出力の住所を決める考え方
+  - 公開済み: `plc-io-allocation-basic.html`
+  - 注意: `input-output-basic.html` と `plc-xymd-device-basic.html` と重複しないよう、入力/出力の概念説明ではなく、センサーやボタンを入力Xへ、ランプやバルブを出力Yへ対応させるI/O割付表・端子台・図面・ラダーのつながりに限定して作成済み。
   - 想定slug: `plc-io-allocation-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] 2線式センサーとは？3線式との違い
   - 想定slug: `sensor-2wire-3wire-basic`
   - 判定: 新規作成候補

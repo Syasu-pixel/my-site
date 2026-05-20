@@ -59,9 +59,11 @@
   - 注意: 強制ON/OFFの具体操作手順ではなく、設備状態、周囲安全、関係者共有、戻し忘れ防止、現場ルールの確認に絞って作成済み。
   - 想定slug: `gx-works3-force-on-off-basic`
   - 判定: 作成済み
-- [ ] GX Works3のクロスリファレンスとは？
+- [x] GX Works3のクロスリファレンスとは？
+  - 公開済み: `gx-works3-cross-reference-basic.html`
+  - 注意: `gx-works3-device-monitor-basic.html` と重複しないよう、デバイスの値を見る方法ではなく、デバイスの使用箇所を一覧で確認し、影響範囲や変更前確認に活かす内容に限定して作成済み。
   - 想定slug: `gx-works3-cross-reference-basic`
-  - 判定: 新規作成候補
+  - 判定: 作成済み
 - [ ] PLCのT・Cとは？タイマとカウンタのデバイス番号
   - 想定slug: `plc-tc-device-basic`
   - 判定: 新規作成候補

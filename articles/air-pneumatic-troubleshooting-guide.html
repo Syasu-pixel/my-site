@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>空圧トラブルの見方｜エアシリンダ・電磁弁・エア漏れを確認する順番</title>
+  <meta name="description" content="エアシリンダが動かない、遅い、途中で止まる、エア漏れがある時に、元圧・レギュレータ・電磁弁・チューブ・スピコン・サイレンサ・センサー・PLC信号をどの順番で見るかを現場目線で整理します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/air-pneumatic-troubleshooting-guide.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/air-pneumatic-troubleshooting-guide.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/air-pneumatic-troubleshooting-guide.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="空圧トラブルの見方｜エアシリンダ・電磁弁・エア漏れを確認する順番">
+  <meta property="og:description" content="エアシリンダが動かない、遅い、途中で止まる、エア漏れがある時に、元圧・レギュレータ・電磁弁・チューブ・スピコン・サイレンサ・センサー・PLC信号をどの順番で見るかを現場目線で整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/air-pneumatic-troubleshooting-guide.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="空圧トラブルの見方｜エアシリンダ・電磁弁・エア漏れを確認する順番">
+  <meta name="twitter:description" content="エアシリンダが動かない、遅い、途中で止まる、エア漏れがある時に、元圧・レギュレータ・電磁弁・チューブ・スピコン・サイレンサ・センサー・PLC信号をどの順番で見るかを現場目線で整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;--card:#ffffff;--line:#d8e3f0;--line-strong:#c4d5e8;--text:#1e293b;--muted:#5f7288;
+      --blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px;--muted-2:#64748b;--line-header:#dbe7f3;--shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;padding-top:var(--header-h);overflow-wrap:break-word;word-break:break-word}
+    img{display:block;max-width:100%;height:auto}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}.container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{width:auto;height:46px;flex:0 0 auto}.brand-copy{min-width:0;display:block}.brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}.language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}.language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-flag{font-size:18px;line-height:1}.language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:var(--muted-2);box-shadow:var(--shadow-soft)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-input::placeholder{color:#94a3b8}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}.search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}.search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:400px;isolation:isolate}.article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-hero.png") right center/auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    .article-hero-copy{width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}.hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}.btn:hover{text-decoration:none}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}.summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--shadow)}.mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);font-size:13px;font-weight:900;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.section-card{padding:28px;margin-bottom:20px}.side-card{padding:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px;line-height:1.5}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}
+    .key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);border-radius:20px;padding:18px;margin:18px 0}.key-highlight h3{margin:0 0 10px;font-size:16px;color:#1d4ed8}.key-highlight p{margin:0;color:#334155;font-size:14px}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);border-radius:20px;padding:18px;margin:18px 0}.field-highlight h3{margin:0 0 10px;font-size:16px;color:#15803d}.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .simple-list{margin:0;padding-left:20px}.simple-list li{margin:10px 0 0;font-size:15px}.number-list{margin:0;padding-left:20px}.number-list li{margin:12px 0 0;font-size:15px;line-height:1.85}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}
+    .note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}.note-box{background:#fff8ea;border-color:#f7dba2}.danger-box{background:#fff1f2;border-color:#fecaca}.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;padding-top:2px;background:transparent}.talk-avatar img{width:76px;height:auto;display:block;object-fit:contain;background:transparent}.talk-bubble{flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle}.talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}th{background:#f8fbff;color:#0f172a;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}td.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}td.cell-green{background:#ecfdf3;font-weight:900;color:#166534}td.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}td.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue-deep)}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+    .support-card{border-color:#dbeafe}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;font-weight:900;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900;text-align:center;text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    @media(max-width:1100px){.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}
+    @media(max-width:980px){.brand-sub{display:none!important}.brand-title{white-space:nowrap}.header-search{flex:0 0 180px}}
+    @media(max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-hero.png") right -34px bottom -14px/162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.hero-lead{font-size:14px;max-width:32ch}.top-summary{grid-template-columns:1fr}.side-rail{grid-template-columns:1fr}.related-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}.section-card{padding:22px}.talk-avatar{flex-basis:72px;width:72px}.talk-avatar img{width:66px}}
+    @media(min-width:744px) and (max-width:1100px){.article-hero{min-height:360px;border-radius:28px}.article-hero::before{background:url("../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-hero.png") right center/auto 92% no-repeat;opacity:.24}.article-hero-copy{width:min(100%,600px);min-height:360px;padding:40px 34px;justify-content:center}h1{font-size:34px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.summary-card{padding:20px 18px}.summary-card h2{font-size:17px}.summary-card li{font-size:13px}.side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}.article-hero::before{background:url("../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-hero.png") right -46px bottom -20px/178% auto no-repeat;opacity:.14}.container{width:min(100%,calc(100% - 20px))}.section-card h2{font-size:20px}.section-card p,.talk-bubble p,.simple-list li,.number-list li{font-size:14px}.talk-row,.talk-row--right{flex-direction:column;gap:8px}.talk-avatar{width:64px;flex-basis:auto}.talk-row--right .talk-avatar{align-self:flex-end}.talk-avatar img{width:60px}}
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy">
+          <p class="brand-title">電気と制御の実務メモ</p>
+          <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+        </div>
+      </a>
+
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+          <span class="language-menu-icon" aria-hidden="true">🌐</span>
+          <span class="language-menu-current">Japan</span>
+        </button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./air-pneumatic-troubleshooting-guide.html" class="language-menu-item is-active" lang="ja" aria-current="page">
+            <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+            <span><strong>日本語記事</strong><small>日本語記事</small></span>
+          </a>
+          <a href="../en/" class="language-menu-item" lang="en">
+            <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+            <span><strong>English top</strong><small>English top</small></span>
+          </a>
+        </div>
+      </div>
+
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden>
+          <ul class="search-box-results" id="site-search-results"></ul>
+          <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <a href="../categories/control-basics.html">制御の基礎</a>
+      <span>›</span>
+      <span>空圧トラブルの見方</span>
+    </nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">空圧・トラブル確認ハブ</span>
+        <h1 id="page-title">空圧トラブルの見方｜エアシリンダ・電磁弁・エア漏れを確認する順番<br>エア圧・スピコン・リードスイッチ・機械干渉の確認</h1>
+        <p class="hero-lead">エアシリンダが動かない、動きが遅い、途中で止まる、エア漏れがある。そんな時はシリンダ本体だけを見るのではなく、元圧、レギュレータ、電磁弁、チューブ、スピードコントローラ、サイレンサ、センサー、PLC信号まで順番に切り分けることが大切です。</p>
+        <p class="hero-lead" hidden>
+          エアシリンダが動かない、動きが遅い、途中で止まる、エア漏れがある。そんな時はシリンダ本体だけを見るのではなく、元圧、レギュレータ、電磁弁、チューブ、スピードコントローラ、サイレンサ、センサー、PLC信号まで順番に切り分けることが大切です。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
+          <a class="btn btn-secondary" href="#check-order">確認順を見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit">
+        <h2>向いている人</h2>
+        <ul>
+          <li>エアシリンダが出ない・戻らない原因を整理したい人</li>
+          <li>電磁弁は動いているのにシリンダが動かない時の見方を知りたい人</li>
+          <li>スピコン、リードスイッチ、機械干渉の確認順を押さえたい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--notyet">
+        <h2>まだ不要な人</h2>
+        <ul>
+          <li>PLC出力やラダー条件の確認を詳しく知りたい人</li>
+          <li>電磁弁コイルの電圧確認だけを見たい人</li>
+          <li>空圧機器の選定計算や詳細仕様を確認したい人</li>
+        </ul>
+      </section>
+      <section class="summary-card summary-card--conclusion">
+        <h2>先に結論</h2>
+        <ul>
+          <li>まずエア圧と元バルブが生きているかを見ます。</li>
+          <li>次に手動操作でシリンダが動くかを確認します。</li>
+          <li>その後、スピコン、機械干渉、リードスイッチ、出側・戻り側を切り分けます。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc">
+        <a href="#conclusion">先に結論</a>
+        <a href="#check-order">確認順</a>
+        <a href="#air-pressure">エア圧</a>
+        <a href="#manual-operation">手動操作</a>
+        <a href="#speed-controller">スピコン</a>
+        <a href="#mechanical">機械干渉</a>
+        <a href="#reed-switch">リードスイッチ</a>
+        <a href="#summary">まとめ</a>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論</h2>
+          <p>
+            エアシリンダが動かない時は、PLC出力や電磁弁だけを疑うと遠回りになることがあります。
+            電磁弁が切り替わっていても、エア圧不足、スピコンの絞りすぎ、機械干渉、シリンダ固着、リードスイッチ位置ずれで止まることがあります。
+          </p>
+          <p>
+            この記事では、電磁弁の電気側ではなく、<span class="mark">エアシリンダ本体と周辺の空圧・機械側の切り分け</span>に寄せて整理します。
+            実作業では、設備の停止状態、安全確認、残圧抜き、社内ルールを必ず優先してください。
+          </p>
+
+          <div class="key-highlight">
+            <h3>電気側と空圧・機械側を分けて考える</h3>
+            <p>
+              PLC出力や電磁弁コイルが正常でも、空圧側や機械側で止まることがあります。
+              「信号は来ているのに動かない」時ほど、シリンダ周りを順番に見るのが大切です。
+            </p>
+          </div>
+
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--senpai">先輩</span>エアシリンダは、信号だけじゃなくてエア圧、スピコン、機械の引っ掛かりも見る必要があるよ。</p>
+              </div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar">
+                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
+              </div>
+              <div class="talk-bubble">
+                <p><span class="talk-name talk-name--kouhai">新人</span>電磁弁が動いているなら、次はシリンダ側を順番に見るんですね。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="check-order">
+          <h2>2. エアシリンダが動かない時の基本順序</h2>
+          <p>
+            確認順は、空気が来ているか、電磁弁を手動で動かせるか、シリンダが物理的に動ける状態か、検出信号が正しいかの順で見ると整理しやすいです。
+            出側だけ動かないのか、戻り側だけ動かないのか、両方動かないのかも重要です。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-flow.png" alt="エアシリンダが動かない時の確認順フロー" loading="lazy" decoding="async">
+            <figcaption>エア圧、手動操作、スピコン、シリンダ本体、機械干渉、リードスイッチの順で見ると切り分けがしやすくなります。</figcaption>
+          </figure>
+
+          <ol class="number-list">
+            <li><strong>エア圧を見る：</strong>元圧、レギュレータ、残圧、元バルブを確認します。</li>
+            <li><strong>手動操作を見る：</strong>電磁弁の手動操作でシリンダが動くか確認します。</li>
+            <li><strong>スピコンを見る：</strong>絞りすぎ、向き、詰まり、破損を確認します。</li>
+            <li><strong>機械干渉を見る：</strong>ワーク、ガイド、治具、ストッパに当たっていないか確認します。</li>
+            <li><strong>リードスイッチを見る：</strong>位置ずれ、LED、配線、検出位置を確認します。</li>
+          </ol>
+        </section>
+
+        <section class="section-card" id="air-pressure">
+          <h2>3. まずエア圧と元バルブを見る</h2>
+          <p>
+            最初に確認したいのは、シリンダへ動くためのエアが来ているかです。
+            レギュレータの圧力、元バルブ、残圧抜き弁、フィルタレギュレータ、エア漏れを確認します。
+          </p>
+          <p>
+            エア圧が不足していると、無負荷では動くのにワークを押すと止まる、途中で止まる、戻りが弱いといった症状が出ることがあります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-air-pressure.png" alt="エアシリンダのエア圧と元バルブを確認する図" loading="lazy" decoding="async">
+            <figcaption>エア圧、元バルブ、レギュレータ、残圧抜き弁を確認して、シリンダへ空気が供給される状態かを見ます。</figcaption>
+          </figure>
+
+          <div class="note-box">
+            <h3>残圧と安全確認を優先する</h3>
+            <p>
+              空圧機器は残圧で突然動くことがあります。
+              カバー内作業や手を入れる作業では、設備停止、残圧抜き、ロックアウト、社内ルールを優先してください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="manual-operation">
+          <h2>4. 電磁弁の手動操作で動くか見る</h2>
+          <p>
+            電磁弁に手動操作がある場合は、仕様と安全を確認したうえで、手動操作でシリンダが出るか戻るかを確認します。
+            手動操作で動くなら、空圧・機械側はある程度動ける状態で、電気信号側に原因がある可能性があります。
+          </p>
+          <p>
+            手動操作でも動かない場合は、エア供給、スピコン、シリンダ本体、機械干渉、配管の向きなどを疑います。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-manual-operation.png" alt="電磁弁の手動操作でエアシリンダの動きを確認する図" loading="lazy" decoding="async">
+            <figcaption>手動操作で動くかどうかを見ると、電気側と空圧・機械側を切り分けやすくなります。</figcaption>
+          </figure>
+
+          <div class="danger-box">
+            <h3>手動操作は周囲確認をしてから</h3>
+            <p>
+              手動操作でシリンダが急に動くと、挟まれや破損につながることがあります。
+              動作範囲に人や工具がないことを確認し、設備ルールに従って操作してください。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="speed-controller">
+          <h2>5. スピコンの絞りすぎ・向きを見る</h2>
+          <p>
+            スピコンを絞りすぎていると、シリンダがほとんど動かない、非常に遅い、途中で止まるように見えることがあります。
+            調整ねじの位置、ロックナット、取り付け向き、配管の詰まりを確認します。
+          </p>
+          <p>
+            メータイン・メータアウトの考え方や、シリンダの速度調整は設備によって扱いが変わるため、現場の標準や図面を確認しながら調整します。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-speed-controller.png" alt="エアシリンダのスピコンを確認する図" loading="lazy" decoding="async">
+            <figcaption>スピコンの絞りすぎ、向き、詰まり、調整ねじの状態を確認します。</figcaption>
+          </figure>
+
+          <div class="field-highlight">
+            <h3>出側と戻り側を分けて見る</h3>
+            <p>
+              出る時だけ遅い、戻る時だけ遅い場合は、それぞれのポート側のスピコンや配管を分けて確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="mechanical">
+          <h2>6. 機械干渉・ロッドの動きを見る</h2>
+          <p>
+            シリンダ自体は動こうとしていても、ワーク、ガイド、ストッパ、治具、可動部の渋りで止まることがあります。
+            特に、押し付け方向や端位置付近で止まる場合は、機械側の抵抗や干渉も確認します。
+          </p>
+          <p>
+            ロッドの曲がり、取付芯ずれ、摺動部の汚れ、ガイドの重さ、ワークの噛み込みなども原因になります。
+            エアを抜いた状態で安全を確保し、手で動く範囲を確認することもあります。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-mechanical-interference.png" alt="エアシリンダの機械干渉やロッドの動きを確認する図" loading="lazy" decoding="async">
+            <figcaption>シリンダの先にあるワーク、ガイド、治具、ストッパとの干渉を確認します。</figcaption>
+          </figure>
+
+          <div class="check-grid">
+            <div class="check-item check-item--important">
+              <h3>ワーク干渉</h3>
+              <p>ワークが噛み込んでいないか、位置ずれしていないか確認します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>ガイドの渋り</h3>
+              <p>リニアガイドやスライド部が重くなっていないか確認します。</p>
+            </div>
+            <div class="check-item check-item--warning">
+              <h3>ロッドの曲がり</h3>
+              <p>横荷重や衝突でロッドに無理がかかっていないか見ます。</p>
+            </div>
+            <div class="check-item check-item--purple">
+              <h3>ストッパ位置</h3>
+              <p>ストッパや治具が調整ずれしていないか確認します。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="reed-switch">
+          <h2>7. リードスイッチ位置と検出状態を見る</h2>
+          <p>
+            シリンダは動いているのに次工程へ進まない場合、シリンダ位置を検出するリードスイッチやオートスイッチが原因のことがあります。
+            センサー位置、LED、配線、コネクタ、入力モニタを確認します。
+          </p>
+          <p>
+            シリンダ端まで動いているように見えても、リードスイッチ位置がずれていると、PLC側では到着信号が入らないことがあります。
+            出側・戻り側のどちらの検出が入っていないかを分けて見ます。
+          </p>
+
+          <figure class="article-figure">
+            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-reed-switch.png" alt="エアシリンダのリードスイッチ位置と検出状態を確認する図" loading="lazy" decoding="async">
+            <figcaption>リードスイッチの位置、LED、配線、PLC入力モニタを合わせて確認します。</figcaption>
+          </figure>
+
+          <div class="note-box">
+            <h3>動かないのか、検出していないのかを分ける</h3>
+            <p>
+              実際にはシリンダが動いているのに、到着信号が入らないため「動いていないように見える」こともあります。
+              目視の動きとPLC入力モニタを分けて確認します。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>8. まとめ</h2>
+          <p>
+            エアシリンダが動かない時は、電磁弁やPLC出力だけではなく、エア圧、手動操作、スピコン、シリンダ本体、機械干渉、リードスイッチを順番に確認します。
+            「出ない」「戻らない」「途中で止まる」「動いているのに検出しない」を分けると、原因を絞り込みやすくなります。
+          </p>
+
+          <ul class="simple-list">
+            <li>まずエア圧、元バルブ、残圧抜き弁を確認する</li>
+            <li>手動操作でシリンダが動くか確認する</li>
+            <li>スピコンの絞りすぎ、向き、詰まりを確認する</li>
+            <li>ワーク、ガイド、治具、ストッパとの機械干渉を見る</li>
+            <li>リードスイッチ位置とPLC入力モニタを合わせて確認する</li>
+          </ul>
+
+          <div class="article-footer-nav">
+            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
+            <a class="btn btn-secondary" href="solenoid-valve-troubleshooting-basic.html">電磁弁が動かない時を見る</a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="solenoid-valve-troubleshooting-basic.html">
+              <h3>電磁弁が動かない時に見る順番</h3>
+              <p>電磁弁側の電気・空圧の切り分けを確認できます。</p>
+            </a>
+            <a class="related-card" href="plc-output-troubleshooting-basic.html">
+              <h3>PLC出力がONしない時に見る順番</h3>
+              <p>シリンダより上流のPLC出力側の切り分けを確認できます。</p>
+            </a>
+            <a class="related-card" href="reed-switch-basic.html">
+              <h3>リードスイッチとは？</h3>
+              <p>シリンダ位置検出に使うセンサーの基本を整理できます。</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card">
+          <h3>記事内メニュー</h3>
+          <ul>
+            <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#check-order">確認順</a></li>
+            <li><a href="#air-pressure">エア圧</a></li>
+            <li><a href="#manual-operation">手動操作</a></li>
+            <li><a href="#speed-controller">スピコン</a></li>
+            <li><a href="#mechanical">機械干渉</a></li>
+            <li><a href="#reed-switch">リードスイッチ</a></li>
+            <li><a href="#summary">まとめ</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>見るポイント</h3>
+          <ul>
+            <li>エア圧を見る</li>
+            <li>手動操作で動くか見る</li>
+            <li>スピコンを見る</li>
+            <li>機械干渉を見る</li>
+            <li>リードスイッチを見る</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>関連カテゴリ</h3>
+          <ul>
+            <li><a href="../categories/control-basics.html">制御の基礎</a></li>
+            <li><a href="../categories/troubleshooting.html">トラブル確認</a></li>
+          </ul>
+        </section>
+
+        <section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+        <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel){return;}
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+          button.focus();
+        }
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

@@ -11,6 +11,7 @@
 
   const MIN_QUERY_LENGTH = 2;
   const MAX_RESULTS = 6;
+  const isEnglishPage = location.pathname.startsWith('/en/');
 
   const ensureHiddenStyle = () => {
     if (document.getElementById('site-search-hidden-style')) return;
@@ -105,6 +106,8 @@
 
     if (hasMatch(category, (v, q) => v.includes(q))) score += hasMatch(category, (v, q) => v.startsWith(q)) ? 18 : 10;
     if (hasMatch(description, (v, q) => v.includes(q))) score += hasMatch(description, (v, q) => v.startsWith(q)) ? 15 : 8;
+
+    if (isEnglishPage && entry.lang === 'en') score += 25;
 
     return score;
   };

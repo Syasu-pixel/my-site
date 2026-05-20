@@ -20,11 +20,54 @@
 
 ### B. Step 2 導線追加タスク
 - 確認用URLをユーザーが確認済みであることを前提に開始する。
+- Step 2は原則 Step 2-A（基本導線・検索整合）を先に実施し、既存記事への関連記事追加が必要な場合のみ Step 2-B を別タスクで実施する。
 - Codexは導線追加を行う。
 - `index / category / search-index / sitemap / backlog` を更新する。
 - 記事HTMLと画像は原則変更しない。
 - `/seo/sitemap.xml` は非運用なので触らない。
 - 報告は `safe to close: YES / NO`。
+
+
+## Step 2導線追加の分離ルール
+
+Step 2は、原則として Step 2-A と Step 2-B に分ける。
+
+### Step 2-A: 基本導線・検索整合
+
+新規記事の確認用URLをユーザーが確認済みの場合、まず以下のみを更新する。
+
+- categories/*.html
+- assets/data/search-index.json
+- sitemap.xml
+- docs/article-backlog.md
+
+Step 2-Aでは、以下を触らない。
+
+- articles/**
+- assets/images/**
+- en/**
+- index.html
+- seo/sitemap.xml
+
+Step 2-Aでは、既存記事への関連記事カード追加は行わない。
+カテゴリページ、検索インデックス、サイトマップ、バックログに反映できていれば、基本導線は確保済みと判断する。
+
+### Step 2-B: 既存記事への関連記事追加
+
+既存記事への関連記事追加が必要な場合だけ、Step 2-Aとは別タスクで実施する。
+
+Step 2-Bのルール:
+
+- 対象記事は原則1本ずつに限定する。
+- 複数記事へ一括で関連記事カードを追加しない。
+- related-card は、各記事の「あわせて読みたい記事」セクション内の .related-grid の中にだけ追加する。
+- talk-thread 内、本文途中、会話ブロック直後、section本文内には related-card を置かない。
+- 既存の talk-thread、talk-row、talk-avatar、talk-bubble、閉じタグ、インデントを変更しない。
+- 既存の関連記事カードを削除しない。
+- 1行圧縮HTMLや構造が読み取りにくい記事には、無理に関連記事カードを追加しない。
+- 追加位置が安全に特定できない場合は not safe と報告し、変更しない。
+- articles/** を触る場合は、対象記事名と変更箇所をPR本文に明記する。
+- safe to merge 判定では、talk-thread 周辺に差分が出ていないことを確認する。
 
 ## 一括反映ルール
 - 記事HTMLと画像は、1記事ずつユーザーがGitHubへ追加する。
@@ -244,6 +287,7 @@ Checks:
 - トップページの新着記事 / 右カラム新着リストが10件以内である
 - 新記事を棚に出した場合、追加ではなく入れ替えである
 - 入れ替えた記事と外した記事をPR本文に明記している
+- PR本文に safe to merge: YES / NO を明記している
 - 表示数を増やしてトップページを縦に間延びさせていない
 
 判定:

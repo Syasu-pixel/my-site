@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCのT・Cとは？｜タイマとカウンタのデバイス番号をやさしく整理</title>
+  <meta name="description" content="PLCのT・Cとは何かを初心者向けに整理。タイマTとカウンタCのデバイス番号、現在値、設定値、接点としての使われ方、ラダーを見る時の基本を現場目線で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-tc-device-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-tc-device-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-tc-device-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCのT・Cとは？｜タイマとカウンタのデバイス番号をやさしく整理">
+  <meta property="og:description" content="PLCのTはタイマ、Cはカウンタ。現在値・設定値・接点としての使われ方を初心者向けに整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-tc-device-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/plc-tc-device-basic/plc-tc-device-basic-ogp.png">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLCのT・Cとは？">
+  <meta name="twitter:description" content="タイマTとカウンタCのデバイス番号、現在値、設定値、接点としての使われ方を整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/plc-tc-device-basic/plc-tc-device-basic-ogp.png">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{--bg:#f5f8fc;--card:#ffffff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px;--line-header:#dbe7f3;}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;padding-top:var(--header-h);overflow-wrap:break-word;word-break:break-word}
+    img{display:block;max-width:100%;height:auto}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}.container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand-logo{height:46px}.brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}
+    .language-menu{position:relative;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05)}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-item strong{display:block;font-size:12px;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;color:#64748b;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:0 8px 20px rgba(15,23,42,.05)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;display:block}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:400px;isolation:isolate}.article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/plc-tc-device-basic/plc-tc-device-basic-hero.png") right center/auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.54) 38%,rgba(255,255,255,.22) 64%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}.article-hero-copy{width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}h1{margin:0 0 14px;font-size:40px;line-height:1.22}.hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;text-decoration:none;border:1px solid transparent}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.18)}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px 20px;box-shadow:var(--shadow)}.summary-card h2{margin:0 0 12px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}
+    .mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:var(--shadow)}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);font-size:13px;font-weight:900;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card,.side-card{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.section-card{padding:28px;margin-bottom:20px}.side-card{padding:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}.key-highlight,.field-highlight{border-radius:20px;padding:18px;margin:18px 0}.key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}.key-highlight h3{color:#1d4ed8}.field-highlight h3{color:#15803d}.key-highlight h3,.field-highlight h3{margin:0 0 10px;font-size:16px}.key-highlight p,.field-highlight p{margin:0;color:#334155;font-size:14px}
+    .simple-list,.number-list{margin:0;padding-left:20px}.simple-list li,.number-list li{margin:10px 0 0;font-size:15px}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure img{width:100%}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;background:#fff}.note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent}.note-box{background:#fff8ea;border-color:#f7dba2}.danger-box{background:#fff1f2;border-color:#fecaca}.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px}.note-box p,.danger-box p{margin:0;font-size:14px;color:var(--muted)}
+    .talk-thread{display:grid;gap:12px;margin-top:18px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;justify-content:center}.talk-avatar img{width:76px}.talk-bubble{max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900}.talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--purple{background:#f5f0ff;border-color:#ddc9ff}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}th{background:#f8fbff;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}.cell-blue{background:#eff6ff;font-weight:900;color:#1e3a8a}.cell-green{background:#ecfdf3;font-weight:900;color:#166534}.cell-purple{background:#f5f0ff;font-weight:900;color:#5b21b6}.cell-orange{background:#fff7e8;font-weight:900;color:#92400e}
+    .side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue-deep)}.related-card p{margin:0;font-size:13px;color:var(--muted)}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;justify-content:center;align-items:center;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900;text-align:center;text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    @media(max-width:1100px){.page-layout{grid-template-columns:1fr}.side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}}
+    @media(max-width:900px){.article-hero::before{background:url("../assets/images/plc-tc-device-basic/plc-tc-device-basic-hero.png") right -34px bottom -14px/162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr}.section-card{padding:22px}}
+    @media(max-width:640px){:root{--header-h:66px}.site-header{padding:7px 8px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.header-search{flex:0 1 138px;min-height:36px}.container{width:min(100%,calc(100% - 20px))}.talk-row,.talk-row--right{flex-direction:column}.talk-bubble{max-width:none}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand" aria-label="トップページへ移動">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+        <div class="brand-copy"><p class="brand-title">電気と制御の実務メモ</p><p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p></div>
+      </a>
+      <div class="language-menu" aria-label="言語と地域の切り替え">
+        <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える"><span class="language-menu-icon" aria-hidden="true">🌐</span><span class="language-menu-current">Japan</span></button>
+        <div class="language-menu-panel" id="languageMenuPanel" hidden>
+          <a href="./plc-tc-device-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page"><span class="language-menu-flag" aria-hidden="true">🇯🇵</span><span><strong>日本語記事</strong><small>日本語記事</small></span></a>
+        </div>
+      </div>
+      <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+        <label class="sr-only" for="site-search-input">サイト内検索</label>
+        <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+        <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+        <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p></div>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>PLCのT・Cとは？</span></nav>
+
+    <section class="article-hero" aria-labelledby="page-title">
+      <div class="article-hero-copy">
+        <span class="hero-label">PLC・タイマ/カウンタ</span>
+        <h1 id="page-title">PLCのT・Cとは？<br>タイマとカウンタのデバイス番号をやさしく整理</h1>
+        <p class="hero-lead">ラダーでよく見るTはタイマ、Cはカウンタとして使われることが多いデバイスです。現在値、設定値、接点としての使われ方を分けて見ると、動作を追いやすくなります。</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#conclusion">先に結論から読む</a><a class="btn btn-secondary" href="#timer-counter">TとCの違いへ</a></div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の導入まとめ">
+      <section class="summary-card summary-card--fit"><h2>向いている人</h2><ul><li>ラダーに出てくるTやCの意味で迷う人</li><li>タイマの現在値・設定値の見方を整理したい人</li><li>カウンタの数え方やリセット条件を追いたい人</li></ul></section>
+      <section class="summary-card summary-card--notyet"><h2>まだ不要な人</h2><ul><li>高速カウンタや特殊ユニットの詳細を知りたい人</li><li>機種ごとの全デバイス範囲を確認したい人</li><li>命令語の仕様を公式マニュアルレベルで調べたい人</li></ul></section>
+      <section class="summary-card summary-card--conclusion"><h2>先に結論</h2><ul><li>Tは時間を見てONするタイマとして使われます。</li><li>Cは回数を数えてONするカウンタとして使われます。</li><li>どちらも現在値・設定値・接点の使われ方を分けて見るのが大切です。</li></ul></section>
+    </section>
+
+    <section class="mini-toc-card" aria-labelledby="mini-toc-title">
+      <h2 id="mini-toc-title">この記事でわかること</h2>
+      <div class="mini-toc"><a href="#conclusion">先に結論</a><a href="#timer-counter">TとCの基本</a><a href="#timer">タイマT</a><a href="#counter">カウンタC</a><a href="#monitor">現在値と設定値</a><a href="#ladder">ラダーでの見方</a><a href="#caution">注意点</a><a href="#summary">まとめ</a></div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-column">
+        <section class="section-card" id="conclusion">
+          <h2>1. 先に結論：Tは時間、Cは回数を見るデバイス</h2>
+          <p>PLCのラダーで出てくる<strong>T</strong>はタイマ、<strong>C</strong>はカウンタとして使われることが多いデバイスです。T0、T1、C0、C1のように、アルファベットと番号を組み合わせて扱います。</p>
+          <p>タイマは「一定時間たったらONする」、カウンタは「一定回数数えたらONする」と考えると入口は分かりやすいです。ただし実際のラダーでは、<span class="mark">現在値、設定値、リセット条件、接点としての使われ方</span>を分けて見る必要があります。</p>
+          <div class="key-highlight"><h3>この記事で扱う範囲</h3><p>この記事では、TとCの基本的な役割、デバイス番号の見方、現在値・設定値の考え方、ラダーで追う時の注意点を整理します。機種ごとの詳細範囲や命令仕様は、公式マニュアルと実プロジェクトで確認してください。</p></div>
+          <div class="talk-thread">
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>Tは時間、Cは回数。まずはこの入口を押さえると、ラダーで止まっている場所を追いやすくなるよ。</p></div></div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">新人</span>T0やC0も、XやMみたいにPLCの中で見るデバイスなんですね。</p></div></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="timer-counter">
+          <h2>2. T・Cとは何を見るものか</h2>
+          <p>TとCは、ラダーの中で時間や回数を扱う時によく出てきます。Tはタイマとして、入力条件が成立してから一定時間後に接点をONさせるような使われ方をします。Cはカウンタとして、入力信号が入った回数を数え、設定回数に達したら接点をONさせるような使われ方をします。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-overview.png" alt="PLCのTとCの基本役割を整理した図" loading="lazy" decoding="async"><figcaption>Tは時間、Cは回数を扱うデバイスとして見ると、ラダーの流れを追いやすくなります。</figcaption></figure>
+          <div class="table-wrap"><table><thead><tr><th>デバイス</th><th>基本の役割</th><th>現場での見方</th></tr></thead><tbody><tr><td class="cell-blue">T</td><td>タイマ。時間を数える</td><td>現在値、設定時間、タイマ接点がONする条件を見る</td></tr><tr><td class="cell-green">C</td><td>カウンタ。回数を数える</td><td>現在値、設定回数、カウント入力、リセット条件を見る</td></tr><tr><td class="cell-purple">T接点/C接点</td><td>完了条件として使う</td><td>タイムアップ後、設定回数到達後に次の条件へつながる</td></tr><tr><td class="cell-orange">現在値</td><td>今どこまで進んでいるか</td><td>設定値に近づいているか、リセットされていないかを見る</td></tr></tbody></table></div>
+        </section>
+
+        <section class="section-card" id="timer">
+          <h2>3. タイマTの見方</h2>
+          <p>タイマTは、条件が成立してから一定時間を数えるために使います。たとえば「センサーがONしてから2秒後に次の動作へ進む」「ランプを一定時間だけ点灯する」といった場面です。</p>
+          <p>ラダーを見る時は、Tの番号だけでなく、タイマを動かしている条件、設定値、タイマ接点がどこで使われているかを確認します。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-timer-flow.png" alt="タイマTの条件、現在値、設定値、接点の流れを示す図" loading="lazy" decoding="async"><figcaption>タイマは、条件成立、時間経過、タイマ接点ONという流れで見ると整理しやすいです。</figcaption></figure>
+          <div class="check-grid"><div class="check-item check-item--important"><h3>起動条件</h3><p>どの接点や条件でタイマが数え始めるかを見ます。</p></div><div class="check-item check-item--field"><h3>設定値</h3><p>何秒相当でタイムアップする設定かを確認します。</p></div><div class="check-item check-item--warning"><h3>現在値</h3><p>今どこまで時間が進んでいるかを見ます。</p></div><div class="check-item check-item--purple"><h3>タイマ接点</h3><p>タイムアップ後にどの動作へつながるかを追います。</p></div></div>
+        </section>
+
+        <section class="section-card" id="counter">
+          <h2>4. カウンタCの見方</h2>
+          <p>カウンタCは、信号が入った回数を数えるために使います。たとえば「ワークを10個数えたら停止する」「ボタンを押した回数を数える」「センサー通過回数で次工程へ進む」といった場面です。</p>
+          <p>Cを見る時は、カウント入力だけでなく、リセット条件が重要です。カウントは進んでいるのに動作が変わらない場合、設定値に達していないのか、リセットされているのか、C接点の使い方が違うのかを分けて確認します。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-counter-flow.png" alt="カウンタCの入力、現在値、設定値、リセット条件を整理した図" loading="lazy" decoding="async"><figcaption>カウンタは、何を数えているか、何回でONするか、どこでリセットされるかを分けて見ます。</figcaption></figure>
+          <ol class="number-list"><li><strong>カウント入力を見る：</strong>どの信号を数えているか確認します。</li><li><strong>現在値を見る：</strong>今何回まで数えているか確認します。</li><li><strong>設定値を見る：</strong>何回で完了する条件か確認します。</li><li><strong>リセット条件を見る：</strong>どの条件で0に戻るか確認します。</li><li><strong>C接点の使われ方を見る：</strong>完了後にどの回路へつながるか追います。</li></ol>
+        </section>
+
+        <section class="section-card" id="monitor">
+          <h2>5. 現在値・設定値・接点を分けて見る</h2>
+          <p>TやCで迷いやすいのは、同じ番号でも「現在値を見る」「設定値を見る」「接点として使う」という見方が混ざることです。T0やC0という番号だけを見て判断せず、それが何の意味で表示されているかを確認します。</p>
+          <div class="table-wrap"><table><thead><tr><th>見るもの</th><th>意味</th><th>確認ポイント</th></tr></thead><tbody><tr><td class="cell-blue">現在値</td><td>時間や回数が今どこまで進んでいるか</td><td>増えているか、途中で戻っていないかを見る</td></tr><tr><td class="cell-green">設定値</td><td>何秒・何回で完了とするか</td><td>仕様書や画面設定と合っているか確認する</td></tr><tr><td class="cell-purple">T接点 / C接点</td><td>完了後にONする条件</td><td>次工程や出力条件にどう使われるかを見る</td></tr><tr><td class="cell-orange">リセット条件</td><td>現在値を戻す条件</td><td>意図せず戻っていないか、戻し忘れがないか見る</td></tr></tbody></table></div>
+          <div class="note-box"><h3>表示形式や単位も確認する</h3><p>タイマの単位やカウンタの扱いは、PLC機種や命令の種類によって違う場合があります。秒、0.1秒、ms相当などを思い込みで判断せず、公式マニュアル・コメント・画面表示・既存仕様を合わせて確認します。</p></div>
+        </section>
+
+        <section class="section-card" id="ladder">
+          <h2>6. ラダーでT・Cを追う時の基本</h2>
+          <p>ラダーでTやCを追う時は、まずそのT/Cを「作っている場所」と「使っている場所」を分けます。タイマ命令やカウンタ命令がある場所は値や完了条件を作る側、T接点やC接点として出てくる場所はその結果を使う側です。</p>
+          <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-ladder-check.png" alt="ラダー内でタイマとカウンタの作る場所と使う場所を分ける図" loading="lazy" decoding="async"><figcaption>作る場所、使う場所、リセットする場所を分けると、T・Cの動作を追いやすくなります。</figcaption></figure>
+          <div class="field-highlight"><h3>クロスリファレンスと組み合わせると探しやすい</h3><p>T0やC0が複数箇所に出てくる場合は、クロスリファレンスで使用箇所を確認し、タイマ命令・カウンタ命令・接点・リセット条件を分けて追うと見落としにくくなります。</p></div>
+        </section>
+
+        <section class="section-card" id="caution">
+          <h2>7. T・Cを見る時の注意点</h2>
+          <p>TやCは便利ですが、現在値だけを見て原因を決めつけないようにします。起動条件が入っていない、リセット条件が入りっぱなし、設定値が想定と違う、完了接点の使われ方が違うなど、複数の原因が考えられます。</p>
+          <div class="danger-box"><h3>設定変更は現場ルールに従う</h3><p>タイマ設定やカウンタ設定を変えると、設備の動作タイミングや停止条件が変わることがあります。変更前にはバックアップ、関係者共有、設備状態、周囲安全、復旧手順を確認してください。</p></div>
+          <ul class="simple-list"><li>タイマの単位を思い込みで判断しない</li><li>現在値が進まない時は起動条件を見る</li><li>カウンタが増えない時はカウント入力を見る</li><li>値が戻る時はリセット条件を見る</li><li>完了接点がどこで使われているかを確認する</li></ul>
+        </section>
+
+        <section class="section-card" id="summary">
+          <h2>8. まとめ</h2>
+          <p>PLCのTはタイマ、Cはカウンタとして、時間や回数を扱うために使われることが多いデバイスです。ラダーを見る時は、番号だけでなく、現在値、設定値、接点、リセット条件を分けて確認すると理解しやすくなります。</p>
+          <ul class="simple-list"><li>Tは時間を数えるタイマとして見る</li><li>Cは回数を数えるカウンタとして見る</li><li>現在値と設定値を分けて確認する</li><li>T接点・C接点がどこで使われているかを見る</li><li>リセット条件や単位を思い込みで判断しない</li></ul>
+          <div class="article-footer-nav"><a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a><a class="btn btn-secondary" href="plc-xymd-device-basic.html">X・Y・M・Dを見る</a></div>
+        </section>
+
+        <section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <div class="related-grid">
+            <a class="related-card" href="plc-xymd-device-basic.html"><h3>PLCのX・Y・M・Dとは？</h3><p>T・Cの前に、よく出るデバイスの役割を整理できます。</p></a>
+            <a class="related-card" href="gx-works3-monitor-basic.html"><h3>GX Works3のモニタ表示の見方</h3><p>タイマやカウンタの現在値を見る前に、モニタの基本を確認できます。</p></a>
+            <a class="related-card" href="gx-works3-cross-reference-basic.html"><h3>GX Works3のクロスリファレンスとは？</h3><p>TやCがどこで使われているかを一覧で探す考え方を整理できます。</p></a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side-rail" aria-label="記事サイドメニュー">
+        <section class="side-card"><h3>見るポイント</h3><ul><li>Tは時間を見る</li><li>Cは回数を見る</li><li>現在値と設定値を分ける</li><li>接点としての使われ方を見る</li><li>リセット条件を確認する</li><li>単位を思い込まない</li></ul></section>
+        <section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p>
+          <div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
+  <script>
+    (function(){
+      const button = document.getElementById("languageMenuButton");
+      const panel = document.getElementById("languageMenuPanel");
+      if(!button || !panel){return;}
+      button.addEventListener("click", function(){
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        panel.hidden = isOpen;
+      });
+      document.addEventListener("click", function(event){
+        if(!button.contains(event.target) && !panel.contains(event.target)){
+          button.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        }
+      });
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){button.setAttribute("aria-expanded", "false");panel.hidden = true;button.focus();}
+      });
+    })();
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

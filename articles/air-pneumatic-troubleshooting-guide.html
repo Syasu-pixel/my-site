@@ -132,25 +132,27 @@
       <section class="summary-card summary-card--fit">
         <h2>向いている人</h2>
         <ul>
-          <li>エアシリンダが出ない・戻らない原因を整理したい人</li>
-          <li>電磁弁は動いているのにシリンダが動かない時の見方を知りたい人</li>
-          <li>スピコン、リードスイッチ、機械干渉の確認順を押さえたい人</li>
+          <li>エアシリンダが動かない原因を順番に切り分けたい人</li>
+          <li>電磁弁のランプは点くのにシリンダが動かない時の見方を知りたい人</li>
+          <li>圧力、エア漏れ、スピコン、サイレンサ、PLC信号をまとめて確認したい人</li>
         </ul>
       </section>
       <section class="summary-card summary-card--notyet">
         <h2>まだ不要な人</h2>
         <ul>
-          <li>PLC出力やラダー条件の確認を詳しく知りたい人</li>
-          <li>電磁弁コイルの電圧確認だけを見たい人</li>
-          <li>空圧機器の選定計算や詳細仕様を確認したい人</li>
+          <li>特定メーカーの型式ごとの仕様値を確認したい人</li>
+          <li>空圧回路の詳細設計や選定計算をしたい人</li>
+          <li>安全確認なしで実機を動かす操作手順だけを知りたい人</li>
         </ul>
       </section>
       <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>まずエア圧と元バルブが生きているかを見ます。</li>
-          <li>次に手動操作でシリンダが動くかを確認します。</li>
-          <li>その後、スピコン、機械干渉、リードスイッチ、出側・戻り側を切り分けます。</li>
+          <li>空圧トラブルは「圧力」「漏れ」「電磁弁」「シリンダ」「排気」「センサー/PLC信号」を順番に見る</li>
+          <li>動かない原因はシリンダ本体だけとは限らない</li>
+          <li>電磁弁ランプが点いていても、空気が正しく切り替わっているとは限らない</li>
+          <li>ゲージ圧が正常でも、動作時に圧力が落ちることがある</li>
+          <li>メーカー資料、空圧回路図、現場ルールを優先する</li>
         </ul>
       </section>
     </section>
@@ -159,12 +161,11 @@
       <h2 id="mini-toc-title">この記事でわかること</h2>
       <div class="mini-toc">
         <a href="#conclusion">先に結論</a>
+        <a href="#safety">Safety first</a>
         <a href="#check-order">確認順</a>
-        <a href="#air-pressure">エア圧</a>
-        <a href="#manual-operation">手動操作</a>
-        <a href="#speed-controller">スピコン</a>
-        <a href="#mechanical">機械干渉</a>
-        <a href="#reed-switch">リードスイッチ</a>
+        <a href="#symptom-map">症状別マップ</a>
+        <a href="#by-cause">原因別に読む記事</a>
+        <a href="#next-articles">次に作る記事</a>
         <a href="#summary">まとめ</a>
       </div>
     </section>
@@ -173,232 +174,168 @@
       <div class="main-column">
         <section class="section-card" id="conclusion">
           <h2>1. 先に結論</h2>
-          <p>
-            エアシリンダが動かない時は、PLC出力や電磁弁だけを疑うと遠回りになることがあります。
-            電磁弁が切り替わっていても、エア圧不足、スピコンの絞りすぎ、機械干渉、シリンダ固着、リードスイッチ位置ずれで止まることがあります。
-          </p>
-          <p>
-            この記事では、電磁弁の電気側ではなく、<span class="mark">エアシリンダ本体と周辺の空圧・機械側の切り分け</span>に寄せて整理します。
-            実作業では、設備の停止状態、安全確認、残圧抜き、社内ルールを必ず優先してください。
-          </p>
+          <p>空圧トラブルは、シリンダだけを見ても原因が分からないことが多いです。</p>
+          <p>エアシリンダが動かない時は、次のように「空気の流れ」と「電気信号」を分けて確認すると、原因を切り分けやすくなります。</p>
+          <ul class="simple-list">
+            <li>エア元圧が来ているか</li>
+            <li>レギュレータの二次圧が落ちていないか</li>
+            <li>チューブや継手から漏れていないか</li>
+            <li>電磁弁が正しく切り替わっているか</li>
+            <li>シリンダに機械的な引っ掛かりがないか</li>
+            <li>スピードコントローラやサイレンサで排気が詰まっていないか</li>
+            <li>リードスイッチや圧力スイッチ、PLC入力が正しく入っているか</li>
+          </ul>
+          <p>ここで大事なのは、「電磁弁のランプが点いている = シリンダが動くはず」と決めつけないことです。</p>
+          <p>電気信号が出ていても、空気圧、配管、排気、機械負荷、センサー条件のどこかで止まっていることがあります。</p>
+        </section>
 
-          <div class="key-highlight">
-            <h3>電気側と空圧・機械側を分けて考える</h3>
-            <p>
-              PLC出力や電磁弁コイルが正常でも、空圧側や機械側で止まることがあります。
-              「信号は来ているのに動かない」時ほど、シリンダ周りを順番に見るのが大切です。
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>エアシリンダは、信号だけじゃなくてエア圧、スピコン、機械の引っ掛かりも見る必要があるよ。</p>
-              </div>
-            </div>
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>電磁弁が動いているなら、次はシリンダ側を順番に見るんですね。</p>
-              </div>
-            </div>
-          </div>
+        <section class="section-card" id="safety">
+          <h2>2. Safety first</h2>
+          <p>空圧機器は、残圧や可動部の動きに注意が必要です。</p>
+          <p>確認する前に、必ず設備状態、周囲安全、残圧、可動部の位置を確認してください。</p>
+          <ul class="simple-list">
+            <li>シリンダの可動範囲に手や体を入れない</li>
+            <li>手動操作をする前に、動いて困る部分がないか確認する</li>
+            <li>残圧で急に動く可能性を考える</li>
+            <li>PLC出力や電磁弁を強制的に動かす場合は、現場ルールと責任者確認を優先する</li>
+            <li>圧力を上げれば解決、という判断をしない</li>
+            <li>メーカー仕様書、空圧回路図、電気図面、現場の安全ルールを最優先する</li>
+          </ul>
+          <p>この記事は、現場での確認順を整理するための補助です。最終判断は、必ず公式資料と現場ルールに従ってください。</p>
         </section>
 
         <section class="section-card" id="check-order">
-          <h2>2. エアシリンダが動かない時の基本順序</h2>
-          <p>
-            確認順は、空気が来ているか、電磁弁を手動で動かせるか、シリンダが物理的に動ける状態か、検出信号が正しいかの順で見ると整理しやすいです。
-            出側だけ動かないのか、戻り側だけ動かないのか、両方動かないのかも重要です。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-flow.png" alt="エアシリンダが動かない時の確認順フロー" loading="lazy" decoding="async">
-            <figcaption>エア圧、手動操作、スピコン、シリンダ本体、機械干渉、リードスイッチの順で見ると切り分けがしやすくなります。</figcaption>
-          </figure>
-
+          <h2>3. 空圧トラブルはこの順番で見る</h2>
+          <p>空圧トラブルは、原因を一つずつ消していく方が安全です。</p>
           <ol class="number-list">
-            <li><strong>エア圧を見る：</strong>元圧、レギュレータ、残圧、元バルブを確認します。</li>
-            <li><strong>手動操作を見る：</strong>電磁弁の手動操作でシリンダが動くか確認します。</li>
-            <li><strong>スピコンを見る：</strong>絞りすぎ、向き、詰まり、破損を確認します。</li>
-            <li><strong>機械干渉を見る：</strong>ワーク、ガイド、治具、ストッパに当たっていないか確認します。</li>
-            <li><strong>リードスイッチを見る：</strong>位置ずれ、LED、配線、検出位置を確認します。</li>
+            <li>設備を止めて安全を確保する</li>
+            <li>エア元圧を見る</li>
+            <li>レギュレータの二次圧を見る</li>
+            <li>チューブ・継手・エア漏れを見る</li>
+            <li>電磁弁のランプ・コイル・切替を確認する</li>
+            <li>シリンダの機械負荷や引っ掛かりを見る</li>
+            <li>スピードコントローラ・サイレンサ・排気を見る</li>
+            <li>リードスイッチ・圧力スイッチ・PLC入力を見る</li>
           </ol>
+          <p>最初からシリンダを疑うより、エア源から順番に追う方が、見落としが少なくなります。特に、ゲージ圧は止まっている時だけでなく、動作させた瞬間に落ちるかどうかも見る必要があります。</p>
         </section>
 
-        <section class="section-card" id="air-pressure">
-          <h2>3. まずエア圧と元バルブを見る</h2>
-          <p>
-            最初に確認したいのは、シリンダへ動くためのエアが来ているかです。
-            レギュレータの圧力、元バルブ、残圧抜き弁、フィルタレギュレータ、エア漏れを確認します。
-          </p>
-          <p>
-            エア圧が不足していると、無負荷では動くのにワークを押すと止まる、途中で止まる、戻りが弱いといった症状が出ることがあります。
-          </p>
+        <section class="section-card" id="symptom-map">
+          <h2>4. 症状別マップ</h2>
+          <h3>エアシリンダが動かない</h3>
+          <p>まずは、エアが来ているか、電磁弁が切り替わっているか、シリンダが機械的に引っ掛かっていないかを分けて見ます。</p>
+          <ul class="simple-list">
+            <li><a href="air-cylinder-troubleshooting-basic.html">エアシリンダが動かない時に見る順番</a></li>
+            <li><a href="solenoid-valve-troubleshooting-basic.html">電磁弁が動かない時に見る順番</a></li>
+            <li><a href="air-regulator-basic.html">エアレギュレータの基本</a></li>
+          </ul>
 
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-air-pressure.png" alt="エアシリンダのエア圧と元バルブを確認する図" loading="lazy" decoding="async">
-            <figcaption>エア圧、元バルブ、レギュレータ、残圧抜き弁を確認して、シリンダへ空気が供給される状態かを見ます。</figcaption>
-          </figure>
+          <h3>動きが遅い</h3>
+          <p>シリンダの動きが遅い時は、圧力不足、スピコン調整、排気詰まり、サイレンサ詰まりを疑います。</p>
+          <ul class="simple-list">
+            <li><a href="speed-controller-basic.html">スピードコントローラの基本</a></li>
+            <li><a href="pneumatic-silencer-basic.html">空圧サイレンサの基本</a></li>
+            <li><a href="air-regulator-basic.html">エアレギュレータの基本</a></li>
+          </ul>
 
-          <div class="note-box">
-            <h3>残圧と安全確認を優先する</h3>
-            <p>
-              空圧機器は残圧で突然動くことがあります。
-              カバー内作業や手を入れる作業では、設備停止、残圧抜き、ロックアウト、社内ルールを優先してください。
-            </p>
-          </div>
+          <h3>途中で止まる</h3>
+          <p>途中で止まる場合は、シリンダ本体だけでなく、機械負荷、レールやガイドの引っ掛かり、圧力低下、スピコン設定も確認します。</p>
+          <ul class="simple-list">
+            <li><a href="air-cylinder-basic.html">エアシリンダの基本</a></li>
+            <li><a href="air-regulator-basic.html">エアレギュレータの基本</a></li>
+            <li><a href="speed-controller-basic.html">スピードコントローラの基本</a></li>
+          </ul>
+
+          <h3>エア漏れがある</h3>
+          <p>エア漏れは、チューブ、ワンタッチ継手、FRL、レギュレータ周辺で起きることがあります。</p>
+          <ul class="simple-list">
+            <li><a href="air-tube-fitting-basic.html">エアチューブとワンタッチ継手の基本</a></li>
+            <li><a href="air-filter-regulator-lubricator-basic.html">FRLの基本</a></li>
+          </ul>
+
+          <h3>電磁弁のランプは点くが動かない</h3>
+          <p>電磁弁のランプが点いていても、バルブ内部が切り替わっているとは限りません。コイル、手動操作、供給圧、排気、配管を分けて見ます。</p>
+          <ul class="simple-list">
+            <li><a href="solenoid-valve-troubleshooting-basic.html">電磁弁が動かない時に見る順番</a></li>
+            <li><a href="solenoid-valve-manual-override-basic.html">電磁弁の手動操作の基本</a></li>
+            <li><a href="plc-output-troubleshooting-basic.html">PLC出力が出ない時に見る順番</a></li>
+          </ul>
+
+          <h3>リードスイッチや確認信号が入らない</h3>
+          <p>シリンダが動いていても、リードスイッチや圧力スイッチの信号がPLCに入らないと、次工程へ進まないことがあります。</p>
+          <ul class="simple-list">
+            <li><a href="reed-switch-basic.html">リードスイッチの基本</a></li>
+            <li><a href="pressure-switch-basic.html">圧力スイッチの基本</a></li>
+            <li><a href="plc-input-troubleshooting-basic.html">PLC入力が入らない時に見る順番</a></li>
+          </ul>
         </section>
 
-        <section class="section-card" id="manual-operation">
-          <h2>4. 電磁弁の手動操作で動くか見る</h2>
-          <p>
-            電磁弁に手動操作がある場合は、仕様と安全を確認したうえで、手動操作でシリンダが出るか戻るかを確認します。
-            手動操作で動くなら、空圧・機械側はある程度動ける状態で、電気信号側に原因がある可能性があります。
-          </p>
-          <p>
-            手動操作でも動かない場合は、エア供給、スピコン、シリンダ本体、機械干渉、配管の向きなどを疑います。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-manual-operation.png" alt="電磁弁の手動操作でエアシリンダの動きを確認する図" loading="lazy" decoding="async">
-            <figcaption>手動操作で動くかどうかを見ると、電気側と空圧・機械側を切り分けやすくなります。</figcaption>
-          </figure>
-
-          <div class="danger-box">
-            <h3>手動操作は周囲確認をしてから</h3>
-            <p>
-              手動操作でシリンダが急に動くと、挟まれや破損につながることがあります。
-              動作範囲に人や工具がないことを確認し、設備ルールに従って操作してください。
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="speed-controller">
-          <h2>5. スピコンの絞りすぎ・向きを見る</h2>
-          <p>
-            スピコンを絞りすぎていると、シリンダがほとんど動かない、非常に遅い、途中で止まるように見えることがあります。
-            調整ねじの位置、ロックナット、取り付け向き、配管の詰まりを確認します。
-          </p>
-          <p>
-            メータイン・メータアウトの考え方や、シリンダの速度調整は設備によって扱いが変わるため、現場の標準や図面を確認しながら調整します。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-speed-controller.png" alt="エアシリンダのスピコンを確認する図" loading="lazy" decoding="async">
-            <figcaption>スピコンの絞りすぎ、向き、詰まり、調整ねじの状態を確認します。</figcaption>
-          </figure>
-
-          <div class="field-highlight">
-            <h3>出側と戻り側を分けて見る</h3>
-            <p>
-              出る時だけ遅い、戻る時だけ遅い場合は、それぞれのポート側のスピコンや配管を分けて確認します。
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="mechanical">
-          <h2>6. 機械干渉・ロッドの動きを見る</h2>
-          <p>
-            シリンダ自体は動こうとしていても、ワーク、ガイド、ストッパ、治具、可動部の渋りで止まることがあります。
-            特に、押し付け方向や端位置付近で止まる場合は、機械側の抵抗や干渉も確認します。
-          </p>
-          <p>
-            ロッドの曲がり、取付芯ずれ、摺動部の汚れ、ガイドの重さ、ワークの噛み込みなども原因になります。
-            エアを抜いた状態で安全を確保し、手で動く範囲を確認することもあります。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-mechanical-interference.png" alt="エアシリンダの機械干渉やロッドの動きを確認する図" loading="lazy" decoding="async">
-            <figcaption>シリンダの先にあるワーク、ガイド、治具、ストッパとの干渉を確認します。</figcaption>
-          </figure>
-
+        <section class="section-card" id="by-cause">
+          <h2>5. 原因別に読む記事</h2>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>ワーク干渉</h3>
-              <p>ワークが噛み込んでいないか、位置ずれしていないか確認します。</p>
+            <div class="check-item">
+              <h3>圧力・エア源</h3>
+              <ul class="simple-list"><li><a href="air-regulator-basic.html">エアレギュレータの基本</a></li><li><a href="air-filter-regulator-lubricator-basic.html">FRLの基本</a></li><li><a href="pressure-gauge-basic.html">圧力計の基本</a></li><li><a href="pressure-switch-basic.html">圧力スイッチの基本</a></li></ul>
             </div>
-            <div class="check-item check-item--field">
-              <h3>ガイドの渋り</h3>
-              <p>リニアガイドやスライド部が重くなっていないか確認します。</p>
+            <div class="check-item">
+              <h3>電磁弁・切替</h3>
+              <ul class="simple-list"><li><a href="air-valve-basic.html">エアバルブの基本</a></li><li><a href="solenoid-valve-troubleshooting-basic.html">電磁弁が動かない時に見る順番</a></li><li><a href="solenoid-valve-manual-override-basic.html">電磁弁の手動操作の基本</a></li></ul>
             </div>
-            <div class="check-item check-item--warning">
-              <h3>ロッドの曲がり</h3>
-              <p>横荷重や衝突でロッドに無理がかかっていないか見ます。</p>
+            <div class="check-item">
+              <h3>シリンダ・機械側</h3>
+              <ul class="simple-list"><li><a href="air-cylinder-basic.html">エアシリンダの基本</a></li><li><a href="air-cylinder-troubleshooting-basic.html">エアシリンダが動かない時に見る順番</a></li><li><a href="reed-switch-basic.html">リードスイッチの基本</a></li></ul>
             </div>
-            <div class="check-item check-item--purple">
-              <h3>ストッパ位置</h3>
-              <p>ストッパや治具が調整ずれしていないか確認します。</p>
+            <div class="check-item">
+              <h3>速度・排気</h3>
+              <ul class="simple-list"><li><a href="speed-controller-basic.html">スピードコントローラの基本</a></li><li><a href="pneumatic-silencer-basic.html">空圧サイレンサの基本</a></li></ul>
+            </div>
+            <div class="check-item">
+              <h3>チューブ・継手・漏れ</h3>
+              <ul class="simple-list"><li><a href="air-tube-fitting-basic.html">エアチューブとワンタッチ継手の基本</a></li></ul>
+            </div>
+            <div class="check-item">
+              <h3>PLC信号</h3>
+              <ul class="simple-list"><li><a href="input-output-basic.html">入力と出力の違い</a></li><li><a href="plc-input-troubleshooting-basic.html">PLC入力が入らない時に見る順番</a></li><li><a href="plc-output-troubleshooting-basic.html">PLC出力が出ない時に見る順番</a></li></ul>
             </div>
           </div>
         </section>
 
-        <section class="section-card" id="reed-switch">
-          <h2>7. リードスイッチ位置と検出状態を見る</h2>
-          <p>
-            シリンダは動いているのに次工程へ進まない場合、シリンダ位置を検出するリードスイッチやオートスイッチが原因のことがあります。
-            センサー位置、LED、配線、コネクタ、入力モニタを確認します。
-          </p>
-          <p>
-            シリンダ端まで動いているように見えても、リードスイッチ位置がずれていると、PLC側では到着信号が入らないことがあります。
-            出側・戻り側のどちらの検出が入っていないかを分けて見ます。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-reed-switch.png" alt="エアシリンダのリードスイッチ位置と検出状態を確認する図" loading="lazy" decoding="async">
-            <figcaption>リードスイッチの位置、LED、配線、PLC入力モニタを合わせて確認します。</figcaption>
-          </figure>
-
-          <div class="note-box">
-            <h3>動かないのか、検出していないのかを分ける</h3>
-            <p>
-              実際にはシリンダが動いているのに、到着信号が入らないため「動いていないように見える」こともあります。
-              目視の動きとPLC入力モニタを分けて確認します。
-            </p>
-          </div>
+        <section class="section-card" id="next-articles">
+          <h2>6. まだ記事化していない次候補</h2>
+          <p>次のテーマは、今後の空圧ハブ強化候補として扱います。まだ記事がないものはリンクしません。</p>
+          <ul class="simple-list">
+            <li>エア圧が低い時に見る順番</li>
+            <li>エア漏れを探す時の基本</li>
+            <li>エアシリンダが途中で止まる原因</li>
+            <li>エアシリンダの速度が安定しない原因</li>
+            <li>電気信号と空圧動作の流れを追う方法</li>
+          </ul>
         </section>
 
         <section class="section-card" id="summary">
-          <h2>8. まとめ</h2>
-          <p>
-            エアシリンダが動かない時は、電磁弁やPLC出力だけではなく、エア圧、手動操作、スピコン、シリンダ本体、機械干渉、リードスイッチを順番に確認します。
-            「出ない」「戻らない」「途中で止まる」「動いているのに検出しない」を分けると、原因を絞り込みやすくなります。
-          </p>
-
+          <h2>7. まとめ</h2>
+          <p>空圧トラブルは、シリンダ単体ではなく、空気の流れと電気信号を分けて確認することが大切です。</p>
           <ul class="simple-list">
-            <li>まずエア圧、元バルブ、残圧抜き弁を確認する</li>
-            <li>手動操作でシリンダが動くか確認する</li>
-            <li>スピコンの絞りすぎ、向き、詰まりを確認する</li>
-            <li>ワーク、ガイド、治具、ストッパとの機械干渉を見る</li>
-            <li>リードスイッチ位置とPLC入力モニタを合わせて確認する</li>
+            <li>圧力を見る</li>
+            <li>漏れを見る</li>
+            <li>電磁弁の切替を見る</li>
+            <li>シリンダや機械負荷を見る</li>
+            <li>スピコンやサイレンサの排気を見る</li>
+            <li>リードスイッチ、圧力スイッチ、PLC入力を見る</li>
           </ul>
-
-          <div class="article-footer-nav">
-            <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
-            <a class="btn btn-secondary" href="solenoid-valve-troubleshooting-basic.html">電磁弁が動かない時を見る</a>
-          </div>
+          <p>この順番で確認すると、原因を一つずつ切り分けやすくなります。</p>
+          <p>ただし、現場での確認は必ず安全確保を優先し、メーカー仕様書、空圧回路図、電気図面、設備の安全ルールに従ってください。</p>
         </section>
 
         <section class="section-card" aria-labelledby="related-title">
           <h2 id="related-title">あわせて読みたい記事</h2>
           <div class="related-grid">
-            <a class="related-card" href="solenoid-valve-troubleshooting-basic.html">
-              <h3>電磁弁が動かない時に見る順番</h3>
-              <p>電磁弁側の電気・空圧の切り分けを確認できます。</p>
-            </a>
-            <a class="related-card" href="plc-output-troubleshooting-basic.html">
-              <h3>PLC出力がONしない時に見る順番</h3>
-              <p>シリンダより上流のPLC出力側の切り分けを確認できます。</p>
-            </a>
-            <a class="related-card" href="reed-switch-basic.html">
-              <h3>リードスイッチとは？</h3>
-              <p>シリンダ位置検出に使うセンサーの基本を整理できます。</p>
-            </a>
+            <a class="related-card" href="air-cylinder-troubleshooting-basic.html"><h3>エアシリンダが動かない時に見る順番</h3><p>空圧トラブルの入口として、シリンダ起点の確認順を整理できます。</p></a>
+            <a class="related-card" href="solenoid-valve-troubleshooting-basic.html"><h3>電磁弁が動かない時に見る順番</h3><p>電気信号と弁切替の関係を切り分ける時に役立ちます。</p></a>
+            <a class="related-card" href="air-regulator-basic.html"><h3>エアレギュレータの基本</h3><p>二次圧の見方と圧力不足時の考え方を確認できます。</p></a>
+            <a class="related-card" href="speed-controller-basic.html"><h3>スピードコントローラの基本</h3><p>速度低下や不安定動作の確認ポイントを整理できます。</p></a>
+            <a class="related-card" href="pneumatic-silencer-basic.html"><h3>空圧サイレンサの基本</h3><p>排気詰まりが動作に与える影響を確認できます。</p></a>
+            <a class="related-card" href="air-tube-fitting-basic.html"><h3>エアチューブとワンタッチ継手の基本</h3><p>漏れや配管接続不良の確認に使える基本を押さえられます。</p></a>
           </div>
         </section>
       </div>
@@ -408,12 +345,11 @@
           <h3>記事内メニュー</h3>
           <ul>
             <li><a href="#conclusion">先に結論</a></li>
+            <li><a href="#safety">Safety first</a></li>
             <li><a href="#check-order">確認順</a></li>
-            <li><a href="#air-pressure">エア圧</a></li>
-            <li><a href="#manual-operation">手動操作</a></li>
-            <li><a href="#speed-controller">スピコン</a></li>
-            <li><a href="#mechanical">機械干渉</a></li>
-            <li><a href="#reed-switch">リードスイッチ</a></li>
+            <li><a href="#symptom-map">症状別マップ</a></li>
+            <li><a href="#by-cause">原因別</a></li>
+            <li><a href="#next-articles">次に作る記事</a></li>
             <li><a href="#summary">まとめ</a></li>
           </ul>
         </section>
@@ -421,11 +357,11 @@
         <section class="side-card">
           <h3>見るポイント</h3>
           <ul>
-            <li>エア圧を見る</li>
-            <li>手動操作で動くか見る</li>
-            <li>スピコンを見る</li>
-            <li>機械干渉を見る</li>
-            <li>リードスイッチを見る</li>
+            <li>圧力を見る</li>
+            <li>漏れを見る</li>
+            <li>電磁弁を見る</li>
+            <li>排気を見る</li>
+            <li>センサー/PLC信号を見る</li>
           </ul>
         </section>
 
@@ -433,14 +369,12 @@
           <h3>関連カテゴリ</h3>
           <ul>
             <li><a href="../categories/control-basics.html">制御の基礎</a></li>
-                      </ul>
+          </ul>
         </section>
 
         <section class="side-card support-card" aria-label="サイト応援">
           <h3 class="support-card-title">このサイトを応援する</h3>
-          <p class="support-card-text">
-            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
-          </p>
+          <p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p>
           <div class="support-card-actions">
             <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffeeで応援</a>
             <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a>

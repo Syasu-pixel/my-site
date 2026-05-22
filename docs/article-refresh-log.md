@@ -14,6 +14,33 @@
 
 ---
 
+## 2026-05-22
+
+### a-contact-b-contact-basic
+
+- 対象記事: `articles/a-contact-b-contact-basic.html`
+- 対象クエリ:
+  - `a接点 b接点 覚え方`
+  - `a接点 b接点`
+  - `NO NC 違い`
+- 実施内容:
+  - a接点・b接点の覚え方を「通常時」と「動作時」で見る説明として軽く補強
+  - NO / NCとの関係説明を軽く補足
+  - 関連記事の `no-nc-basic.html` への説明文を軽く調整
+- 変更しなかったもの:
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリに合わせた軽量補強
+
 ## 2026-05-21
 
 ### forward-reverse-circuit-basic

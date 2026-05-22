@@ -16,6 +16,30 @@
 
 ## 2026-05-22
 
+### relay-socket-basic
+
+- 対象記事: `articles/relay-socket-basic.html`
+- 対象クエリ:
+  - `relay socket`
+  - `relay socket terminals`
+- 実施内容:
+  - relay socket / relay socket terminals の英語表記を軽く補足
+  - リレーソケット端子と端子番号の見方を軽く補強
+  - 関連記事に `a-contact-b-contact-basic.html` を追加
+- 変更しなかったもの:
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリに合わせた軽量補強
+
 ### air-filter-regulator-lubricator-basic
 
 - 対象記事: `articles/air-filter-regulator-lubricator-basic.html`

@@ -16,6 +16,33 @@
 
 ## 2026-05-22
 
+### air-filter-regulator-lubricator-basic
+
+- 対象記事: `articles/air-filter-regulator-lubricator-basic.html`
+- 対象クエリ:
+  - `filter regulator lubricator`
+  - `compressed air filter regulator lubricator`
+  - `air filter regulator lubricator`
+  - `frlユニットとは`
+- 実施内容:
+  - FRLの英語表記とFilter / Regulator / Lubricatorの意味を軽く補足
+  - フィルタ・レギュレータ・ルブリケータの役割分担を軽く補強
+  - 関連記事に `air-pneumatic-troubleshooting-guide.html` を追加
+  - 右カラムの先に読む記事に `air-pneumatic-troubleshooting-guide.html` を追加
+- 変更しなかったもの:
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリに合わせた軽量補強
+
 ### a-contact-b-contact-basic
 
 - 対象記事: `articles/a-contact-b-contact-basic.html`

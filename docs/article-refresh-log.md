@@ -65,3 +65,32 @@
   - `#1226 Apply Magnetic Switch OGP image`
 - 状態:
   - safe to merge 確認済み
+
+
+### star-delta-start-basic
+
+- 対象記事: `articles/star-delta-start-basic.html`
+- 対象クエリ:
+  - `スターデルタ回路`
+  - `スター デルタ回路`
+  - `スターデルタタイマ 設定時間`
+  - `スター デルタ タイマ 設定時間`
+  - `直入れ スターデルタ 使い分け`
+- 実施内容:
+  - スター・デルタタイマの設定時間を見る時の考え方を追記
+  - 直入れ始動とスター・デルタ始動の使い分け説明を軽く補強
+  - 関連記事に `timer-circuit-basic.html` を追加
+  - 右カラムの先に読む記事に `timer-circuit-basic.html` を追加
+- 変更しなかったもの:
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリに合わせた軽量補強

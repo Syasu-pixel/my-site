@@ -94,3 +94,29 @@
   - `assets/data/search-index.json`
 - 状態:
   - Search Consoleクエリに合わせた軽量補強
+
+
+### control-transformer-basic
+
+- 対象記事: `articles/control-transformer-basic.html`
+- 対象クエリ:
+  - `制御盤 トランス`
+  - `制御トランス`
+- 実施内容:
+  - 「制御盤 トランス」「制御トランス」という現場での呼ばれ方を自然に補足
+  - 一次側・二次側・二次側保護・負荷側の切り分け説明を軽く補強
+  - 関連記事に `control-panel-grounding-basic.html` を追加
+  - 右カラムの先に読む記事に `control-panel-grounding-basic.html` を追加
+- 変更しなかったもの:
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリに合わせた軽量補強

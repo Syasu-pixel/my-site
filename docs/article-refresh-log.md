@@ -16,6 +16,8 @@
 
 ## 2026-05-22
 
+- 2026-05-28: `articles/a-contact-b-contact-basic.html` の古い記事内画像2枚を新しい図解画像へ差し替え。あわせて「a接点 b接点 覚え方」クエリを意識し、通常時/動作時の見方、a接点=普段OFF→動作ON、b接点=普段ON→動作OFFが目に入りやすいよう本文を整理。
+
 - 2026-05-28: `articles/star-delta-start-basic.html` の本文に太字・色付き強調・短段落化を追加し、切替の流れ、電気図の流れ、直入れ始動との違い、確認ポイントを読みやすく調整。
 
 - 2026-05-28: `articles/control-transformer-basic.html` の「制御盤内の結線イメージ」セクションに、制御用トランスの盤内結線イメージ図（article-figure）を追加。

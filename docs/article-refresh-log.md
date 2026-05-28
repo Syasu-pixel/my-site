@@ -226,3 +226,5 @@
   - `assets/data/search-index.json`
 - 状態:
   - Search Consoleクエリ確認後の読みやすさ改善と内容整理
+
+- 2026-05-28: `articles/star-delta-start-basic.html` の「電気図の流れで見る」セクションに配線イメージ図（article-figure）を追加。

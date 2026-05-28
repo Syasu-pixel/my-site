@@ -16,6 +16,8 @@
 
 ## 2026-05-22
 
+- 2026-05-28: `articles/star-delta-start-basic.html` の本文に太字・色付き強調・短段落化を追加し、切替の流れ、電気図の流れ、直入れ始動との違い、確認ポイントを読みやすく調整。
+
 ### star-delta-start-basic
 
 - 対象記事: `articles/star-delta-start-basic.html`

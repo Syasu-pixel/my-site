@@ -16,6 +16,8 @@
 
 ## 2026-05-22
 
+- 2026-05-28: `articles/control-transformer-basic.html` の「制御盤内の結線イメージ」セクションに、制御用トランスの盤内結線イメージ図（article-figure）を追加。
+
 ### star-delta-start-basic
 
 - 対象記事: `articles/star-delta-start-basic.html`

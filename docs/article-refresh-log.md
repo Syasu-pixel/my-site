@@ -16,6 +16,32 @@
 
 ## 2026-05-22
 
+### star-delta-start-basic
+
+- 対象記事: `articles/star-delta-start-basic.html`
+- 対象クエリ:
+  - `スターデルタ回路`
+  - `スター デルタ回路`
+- 実施内容:
+  - 「簡略ラダー例」という表現を、記事内容に合わせて「電気図の流れ」へ調整
+  - スター・デルタ始動をラダー回路ではなく、主接触器・スター接触器・デルタ接触器・タイマの時間順の流れとして読めるように補正
+  - 表の見出しと文言を、電気図上の接触器の動きとして自然に読める表現へ調整
+  - 既存のタイマ設定時間・切替時間の補足は維持
+- 変更しなかったもの:
+  - カテゴリ
+  - title
+  - meta description
+  - canonical
+  - og:url
+  - og:image
+  - twitter:image
+  - 画像ファイル
+  - CSS
+  - `sitemap.xml`
+  - `assets/data/search-index.json`
+- 状態:
+  - Search Consoleクエリ確認後の記事内容整合調整
+
 ### relay-socket-basic
 
 - 対象記事: `articles/relay-socket-basic.html`

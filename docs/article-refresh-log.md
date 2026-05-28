@@ -206,12 +206,14 @@
 - 対象クエリ:
   - `制御盤 トランス`
   - `制御トランス`
+  - `control transformer`
 - 実施内容:
-  - 「制御盤 トランス」「制御トランス」という現場での呼ばれ方を自然に補足
-  - 一次側・二次側・二次側保護・負荷側の切り分け説明を軽く補強
-  - 関連記事に `control-panel-grounding-basic.html` を追加
-  - 右カラムの先に読む記事に `control-panel-grounding-basic.html` を追加
+  - 黒文字中心で読みづらかった本文を、強調・短段落・注意ボックスで整理
+  - 一次側 / 二次側 / 制御回路用電源の説明を見やすく補強
+  - 制御盤内での結線イメージが伝わるよう、盤内での電源の流れの説明を整理
+  - 小型の制御用トランスが盤内でどう使われるか分かりやすく調整
 - 変更しなかったもの:
+  - カテゴリ
   - title
   - meta description
   - canonical
@@ -223,4 +225,4 @@
   - `sitemap.xml`
   - `assets/data/search-index.json`
 - 状態:
-  - Search Consoleクエリに合わせた軽量補強
+  - Search Consoleクエリ確認後の読みやすさ改善と内容整理

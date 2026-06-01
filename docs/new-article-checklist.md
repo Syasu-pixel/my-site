@@ -1182,6 +1182,15 @@ articles/*.html 用の固定フッター：
 - GX Works3命令語シリーズ：og:image / twitter:image は `slug-ogp.png` を指定する
 - GX Works3命令語シリーズ：hero画像とOGP画像を混同しない
 - meta description は記事内容に合わせる
+- 新規記事・カテゴリページ・主要ページを作成する時は、meta descriptionを短すぎない自然な説明文にする
+- 日本語記事の meta description は、おおむね80〜130文字程度を目安にする
+- 英語記事の meta description は、検索結果で自然に読める説明文にする
+- meta description は記事タイトルの単なる繰り返しにしない
+- meta description は検索者が「この記事で何が分かるか」を理解できる文にする
+- キーワードの羅列や誇張表現は避ける
+- 「完全解説」「必ず分かる」「最強」など、過度な表現は避ける
+- title / canonical / og:url と meta description の内容が矛盾しないようにする
+- Bing Webmaster Tools で「Meta descriptions on many of your pages are too short」が再発しないよう、新記事作成時から意識する
 - canonical と og:url が記事URLと一致しているか確認する
 - 古い共通OGPや汎用画像を使わない
 

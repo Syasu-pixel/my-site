@@ -1,0 +1,130 @@
+name: Notify IndexNow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  notify-indexnow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect changed HTML URLs
+        id: changed-urls
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SITE_HOST="denkicontrol.com"
+          SITE_ORIGIN="https://${SITE_HOST}"
+          URLS_FILE="${RUNNER_TEMP}/indexnow-urls.txt"
+          CHANGED_FILE="${RUNNER_TEMP}/changed-files.txt"
+          : > "${URLS_FILE}"
+          : > "${CHANGED_FILE}"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" > "${CHANGED_FILE}"
+          elif git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            git diff --name-only HEAD~1 HEAD > "${CHANGED_FILE}"
+          else
+            git show --pretty="" --name-only HEAD > "${CHANGED_FILE}"
+          fi
+
+          while IFS= read -r path; do
+            if [[ "${path}" == "index.html" ]]; then
+              printf '%s\n' "${SITE_ORIGIN}/" >> "${URLS_FILE}"
+            elif [[ "${path}" == "contact/index.html" ]]; then
+              printf '%s\n' "${SITE_ORIGIN}/contact/" >> "${URLS_FILE}"
+            elif [[ "${path}" =~ ^articles/[^/]+\.html$ || "${path}" =~ ^en/articles/[^/]+\.html$ || "${path}" =~ ^categories/[^/]+\.html$ ]]; then
+              printf '%s/%s\n' "${SITE_ORIGIN}" "${path}" >> "${URLS_FILE}"
+            fi
+          done < "${CHANGED_FILE}"
+
+          sort -u "${URLS_FILE}" -o "${URLS_FILE}"
+
+          if [[ ! -s "${URLS_FILE}" ]]; then
+            echo "No changed HTML URLs to notify. Skipping IndexNow request."
+            echo "has_urls=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "Changed HTML URLs for IndexNow:"
+          cat "${URLS_FILE}"
+          echo "has_urls=true" >> "${GITHUB_OUTPUT}"
+          echo "urls_file=${URLS_FILE}" >> "${GITHUB_OUTPUT}"
+
+      - name: Send URLs to IndexNow
+        if: steps.changed-urls.outputs.has_urls == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SITE_HOST="denkicontrol.com"
+          SITE_ORIGIN="https://${SITE_HOST}"
+          URLS_FILE="${{ steps.changed-urls.outputs.urls_file }}"
+          PAYLOAD_FILE="${RUNNER_TEMP}/indexnow-payload.json"
+          RESPONSE_FILE="${RUNNER_TEMP}/indexnow-response.txt"
+
+          KEY_FILE=""
+          while IFS= read -r candidate; do
+            filename="${candidate#./}"
+            key_name="${filename%.txt}"
+            key_value="$(tr -d '\r\n' < "${candidate}")"
+
+            if [[ "${key_name}" == "${key_value}" && "${key_value}" =~ ^[A-Za-z0-9_-]{8,128}$ ]]; then
+              KEY_FILE="${filename}"
+              INDEXNOW_KEY="${key_value}"
+              break
+            fi
+          done < <(find . -maxdepth 1 -type f -name '*.txt' | sort)
+
+          if [[ -z "${KEY_FILE}" ]]; then
+            echo "IndexNow key verification file was not found at the site root." >&2
+            echo "Expected a root .txt file whose filename stem and file content both match the IndexNow key." >&2
+            exit 1
+          fi
+
+          export SITE_HOST INDEXNOW_KEY KEY_LOCATION="${SITE_ORIGIN}/${KEY_FILE}" URLS_FILE PAYLOAD_FILE
+
+          python3 - <<'PY'
+          import json
+          import os
+
+          with open(os.environ["URLS_FILE"], encoding="utf-8") as handle:
+              urls = [line.strip() for line in handle if line.strip()]
+
+          payload = {
+              "host": os.environ["SITE_HOST"],
+              "key": os.environ["INDEXNOW_KEY"],
+              "keyLocation": os.environ["KEY_LOCATION"],
+              "urlList": urls,
+          }
+
+          with open(os.environ["PAYLOAD_FILE"], "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, ensure_ascii=False, indent=2)
+              handle.write("\n")
+          PY
+
+          echo "Posting IndexNow payload for $(wc -l < "${URLS_FILE}") URL(s)."
+          http_status="$(curl --silent --show-error --output "${RESPONSE_FILE}" --write-out '%{http_code}' \
+            --request POST 'https://api.indexnow.org/indexnow' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data @"${PAYLOAD_FILE}")"
+
+          if [[ "${http_status}" == "200" || "${http_status}" == "202" ]]; then
+            echo "IndexNow request accepted with HTTP ${http_status}."
+            exit 0
+          fi
+
+          echo "IndexNow request failed with HTTP ${http_status}." >&2
+          if [[ -s "${RESPONSE_FILE}" ]]; then
+            cat "${RESPONSE_FILE}" >&2
+          fi
+          exit 1

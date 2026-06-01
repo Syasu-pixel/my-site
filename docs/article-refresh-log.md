@@ -16,6 +16,8 @@
 
 ## 2026-05-22
 
+- 2026-06-01: Bing Webmaster Tools の「meta description が短い」指摘に対応するため、添付CSV掲載URLを対象に各HTMLの meta description を確認し、短すぎる説明文を記事内容に合わせて自然な長さへ補強。本文・画像・CSS・title・canonical・OGP・sitemap・search-index は変更しない方針で実施。
+
 - 2026-05-28: `articles/a-contact-b-contact-basic.html` の古い記事内画像2枚を新しい図解画像へ差し替え。あわせて「a接点 b接点 覚え方」クエリを意識し、通常時/動作時の見方、a接点=普段OFF→動作ON、b接点=普段ON→動作OFFが目に入りやすいよう本文を整理。
 
 - 2026-05-28: `articles/star-delta-start-basic.html` の本文に太字・色付き強調・短段落化を追加し、切替の流れ、電気図の流れ、直入れ始動との違い、確認ポイントを読みやすく調整。

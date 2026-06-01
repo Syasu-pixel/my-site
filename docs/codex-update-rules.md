@@ -164,6 +164,24 @@ Step 2-Bのルール:
 - `sitemap.xml` の重複URL有無を確認する。
 - 追加・削除された記事URLとの整合性を確認する。
 
+
+## Bing / IndexNow 運用ルール
+- このサイトでは、Bing および IndexNow 対応検索エンジン向けの更新通知として IndexNow を導入済み。
+- サイトルートの IndexNow キー確認ファイル `d6f8bcb2c7d94f1caef4e8b7f25a1d03.txt` は削除・リネームしない。
+- `.github/workflows/indexnow.yml` は、`main` への push 時に変更されたHTML URLをIndexNow APIへ通知するための GitHub Actions workflow として維持する。
+- 通常の記事更新では、IndexNow用の手動作業を追加しなくてよい。
+- HTML記事、カテゴリページ、トップページ、問い合わせページを更新して `main` へマージすると、対象URLが自動通知される。
+- docs / assets / sitemap / search-index / CSS / JS のみの変更では、IndexNow通知対象外でよい。
+- IndexNowは Bing / IndexNow 対応検索エンジン向けの更新通知であり、Googleへの直接施策ではない。
+- Google向けには、通常どおり sitemap、内部リンク、Search Console のURL検査、自然クロールを前提にする。
+- GitHub Actions の `Notify IndexNow` が失敗した場合のみ、Actionsログを確認して修正する。
+
+## SEOタグ・IndexNow関連PR確認ルール
+- SEOタグのみを変更するPRでは、title / canonical / og:url / og:image / twitter:image / robots / sitemap / search-index に意図しない変更がないか確認する。
+- meta descriptionだけの変更であれば、原則として表示崩れリスクは低い。
+- ただし、HTML構文を壊していないかは確認する。
+- IndexNow関連PRでは、既存HTMLや画像・CSS・sitemap・search-indexを変更していないか確認する。
+
 ## safe to merge 条件
 以下を満たす場合に **safe to merge** とする。
 - `search-index` に missing / extra / duplicate がない。

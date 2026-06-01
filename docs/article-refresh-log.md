@@ -16,6 +16,8 @@
 
 ## 2026-05-22
 
+- 2026-06-01: Bing / IndexNow 運用と meta description 作成方針を今後のCodex作業で維持できるよう、テンプレート・運用ルール系docsへ追記。IndexNowキー確認ファイルとworkflowは削除・変更しない方針、meta descriptionは新規記事作成時から短すぎない自然な説明文にする方針を明文化。
+
 - 2026-06-01: Bing向けの更新通知を自動化するため、IndexNowキー確認ファイルをサイトルートに追加し、main更新時に変更されたHTML URLをIndexNow APIへ送信するGitHub Actions workflowを追加。本文・画像・CSS・sitemap・search-index・既存HTML構造は変更しない。
 
 - 2026-06-01: Bing Webmaster Tools の「meta description が短い」指摘に対応するため、添付CSV掲載URLを対象に各HTMLの meta description を確認し、短すぎる説明文を記事内容に合わせて自然な長さへ補強。本文・画像・CSS・title・canonical・OGP・sitemap・search-index は変更しない方針で実施。

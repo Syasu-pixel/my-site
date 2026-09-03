@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>短絡・地絡・漏電の違いとは？</title>
+<meta content="短絡・地絡・漏電の違いを初心者向けに解説。電流が本来と異なる経路へ流れる状態の違い、保護機器との関係、図面や設備で確認するときの基本的な見方を整理します。" name="description"/>
+<link href="https://denkicontrol.com/articles/short-ground-leakage-basic.html" rel="canonical"/>
+<link href="https://denkicontrol.com/articles/short-ground-leakage-basic.html" hreflang="ja" rel="alternate"/>
+<link href="https://denkicontrol.com/articles/short-ground-leakage-basic.html" hreflang="x-default" rel="alternate"/>
+<meta content="article" property="og:type"/>
+<meta content="短絡・地絡・漏電の違いとは？" property="og:title"/>
+<meta content="短絡・地絡・漏電の違いと、それぞれがどのような状態を指すのかを初心者向けに整理します。" property="og:description"/>
+<meta content="https://denkicontrol.com/articles/short-ground-leakage-basic.html" property="og:url"/>
+<meta content="https://denkicontrol.com/assets/images/short-ground-leakage-basic/short-ground-leakage-basic-ogp.png" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="短絡・地絡・漏電の違いとは？" name="twitter:title"/>
+<meta content="短絡・地絡・漏電の違いと、保護機器や安全との関係を初心者向けに整理します。" name="twitter:description"/>
+<meta content="https://denkicontrol.com/assets/images/short-ground-leakage-basic/short-ground-leakage-basic-ogp.png" name="twitter:image"/>
+<meta content="#f8fbff" name="theme-color"/>
+<link href="../assets/images/common/site-logo-dcl-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-48.png" rel="icon" sizes="48x48" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-180.png" rel="apple-touch-icon" sizes="180x180"/>
+<style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0;display:block}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+      display:block;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+      display:block;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+    }
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{
+      display:block;font-size:12px;line-height:1.25;font-weight:900
+    }
+    .language-menu-item small{
+      display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700
+    }
+
+    .sr-only{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+      clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;min-width:0;border:none;outline:none;background:transparent;
+      font-size:12px;color:#334155;font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;background:transparent;color:inherit;padding:0;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;
+      position:relative;flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;
+      right:-5px;bottom:-2px;transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-box-empty{
+      margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700
+    }
+
+    .breadcrumb{
+      display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;
+      color:var(--muted);font-size:12px;font-weight:800;
+    }
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);min-height:400px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.24) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;
+      font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}
+    .hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;
+      border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);
+      border-radius:24px;background:var(--card);box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;
+      background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);
+      font-size:13px;font-weight:900;text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+
+    .page-layout{
+      display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;
+      align-items:start;margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{
+      background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);
+    }
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}
+    .section-card h3{margin:20px 0 10px;font-size:17px;line-height:1.5}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .term{
+      display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;
+      border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;
+      font-size:13px;font-weight:900;white-space:nowrap;
+    }
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(147,197,253,.55) 58%);
+      font-weight:900;
+    }
+    .key-highlight,.field-highlight,.note-box,.danger-box{
+      padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;
+    }
+    .key-highlight{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
+    .field-highlight{border-color:#bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{
+      margin:0 0 10px;font-size:16px;line-height:1.5;
+    }
+    .key-highlight p,.field-highlight p,.note-box p,.danger-box p{
+      margin:0;font-size:14px;color:#334155;
+    }
+
+    .icon-points{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;border-radius:20px;border:1px solid #d7e4f3;background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;
+      border-radius:14px;margin-bottom:10px;background:#eff6ff;color:#1d4ed8;
+      font-size:23px;font-weight:900;
+    }
+    .icon-point h3{margin:0 0 8px;font-size:16px;line-height:1.45}
+    .icon-point p{margin:0;color:var(--muted);font-size:14px}
+    .icon-point--orange{border-color:#fed7aa;background:#fff7ed}
+    .icon-point--orange .icon{background:#ffedd5;color:#c2410c}
+    .icon-point--green{border-color:#bbf7d0;background:#ecfdf3}
+    .icon-point--green .icon{background:#dcfce7;color:#15803d}
+
+    .simple-list{margin:0;padding-left:20px}
+    .simple-list li{margin:10px 0 0;font-size:15px}
+    .article-figure{
+      margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;
+    }
+    .article-figure img{width:100%;height:auto}
+    .article-figure figcaption{
+      padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);
+      font-size:13px;line-height:1.65;background:#fff;
+    }
+
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;
+      padding-top:2px;background:transparent;border:none;box-shadow:none;outline:none;
+    }
+    .talk-avatar img{
+      width:76px;height:auto;display:block;object-fit:contain;background:transparent;
+      border:none;box-shadow:none;outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;
+      border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}
+    .talk-name{
+      display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;
+      border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle;
+    }
+    .talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}
+    .talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}
+    .talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+
+    .check-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--blue{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--green{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--orange{background:#fff7e8;border-color:#f7dba2}
+    .check-item--red{background:#fff1f2;border-color:#fecaca}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    th,td{
+      padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;
+      font-size:14px;line-height:1.7;
+    }
+    th{background:#eaf2ff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b}
+
+    .side-card h3{
+      margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;
+      font-size:16px;line-height:1.5;
+    }
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7}
+
+    .related-grid{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .related-card{
+      display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;
+      padding:16px;color:var(--text);text-decoration:none;
+    }
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{
+      padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);
+      text-align:center;font-size:12px;font-weight:700;
+    }
+
+    .support-card{border-color:#dbeafe}
+    .support-card-title{
+      margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;
+      font-size:15px;line-height:1.5;font-weight:900;color:#1e3a8a;
+    }
+    .support-card-text{margin:0;font-size:13px;line-height:1.75;color:#334155}
+    .support-card-actions{margin-top:12px;display:grid;gap:8px}
+    .support-link{
+      display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:38px;
+      padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;
+      font-weight:900;line-height:1.4;text-align:center;text-decoration:none;white-space:normal;
+    }
+    .support-link:hover{text-decoration:none}
+    .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;border-radius:24px;
+        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px;line-height:1.2;white-space:nowrap}
+      .header-search{flex:0 0 132px;min-height:38px}
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{width:min(360px,92vw);max-height:min(68vh,520px)}
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      :root{--header-h:66px}
+      html{scroll-padding-top:82px}
+      .site-header{padding:7px 8px}
+      .site-header-inner{gap:6px}
+      .brand{gap:7px}
+      .brand-logo{height:36px}
+      .brand-title{font-size:13px;letter-spacing:0}
+      .brand-sub{display:none}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px}
+      .header-search{flex:0 1 138px;min-height:36px}
+      .search-box{padding:0 9px;gap:6px}
+      .search-box-input{font-size:11px}
+      .header-search-icon{width:14px;height:14px}
+      .search-box-panel{right:-48px;width:min(340px,94vw)}
+      .article-hero::before{
+        background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,.side-card,.mini-toc-card,.summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,.talk-bubble p,.simple-list li{font-size:14px}
+      .talk-row,.talk-row--right{flex-direction:column;gap:8px}
+      .talk-avatar{width:64px;flex-basis:auto;padding-left:4px}
+      .talk-row--right .talk-avatar{align-self:flex-end;padding-right:4px}
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+<div class="site-header-inner">
+<a aria-label="トップページへ移動" class="brand" href="../">
+<img alt="電気と制御の実務メモ ロゴ" class="brand-logo" src="../assets/images/common/site-logo-dcl.png"/>
+<div class="brand-copy">
+<p class="brand-title">電気と制御の実務メモ</p>
+<p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+</div>
+</a>
+<div aria-label="言語と地域の切り替え" class="language-menu">
+<button aria-controls="languageMenuPanel" aria-expanded="false" aria-label="言語と地域を切り替える" class="language-menu-button" id="languageMenuButton" type="button">
+<span aria-hidden="true" class="language-menu-icon">🌐</span><span class="language-menu-current">Japan</span>
+</button>
+<div class="language-menu-panel" hidden="" id="languageMenuPanel">
+<a aria-current="page" class="language-menu-item is-active" href="./short-ground-leakage-basic.html" lang="ja">
+<span aria-hidden="true" class="language-menu-flag">🇯🇵</span><span><strong>Japan</strong><small>日本語記事</small></span>
+</a>
+</div>
+</div>
+<form aria-label="サイト内検索" class="header-search search-box" id="siteSearch" role="search">
+<label class="sr-only" for="site-search-input">サイト内検索</label>
+<input autocomplete="off" class="search-box-input" enterkeyhint="search" id="site-search-input" placeholder="キーワードで検索" type="search"/>
+<button aria-label="検索" class="search-box-button" type="submit"><span aria-hidden="true" class="header-search-icon"></span></button>
+<div class="search-box-panel" hidden="" id="site-search-panel"><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" hidden="" id="site-search-empty">該当する記事がありません</p></div>
+</form>
+</div>
+</header>
+<main class="container">
+<nav class="breadcrumb"><a href="../">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>短絡・地絡・漏電の違い</span></nav>
+
+<section class="article-hero">
+<div class="article-hero-copy">
+<span class="hero-label">初心者向け｜電気トラブル用語の基礎</span>
+<h1>短絡・地絡・漏電の違いとは？</h1>
+<p class="hero-lead">似ているようで意味が違う「短絡・地絡・漏電」。電流がどこへ流れる状態なのかを軸に、初心者向けに整理します。</p>
+<div class="hero-actions"><a class="btn btn-primary" href="#difference">3つの違いから見る</a><a class="btn btn-secondary" href="#summary">先に要点を見る</a></div>
+</div>
+</section>
+
+<section aria-label="この記事の要点" class="top-summary" id="summary">
+<div class="summary-card summary-card--fit"><h2>短絡</h2><ul><li>本来の負荷をほとんど通らず導体同士が低い抵抗でつながる状態</li><li>大きな電流につながることがある</li><li>「ショート」と呼ばれることもある</li></ul></div>
+<div class="summary-card summary-card--notyet"><h2>地絡</h2><ul><li>電路の一部が大地や接地された金属部へつながる状態</li><li>接地系統や設備構成で現れ方が変わる</li><li>保護方式も設備によって異なる</li></ul></div>
+<div class="summary-card summary-card--conclusion"><h2>漏電</h2><ul><li>本来の電路以外へ電流が漏れる状態を広く表す言葉</li><li>絶縁劣化などが関係することがある</li><li>短絡・地絡と同じ意味ではない</li></ul></div>
+</section>
+
+<section aria-label="記事内メニュー" class="mini-toc-card"><h2>この記事でわかること</h2><div class="mini-toc">
+<a href="#difference">3つの違い</a><a href="#short">短絡とは</a><a href="#ground">地絡とは</a><a href="#leakage">漏電とは</a><a href="#relation">地絡と漏電の関係</a><a href="#protection">保護機器との関係</a><a href="#reading">図面・設備での見方</a><a href="#mistakes">混同しやすい点</a>
+</div></section>
+
+<div class="page-layout"><article class="main-column">
+
+<section class="section-card" id="difference"><h2>短絡・地絡・漏電は何が違う？</h2>
+<p>3つとも電気の異常を表す言葉ですが、同じ意味ではありません。まずは<strong>「電流がどこへ流れる状態なのか」</strong>で分けると整理しやすくなります。</p>
+<p><strong>短絡</strong>は、本来の負荷をほとんど通らず導体同士が低い抵抗でつながる状態です。<strong>地絡</strong>は、電路の一部が大地や接地された金属部などへつながる状態です。<strong>漏電</strong>は、本来の電路以外へ電流が漏れている状態を広く表す言葉として使われます。</p>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-overview.png" alt="短絡・地絡・漏電の違いを電流の流れる経路で比較する初心者向け概念図"><figcaption>3つを同じものとして覚えず、「どこへ電流が流れているか」で整理します。</figcaption></figure>
+</section>
+
+<section class="section-card" id="short"><h2>短絡（ショート）とは？</h2>
+<p><strong>短絡</strong>は、電位差のある導体同士などが、本来の負荷をほとんど通らず低い抵抗の経路でつながる状態です。「ショート」と呼ばれることもあります。</p>
+<p>経路の抵抗が非常に小さくなると、大きな電流につながることがあります。そのため、回路には過電流を遮断するための保護機器が組み合わされます。</p>
+<div class="note-box"><h3>「線が触れる＝全部同じ短絡」ではない</h3><p>どの導体同士が、どの設備構成でつながったかによって状態は異なります。実際の設備では図面・保護方式・メーカー資料を確認して判断します。</p></div>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-short.png" alt="短絡で本来の負荷を避けた低抵抗経路に電流が流れる概念図"><figcaption>短絡は「本来の負荷を通る経路」ではなく、低い抵抗の異常経路ができるイメージです。</figcaption></figure>
+</section>
+
+<section class="section-card" id="ground"><h2>地絡とは？</h2>
+<p><strong>地絡</strong>は、電路の一部が大地、接地された金属部、接地系統などへ電気的につながる状態を指します。</p>
+<p>ただし、地絡時にどのような電流が流れるかは、電源の接地方式や設備構成などによって変わります。そのため「地絡なら必ず同じ現象になる」と決めつけないことが重要です。</p>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-ground.png" alt="電路から接地された金属部や大地側へつながる地絡の概念図"><figcaption>地絡は「電路と大地・接地側とのつながり」に注目して考えます。</figcaption></figure>
+</section>
+
+<section class="section-card" id="leakage"><h2>漏電とは？</h2>
+<p><strong>漏電</strong>は、本来の電路から外れた経路へ電流が流れている状態を広く表す言葉です。絶縁の劣化や損傷などが関係する場合があります。</p>
+<p>漏電という言葉は日常的にも広く使われるため、技術的な文脈では「どこからどこへ、どのような電流が流れているのか」を確認することが大切です。</p>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-leakage.png" alt="本来の電路以外へ電流が漏れる状態を示す概念図"><figcaption>漏電は「本来意図していない経路へ流れる電流」という広いイメージで整理します。</figcaption></figure>
+</section>
+
+<section class="section-card" id="relation"><h2>地絡と漏電はどう関係する？</h2>
+<p>地絡と漏電は重なる場面がありますが、完全に同じ言葉ではありません。</p>
+<div class="check-grid">
+<div class="check-item check-item--blue"><h3>地絡</h3><p>大地や接地された部分との電気的なつながりに注目した言葉です。</p></div>
+<div class="check-item check-item--green"><h3>漏電</h3><p>本来の電路以外へ電流が漏れていることを広く表す言葉です。</p></div>
+<div class="check-item check-item--important"><h3>共通点</h3><p>設備によっては、地絡が漏電として検出・扱われる場面があります。</p></div>
+</div>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-comparison.png" alt="短絡・地絡・漏電の関係と違いを比較する図"><figcaption>用語の範囲が完全に一致するわけではないため、文脈と設備構成を合わせて確認します。</figcaption></figure>
+</section>
+
+<section class="section-card" id="protection"><h2>保護機器とはどう関係する？</h2>
+<p>電気設備では、異常な電流や漏れ電流などを検出し、事故や設備損傷の拡大を防ぐために保護機器が使われます。</p>
+<p>たとえば過電流を対象とする保護と、漏れ電流・地絡を対象とする保護では、検出する現象や考え方が異なります。<strong>「ブレーカーなら全部同じ異常を同じように検出する」わけではありません。</strong></p>
+<div class="note-box"><h3>名称だけで判断しない</h3><p>保護機器の種類・定格・検出方式・適用範囲は設備ごとに異なります。実際の設備では、機器の仕様書、正式図面、保護協調の設計、安全ルールを優先します。</p></div>
+</section>
+
+<section class="section-card" id="reading"><h2>図面や設備ではどう見分ける？</h2>
+<p>図面を読むときは、まず<strong>電源・負荷・接地系統・保護機器がどのようにつながっているか</strong>を確認します。短絡・地絡・漏電という言葉だけで原因や経路を決めつけないことが重要です。</p>
+<p>特に地絡や漏電は、接地方式や設備構成によって見え方が変わるため、正式な単線結線図・回路図・メーカー資料などを基準にします。</p>
+<figure class="article-figure"><img src="../assets/images/short-ground-leakage-basic/short-ground-leakage-basic-reading.png" alt="短絡・地絡・漏電を図面上で整理するときの確認ポイントを示す概念図"><figcaption>用語を暗記するだけでなく、電源・負荷・接地・保護の関係を見ることが大切です。</figcaption></figure>
+<div class="danger-box"><h3>実機の確認は安全手順を優先</h3><p>この記事は用語と回路の考え方を学ぶための基礎解説です。通電状態での測定、配線変更、保護機器の取り外しなどの作業手順を示すものではありません。実設備では、メーカー資料、正式図面、設備仕様、安全ルール、および資格・教育を受けた担当者の手順を優先してください。</p></div>
+</section>
+
+<section class="section-card" id="mistakes"><h2>初心者が混同しやすいポイント</h2>
+<ul class="simple-list">
+<li><strong>短絡＝漏電</strong>ではありません。短絡は導体間などに低抵抗の異常経路ができる状態です。</li>
+<li><strong>地絡＝漏電</strong>と常に言い切れるわけではありません。地絡は大地・接地側とのつながりに注目した言葉です。</li>
+<li>地絡時の電流の大きさや保護動作は、接地方式や設備構成によって変わります。</li>
+<li>保護機器はすべて同じ現象を同じ方法で検出するわけではありません。</li>
+<li>実設備では、用語だけでなく正式図面・機器仕様・安全ルールを合わせて確認します。</li>
+</ul>
+</section>
+
+<section class="section-card" id="final-summary"><h2>まとめ：3つは「異常電流の経路」で整理する</h2>
+<p><strong>短絡</strong>は低い抵抗の異常経路、<strong>地絡</strong>は大地・接地側との電気的なつながり、<strong>漏電</strong>は本来の電路以外へ電流が漏れる状態として整理すると違いがつかみやすくなります。</p>
+<p>実際の設備では接地方式や保護方式によって現れ方が異なるため、正式な図面・メーカー資料・設備仕様を基準に判断することが大切です。</p>
+</section>
+
+<section class="section-card"><h2>あわせて読みたい</h2><div class="related-grid">
+<a class="related-card" href="voltage-current-resistance-basic.html"><h3>電圧・電流・抵抗とは？</h3><p>異常電流を理解する前に、V・A・Ωの基本を整理します。</p></a>
+<a class="related-card" href="ohms-law-basic.html"><h3>オームの法則とは？</h3><p>抵抗が小さいと電流がどう変わるかを、基本式から確認します。</p></a>
+<a class="related-card" href="control-panel-grounding-basic.html"><h3>制御盤の接地とは？</h3><p>接地の目的と基本的な考え方を確認します。</p></a>
+</div></section>
+
+</article><aside aria-label="補足情報" class="side-rail">
+<section class="side-card"><h3>見るポイント</h3><ul><li>短絡は低抵抗の異常経路</li><li>地絡は大地・接地側とのつながり</li><li>漏電は本来の電路以外への電流</li><li>保護機器ごとに検出対象が異なる</li><li>実機では正式図面・安全ルールを優先</li></ul></section>
+<section aria-label="サイト応援" class="side-card support-card"><h3 class="support-card-title">このサイトを応援する</h3><p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" rel="noopener noreferrer" target="_blank">Buy Me a Coffeeで応援</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" rel="noopener noreferrer" target="_blank">PayPalで応援</a></div></section>
+</aside></div></main>
+<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br/><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
+<script>
+(function(){const button=document.getElementById("languageMenuButton");const panel=document.getElementById("languageMenuPanel");if(!button||!panel){return;}button.addEventListener("click",function(){const isOpen=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!isOpen));panel.hidden=isOpen;});document.addEventListener("click",function(event){if(!button.contains(event.target)&&!panel.contains(event.target)){button.setAttribute("aria-expanded","false");panel.hidden=true;}});document.addEventListener("keydown",function(event){if(event.key==="Escape"){button.setAttribute("aria-expanded","false");panel.hidden=true;button.focus();}});})();
+</script>
+<script defer="" src="../assets/js/site-search.js"></script>
+</body>
+</html>

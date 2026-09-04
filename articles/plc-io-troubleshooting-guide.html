@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>PLC入出力トラブルシューティングの基本｜入力・出力・電源・COM・機器を切り分ける考え方</title>
+<meta content="PLC入出力トラブルの全体像を、入力機器・PLC入力・PLC内部・PLC出力・接続機器・DC24V・COMに分けて整理。どの領域を確認すべきか考えるための中級向けハブです。" name="description"/>
+<link href="https://denkicontrol.com/articles/plc-io-troubleshooting-guide.html" rel="canonical"/>
+<link href="https://denkicontrol.com/articles/plc-io-troubleshooting-guide.html" hreflang="ja" rel="alternate"/>
+<link href="https://denkicontrol.com/articles/plc-io-troubleshooting-guide.html" hreflang="x-default" rel="alternate"/>
+<meta content="article" property="og:type"/>
+<meta content="PLC入出力トラブルシューティングの基本｜入力・出力・電源・COM・機器を切り分ける考え方" property="og:title"/>
+<meta content="PLC入出力トラブルを、入力・PLC内部・出力・電源・COM・接続機器の流れから整理する考え方を解説します。" property="og:description"/>
+<meta content="https://denkicontrol.com/articles/plc-io-troubleshooting-guide.html" property="og:url"/>
+<meta content="https://denkicontrol.com/assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-ogp.png" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="PLC入出力トラブルシューティングの基本｜入力・出力・電源・COM・機器を切り分ける考え方" name="twitter:title"/>
+<meta content="PLC入出力トラブルを、入力・PLC内部・出力・電源・COM・接続機器の流れから整理します。" name="twitter:description"/>
+<meta content="https://denkicontrol.com/assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-ogp.png" name="twitter:image"/>
+<meta content="#f8fbff" name="theme-color"/>
+<link href="../assets/images/common/site-logo-dcl-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-48.png" rel="icon" sizes="48x48" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-180.png" rel="apple-touch-icon" sizes="180x180"/>
+<style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0;display:block}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+      display:block;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+      display:block;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+    }
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{
+      display:block;font-size:12px;line-height:1.25;font-weight:900
+    }
+    .language-menu-item small{
+      display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700
+    }
+
+    .sr-only{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+      clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;min-width:0;border:none;outline:none;background:transparent;
+      font-size:12px;color:#334155;font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;background:transparent;color:inherit;padding:0;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;
+      position:relative;flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;
+      right:-5px;bottom:-2px;transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-box-empty{
+      margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700
+    }
+
+    .breadcrumb{
+      display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;
+      color:var(--muted);font-size:12px;font-weight:800;
+    }
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);min-height:400px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.24) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;
+      font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}
+    .hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;
+      border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);
+      border-radius:24px;background:var(--card);box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;
+      background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);
+      font-size:13px;font-weight:900;text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+
+    .page-layout{
+      display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;
+      align-items:start;margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{
+      background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);
+    }
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}
+    .section-card h3{margin:20px 0 10px;font-size:17px;line-height:1.5}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .term{
+      display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;
+      border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;
+      font-size:13px;font-weight:900;white-space:nowrap;
+    }
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(147,197,253,.55) 58%);
+      font-weight:900;
+    }
+    .key-highlight,.field-highlight,.note-box,.danger-box{
+      padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;
+    }
+    .key-highlight{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
+    .field-highlight{border-color:#bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{
+      margin:0 0 10px;font-size:16px;line-height:1.5;
+    }
+    .key-highlight p,.field-highlight p,.note-box p,.danger-box p{
+      margin:0;font-size:14px;color:#334155;
+    }
+
+    .icon-points{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;border-radius:20px;border:1px solid #d7e4f3;background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;
+      border-radius:14px;margin-bottom:10px;background:#eff6ff;color:#1d4ed8;
+      font-size:23px;font-weight:900;
+    }
+    .icon-point h3{margin:0 0 8px;font-size:16px;line-height:1.45}
+    .icon-point p{margin:0;color:var(--muted);font-size:14px}
+    .icon-point--orange{border-color:#fed7aa;background:#fff7ed}
+    .icon-point--orange .icon{background:#ffedd5;color:#c2410c}
+    .icon-point--green{border-color:#bbf7d0;background:#ecfdf3}
+    .icon-point--green .icon{background:#dcfce7;color:#15803d}
+
+    .simple-list{margin:0;padding-left:20px}
+    .simple-list li{margin:10px 0 0;font-size:15px}
+    .article-figure{
+      margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;
+    }
+    .article-figure img{width:100%;height:auto}
+    .article-figure figcaption{
+      padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);
+      font-size:13px;line-height:1.65;background:#fff;
+    }
+
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;
+      padding-top:2px;background:transparent;border:none;box-shadow:none;outline:none;
+    }
+    .talk-avatar img{
+      width:76px;height:auto;display:block;object-fit:contain;background:transparent;
+      border:none;box-shadow:none;outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;
+      border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}
+    .talk-name{
+      display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;
+      border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle;
+    }
+    .talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}
+    .talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}
+    .talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+
+    .check-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--blue{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--green{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--orange{background:#fff7e8;border-color:#f7dba2}
+    .check-item--red{background:#fff1f2;border-color:#fecaca}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    th,td{
+      padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;
+      font-size:14px;line-height:1.7;
+    }
+    th{background:#eaf2ff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b}
+
+    .side-card h3{
+      margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;
+      font-size:16px;line-height:1.5;
+    }
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7}
+
+    .related-grid{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .related-card{
+      display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;
+      padding:16px;color:var(--text);text-decoration:none;
+    }
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{
+      padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);
+      text-align:center;font-size:12px;font-weight:700;
+    }
+
+    .support-card{border-color:#dbeafe}
+    .support-card-title{
+      margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;
+      font-size:15px;line-height:1.5;font-weight:900;color:#1e3a8a;
+    }
+    .support-card-text{margin:0;font-size:13px;line-height:1.75;color:#334155}
+    .support-card-actions{margin-top:12px;display:grid;gap:8px}
+    .support-link{
+      display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:38px;
+      padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;
+      font-weight:900;line-height:1.4;text-align:center;text-decoration:none;white-space:normal;
+    }
+    .support-link:hover{text-decoration:none}
+    .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;border-radius:24px;
+        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px;line-height:1.2;white-space:nowrap}
+      .header-search{flex:0 0 132px;min-height:38px}
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{width:min(360px,92vw);max-height:min(68vh,520px)}
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      :root{--header-h:66px}
+      html{scroll-padding-top:82px}
+      .site-header{padding:7px 8px}
+      .site-header-inner{gap:6px}
+      .brand{gap:7px}
+      .brand-logo{height:36px}
+      .brand-title{font-size:13px;letter-spacing:0}
+      .brand-sub{display:none}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px}
+      .header-search{flex:0 1 138px;min-height:36px}
+      .search-box{padding:0 9px;gap:6px}
+      .search-box-input{font-size:11px}
+      .header-search-icon{width:14px;height:14px}
+      .search-box-panel{right:-48px;width:min(340px,94vw)}
+      .article-hero::before{
+        background:url("../assets/images/electrical-drawing-basic/electrical-symbol-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,.side-card,.mini-toc-card,.summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,.talk-bubble p,.simple-list li{font-size:14px}
+      .talk-row,.talk-row--right{flex-direction:column;gap:8px}
+      .talk-avatar{width:64px;flex-basis:auto;padding-left:4px}
+      .talk-row--right .talk-avatar{align-self:flex-end;padding-right:4px}
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+<div class="site-header-inner">
+<a aria-label="トップページへ移動" class="brand" href="../">
+<img alt="電気と制御の実務メモ ロゴ" class="brand-logo" src="../assets/images/common/site-logo-dcl.png"/>
+<div class="brand-copy">
+<p class="brand-title">電気と制御の実務メモ</p>
+<p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+</div>
+</a>
+<div aria-label="言語と地域の切り替え" class="language-menu">
+<button aria-controls="languageMenuPanel" aria-expanded="false" aria-label="言語と地域を切り替える" class="language-menu-button" id="languageMenuButton" type="button">
+<span aria-hidden="true" class="language-menu-icon">🌐</span><span class="language-menu-current">Japan</span>
+</button>
+<div class="language-menu-panel" hidden="" id="languageMenuPanel">
+<a aria-current="page" class="language-menu-item is-active" href="./plc-io-troubleshooting-guide.html" lang="ja">
+<span aria-hidden="true" class="language-menu-flag">🇯🇵</span><span><strong>Japan</strong><small>日本語記事</small></span>
+</a>
+</div>
+</div>
+<form aria-label="サイト内検索" class="header-search search-box" id="siteSearch" role="search">
+<label class="sr-only" for="site-search-input">サイト内検索</label>
+<input autocomplete="off" class="search-box-input" enterkeyhint="search" id="site-search-input" placeholder="キーワードで検索" type="search"/>
+<button aria-label="検索" class="search-box-button" type="submit"><span aria-hidden="true" class="header-search-icon"></span></button>
+<div class="search-box-panel" hidden="" id="site-search-panel"><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" hidden="" id="site-search-empty">該当する記事がありません</p></div>
+</form>
+</div>
+</header>
+<main class="container">
+<nav class="breadcrumb"><a href="../">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>PLC入出力トラブルシューティングの基本</span></nav>
+
+<section class="article-hero">
+<div class="article-hero-copy">
+<span class="hero-label">中級への入口｜PLC・入出力</span>
+<h1>PLC入出力トラブルシューティングの基本｜入力・出力・電源・COM・機器を切り分ける考え方</h1>
+<p class="hero-lead">「設備が動かない」とき、いきなり原因を決めつけず、入力機器からPLC、出力、接続機器まで信号の流れを分けて考えるための全体地図です。</p>
+<div class="hero-actions"><a class="btn btn-primary" href="#signal-flow">信号の流れから見る</a><a class="btn btn-secondary" href="#summary">先に要点を見る</a></div>
+</div>
+</section>
+
+<section aria-label="この記事の要点" class="top-summary" id="summary">
+<div class="summary-card summary-card--fit"><h2>まず全体を見る</h2><ul><li>入力機器から接続機器まで流れで考える</li><li>原因を最初から一つに決めつけない</li></ul></div>
+<div class="summary-card summary-card--notyet"><h2>電源・COMも土台</h2><ul><li>信号だけでなくDC24VやCOMの関係も見る</li><li>方式や機種で考え方が異なる</li></ul></div>
+<div class="summary-card summary-card--conclusion"><h2>個別記事へ分岐</h2><ul><li>入力側・出力側・電源側を整理</li><li>詳しい内容は既存記事で深掘りする</li></ul></div>
+</section>
+
+<section aria-label="記事内メニュー" class="mini-toc-card"><h2>この記事でわかること</h2><div class="mini-toc">
+<a href="#signal-flow">信号の流れ</a><a href="#symptoms">症状の整理</a><a href="#input-side">入力側</a><a href="#plc-inside">PLC内部</a><a href="#output-side">出力側</a><a href="#power-common">電源・COM</a><a href="#mistakes">混同しやすい点</a><a href="#summary-final">まとめ</a>
+</div></section>
+
+<div class="page-layout"><article class="main-column">
+
+<section class="section-card" id="signal-flow"><h2>まず「信号がどこまで進んでいるか」で考える</h2>
+<p>PLCを使った設備では、ひとつの動作にも複数の領域が関わります。トラブルを整理するときは、最初から「PLCが悪い」「センサーが悪い」と決めるより、<strong>信号の流れをいくつかの領域に分けて考える</strong>と全体像をつかみやすくなります。</p>
+<div class="key-highlight"><h3>基本の地図</h3><p><strong>入力機器 → PLC入力 → PLC内部の条件 → PLC出力 → 接続機器</strong></p></div>
+<p>さらに、この流れを支える土台としてDC24Vなどの制御電源やCOMの考え方があります。この記事では各領域の詳細作業ではなく、<strong>「次にどの記事を読むべきか」を判断するための地図</strong>として整理します。</p>
+<figure class="article-figure"><img src="../assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-flow.png" alt="入力機器からPLC入力、PLC内部、PLC出力、接続機器までの信号の流れを示す概念図" loading="lazy" decoding="async"><figcaption>設備の動作をひとつの塊で見ず、信号が通る領域に分けて考えます。図は概念を学ぶためのものです。</figcaption></figure>
+</section>
+
+<section class="section-card" id="symptoms"><h2>症状を「どの領域の話か」に分ける</h2>
+<p>同じ「動かない」という症状でも、入口となる入力信号、PLC内部の制御条件、出力信号、その先の接続機器では意味が違います。まず症状を領域に分けると、読むべき図面や資料、関連記事を絞りやすくなります。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>見えている状態</th><th>次に整理する領域</th><th>関連するテーマ</th></tr></thead>
+<tbody>
+<tr><td>入力機器側の状態とPLC入力の認識が一致しない</td><td class="cell-blue">入力側</td><td>センサー、NPN/PNP、入力ユニット、COM</td></tr>
+<tr><td>PLC入力は認識されているが期待する動作につながらない</td><td class="cell-orange">PLC内部</td><td>X/Y/M/D、スキャン、プログラム条件、モニタ</td></tr>
+<tr><td>PLC内部では出力条件が成立しているように見える</td><td class="cell-green">出力側</td><td>出力ユニット、リレー、接続機器</td></tr>
+<tr><td>複数の信号がまとめて成立しない</td><td class="cell-red">共通の土台</td><td>DC24V、COM、電源系統、正式図面</td></tr>
+</tbody></table></div>
+<figure class="article-figure"><img src="../assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-map.png" alt="PLCトラブルを入力側、PLC内部、出力側、電源とCOMに分けて整理する概念図" loading="lazy" decoding="async"><figcaption>症状を領域に分けると、個別の記事へ進みやすくなります。</figcaption></figure>
+</section>
+
+<section class="section-card" id="input-side"><h2>入力側：入力機器とPLC入力の間を整理する</h2>
+<p>入力側には、押しボタンや各種センサーなどの入力機器、入力ユニット、DC24V、COM、NPN/PNPなど複数の要素があります。ここでは個々の配線方法ではなく、<strong>「入力機器の状態」と「PLCが入力として認識している状態」は別の段階</strong>だと理解することが重要です。</p>
+<div class="check-grid">
+<div class="check-item check-item--blue"><h3>入力機器</h3><p>センサーなどが何を検出し、どのような信号方式なのかを仕様書・図面で整理します。</p></div>
+<div class="check-item check-item--green"><h3>PLC入力</h3><p>入力ユニットがその信号をどの入力として扱う設計なのかを確認する領域です。</p></div>
+</div>
+<figure class="article-figure"><img src="../assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-input.png" alt="センサーなどの入力機器とPLC入力を別の段階として示す概念図" loading="lazy" decoding="async"><figcaption>入力機器が反応することと、PLC入力として認識されることは同じ段階ではありません。</figcaption></figure>
+<div class="article-footer-nav"><a class="btn btn-secondary" href="plc-input-troubleshooting-basic.html">PLC入力の記事を見る</a><a class="btn btn-secondary" href="npn-pnp-basic.html">NPN/PNPの基本を見る</a></div>
+</section>
+
+<section class="section-card" id="plc-inside"><h2>PLC内部：入力が入った後の条件を分けて考える</h2>
+<p>PLC入力が認識されても、それだけで出力が成立するとは限りません。PLC内部では複数の条件、内部デバイス、タイマやカウンタなどが組み合わさる場合があります。</p>
+<p>ここで役立つのが、<strong>X・Y・M・Dなどのデバイスの役割</strong>と、PLCがプログラムを繰り返し処理する<strong>スキャン</strong>の基本です。個別のプログラムを追う前に、入力と内部条件と出力を別の段階として理解しておくと整理しやすくなります。</p>
+<div class="field-highlight"><h3>「入力ON＝出力ON」ではない</h3><p>入力は制御条件のひとつです。実際の動作条件は設備のプログラムや仕様によって異なるため、正式なプログラム資料・図面・メーカー資料を基準に読みます。</p></div>
+<figure class="article-figure"><img src="../assets/images/plc-io-troubleshooting-guide/plc-io-troubleshooting-guide-plc.png" alt="PLC入力から内部条件を経てPLC出力へ進む考え方を示す概念図" loading="lazy" decoding="async"><figcaption>PLC内部では入力情報と制御条件を分けて考えます。</figcaption></figure>
+<div class="article-footer-nav"><a class="btn btn-secondary" href="plc-xymd-device-basic.html">X・Y・M・Dの基本を見る</a><a class="btn btn-secondary" href="plc-scan-basic.html">PLCスキャンの基本を見る</a></div>
+</section>
+
+<section class="section-card" id="output-side"><h2>出力側：PLC出力と接続機器を同じものにしない</h2>
+<p>PLCの出力状態と、その先にある機器の動作も別の段階です。出力ユニットの先には、リレー、電磁弁など、設備によってさまざまな機器が接続されます。</p>
+<p>そのため、<strong>PLC出力が成立しているように見えることだけで、接続機器まで正常と判断することはできません。</strong> 出力側の記事では、出力ユニットや接続機器との関係をさらに詳しく整理します。</p>
+<div class="article-footer-nav"><a class="btn btn-secondary" href="plc-output-troubleshooting-basic.html">PLC出力の記事を見る</a><a class="btn btn-secondary" href="input-output-basic.html">入力・出力の基本を見る</a></div>
+</section>
+
+<section class="section-card" id="power-common"><h2>DC24VとCOMは信号の流れを支える土台</h2>
+<p>PLC入出力を考えるときは、信号だけでなく<strong>制御電源とCOMの関係</strong>も重要です。特にDC24V系では、+24V、0V、COM、NPN/PNPなどの言葉が同時に出てくるため、混同しやすいところです。</p>
+<p>ただし、COMの扱いや回路構成は機種・ユニット・設計によって異なります。名称だけで決めつけず、<strong>正式図面と対象機器のメーカー資料を基準に読む</strong>ことが基本です。</p>
+<div class="article-footer-nav"><a class="btn btn-secondary" href="dc24v-common-basic.html">DC24VとCOMを見る</a><a class="btn btn-secondary" href="dc24v-power-supply-basic.html">DC24V電源の基本を見る</a><a class="btn btn-secondary" href="dc24v-power-troubleshooting-basic.html">DC24Vトラブル記事を見る</a></div>
+</section>
+
+<section class="section-card" id="mistakes"><h2>PLCトラブルで混同しやすいポイント</h2>
+<ul class="simple-list">
+<li><strong>入力機器が反応している＝PLC入力が認識している</strong>とは限りません。別の段階として考えます。</li>
+<li><strong>PLC入力がON＝出力条件が成立する</strong>とは限りません。PLC内部には別の制御条件があります。</li>
+<li><strong>PLC出力がON＝接続機器が動作している</strong>とは限りません。出力と機器は別の領域です。</li>
+<li><strong>COMはすべて同じ意味・接続</strong>とは限りません。対象ユニットの仕様と正式図面を基準にします。</li>
+<li><strong>「PLCが悪い」と最初から決めつけない</strong>こと。入力・内部・出力・電源・接続機器に分けて整理します。</li>
+</ul>
+<div class="danger-box"><h3>この記事は実機作業の手順書ではありません</h3><p>ここで示しているのは、PLC入出力のトラブルを理解するための概念的な切り分けです。実設備の点検・変更・測定・復旧などは、対象設備の正式図面、メーカー資料、適用される安全ルールを優先し、必要な教育・資格・権限を持つ担当者の手順に従ってください。安全回路やインターロックを無効化して確認することを前提としていません。</p></div>
+</section>
+
+<section class="section-card" id="summary-final"><h2>まとめ：PLCトラブルは「信号の地図」に分けて考える</h2>
+<p>PLC入出力のトラブルは、ひとつの原因名を探すところから始めるより、<strong>入力機器 → PLC入力 → PLC内部 → PLC出力 → 接続機器</strong>という流れに分けると整理しやすくなります。</p>
+<p>さらにDC24VやCOMを共通の土台として考え、どの領域を詳しく見るべきかが分かったら個別記事へ進みます。このハブを入口に、基礎記事とトラブル記事を行き来しながら理解を深めてください。</p>
+</section>
+
+<section class="section-card"><h2>あわせて読みたい</h2><div class="related-grid">
+<a class="related-card" href="plc-input-troubleshooting-basic.html"><h3>PLC入力が入らないときの考え方</h3><p>入力側を、電源・COM・センサー・入力ユニットなどに分けて整理します。</p></a>
+<a class="related-card" href="plc-output-troubleshooting-basic.html"><h3>PLC出力が出ないときの考え方</h3><p>PLC出力側の状態を整理するときの基礎記事です。</p></a>
+<a class="related-card" href="plc-error-lamp-troubleshooting-basic.html"><h3>PLCエラーランプの基本</h3><p>PLC本体のエラー表示がある場合に、表示と資料から状態を整理する入口です。</p></a>
+<a class="related-card" href="dc24v-power-troubleshooting-basic.html"><h3>DC24V電源トラブルの基本</h3><p>制御電源側を詳しく理解したいときに進む記事です。</p></a>
+<a class="related-card" href="dc24v-common-basic.html"><h3>DC24VのCOMとは？</h3><p>+24V・0V・COMとPLC入力の関係を基礎から整理します。</p></a>
+<a class="related-card" href="plc-io-unit-basic.html"><h3>PLC I/Oユニットの基本</h3><p>入力ユニット・出力ユニットの役割を確認します。</p></a>
+</div></section>
+
+</article><aside aria-label="補足情報" class="side-rail">
+<section class="side-card"><h3>このページの使い方</h3><ul><li>まず信号の全体像を見る</li><li>入力・PLC内部・出力を分ける</li><li>DC24V・COMも共通の土台として見る</li><li>詳しい内容は個別記事へ進む</li><li>実機は正式図面・メーカー資料・現場ルールを優先</li></ul></section>
+<section class="side-card"><h3>主要な分岐先</h3><ul><li><a href="plc-input-troubleshooting-basic.html">PLC入力</a></li><li><a href="plc-output-troubleshooting-basic.html">PLC出力</a></li><li><a href="dc24v-power-troubleshooting-basic.html">DC24V電源</a></li><li><a href="dc24v-common-basic.html">COM</a></li><li><a href="npn-pnp-basic.html">NPN/PNP</a></li></ul></section>
+<section aria-label="サイト応援" class="side-card support-card"><h3 class="support-card-title">このサイトを応援する</h3><p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" rel="noopener noreferrer" target="_blank">Buy Me a Coffeeで応援</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" rel="noopener noreferrer" target="_blank">PayPalで応援</a></div></section>
+</aside></div></main>
+<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br/><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
+<script>
+(function(){const button=document.getElementById("languageMenuButton");const panel=document.getElementById("languageMenuPanel");if(!button||!panel){return;}button.addEventListener("click",function(){const isOpen=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!isOpen));panel.hidden=isOpen;});document.addEventListener("click",function(event){if(!button.contains(event.target)&&!panel.contains(event.target)){button.setAttribute("aria-expanded","false");panel.hidden=true;}});document.addEventListener("keydown",function(event){if(event.key==="Escape"){button.setAttribute("aria-expanded","false");panel.hidden=true;button.focus();}});})();
+</script>
+<script defer="" src="../assets/js/site-search.js"></script>
+</body>
+</html>

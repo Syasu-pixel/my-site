@@ -32,6 +32,7 @@
   let activeIndex = -1;
   let hasSearched = false;
   let isIndexLoaded = false;
+  let tokenDocumentFrequency = new Map();
 
   currentResults = [];
   activeIndex = -1;
@@ -75,9 +76,55 @@
     return fields.flatMap((field) => getSearchVariants(field)).join(' ');
   };
 
+  const tokenizeQuery = (value) => {
+    const normalized = normalizeText(value);
+    if (!normalized) return [];
+
+    return [...new Set(
+      normalized
+        .split(/[\s,，、。]+/)
+        .flatMap((token) => getSearchVariants(token))
+        .filter(Boolean)
+    )];
+  };
+
+  const includesSearchToken = (value, token) => {
+    if (!/^[a-z]{1,3}$/.test(token)) return value.includes(token);
+
+    let position = value.indexOf(token);
+    while (position >= 0) {
+      const before = value[position - 1] || '';
+      const after = value[position + token.length] || '';
+      if (!/[a-z0-9]/.test(before) && !/[a-z0-9]/.test(after)) return true;
+      position = value.indexOf(token, position + 1);
+    }
+    return false;
+  };
+
+  const getFieldScore = (values, tokenVariants, weights) => {
+    let bestScore = 0;
+
+    tokenVariants.forEach((token) => {
+      values.forEach((value) => {
+        if (value === token) bestScore = Math.max(bestScore, weights.exact);
+        else if (value.startsWith(token) && includesSearchToken(value, token)) {
+          bestScore = Math.max(bestScore, weights.startsWith);
+        } else if (includesSearchToken(value, token)) bestScore = Math.max(bestScore, weights.includes);
+      });
+    });
+
+    return bestScore;
+  };
+
   const scoreEntry = (entry, query) => {
     const queryVariants = getSearchVariants(query);
     if (!queryVariants.length) return -1;
+
+    const queryTokens = normalizeText(query)
+      .split(/[\s,，、。]+/)
+      .map((token) => ({ raw: token, variants: getSearchVariants(token) }))
+      .filter((token) => token.variants.length > 0);
+    if (!queryTokens.length) return -1;
 
     const title = getSearchVariants(entry.title);
     const category = getSearchVariants(entry.category);
@@ -86,28 +133,48 @@
     const synonyms = (Array.isArray(entry.synonyms) ? entry.synonyms : []).flatMap(getSearchVariants);
     const haystack = entry._searchText;
 
-    if (!queryVariants.some((variant) => haystack.includes(variant))) return -1;
+    const matchedTokens = queryTokens.filter((token) =>
+      token.variants.some((variant) => includesSearchToken(haystack, variant))
+    );
+    if (!matchedTokens.length) return -1;
+
     const hasMatch = (values, fn) =>
       queryVariants.some((qv) => values.some((value) => fn(value, qv)));
 
-    let score = 0;
+    // Token coverage is deliberately the strongest signal. Field weights then
+    // decide the order among entries with the same number of matching words.
+    let score = matchedTokens.length * 1200;
+    score += Math.round((matchedTokens.length / queryTokens.length) * 500);
+    if (matchedTokens.length === queryTokens.length) score += 1000;
 
-    if (hasMatch(title, (v, q) => v === q)) score += 150;
-    else if (hasMatch(title, (v, q) => v.startsWith(q))) score += 110;
-    else if (hasMatch(title, (v, q) => v.includes(q))) score += 90;
+    matchedTokens.forEach((token) => {
+      const documentFrequency = tokenDocumentFrequency.get(token.raw) || indexEntries.length;
+      const rarity = Math.log((indexEntries.length + 1) / (documentFrequency + 1));
+      score += Math.round(rarity * 40);
 
-    if (hasMatch(keywords, (v, q) => v === q)) score += 70;
-    else if (hasMatch(keywords, (v, q) => v.startsWith(q))) score += 60;
-    else if (hasMatch(keywords, (v, q) => v.includes(q))) score += 45;
+      score += getFieldScore(title, token.variants, { exact: 150, startsWith: 110, includes: 90 });
+      score += getFieldScore(keywords, token.variants, { exact: 70, startsWith: 60, includes: 45 });
+      score += getFieldScore(synonyms, token.variants, { exact: 55, startsWith: 45, includes: 30 });
+      score += getFieldScore(category, token.variants, { exact: 18, startsWith: 18, includes: 10 });
+      score += getFieldScore(description, token.variants, { exact: 15, startsWith: 15, includes: 8 });
+    });
 
-    if (hasMatch(synonyms, (v, q) => v === q)) score += 55;
-    else if (hasMatch(synonyms, (v, q) => v.startsWith(q))) score += 45;
-    else if (hasMatch(synonyms, (v, q) => v.includes(q))) score += 30;
+    // Keep the existing whole-query preference, especially for unspaced terms,
+    // without allowing it to outweigh an article matching more query tokens.
+    if (queryVariants.some((variant) => title.some((value) => value === variant))) score += 300;
+    else if (hasMatch(title, (v, q) => v.startsWith(q))) score += 220;
+    else if (hasMatch(title, (v, q) => v.includes(q))) score += 180;
 
-    if (hasMatch(category, (v, q) => v.includes(q))) score += hasMatch(category, (v, q) => v.startsWith(q)) ? 18 : 10;
-    if (hasMatch(description, (v, q) => v.includes(q))) score += hasMatch(description, (v, q) => v.startsWith(q)) ? 15 : 8;
+    if (hasMatch(keywords, (v, q) => v === q)) score += 140;
+    else if (hasMatch(keywords, (v, q) => v.startsWith(q))) score += 120;
+    else if (hasMatch(keywords, (v, q) => v.includes(q))) score += 90;
 
-    if (isEnglishPage && entry.lang === 'en') score += 25;
+    if (hasMatch(synonyms, (v, q) => v === q)) score += 110;
+    else if (hasMatch(synonyms, (v, q) => v.startsWith(q))) score += 90;
+    else if (hasMatch(synonyms, (v, q) => v.includes(q))) score += 60;
+
+    const entryIsEnglish = entry.lang === 'en' || entry.url.startsWith('/en/');
+    if (entryIsEnglish === isEnglishPage) score += 25;
 
     return score;
   };
@@ -290,6 +357,17 @@
       indexEntries = data
         .filter((entry) => entry && entry.title && entry.url)
         .map((entry) => ({ ...entry, _searchText: toSearchText(entry) }));
+      tokenDocumentFrequency = new Map();
+      indexEntries.forEach((entry) => {
+        const entryTokens = new Set(tokenizeQuery([
+          entry.title,
+          ...(Array.isArray(entry.keywords) ? entry.keywords : []),
+          ...(Array.isArray(entry.synonyms) ? entry.synonyms : [])
+        ].join(' ')));
+        entryTokens.forEach((token) => {
+          tokenDocumentFrequency.set(token, (tokenDocumentFrequency.get(token) || 0) + 1);
+        });
+      });
     })
     .catch(() => {
       isIndexLoaded = true;

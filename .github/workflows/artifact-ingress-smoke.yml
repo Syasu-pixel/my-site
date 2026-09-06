@@ -1,4 +1,4 @@
-name: Artifact Ingress Smoke OGP
+name: Noise Guide Preview Patch
 
 on:
   push:
@@ -9,66 +9,53 @@ permissions:
   contents: write
 
 jobs:
-  ingress-ogp:
+  patch-preview:
     runs-on: ubuntu-latest
     steps:
-      - name: Import reviewed OGP through broker
-        id: broker
-        shell: bash
-        env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-        run: |
-          set -euo pipefail
-          payload='{"action":"import_firestorage","share_id":"xAuRpBIqGSS_","file_id":"01a076e3d0937007ad975bdac7d73171","file_name":"control-panel-noise-troubleshooting-guide-ogp.webp","sha256":"6472a54b982251185bd234f9e07e2005ab6d02cc52cb2a86d771b9a84a7cc936"}'
-          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL")"
-          python3 - "$response" >> "$GITHUB_OUTPUT" <<'PY'
-          import json,sys
-          d=json.loads(sys.argv[1])
-          print('artifact_url='+d['download_url'])
-          print('object_path='+d['object_path'])
-          PY
-
-      - name: Checkout trusted writer runtime
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: writer-runtime
-          sparse-checkout: scripts/ai_artifact_writer.py
-          sparse-checkout-cone-mode: false
-
       - name: Checkout target preview branch
         uses: actions/checkout@v4
         with:
           ref: pilot-control-panel-noise-guide
-          path: workspace
+          fetch-depth: 1
 
-      - name: Validate and write OGP
-        working-directory: workspace
-        env:
-          AI_ARTIFACT_ALLOWED_HOSTS: ${{ vars.AI_ARTIFACT_ALLOWED_HOSTS }}
-          ARTIFACT_URL: ${{ steps.broker.outputs.artifact_url }}
+      - name: Patch adopted Hero/OGP and official references
+        shell: bash
         run: |
           set -euo pipefail
-          target='assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-ogp.webp'
-          python3 ../writer-runtime/scripts/ai_artifact_writer.py --url "$ARTIFACT_URL" --sha256 6472a54b982251185bd234f9e07e2005ab6d02cc52cb2a86d771b9a84a7cc936 --target-branch pilot-control-panel-noise-guide --target-path "$target"
+          test -f assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp
+          test -f assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-ogp.webp
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/control-panel-noise-troubleshooting-guide.html')
+          s=p.read_text(encoding='utf-8')
+          old_og='https://denkicontrol.com/assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png'
+          new_og='https://denkicontrol.com/assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-ogp.webp'
+          if s.count(old_og) != 2:
+              raise SystemExit(f'unexpected OG/Twitter source count: {s.count(old_og)}')
+          s=s.replace(old_og,new_og)
+          old_hero='../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png'
+          new_hero='../assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp'
+          if s.count(old_hero) != 1:
+              raise SystemExit(f'unexpected Hero CSS source count: {s.count(old_hero)}')
+          s=s.replace(old_hero,new_hero)
+          old_ref='''          <p>一般的な考え方だけで実機の配線方法を決めず、対象機器の取扱説明書とEMC・配線上の注意を確認します。三菱電機のFA向けEMC資料では、配置・配線による分離、シールド、接地、フィルタ等を基本対策として整理しています。オムロンの制御機器資料でも、ノイズ源からの分離、別ダクト、シールド線、接地、フィルタなどが示されています。</p>
+          <div class="key-highlight"><h3>資料で見る項目</h3><p>推奨ケーブル、シールド処理、接地端子の扱い、信号線と動力線の分離、フィルタ・サージ対策の指定、設置距離や配線上の注意を確認します。</p></div>'''
+          new_ref='''          <p>一般的な考え方だけで実機の配線方法を決めず、対象機器の取扱説明書とEMC・配線上の注意を確認します。シールドの接地方法は機器やネットワークによって推奨が変わるため、「片側接地が絶対」などと決めつけず、対象製品の資料を優先します。</p>
+          <div class="key-highlight"><h3>メーカー公式資料</h3><p><a href="https://www.fa.omron.co.jp/product/special/knowledge/common/goodusage2.html" target="_blank" rel="noopener noreferrer">オムロン｜センサの上手な使い方</a>では、シールド線・ツイストペア線、モータや電磁開閉器などのノイズ源との分離、別ダクト等の考え方を確認できます。<br><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/10894" target="_blank" rel="noopener noreferrer">三菱電機FA｜一次側からのノイズ対策</a>では、ノイズフィルタや接地条件などの考え方を確認できます。<br><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/14299" target="_blank" rel="noopener noreferrer">三菱電機FA｜シールド線の接地処理</a>は、機器・ネットワークごとに接地指示が異なり得ることを確認する例として参照できます。</p></div>
+          <div class="key-highlight"><h3>資料で見る項目</h3><p>推奨ケーブル、シールド処理、接地端子の扱い、信号線と動力線の分離、フィルタ・サージ対策の指定、設置距離や配線上の注意を確認します。</p></div>'''
+          if old_ref not in s:
+              raise SystemExit('reference block not found')
+          s=s.replace(old_ref,new_ref,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Commit preview patch
+        run: |
+          set -euo pipefail
           git config user.name denkicontrol-ai-writer
           git config user.email actions@users.noreply.github.com
-          git add "$target"
-          if git diff --cached --quiet; then
-            echo 'No OGP change to commit.'
-          else
-            git commit -m 'Add adopted noise guide OGP image'
-            git push origin HEAD:pilot-control-panel-noise-guide
-          fi
-
-      - name: Delete temporary broker copy
-        if: ${{ success() }}
-        env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-          OBJECT_PATH: ${{ steps.broker.outputs.object_path }}
-        run: |
-          set -euo pipefail
-          payload="$(python3 -c 'import json,os; print(json.dumps({"action":"delete","object_path":os.environ["OBJECT_PATH"]}))')"
-          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 20 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL"
+          git add articles/control-panel-noise-troubleshooting-guide.html
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m 'Use adopted noise guide images and official sources'
+          git push origin HEAD:pilot-control-panel-noise-guide

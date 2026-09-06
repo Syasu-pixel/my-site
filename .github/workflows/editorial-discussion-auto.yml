@@ -1,0 +1,76 @@
+name: AI Editorial Discussion Auto
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+    paths:
+      - 'docs/decisions/**'
+      - 'docs/ai-*.md'
+      - 'docs/multi-ai-*.md'
+
+permissions:
+  contents: read
+
+jobs:
+  discuss:
+    if: github.event.pull_request.draft == false && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted runtime from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Create EDITOR proposal from PR
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          title=os.environ.get('PR_TITLE','')[:300]
+          body=os.environ.get('PR_BODY','')[:700]
+          msg=f'提案: {title}。目的と変更概要: {body}'[:1200]
+          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','openai-editor','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
+          PY
+      - name: Gemini CHALLENGER reads EDITOR
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCUSSION_SESSION: discussion-session.json
+          DISCUSSION_OUTPUT: gemini-turn.json
+        run: python3 scripts/gemini_discussion_turn.py
+      - name: Append Gemini reply and provisional REVIEWER decision
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          x=json.load(open('gemini-turn.json'))
+          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+          for e in x['evidence']: cmd += ['--evidence',e]
+          for q in x['questions']: cmd += ['--question',q]
+          subprocess.check_call(cmd)
+          if x['stance'] in ('support','withdraw'):
+            decision='adopt'; message='CHALLENGERの重要懸念は維持されていないため、v0.1 REVIEWERはADOPTとします。'
+          else:
+            decision='escalate'; message='CHALLENGERが異論または質問を維持しているため、次の討論ラウンドへ送ります。'
+          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','reviewer','--provider','orchestrator-reviewer','--stance','adjudicate','--message',message,'--evidence','discussion-session.json','--confidence','0.80','--close',decision])
+          PY
+      - name: Export visible conversation
+        run: |
+          python3 - <<'PY'
+          import json,uuid
+          s=json.load(open('discussion-session.json'))
+          with open('discussion-events.jsonl','w',encoding='utf-8') as f:
+            for t in s['turns']:
+              typ={'editor':'proposal','challenger':'finding','reviewer':'review'}.get(t['role'],'status')
+              ev={'schema_version':'0.1','event_id':str(uuid.uuid4()),'job_id':'discussion-'+s['session_id'],'role':t['role'],'provider':t['provider'],'type':typ,'summary':t['message'],'evidence':[{'kind':'reference','ref':e} for e in t['evidence']],'severity':'info','state':'REVIEWING' if t['role']=='reviewer' else 'CHALLENGING','created_at':t['created_at'],'discussion':{'session_id':s['session_id'],'round':s['round'],'turn':t['turn'],'stance':t['stance'],'questions':t['questions'],'confidence':t['confidence']}}
+              f.write(json.dumps(ev,ensure_ascii=False)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: editorial-discussion-${{ github.event.pull_request.number }}
+          path: |
+            discussion-session.json
+            discussion-events.jsonl
+            gemini-turn.json
+          retention-days: 14

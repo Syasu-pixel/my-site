@@ -7,6 +7,10 @@ on:
         description: Non-production PR number to audit
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/orchestrator-pilot.yml'
 
 permissions:
   contents: read
@@ -25,8 +29,9 @@ jobs:
       - name: Resolve and validate input
         env:
           DISPATCH_PR: ${{ inputs.pr_number }}
+          SMOKE_PR: '1306'
         run: |
-          PR_NUMBER="$DISPATCH_PR"
+          PR_NUMBER="${DISPATCH_PR:-$SMOKE_PR}"
           [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo 'invalid PR number'; exit 1; }
           echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
 
@@ -106,7 +111,6 @@ jobs:
         env:
           AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
         run: |
-          JOB_ID=$(python3 -c "import json;print(json.load(open('$JOB_FILE'))['job_id'])")
           python3 - <<'PY'
           import json, os, subprocess
           r=json.load(open('challenger-result.json'))

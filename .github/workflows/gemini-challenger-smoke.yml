@@ -10,10 +10,10 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout trusted runner from main
+      - name: Checkout trusted runner from smoke branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ai-gemini-challenger-smoke
           path: trusted
       - name: Build bounded audit input for merged pilot PR
         env:
@@ -44,11 +44,8 @@ jobs:
           python3 - <<'PY'
           import json
           r=json.load(open('challenger-result.json'))
-          print('verdict=',r['verdict'])
-          print('findings=',len(r['findings']))
-          print('confidence=',r['confidence'])
-          for i,f in enumerate(r['findings'][:5],1):
-              print(f"{i}. {f['severity']} {f['path']} :: {f['claim'][:180]}")
+          print('verdict=',r['verdict']); print('findings=',len(r['findings'])); print('confidence=',r['confidence'])
+          for i,f in enumerate(r['findings'][:5],1): print(f"{i}. {f['severity']} {f['path']} :: {f['claim'][:180]}")
           PY
       - name: Upload result
         if: always()

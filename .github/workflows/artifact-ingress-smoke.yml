@@ -1,4 +1,4 @@
-name: Artifact Ingress Smoke
+name: Artifact Ingress Smoke Cleanup
 
 on:
   push:
@@ -6,63 +6,23 @@ on:
     paths: [.github/workflows/artifact-ingress-smoke.yml]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  ingress:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Import reviewed Hero through broker
-        id: broker
-        shell: bash
+      - name: Delete leftover broker artifact
         env:
           BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
           BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-        run: |
-          set -euo pipefail
-          payload='{"action":"import_firestorage","share_id":"xAuRpBIqGSS_","file_id":"01a076d251c076a293371c72c6a5a366","file_name":"control-panel-noise-troubleshooting-guide-hero.webp","sha256":"a9cff441e15d9bf121294d1f128644b8c38626b08885dcf02be63c983c4ee8f2"}'
-          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL")"
-          python3 - "$response" >> "$GITHUB_OUTPUT" <<'PY'
-          import json,sys
-          d=json.loads(sys.argv[1])
-          print('artifact_url='+d['download_url'])
-          print('object_path='+d['object_path'])
-          PY
-
-      - name: Checkout trusted writer runtime
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: writer-runtime
-          sparse-checkout: scripts/ai_artifact_writer.py
-          sparse-checkout-cone-mode: false
-
-      - name: Checkout target preview branch
-        uses: actions/checkout@v4
-        with:
-          ref: pilot-control-panel-noise-guide
-          path: workspace
-
-      - name: Validate and write Hero
-        working-directory: workspace
-        env:
-          AI_ARTIFACT_ALLOWED_HOSTS: ${{ vars.AI_ARTIFACT_ALLOWED_HOSTS }}
-          ARTIFACT_URL: ${{ steps.broker.outputs.artifact_url }}
-        run: |
-          python3 ../writer-runtime/scripts/ai_artifact_writer.py --url "$ARTIFACT_URL" --sha256 a9cff441e15d9bf121294d1f128644b8c38626b08885dcf02be63c983c4ee8f2 --target-branch pilot-control-panel-noise-guide --target-path assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp
-          git config user.name denkicontrol-ai-writer
-          git config user.email actions@users.noreply.github.com
-          git add assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp
-          git commit -m 'Add adopted noise guide Hero image'
-          git push origin HEAD:pilot-control-panel-noise-guide
-
-      - name: Delete temporary broker copy
-        if: ${{ success() }}
-        env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-          OBJECT_PATH: ${{ steps.broker.outputs.object_path }}
+          OBJECT_PATH: incoming/2026-09-06/3003e217-511f-42b9-991d-c28661cb0b50/control-panel-noise-troubleshooting-guide-hero.webp
         run: |
           set -euo pipefail
           payload="$(python3 -c 'import json,os; print(json.dumps({"action":"delete","object_path":os.environ["OBJECT_PATH"]}))')"
-          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 20 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 20 \
+            -X POST \
+            -H 'content-type: application/json' \
+            -H "x-artifact-broker-token: $BROKER_TOKEN" \
+            --data "$payload" \
+            "$BROKER_URL"

@@ -1,0 +1,107 @@
+name: Multi-AI Orchestrator Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Non-production PR number to audit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  JOB_FILE: orchestrator-job.json
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Validate input
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: '[[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo "invalid PR number"; exit 1; }'
+
+      - name: Checkout trusted controller
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+
+      - name: Initialize durable job record
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          python3 - <<'PY'
+          import json, os, uuid
+          data={
+            'schema_version':'0.1','job_id':str(uuid.uuid4()),'kind':'infrastructure',
+            'state':'QUEUED','topic':'PR #'+os.environ['PR_NUMBER'],
+            'target_branch':'','revision':0,'max_revisions':3,
+            'human_gate':{'required':False,'status':'pending'},
+            'roles':{'editor':'controller','builder':'existing-pr','challenger':'gemini','reviewer':'controller-v0.1'},
+            'artifacts':[],'events':[]
+          }
+          json.dump(data,open(os.environ['JOB_FILE'],'w'),ensure_ascii=False,indent=2)
+          PY
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition EDITING --actor editor --reason 'pilot scope accepted'
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition BUILDING --actor builder --reason 'existing PR is build artifact'
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition CHALLENGING --actor orchestrator --reason 'dispatch external challenger inline'
+
+      - name: Build bounded challenger input
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.json
+          gh api -H 'Accept: application/vnd.github.v3.diff' "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.diff
+          python3 - <<'PY'
+          import json, os
+          p=json.load(open('pr.json'))
+          if p['base']['repo']['full_name'] != os.environ['GITHUB_REPOSITORY']:
+              raise SystemExit('foreign base repo rejected')
+          if p['base']['ref'] == 'main' and any(x.startswith('articles/') for x in [f.get('filename','') for f in []]):
+              raise SystemExit('content publication pilot rejected')
+          d=open('pr.diff',encoding='utf-8',errors='replace').read()
+          if len(d.encode()) > 450_000: raise SystemExit('PR diff too large')
+          with open('challenger-input.txt','w',encoding='utf-8') as f:
+              f.write('PR title: '+p['title']+'\nPR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
+          PY
+
+      - name: Run Gemini challenger
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_CHALLENGER_MODEL: ${{ vars.GEMINI_CHALLENGER_MODEL || 'gemini-3.6-flash' }}
+          CHALLENGER_INPUT: challenger-input.txt
+          CHALLENGER_OUTPUT: challenger-result.json
+        run: python3 trusted/scripts/gemini_challenger.py
+
+      - name: Reviewer disposition
+        run: |
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition REVIEWING --actor challenger --reason 'validated Gemini result received'
+          python3 - <<'PY'
+          import json, subprocess, os
+          r=json.load(open('challenger-result.json'))
+          verdict=r.get('verdict')
+          findings=r.get('findings',[])
+          material=[f for f in findings if f.get('severity') in ('blocker','high')]
+          if verdict == 'adopt' and not material:
+              target='PREVIEWING'; reason='challenger adopt with no material findings'
+          else:
+              target='ESCALATED'; reason=f'challenger verdict={verdict}; material_findings={len(material)}; reviewer requires human/next implementation cycle'
+          subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',os.environ['JOB_FILE'],'transition',target,'--actor','reviewer','--reason',reason])
+          PY
+
+      - name: Upload auditable job record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-pilot-${{ inputs.pr_number }}
+          path: |
+            orchestrator-job.json
+            challenger-result.json
+          if-no-files-found: warn
+          retention-days: 14

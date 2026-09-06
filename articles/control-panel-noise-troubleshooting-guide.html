@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>制御盤のノイズ対策とは？誤動作を切り分ける基本｜接地・シールド・配線分離・フィルタ | 電気と制御の実務メモ</title>
+  <meta name="description" content="制御盤でノイズが疑われる誤動作を、発生源・伝わり方・影響を受ける機器に分けて整理。接地、シールド、動力線と信号線の分離、ノイズフィルタ、サージ対策の役割と切り分けの考え方を実務目線で解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/control-panel-noise-troubleshooting-guide.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/control-panel-noise-troubleshooting-guide.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/control-panel-noise-troubleshooting-guide.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="制御盤のノイズ対策とは？誤動作を切り分ける基本">
+  <meta property="og:description" content="接地・シールド・配線分離・フィルタを、ノイズ源→伝搬経路→影響を受ける機器の流れで整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/control-panel-noise-troubleshooting-guide.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-ogp.webp">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="制御盤のノイズ対策とは？誤動作を切り分ける基本">
+  <meta name="twitter:description" content="ノイズ対策を、配線分離・シールド・接地・フィルタの役割から整理します。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-ogp.webp">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{--bg:#f5f8fc;--card:#fff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--green:#16a34a;--orange:#f59e0b;--purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);line-height:1.8;padding-top:var(--header-h)}button,input{font:inherit}img{max-width:100%;display:block}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}.container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{min-width:0;display:inline-flex;align-items:center;gap:10px;color:inherit}.brand:hover{text-decoration:none}.brand-logo{height:46px;width:auto}.brand-title{margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}.language-menu{position:relative;margin-left:auto}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;cursor:pointer}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:210px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-item strong,.language-menu-item small{display:block}.language-menu-item small{font-size:10px;color:#64748b}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.05)}.search-box{display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-button{border:none;background:transparent;padding:0;cursor:pointer}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;display:block}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:70vh;overflow:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px;z-index:1200}.search-box-panel[hidden]{display:none}
+    .breadcrumb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:18px 0 14px;font-size:12px;color:#64748b}.article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}.article-hero::before{content:"";position:absolute;inset:0;background:url("../assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp") right center / auto 100% no-repeat;opacity:.30;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.92) 48%,rgba(255,255,255,.28) 74%,rgba(255,255,255,0) 100%);z-index:1}.article-hero-copy{position:relative;z-index:2;width:min(100%,720px);min-height:410px;padding:48px 42px;display:flex;flex-direction:column;justify-content:center}.hero-label{display:inline-flex;align-self:flex-start;padding:5px 10px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-size:12px;font-weight:900}.article-hero h1{margin:14px 0 12px;font-size:40px;line-height:1.34;letter-spacing:.01em}.hero-lead{max-width:50ch;margin:0 0 18px;color:#475569;font-size:16px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;font-size:13px;font-weight:900}.btn-primary{background:#2563eb;color:#fff}.btn-secondary{background:#fff;color:#1d4ed8;border:1px solid #cbdcf2}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.summary-card,.mini-toc-card,.section-card,.side-card{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}.summary-card{padding:20px;border-radius:22px}.summary-card h2{margin:0 0 10px;font-size:16px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:6px 0;font-size:13px}.summary-card--fit{border-top:4px solid #16a34a}.summary-card--notyet{border-top:4px solid #f59e0b}.summary-card--conclusion{border-top:4px solid #2563eb}.mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border-radius:24px}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;font-size:13px;font-weight:900}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.section-card{padding:28px;margin-bottom:20px;border-radius:28px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}.key-highlight,.field-highlight,.note-box,.danger-box{padding:18px;border-radius:20px;margin:18px 0}.key-highlight{border:1px solid #bfdbfe;background:#eff6ff}.field-highlight{border:1px solid #bbf7d0;background:#ecfdf3}.note-box{border:1px solid #f7dba2;background:#fff8ea}.danger-box{border:1px solid #fecaca;background:#fff1f2}.key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{margin:0 0 8px;font-size:16px}.key-highlight p,.field-highlight p,.note-box p,.danger-box p{margin:0;font-size:14px;color:#475569}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure>a{display:block}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;background:#fff}.figure-cta{display:inline-flex;margin-top:7px;font-weight:900;color:#1d4ed8}.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.check-item h3{margin:0 0 8px;font-size:16px}.check-item p{margin:0;font-size:14px;color:var(--muted)}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}th{background:#f8fbff;font-weight:900;white-space:nowrap}tr:last-child td{border-bottom:none}.talk-thread{display:grid;gap:12px;margin-top:18px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;justify-content:center}.talk-avatar img{width:76px;height:auto}.talk-bubble{flex:0 1 auto;max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-bubble p{margin:0;font-size:15px}.talk-name{display:inline-flex;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900}.talk-name--senpai{background:#eaf2ff;color:#1d4ed8}.talk-name--kouhai{background:#f3ebff;color:#7c3aed}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}.side-card{padding:20px;border-radius:24px}.side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0;font-size:14px}.support-card-title{margin:0 0 8px;font-size:15px;font-weight:900;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:flex;flex-direction:column;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text)}.related-card:hover{text-decoration:none;background:#fbfdff}.related-card-thumb{width:100%;border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid #dbe6f1;background:#fff;aspect-ratio:16/9}.related-card-thumb img{width:100%;height:100%;object-fit:cover}.related-card h3{margin:0 0 8px;font-size:16px;color:#1d4ed8}.related-card p{margin:0;font-size:13px;color:var(--muted)}.related-card-cta{display:inline-flex;align-items:center;margin-top:auto;padding-top:12px;font-size:13px;font-weight:900;color:#1d4ed8}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
+    @media(max-width:1100px){.page-layout{grid-template-columns:1fr}.side-rail{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}}
+    @media(min-width:744px) and (max-width:1100px){.article-hero{min-height:380px}.article-hero::before{background:url("../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png") right center / auto 92% no-repeat;opacity:.28}.article-hero-copy{min-height:380px;padding:42px 34px}.article-hero h1{font-size:36px}}
+    @media(max-width:900px){.article-hero::before{background:url("../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png") right -12px bottom -8px / 138% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}.article-hero h1{font-size:30px}.top-summary,.side-rail,.related-grid,.check-grid{grid-template-columns:1fr}}
+    @media(max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.brand-logo{height:36px}.brand-title{font-size:13px}.brand-sub{display:none}.header-search{flex:1 1 auto;min-width:0;max-width:168px}.article-hero::before{background:url("../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png") right -18px bottom -8px / 150% auto no-repeat;opacity:.18}.article-hero-copy{min-height:340px;padding:28px 16px}.article-hero h1{font-size:25px}.hero-actions{width:100%}.btn{width:100%}.section-card{padding:20px 16px}.talk-avatar{flex:0 0 54px;width:54px}.talk-avatar img{width:52px}.talk-bubble{max-width:calc(100% - 66px);padding:12px 14px}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="../" class="brand" aria-label="トップページへ移動">
+      <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+      <div><p class="brand-title">電気と制御の実務メモ</p><p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p></div>
+    </a>
+    <div class="language-menu" aria-label="言語と地域の切り替え">
+      <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel"><span aria-hidden="true">🌐</span><span class="language-menu-current">Japan</span></button>
+      <div class="language-menu-panel" id="languageMenuPanel" hidden>
+        <a href="./control-panel-noise-troubleshooting-guide.html" class="language-menu-item is-active" lang="ja" aria-current="page"><span aria-hidden="true">🇯🇵</span><span><strong>Japan</strong><small>日本語記事</small></span></a>
+      </div>
+    </div>
+    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="sr-only" for="site-search-input">サイト内検索</label>
+      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+      <button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button>
+      <div class="search-box-panel" id="site-search-panel" hidden><ul id="site-search-results"></ul><p id="site-search-empty" hidden>該当する記事がありません</p></div>
+    </form>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>制御盤のノイズ対策</span></nav>
+
+    <section class="article-hero">
+      <div class="article-hero-copy">
+        <span class="hero-label">制御盤・ノイズ対策</span>
+        <h1>制御盤のノイズ対策とは？<br>誤動作を切り分ける基本</h1>
+        <p class="hero-lead">「ノイズっぽい」で終わらせず、発生源・伝わり方・影響を受ける機器に分けて整理します。接地、シールド、配線分離、フィルタを一つの流れで理解するためのハブ記事です。</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#troubleshooting">切り分けを見る</a><a class="btn btn-secondary" href="#countermeasures">対策の役割を見る</a></div>
+      </div>
+    </section>
+
+    <section class="top-summary" aria-label="記事の要点">
+      <div class="summary-card summary-card--fit"><h2>向いている人</h2><ul><li>センサーやPLCの原因不明な誤動作を整理したい人</li><li>接地・シールド・配線分離の役割をつなげたい人</li><li>既存のノイズ対策記事を実務の順番で読みたい人</li></ul></div>
+      <div class="summary-card summary-card--notyet"><h2>まだ不要な人</h2><ul><li>特定メーカーのEMC適合試験だけを調べたい人</li><li>高周波設計や基板レベルのノイズ解析をしたい人</li><li>設備固有の接地方式を図面なしで決めたい人</li></ul></div>
+      <div class="summary-card summary-card--conclusion"><h2>先に結論</h2><ul><li>ノイズ対策は「源・経路・受け側」に分けて考える</li><li>配線分離、遮蔽、接地、フィルタは役割が違う</li><li>シールド接地は一律ルールにせず機器資料を優先する</li></ul></div>
+    </section>
+
+    <section class="mini-toc-card" aria-label="目次"><h2>この記事で分かること</h2><div class="mini-toc"><a href="#overview">ノイズの見方</a><a href="#source-path-victim">源・経路・受け側</a><a href="#countermeasures">対策の役割</a><a href="#troubleshooting">切り分け</a><a href="#mistakes">よくある誤解</a><a href="#related">関連記事</a></div></section>
+
+    <div class="page-layout">
+      <article class="main-column">
+        <section class="section-card" id="overview">
+          <h2>ノイズは「原因不明」の言い換えではない</h2>
+          <p>制御盤でセンサー入力が一瞬変わる、アナログ値が揺れる、通信やエンコーダ値が不安定になると、つい「ノイズかもしれない」と考えたくなります。ただし、接触不良、電源電圧、0V共通、設定、配線ミス、機器故障でも似た症状は出ます。</p>
+          <p><span class="mark">ノイズを疑う前に、症状がいつ起きるか、何の動作と同時か、直前に何を変更したか</span>を整理すると、対策の方向を外しにくくなります。</p>
+          <figure class="article-figure"><a href="power-signal-wiring-separation-basic.html"><img src="../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png" alt="動力線と信号線を分離する考え方を示す図"></a><figcaption>動力線と微弱な信号線を分けるのは、ノイズ源と信号線の結合を減らす代表的な考え方です。<br><a class="figure-cta" href="power-signal-wiring-separation-basic.html">配線分離の記事を詳しく見る →</a></figcaption></figure>
+          <div class="key-highlight"><h3>最初から部品を足さない</h3><p>ノイズフィルタやフェライトコアを追加する前に、どの動作で症状が出るか、配線ルートや接地、シールド処理、電源系統に変更がないかを確認します。原因の位置が分からないまま対策部品を増やすと、切り分けが難しくなります。</p></div>
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>センサーがたまに誤動作するなら、とりあえずシールドをアースすればいいですか？</p></div></div>
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>接続先や機器によって推奨が違うよ。まず「どこから入って、どこへ影響しているか」を考えて、メーカー資料と設備図面を優先しよう。</p></div></div>
+          </div>
+        </section>
+
+        <section class="section-card" id="source-path-victim">
+          <h2>ノイズ対策は「発生源・伝搬経路・受け側」に分ける</h2>
+          <p>EMC対策の基本は、ノイズを出す側、伝わる経路、影響を受ける側に分けると理解しやすくなります。インバータやサーボ、接触器、ソレノイド、スイッチング電源などが発生源になることがあり、配線の近接、共通インピーダンス、電源線、接地経路などを通じて信号側へ影響する場合があります。</p>
+          <div class="check-grid">
+            <div class="check-item check-item--warning"><h3>1. 発生源</h3><p>インバータ、サーボ、モータ、接触器、リレー、ソレノイド、スイッチング機器など。症状のタイミングと動作が一致するかを見ます。</p></div>
+            <div class="check-item check-item--important"><h3>2. 伝搬経路</h3><p>動力線との並走、同一ダクト、電源系統、シールド処理、FG・0V・SGなど、ノイズが移る経路を考えます。</p></div>
+            <div class="check-item check-item--field"><h3>3. 影響を受ける側</h3><p>アナログ入力、エンコーダ、通信、微弱センサー、高インピーダンス入力など、影響を受けやすい回路を整理します。</p></div>
+            <div class="check-item"><h3>4. 現象の再現条件</h3><p>特定モータの起動時だけ、接触器OFF時だけ、設備のある工程だけなど、再現条件が切り分けの手掛かりです。</p></div>
+          </div>
+          <div class="field-highlight"><h3>対策は一か所とは限らない</h3><p>発生源側でサージを抑える、経路を分離・遮蔽する、受け側の配線やフィルタを見直すなど、複数の層で対策することがあります。</p></div>
+        </section>
+
+        <section class="section-card" id="countermeasures">
+          <h2>配線分離・シールド・接地・フィルタは役割が違う</h2>
+          <p>ノイズ対策は、どれか一つを入れれば終わりではありません。対策方法ごとに狙っている場所が違います。</p>
+          <div class="table-wrap"><table><thead><tr><th>対策</th><th>主な役割</th><th>確認したいこと</th></tr></thead><tbody>
+            <tr><td>配線分離</td><td>発生源と信号線の結合を減らす</td><td>動力線との並走、同一ダクト、盤内ルート</td></tr>
+            <tr><td>シールド</td><td>外来ノイズの結合を抑える</td><td>ケーブル仕様、シールド処理、接続先の指定</td></tr>
+            <tr><td>接地</td><td>安全確保とノイズ帰路・基準電位の安定</td><td>PE・FG・SG・0Vの役割とメーカー指定</td></tr>
+            <tr><td>ノイズフィルタ</td><td>電源線などを伝わるノイズを減らす</td><td>対象回路、定格、配置、配線の取り回し</td></tr>
+            <tr><td>サージ対策</td><td>コイル開閉などの急峻な過渡現象を抑える</td><td>発生源の種類と機器メーカーの推奨</td></tr>
+          </tbody></table></div>
+
+          <h3>配線分離</h3>
+          <p>センサーやエンコーダ、アナログ信号などの配線は、モータや高電圧・大電流の配線から物理的に分けるのが基本です。オムロンや三菱電機の技術資料でも、ノイズ源との分離、別ダクト・別配管、シールドなどが基本対策として示されています。</p>
+          <figure class="article-figure"><a href="power-signal-wiring-separation-basic.html"><img src="../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png" alt="動力線と信号線を分離する配線の概念図"></a><figcaption>配線分離は、ノイズが信号線へ結合する経路を弱くする対策です。<br><a class="figure-cta" href="power-signal-wiring-separation-basic.html">配線分離の記事を詳しく見る →</a></figcaption></figure>
+
+          <h3>シールド</h3>
+          <p>シールド線は外部からの電磁的な影響を減らすために使われます。ただし、シールドをどこへ接続するかは機器や信号方式によって異なります。<span class="mark">「必ず片側」「必ず両側」と一律に決めず、接続する機器の取扱説明書や配線図を優先</span>します。</p>
+          <figure class="article-figure"><a href="shielded-cable-basic.html"><img src="../assets/images/shielded-cable-basic/shielded-cable-basic-hero.png" alt="シールドケーブルの構造とノイズ対策の概念図"></a><figcaption>シールドの役割と接続の基本は、シールド線の記事で詳しく整理しています。<br><a class="figure-cta" href="shielded-cable-basic.html">シールド線の記事を詳しく見る →</a></figcaption></figure>
+
+          <h3>接地</h3>
+          <p>接地は安全だけでなく、ノイズ電流の帰路や基準電位に関わる重要な要素です。一方で、PE、FG、SG、0Vを目的を理解せず一括で扱うと、別の問題を生むことがあります。設備の接地方式とメーカー指定を確認して判断します。</p>
+          <figure class="article-figure"><a href="control-panel-grounding-basic.html"><img src="../assets/images/control-panel-grounding-basic/control-panel-grounding-basic-hero.png" alt="制御盤の接地とFGの基本を示す図"></a><figcaption>盤本体、機器FG、接地端子台などの役割は、制御盤接地の記事で確認できます。<br><a class="figure-cta" href="control-panel-grounding-basic.html">制御盤接地の記事を詳しく見る →</a></figcaption></figure>
+
+          <h3>ノイズフィルタ</h3>
+          <p>電源線から伝わるノイズに対しては、用途に合ったノイズフィルタを使う場合があります。定格や設置位置、フィルタ前後の配線が近接しないことなど、製品ごとの注意事項を確認します。フィルタは万能な後付け部品ではなく、ノイズ経路と目的が合っていることが重要です。</p>
+          <figure class="article-figure"><a href="noise-filter-basic.html"><img src="../assets/images/noise-filter-basic/noise-filter-basic-hero.png" alt="ノイズフィルタを使った電源ライン対策の概念図"></a><figcaption>電源ラインのノイズ対策は、フィルタ単体ではなく、配線・接地・発生源と合わせて考えます。<br><a class="figure-cta" href="noise-filter-basic.html">ノイズフィルタの記事を詳しく見る →</a></figcaption></figure>
+        </section>
+
+        <section class="section-card" id="troubleshooting">
+          <h2>ノイズが疑われる誤動作の切り分け方</h2>
+          <p>ここでは危険な活線作業や設備固有の改造手順ではなく、原因領域を整理する順番を示します。実機確認は設備の安全手順、メーカー資料、資格・権限の範囲を優先してください。</p>
+          <div class="check-grid">
+            <div class="check-item check-item--important"><h3>1. 症状とタイミングを記録</h3><p>どの信号が変わるのか、どの装置動作と同時か、常時か一時的かを整理します。</p></div>
+            <div class="check-item"><h3>2. 直前の変更を確認</h3><p>インバータ追加、ケーブル変更、盤改造、センサー交換、経路変更など、症状が出る前の変更点を確認します。</p></div>
+            <div class="check-item check-item--warning"><h3>3. 発生源候補を絞る</h3><p>モータ起動、接触器開閉、ソレノイド動作、スイッチング機器など、症状と同期する候補を整理します。</p></div>
+            <div class="check-item check-item--field"><h3>4. 伝搬経路を見る</h3><p>信号線との近接、同一ダクト、シールド処理、接地、電源系統、共通線などを図面と実配線で照合します。</p></div>
+            <div class="check-item"><h3>5. 受け側の条件を確認</h3><p>入力仕様、ケーブル推奨、フィルタ設定、機器のEMC配線条件をメーカー資料で確認します。</p></div>
+            <div class="check-item check-item--important"><h3>6. 変更は一つずつ評価</h3><p>安全な停止状態と管理された試験条件で、複数の対策を同時に変えず、どの変更が効いたか分かるようにします。</p></div>
+          </div>
+          <div class="danger-box"><h3>「ノイズだから」で保護や安全機能を迂回しない</h3><p>安全回路、インターロック、保護機器を無効化して原因確認する方法は採りません。安全関連の異常は設備メーカー、設計者、資格を持つ担当者と確認します。</p></div>
+        </section>
+
+        <section class="section-card" id="symptoms">
+          <h2>症状から見る代表的な確認方向</h2>
+          <div class="table-wrap"><table><thead><tr><th>症状</th><th>まず整理すること</th><th>関連テーマ</th></tr></thead><tbody>
+            <tr><td>アナログ値が揺れる</td><td>信号方式、配線経路、シールド、0V/SG、近くの動力機器</td><td>アナログ入力、シールド、配線分離</td></tr>
+            <tr><td>エンコーダ値が飛ぶ</td><td>動力線との並走、シールド、接地、高速入力条件</td><td>エンコーダ、シールド、接地</td></tr>
+            <tr><td>センサー入力が一瞬変わる</td><td>電源、COM、接触不良、ノイズ源との同期、配線経路</td><td>PLC入力、センサー、配線分離</td></tr>
+            <tr><td>インバータ運転中だけ不安定</td><td>モータ・出力ケーブル、接地、電源系統、信号配線の距離</td><td>接地、フィルタ、配線分離</td></tr>
+            <tr><td>コイルOFF時に誤動作する</td><td>誘導負荷のサージと保護部品の有無・仕様</td><td>サージ保護、リレー、電磁弁</td></tr>
+          </tbody></table></div>
+          <div class="note-box"><h3>似た症状でもノイズとは限らない</h3><p>電源電圧低下、端子ゆるみ、断線しかけ、COM不良、設定値、機器故障でも似た現象になります。ノイズ対策の前に基本要因を除外することが重要です。</p></div>
+        </section>
+
+        <section class="section-card" id="mistakes">
+          <h2>よくある誤解</h2>
+          <h3>「シールドは片側接地が絶対」</h3><p>機器や信号、周波数、EMC設計によって推奨は変わります。製品マニュアルやメーカーの配線指示を優先します。</p>
+          <h3>「アースを増やせば増やすほど良い」</h3><p>接地は役割と接続点が重要です。PE・FG・SG・0Vの意味を区別し、設備設計に沿って扱います。</p>
+          <h3>「ノイズフィルタを付ければ直る」</h3><p>ノイズの伝搬経路が電源線でなければ、フィルタの狙いと原因が一致しません。発生源・経路・受け側を整理してから選びます。</p>
+          <h3>「たまにしか出ないからノイズ」</h3><p>間欠症状は接触不良や電源、温度、機械的な位置ずれでも起こります。再現条件と同時に変化する信号を記録することが大切です。</p>
+        </section>
+
+        <section class="section-card" id="references">
+          <h2>メーカー資料で確認したいポイント</h2>
+          <p>一般的な考え方だけで実機の配線方法を決めず、対象機器の取扱説明書とEMC・配線上の注意を確認します。シールドの接地方法は機器やネットワークによって推奨が変わるため、「片側接地が絶対」などと決めつけず、対象製品の資料を優先します。</p>
+          <div class="key-highlight"><h3>メーカー公式資料</h3><p><a href="https://www.fa.omron.co.jp/product/special/knowledge/common/goodusage2.html" target="_blank" rel="noopener noreferrer">オムロン｜センサの上手な使い方</a>では、シールド線・ツイストペア線、モータや電磁開閉器などのノイズ源との分離、別ダクト等の考え方を確認できます。<br><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/10894" target="_blank" rel="noopener noreferrer">三菱電機FA｜一次側からのノイズ対策</a>では、ノイズフィルタや接地条件などの考え方を確認できます。<br><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/14299" target="_blank" rel="noopener noreferrer">三菱電機FA｜シールド線の接地処理</a>は、機器・ネットワークごとに接地指示が異なり得ることを確認する例として参照できます。</p></div>
+          <div class="key-highlight"><h3>資料で見る項目</h3><p>推奨ケーブル、シールド処理、接地端子の扱い、信号線と動力線の分離、フィルタ・サージ対策の指定、設置距離や配線上の注意を確認します。</p></div>
+        </section>
+
+        <section class="section-card" id="related">
+          <h2>あわせて読みたい関連記事</h2>
+          <p>このハブ記事で原因領域を絞ったら、個別テーマの記事へ進むと理解しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="power-signal-wiring-separation-basic.html"><div class="related-card-thumb"><img src="../assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-hero.png" alt="動力線と信号線の分離"></div><h3>動力線と信号線を分ける理由</h3><p>並走や同一ダクトを避ける考え方を基礎から整理します。</p><span class="related-card-cta">この記事を見る →</span></a>
+            <a class="related-card" href="shielded-cable-basic.html"><div class="related-card-thumb"><img src="../assets/images/shielded-cable-basic/shielded-cable-basic-hero.png" alt="シールド線の基本"></div><h3>シールド線とは？</h3><p>シールドの構造とノイズ対策での役割を確認します。</p><span class="related-card-cta">この記事を見る →</span></a>
+            <a class="related-card" href="control-panel-grounding-basic.html"><div class="related-card-thumb"><img src="../assets/images/control-panel-grounding-basic/control-panel-grounding-basic-hero.png" alt="制御盤接地の基本"></div><h3>制御盤の接地・アース</h3><p>FG・接地端子台・盤本体の関係を整理します。</p><span class="related-card-cta">この記事を見る →</span></a>
+            <a class="related-card" href="noise-filter-basic.html"><div class="related-card-thumb"><img src="../assets/images/noise-filter-basic/noise-filter-basic-hero.png" alt="ノイズフィルタの基本"></div><h3>ノイズフィルタとは？</h3><p>電源ラインのノイズ対策と使いどころを整理します。</p><span class="related-card-cta">この記事を見る →</span></a>
+            <a class="related-card" href="analog-input-basic.html"><div class="related-card-thumb"><img src="../assets/images/analog-input-basic/analog-input-basic-hero.png" alt="アナログ入力の基本"></div><h3>アナログ入力の基本</h3><p>0-10V・4-20mAとノイズの影響を理解する入口です。</p><span class="related-card-cta">この記事を見る →</span></a>
+            <a class="related-card" href="encoder-basic.html"><div class="related-card-thumb"><img src="../assets/images/encoder-basic/encoder-basic-hero.png" alt="エンコーダの基本"></div><h3>エンコーダの基本</h3><p>A/B/Z相、高速入力、シールドや配線上の注意につながります。</p><span class="related-card-cta">この記事を見る →</span></a>
+          </div>
+          <div class="article-footer-nav"><a class="btn btn-primary" href="../categories/control-basics.html">制御の基礎へ戻る</a><a class="btn btn-secondary" href="../index.html">トップページへ戻る</a></div>
+        </section>
+      </article>
+
+      <aside class="side-rail" aria-label="補足情報">
+        <section class="side-card"><h3>この記事の要点</h3><ul><li>ノイズは源・経路・受け側に分ける</li><li>配線分離とシールドは役割が違う</li><li>接地方法はメーカー資料を優先</li><li>対策は一つずつ評価する</li></ul></section>
+        <section class="side-card"><h3>確認する順番</h3><ul><li><a href="#overview">ノイズの見方</a></li><li><a href="#source-path-victim">源・経路・受け側</a></li><li><a href="#countermeasures">対策の役割</a></li><li><a href="#troubleshooting">切り分け</a></li><li><a href="#mistakes">よくある誤解</a></li></ul></section>
+        <section class="side-card"><h3>現場メモ</h3><ul><li>症状のタイミングを先に記録</li><li>直前の変更点を確認</li><li>配線ルートと接地を図面で照合</li><li>安全機能を迂回して確認しない</li></ul></section>
+        <section class="side-card support-card"><p class="support-card-title">Support this site</p><p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy me a coffee</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a></div></section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer"><div class="container">© 電気と制御の実務メモ</div></footer>
+<script>
+  (function(){
+    const button=document.getElementById('languageMenuButton');
+    const panel=document.getElementById('languageMenuPanel');
+    if(button&&panel){button.addEventListener('click',()=>{const open=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!open));panel.hidden=open;});document.addEventListener('click',(e)=>{if(!button.contains(e.target)&&!panel.contains(e.target)){button.setAttribute('aria-expanded','false');panel.hidden=true;}});}
+  })();
+</script>
+<script src="../assets/js/site-search.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+name: External AI Challenger
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to audit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  challenge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate input
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo 'invalid PR number'; exit 1; }
+      - name: Checkout trusted runner from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+      - name: Build bounded audit input
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.json
+          gh api -H 'Accept: application/vnd.github.v3.diff' "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.diff
+          python3 - <<'PY'
+          import json
+          p=json.load(open('pr.json'))
+          if p['base']['repo']['full_name'] != '${{ github.repository }}': raise SystemExit('foreign base repo rejected')
+          d=open('pr.diff', encoding='utf-8', errors='replace').read()
+          if len(d.encode()) > 450_000: raise SystemExit('PR diff too large for challenger pilot')
+          with open('challenger-input.txt','w',encoding='utf-8') as f:
+              f.write('PR title: '+p['title']+'\n')
+              f.write('PR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
+          PY
+      - name: Run Gemini challenger
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_CHALLENGER_MODEL: ${{ vars.GEMINI_CHALLENGER_MODEL || 'gemini-2.5-flash' }}
+          CHALLENGER_INPUT: challenger-input.txt
+          CHALLENGER_OUTPUT: challenger-result.json
+        run: python3 trusted/scripts/gemini_challenger.py
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-challenger-${{ inputs.pr_number }}
+          path: challenger-result.json
+          if-no-files-found: error
+          retention-days: 7

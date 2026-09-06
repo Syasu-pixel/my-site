@@ -36,7 +36,7 @@ jobs:
           title=os.environ.get('PR_TITLE','')[:300]
           body=os.environ.get('PR_BODY','')[:700]
           msg=f'提案: {title}。目的と変更概要: {body}'[:1200]
-          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','openai-editor','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
+          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','editor-controller','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
           PY
       - name: Gemini CHALLENGER round 1
         env:
@@ -55,7 +55,6 @@ jobs:
           subprocess.check_call(cmd)
           PY
       - name: EDITOR responds to disagreement
-        if: success()
         env:
           DISCUSSION_SESSION: discussion-session.json
           EDITOR_RESPONSE_OUTPUT: editor-response.json
@@ -65,7 +64,7 @@ jobs:
           import json,subprocess
           x=json.load(open('editor-response.json'))
           if x['stance']=='support': raise SystemExit(0)
-          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','openai-editor','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','editor-controller','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
           for e in x['evidence']: cmd += ['--evidence',e]
           for q in x['questions']: cmd += ['--question',q]
           subprocess.check_call(cmd)
@@ -76,21 +75,21 @@ jobs:
           DISCUSSION_SESSION: discussion-session.json
           DISCUSSION_OUTPUT: gemini-turn-2.json
         run: |
-          python3 - <<'PY'
+          if python3 - <<'PY'
           import json,sys
           s=json.load(open('discussion-session.json'))
-          sys.exit(0 if s['turns'][-1]['role']=='editor' else 78)
+          sys.exit(0 if s['turns'][-1]['role']=='editor' else 1)
           PY
-          rc=$?
-          if [ "$rc" = 78 ]; then echo '{"skipped":true}' > gemini-turn-2.json; exit 0; fi
-          DISCUSSION_OUTPUT=gemini-turn-2.json python3 scripts/gemini_discussion_turn.py
+          then
+            DISCUSSION_OUTPUT=gemini-turn-2.json python3 scripts/gemini_discussion_turn.py
+          else
+            echo '{"skipped":true}' > gemini-turn-2.json
+          fi
       - name: Append reassessment and REVIEWER decision
         run: |
           python3 - <<'PY'
           import json,subprocess
-          s=json.load(open('discussion-session.json'))
-          p='gemini-turn-2.json'
-          x=json.load(open(p))
+          x=json.load(open('gemini-turn-2.json'))
           if not x.get('skipped'):
             cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
             for e in x['evidence']: cmd += ['--evidence',e]

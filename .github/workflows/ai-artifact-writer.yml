@@ -1,0 +1,151 @@
+name: AI Artifact Writer
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_url:
+        description: HTTPS URL of the reviewed artifact
+        required: true
+        type: string
+      sha256:
+        description: Expected SHA-256 digest
+        required: true
+        type: string
+      target_branch:
+        description: Existing preview branch (ai-/preview-/pilot- only)
+        required: true
+        type: string
+      target_path:
+        description: Repository path under assets/images/
+        required: true
+        type: string
+      commit_message:
+        description: Commit message
+        required: false
+        default: Add reviewed AI artifact
+        type: string
+  repository_dispatch:
+    types: [ai-artifact-ready]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-artifact-writer-${{ github.event.inputs.target_branch || github.event.client_payload.target_branch || 'unknown' }}
+  cancel-in-progress: false
+
+jobs:
+  write-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalize request
+        id: req
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WD_URL: ${{ inputs.artifact_url }}
+          WD_SHA: ${{ inputs.sha256 }}
+          WD_BRANCH: ${{ inputs.target_branch }}
+          WD_PATH: ${{ inputs.target_path }}
+          WD_MESSAGE: ${{ inputs.commit_message }}
+          RD_URL: ${{ github.event.client_payload.artifact_url }}
+          RD_SHA: ${{ github.event.client_payload.sha256 }}
+          RD_BRANCH: ${{ github.event.client_payload.target_branch }}
+          RD_PATH: ${{ github.event.client_payload.target_path }}
+          RD_MESSAGE: ${{ github.event.client_payload.commit_message }}
+        run: |
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            artifact_url="$RD_URL"
+            sha256="$RD_SHA"
+            target_branch="$RD_BRANCH"
+            target_path="$RD_PATH"
+            commit_message="${RD_MESSAGE:-Add reviewed AI artifact}"
+          else
+            artifact_url="$WD_URL"
+            sha256="$WD_SHA"
+            target_branch="$WD_BRANCH"
+            target_path="$WD_PATH"
+            commit_message="${WD_MESSAGE:-Add reviewed AI artifact}"
+          fi
+
+          for value in artifact_url sha256 target_branch target_path; do
+            if [ -z "${!value}" ]; then
+              echo "missing required field: $value" >&2
+              exit 1
+            fi
+          done
+
+          for value in artifact_url sha256 target_branch target_path commit_message; do
+            case "${!value}" in
+              *$'\n'*|*$'\r'*) echo "newlines are not allowed in $value" >&2; exit 1 ;;
+            esac
+          done
+
+          {
+            echo "artifact_url=$artifact_url"
+            echo "sha256=$sha256"
+            echo "target_branch=$target_branch"
+            echo "target_path=$target_path"
+            echo "commit_message=$commit_message"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Reject production branch early
+        shell: bash
+        env:
+          TARGET_BRANCH: ${{ steps.req.outputs.target_branch }}
+        run: |
+          case "$TARGET_BRANCH" in
+            ai-*|preview-*|pilot-*) ;;
+            *) echo "Only ai-/preview-/pilot- branches are allowed" >&2; exit 1 ;;
+          esac
+          [ "$TARGET_BRANCH" != "main" ]
+
+      - name: Checkout trusted writer runtime
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: writer-runtime
+          sparse-checkout: |
+            scripts/ai_artifact_writer.py
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Checkout target preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.req.outputs.target_branch }}
+          path: workspace
+          fetch-depth: 1
+
+      - name: Validate and download reviewed artifact
+        shell: bash
+        working-directory: workspace
+        env:
+          AI_ARTIFACT_ALLOWED_HOSTS: ${{ vars.AI_ARTIFACT_ALLOWED_HOSTS }}
+          ARTIFACT_URL: ${{ steps.req.outputs.artifact_url }}
+          ARTIFACT_SHA256: ${{ steps.req.outputs.sha256 }}
+          TARGET_BRANCH: ${{ steps.req.outputs.target_branch }}
+          TARGET_PATH: ${{ steps.req.outputs.target_path }}
+        run: |
+          python3 ../writer-runtime/scripts/ai_artifact_writer.py \
+            --url "$ARTIFACT_URL" \
+            --sha256 "$ARTIFACT_SHA256" \
+            --target-branch "$TARGET_BRANCH" \
+            --target-path "$TARGET_PATH"
+
+      - name: Commit artifact to preview branch
+        shell: bash
+        working-directory: workspace
+        env:
+          TARGET_PATH: ${{ steps.req.outputs.target_path }}
+          COMMIT_MESSAGE: ${{ steps.req.outputs.commit_message }}
+        run: |
+          if git diff --quiet -- "$TARGET_PATH" && git ls-files --error-unmatch "$TARGET_PATH" >/dev/null 2>&1; then
+            echo "No change to commit."
+            exit 0
+          fi
+          git config user.name "denkicontrol-ai-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- "$TARGET_PATH"
+          git commit -m "$COMMIT_MESSAGE"
+          git push origin HEAD

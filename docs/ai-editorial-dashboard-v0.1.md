@@ -79,26 +79,27 @@ v0.1では以下を人間へ送る:
 通常のretry、軽微な修正、内部監査、非production PRは自走する。
 
 ## Live event feed v0.1
-- 永続化: Supabase `orchestrator_events`
-- 書き込み: `ai-editorial-feed` Edge Function の認証済みPOSTのみ
-- 読み取り: Edge Functionがサニタイズ済みイベントだけをGETで返す
-- DBテーブルは RLS 有効、`anon` / `authenticated` へ直接権限を与えない
-- GitHub Actions は共有シークレットをログへ出さず、`scripts/publish_orchestrator_events.py` 経由で送信する
-- Dashboard は10秒間隔でfeedを更新し、feed障害時は接続状態を明示する
-- 現段階のfeedには公開リポジトリ上の非機密な運用イベントだけを入れる。将来、非公開情報を扱う前にDashboard認証を追加する。
+- 永続化: 専用非productionブランチ `ai-dashboard-events`
+- 保存先は固定パス `dashboard-data/events.json`
+- GitHub Actions の `GITHUB_TOKEN` を使い、`scripts/publish_orchestrator_events.py` が専用ブランチだけを更新する。`main` はイベント保存先にしない。
+- publisher は event_id で重複排除し、最大1000件に制限する。
+- Dashboard は `raw.githubusercontent.com` の専用ブランチを10秒間隔で読み取り、feed障害時は接続状態を明示する。
+- feed は公開リポジトリ由来のサニタイズ済み非機密イベントだけを扱う。secrets、hidden reasoning、非公開資料は保存しない。
+- Dashboard 自体は `noindex,nofollow,noarchive` とし、運営画面を検索対象にしない。
+- Supabaseの `orchestrator_events` / `ai-editorial-feed` は将来の認証付きRealtime案の実験資産として保留する。専用ingest認証を整備するまで本番feedには使わない。
 
 ## 実装フェーズ
 ### Phase A — Event log
 Orchestrator job recordからUI向け `events.jsonl` を生成し、role/provider/state/evidenceを正規化する。**実装済み。**
 
 ### Phase B — Read-only dashboard
-案件一覧・チャット・状態パネルを表示し、Supabase feedへ接続する。**v0.1実装済み、live smoke test待ち。**
+案件一覧・チャット・状態パネルを表示し、専用GitHub event feedへ接続する。**v0.1実装済み、live smoke test待ち。**
 
 ### Phase C — Human controls
 承認/却下/コメントを安全なAPI経由でOrchestratorへ戻す。ブラウザから直接GitHub tokenやAI keyを扱わない。
 
-### Phase D — Realtime
-必要に応じてSupabase Realtime等へ移行し、pollingより低遅延にする。GitHub Actionsは実行基盤の一部として残し、必要なら後にLangGraph常駐runnerへ移行する。
+### Phase D — Realtime / separate app
+専用Dashboard認証を追加した上で、必要に応じてSupabase Realtime等へ移行する。GitHub Actionsは実行基盤の一部として残し、必要なら後にLangGraph常駐runnerへ移行する。AI編集部UIは最終的に本体サイトから分離した運営アプリとして提供する。
 
 ## v0.1採用方針
-まず既存のGitHub + Supabase + Netlify資産を再利用して最小構成を作る。新しい有料サービスは導入しない。UIがOrchestratorの正しい観測面として成立した後、LangGraph/LangSmith等への移行を評価する。
+まず既存のGitHub + Netlify資産を再利用して最小構成を作る。新しい有料サービスは導入しない。UIがOrchestratorの正しい観測面として成立した後、LangGraph/LangSmith等への移行を評価する。

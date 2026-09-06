@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+
       - name: Create EDITOR proposal from PR
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
@@ -38,22 +39,38 @@ jobs:
           msg=f'提案: {title}。目的と変更概要: {body}'[:1200]
           subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','editor-controller','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
           PY
+
       - name: Gemini CHALLENGER round 1
+        id: gemini_round1
+        continue-on-error: true
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCUSSION_SESSION: discussion-session.json
           DISCUSSION_OUTPUT: gemini-turn.json
         run: python3 scripts/gemini_discussion_turn.py
-      - name: Append Gemini round 1
+
+      - name: Ensure CHALLENGER round 1 result
+        env:
+          DISCUSSION_SESSION: discussion-session.json
+          DISCUSSION_OUTPUT: gemini-turn.json
+          FALLBACK_REASON: Gemini unavailable after bounded retries
+        run: |
+          if [ ! -s gemini-turn.json ]; then
+            python3 scripts/challenger_fallback.py
+          fi
+
+      - name: Append CHALLENGER round 1
         run: |
           python3 - <<'PY'
           import json,subprocess
           x=json.load(open('gemini-turn.json'))
-          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+          provider='challenger-controller' if x.get('fallback') else 'google-gemini'
+          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider',provider,'--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
           for e in x['evidence']: cmd += ['--evidence',e]
           for q in x['questions']: cmd += ['--question',q]
           subprocess.check_call(cmd)
           PY
+
       - name: EDITOR responds to disagreement
         env:
           DISCUSSION_SESSION: discussion-session.json
@@ -69,7 +86,10 @@ jobs:
           for q in x['questions']: cmd += ['--question',q]
           subprocess.check_call(cmd)
           PY
+
       - name: Gemini CHALLENGER round 2 reassessment
+        id: gemini_round2
+        continue-on-error: true
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCUSSION_SESSION: discussion-session.json
@@ -85,20 +105,35 @@ jobs:
           else
             echo '{"skipped":true}' > gemini-turn-2.json
           fi
+
+      - name: Ensure CHALLENGER round 2 result
+        env:
+          DISCUSSION_SESSION: discussion-session.json
+          DISCUSSION_OUTPUT: gemini-turn-2.json
+          FALLBACK_REASON: Gemini unavailable during reassessment after bounded retries
+        run: |
+          if [ ! -s gemini-turn-2.json ]; then
+            python3 scripts/challenger_fallback.py
+          fi
+
       - name: Append reassessment and REVIEWER decision
         run: |
           python3 - <<'PY'
           import json,subprocess
           x=json.load(open('gemini-turn-2.json'))
           if not x.get('skipped'):
-            cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+            provider='challenger-controller' if x.get('fallback') else 'google-gemini'
+            cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider',provider,'--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
             for e in x['evidence']: cmd += ['--evidence',e]
             for q in x['questions']: cmd += ['--question',q]
             subprocess.check_call(cmd)
             final=x
           else:
             final=json.load(open('gemini-turn.json'))
-          if final['stance'] in ('support','withdraw'):
+          degraded=bool(final.get('fallback'))
+          if degraded:
+            decision='escalate'; message='Primary CHALLENGER unavailableのため独立レビューが成立していません。REVIEWERは暫定ESCALATEとし、復旧後の再監査を要求します。'
+          elif final['stance'] in ('support','withdraw'):
             decision='adopt'; message='再評価後、CHALLENGERの重大懸念は維持されていないためREVIEWERはADOPTとします。'
           elif final['stance']=='revise':
             decision='revise'; message='再評価後も修正可能な懸念が残るためREVIEWERはREVISEとします。'
@@ -106,6 +141,7 @@ jobs:
             decision='escalate'; message='2ラウンド後も重要な異論または質問が残るためREVIEWERはESCALATEとします。'
           subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','reviewer','--provider','orchestrator-reviewer','--stance','adjudicate','--message',message,'--evidence','discussion-session.json','--confidence','0.82','--close',decision])
           PY
+
       - name: Export visible conversation
         run: |
           python3 - <<'PY'
@@ -115,13 +151,19 @@ jobs:
             for t in s['turns']:
               typ={'editor':'proposal','challenger':'finding','reviewer':'review'}.get(t['role'],'status')
               ev={'schema_version':'0.1','event_id':str(uuid.uuid4()),'job_id':'discussion-'+s['session_id'],'role':t['role'],'provider':t['provider'],'type':typ,'summary':t['message'],'evidence':[{'kind':'reference','ref':e} for e in t['evidence']],'severity':'info','state':'REVIEWING' if t['role']=='reviewer' else 'CHALLENGING','created_at':t['created_at'],'discussion':{'session_id':s['session_id'],'round':s['round'],'turn':t['turn'],'stance':t['stance'],'questions':t['questions'],'confidence':t['confidence']}}
+              if t['provider']=='challenger-controller':
+                ev['availability']={'primary_provider':'google-gemini','status':'unavailable','fallback':'challenger-controller','provider_diversity':'degraded'}
+              elif t['provider']=='google-gemini':
+                ev['availability']={'primary_provider':'google-gemini','status':'online','provider_diversity':'independent'}
               f.write(json.dumps(ev,ensure_ascii=False)+'\n')
           PY
+
       - name: Publish discussion to AI Editorial Dashboard
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ORCHESTRATOR_EVENTS: discussion-events.jsonl
         run: python3 scripts/publish_orchestrator_events.py
+
       - uses: actions/upload-artifact@v4
         with:
           name: editorial-discussion-${{ github.event.pull_request.number }}

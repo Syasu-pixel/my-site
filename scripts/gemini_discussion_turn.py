@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generate one UI-safe Gemini CHALLENGER discussion turn from a bounded session."""
-import json, os, re, urllib.request, urllib.error
+import json, os, re, time, urllib.request, urllib.error
 from pathlib import Path
 
 MODEL=os.getenv('GEMINI_DISCUSSION_MODEL','gemini-3.6-flash')
@@ -21,13 +21,30 @@ prompt='''You are the CHALLENGER in a real editorial decision meeting for denkic
 schema={'type':'object','properties':{'stance':{'type':'string','enum':['oppose','revise','withdraw','support','question']},'message':{'type':'string'},'evidence':{'type':'array','items':{'type':'string'}},'questions':{'type':'array','items':{'type':'string'}},'confidence':{'type':'number'}},'required':['stance','message','evidence','questions','confidence'],'additionalProperties':False}
 payload={'contents':[{'role':'user','parts':[{'text':prompt}]}],'generationConfig':{'responseMimeType':'application/json','responseJsonSchema':schema,'temperature':0.2,'maxOutputTokens':1200}}
 url=f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent'
-req=urllib.request.Request(url,data=json.dumps(payload).encode(),headers={'Content-Type':'application/json','x-goog-api-key':KEY},method='POST')
-try:
-    with urllib.request.urlopen(req,timeout=60) as r: raw=r.read(200000)
-except urllib.error.HTTPError as e:
-    raise SystemExit(f'Gemini HTTP {e.code}: '+e.read(1000).decode('utf-8','replace'))
-except urllib.error.URLError:
-    raise SystemExit('Gemini network error')
+body=json.dumps(payload).encode()
+raw=None
+last_error=None
+for attempt, delay in enumerate((0, 10, 30, 60), start=1):
+    if delay:
+        print(json.dumps({'status':'waiting_for_gemini','attempt':attempt,'retry_in_seconds':delay},ensure_ascii=False), flush=True)
+        time.sleep(delay)
+    req=urllib.request.Request(url,data=body,headers={'Content-Type':'application/json','x-goog-api-key':KEY},method='POST')
+    try:
+        with urllib.request.urlopen(req,timeout=60) as r:
+            raw=r.read(200000)
+        break
+    except urllib.error.HTTPError as e:
+        detail=e.read(1000).decode('utf-8','replace')
+        last_error=f'Gemini HTTP {e.code}: {detail}'
+        if e.code not in {429,500,502,503,504} or attempt == 4:
+            raise SystemExit(last_error)
+        print(json.dumps({'status':'gemini_transient_error','http_status':e.code,'attempt':attempt,'will_retry':True},ensure_ascii=False), flush=True)
+    except urllib.error.URLError:
+        last_error='Gemini network error'
+        if attempt == 4:
+            raise SystemExit(last_error)
+        print(json.dumps({'status':'gemini_network_error','attempt':attempt,'will_retry':True},ensure_ascii=False), flush=True)
+if raw is None: raise SystemExit(last_error or 'Gemini request failed')
 resp=json.loads(raw)
 parts=resp.get('candidates',[{}])[0].get('content',{}).get('parts',[])
 text=''.join(p.get('text','') for p in parts if isinstance(p,dict) and isinstance(p.get('text'),str))

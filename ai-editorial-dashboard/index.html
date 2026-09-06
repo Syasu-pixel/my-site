@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI編集部 Dashboard</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#172033;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}header{height:58px;background:#172033;color:white;display:flex;align-items:center;padding:0 20px;gap:14px}header b{font-size:18px}.live{font-size:12px;background:#2d8a5b;padding:5px 9px;border-radius:999px}.layout{display:grid;grid-template-columns:270px minmax(360px,1fr) 320px;height:calc(100vh - 58px)}aside,main{overflow:auto}.queue{border-right:1px solid #dce3ee;background:white;padding:14px}.queue h2,.side h2{font-size:13px;color:#697386;text-transform:uppercase}.job{border:1px solid #dce3ee;border-radius:12px;padding:12px;margin:10px 0;background:#f9fbff}.job.active{border-color:#5d78ff;background:#f0f4ff}.state{font-size:11px;font-weight:700;color:#5d78ff}.chat{padding:22px;max-width:900px;margin:auto}.chat h1{font-size:22px;margin:0 0 6px}.sub{color:#697386;font-size:13px;margin-bottom:22px}.event{display:grid;grid-template-columns:42px 1fr;gap:10px;margin:16px 0}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e4e9f2;font-weight:800}.bubble{background:white;border:1px solid #dce3ee;border-radius:14px;padding:12px 14px}.meta{font-size:12px;color:#697386;margin-bottom:5px}.role{font-weight:800;color:#172033}.sev-high{border-left:4px solid #b64a4a}.heartbeat{opacity:.72}.side{border-left:1px solid #dce3ee;background:white;padding:16px}.card{border:1px solid #dce3ee;border-radius:12px;padding:12px;margin:10px 0}.big{font-size:18px;font-weight:800}.gate{background:#fff7dd;border-color:#e8cf78}.empty{color:#697386;font-size:13px}a{color:#315ee8}@media(max-width:900px){.layout{grid-template-columns:1fr}.queue,.side{display:none}}
+</style>
+</head><body>
+<header><b>⚡ AI編集部</b><span class="live">● Orchestrator connected</span><span style="margin-left:auto;font-size:12px">read-only v0.1</span></header>
+<div class="layout">
+<aside class="queue"><h2>案件キュー</h2><div id="jobs"><div class="empty">events.jsonl を読み込み中…</div></div></aside>
+<main class="chat"><h1 id="topic">AI編集部の活動</h1><div class="sub" id="jobmeta">実際のOrchestratorイベントだけを表示します。</div><div id="events"></div></main>
+<aside class="side"><h2>現在の状態</h2><div class="card"><div class="big" id="state">—</div><div id="role" class="empty">担当: —</div></div><h2>人間ゲート</h2><div class="card gate"><div id="gate">現在、確認待ちはありません。</div></div><h2>成果物</h2><div class="card empty" id="artifacts">Preview / PR / 画像候補をここに表示</div></aside>
+</div>
+<script>
+const initials={editor:'E',builder:'B',challenger:'C',reviewer:'R',system:'S',human:'H','image-reviewer':'I'};
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(rows){
+ const jobs=[...new Set(rows.map(x=>x.job_id))]; document.querySelector('#jobs').innerHTML=jobs.map((j,i)=>`<div class="job ${i===jobs.length-1?'active':''}"><div class="state">${esc(rows.filter(x=>x.job_id===j).at(-1)?.state||'—')}</div><b>${esc(j.slice(0,12))}</b><div class="empty">${rows.filter(x=>x.job_id===j).length} events</div></div>`).join('');
+ const selected=jobs.at(-1); const ev=rows.filter(x=>x.job_id===selected); const last=ev.at(-1)||{}; document.querySelector('#state').textContent=last.state||'—';document.querySelector('#role').textContent='担当: '+(last.role||'—');
+ document.querySelector('#events').innerHTML=ev.map(x=>`<div class="event ${x.type==='heartbeat'?'heartbeat':''}"><div class="avatar">${initials[x.role]||'A'}</div><div class="bubble ${['high','blocker'].includes(x.severity)?'sev-high':''}"><div class="meta"><span class="role">${esc(x.role)}</span> · ${esc(x.provider)} · ${esc(x.type)} · ${new Date(x.created_at).toLocaleString('ja-JP')}</div><div>${esc(x.summary)}</div>${(x.evidence||[]).length?`<div class="meta" style="margin-top:7px">根拠: ${x.evidence.map(e=>esc(e.ref)).join(' / ')}</div>`:''}</div></div>`).join('')||'<div class="empty">イベントはまだありません。</div>';
+ document.querySelector('#gate').textContent=last.state==='HUMAN_GATE'?'あなたの確認を待っています。':'現在、確認待ちはありません。';
+}
+fetch('./events.jsonl',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.text()}).then(t=>render(t.split('\n').filter(Boolean).map(JSON.parse))).catch(()=>{document.querySelector('#jobs').innerHTML='<div class="empty">イベントデータ未接続。次のPhaseでOrchestratorから自動供給します。</div>';document.querySelector('#events').innerHTML='<div class="event"><div class="avatar">S</div><div class="bubble"><div class="meta"><span class="role">SYSTEM</span> · dashboard</div><div>UIシェルは起動しています。Orchestrator event feed の接続待ちです。</div></div></div>'});
+</script></body></html>

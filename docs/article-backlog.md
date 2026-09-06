@@ -72,8 +72,8 @@
 
 #### 不足しているハブ（優先）
 
-- [ ] **制御盤ノイズ対策ハブ（Control Panel Noise Reduction Basics 相当）**
-  - main の実ファイルを確認した時点で、接地・シールド・配線分離・フィルタ・アナログ信号を一つの切り分け手順として束ねる専用ハブは存在しない。
+- [x] **制御盤ノイズ対策ハブ（Control Panel Noise Reduction Basics 相当）**
+  - 公開済み: `articles/control-panel-noise-troubleshooting-guide.html`。接地・シールド・配線分離・フィルタ・サージ対策を、発生源→伝搬経路→影響を受ける機器の流れで束ねる。
   - 個別の「配線を離す理由」「電源線と信号線を分ける理由」は既存記事と重なるため、先にハブの検索意図と構成へ統合する。
 
 #### 個別候補

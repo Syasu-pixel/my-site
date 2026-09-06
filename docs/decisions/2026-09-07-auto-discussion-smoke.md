@@ -9,3 +9,5 @@ Success criteria:
 - Gemini reads the actual EDITOR turn and returns a structured response;
 - the discussion transcript is saved as an artifact;
 - no repository write or production publication occurs from the discussion workflow.
+
+Retry note: the first run reached Gemini but exposed a structured-output schema incompatibility. The runtime has been corrected to use the proven `responseJsonSchema` format; this commit intentionally triggers the synchronized PR retry.

@@ -1,5 +1,7 @@
 (()=>{
   const COMMAND_ENDPOINT=SUPABASE_URL+'/functions/v1/ai-editorial-command';
+  const PROCESS_ENDPOINT=SUPABASE_URL+'/functions/v1/ai-editorial-process-command';
+  const processing=new Set();
   const style=document.createElement('style');
   style.textContent=`
     .commandComposer{flex:0 0 auto;background:rgba(255,255,255,.96);border-top:1px solid #d4dde9;padding:10px 14px calc(10px + env(safe-area-inset-bottom));position:relative;z-index:3}
@@ -18,7 +20,7 @@
   if(!main)return;
   const composer=document.createElement('div');
   composer.className='commandComposer';
-  composer.innerHTML=`<form id="commandForm" class="commandForm"><textarea id="commandInput" class="commandInput" maxlength="4000" rows="1" placeholder="AI編集部に指示する（例：今日は初心者向けの新記事を10本作って。メーカー公式資料を優先）"></textarea><button id="commandSend" class="commandSend" type="submit">実行</button><div id="commandMeta" class="commandMeta"><span>管理者指示 → 案件キュー</span><span id="commandCount">0 / 4000</span></div></form>`;
+  composer.innerHTML=`<form id="commandForm" class="commandForm"><textarea id="commandInput" class="commandInput" maxlength="4000" rows="1" placeholder="AI編集部に指示する（例：今日は初心者向けの新記事を10本作って。メーカー公式資料を優先）"></textarea><button id="commandSend" class="commandSend" type="submit">実行</button><div id="commandMeta" class="commandMeta"><span>管理者指示 → 案件キュー → 編集長</span><span id="commandCount">0 / 4000</span></div></form>`;
   main.appendChild(composer);
 
   const form=document.querySelector('#commandForm');
@@ -39,8 +41,38 @@
     const n=Number(m[1]);
     return Number.isInteger(n)&&n>=1&&n<=50?n:null;
   }
+  function commandIdFromJob(jobId){
+    const m=String(jobId||'').match(/^command-([0-9a-f-]{36})$/i);
+    return m?m[1]:null;
+  }
+  async function processCommand(commandId,{quiet=false}={}){
+    if(!commandId||processing.has(commandId))return;
+    processing.add(commandId);
+    try{
+      const {data:{session},error}=await sb.auth.getSession();
+      if(error||!session)return;
+      if(!quiet)setMeta('GPT編集長が企画・公式資料調査を進めています…');
+      const r=await fetch(PROCESS_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({command_id:commandId})});
+      const raw=await r.text();let d={};try{d=raw?JSON.parse(raw):{}}catch{d={raw}};
+      if(r.status===401){lockApp('ログインの有効期限が切れました。もう一度ログインしてください。');return}
+      if(r.status===403)throw new Error('このアカウントには処理権限がありません。');
+      if(!r.ok)throw new Error(d?.error||'編集長の自動処理に失敗しました。');
+      if(!quiet)setMeta(d?.skipped?'案件はすでに処理中です。':'編集長の企画・調査処理が完了しました。','ok');
+      await refresh();
+    }catch(err){console.error('[AI編集部] command processing failed',err);if(!quiet)setMeta(err instanceof Error?err.message:'編集長の自動処理に失敗しました。','error')}
+    finally{processing.delete(commandId)}
+  }
+  async function resumeQueued(){
+    if(!Array.isArray(rows)||!rows.length)return;
+    const latest=new Map();
+    for(const r of rows){
+      const id=commandIdFromJob(r.job_id);if(!id)continue;
+      const prev=latest.get(id);if(!prev||new Date(r.created_at)>new Date(prev.created_at))latest.set(id,r);
+    }
+    for(const [id,r] of latest){if(r.state==='QUEUED')processCommand(id,{quiet:true})}
+  }
 
-  input.addEventListener('input',()=>{count.textContent=input.value.length+' / 4000';resize();if(meta.classList.contains('error')||meta.classList.contains('ok'))setMeta('管理者指示 → 案件キュー')});
+  input.addEventListener('input',()=>{count.textContent=input.value.length+' / 4000';resize();if(meta.classList.contains('error')||meta.classList.contains('ok'))setMeta('管理者指示 → 案件キュー → 編集長')});
   input.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')form.requestSubmit()});
 
   form.addEventListener('submit',async e=>{
@@ -56,8 +88,12 @@
       if(r.status===401){lockApp('ログインの有効期限が切れました。もう一度ログインしてください。');return}
       if(r.status===403)throw new Error('このアカウントには指示権限がありません。');
       if(!r.ok)throw new Error(d?.detail?.message||d?.error||'指示の登録に失敗しました。');
-      input.value='';resize();count.textContent='0 / 4000';setMeta('案件キューへ登録しました。編集長の処理待ちです。','ok');manualSelection=false;await refresh();
+      input.value='';resize();count.textContent='0 / 4000';setMeta('案件を登録しました。GPT編集長へ引き継ぎます…','ok');manualSelection=false;await refresh();
+      if(d?.command_id)await processCommand(String(d.command_id));
     }catch(err){console.error('[AI編集部] command submit failed',err);setMeta(err instanceof Error?err.message:'指示の登録に失敗しました。','error')}
     finally{send.disabled=false;send.textContent='実行'}
   });
+
+  setTimeout(resumeQueued,1500);
+  setInterval(resumeQueued,12000);
 })();

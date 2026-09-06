@@ -1,0 +1,48 @@
+name: AI Editorial Discussion Smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  discuss:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start with an evidence-backed EDITOR proposal
+        run: |
+          python3 scripts/editorial_discussion.py discussion-session.json --role editor --provider openai-gpt --stance propose --message 'AI編集部では、AIを増やす前にGPT EDITORとGemini CHALLENGERの実会話ループを完成させます。理由は、役割追加より先に反論・再回答・再評価・裁定が実際に次工程へ影響することを検証する必要があるためです。' --evidence 'docs/ai-editorial-discussion-v0.1.md' --evidence 'docs/multi-ai-orchestrator-v0.1.md' --question 'この順序に重大な欠点はありますか？' --confidence 0.90
+      - name: Gemini CHALLENGER reads EDITOR turn
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCUSSION_SESSION: discussion-session.json
+          DISCUSSION_OUTPUT: gemini-turn.json
+        run: python3 scripts/gemini_discussion_turn.py
+      - name: Append actual Gemini reply
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          x=json.load(open('gemini-turn.json'))
+          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+          for e in x['evidence']: cmd += ['--evidence',e]
+          for q in x['questions']: cmd += ['--question',q]
+          subprocess.check_call(cmd)
+          PY
+      - name: Export dashboard-safe conversation
+        run: |
+          python3 - <<'PY'
+          import json,uuid,datetime
+          s=json.load(open('discussion-session.json'))
+          with open('discussion-events.jsonl','w',encoding='utf-8') as f:
+            for t in s['turns']:
+              e={'schema_version':'0.1','event_id':str(uuid.uuid4()),'job_id':'discussion-'+s['session_id'],'role':t['role'],'provider':t['provider'],'type':'proposal' if t['role']=='editor' else 'finding','summary':t['message'],'evidence':[{'kind':'reference','ref':x} for x in t['evidence']],'severity':'info','state':'CHALLENGING','created_at':t['created_at'],'discussion':{'session_id':s['session_id'],'round':s['round'],'turn':t['turn'],'stance':t['stance'],'questions':t['questions'],'confidence':t['confidence']}}
+              f.write(json.dumps(e,ensure_ascii=False)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: editorial-discussion-smoke
+          path: |
+            discussion-session.json
+            discussion-events.jsonl
+            gemini-turn.json
+          retention-days: 14

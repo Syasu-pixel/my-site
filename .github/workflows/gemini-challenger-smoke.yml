@@ -34,7 +34,7 @@ jobs:
       - name: Run Gemini challenger
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_CHALLENGER_MODEL: gemini-2.5-flash
+          GEMINI_CHALLENGER_MODEL: gemini-3.6-flash
           CHALLENGER_INPUT: challenger-input.txt
           CHALLENGER_OUTPUT: challenger-result.json
         run: python3 trusted/scripts/gemini_challenger.py
@@ -44,8 +44,11 @@ jobs:
           python3 - <<'PY'
           import json
           r=json.load(open('challenger-result.json'))
-          print('verdict=',r['verdict']); print('findings=',len(r['findings'])); print('confidence=',r['confidence'])
-          for i,f in enumerate(r['findings'][:5],1): print(f"{i}. {f['severity']} {f['path']} :: {f['claim'][:180]}")
+          print('verdict=',r['verdict'])
+          print('findings=',len(r['findings']))
+          print('confidence=',r['confidence'])
+          for i,f in enumerate(r['findings'][:5],1):
+              print(f"{i}. {f['severity']} {f['path']} :: {f['claim'][:180]}")
           PY
       - name: Upload result
         if: always()

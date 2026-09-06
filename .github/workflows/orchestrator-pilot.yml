@@ -1,0 +1,130 @@
+name: Multi-AI Orchestrator Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Non-production PR number to audit
+        required: true
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/orchestrator-pilot.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  JOB_FILE: orchestrator-job.json
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Resolve and validate input
+        env:
+          DISPATCH_PR: ${{ inputs.pr_number }}
+          SMOKE_PR: '1301'
+        run: |
+          PR_NUMBER="${DISPATCH_PR:-$SMOKE_PR}"
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo 'invalid PR number'; exit 1; }
+          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Checkout trusted controller
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+
+      - name: Initialize durable job record
+        run: |
+          python3 - <<'PY'
+          import json, os, uuid
+          data={
+            'schema_version':'0.1','job_id':str(uuid.uuid4()),'kind':'infrastructure',
+            'state':'QUEUED','topic':'PR #'+os.environ['PR_NUMBER'],
+            'target_branch':'','revision':0,'max_revisions':3,
+            'human_gate':{'required':False,'status':'pending'},
+            'roles':{'editor':'controller','builder':'existing-pr','challenger':'gemini','reviewer':'controller-v0.1'},
+            'artifacts':[],'events':[]
+          }
+          json.dump(data,open(os.environ['JOB_FILE'],'w'),ensure_ascii=False,indent=2)
+          PY
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition EDITING --actor editor --reason 'pilot scope accepted'
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition BUILDING --actor builder --reason 'existing PR is build artifact'
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition CHALLENGING --actor orchestrator --reason 'dispatch external challenger inline'
+
+      - name: Build bounded challenger input
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.json
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" --jq '.[].filename' > pr-files.txt
+          gh api -H 'Accept: application/vnd.github.v3.diff' "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.diff
+          python3 - <<'PY'
+          import json, os
+          p=json.load(open('pr.json'))
+          if p['base']['repo']['full_name'] != os.environ['GITHUB_REPOSITORY']:
+              raise SystemExit('foreign base repo rejected')
+          files=[x.strip() for x in open('pr-files.txt',encoding='utf-8') if x.strip()]
+          if p['base']['ref'] == 'main' and any(x.startswith('articles/') for x in files):
+              raise SystemExit('content publication pilot rejected')
+          d=open('pr.diff',encoding='utf-8',errors='replace').read()
+          if len(d.encode()) > 450_000: raise SystemExit('PR diff too large')
+          with open('challenger-input.txt','w',encoding='utf-8') as f:
+              f.write('PR title: '+p['title']+'\nPR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
+          PY
+
+      - name: Run Gemini challenger with bounded retry
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_CHALLENGER_MODEL: ${{ vars.GEMINI_CHALLENGER_MODEL || 'gemini-3.6-flash' }}
+          CHALLENGER_INPUT: challenger-input.txt
+          CHALLENGER_OUTPUT: challenger-result.json
+        run: |
+          for attempt in 1 2 3; do
+            rm -f "$CHALLENGER_OUTPUT"
+            if python3 trusted/scripts/gemini_challenger.py; then exit 0; fi
+            if [ "$attempt" -eq 3 ]; then echo 'challenger failed after 3 attempts'; exit 1; fi
+            sleep $((attempt * 5))
+          done
+
+      - name: Reviewer disposition
+        run: |
+          python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition REVIEWING --actor challenger --reason 'validated Gemini result received'
+          python3 - <<'PY'
+          import json, subprocess, os
+          r=json.load(open('challenger-result.json'))
+          verdict=r.get('verdict')
+          findings=r.get('findings',[])
+          material=[f for f in findings if f.get('severity') in ('blocker','high')]
+          if verdict == 'adopt' and not material:
+              target='PREVIEWING'; reason='challenger adopt with no material findings'
+          else:
+              target='ESCALATED'; reason=f'challenger verdict={verdict}; material_findings={len(material)}; reviewer requires next implementation cycle'
+          subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',os.environ['JOB_FILE'],'transition',target,'--actor','reviewer','--reason',reason])
+          PY
+
+      - name: Record terminal workflow failure
+        if: failure() && hashFiles('orchestrator-job.json') != ''
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          p=os.environ['JOB_FILE']; d=json.load(open(p)); state=d.get('state')
+          if state not in ('DONE','ESCALATED','FAILED','CANCELLED'):
+              subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',p,'transition','FAILED','--actor','orchestrator','--reason','workflow step failed after job initialization'])
+          PY
+
+      - name: Upload auditable job record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-pilot-${{ env.PR_NUMBER }}
+          path: |
+            orchestrator-job.json
+            challenger-result.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -5,6 +5,7 @@ const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const EDITOR_MODEL = Deno.env.get("OPENAI_EDITOR_MODEL") ?? "gpt-5.6-luna";
+const RESEARCH_MODEL = Deno.env.get("OPENAI_RESEARCH_MODEL") ?? "gpt-5.6-luna";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,6 +29,21 @@ function extractOutputText(body: any): string {
     }
   }
   return "";
+}
+
+function extractWebSourceUrls(body: any): Set<string> {
+  const urls = new Set<string>();
+  for (const item of Array.isArray(body?.output) ? body.output : []) {
+    if (item?.type !== "web_search_call") continue;
+    const sources = Array.isArray(item?.action?.sources) ? item.action.sources : [];
+    for (const source of sources) {
+      if (source?.type === "url" && typeof source.url === "string" && source.url.startsWith("https://")) {
+        urls.add(source.url);
+      }
+    }
+    if (item?.action?.type === "open_page" && typeof item?.action?.url === "string") urls.add(item.action.url);
+  }
+  return urls;
 }
 
 async function serviceFetch(path: string, init: RequestInit = {}) {
@@ -63,6 +79,22 @@ async function insertEvents(events: Record<string, unknown>[]) {
   if (!r.ok) throw new Error(`event insert failed: ${r.status} ${await r.text()}`);
 }
 
+async function openAIResponse(payload: Record<string, unknown>) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  const raw = await response.text();
+  let body: any = {};
+  try { body = raw ? JSON.parse(raw) : {}; } catch { body = { raw }; }
+  if (!response.ok) throw new Error(`OpenAI response ${response.status}: ${raw.slice(0, 800)}`);
+  return body;
+}
+
 async function planWithGPT(params: {
   commandId: string;
   jobId: string;
@@ -71,10 +103,7 @@ async function planWithGPT(params: {
   options: Record<string, unknown>;
 }) {
   if (!OPENAI_API_KEY) {
-    await patchCommand(params.commandId, {
-      status: "queued",
-      last_error: "OPENAI_API_KEY is not configured"
-    });
+    await patchCommand(params.commandId, { status: "queued", last_error: "OPENAI_API_KEY is not configured" });
     await insertEvents([{
       event_id: crypto.randomUUID(),
       job_id: params.jobId,
@@ -92,11 +121,7 @@ async function planWithGPT(params: {
     return { planned: false, waiting_for_key: true, model: EDITOR_MODEL };
   }
 
-  await patchCommand(params.commandId, {
-    status: "planning",
-    started_at: new Date().toISOString(),
-    last_error: null
-  });
+  await patchCommand(params.commandId, { status: "planning", started_at: new Date().toISOString(), last_error: null });
 
   const targetCount = params.requestedCount ?? 0;
   const plannerPrompt = [
@@ -111,59 +136,47 @@ async function planWithGPT(params: {
     `options: ${JSON.stringify(params.options)}`
   ].join("\n");
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: EDITOR_MODEL,
-      store: false,
-      reasoning: { effort: "low" },
-      input: plannerPrompt,
-      text: {
-        format: {
-          type: "json_schema",
-          name: "editorial_plan",
-          strict: true,
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            required: ["summary", "needs_research", "research_brief", "jobs"],
-            properties: {
-              summary: { type: "string" },
-              needs_research: { type: "boolean" },
-              research_brief: { type: "string" },
-              jobs: {
-                type: "array",
-                minItems: 1,
-                maxItems: 50,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  required: ["title", "goal", "content_type", "priority", "needs_research", "research_brief"],
-                  properties: {
-                    title: { type: "string" },
-                    goal: { type: "string" },
-                    content_type: { type: "string", enum: ["new_article", "article_update", "site_improvement", "research", "other"] },
-                    priority: { type: "string", enum: ["high", "medium", "low"] },
-                    needs_research: { type: "boolean" },
-                    research_brief: { type: "string" }
-                  }
+  const body = await openAIResponse({
+    model: EDITOR_MODEL,
+    store: false,
+    reasoning: { effort: "low" },
+    input: plannerPrompt,
+    text: {
+      format: {
+        type: "json_schema",
+        name: "editorial_plan",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          required: ["summary", "needs_research", "research_brief", "jobs"],
+          properties: {
+            summary: { type: "string" },
+            needs_research: { type: "boolean" },
+            research_brief: { type: "string" },
+            jobs: {
+              type: "array",
+              minItems: 1,
+              maxItems: 50,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["title", "goal", "content_type", "priority", "needs_research", "research_brief"],
+                properties: {
+                  title: { type: "string" },
+                  goal: { type: "string" },
+                  content_type: { type: "string", enum: ["new_article", "article_update", "site_improvement", "research", "other"] },
+                  priority: { type: "string", enum: ["high", "medium", "low"] },
+                  needs_research: { type: "boolean" },
+                  research_brief: { type: "string" }
                 }
               }
             }
           }
         }
       }
-    })
+    }
   });
-
-  const raw = await response.text();
-  let body: any = {};
-  try { body = raw ? JSON.parse(raw) : {}; } catch { body = { raw }; }
-  if (!response.ok) throw new Error(`OpenAI response ${response.status}: ${raw.slice(0, 800)}`);
 
   const outputText = extractOutputText(body);
   if (!outputText) throw new Error("OpenAI returned no structured output");
@@ -226,18 +239,147 @@ async function planWithGPT(params: {
   });
 
   await insertEvents(events);
-  await patchCommand(params.commandId, {
-    status: anyResearch ? "needs_research" : "running",
-    last_error: null
+  await patchCommand(params.commandId, { status: anyResearch ? "needs_research" : "running", last_error: null });
+
+  return { planned: true, model: EDITOR_MODEL, job_count: plan.jobs.length, needs_research: anyResearch, plan };
+}
+
+async function researchWithWebSearch(params: {
+  commandId: string;
+  parentJobId: string;
+  plan: any;
+}) {
+  const targets = params.plan.jobs
+    .map((job: any, index: number) => ({ ...job, child_index: index + 1 }))
+    .filter((job: any) => job.needs_research);
+  if (!targets.length) return { researched: false, reason: "not-needed", results: [] };
+
+  await patchCommand(params.commandId, { status: "needs_research", last_error: null });
+  const prompt = [
+    "あなたはdenkicontrol.comの技術資料調査担当です。必ずWeb検索を使い、各案件について一次情報を調査してください。",
+    "最優先はメーカー公式サイト、メーカー公式マニュアル、公式FAQ、公式技術資料です。販売店・まとめサイト・掲示板は一次根拠として採用しません。",
+    "最新版・改訂版を優先し、対象機種、資料名、資料番号、公開日または改訂情報を確認してください。確認できない情報は推測せず『確認できない』としてください。",
+    "検索結果のURLをsourcesに入れてください。技術記事に使う具体的な端子番号、パラメータ番号、初期値、安全機能は対象機種が確認できた場合のみ要点へ含めてください。",
+    "各案件を別々に整理してください。",
+    JSON.stringify(targets.map((job: any) => ({ child_index: job.child_index, title: job.title, goal: job.goal, research_brief: job.research_brief })))
+  ].join("\n");
+
+  const body = await openAIResponse({
+    model: RESEARCH_MODEL,
+    store: false,
+    reasoning: { effort: "low" },
+    tools: [{ type: "web_search", search_context_size: "medium" }],
+    tool_choice: "required",
+    include: ["web_search_call.action.sources"],
+    input: prompt,
+    text: {
+      format: {
+        type: "json_schema",
+        name: "technical_research",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          required: ["results"],
+          properties: {
+            results: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["child_index", "summary", "key_points", "sources", "confidence"],
+                properties: {
+                  child_index: { type: "integer" },
+                  summary: { type: "string" },
+                  key_points: { type: "array", items: { type: "string" } },
+                  sources: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      required: ["title", "url", "published_or_revised", "notes"],
+                      properties: {
+                        title: { type: "string" },
+                        url: { type: "string" },
+                        published_or_revised: { type: "string" },
+                        notes: { type: "string" }
+                      }
+                    }
+                  },
+                  confidence: { type: "number", minimum: 0, maximum: 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
-  return {
-    planned: true,
-    model: EDITOR_MODEL,
-    job_count: plan.jobs.length,
-    needs_research: anyResearch,
-    plan
-  };
+  const outputText = extractOutputText(body);
+  if (!outputText) throw new Error("Web research returned no structured output");
+  const research = JSON.parse(outputText);
+  const observedUrls = extractWebSourceUrls(body);
+  const events: Record<string, unknown>[] = [];
+  const sanitizedResults: any[] = [];
+  const now = new Date().toISOString();
+
+  for (const result of Array.isArray(research.results) ? research.results : []) {
+    const index = Number(result.child_index);
+    const target = targets.find((x: any) => x.child_index === index);
+    if (!target) continue;
+    const verifiedSources = (Array.isArray(result.sources) ? result.sources : []).filter((s: any) => {
+      const url = String(s?.url || "");
+      return url.startsWith("https://") && observedUrls.has(url);
+    }).slice(0, 12);
+    const evidence = verifiedSources.map((s: any) => ({ kind: "official-web-source", ref: String(s.url).slice(0, 1500), title: String(s.title || "").slice(0, 300) }));
+    const keyPoints = (Array.isArray(result.key_points) ? result.key_points : []).map((x: any) => String(x)).slice(0, 12);
+    const summary = [String(result.summary || ""), ...keyPoints.map((x: string) => `・${x}`)].join("\n").slice(0, 2000);
+    const childJobId = `${params.parentJobId}-${String(index).padStart(2, "0")}`;
+    events.push({
+      event_id: crypto.randomUUID(),
+      job_id: childJobId,
+      role: "editor",
+      provider: "openai-web-research",
+      event_type: "research",
+      summary,
+      evidence,
+      severity: verifiedSources.length ? "info" : "medium",
+      state: "PLANNING",
+      created_at: now,
+      discussion: {
+        command_id: params.commandId,
+        parent_job_id: params.parentJobId,
+        child_index: index,
+        stage: "official-web-research",
+        model: RESEARCH_MODEL,
+        confidence: Number(result.confidence || 0),
+        source_count: verifiedSources.length,
+        sources: verifiedSources
+      },
+      availability: { primary_provider: "openai-web-research", status: "online", model: RESEARCH_MODEL, web_search: true }
+    });
+    sanitizedResults.push({ ...result, sources: verifiedSources });
+  }
+
+  if (!events.length) throw new Error("Web research returned no matching child results");
+  await insertEvents(events);
+  await patchCommand(params.commandId, { status: "running", last_error: null });
+  await insertEvents([{
+    event_id: crypto.randomUUID(),
+    job_id: params.parentJobId,
+    role: "system",
+    provider: "orchestrator",
+    event_type: "status",
+    summary: `公式Web調査が完了しました。${events.length}件の案件へ調査結果を追加しました。`,
+    evidence: [],
+    severity: "info",
+    state: "PLANNING",
+    created_at: new Date().toISOString(),
+    discussion: { command_id: params.commandId, stage: "research-complete", researched_jobs: events.length },
+    availability: { primary_provider: "openai-web-research", status: "online", model: RESEARCH_MODEL }
+  }]);
+  return { researched: true, model: RESEARCH_MODEL, job_count: events.length, results: sanitizedResults };
 }
 
 Deno.serve(async (req: Request) => {
@@ -292,7 +434,32 @@ Deno.serve(async (req: Request) => {
 
     try {
       const planning = await planWithGPT({ commandId, jobId, instruction, requestedCount, options });
-      return json({ ...body, planning }, planning.planned ? 201 : 202);
+      if (!planning.planned) return json({ ...body, planning }, 202);
+      let research: any = { researched: false, reason: "not-needed" };
+      if (planning.needs_research) {
+        try {
+          research = await researchWithWebSearch({ commandId, parentJobId: jobId, plan: planning.plan });
+        } catch (researchError) {
+          const researchMessage = researchError instanceof Error ? researchError.message : String(researchError);
+          await patchCommand(commandId, { status: "needs_research", last_error: researchMessage.slice(0, 2000) });
+          await insertEvents([{
+            event_id: crypto.randomUUID(),
+            job_id: jobId,
+            role: "system",
+            provider: "orchestrator",
+            event_type: "error",
+            summary: `公式Web調査に失敗しました。案件は調査待ちとして保持します: ${researchMessage}`.slice(0, 2000),
+            evidence: [{ kind: "command", ref: commandId }],
+            severity: "high",
+            state: "PLANNING",
+            created_at: new Date().toISOString(),
+            discussion: { command_id: commandId, stage: "official-web-research", model: RESEARCH_MODEL },
+            availability: { primary_provider: "openai-web-research", status: "error", model: RESEARCH_MODEL }
+          }]);
+          research = { researched: false, error: researchMessage, model: RESEARCH_MODEL };
+        }
+      }
+      return json({ ...body, planning, research }, 201);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       try {

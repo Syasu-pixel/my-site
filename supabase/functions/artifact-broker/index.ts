@@ -4,6 +4,7 @@ const BUCKET = "ai-artifacts";
 const MAX_BYTES = 5 * 1024 * 1024;
 const DOWNLOAD_TTL_SECONDS = 10 * 60;
 const FIRESTORAGE_API = "https://api.firestorage.ai/dev/file";
+const FIRESTORAGE_DOWNLOAD_HOSTS = new Set(["s3.ap-northeast-1.wasabisys.com"]);
 const ALLOWED_MIME = new Set(["image/webp", "image/png", "image/jpeg"]);
 const ALLOWED_EXT = new Map([
   ["image/webp", ".webp"],
@@ -82,6 +83,33 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
   return Array.from(digest, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+async function readLimited(response: Response): Promise<Uint8Array> {
+  const declared = Number(response.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_BYTES) throw new Error("artifact size rejected");
+  if (!response.body) throw new Error("artifact body missing");
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+    total += value.byteLength;
+    if (total > MAX_BYTES) {
+      await reader.cancel();
+      throw new Error("artifact size rejected");
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 async function validateAndStore(supabase: ReturnType<typeof createClient>, fileName: string, expectedSha: string, bytes: Uint8Array) {
   if (bytes.length < 1 || bytes.length > MAX_BYTES) throw new Error("artifact size rejected");
   const detectedMime = detectMime(bytes);
@@ -129,20 +157,20 @@ Deno.serve(async (req) => {
     const expectedSha = typeof body.sha256 === "string" ? body.sha256.toLowerCase() : "";
     if (!validFirestorageId(shareId, 12) || !validFirestorageId(fileId, 32) || !fileName || !/^[0-9a-f]{64}$/.test(expectedSha)) return json(400, { error: "invalid firestorage import request" });
     try {
-      const metaResponse = await fetch(`${FIRESTORAGE_API}/shares/${shareId}/files?maxResults=1000`, { headers: { accept: "application/json" } });
+      const metaResponse = await fetch(`${FIRESTORAGE_API}/shares/${shareId}/files?maxResults=1000`, { headers: { accept: "application/json" }, redirect: "error" });
       if (!metaResponse.ok) return json(502, { error: "could not read firestorage metadata" });
       const meta = await metaResponse.json();
       const entry = Array.isArray(meta?.files) ? meta.files.find((f: any) => f?.fileId === fileId) : null;
       if (!entry || entry.fileName !== fileName || typeof entry.sizeBytes !== "number" || entry.sizeBytes < 1 || entry.sizeBytes > MAX_BYTES) return json(400, { error: "firestorage metadata rejected" });
-      const dlResponse = await fetch(`${FIRESTORAGE_API}/shares/${shareId}/files/${fileId}/download`, { method: "POST" });
+      const dlResponse = await fetch(`${FIRESTORAGE_API}/shares/${shareId}/files/${fileId}/download`, { method: "POST", redirect: "error" });
       if (!dlResponse.ok) return json(502, { error: "could not create firestorage download URL" });
       const dl = await dlResponse.json();
       if (typeof dl?.downloadUrl !== "string") return json(502, { error: "firestorage download URL missing" });
       const parsed = new URL(dl.downloadUrl);
-      if (parsed.protocol !== "https:" || parsed.username || parsed.password) return json(400, { error: "firestorage download URL rejected" });
-      const fileResponse = await fetch(dl.downloadUrl, { redirect: "follow" });
+      if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.port || !FIRESTORAGE_DOWNLOAD_HOSTS.has(parsed.hostname)) return json(400, { error: "firestorage download URL rejected" });
+      const fileResponse = await fetch(dl.downloadUrl, { redirect: "error" });
       if (!fileResponse.ok) return json(502, { error: "could not download firestorage artifact" });
-      const bytes = new Uint8Array(await fileResponse.arrayBuffer());
+      const bytes = await readLimited(fileResponse);
       const stored = await validateAndStore(supabase, fileName, expectedSha, bytes);
       return json(200, { object_path: stored.objectPath, download_url: stored.downloadUrl, expires_in_seconds: DOWNLOAD_TTL_SECONDS, sha256: stored.actualSha, size_bytes: bytes.length, mime_type: stored.detectedMime });
     } catch (error) {

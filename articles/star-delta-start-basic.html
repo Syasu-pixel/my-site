@@ -1459,7 +1459,7 @@
         <p class="hero-lead">スター・デルタ始動回路は、モーター始動時の大きな電流を抑えるために、始動時と運転時で結線を切り替える回路です。</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#overview">基本から読む</a>
-          <a class="btn btn-secondary" href="#check">確認ポイントを見る</a>
+          <a class="btn btn-secondary" href="#troubleshooting">確認ポイントを見る</a>
         </div>
       </div>
     </section>
@@ -1486,9 +1486,9 @@
       <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>スター・デルタ始動は<span class="mark">始動電流を抑える回路</span>です。</li>
-          <li>始動時はスター、加速後は<span class="mark">デルタへ切り替えます</span>。</li>
-          <li>確認時は<span class="mark">主接触器・スター接触器・デルタ接触器・タイマ</span>を順に見ます。</li>
+          <li>Y始動では<span class="mark">巻線電圧が線間電圧の1/√3</span>になります。</li>
+          <li>基本比較では始動電流と<span class="mark">始動トルクがともに約1/3</span>になります。</li>
+          <li>適用には<span class="mark">モーター仕様と負荷条件</span>の確認が必要です。</li>
         </ul>
       </section>
     </section>
@@ -1496,11 +1496,16 @@
     <section class="mini-toc-card" aria-labelledby="mini-toc-title">
       <h2 id="mini-toc-title">この記事でわかること</h2>
       <div class="mini-toc">
-        <a href="#overview">スター・デルタとは</a>
-        <a href="#flow">切替の流れ</a>
-        <a href="#ladder">電気図の流れ</a>
+        <a href="#overview">基本</a>
+        <a href="#voltage">巻線電圧</a>
+        <a href="#current">始動電流</a>
+        <a href="#torque">始動トルク</a>
+        <a href="#switching">切替の流れ</a>
+        <a href="#conditions">適用条件</a>
         <a href="#comparison">直入れとの違い</a>
-        <a href="#check">確認ポイント</a>
+        <a href="#circuit-reading">回路図の読み方</a>
+        <a href="#timer">タイマ</a>
+        <a href="#troubleshooting">不具合の考え方</a>
         <a href="#summary">まとめ</a>
       </div>
     </section>
@@ -1508,210 +1513,187 @@
     <div class="page-layout">
       <div class="main-column">
         <section class="section-card" id="overview">
-          <h2>スター・デルタ始動回路とは？</h2>
-          <p>スター・デルタ始動回路は、三相モーターの始動時に大きな電流が流れすぎないように、最初はスター結線で始動し、そのあとデルタ結線へ切り替えて運転する回路です。</p>
-          <p>現場で最初に見る時は、<span class="mark">始動時だけつなぎ方を変える回路</span>と考えると理解しやすくなります。</p>
-
+          <h2>スターデルタ始動とは</h2>
+          <p>スターデルタ始動は、三相誘導電動機を始動するときにスター結線（Y結線）を使って始動電流を抑え、回転が上がったあとにデルタ結線（Δ結線）へ切り替えて通常運転する始動方式です。</p>
           <div class="key-highlight">
-            <h3>まずは「スターで始動、デルタで運転」と覚える</h3>
-            <p>スター・デルタ回路は、始動直後の負担を抑え、一定時間後に通常運転へ切り替えるための回路です。細かい結線を見る前に、時間順の動きを押さえると読みやすくなります。</p>
+            <h3>電流だけを都合よく小さくする方式ではない</h3>
+            <p>スター始動では始動トルクも小さくなります。モーターが対応しているかだけでなく、スター始動中に負荷を十分に加速できるかも確認する必要があります。</p>
           </div>
-
-          <p>スター・デルタ始動は、始動電流を抑えたい時に使われる代表的な方法ですが、どのモーターにも無条件で使えるわけではありません。実際の適用可否は、モーターの結線仕様、負荷条件、盤の設計、メーカー資料を確認して判断します。</p>
-
           <figure class="article-figure">
-            <img src="../assets/images/star-delta-start-basic/star_delta_motor_starting_process_guide.png" alt="スター始動からデルタ運転へ切り替わる流れの図解" loading="lazy" decoding="async">
-            <figcaption>始動時はスター、一定時間後にデルタへ切り替える流れで見ます。</figcaption>
+            <img src="../assets/images/star-delta-start-basic/star-delta-start-overview.webp" alt="スター結線で始動しデルタ結線で通常運転するスターデルタ始動の概要" loading="lazy" decoding="async">
+            <figcaption>Yで始動電流を抑え、加速後にΔへ切り替える全体像です。</figcaption>
           </figure>
+        </section>
 
+        <section class="section-card" id="voltage">
+          <h2>なぜスター結線で始動電流が下がるのか</h2>
+          <p>スター始動で変わるのは、<strong>電源の線間電圧そのものではなく、結線によって各巻線に加わる電圧</strong>です。Y結線では各巻線の電圧が線間電圧の <strong>1/√3（約0.58倍）</strong>になります。</p>
+          <p>たとえば線間電圧が200Vなら、Y結線で各巻線に加わる電圧は約115Vです。一方、Δ結線では各巻線に線間電圧が加わります。「電源200Vが115Vになる」のではなく、電源は200Vのままで、巻線に加わる電圧が結線によって変わる点が重要です。</p>
+          <figure class="article-figure">
+            <img src="../assets/images/star-delta-start-basic/star-delta-voltage-current-torque.webp" alt="Y結線とデルタ結線の巻線電圧、始動電流、始動トルクの関係" loading="lazy" decoding="async">
+            <figcaption>巻線電圧の違いが、始動電流と始動トルクの低減につながります。</figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="current">
+          <h2>始動電流が約1/3になる考え方</h2>
+          <p>電流の関係は、必要最低限に整理すると次のようになります。</p>
+          <div class="key-highlight">
+            <h3>YとΔの線電流の関係</h3>
+            <p><strong>Y：線電流 ＝ 相電流</strong><br><strong>Δ：線電流 ＝ √3 × 相電流</strong></p>
+          </div>
+          <p>さらにY結線では巻線電圧が1/√3になります。このため、同じ線間電圧でΔ直入れ始動と比較する基本的な関係では、Y始動時の線電流は<strong>約1/3</strong>になります。</p>
+          <p>これは基本的・理想的な比較です。実機で必ず正確に1/3になるわけではなく、モーター特性、負荷、電源条件などによって実際の値は変わります。前節の図で、巻線電圧と線電流を分けて確認すると理解しやすくなります。</p>
+        </section>
+
+        <section class="section-card" id="torque">
+          <h2>始動トルクも約1/3になる</h2>
+          <p>誘導電動機のトルクは、基本的な考え方として印加電圧の2乗におおむね比例します。Y結線では巻線電圧が1/√3になるため、<strong>（1/√3）² ＝ 1/3</strong>となり、Δ直入れ始動との基本比較では始動トルクもおよそ1/3になります。</p>
+          <div class="field-highlight">
+            <h3>電流だけ小さくなるわけではない</h3>
+            <p>始動時から大きなトルクが必要な負荷では、スター始動中に十分加速できない場合があります。</p>
+          </div>
           <div class="talk-thread">
             <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩作業者のイラスト">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>スター・デルタは、モーターをいきなり全力で立ち上げないための考え方だよ。</p>
-              </div>
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="白いヘルメットと青い作業着の先輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>電流だけ都合よく小さくなるわけじゃないんだ。スター始動では、始動トルクも小さくなるよ。</p></div>
             </div>
-
             <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩作業者のイラスト">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">後輩</span>最初はスターでやさしく始動して、あとでデルタに変えるんですね。</p>
-              </div>
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="ライトブルーのヘルメットをかぶった後輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>だから、負荷が重い機械ならスターデルタにすればいい、とは限らないんですね！</p></div>
             </div>
           </div>
         </section>
 
-        <section class="section-card" id="flow">
-          <h2>切替の流れ</h2>
-          <p>スター・デルタ始動回路は、<strong>時間の流れ</strong>で見ると整理しやすくなります。<span class="mark">始動ボタン</span>で<strong>主接触器</strong>と<strong>スター接触器</strong>が入り、<strong>タイマ</strong>時間が経過したら<strong>スター接触器</strong>が切れ、<strong>デルタ接触器</strong>が入る流れが基本です。</p>
-          <p>この時、<span class="mark">スター接触器とデルタ接触器が同時に入らない</span>ように、電気的・機械的な<strong>インターロック</strong>を入れる考え方が重要になります。</p>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>主接触器</h3>
-              <p>モーター回路全体の通電を受け持ちます。スター時もデルタ時も関係します。</p>
-            </div>
-
-            <div class="check-item check-item--field">
-              <h3>スター接触器</h3>
-              <p>始動時にスター結線を作るために入る接触器です。</p>
-            </div>
-
-            <div class="check-item">
-              <h3>デルタ接触器</h3>
-              <p>運転時にデルタ結線へ切り替えるために入る接触器です。</p>
-            </div>
-
-            <div class="check-item">
-              <h3>タイマ</h3>
-              <p>スターからデルタへ切り替えるまでの時間を作ります。</p>
-            </div>
-          </div>
-
-          <div class="field-highlight">
-            <h3>スターとデルタは同時に入れない</h3>
-            <p>スター接触器とデルタ接触器が<strong>同時に入る</strong>と、回路上の大きなトラブルにつながります。現場では、<span class="mark">スター側が切れてからデルタ側が入る順序</span>になっているかを必ず確認します。</p>
-          </div>
-        </section>
-
-        <section class="section-card" id="ladder">
-          <h2>電気図の流れで見る</h2>
-          <p>実際の設備では、メーカー仕様や盤ごとの設計によって電気図や配線は変わります。</p>
-          <p>ただし、スター・デルタ始動の基本は、<span class="mark">起動 → スター始動 → 切替待ち → デルタ運転</span> の順番で見ると追いやすくなります。</p>
-          <p>ラダー図そのものを読むというより、<strong>主接触器</strong>・<strong>スター接触器</strong>・<strong>デルタ接触器</strong>・<strong>タイマ</strong>が時間順にどう切り替わるかを確認するイメージです。</p>
-
+        <section class="section-card" id="switching">
+          <h2>スターからデルタへどう切り替わるのか</h2>
+          <p>一般的なオープントランジション方式では、次の順番で切り替わります。</p>
+          <ol class="simple-list">
+            <li>始動前：すべての接触器がOFF</li>
+            <li>主接触器Mとスター接触器YがON</li>
+            <li>スター結線で始動</li>
+            <li>モーターの回転が上昇</li>
+            <li>スター接触器YがOFF</li>
+            <li>短い切替区間を設ける</li>
+            <li>デルタ接触器ΔがON</li>
+            <li>主接触器Mとデルタ接触器Δで通常運転</li>
+          </ol>
+          <p>YとΔは同時にONさせません。電気的・機械的インターロックで同時動作を防ぎ、タイマで切替タイミングを作る構成が一般的です。</p>
           <figure class="article-figure">
-            <img src="../assets/images/star-delta-start-basic/star-delta-start-basic-wiring-diagram.png" alt="スター・デルタ始動回路の電気図の流れ" loading="lazy" decoding="async" />
-            <figcaption>電源投入からスター始動、タイマー後にデルタへ切り替わる流れを電気図イメージで整理。</figcaption>
+            <img src="../assets/images/star-delta-start-basic/star-delta-switching-sequence.webp" alt="主接触器M、スター接触器Y、デルタ接触器Δの切替シーケンス" loading="lazy" decoding="async">
+            <figcaption>Yを解除し、短い切替区間を経てからΔへ移行します。</figcaption>
           </figure>
+        </section>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>段階</th>
-                  <th>電気図で見る状態</th>
-                  <th>入る接触器</th>
-                  <th>確認ポイント</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>起動</td>
-                  <td>起動ボタンON、停止条件なし、サーマル正常</td>
-                  <td><strong>主接触器ON</strong></td>
-                  <td>主接触器が入り、自己保持が成立しているか</td>
-                </tr>
-                <tr>
-                  <td>スター始動</td>
-                  <td>主接触器ON、タイマ未完了、デルタ側OFF</td>
-                  <td><strong>スター接触器ON</strong></td>
-                  <td>デルタ接触器と同時に入らないか</td>
-                </tr>
-                <tr>
-                  <td>切替待ち</td>
-                  <td>主接触器ON、タイマ計時中</td>
-                  <td><strong>スター接触器</strong>を保持</td>
-                  <td>タイマ設定時間・切替時間が設備に合っているか</td>
-                </tr>
-                <tr>
-                  <td>デルタ運転</td>
-                  <td>主接触器ON、タイマ完了、スター側OFF</td>
-                  <td><strong>デルタ接触器ON</strong></td>
-                  <td>スター接触器が切れてからデルタ接触器が入るか</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="note-box">
-            <h3>実機では電気図とインターロックを必ず確認する</h3>
-            <p>上の表は、スター・デルタ始動の流れを理解するための簡略整理です。実機では、<strong>スター接触器とデルタ接触器の相互インターロック</strong>、<strong>タイマ接点</strong>、<strong>サーマルリレー</strong>、<strong>非常停止</strong>などを含めて確認します。</p>
-            <p>スターからデルタへ切り替えるタイマ時間は、設備ごとに同じ値で決められるものではありません。<span class="mark">モーター容量・負荷の重さ・加速状態・メーカー資料</span>を合わせて確認します。</p>
-            <p>スターデルタタイマの設定時間・切替時間を見る時は、「何秒にするか」だけでなく、デルタへ切り替わる瞬間に<strong>大きなショック</strong>や<strong>電流変化</strong>が出ていないかを見ます。直入れ始動との使い分けも含めて、試運転時の電流値や機械の立ち上がり方で判断します。</p>
+        <section class="section-card" id="conditions">
+          <h2>どんなモーターにも使えるわけではない</h2>
+          <p>スターデルタ始動は、すべての三相誘導電動機にそのまま使える始動方式ではありません。使用する電源電圧に対してデルタ結線で定格運転できることや、スターデルタ始動に必要な巻線端子を外部から扱える構成であることなど、モーター側の条件を確認する必要があります。</p>
+          <p>モーターが対応していても、始動時から大きなトルクを必要とする負荷では十分に加速できず、適さない場合があります。「三相モーターだから」「端子が6本あるから」だけで判断しないことが大切です。</p>
+          <ul class="simple-list">
+            <li>モーター銘板</li><li>モーター結線図</li><li>メーカー資料</li><li>設備仕様</li><li>負荷条件</li>
+          </ul>
+          <div class="talk-thread">
+            <div class="talk-row">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="白いヘルメットと青い作業着の先輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>三相モーターなら全部スターデルタにできる、というわけじゃないよ。まずモーターの仕様を確認しよう。</p></div>
+            </div>
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="ライトブルーのヘルメットをかぶった後輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>モーターだけじゃなくて、始動する負荷の重さも関係するんですね！</p></div>
+            </div>
           </div>
         </section>
 
         <section class="section-card" id="comparison">
-          <h2>直入れ始動との違い</h2>
-          <p><strong>直入れ始動</strong>は、<strong>回路がシンプル</strong>で追いやすい一方、始動時に<strong>大きな電流</strong>が流れやすい方式です。</p>
-          <p><strong>スター・デルタ始動</strong>は、<strong>主接触器・スター接触器・デルタ接触器・タイマ</strong>が関係するため<strong>確認箇所</strong>は増えますが、<span class="mark">始動電流を抑えたい設備</span>で使われます。どちらを使うかは、モーター容量、設備仕様、既設盤の設計、メーカー資料、社内標準を見て判断します。</p>
-
+          <h2>直入れ始動とスターデルタ始動の違い</h2>
+          <p>どちらが常に優れているという関係ではありません。モーター、負荷、電源設備、始動条件、メーカー仕様などをもとに選定します。</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>項目</th><th>直入れ始動</th><th>スターデルタ始動</th></tr></thead>
+            <tbody>
+              <tr><td>始動方法</td><td>通常の結線で直接始動</td><td>Yで始動してΔへ切替</td></tr>
+              <tr><td>始動電流</td><td>大きい</td><td>基本比較では抑えられる</td></tr>
+              <tr><td>始動トルク</td><td>大きい</td><td>基本比較では小さくなる</td></tr>
+              <tr><td>回路構成</td><td>比較的シンプル</td><td>接触器、タイマ、インターロックなどが必要</td></tr>
+              <tr><td>切替動作</td><td>Y→Δ切替なし</td><td>Yを解除してからΔへ切替</td></tr>
+              <tr><td>適用条件</td><td>電源設備や始動条件を確認</td><td>モーター仕様と負荷条件の確認が特に重要</td></tr>
+            </tbody>
+          </table></div>
           <figure class="article-figure">
-            <img src="../assets/images/star-delta-start-basic/motor_start_methods_comparison_infographic.png" alt="直入れ始動とスター・デルタ始動の違いを示す比較図" loading="lazy" decoding="async">
-            <figcaption>回路の簡単さと始動電流の抑えやすさを比べると、使い分けが見えやすくなります。</figcaption>
+            <img src="../assets/images/star-delta-start-basic/dol-vs-star-delta-start.webp" alt="直入れ始動とスターデルタ始動の電流、トルク、回路構成の比較" loading="lazy" decoding="async">
+            <figcaption>始動電流だけでなく、トルクや回路構成、適用条件も比較します。</figcaption>
           </figure>
+        </section>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>項目</th>
-                  <th>直入れ始動</th>
-                  <th>スター・デルタ始動</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>回路構成</td>
-                  <td>比較的シンプル</td>
-                  <td>主・スター・デルタ接触器やタイマが必要</td>
-                </tr>
-                <tr>
-                  <td>始動電流</td>
-                  <td>大きくなりやすい</td>
-                  <td>抑えやすい</td>
-                </tr>
-                <tr>
-                  <td>確認ポイント</td>
-                  <td>主接触器と保護機器</td>
-                  <td>主、スター、デルタ、タイマ、インターロック</td>
-                </tr>
-                <tr>
-                  <td>向いている見方</td>
-                  <td>起動・停止をシンプルに追う</td>
-                  <td>時間順に接触器の入り切りを追う</td>
-                </tr>
-              </tbody>
-            </table>
+        <section class="section-card" id="circuit-reading">
+          <h2>回路図を見るときのポイント</h2>
+          <p>施工や実配線の前に、まず回路の役割と動作順序を読み取ります。最初に<strong>主接触器M、スター接触器Y、デルタ接触器Δ、タイマT</strong>を探しましょう。</p>
+          <div class="key-highlight"><h3>追う順序</h3><p><strong>M＋Y → Y解除 → 切替区間 → M＋Δ</strong></p></div>
+          <p>特に確認したいのは、YとΔの同時動作を防止するインターロックです。実設備の回路には、さらに過負荷保護、停止回路、非常停止、安全回路、設備固有の条件などが含まれます。ここで示すのは読み方の基本であり、この図のとおりに配線するための施工手順ではありません。</p>
+          <figure class="article-figure">
+            <img src="../assets/images/star-delta-start-basic/star-delta-circuit-reading-guide.webp" alt="スターデルタ回路図でM、Y、デルタ、タイマ、インターロックを読むポイント" loading="lazy" decoding="async">
+            <figcaption>機器記号を見つけたあと、YからΔへ移る動作順序とインターロックを追います。</figcaption>
+          </figure>
+        </section>
+
+        <section class="section-card" id="timer">
+          <h2>タイマの時間は何秒にすればいい？</h2>
+          <div class="key-highlight"><h3>一律の正解秒数はありません</h3><p>モーター特性、負荷、加速時間、スタータ／タイマ仕様、設備設計条件などによって適切な切替タイミングは変わります。</p></div>
+          <p>タイマは単に「何秒待つ装置」ではなく、スターからデルタへ適切に移行するタイミングを作るものです。早すぎると十分に加速する前に切り替わり、遅すぎると必要以上にスター状態が続くことがあります。</p>
+          <p>ネット上の設定例をそのまま設備に適用せず、メーカー資料、モーター／スタータ仕様、設備設計条件を優先してください。</p>
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="ライトブルーのヘルメットをかぶった後輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>タイマは何秒にすればいいんですか？</p></div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="白いヘルメットと青い作業着の先輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>設備ごとに条件が違うから、一律には決められないよ。まずメーカー資料や設備仕様を確認しよう。</p></div>
+            </div>
           </div>
         </section>
 
-        <section class="section-card" id="check">
-          <h2>動かない時の確認ポイント</h2>
-          <p>スター・デルタ回路で不具合が出た時は、<strong>時間の流れ</strong>で見るのが基本です。<span class="mark">始動直後</span>にどの接触器が入るか、<span class="mark">タイマ後</span>にどの接触器が切り替わるかを<strong>順番に追う</strong>と、原因を絞りやすくなります。</p>
-
+        <section class="section-card" id="troubleshooting">
+          <h2>スターデルタ始動がうまく動かないときの考え方</h2>
+          <p>実機の作業手順ではなく、<strong>どの段階まで正常に進んだか</strong>から原因の範囲を整理します。正常な流れは「始動指令 → Y始動 → Y解除 → 切替区間 → Δ運転」です。</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>症状</th><th>確認する範囲の考え方</th></tr></thead>
+            <tbody>
+              <tr><td>まったく始動しない</td><td>始動条件、停止条件、保護回路、主接触器Mなど</td></tr>
+              <tr><td>Y始動にならない</td><td>Yの動作条件、インターロックなど</td></tr>
+              <tr><td>Yでは始動するがΔへ移らない</td><td>タイマ、Y解除、Δの動作条件、インターロックなど</td></tr>
+              <tr><td>切替時に停止する</td><td>Y→Δの動作順序、切替条件、保護回路、負荷条件など</td></tr>
+              <tr><td>保護装置が動作する</td><td>負荷条件、始動状態、保護装置が動作した理由など</td></tr>
+            </tbody>
+          </table></div>
           <figure class="article-figure">
-            <img src="../assets/images/star-delta-start-basic/star_delta_circuit_inspection_guide.png" alt="スター・デルタ始動回路の確認手順" loading="lazy" decoding="async">
-            <figcaption>始動、スター保持、タイマ動作、デルタ切替の順で追うと原因を切り分けやすくなります。</figcaption>
+            <img src="../assets/images/star-delta-start-basic/star-delta-troubleshooting-guide.webp" alt="スターデルタ始動の正常な動作段階から原因範囲を整理するガイド" loading="lazy" decoding="async">
+            <figcaption>動作が止まった段階を起点に、関係する条件を整理します。</figcaption>
           </figure>
-
-          <ul class="simple-list">
-            <li><strong>主接触器</strong>が入るか</li>
-            <li><strong>スター接触器</strong>が始動時に入るか</li>
-            <li><strong>タイマ</strong>が計時しているか</li>
-            <li><strong>タイマ完了後</strong>に<strong>スター接触器</strong>が切れるか</li>
-            <li><strong>スター</strong>が切れてから<strong>デルタ接触器</strong>が入るか</li>
-            <li><strong>スターとデルタ</strong>が同時に入らないようになっているか</li>
-            <li><strong>サーマルリレー</strong>がトリップしていないか</li>
-            <li><strong>停止ボタン</strong>、<strong>非常停止</strong>、<strong>インターロック条件</strong>が入っていないか</li>
-          </ul>
-
-          <div class="danger-box">
-            <h3>実機確認は回転体と通電部に注意</h3>
-            <p>モーター回路は大きな電流を扱い、機械が急に動く危険もあります。実機では必ず安全手順、設備仕様、メーカー資料に従って確認してください。</p>
+          <div class="danger-box"><h3>安全機能を無効にして確認しない</h3><p>原因確認のためにインターロックや保護回路を迂回したり、接触器を強制的に動作させたりしないでください。設備を安全な状態にし、電気図面、メーカー資料、設備の点検手順を優先します。</p></div>
+          <div class="talk-thread">
+            <div class="talk-row talk-row--right">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="ライトブルーのヘルメットをかぶった後輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>動かないと、全部チェックしなきゃって思ってしまいます……。</p></div>
+            </div>
+            <div class="talk-row">
+              <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="白いヘルメットと青い作業着の先輩エンジニア"></div>
+              <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>まず“どこまで正常に進んだか”を整理するといいよ。スターデルタは動作の順番が決まっているから、原因の範囲を考えやすくなるんだ。</p></div>
+            </div>
           </div>
         </section>
 
         <section class="section-card" id="summary">
-          <h2>まとめ</h2>
-          <p>スター・デルタ始動回路は、モーター始動時の電流を抑えるために、始動時と運転時で結線を切り替える回路です。最初はスターで始動し、一定時間後にデルタへ切り替える流れを押さえると、回路の意味が見えやすくなります。</p>
-          <p>確認時は、主接触器、スター接触器、デルタ接触器、タイマ、インターロックを時間順に見るのがポイントです。</p>
-
+          <h2>スターデルタ始動の要点まとめ</h2>
+          <p>スターデルタ始動は、始動時にY結線を使ってモーター各巻線に加わる電圧を下げ、始動電流を抑えたあと、Δ結線へ切り替えて通常運転する始動方式です。</p>
+          <p>基本的な比較では、始動線電流と始動トルクはそれぞれ約1/3です。ただし実際の値はモーター、負荷、電源条件などで変わります。始動電流を抑えられる代わりに始動トルクも小さくなるため、モーター仕様、負荷特性、電源設備、始動条件の確認が欠かせません。</p>
+          <div class="key-highlight"><h3>この記事で覚えておきたい5点</h3><ol class="simple-list">
+            <li>Y始動では各巻線の電圧が線間電圧の1/√3</li>
+            <li>始動線電流は基本比較で約1/3</li>
+            <li>始動トルクも基本比較で約1/3</li>
+            <li>YとΔを同時に動作させない</li>
+            <li>すべてのモーター・負荷に適する方式ではない</li>
+          </ol></div>
+          <p>回路図では、M、Y、Δ、タイマ、インターロックを見つけ、動作順序から全体を把握しましょう。</p>
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路一覧へ戻る</a>
             <a class="btn btn-primary" href="magnetic-switch-basic.html">マグネットスイッチも見る</a>
@@ -1721,25 +1703,10 @@
         <section class="section-card" aria-labelledby="related-title">
           <h2 id="related-title">あわせて読みたい記事</h2>
           <div class="related-grid">
-            <a class="related-card" href="magnetic-switch-basic.html">
-              <h3>マグネットスイッチとは？</h3>
-              <p>スター・デルタ回路で使う接触器の基本につながります。</p>
-            </a>
-
-            <a class="related-card" href="thermal-relay-basic.html">
-              <h3>サーマルリレーとは？</h3>
-              <p>モーター保護の考え方を合わせて整理できます。</p>
-            </a>
-
-            <a class="related-card" href="timer-circuit-basic.html">
-              <h3>タイマー回路とは？</h3>
-              <p>スター・デルタタイマの考え方を理解する前に、時間で出力を切り替える基本を確認できます。</p>
-            </a>
-
-            <a class="related-card" href="forward-reverse-circuit-basic.html">
-              <h3>正転・逆転回路とは？</h3>
-              <p>モーター制御回路の見方を広げられます。</p>
-            </a>
+            <a class="related-card" href="magnetic-switch-basic.html"><h3>マグネットスイッチとは？</h3><p>スター・デルタ回路で使う接触器の基本につながります。</p></a>
+            <a class="related-card" href="thermal-relay-basic.html"><h3>サーマルリレーとは？</h3><p>モーター保護の考え方を合わせて整理できます。</p></a>
+            <a class="related-card" href="timer-circuit-basic.html"><h3>タイマー回路とは？</h3><p>時間で出力を切り替える基本を確認できます。</p></a>
+            <a class="related-card" href="forward-reverse-circuit-basic.html"><h3>正転・逆転回路とは？</h3><p>モーター制御回路の見方を広げられます。</p></a>
           </div>
         </section>
       </div>
@@ -1748,11 +1715,15 @@
         <section class="side-card">
           <h3>記事内メニュー</h3>
           <ul>
-            <li><a href="#overview">スター・デルタとは</a></li>
-            <li><a href="#flow">切替の流れ</a></li>
-            <li><a href="#ladder">電気図の流れ</a></li>
+            <li><a href="#overview">スターデルタ始動とは</a></li>
+            <li><a href="#voltage">巻線電圧と電流</a></li>
+            <li><a href="#torque">始動トルク</a></li>
+            <li><a href="#switching">切替の流れ</a></li>
+            <li><a href="#conditions">適用条件</a></li>
             <li><a href="#comparison">直入れとの違い</a></li>
-            <li><a href="#check">確認ポイント</a></li>
+            <li><a href="#circuit-reading">回路図の読み方</a></li>
+            <li><a href="#timer">タイマ</a></li>
+            <li><a href="#troubleshooting">不具合の考え方</a></li>
             <li><a href="#summary">まとめ</a></li>
           </ul>
         </section>

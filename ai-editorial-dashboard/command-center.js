@@ -16,6 +16,12 @@
   `;
   document.head.appendChild(style);
 
+  window.attendanceData=function(){
+    const gem=latestProvider('google-gemini'),fb=latestProvider('challenger-controller'),ed=latestProvider('editor-controller'),rv=latestProvider('orchestrator-reviewer'),gpt=latestProvider('openai-editor'),research=latestProvider('openai-web-research');
+    const gemDown=fb&&(!gem||new Date(fb.created_at)>new Date(gem.created_at));
+    return [{icon:'🔍',name:'Gemini',role:'反対・検証担当',status:gemDown?'🔴 離席中':gem?'🟢 出勤中':'⚪ 未確認',cls:gemDown?'bad':gem?'ok':'idle'},{icon:'⚙️',name:'編集長',role:'編集担当',status:ed?'🟢 稼働中':'⚪ 待機',cls:ed?'ok':'idle'},{icon:'⚖️',name:'最終確認',role:'最終確認担当',status:rv?'🟢 稼働中':'⚪ 待機',cls:rv?'ok':'idle'},{icon:'🧠',name:'GPT API',role:'編集・企画担当',status:gpt?'🟢 接続済み':'⚪ 待機',cls:gpt?'ok':'idle'},{icon:'🌐',name:'GPT Web調査',role:'技術資料調査担当',status:research?'🟢 稼働中':'⚪ 待機',cls:research?'ok':'idle'}];
+  };
+
   const main=document.querySelector('.chat');
   if(!main)return;
   const composer=document.createElement('div');

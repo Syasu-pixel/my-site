@@ -10,4 +10,6 @@ Success criteria:
 - the discussion transcript is saved as an artifact;
 - no repository write or production publication occurs from the discussion workflow.
 
-Retry note: the first run reached Gemini but exposed a structured-output schema incompatibility. The runtime has been corrected to use the proven `responseJsonSchema` format; this commit intentionally triggers the synchronized PR retry.
+Retry note: the first run reached Gemini but exposed a structured-output schema incompatibility. The runtime has been corrected to use the proven `responseJsonSchema` format; the second run completed successfully.
+
+Dashboard note: this commit intentionally triggers the workflow again after live-feed integration, so the real EDITOR → Gemini CHALLENGER → REVIEWER conversation is published to the isolated AI Editorial Dashboard event feed.

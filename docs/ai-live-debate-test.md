@@ -8,3 +8,5 @@ For this test only, consider whether infrastructure changes should be allowed to
 The expected purpose of the meeting is to challenge this proposal against the existing multi-AI governance principles. This document does **not** change production policy and must not be adopted as policy. It exists only to create a legitimate disagreement path for the live discussion test.
 
 No production article, image, payment, or publication gate is changed by this test.
+
+Retry marker: fallback + attendance v0.1 is now on main; rerun the live debate through the new degraded-provider path if Gemini is unavailable.

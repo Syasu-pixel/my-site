@@ -7,10 +7,6 @@ on:
         description: Non-production PR number to audit
         required: true
         type: string
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/orchestrator-pilot.yml'
 
 permissions:
   contents: read
@@ -18,6 +14,8 @@ permissions:
 
 env:
   JOB_FILE: orchestrator-job.json
+  ORCHESTRATOR_EVENTS: orchestrator-events.jsonl
+  AI_EDITORIAL_FEED_URL: https://pavitnsnmoaiospswiys.supabase.co/functions/v1/ai-editorial-feed
 
 jobs:
   pilot:
@@ -27,9 +25,8 @@ jobs:
       - name: Resolve and validate input
         env:
           DISPATCH_PR: ${{ inputs.pr_number }}
-          SMOKE_PR: '1301'
         run: |
-          PR_NUMBER="${DISPATCH_PR:-$SMOKE_PR}"
+          PR_NUMBER="$DISPATCH_PR"
           [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo 'invalid PR number'; exit 1; }
           echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
 
@@ -40,6 +37,8 @@ jobs:
           path: trusted
 
       - name: Initialize durable job record
+        env:
+          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
         run: |
           python3 - <<'PY'
           import json, os, uuid
@@ -56,6 +55,9 @@ jobs:
           python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition EDITING --actor editor --reason 'pilot scope accepted'
           python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition BUILDING --actor builder --reason 'existing PR is build artifact'
           python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition CHALLENGING --actor orchestrator --reason 'dispatch external challenger inline'
+          JOB_ID=$(python3 -c "import json;print(json.load(open('$JOB_FILE'))['job_id'])")
+          python3 trusted/scripts/orchestrator_event.py "$ORCHESTRATOR_EVENTS" --job-id "$JOB_ID" --role editor --provider orchestrator --type proposal --summary "PR #${PR_NUMBER} の監査方針を確定し、既存PRをBUILDER成果物としてCHALLENGERへ送ります。" --state CHALLENGING --evidence "GitHub PR #${PR_NUMBER}"
+          python3 trusted/scripts/publish_orchestrator_events.py
 
       - name: Build bounded challenger input
         env:
@@ -78,6 +80,14 @@ jobs:
               f.write('PR title: '+p['title']+'\nPR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
           PY
 
+      - name: Publish challenger heartbeat
+        env:
+          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+        run: |
+          JOB_ID=$(python3 -c "import json;print(json.load(open('$JOB_FILE'))['job_id'])")
+          python3 trusted/scripts/orchestrator_event.py "$ORCHESTRATOR_EVENTS" --job-id "$JOB_ID" --role challenger --provider google-gemini --type heartbeat --summary "Gemini CHALLENGER の応答を待っています。" --state CHALLENGING --evidence "GitHub PR #${PR_NUMBER}"
+          python3 trusted/scripts/publish_orchestrator_events.py
+
       - name: Run Gemini challenger with bounded retry
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -92,31 +102,54 @@ jobs:
             sleep $((attempt * 5))
           done
 
+      - name: Publish challenger result
+        env:
+          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+        run: |
+          JOB_ID=$(python3 -c "import json;print(json.load(open('$JOB_FILE'))['job_id'])")
+          python3 - <<'PY'
+          import json, os, subprocess
+          r=json.load(open('challenger-result.json'))
+          verdict=r.get('verdict','unknown'); findings=r.get('findings',[])
+          severity='high' if any(f.get('severity') in ('blocker','high') for f in findings) else 'info'
+          summary=f"Gemini監査結果: {verdict}。findings={len(findings)}。REVIEWERへ送ります。"
+          cmd=['python3','trusted/scripts/orchestrator_event.py',os.environ['ORCHESTRATOR_EVENTS'],'--job-id',json.load(open(os.environ['JOB_FILE']))['job_id'],'--role','challenger','--provider','google-gemini','--type','finding','--summary',summary,'--state','CHALLENGING','--severity',severity,'--evidence','challenger-result.json']
+          subprocess.check_call(cmd)
+          PY
+          python3 trusted/scripts/publish_orchestrator_events.py
+
       - name: Reviewer disposition
+        env:
+          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
         run: |
           python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition REVIEWING --actor challenger --reason 'validated Gemini result received'
           python3 - <<'PY'
           import json, subprocess, os
           r=json.load(open('challenger-result.json'))
-          verdict=r.get('verdict')
-          findings=r.get('findings',[])
+          verdict=r.get('verdict'); findings=r.get('findings',[])
           material=[f for f in findings if f.get('severity') in ('blocker','high')]
           if verdict == 'adopt' and not material:
               target='PREVIEWING'; reason='challenger adopt with no material findings'
           else:
               target='ESCALATED'; reason=f'challenger verdict={verdict}; material_findings={len(material)}; reviewer requires next implementation cycle'
           subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',os.environ['JOB_FILE'],'transition',target,'--actor','reviewer','--reason',reason])
+          subprocess.check_call(['python3','trusted/scripts/orchestrator_event.py',os.environ['ORCHESTRATOR_EVENTS'],'--job-id',json.load(open(os.environ['JOB_FILE']))['job_id'],'--role','reviewer','--provider','orchestrator-reviewer','--type','review','--summary',reason,'--state',target,'--severity','high' if target=='ESCALATED' else 'info','--evidence','challenger-result.json'])
           PY
+          python3 trusted/scripts/publish_orchestrator_events.py
 
       - name: Record terminal workflow failure
         if: failure() && hashFiles('orchestrator-job.json') != ''
+        env:
+          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
         run: |
           python3 - <<'PY'
           import json, os, subprocess
           p=os.environ['JOB_FILE']; d=json.load(open(p)); state=d.get('state')
           if state not in ('DONE','ESCALATED','FAILED','CANCELLED'):
               subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',p,'transition','FAILED','--actor','orchestrator','--reason','workflow step failed after job initialization'])
+              subprocess.check_call(['python3','trusted/scripts/orchestrator_event.py',os.environ['ORCHESTRATOR_EVENTS'],'--job-id',d['job_id'],'--role','system','--provider','github-actions','--type','error','--summary','Orchestrator workflow failed after job initialization.','--state','FAILED','--severity','high'])
           PY
+          python3 trusted/scripts/publish_orchestrator_events.py || true
 
       - name: Upload auditable job record
         if: always()
@@ -125,6 +158,7 @@ jobs:
           name: orchestrator-pilot-${{ env.PR_NUMBER }}
           path: |
             orchestrator-job.json
+            orchestrator-events.jsonl
             challenger-result.json
           if-no-files-found: warn
           retention-days: 14

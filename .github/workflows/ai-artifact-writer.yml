@@ -67,12 +67,20 @@ jobs:
             target_path="$WD_PATH"
             commit_message="${WD_MESSAGE:-Add reviewed AI artifact}"
           fi
+
           for value in artifact_url sha256 target_branch target_path; do
             if [ -z "${!value}" ]; then
               echo "missing required field: $value" >&2
               exit 1
             fi
           done
+
+          for value in artifact_url sha256 target_branch target_path commit_message; do
+            case "${!value}" in
+              *$'\n'*|*$'\r'*) echo "newlines are not allowed in $value" >&2; exit 1 ;;
+            esac
+          done
+
           {
             echo "artifact_url=$artifact_url"
             echo "sha256=$sha256"
@@ -99,14 +107,19 @@ jobs:
           fetch-depth: 1
 
       - name: Validate and download reviewed artifact
+        shell: bash
         env:
           AI_ARTIFACT_ALLOWED_HOSTS: ${{ vars.AI_ARTIFACT_ALLOWED_HOSTS }}
+          ARTIFACT_URL: ${{ steps.req.outputs.artifact_url }}
+          ARTIFACT_SHA256: ${{ steps.req.outputs.sha256 }}
+          TARGET_BRANCH: ${{ steps.req.outputs.target_branch }}
+          TARGET_PATH: ${{ steps.req.outputs.target_path }}
         run: |
           python3 scripts/ai_artifact_writer.py \
-            --url '${{ steps.req.outputs.artifact_url }}' \
-            --sha256 '${{ steps.req.outputs.sha256 }}' \
-            --target-branch '${{ steps.req.outputs.target_branch }}' \
-            --target-path '${{ steps.req.outputs.target_path }}'
+            --url "$ARTIFACT_URL" \
+            --sha256 "$ARTIFACT_SHA256" \
+            --target-branch "$TARGET_BRANCH" \
+            --target-path "$TARGET_PATH"
 
       - name: Commit artifact to preview branch
         shell: bash

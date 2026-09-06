@@ -1,0 +1,60 @@
+name: Gemini challenger smoke test
+on:
+  push:
+    branches: [ai-gemini-challenger-smoke]
+    paths: [.github/workflows/gemini-challenger-smoke.yml]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trusted runner from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+      - name: Build bounded audit input for merged pilot PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: '1300'
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.json
+          gh api -H 'Accept: application/vnd.github.v3.diff' "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > pr.diff
+          python3 - <<'PY'
+          import json
+          p=json.load(open('pr.json'))
+          d=open('pr.diff', encoding='utf-8', errors='replace').read()
+          if len(d.encode()) > 450_000: raise SystemExit('PR diff too large')
+          with open('challenger-input.txt','w',encoding='utf-8') as f:
+              f.write('PR title: '+p['title']+'\n')
+              f.write('PR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
+          PY
+      - name: Run Gemini challenger
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_CHALLENGER_MODEL: gemini-2.5-flash
+          CHALLENGER_INPUT: challenger-input.txt
+          CHALLENGER_OUTPUT: challenger-result.json
+        run: python3 trusted/scripts/gemini_challenger.py
+      - name: Show bounded summary
+        if: success()
+        run: |
+          python3 - <<'PY'
+          import json
+          r=json.load(open('challenger-result.json'))
+          print('verdict=',r['verdict'])
+          print('findings=',len(r['findings']))
+          print('confidence=',r['confidence'])
+          for i,f in enumerate(r['findings'][:5],1):
+              print(f"{i}. {f['severity']} {f['path']} :: {f['claim'][:180]}")
+          PY
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-challenger-smoke
+          path: challenger-result.json
+          if-no-files-found: warn
+          retention-days: 7

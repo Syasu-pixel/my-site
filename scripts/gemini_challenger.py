@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fail-closed external CHALLENGER runner for denkicontrol.com PR audits."""
-import json, os, sys, urllib.request, urllib.error
+import json, os, urllib.request, urllib.error
 
 API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODEL = os.environ.get("GEMINI_CHALLENGER_MODEL", "gemini-2.5-flash")
@@ -22,16 +22,13 @@ schema = {
         "role": {"type": "string", "enum": ["challenger"]},
         "verdict": {"type": "string", "enum": ["adopt", "revise", "escalate"]},
         "findings": {
-            "type": "array",
-            "maxItems": 30,
+            "type": "array", "maxItems": 30,
             "items": {
                 "type": "object",
                 "properties": {
                     "severity": {"type": "string", "enum": ["blocker", "high", "medium", "low"]},
-                    "path": {"type": "string"},
-                    "claim": {"type": "string"},
-                    "evidence": {"type": "string"},
-                    "recommended_action": {"type": "string"}
+                    "path": {"type": "string"}, "claim": {"type": "string"},
+                    "evidence": {"type": "string"}, "recommended_action": {"type": "string"}
                 },
                 "required": ["severity", "path", "claim", "evidence", "recommended_action"],
                 "additionalProperties": False
@@ -53,34 +50,30 @@ Return only the requested structured review.
 AUDIT MATERIAL:\n""" + source
 
 payload = {
-    "model": MODEL,
-    "input": prompt,
-    "response_format": {"type": "text", "mime_type": "application/json", "schema": schema}
+    "contents": [{"parts": [{"text": prompt}]}],
+    "generationConfig": {
+        "responseMimeType": "application/json",
+        "responseJsonSchema": schema,
+        "temperature": 0.2
+    }
 }
-req = urllib.request.Request(
-    "https://generativelanguage.googleapis.com/v1beta/interactions",
-    data=json.dumps(payload).encode(),
-    headers={"Content-Type": "application/json", "x-goog-api-key": API_KEY},
-    method="POST",
-)
+url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
+req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers={
+    "Content-Type": "application/json", "x-goog-api-key": API_KEY
+}, method="POST")
 try:
     with urllib.request.urlopen(req, timeout=120) as r:
         raw = json.load(r)
 except urllib.error.HTTPError as e:
-    raise SystemExit(f"Gemini HTTP error {e.code}")
+    detail = e.read(4096).decode("utf-8", "replace")
+    raise SystemExit(f"Gemini HTTP error {e.code}: {detail}")
 
-text = None
-for step in raw.get("steps", []):
-    if step.get("type") == "model_output":
-        for part in step.get("content", []):
-            if part.get("type") == "text" and isinstance(part.get("text"), str):
-                text = part["text"]
-                break
-if not text:
+try:
+    text = raw["candidates"][0]["content"]["parts"][0]["text"]
+except (KeyError, IndexError, TypeError):
     raise SystemExit("Gemini returned no structured text output")
-
 result = json.loads(text)
-# Semantic validation beyond schema conformance.
+
 if result.get("role") != "challenger" or result.get("verdict") not in {"adopt", "revise", "escalate"}:
     raise SystemExit("invalid challenger semantics")
 if not isinstance(result.get("findings"), list) or len(result["findings"]) > 30:
@@ -94,6 +87,5 @@ for f in result["findings"]:
         raise SystemExit("invalid finding fields")
 
 with open(OUTPUT_PATH, "w", encoding="utf-8") as out:
-    json.dump(result, out, ensure_ascii=False, indent=2)
-    out.write("\n")
+    json.dump(result, out, ensure_ascii=False, indent=2); out.write("\n")
 print(f"challenger verdict={result['verdict']} findings={len(result['findings'])} confidence={result['confidence']}")

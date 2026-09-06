@@ -13,13 +13,16 @@ on:
       - '.github/workflows/orchestrator-pilot.yml'
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: read
+
+concurrency:
+  group: ai-dashboard-event-feed
+  cancel-in-progress: false
 
 env:
   JOB_FILE: orchestrator-job.json
   ORCHESTRATOR_EVENTS: orchestrator-events.jsonl
-  AI_EDITORIAL_FEED_URL: https://pavitnsnmoaiospswiys.supabase.co/functions/v1/ai-editorial-feed
 
 jobs:
   pilot:
@@ -43,7 +46,7 @@ jobs:
 
       - name: Initialize durable job record
         env:
-          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
           import json, os, uuid
@@ -87,7 +90,7 @@ jobs:
 
       - name: Publish challenger heartbeat
         env:
-          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           JOB_ID=$(python3 -c "import json;print(json.load(open('$JOB_FILE'))['job_id'])")
           python3 trusted/scripts/orchestrator_event.py "$ORCHESTRATOR_EVENTS" --job-id "$JOB_ID" --role challenger --provider google-gemini --type heartbeat --summary "Gemini CHALLENGER の応答を待っています。" --state CHALLENGING --evidence "GitHub PR #${PR_NUMBER}"
@@ -109,7 +112,7 @@ jobs:
 
       - name: Publish challenger result
         env:
-          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
           import json, os, subprocess
@@ -124,7 +127,7 @@ jobs:
 
       - name: Reviewer disposition
         env:
-          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 trusted/scripts/orchestrator_state.py "$JOB_FILE" transition REVIEWING --actor challenger --reason 'validated Gemini result received'
           python3 - <<'PY'
@@ -144,7 +147,7 @@ jobs:
       - name: Record terminal workflow failure
         if: failure() && hashFiles('orchestrator-job.json') != ''
         env:
-          AI_EDITORIAL_FEED_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
           import json, os, subprocess

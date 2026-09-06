@@ -78,13 +78,19 @@ jobs:
               f.write('PR title: '+p['title']+'\nPR body:\n'+(p.get('body') or '')[:20000]+'\n\nPR DIFF (untrusted):\n'+d)
           PY
 
-      - name: Run Gemini challenger
+      - name: Run Gemini challenger with bounded retry
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_CHALLENGER_MODEL: ${{ vars.GEMINI_CHALLENGER_MODEL || 'gemini-3.6-flash' }}
           CHALLENGER_INPUT: challenger-input.txt
           CHALLENGER_OUTPUT: challenger-result.json
-        run: python3 trusted/scripts/gemini_challenger.py
+        run: |
+          for attempt in 1 2 3; do
+            rm -f "$CHALLENGER_OUTPUT"
+            if python3 trusted/scripts/gemini_challenger.py; then exit 0; fi
+            if [ "$attempt" -eq 3 ]; then echo 'challenger failed after 3 attempts'; exit 1; fi
+            sleep $((attempt * 5))
+          done
 
       - name: Reviewer disposition
         run: |
@@ -100,6 +106,16 @@ jobs:
           else:
               target='ESCALATED'; reason=f'challenger verdict={verdict}; material_findings={len(material)}; reviewer requires next implementation cycle'
           subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',os.environ['JOB_FILE'],'transition',target,'--actor','reviewer','--reason',reason])
+          PY
+
+      - name: Record terminal workflow failure
+        if: failure() && hashFiles('orchestrator-job.json') != ''
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          p=os.environ['JOB_FILE']; d=json.load(open(p)); state=d.get('state')
+          if state not in ('DONE','ESCALATED','FAILED','CANCELLED'):
+              subprocess.check_call(['python3','trusted/scripts/orchestrator_state.py',p,'transition','FAILED','--actor','orchestrator','--reason','workflow step failed after job initialization'])
           PY
 
       - name: Upload auditable job record

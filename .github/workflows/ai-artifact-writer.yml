@@ -100,14 +100,26 @@ jobs:
           esac
           [ "$TARGET_BRANCH" != "main" ]
 
-      - name: Checkout target branch
+      - name: Checkout trusted writer runtime
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: writer-runtime
+          sparse-checkout: |
+            scripts/ai_artifact_writer.py
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Checkout target preview branch
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.req.outputs.target_branch }}
+          path: workspace
           fetch-depth: 1
 
       - name: Validate and download reviewed artifact
         shell: bash
+        working-directory: workspace
         env:
           AI_ARTIFACT_ALLOWED_HOSTS: ${{ vars.AI_ARTIFACT_ALLOWED_HOSTS }}
           ARTIFACT_URL: ${{ steps.req.outputs.artifact_url }}
@@ -115,7 +127,7 @@ jobs:
           TARGET_BRANCH: ${{ steps.req.outputs.target_branch }}
           TARGET_PATH: ${{ steps.req.outputs.target_path }}
         run: |
-          python3 scripts/ai_artifact_writer.py \
+          python3 ../writer-runtime/scripts/ai_artifact_writer.py \
             --url "$ARTIFACT_URL" \
             --sha256 "$ARTIFACT_SHA256" \
             --target-branch "$TARGET_BRANCH" \
@@ -123,6 +135,7 @@ jobs:
 
       - name: Commit artifact to preview branch
         shell: bash
+        working-directory: workspace
         env:
           TARGET_PATH: ${{ steps.req.outputs.target_path }}
           COMMIT_MESSAGE: ${{ steps.req.outputs.commit_message }}

@@ -36,15 +36,15 @@ jobs:
           title=os.environ.get('PR_TITLE','')[:300]
           body=os.environ.get('PR_BODY','')[:700]
           msg=f'提案: {title}。目的と変更概要: {body}'[:1200]
-          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','openai-editor','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
+          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','editor-controller','--stance','propose','--message',msg,'--evidence',os.environ.get('PR_URL','GitHub PR'),'--question','この提案に重大な欠点、見落とし、既存方針との衝突はありますか？','--confidence','0.85'])
           PY
-      - name: Gemini CHALLENGER reads EDITOR
+      - name: Gemini CHALLENGER round 1
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCUSSION_SESSION: discussion-session.json
           DISCUSSION_OUTPUT: gemini-turn.json
         run: python3 scripts/gemini_discussion_turn.py
-      - name: Append Gemini reply and provisional REVIEWER decision
+      - name: Append Gemini round 1
         run: |
           python3 - <<'PY'
           import json,subprocess
@@ -53,11 +53,58 @@ jobs:
           for e in x['evidence']: cmd += ['--evidence',e]
           for q in x['questions']: cmd += ['--question',q]
           subprocess.check_call(cmd)
-          if x['stance'] in ('support','withdraw'):
-            decision='adopt'; message='CHALLENGERの重要懸念は維持されていないため、v0.1 REVIEWERはADOPTとします。'
+          PY
+      - name: EDITOR responds to disagreement
+        env:
+          DISCUSSION_SESSION: discussion-session.json
+          EDITOR_RESPONSE_OUTPUT: editor-response.json
+        run: |
+          python3 scripts/editor_discussion_response.py
+          python3 - <<'PY'
+          import json,subprocess
+          x=json.load(open('editor-response.json'))
+          if x['stance']=='support': raise SystemExit(0)
+          cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','editor','--provider','editor-controller','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+          for e in x['evidence']: cmd += ['--evidence',e]
+          for q in x['questions']: cmd += ['--question',q]
+          subprocess.check_call(cmd)
+          PY
+      - name: Gemini CHALLENGER round 2 reassessment
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCUSSION_SESSION: discussion-session.json
+          DISCUSSION_OUTPUT: gemini-turn-2.json
+        run: |
+          if python3 - <<'PY'
+          import json,sys
+          s=json.load(open('discussion-session.json'))
+          sys.exit(0 if s['turns'][-1]['role']=='editor' else 1)
+          PY
+          then
+            DISCUSSION_OUTPUT=gemini-turn-2.json python3 scripts/gemini_discussion_turn.py
+          else
+            echo '{"skipped":true}' > gemini-turn-2.json
+          fi
+      - name: Append reassessment and REVIEWER decision
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          x=json.load(open('gemini-turn-2.json'))
+          if not x.get('skipped'):
+            cmd=['python3','scripts/editorial_discussion.py','discussion-session.json','--role','challenger','--provider','google-gemini','--stance',x['stance'],'--message',x['message'],'--confidence',str(x['confidence'])]
+            for e in x['evidence']: cmd += ['--evidence',e]
+            for q in x['questions']: cmd += ['--question',q]
+            subprocess.check_call(cmd)
+            final=x
           else:
-            decision='escalate'; message='CHALLENGERが異論または質問を維持しているため、次の討論ラウンドへ送ります。'
-          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','reviewer','--provider','orchestrator-reviewer','--stance','adjudicate','--message',message,'--evidence','discussion-session.json','--confidence','0.80','--close',decision])
+            final=json.load(open('gemini-turn.json'))
+          if final['stance'] in ('support','withdraw'):
+            decision='adopt'; message='再評価後、CHALLENGERの重大懸念は維持されていないためREVIEWERはADOPTとします。'
+          elif final['stance']=='revise':
+            decision='revise'; message='再評価後も修正可能な懸念が残るためREVIEWERはREVISEとします。'
+          else:
+            decision='escalate'; message='2ラウンド後も重要な異論または質問が残るためREVIEWERはESCALATEとします。'
+          subprocess.check_call(['python3','scripts/editorial_discussion.py','discussion-session.json','--role','reviewer','--provider','orchestrator-reviewer','--stance','adjudicate','--message',message,'--evidence','discussion-session.json','--confidence','0.82','--close',decision])
           PY
       - name: Export visible conversation
         run: |
@@ -82,4 +129,6 @@ jobs:
             discussion-session.json
             discussion-events.jsonl
             gemini-turn.json
+            gemini-turn-2.json
+            editor-response.json
           retention-days: 14

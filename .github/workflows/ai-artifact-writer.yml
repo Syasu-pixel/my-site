@@ -24,6 +24,10 @@ on:
         required: false
         default: Add reviewed AI artifact
         type: string
+      cleanup_object_path:
+        description: Optional temporary broker object path to delete after successful transfer
+        required: false
+        type: string
   repository_dispatch:
     types: [ai-artifact-ready]
 
@@ -48,11 +52,13 @@ jobs:
           WD_BRANCH: ${{ inputs.target_branch }}
           WD_PATH: ${{ inputs.target_path }}
           WD_MESSAGE: ${{ inputs.commit_message }}
+          WD_CLEANUP_OBJECT: ${{ inputs.cleanup_object_path }}
           RD_URL: ${{ github.event.client_payload.artifact_url }}
           RD_SHA: ${{ github.event.client_payload.sha256 }}
           RD_BRANCH: ${{ github.event.client_payload.target_branch }}
           RD_PATH: ${{ github.event.client_payload.target_path }}
           RD_MESSAGE: ${{ github.event.client_payload.commit_message }}
+          RD_CLEANUP_OBJECT: ${{ github.event.client_payload.cleanup_object_path }}
         run: |
           if [ "$EVENT_NAME" = "repository_dispatch" ]; then
             artifact_url="$RD_URL"
@@ -60,12 +66,14 @@ jobs:
             target_branch="$RD_BRANCH"
             target_path="$RD_PATH"
             commit_message="${RD_MESSAGE:-Add reviewed AI artifact}"
+            cleanup_object_path="$RD_CLEANUP_OBJECT"
           else
             artifact_url="$WD_URL"
             sha256="$WD_SHA"
             target_branch="$WD_BRANCH"
             target_path="$WD_PATH"
             commit_message="${WD_MESSAGE:-Add reviewed AI artifact}"
+            cleanup_object_path="$WD_CLEANUP_OBJECT"
           fi
 
           for value in artifact_url sha256 target_branch target_path; do
@@ -75,11 +83,18 @@ jobs:
             fi
           done
 
-          for value in artifact_url sha256 target_branch target_path commit_message; do
+          for value in artifact_url sha256 target_branch target_path commit_message cleanup_object_path; do
             case "${!value}" in
               *$'\n'*|*$'\r'*) echo "newlines are not allowed in $value" >&2; exit 1 ;;
             esac
           done
+
+          if [ -n "$cleanup_object_path" ]; then
+            if [[ ! "$cleanup_object_path" =~ ^incoming/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-f-]{36}/[A-Za-z0-9][A-Za-z0-9._-]{0,119}$ ]]; then
+              echo "invalid cleanup object path" >&2
+              exit 1
+            fi
+          fi
 
           {
             echo "artifact_url=$artifact_url"
@@ -87,6 +102,7 @@ jobs:
             echo "target_branch=$target_branch"
             echo "target_path=$target_path"
             echo "commit_message=$commit_message"
+            echo "cleanup_object_path=$cleanup_object_path"
           } >> "$GITHUB_OUTPUT"
 
       - name: Reject production branch early
@@ -149,3 +165,27 @@ jobs:
           git add -- "$TARGET_PATH"
           git commit -m "$COMMIT_MESSAGE"
           git push origin HEAD
+
+      - name: Delete temporary broker artifact after successful transfer
+        if: ${{ steps.req.outputs.cleanup_object_path != '' }}
+        shell: bash
+        env:
+          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
+          CLEANUP_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          CLEANUP_OBJECT_PATH: ${{ steps.req.outputs.cleanup_object_path }}
+        run: |
+          if [ -z "$BROKER_URL" ] || [ -z "$CLEANUP_TOKEN" ]; then
+            echo "Broker cleanup configuration is missing" >&2
+            exit 1
+          fi
+          case "$BROKER_URL" in
+            https://*) ;;
+            *) echo "ARTIFACT_BROKER_URL must use HTTPS" >&2; exit 1 ;;
+          esac
+          payload="$(python3 -c 'import json,os; print(json.dumps({"action":"delete","object_path":os.environ["CLEANUP_OBJECT_PATH"]}))')"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 20 \
+            -X POST \
+            -H 'content-type: application/json' \
+            -H "x-artifact-broker-token: $CLEANUP_TOKEN" \
+            --data "$payload" \
+            "$BROKER_URL"

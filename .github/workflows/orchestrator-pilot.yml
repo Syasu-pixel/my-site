@@ -7,7 +7,8 @@ on:
         description: Non-production PR number to audit
         required: true
         type: string
-  pull_request:
+  push:
+    branches: [main]
     paths:
       - '.github/workflows/orchestrator-pilot.yml'
 
@@ -20,23 +21,22 @@ env:
 
 jobs:
   pilot:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Resolve and validate input
         env:
           DISPATCH_PR: ${{ inputs.pr_number }}
-          EVENT_PR: ${{ github.event.pull_request.number }}
+          SMOKE_PR: '1301'
         run: |
-          PR_NUMBER="${DISPATCH_PR:-$EVENT_PR}"
+          PR_NUMBER="${DISPATCH_PR:-$SMOKE_PR}"
           [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo 'invalid PR number'; exit 1; }
           echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
 
       - name: Checkout trusted controller
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          ref: main
           path: trusted
 
       - name: Initialize durable job record

@@ -1,0 +1,72 @@
+name: Noise guide Step2 indentation cleanup
+on:
+  push:
+    branches: [ai-noise-guide-step2]
+    paths: [.github/workflows/step2-noise-indent-cleanup.yml]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-noise-guide-step2
+          fetch-depth: 1
+      - name: Normalize injected block indentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files=[
+            'control-panel-grounding-basic.html','shielded-cable-basic.html',
+            'power-signal-wiring-separation-basic.html','noise-filter-basic.html',
+            'surge-protection-basic.html','analog-input-basic.html','analog-output-basic.html'
+          ]
+          heading='ノイズ対策を全体から切り分けたいとき'
+          hub='control-panel-noise-troubleshooting-guide.html'
+          for name in files:
+              p=Path('articles')/name; s=p.read_text()
+              h=s.index(heading)
+              block=s.rfind('<div class="key-highlight">',0,h)
+              line_start=s.rfind('\n',0,block)+1
+              close=s.find('</article>',h)
+              article_open=s.rfind('<article',0,line_start)
+              open_line=s.rfind('\n',0,article_open)+1
+              article_indent=s[open_line:article_open]
+              assert article_indent.strip()==''
+              i=article_indent+'  '; j=i+'  '
+              clean=(f'{i}<div class="key-highlight">\n'
+                     f'{j}<h3>{heading}</h3>\n'
+                     f'{j}<p>この項目だけで原因を決めず、<a href="{hub}"><strong>制御盤のノイズ対策・誤動作の切り分けガイド</strong></a>で、発生源・伝搬経路・影響を受ける機器の順に整理できます。</p>\n'
+                     f'{i}</div>\n\n'
+                     f'{article_indent}</article>')
+              s=s[:line_start]+clean+s[close+len('</article>'):]
+              p.write_text(s)
+
+          # Normalize the new category section to the surrounding section indentation only.
+          p=Path('categories/control-basics.html'); s=p.read_text()
+          start=s.index('<section class="section-card" id="noise-troubleshooting-hub"')
+          ls=s.rfind('\n',0,start)+1
+          end=s.index('</section>',start)+len('</section>')
+          block=s[start:end]
+          lines=block.splitlines()
+          # Existing inner relative indentation is preserved, only the accidental leading whitespace is reset.
+          minlead=min(len(x)-len(x.lstrip()) for x in lines if x.strip())
+          lines=[x[minlead:] if x.strip() else '' for x in lines]
+          block='\n'.join('        '+x for x in lines)
+          s=s[:ls]+block+s[end:]
+          # Restore the following articles section indentation to match its historical 8-space level.
+          s=s.replace('\n<section class="section-card" id="articles"', '\n        <section class="section-card" id="articles"',1)
+          p.write_text(s)
+          PY
+          git diff --check
+          python3 -m json.tool assets/data/search-index.json >/dev/null
+          rm .github/workflows/step2-noise-indent-cleanup.yml
+      - name: Commit cleanup
+        run: |
+          git config user.name "denkicontrol-ai-step2"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Normalize noise guide Step2 indentation"
+          git push origin HEAD

@@ -92,7 +92,7 @@ v0.1では以下を人間へ送る:
 Orchestrator job recordからUI向け `events.jsonl` を生成し、role/provider/state/evidenceを正規化する。**実装済み。**
 
 ### Phase B — Read-only dashboard
-案件一覧・チャット・状態パネルを表示し、Supabase feedへ接続する。**v0.1実装中。**
+案件一覧・チャット・状態パネルを表示し、Supabase feedへ接続する。**v0.1実装済み、live smoke test待ち。**
 
 ### Phase C — Human controls
 承認/却下/コメントを安全なAPI経由でOrchestratorへ戻す。ブラウザから直接GitHub tokenやAI keyを扱わない。

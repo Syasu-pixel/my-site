@@ -20,14 +20,23 @@ function safeEqual(a: string, b: string): boolean {
   const enc = new TextEncoder();
   const aa = enc.encode(a);
   const bb = enc.encode(b);
+  if (aa.length === 0 || bb.length === 0) return false;
   let diff = aa.length ^ bb.length;
   const len = Math.max(aa.length, bb.length);
   for (let i = 0; i < len; i++) diff |= (aa[i % aa.length] ?? 0) ^ (bb[i % bb.length] ?? 0);
   return diff === 0;
 }
 
-function requireBrokerAuth(req: Request): boolean {
-  const configured = Deno.env.get("ARTIFACT_BROKER_TOKEN") ?? "";
+function actionTokenName(action: unknown): string | null {
+  if (action === "create_upload" || action === "prepare_download") return "ARTIFACT_BROKER_TOKEN";
+  if (action === "delete") return "ARTIFACT_CLEANUP_TOKEN";
+  return null;
+}
+
+function requireActionAuth(req: Request, action: unknown): boolean {
+  const envName = actionTokenName(action);
+  if (!envName) return false;
+  const configured = Deno.env.get(envName) ?? "";
   const supplied = req.headers.get("x-artifact-broker-token") ?? "";
   return configured.length >= 32 && supplied.length > 0 && safeEqual(configured, supplied);
 }
@@ -72,15 +81,6 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json(405, { error: "POST required" });
-  if (!requireBrokerAuth(req)) return json(401, { error: "unauthorized" });
-
-  const url = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !serviceKey) return json(500, { error: "broker storage configuration missing" });
-
-  const supabase = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
 
   let body: Record<string, unknown>;
   try {
@@ -90,6 +90,16 @@ Deno.serve(async (req) => {
   }
 
   const action = body.action;
+  if (!actionTokenName(action)) return json(400, { error: "unknown action" });
+  if (!requireActionAuth(req, action)) return json(401, { error: "unauthorized" });
+
+  const url = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceKey) return json(500, { error: "broker storage configuration missing" });
+
+  const supabase = createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   if (action === "create_upload") {
     const fileName = normalizeFileName(body.file_name);

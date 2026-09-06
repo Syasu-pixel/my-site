@@ -1,4 +1,4 @@
-name: Noise guide Step2 integration
+name: Noise guide Step2 integration fix
 
 on:
   push:
@@ -9,79 +9,19 @@ permissions:
   contents: write
 
 jobs:
-  integrate:
+  fix:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ai-noise-guide-step2
           fetch-depth: 1
-      - name: Apply Step2 updates
+      - name: Move reverse links into article content
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import json
-
-          slug='control-panel-noise-troubleshooting-guide.html'
-          url=f'/articles/{slug}'
-          absurl='https://denkicontrol.com'+url
-          title='制御盤のノイズ対策とは？誤動作を切り分ける基本｜接地・シールド・配線分離・フィルタ'
-          desc='制御盤でノイズが疑われる誤動作を、発生源・伝わり方・影響を受ける機器に分けて整理。接地、シールド、配線分離、ノイズフィルタ、サージ対策の役割と切り分けを解説します。'
-
-          # sitemap: preserve existing formatting/order and append once.
-          p=Path('sitemap.xml'); s=p.read_text()
-          if absurl not in s:
-              marker='</urlset>'
-              assert marker in s
-              s=s.replace(marker, f'  <url>\n    <loc>{absurl}</loc>\n  </url>\n{marker}')
-              p.write_text(s)
-
-          # Search index: append one structured Japanese entry.
-          p=Path('assets/data/search-index.json')
-          data=json.loads(p.read_text())
-          if not any(x.get('url')==url for x in data):
-              data.append({
-                'title': title,
-                'url': url,
-                'category': '制御の基礎',
-                'description': desc,
-                'keywords': ['制御盤 ノイズ対策','ノイズ 誤動作','接地','シールド','配線分離','ノイズフィルタ','サージ対策','発生源','伝搬経路','control panel noise'],
-                'synonyms': ['制御盤のノイズ対策','ノイズトラブル','ノイズ切り分け','EMC対策']
-              })
-              p.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
-
-          # Backlog: mark the hub complete and record publication.
-          p=Path('docs/article-backlog.md'); s=p.read_text()
-          old='- [ ] **制御盤ノイズ対策ハブ（Control Panel Noise Reduction Basics 相当）**'
-          if old in s:
-              s=s.replace(old, '- [x] **制御盤ノイズ対策ハブ（Control Panel Noise Reduction Basics 相当）**', 1)
-              needle='  - main の実ファイルを確認した時点で、接地・シールド・配線分離・フィルタ・アナログ信号を一つの切り分け手順として束ねる専用ハブは存在しない。'
-              if needle in s:
-                  s=s.replace(needle, '  - 公開済み: `articles/control-panel-noise-troubleshooting-guide.html`。接地・シールド・配線分離・フィルタ・サージ対策を、発生源→伝搬経路→影響を受ける機器の流れで束ねる。', 1)
-              p.write_text(s)
-
-          # Home latest list.
-          p=Path('index.html'); s=p.read_text()
-          if url not in s:
-              anchor='<section class="info-box info-box--latest" id="new">'
-              pos=s.find(anchor); assert pos>=0
-              ul=s.find('<ul>', pos); assert ul>=0
-              item=f'\n                <li><a href="articles/{slug}">{title}</a></li>'
-              s=s[:ul+4]+item+s[ul+4:]
-              p.write_text(s)
-
-          # Category: add a dedicated practical hub card immediately before article list.
-          p=Path('categories/control-basics.html'); s=p.read_text()
-          if '../articles/'+slug not in s:
-              marker='<section class="section-card" id="articles"'
-              pos=s.find(marker); assert pos>=0
-              block='''        <section class="section-card" id="noise-troubleshooting-hub" aria-labelledby="noise-troubleshooting-heading">\n          <div class="section-heading">\n            <div>\n              <span class="section-kicker">実務トラブルハブ</span>\n              <h2 id="noise-troubleshooting-heading">制御盤のノイズ対策を横断して切り分ける</h2>\n              <p>接地・シールド・配線分離・ノイズフィルタ・サージ対策を、発生源→伝搬経路→影響を受ける機器の順で整理します。</p>\n            </div>\n          </div>\n          <a class="troubleshooting-hub-card" href="../articles/control-panel-noise-troubleshooting-guide.html">\n            <span class="troubleshooting-hub-media" aria-hidden="true"><img src="../assets/images/control-panel-noise-troubleshooting-guide/control-panel-noise-troubleshooting-guide-hero.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async"></span>\n            <span class="troubleshooting-hub-copy"><strong>制御盤のノイズ対策とは？誤動作を切り分ける基本</strong><span>ノイズらしい症状を、対策部品だけで決めつけず原因領域から整理する実務ハブです。</span></span>\n          </a>\n        </section>\n\n'''
-              s=s[:pos]+block+s[pos:]
-              p.write_text(s)
-
-          # Strong reverse links from the most relevant existing articles.
-          related=[
+          files=[
             'articles/control-panel-grounding-basic.html',
             'articles/shielded-cable-basic.html',
             'articles/power-signal-wiring-separation-basic.html',
@@ -90,37 +30,46 @@ jobs:
             'articles/analog-input-basic.html',
             'articles/analog-output-basic.html',
           ]
-          hub='control-panel-noise-troubleshooting-guide.html'
-          for fn in related:
+          block='''          <div class="key-highlight">\n            <h3>ノイズ対策を全体から切り分けたいとき</h3>\n            <p>この項目だけで原因を決めず、<a href="control-panel-noise-troubleshooting-guide.html"><strong>制御盤のノイズ対策・誤動作の切り分けガイド</strong></a>で、発生源・伝搬経路・影響を受ける機器の順に整理できます。</p>\n          </div>\n\n'''
+          for fn in files:
               p=Path(fn); s=p.read_text()
-              if hub in s: continue
-              # Put a compact contextual link before the first related-articles section when available,
-              # otherwise before </main>. This avoids altering technical instructions.
-              candidates=['<h2 id="related-title">','<h2 id="related-heading">','</main>']
-              pos=-1
-              for m in candidates:
-                  pos=s.find(m)
-                  if pos>=0: break
+              assert s.count(block)==1, (fn, s.count(block))
+              s=s.replace(block,'',1)
+              # All current article templates close the main article before the side rail.
+              marker='        </article>'
+              pos=s.find(marker)
               assert pos>=0, fn
-              block='''          <div class="key-highlight">\n            <h3>ノイズ対策を全体から切り分けたいとき</h3>\n            <p>この項目だけで原因を決めず、<a href="control-panel-noise-troubleshooting-guide.html"><strong>制御盤のノイズ対策・誤動作の切り分けガイド</strong></a>で、発生源・伝搬経路・影響を受ける機器の順に整理できます。</p>\n          </div>\n\n'''
               s=s[:pos]+block+s[pos:]
+              # Structural QA: link must be inside <article>, before </article> and before <aside>.
+              linkpos=s.find('control-panel-noise-troubleshooting-guide.html')
+              article_close=s.find('</article>')
+              aside=s.find('<aside', article_close)
+              assert 0 <= linkpos < article_close, fn
+              assert aside > article_close, fn
               p.write_text(s)
-
-          # Assertions / QA.
-          assert absurl in Path('sitemap.xml').read_text()
-          data=json.loads(Path('assets/data/search-index.json').read_text())
-          assert sum(x.get('url')==url for x in data)==1
-          assert '[x] **制御盤ノイズ対策ハブ' in Path('docs/article-backlog.md').read_text()
-          assert '../articles/'+slug in Path('categories/control-basics.html').read_text()
-          for fn in related:
-              assert hub in Path(fn).read_text(), fn
           PY
-      - name: Commit Step2 integration
+      - name: QA and remove one-shot workflow
+        run: |
+          git diff --check
+          python3 -m json.tool assets/data/search-index.json >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, xml.etree.ElementTree as ET
+          hub='control-panel-noise-troubleshooting-guide.html'
+          ET.parse('sitemap.xml')
+          data=json.loads(Path('assets/data/search-index.json').read_text())
+          assert sum(x.get('url')=='/articles/'+hub for x in data)==1
+          assert 'https://denkicontrol.com/articles/'+hub in Path('sitemap.xml').read_text()
+          assert '[x] **制御盤ノイズ対策ハブ' in Path('docs/article-backlog.md').read_text()
+          assert '../articles/'+hub in Path('categories/control-basics.html').read_text()
+          assert 'articles/'+hub in Path('index.html').read_text()
+          PY
+          rm .github/workflows/step2-noise-guide.yml
+      - name: Commit reviewed fix
         run: |
           git config user.name "denkicontrol-ai-step2"
           git config user.email "actions@users.noreply.github.com"
-          git add sitemap.xml assets/data/search-index.json docs/article-backlog.md index.html categories/control-basics.html articles/control-panel-grounding-basic.html articles/shielded-cable-basic.html articles/power-signal-wiring-separation-basic.html articles/noise-filter-basic.html articles/surge-protection-basic.html articles/analog-input-basic.html articles/analog-output-basic.html
+          git add -A
           git diff --cached --check
-          python3 -m json.tool assets/data/search-index.json >/dev/null
-          git commit -m "Complete noise guide publication pathways"
+          git commit -m "Fix noise guide Step2 integration placement"
           git push origin HEAD

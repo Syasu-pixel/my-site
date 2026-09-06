@@ -2,8 +2,9 @@
 """Validate and download an AI-produced binary artifact for a preview branch.
 
 This script is intentionally provider-agnostic. It accepts an HTTPS artifact URL,
-verifies host/path/extension/size/SHA-256, and writes only under assets/images/.
-It never decides whether content is publishable; it is only a constrained writer.
+verifies host/path/extension/signature/size/SHA-256, and writes only under
+assets/images/. It never decides whether content is publishable; it is only a
+constrained writer.
 """
 
 from __future__ import annotations
@@ -58,6 +59,20 @@ def _validate_target_path(target: str) -> Path:
     return Path(*posix.parts)
 
 
+def _validate_image_signature(data: bytes, suffix: str) -> None:
+    suffix = suffix.lower()
+    if suffix == ".webp":
+        valid = len(data) >= 12 and data[0:4] == b"RIFF" and data[8:12] == b"WEBP"
+    elif suffix == ".png":
+        valid = data.startswith(b"\x89PNG\r\n\x1a\n")
+    elif suffix in {".jpg", ".jpeg"}:
+        valid = data.startswith(b"\xff\xd8\xff")
+    else:
+        valid = False
+    if not valid:
+        raise ValueError(f"artifact content does not match {suffix} image signature")
+
+
 def download(url: str, allowed_hosts: set[str]) -> bytes:
     _validate_url(url, allowed_hosts)
     opener = build_opener(SafeRedirectHandler(allowed_hosts))
@@ -90,6 +105,8 @@ def main() -> None:
     expected = args.sha256.lower().strip()
     if actual != expected:
         raise ValueError(f"sha256 mismatch: expected {expected}, got {actual}")
+
+    _validate_image_signature(data, target.suffix)
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(data)

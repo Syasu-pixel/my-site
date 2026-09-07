@@ -1,0 +1,46 @@
+name: AI Editorial home header queue fix
+on:
+  push:
+    branches: [fix/home-header-queue-status]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/home-header-queue-status
+      - name: Patch dashboard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('ai-editorial-dashboard/index.html')
+          s=p.read_text(encoding='utf-8')
+          old="function renderSelectedProgress(){const g=groupedJobs().find(x=>x.id===selectedJob);renderProgress(g?.last||null)}"
+          new="function renderSelectedProgress(){const box=document.querySelector('#events');if(box?.dataset?.job==='__home__')return;const g=groupedJobs().find(x=>x.id===selectedJob);renderProgress(g?.last||null)}"
+          if old not in s:
+              raise SystemExit('renderSelectedProgress marker not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('ai-editorial-dashboard/dashboard-experience.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("if(version)version.textContent='chat v0.7.7';", "if(version)version.textContent='chat v0.7.8';")
+          s=s.replace(".queueHomeButton:hover{background:#eef2ff}", ".queueHomeButton:hover{background:#eef2ff}.queueHomeStatus{margin:0 0 9px;padding:9px 10px;border:1px solid #dce3ee;border-radius:10px;background:#fff;font-size:10px;color:#697386;line-height:1.55}.queueHomeStatus b{color:#25324a}.queueHomeStatus .doneCount{margin-left:8px;color:#25744a;font-weight:800}")
+          old="function ensureHomeButton(show){const root=document.querySelector('#jobs');if(!root)return;let b=document.querySelector('#queueHomeButton');if(!b){b=document.createElement('button');b.id='queueHomeButton';b.className='queueHomeButton';b.type='button';b.textContent='🏠 編集部ホーム';b.onclick=()=>{manualSelection=false;try{render()}catch{}};root.parentElement?.insertBefore(b,root)}b.hidden=!show}"
+          new="function ensureHomeButton(show){const root=document.querySelector('#jobs');if(!root)return;let b=document.querySelector('#queueHomeButton');if(!b){b=document.createElement('button');b.id='queueHomeButton';b.className='queueHomeButton';b.type='button';b.textContent='🏠 編集部ホーム';b.onclick=()=>{manualSelection=false;try{render()}catch{}};root.parentElement?.insertBefore(b,root)}b.hidden=!show;let st=document.querySelector('#queueHomeStatus');if(!st){st=document.createElement('div');st.id='queueHomeStatus';st.className='queueHomeStatus';b.insertAdjacentElement('afterend',st)}st.hidden=!show;if(show){const all=groups(),done=all.filter(isTerminal).length;st.innerHTML='<b>進行中の案件はありません</b><span class=\"doneCount\">完了済み '+done+'</span>'}}"
+          if old not in s:
+              raise SystemExit('ensureHomeButton marker not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ai-editorial-dashboard/index.html ai-editorial-dashboard/dashboard-experience.js
+          git commit -m "Stabilize home header and show queue history status"
+          git push

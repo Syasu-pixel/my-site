@@ -1,22 +1,25 @@
 (()=>{
   const STALE_MS=24*60*60*1000;
-  const terminal=new Set(['COMPLETED','CANCELLED','CLOSED','PUBLISHED','MERGED','DONE']);
+  const terminal=new Set(['COMPLETED','CANCELLED','CLOSED','REJECTED','PUBLISHED','MERGED','DONE']);
   const attention=new Set(['FAILED','ESCALATED','ERROR']);
   const human=new Set(['HUMAN_GATE','NEEDS_HUMAN']);
   const style=document.createElement('style');
   style.textContent=`.queueBuckets{display:grid;gap:10px}.queueBucket{border-top:1px solid #e4e9f1;padding-top:8px}.queueBucket:first-child{border-top:0;padding-top:0}.queueBucketTitle{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;color:#596579;margin:2px 2px 6px}.queueBucketCount{font-size:9px;background:#edf1f6;border-radius:999px;padding:2px 6px}.queueBucketDone>summary{cursor:pointer;list-style:none}.queueBucketDone>summary::-webkit-details-marker{display:none}.job.stale{border-color:#d8a64a;background:#fff9e9}.job.stale .state{color:#a36b00}.queueStale{font-size:9px;font-weight:800;color:#a36b00;margin-left:5px}@media(max-width:760px){.queueBuckets{gap:8px}.queueBucketTitle{font-size:10px}.queueBucketDone .job{opacity:.88}}`;
   document.head.appendChild(style);
 
+  function feedRows(){
+    try{return typeof rows!=='undefined'&&Array.isArray(rows)?rows:[]}catch(_){return []}
+  }
   function lastFor(id){
-    if(!Array.isArray(window.rows))return null;
-    return window.rows.filter(r=>String(r.job_id||'')===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0]||null;
+    return feedRows().filter(r=>String(r.job_id||'')===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0]||null;
   }
   function bucketFor(row){
     const state=String(row?.state||'').toUpperCase();
     if(human.has(state))return 'human';
     if(attention.has(state))return 'attention';
     if(terminal.has(state))return 'done';
-    const age=Date.now()-new Date(row?.created_at||0).getTime();
+    if(!row)return 'active';
+    const age=Date.now()-new Date(row.created_at).getTime();
     if(Number.isFinite(age)&&age>STALE_MS)return 'attention';
     return 'active';
   }
@@ -31,7 +34,7 @@
     const groups={active:[],human:[],attention:[],done:[]};
     for(const el of jobs){
       const row=lastFor(String(el.dataset.job||''));const key=bucketFor(row);groups[key].push(el);
-      if(key==='attention'&&!attention.has(String(row?.state||'').toUpperCase())){el.classList.add('stale');const st=el.querySelector('.state');if(st&&!st.querySelector('.queueStale'))st.insertAdjacentHTML('beforeend','<span class="queueStale">⏸ 24時間以上更新なし</span>')}
+      if(key==='attention'&&row&&!attention.has(String(row.state||'').toUpperCase())){el.classList.add('stale');const st=el.querySelector('.state');if(st&&!st.querySelector('.queueStale'))st.insertAdjacentHTML('beforeend','<span class="queueStale">⏸ 24時間以上更新なし</span>')}
     }
     root.textContent='';const holder=document.createElement('div');holder.className='queueBuckets';
     const defs=[['進行中','active'],['管理者確認','human'],['要確認','attention']];

@@ -22,7 +22,7 @@ Deno.serve(async(req:Request)=>{
   try{input=await req.json()}catch{return json({error:"invalid json"},400)}
   const instruction=typeof input.instruction==="string"?input.instruction.trim():"";
   if(!instruction||instruction.length>4000) return json({error:"instruction must be 1..4000 characters"},400);
-  let requestedCount:number|null=null;
+  let requestedCount=1;
   if(input.requested_count!==undefined&&input.requested_count!==null&&input.requested_count!==""){
     const n=Number(input.requested_count);
     if(!Number.isInteger(n)||n<1||n>50) return json({error:"requested_count must be 1..50"},400);

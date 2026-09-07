@@ -81,7 +81,10 @@ jobs:
                   rel_dst = dst.relative_to(root).as_posix()
                   mapping[rel_src] = rel_dst
 
-          text_exts = {'.html', '.css', '.js', '.json', '.xml', '.txt', '.md'}
+          # Only rewrite files that can affect the published site. Internal Markdown/TXT
+          # docs contain example placeholders such as {slug} and must not be treated as
+          # live asset references.
+          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
           changed = 0
           for path in root.rglob('*'):
               if not path.is_file() or path.suffix.lower() not in text_exts:
@@ -107,7 +110,7 @@ jobs:
                   src.unlink()
                   removed += 1
 
-          # Guard against stale references to removed assets.
+          # Guard against stale references in actual published web files only.
           stale = []
           pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
           for path in root.rglob('*'):
@@ -123,10 +126,10 @@ jobs:
                       stale.append(f'{path}: {match}')
 
           print(f'Converted images: {len(mapping)}')
-          print(f'Updated text files: {changed}')
+          print(f'Updated published files: {changed}')
           print(f'Removed publish-copy originals: {removed}')
           if stale:
-              print('Stale image references detected:')
+              print('Stale image references detected in published files:')
               print('\n'.join(stale[:100]))
               raise SystemExit(1)
           PY

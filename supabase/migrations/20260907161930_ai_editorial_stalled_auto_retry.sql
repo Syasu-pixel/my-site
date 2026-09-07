@@ -6,8 +6,7 @@ set search_path to 'public','pg_temp'
 as $function$
 declare
   v_uid uuid := auth.uid();
-  v_row public.ai_editorial_commands%rowtype;
-  v_last_activity timestamptz;
+  v_rec record;
   v_stale_seconds integer := greatest(120, least(coalesce(p_stale_seconds,180),1800));
   v_count integer := 0;
   v_parent text;
@@ -19,11 +18,12 @@ begin
     raise exception 'admin required' using errcode='42501';
   end if;
 
-  select c.*, greatest(
+  select c.id,c.status,c.options,c.created_at,c.updated_at,
+         greatest(
            coalesce(c.updated_at,c.created_at),
            coalesce(ev.last_event_at,c.created_at)
          ) as last_activity
-    into v_row, v_last_activity
+    into v_rec
   from public.ai_editorial_commands c
   left join lateral (
     select max(e.created_at) as last_event_at
@@ -48,12 +48,12 @@ begin
   end if;
 
   begin
-    v_count := coalesce(nullif(v_row.options->>'stall_recovery_count','')::integer,0);
+    v_count := coalesce(nullif(v_rec.options->>'stall_recovery_count','')::integer,0);
   exception when others then
     v_count := 0;
   end;
 
-  v_parent := 'command-'||v_row.id::text;
+  v_parent := 'command-'||v_rec.id::text;
 
   if v_count >= 3 then
     update public.ai_editorial_commands
@@ -65,7 +65,7 @@ begin
              'stall_recovery_exhausted_at',now()
            ),
            updated_at=now()
-     where id=v_row.id;
+     where id=v_rec.id;
 
     if not exists (
       select 1 from public.orchestrator_events e
@@ -78,19 +78,19 @@ begin
       ) values (
         gen_random_uuid(),v_parent,'system','orchestrator','error',
         '処理停止の自動再開を3回試しましたが進捗が戻らないため、安全のため自動再開を停止しました。管理者確認が必要です。',
-        jsonb_build_array(jsonb_build_object('kind','command','ref',v_row.id::text)),
+        jsonb_build_array(jsonb_build_object('kind','command','ref',v_rec.id::text)),
         'high','ERROR',now(),
         jsonb_build_object(
-          'command_id',v_row.id,'stage','stall-recovery-exhausted','stall_recovery_count',v_count,
-          'stale_seconds',v_stale_seconds,'last_activity',v_last_activity,'retry_policy','same-queue'
+          'command_id',v_rec.id,'stage','stall-recovery-exhausted','stall_recovery_count',v_count,
+          'stale_seconds',v_stale_seconds,'last_activity',v_rec.last_activity,'retry_policy','same-queue'
         ),
         jsonb_build_object('primary_provider','orchestrator','status','error')
       );
     end if;
 
     return jsonb_build_object(
-      'claimed',false,'reason','exhausted','command_id',v_row.id,
-      'stall_recovery_count',v_count,'last_activity',v_last_activity,'stale_seconds',v_stale_seconds
+      'claimed',false,'reason','exhausted','command_id',v_rec.id,
+      'stall_recovery_count',v_count,'last_activity',v_rec.last_activity,'stale_seconds',v_stale_seconds
     );
   end if;
 
@@ -100,11 +100,11 @@ begin
          options=coalesce(options,'{}'::jsonb)||jsonb_build_object(
            'stall_recovery_count',v_count+1,
            'stall_recovery_last_at',now(),
-           'stall_recovery_previous_status',v_row.status
+           'stall_recovery_previous_status',v_rec.status
          ),
          updated_at=now()
-   where id=v_row.id
-     and status=v_row.status;
+   where id=v_rec.id
+     and status=v_rec.status;
 
   if not found then
     return jsonb_build_object('claimed',false,'reason','raced');
@@ -113,9 +113,9 @@ begin
   return jsonb_build_object(
     'claimed',true,
     'reason','stalled',
-    'command_id',v_row.id,
-    'previous_status',v_row.status,
-    'last_activity',v_last_activity,
+    'command_id',v_rec.id,
+    'previous_status',v_rec.status,
+    'last_activity',v_rec.last_activity,
     'stale_seconds',v_stale_seconds,
     'stall_recovery_count',v_count+1
   );

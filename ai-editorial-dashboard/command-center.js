@@ -5,7 +5,7 @@
   style.textContent=`
     .commandComposer{flex:0 0 auto;background:rgba(255,255,255,.96);border-top:1px solid #d4dde9;padding:10px 14px calc(10px + env(safe-area-inset-bottom));position:relative;z-index:3}.commandForm{display:grid;grid-template-columns:1fr auto;gap:8px;max-width:920px;margin:0 auto}.commandInput{width:100%;min-width:0;resize:none;min-height:44px;max-height:120px;padding:11px 12px;border:1px solid #bdc9d8;border-radius:13px;background:#fff;color:#172033;font:inherit;line-height:1.45;outline:none}.commandInput:focus{border-color:#6f83e8;box-shadow:0 0 0 3px rgba(93,120,255,.12)}.commandSend{align-self:end;height:44px;border:0;border-radius:12px;padding:0 18px;background:#172033;color:#fff;font-weight:800;cursor:pointer;white-space:nowrap}.commandSend:disabled{opacity:.55;cursor:not-allowed}.commandMeta{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#697386;padding:0 3px;min-height:14px}.commandMeta.error{color:#a13b3b}.commandMeta.ok{color:#25744a}.commandLock{grid-column:1/-1;border:1px solid #ead17a;background:#fff8dc;color:#6d5817;border-radius:10px;padding:7px 9px;font-size:10px;font-weight:800;line-height:1.45}.commandLock[hidden]{display:none}.weeklyButton:disabled{opacity:.45;cursor:not-allowed;background:#f1f3f7!important;border-color:#d6deea!important;color:#7b879b!important;box-shadow:none!important}.roomHead{min-height:58px!important;padding:6px 12px!important;grid-template-columns:minmax(0,1fr) minmax(180px,255px) auto!important;gap:8px!important}.roomHead h1{font-size:13px!important;line-height:1.3!important}.roomSub{font-size:9px!important}.closeCase{border:1px solid #d9a3a3;background:#fff5f5;color:#9b3030;border-radius:9px;padding:5px 9px;font-size:10px;font-weight:800;cursor:pointer;margin-left:6px}.closeCase:hover{background:#ffe8e8}.closeCase:disabled{opacity:.5;cursor:wait}.stallRecovery{display:none!important}@media(max-width:760px){.commandComposer{padding:8px}.commandInput{font-size:13px}.commandMeta{font-size:9px}.commandLock{font-size:9px}.roomHead{min-height:82px!important}.closeCase{padding:4px 7px;font-size:9px}}
   `;document.head.appendChild(style);
-  const version=document.querySelector('.version');if(version)version.textContent='chat v0.7.4';
+  const version=document.querySelector('.version');if(version)version.textContent='chat v0.7.5';
 
   window.attendanceData=function(){
     const gem=latestProvider('google-gemini');
@@ -25,10 +25,7 @@
     const addLink=(url,label,hint)=>{if(!url||seen.has(url))return;try{const u=new URL(url);if(u.protocol!=='https:')return;seen.add(url);items.push(`<a class="artifactLink" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${label}<div class="artifactHint">${esc(hint)}</div></a>`)}catch(_){}};
     for(const e of Array.isArray(ev)?ev:[]){
       const stage=String(e?.discussion?.stage||''),type=String(e?.type||e?.event_type||'');
-      if(stage==='weekly-plan-saved'||type==='weekly-plan-saved'){
-        if(!seen.has('weekly-plan')){seen.add('weekly-plan');items.push('<div class="card"><b>📌 今週の編集方針を保存済み</b><div class="artifactHint">火〜日はこの方針を自動参照します。</div></div>')}
-        continue;
-      }
+      if(stage==='weekly-plan-saved'||type==='weekly-plan-saved')continue;
       const evidence=Array.isArray(e?.evidence)?e.evidence:[];
       for(const x of evidence){
         const kind=String(x?.kind||''),ref=String(x?.ref||'');

@@ -28,10 +28,31 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare Pages artifact
+        run: |
+          rsync -a ./ _site/ \
+            --exclude '_site/' \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'node_modules/' \
+            --exclude '.netlify/' \
+            --exclude '.wrangler/' \
+            --exclude '.cache/' \
+            --exclude 'tmp/' \
+            --exclude 'temp/' \
+            --exclude '*.zip' \
+            --exclude '*.tar' \
+            --exclude '*.tar.gz' \
+            --exclude '*.7z' \
+            --exclude '*.psd' \
+            --exclude '*.ai'
+          echo 'Prepared Pages artifact:'
+          du -sh _site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

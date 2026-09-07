@@ -44,7 +44,6 @@ function queued(body: any) {
 function normalizeSingleDeliverable(body: any) {
   const es = Array.isArray(body?.events) ? body.events : null;
   if (!es) return body;
-
   const roots = new Map<string, number>();
   for (const e of es) {
     const job = String(e?.job_id ?? "");
@@ -56,7 +55,6 @@ function normalizeSingleDeliverable(body: any) {
     }
   }
   if (!roots.size) return body;
-
   const events = es.map((e: any) => {
     const job = String(e?.job_id ?? "");
     const m = job.match(/^(command-[0-9a-f-]{36})-(\d{2})$/i);
@@ -66,20 +64,20 @@ function normalizeSingleDeliverable(body: any) {
       : e?.discussion;
     return { ...e, job_id: m[1], discussion };
   });
-
   return { ...body, events };
 }
 
-async function run(raw: string, id: string) {
+async function run(raw: string, id: string, mode: "fresh" | "resume" = "fresh") {
   try {
-    const r = await fetch(`${U}/functions/v1/ai-editorial-process-command`, {
+    const fn = mode === "resume" ? "ai-editorial-resume-command" : "ai-editorial-process-command";
+    const r = await fetch(`${U}/functions/v1/${fn}`, {
       method: "POST",
       headers: { Authorization: raw, apikey: K, "Content-Type": "application/json" },
-      body: JSON.stringify({ command_id: id })
+      body: JSON.stringify({ command_id: id, ...(mode === "resume" ? { resume: true } : {}) })
     });
-    if (!r.ok) console.error("queue process failed", id, r.status, (await r.text()).slice(0, 500));
+    if (!r.ok) console.error(`${mode} process failed`, id, r.status, (await r.text()).slice(0, 500));
   } catch (e) {
-    console.error("queue process exception", id, e);
+    console.error(`${mode} process exception`, id, e);
   }
 }
 
@@ -92,12 +90,12 @@ async function addRetryEvent(raw: string, id: string, retryAt: string | null) {
       role: "system",
       provider: "orchestrator",
       event_type: "status",
-      summary: "OpenAI APIの利用上限が回復予定時刻に達したため、同じ案件を自動再開します。",
+      summary: "OpenAI APIの利用上限が回復予定時刻に達したため、同じ案件を途中工程から自動再開します。",
       evidence: [],
       severity: "info",
       state: "PLANNING",
       created_at: new Date().toISOString(),
-      discussion: { command_id: id, stage: "auto-retry", retry_at: retryAt, retry_policy: "same-queue" },
+      discussion: { command_id: id, stage: "auto-retry", retry_at: retryAt, retry_policy: "checkpoint-same-queue" },
       availability: { primary_provider: "orchestrator", status: "online" }
     }]
   });
@@ -115,7 +113,7 @@ async function addStallRecoveryEvent(raw: string, claim: any) {
       role: "system",
       provider: "orchestrator",
       event_type: "status",
-      summary: `${Math.max(2, Math.round(staleSeconds / 60))}分以上更新がなかったため、同じ案件を自動再開します（${count}/3）。`,
+      summary: `${Math.max(2, Math.round(staleSeconds / 60))}分以上更新がなかったため、完了済み工程は繰り返さず同じ案件を途中から自動再開します（${count}/3）。`,
       evidence: [],
       severity: "medium",
       state: "PLANNING",
@@ -127,7 +125,7 @@ async function addStallRecoveryEvent(raw: string, claim: any) {
         last_activity: claim.last_activity ?? null,
         stale_seconds: staleSeconds,
         stall_recovery_count: count,
-        retry_policy: "same-queue"
+        retry_policy: "checkpoint-same-queue"
       },
       availability: { primary_provider: "orchestrator", status: "online" }
     }]
@@ -135,83 +133,56 @@ async function addStallRecoveryEvent(raw: string, claim: any) {
 }
 
 function launch(task: Promise<unknown>) {
-  try {
-    EdgeRuntime.waitUntil(task);
-  } catch {
-    task.catch(console.error);
-  }
+  try { EdgeRuntime.waitUntil(task); }
+  catch { task.catch(console.error); }
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: H });
   if (req.method !== "GET") return J({ error: "method not allowed" }, 405);
-
   try {
     const raw = req.headers.get("authorization") ?? "";
     if (!raw.toLowerCase().startsWith("bearer ")) return J({ error: "authentication required" }, 401);
-
     const url = new URL(req.url);
     const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? "1000") || 1000, 1), 1000);
     const job = url.searchParams.get("job_id");
-
     const r = await fetch(`${U}/rest/v1/rpc/ai_editorial_secure_feed`, {
       method: "POST",
       headers: { Authorization: raw, apikey: K, "Content-Type": "application/json" },
       body: JSON.stringify({ p_limit: limit, p_job_id: job })
     });
-
     const text = await r.text();
     let body: any;
-    try {
-      body = text ? JSON.parse(text) : {};
-    } catch {
-      body = { raw: text };
-    }
-
+    try { body = text ? JSON.parse(text) : {}; } catch { body = { raw: text }; }
     if (!r.ok) return J({ error: "rpc feed failed", status: r.status, detail: body }, r.status);
 
     if (!job) {
       let autoRetry: any = null;
       let stalledRetry: any = null;
-      try {
-        autoRetry = await rpc(raw, "ai_editorial_claim_retry", {});
-      } catch (e) {
-        console.error("auto retry claim failed", e);
-      }
+      try { autoRetry = await rpc(raw, "ai_editorial_claim_retry", {}); }
+      catch (e) { console.error("auto retry claim failed", e); }
 
       if (autoRetry?.claimed && autoRetry?.command_id) {
         const id = String(autoRetry.command_id);
-        try {
-          await addRetryEvent(raw, id, autoRetry.retry_at ? String(autoRetry.retry_at) : null);
-        } catch (e) {
-          console.error("auto retry event failed", id, e);
-        }
-        launch(run(raw, id));
+        try { await addRetryEvent(raw, id, autoRetry.retry_at ? String(autoRetry.retry_at) : null); }
+        catch (e) { console.error("auto retry event failed", id, e); }
+        launch(run(raw, id, "resume"));
       } else {
-        try {
-          stalledRetry = await rpc(raw, "ai_editorial_claim_stalled", { p_stale_seconds: 180 });
-        } catch (e) {
-          console.error("stalled retry claim failed", e);
-        }
-
+        try { stalledRetry = await rpc(raw, "ai_editorial_claim_stalled", { p_stale_seconds: 180 }); }
+        catch (e) { console.error("stalled retry claim failed", e); }
         if (stalledRetry?.claimed && stalledRetry?.command_id) {
           const id = String(stalledRetry.command_id);
-          try {
-            await addStallRecoveryEvent(raw, stalledRetry);
-          } catch (e) {
-            console.error("stalled retry event failed", id, e);
-          }
-          launch(run(raw, id));
+          try { await addStallRecoveryEvent(raw, stalledRetry); }
+          catch (e) { console.error("stalled retry event failed", id, e); }
+          launch(run(raw, id, "resume"));
         } else {
           const ids = queued(body);
-          if (ids.length) launch(run(raw, ids[0]));
+          if (ids.length) launch(run(raw, ids[0], "fresh"));
         }
       }
-
       body = normalizeSingleDeliverable(body);
       body = { ...body, auto_retry: autoRetry, stalled_retry: stalledRetry };
     }
-
     return J(body);
   } catch (e) {
     return J({ error: "unexpected failure", detail: e instanceof Error ? e.message : String(e) }, 500);

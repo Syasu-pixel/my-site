@@ -79,4 +79,8 @@
   let tries=0;const ready=setInterval(()=>{tries++;if(document.querySelector('.weeklyButtons')){clearInterval(ready);loadPlan()}else if(tries>40)clearInterval(ready)},250);
   setInterval(()=>{if(currentPlan?.available)markMondayDone()},800);
   setInterval(loadPlan,30000);
+
+  const stability=document.createElement('script');
+  stability.src='./connection-stability.js?v=0.7.9';
+  document.body.appendChild(stability);
 })();

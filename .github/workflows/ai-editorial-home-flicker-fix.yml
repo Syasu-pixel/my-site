@@ -1,0 +1,61 @@
+name: AI Editorial home flicker fix
+on:
+  push:
+    branches: [fix/home-flicker-remove-close]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/home-flicker-remove-close
+      - name: Patch dashboard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('ai-editorial-dashboard/command-center.js')
+          s=p.read_text(encoding='utf-8')
+          s=re.sub(r'\.closeCase\{.*?\}@media\(max-width:760px\)\{', '@media(max-width:760px){', s, count=1, flags=re.S)
+          s=s.replace('.closeCase{padding:4px 7px;font-size:9px}', '')
+          s=re.sub(r'\n  const badge=document\.querySelector\(\'\#roomState\'\);\n  if\(badge\)\{.*?\n\n  const main=document\.querySelector', '\n\n  const main=document.querySelector', s, count=1, flags=re.S)
+          s=s.replace('が完了するか、管理者が案件を閉じるまで新しい案件は登録できません。', 'が完了または管理者判断で終了するまで新しい案件は登録できません。')
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('ai-editorial-dashboard/dashboard-experience.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("if(version)version.textContent='chat v0.7.6';", "if(version)version.textContent='chat v0.7.7';")
+          s=s.replace('  let homePlan=null;\n  let homePlanLoadedAt=0;', '  let homePlan=null;\n  let homePlanLoadedAt=0;\n  let homeMode=false;\n  let homeSignature=\'\';')
+          old="""  async function renderHome(){await loadHomePlan();const box=document.querySelector('#events');if(!box)return;const done=completedDays(),today=currentIsoDay();let next=0;"""
+          new="""  async function renderHome(){const box=document.querySelector('#events');if(!box)return;const done=completedDays(),today=currentIsoDay();let next=0;"""
+          if old not in s:
+              raise SystemExit('renderHome marker not found')
+          s=s.replace(old,new,1)
+          marker="""    const recent=groups().filter(isTerminal).slice(0,3);\n    document.querySelector('#topic').textContent='編集部ホーム';"""
+          repl="""    const recent=groups().filter(isTerminal).slice(0,3);\n    const signature=JSON.stringify({plan:homePlan?.summary||'',available:Boolean(homePlan?.available),done:[...done],next,recent:recent.map(g=>[g.id,g.last?.state,g.last?.created_at])});\n    document.querySelector('#topic').textContent='編集部ホーム';"""
+          if marker not in s:
+              raise SystemExit('signature marker not found')
+          s=s.replace(marker,repl,1)
+          old_box="""    box.innerHTML=`<div class=\"editorialHome\"><section class=\"homeHero\"><h2>⚡ AI編集部</h2><p>現在、進行中の案件はありません。曜日定例を開始するか、完了済み案件を選ぶと会話履歴を確認できます。</p></section><div class=\"homeGrid\"><section class=\"homeCard\"><h3>📌 今週の編集方針</h3><div class=\"homePlanText\">${escHome(planText)}</div></section><section class=\"homeCard\"><h3>今週の進捗</h3><div class=\"homeWeek\">${labels.map((l,i)=>`<div class=\"homeDay ${done.has(i+1)?'done':''} ${next===i+1?'next':''}\">${l}<br>${done.has(i+1)?'✓':'—'}</div>`).join('')}</div><div class=\"homeNext\">${next?`次：${labels[next-1]}曜日の定例`:'今週は完了'}</div></section></div><section class=\"homeCard\"><h3>最近完了した案件</h3><div class=\"homeRecent\">${recent.length?recent.map(g=>`<button class=\"homeRecentButton\" type=\"button\" data-home-job=\"${escHome(g.id)}\"><b>${escHome(titleOf(g))}</b><span>${escHome(String(g.last?.state||'完了'))}</span></button>`).join(''):'<div class=\"empty\">完了済み案件はまだありません。</div>'}</div></section></div>`;\n    box.dataset.job='__home__';\n    box.querySelectorAll('[data-home-job]').forEach(b=>b.onclick=()=>{selectedJob=b.dataset.homeJob;manualSelection=true;render()});"""
+          new_box="""    if(homeSignature!==signature||box.dataset.job!=='__home__'){\n      box.innerHTML=`<div class=\"editorialHome\"><section class=\"homeHero\"><h2>⚡ AI編集部</h2><p>現在、進行中の案件はありません。曜日定例を開始するか、完了済み案件を選ぶと会話履歴を確認できます。</p></section><div class=\"homeGrid\"><section class=\"homeCard\"><h3>📌 今週の編集方針</h3><div class=\"homePlanText\">${escHome(planText)}</div></section><section class=\"homeCard\"><h3>今週の進捗</h3><div class=\"homeWeek\">${labels.map((l,i)=>`<div class=\"homeDay ${done.has(i+1)?'done':''} ${next===i+1?'next':''}\">${l}<br>${done.has(i+1)?'✓':'—'}</div>`).join('')}</div><div class=\"homeNext\">${next?`次：${labels[next-1]}曜日の定例`:'今週は完了'}</div></section></div><section class=\"homeCard\"><h3>最近完了した案件</h3><div class=\"homeRecent\">${recent.length?recent.map(g=>`<button class=\"homeRecentButton\" type=\"button\" data-home-job=\"${escHome(g.id)}\"><b>${escHome(titleOf(g))}</b><span>${escHome(String(g.last?.state||'完了'))}</span></button>`).join(''):'<div class=\"empty\">完了済み案件はまだありません。</div>'}</div></section></div>`;\n      box.dataset.job='__home__';\n      homeSignature=signature;\n      box.querySelectorAll('[data-home-job]').forEach(b=>b.onclick=()=>{selectedJob=b.dataset.homeJob;manualSelection=true;render()});\n    }"""
+          if old_box not in s:
+              raise SystemExit('home innerHTML marker not found')
+          s=s.replace(old_box,new_box,1)
+          old_wrap="""  const baseRender=window.render;\n  if(typeof baseRender==='function')window.render=function(){baseRender();const live=liveGroups();const home=!live.length&&!manualSelection;ensureHomeButton(!live.length);if(home)renderHome();else renderHumanDecision()};\n  setTimeout(()=>{try{window.render()}catch{}},300);"""
+          new_wrap="""  const baseRender=window.render;\n  if(typeof baseRender==='function')window.render=function(){\n    const live=liveGroups(),home=!live.length&&!manualSelection;\n    ensureHomeButton(!live.length);\n    if(home){\n      if(!homeMode){baseRender();homeMode=true;homeSignature=''}\n      renderHome();\n      if(Date.now()-homePlanLoadedAt>=20000)loadHomePlan().then(()=>renderHome());\n      return;\n    }\n    homeMode=false;homeSignature='';baseRender();renderHumanDecision();\n  };\n  setTimeout(()=>{try{window.render()}catch{}},300);"""
+          if old_wrap not in s:
+              raise SystemExit('render wrapper marker not found')
+          s=s.replace(old_wrap,new_wrap,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ai-editorial-dashboard/command-center.js ai-editorial-dashboard/dashboard-experience.js
+          git commit -m "Fix editorial home flicker and remove close button"
+          git push

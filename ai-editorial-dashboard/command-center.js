@@ -37,7 +37,7 @@
     try{groups=typeof groupedJobs==='function'?groupedJobs():[]}catch(_){groups=[]}
     return groups.find(g=>{
       const id=String(g?.id||'');
-      if(!/^command-[0-9a-f-]{36}$/i.test(id))return false;
+      if(!commandIdFromJob(id))return false;
       const state=String(g?.last?.state||'').toUpperCase();
       return !terminalStates.has(state);
     })||null;
@@ -47,8 +47,9 @@
     const locked=Boolean(active)||sending;
     send.disabled=locked;
     document.querySelectorAll('.weeklyButton').forEach(b=>{
+      if(!b.dataset.unlockedTitle)b.dataset.unlockedTitle=b.title||'';
       b.disabled=locked;
-      if(active)b.title='現在の案件が完了または終了するまで新しい曜日案件は開始できません。';
+      b.title=active?'現在の案件が完了または終了するまで新しい曜日案件は開始できません。':b.dataset.unlockedTitle;
     });
     if(active){
       const state=String(active.last?.state||'進行中').toUpperCase();
@@ -76,7 +77,7 @@
       const r=await fetch(COMMAND_ENDPOINT,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({instruction,requested_count:requestedCount(instruction),options:{source:'dashboard-v0.7.2',execution_model:'chatgpt-editor-in-chief',auto_process:false}})});
       const raw=await r.text();let d={};try{d=raw?JSON.parse(raw):{}}catch{d={raw}};
       if(r.status===401){lockApp('ログインの有効期限が切れました。もう一度ログインしてください。');return}
-      if(r.status===403)throw new Error('このアカウントには指示権限がありません。');if(!r.ok)throw new Error(d?.detail?.message||d?.detail?.detail?.message||d?.error||'指示の登録に失敗しました。');
+      if(r.status===403)throw new Error('このアカウントには指示権限がありません。');if(!r.ok)throw new Error(d?.message||d?.detail?.message||d?.detail?.detail?.message||d?.error||'指示の登録に失敗しました。');
       input.value='';resize();count.textContent='0 / 4000';setMeta('案件を登録しました。完了または終了するまで新規登録はロックされます。','ok');manualSelection=false;await refresh();
     }catch(err){console.error('[AI編集部] command submit failed',err);setMeta(err instanceof Error?err.message:'指示の登録に失敗しました。','error')}
     finally{sending=false;syncComposerLock()}

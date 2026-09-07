@@ -48,7 +48,7 @@
     const side=document.querySelector('#sidePane');if(!side||!currentPlan?.available)return;
     let card=document.querySelector('#weeklyPlanCard');
     if(!card){
-      const headings=[...side.querySelectorAll('h2')];const artifactsHead=headings.find(h=>h.textContent.includes('完成したもの'));
+      const headings=[...side.querySelectorAll('h2')];const artifactsHead=headings.find(h=>h.textContent.includes('この案件の成果物')||h.textContent.includes('完成したもの'));
       const h=document.createElement('h2');h.id='weeklyPlanHeading';h.textContent='📌 今週の編集方針';
       card=document.createElement('div');card.id='weeklyPlanCard';card.className='weeklyPlanCard';
       if(artifactsHead){side.insertBefore(h,artifactsHead);side.insertBefore(card,artifactsHead)}else{side.appendChild(h);side.appendChild(card)}

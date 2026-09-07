@@ -37,7 +37,11 @@ Deno.serve(async(req:Request)=>{
       body:JSON.stringify({p_instruction:instruction,p_requested_count:requestedCount,p_options:options})
     });
     const text=await rpc.text();let body:any={};try{body=text?JSON.parse(text):{}}catch{body={error:"invalid upstream response"}}
-    if(!rpc.ok){const status=rpc.status===401?401:rpc.status===403?403:500;return json({error:"command submit failed",upstream_status:rpc.status,detail:body},status)}
+    if(!rpc.ok){
+      if(body?.code==="55000") return json({error:"active_command_exists",message:"現在の案件が完了または終了するまで新しい案件は登録できません。",detail:body},409);
+      const status=rpc.status===401?401:rpc.status===403?403:500;
+      return json({error:"command submit failed",upstream_status:rpc.status,detail:body},status)
+    }
     return json({...body,execution:{model:"chatgpt-editor-in-chief",auto_process:false},queue_policy:"one-deliverable-one-queue",retry_policy:"same-queue",artifact_policy:"one-url-per-queue"},201);
   }catch(error){return json({error:"unexpected failure",detail:error instanceof Error?error.message:String(error)},500)}
 });

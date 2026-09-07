@@ -6,10 +6,12 @@
     @media(max-width:760px){.editorialHome{padding:12px}.homeGrid{grid-template-columns:1fr}.homeWeek{grid-template-columns:repeat(4,1fr)}.humanDecisionButtons{grid-template-columns:1fr}.homeHero h2{font-size:16px}}
   `;
   document.head.appendChild(style);
-  const version=document.querySelector('.version');if(version)version.textContent='chat v0.7.6';
+  const version=document.querySelector('.version');if(version)version.textContent='chat v0.7.7';
 
   let homePlan=null;
   let homePlanLoadedAt=0;
+  let homeMode=false;
+  let homeSignature='';
   const escHome=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function groups(){try{return typeof groupedJobs==='function'?groupedJobs():[]}catch{return[]}}
   function isTerminal(g){return TERMINAL.has(String(g?.last?.state||'').toUpperCase())}
@@ -23,9 +25,10 @@
   function titleOf(g){try{return typeof queueTitle==='function'?queueTitle(g):String(g?.first?.summary||'完了案件')}catch{return String(g?.first?.summary||'完了案件')}}
   async function loadHomePlan(){if(Date.now()-homePlanLoadedAt<20000)return;homePlanLoadedAt=Date.now();try{const {data,error}=await sb.rpc('ai_editorial_get_current_weekly_plan');if(error)throw error;homePlan=data||null}catch(e){console.warn('[AI編集部] home weekly plan load failed',e)}}
   function ensureHomeButton(show){const root=document.querySelector('#jobs');if(!root)return;let b=document.querySelector('#queueHomeButton');if(!b){b=document.createElement('button');b.id='queueHomeButton';b.className='queueHomeButton';b.type='button';b.textContent='🏠 編集部ホーム';b.onclick=()=>{manualSelection=false;try{render()}catch{}};root.parentElement?.insertBefore(b,root)}b.hidden=!show}
-  async function renderHome(){await loadHomePlan();const box=document.querySelector('#events');if(!box)return;const done=completedDays(),today=currentIsoDay();let next=0;for(let d=Math.max(1,today);d<=7;d++){if(!done.has(d)){next=d;break}}if(!next)for(let d=1;d<=7;d++){if(!done.has(d)){next=d;break}}
+  async function renderHome(){const box=document.querySelector('#events');if(!box)return;const done=completedDays(),today=currentIsoDay();let next=0;for(let d=Math.max(1,today);d<=7;d++){if(!done.has(d)){next=d;break}}if(!next)for(let d=1;d<=7;d++){if(!done.has(d)){next=d;break}}
     const labels=['月','火','水','木','金','土','日'];
     const recent=groups().filter(isTerminal).slice(0,3);
+    const signature=JSON.stringify({plan:homePlan?.summary||'',available:Boolean(homePlan?.available),done:[...done],next,recent:recent.map(g=>[g.id,g.last?.state,g.last?.created_at])});
     document.querySelector('#topic').textContent='編集部ホーム';
     document.querySelector('#jobmeta').textContent='今週の方針と進捗を確認できます';
     document.querySelector('#roomState').textContent='待機中';
@@ -35,9 +38,12 @@
     const ps=document.querySelector('#progressStatus');if(ps)ps.className='progressStatus done';
     const planAvailable=Boolean(homePlan?.available);
     const planText=planAvailable?String(homePlan.summary||'今週の編集方針を保存済みです。'):'今週の編集方針はまだ保存されていません。月曜定例を実施するとここに表示されます。';
-    box.innerHTML=`<div class="editorialHome"><section class="homeHero"><h2>⚡ AI編集部</h2><p>現在、進行中の案件はありません。曜日定例を開始するか、完了済み案件を選ぶと会話履歴を確認できます。</p></section><div class="homeGrid"><section class="homeCard"><h3>📌 今週の編集方針</h3><div class="homePlanText">${escHome(planText)}</div></section><section class="homeCard"><h3>今週の進捗</h3><div class="homeWeek">${labels.map((l,i)=>`<div class="homeDay ${done.has(i+1)?'done':''} ${next===i+1?'next':''}">${l}<br>${done.has(i+1)?'✓':'—'}</div>`).join('')}</div><div class="homeNext">${next?`次：${labels[next-1]}曜日の定例`:'今週は完了'}</div></section></div><section class="homeCard"><h3>最近完了した案件</h3><div class="homeRecent">${recent.length?recent.map(g=>`<button class="homeRecentButton" type="button" data-home-job="${escHome(g.id)}"><b>${escHome(titleOf(g))}</b><span>${escHome(String(g.last?.state||'完了'))}</span></button>`).join(''):'<div class="empty">完了済み案件はまだありません。</div>'}</div></section></div>`;
-    box.dataset.job='__home__';
-    box.querySelectorAll('[data-home-job]').forEach(b=>b.onclick=()=>{selectedJob=b.dataset.homeJob;manualSelection=true;render()});
+    if(homeSignature!==signature||box.dataset.job!=='__home__'){
+      box.innerHTML=`<div class="editorialHome"><section class="homeHero"><h2>⚡ AI編集部</h2><p>現在、進行中の案件はありません。曜日定例を開始するか、完了済み案件を選ぶと会話履歴を確認できます。</p></section><div class="homeGrid"><section class="homeCard"><h3>📌 今週の編集方針</h3><div class="homePlanText">${escHome(planText)}</div></section><section class="homeCard"><h3>今週の進捗</h3><div class="homeWeek">${labels.map((l,i)=>`<div class="homeDay ${done.has(i+1)?'done':''} ${next===i+1?'next':''}">${l}<br>${done.has(i+1)?'✓':'—'}</div>`).join('')}</div><div class="homeNext">${next?`次：${labels[next-1]}曜日の定例`:'今週は完了'}</div></section></div><section class="homeCard"><h3>最近完了した案件</h3><div class="homeRecent">${recent.length?recent.map(g=>`<button class="homeRecentButton" type="button" data-home-job="${escHome(g.id)}"><b>${escHome(titleOf(g))}</b><span>${escHome(String(g.last?.state||'完了'))}</span></button>`).join(''):'<div class="empty">完了済み案件はまだありません。</div>'}</div></section></div>`;
+      box.dataset.job='__home__';
+      homeSignature=signature;
+      box.querySelectorAll('[data-home-job]').forEach(b=>b.onclick=()=>{selectedJob=b.dataset.homeJob;manualSelection=true;render()});
+    }
     document.querySelector('#state').textContent='待機中';document.querySelector('#role').textContent='担当：AI編集部';
     const gate=document.querySelector('#gate');if(gate)gate.textContent='現在、管理者確認はありません。';
     const gateCard=document.querySelector('#gateCard');if(gateCard)gateCard.classList.remove('alert');
@@ -62,6 +68,16 @@
   }
 
   const baseRender=window.render;
-  if(typeof baseRender==='function')window.render=function(){baseRender();const live=liveGroups();const home=!live.length&&!manualSelection;ensureHomeButton(!live.length);if(home)renderHome();else renderHumanDecision()};
+  if(typeof baseRender==='function')window.render=function(){
+    const live=liveGroups(),home=!live.length&&!manualSelection;
+    ensureHomeButton(!live.length);
+    if(home){
+      if(!homeMode){baseRender();homeMode=true;homeSignature=''}
+      renderHome();
+      if(Date.now()-homePlanLoadedAt>=20000)loadHomePlan().then(()=>renderHome());
+      return;
+    }
+    homeMode=false;homeSignature='';baseRender();renderHumanDecision();
+  };
   setTimeout(()=>{try{window.render()}catch{}},300);
 })();

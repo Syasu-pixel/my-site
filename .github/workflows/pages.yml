@@ -49,6 +49,17 @@ jobs:
           echo 'Prepared Pages artifact:'
           du -sh _site
 
+          echo 'Largest top-level paths:'
+          du -sh _site/* _site/.[!.]* 2>/dev/null | sort -hr | head -40 || true
+
+          echo 'Largest files:'
+          find _site -type f -printf '%s\t%p\n' 2>/dev/null | sort -nr | head -60 | numfmt --field=1 --to=iec-i --suffix=B || true
+
+          echo 'Largest asset subdirectories:'
+          find _site/assets -mindepth 1 -maxdepth 3 -type d -print0 2>/dev/null \
+            | xargs -0 -r du -sh 2>/dev/null \
+            | sort -hr | head -60 || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

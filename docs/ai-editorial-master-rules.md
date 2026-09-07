@@ -1,4 +1,4 @@
-# Denkicontrol AI編集部 マスタールール v1.0
+# Denkicontrol AI編集部 マスタールール v1.1
 
 ## 1. 位置づけ
 この文書は、DenkicontrolのAI編集部が記事・画像・Preview・公開判断を扱う際の実行上の正本とする。
@@ -6,10 +6,11 @@
 既存文書と矛盾した場合の優先順位は次の通り。
 1. `docs/ai-governance.md` の安全・法令・人間の権限・秘密情報保護などのPrinciples
 2. 本文書 `docs/ai-editorial-master-rules.md`
-3. `docs/article-workflow.md`
-4. `docs/new-article-checklist.md`
-5. `docs/image-generation-rules.md` / `docs/article-type-templates.md` / `docs/reference-notes/**` / `docs/terminology/**`
-6. `docs/agents/**` の個別Agent手順
+3. `docs/ai-editorial-article-image-strict-rules.md`
+4. `docs/article-workflow.md`
+5. `docs/new-article-checklist.md`
+6. `docs/image-generation-rules.md` / `docs/article-type-templates.md` / `docs/reference-notes/**` / `docs/terminology/**`
+7. `docs/agents/**` の個別Agent手順
 
 下位文書が上位文書と矛盾する場合は上位を優先し、矛盾を発見したAgentは記録・修正候補として報告する。
 
@@ -40,18 +41,20 @@
 5. EDITOR設計
 6. CHALLENGER反証
 7. 必要な再設計
-8. 最適な既存完成記事をコピー元として選定
+8. 標準コピー元 `articles/short-ground-leakage-basic.html` を取得し、完全コピーから制作開始
 9. 記事HTML完成
 10. TECHNICAL / SEO監査
-11. 必要画像の設計・生成
+11. 必要画像の用途判定・設計・生成
 12. 画像自己評価 + 独立IMAGE REVIEWER
 13. HTMLへ採用画像を組み込み
-14. HTML・リンク・画像・PC/スマホ等の自動検査
-15. Preview作成
-16. 管理者目視確認
-17. 管理者OK後にMEDIUM/HIGHを本番反映
-18. Step 2導線整備
-19. 公開後監査
+14. コピー元差分・HTML内部・リンク・画像・PC/スマホ等の自動検査
+15. GPTによるHTMLソース監査
+16. Preview作成
+17. GPTによるPreview事前監査
+18. 管理者目視確認
+19. 管理者OK後にMEDIUM/HIGHを本番反映
+20. Step 2導線整備
+21. 公開後監査
 
 ユーザーが短い依頼をした場合も、この標準フローを省略せず内部で展開する。
 
@@ -61,6 +64,8 @@
 - Previewサービス名は、実装・接続が確認できるまでは特定サービス名に固定しない。
 - 管理者はPreviewで記事全体を目視確認する。
 - 管理者NG後は、管理者の問題指摘を要件としてAI側が修正案を設計し、再制作・再監査する。
+- Preview目視だけでは承認せず、GPTによるHTMLソース監査を必須とする。
+- GPT監査で明確なNGがある場合は管理者へ出さず自動修正へ戻す。
 
 ## 5. リスクと公開権限
 ### LOW: AI自動公開可
@@ -80,8 +85,7 @@ LOWであっても、意味が変わる可能性、判断の余地、影響範�
 - 一時障害では再試行する。
 - 一時障害が解消しない場合、GPT APIが検証代理を行ってよい。
 - GPT代理検証は独立プロバイダ検証ではないため、必ず `⚠️ GPT代理検証・Gemini未確認` 相当の表示・記録を残す。
-- GPT代理検証になった案件は記事制作前で一度停止し、管理者または運用ルールに基づく再開判断を待つ。
-- 管理者が再開を許可した案件は、Gemini未確認のままPreviewまで進めてよい。
+- GPT代理検証になった案件は、運用ルール上あらかじめ継続許可されている場合は管理者確認を挟まずPreviewまで進めてよい。
 - GPT代理検証案件でも、管理者がPreviewを確認しOKすれば公開可能とする。Gemini再検証を公開の絶対条件にはしない。
 
 ## 7. 技術情報と公式資料
@@ -94,27 +98,38 @@ LOWであっても、意味が変わる可能性、判断の余地、影響範�
 - 不明な情報は推測せず「確認できない」と扱う。
 
 ## 8. HTML構造
-- 新規記事は、同じ記事タイプ・目的・レイアウトに最も近い完成済み記事をAIが選び、完全コピーを基礎に必要箇所だけ差し替える。
-- 上部構造、既存の3カラム構造、キャラクター会話、支援導線、関連記事、既存class、レスポンシブ構造等は原則維持する。
-- CSSや構造を記事ごとに独自再設計しない。
-- より良い新構造を発見した場合は勝手に導入せず、理由・期待効果・既存記事への影響・移行案を管理者へ提案する。
+- 新規記事の標準コピー元は `articles/short-ground-leakage-basic.html` とする。
+- 制作開始時にGitHub main上のコピー元実ファイルを取得し、ファイル単位で完全コピーして開始する。
+- 「参考にする」「似せて再実装する」「同じ雰囲気で新規CSSを書く」は禁止する。
+- 原則変更可能なのは、記事タイトル、meta、本文、見出し、記事固有画像、画像alt、関連記事リンク先・タイトル・説明、記事固有ID/anchor、slug、記事固有構造化データ、パンくず内の現在記事情報だけとする。
+- ヘッダー、検索、言語切替、パンくず構造、カラム構造、右サイドバー、寄付導線、関連記事UI、会話UI、フッター、共通class、共通CSS、レスポンシブCSSはコピー元からそのまま継承する。
+- 共通UIを記事単体で変更しない。変更が必要な場合は共通UI変更案件として別途提案する。
+- Preview前にコピー元と新記事のDOM/class/CSS差分をGPTが監査する。
+- 詳細は `docs/ai-editorial-article-image-strict-rules.md` を必須参照する。
 
 ## 9. 画像ルール
 - 記事画像はChatGPTが生成し、Codexは生成担当にしない。
 - heroとOGPを基本必須とする。
 - 本文画像は内容に応じて1〜4枚を目安とし、説明上不要なら枚数を埋めるために生成しない。
-- 標準総数は原則3〜6枚（hero 1 + OGP 1 + 本文1〜4）。記事タイプ上、本文画像が不要と合理的に判断できる場合は理由を記録して例外可とする。
-- 本文画像の役割名は記事内容に合わせて選定し、`overview / comparison / flow / check-flow` を無理に全種類作らない。
+- 標準総数は原則3〜6枚（hero 1 + OGP 1 + 本文1〜4）を目安とするが、枚数達成自体を目的にしない。
+- 画像生成前に「画像生成が最適か、HTML/CSS/SVGが最適か」を判定する。
+- hero / OGP / 情景イラスト / キャラクターを使った概念説明は画像生成を優先する。
+- 比較表 / 確認手順 / フローチャート / チェックリスト / 数値表 / 箱と矢印だけの図はHTML/CSS/SVGを優先する。
+- 単純な箱・矢印図をAI生成画像として水増ししない。
 - キャラクターを含む場合は `assets/images/character-templates/senpai-kouhai-character-template.png` を正本として必ず参照する。
+- HTML会話UIでは `assets/images/guide-characters/` の既存画像を使い、生成テンプレートと混同しない。
 - hero採用後のキャラクター入り後続画像は、正本テンプレート + 採用heroを参照する。
 - 1画像1用途。実在メーカーUI・ロゴ・製品画面を生成画像へ入れない。
+- AI生成ビジュアルはWeb向けPNG/WebP等へ整え、簡易SVGを高品質画像として扱わない。
+- 詳細は `docs/ai-editorial-article-image-strict-rules.md` と `docs/image-generation-rules.md` を必須参照する。
 
 ### 画像品質ゲート
 - 生成側は成果物ごとに自己評価を行う。
-- 自己評価95点以上を採用候補の条件とする。
-- さらに独立IMAGE REVIEWERが、技術的正確性、文字可読性、キャラクター一致、構図、用途一致、サイト統一感を評価する。
-- 自己評価とIMAGE REVIEWERの両方を通過した画像だけをPreviewへ組み込む。
-- 95点未満またはReviewer不採用の場合は再生成する。
+- 自己評価の点数だけで採用可否を決めない。
+- 独立IMAGE REVIEWERが、技術的正確性、文字可読性、キャラクター一致、構図、用途一致、記事との関連性、サイト統一感、スマホ視認性を評価する。
+- HTML組込み後のPreviewでも画像を再評価する。
+- 生成側自己評価、独立IMAGE REVIEWER、Previewレビューの3段階をすべて通過した画像だけを採用候補とする。
+- 重大NGが1つでもあれば再制作する。
 - 再生成回数自体を固定上限にせず品質を優先する。ただし同じ失敗が続く場合は同一プロンプトを繰り返さず、構図・情報量・プロンプト設計を変更する。
 - 技術的誤りが画像で見つかった場合は画像だけ直さず、元記事と公式資料まで戻って整合性を再監査する。
 - 最終採用は管理者が記事全体のPreview確認時に画像を含めて判断する。
@@ -163,29 +178,37 @@ Previewへ送る前に最低限以下を満たす。
 - 必要な公式一次情報確認済み
 - 技術監査済み
 - SEO監査済み
+- `title` / meta description / canonical / robots / OGP / Twitter Card / hreflang / 構造化データ監査済み
 - 型式固有・安全情報の根拠確認済み
-- HTML構造チェック済み
-- 全内部リンク・画像パス実在確認済み
+- 標準コピー元 `articles/short-ground-leakage-basic.html` から制作開始した記録あり
+- コピー元と共通UIのDOM/class/CSS差分監査済み
+- ヘッダー / 検索 / 言語切替 / パンくず / カラム / 右サイドバー / 寄付導線 / 関連記事 / 会話UI / フッターの継承確認済み
+- 全内部リンク・外部リンク属性・画像パス実在確認済み
+- h1〜h3階層 / alt / 重複ID監査済み
 - 正式ドメインルール適合
 - Support this site等の固定リンク適合
-- 必要画像が品質ゲート通過済み
+- 必要画像が3段階品質ゲート通過済み
 - PC/スマホ等のレイアウト確認済み
+- Preview環境のnoindex確認済み
 - Step 1/Step 2混在なし
+- GPTによるHTMLソース監査済み
+- GPTによるPreview事前監査済み
 
-未達項目がある場合は `ARTICLE_READY` と判定しない。
+未達項目がある場合は `ARTICLE_READY` / `Preview完成` / `NEEDS_HUMAN` と判定しない。
 
 ## 16. 判断記録
 重要案件では、少なくとも次を記録する。
 - 使用したルール版
 - コピー元記事
+- コピー元差分監査結果
 - 主要公式資料
 - EDITOR提案
 - CHALLENGER結果とprovider
 - Gemini障害/GPT代理の有無
-- 技術/SEO/画像監査結果
+- 技術/SEO/HTML/画像監査結果
+- 画像の用途判定（AI生成 / HTML / CSS / SVG）
 - 修正ラウンド数
 - Preview結果
+- GPT事前監査結果
 - 管理者判断
 - 公開/却下/停止理由
-
-内部の非公開思考過程そのものを保存対象にはしない。

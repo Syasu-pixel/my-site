@@ -46,19 +46,103 @@ jobs:
             --exclude '*.7z' \
             --exclude '*.psd' \
             --exclude '*.ai'
-          echo 'Prepared Pages artifact:'
-          du -sh _site
 
-          echo 'Largest top-level paths:'
-          du -sh _site/* _site/.[!.]* 2>/dev/null | sort -hr | head -40 || true
+          echo 'Before image optimization:'
+          du -sh _site _site/assets/images
 
-          echo 'Largest files:'
-          find _site -type f -printf '%s\t%p\n' 2>/dev/null | sort -nr | head -60 | numfmt --field=1 --to=iec-i --suffix=B || true
+      - name: Optimize published images to WebP
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
 
-          echo 'Largest asset subdirectories:'
-          find _site/assets -mindepth 1 -maxdepth 3 -type d -print0 2>/dev/null \
-            | xargs -0 -r du -sh 2>/dev/null \
-            | sort -hr | head -60 || true
+          # Convert PNG/JPEG assets in the publish copy only. The repository originals
+          # remain untouched until the optimized deployment has been verified.
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
+            | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                dst="${src%.*}.webp"
+                [ -e "$dst" ] && exit 0
+                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+              ' _ {}
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('_site')
+          image_root = root / 'assets' / 'images'
+          mapping = {}
+          for src in image_root.rglob('*'):
+              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
+                  continue
+              dst = src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size > 0:
+                  rel_src = src.relative_to(root).as_posix()
+                  rel_dst = dst.relative_to(root).as_posix()
+                  mapping[rel_src] = rel_dst
+
+          text_exts = {'.html', '.css', '.js', '.json', '.xml', '.txt', '.md'}
+          changed = 0
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              new = text
+              for old, replacement in mapping.items():
+                  new = new.replace('/' + old, '/' + replacement)
+                  new = new.replace(old, replacement)
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+                  changed += 1
+
+          # Remove originals only from the generated publish copy and only when a
+          # valid WebP counterpart exists.
+          removed = 0
+          for old in mapping:
+              src = root / old
+              if src.exists():
+                  src.unlink()
+                  removed += 1
+
+          # Guard against stale references to removed assets.
+          stale = []
+          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for match in pattern.findall(text):
+                  candidate = root / match.lstrip('/')
+                  if not candidate.exists():
+                      stale.append(f'{path}: {match}')
+
+          print(f'Converted images: {len(mapping)}')
+          print(f'Updated text files: {changed}')
+          print(f'Removed publish-copy originals: {removed}')
+          if stale:
+              print('Stale image references detected:')
+              print('\n'.join(stale[:100]))
+              raise SystemExit(1)
+          PY
+
+          echo 'After image optimization:'
+          du -sh _site _site/assets/images
+
+          # GitHub Pages published sites must remain below 1 GB. Keep headroom so
+          # future articles cannot silently cross the limit.
+          bytes=$(du -sb _site | cut -f1)
+          limit=$((900 * 1024 * 1024))
+          echo "Published artifact bytes: $bytes"
+          if [ "$bytes" -ge "$limit" ]; then
+            echo "ERROR: optimized Pages artifact is still >= 900 MiB; refusing oversized deploy."
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

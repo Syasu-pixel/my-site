@@ -103,6 +103,45 @@ async function addRetryEvent(raw: string, id: string, retryAt: string | null) {
   });
 }
 
+async function addStallRecoveryEvent(raw: string, claim: any) {
+  const id = String(claim.command_id);
+  const count = Number(claim.stall_recovery_count ?? 1);
+  const staleSeconds = Number(claim.stale_seconds ?? 180);
+  await rpc(raw, "ai_editorial_command_add_events", {
+    p_command_id: id,
+    p_events: [{
+      event_id: crypto.randomUUID(),
+      job_id: `command-${id}`,
+      role: "system",
+      provider: "orchestrator",
+      event_type: "status",
+      summary: `${Math.max(2, Math.round(staleSeconds / 60))}分以上更新がなかったため、同じ案件を自動再開します（${count}/3）。`,
+      evidence: [],
+      severity: "medium",
+      state: "PLANNING",
+      created_at: new Date().toISOString(),
+      discussion: {
+        command_id: id,
+        stage: "stall-auto-retry",
+        previous_status: claim.previous_status ?? null,
+        last_activity: claim.last_activity ?? null,
+        stale_seconds: staleSeconds,
+        stall_recovery_count: count,
+        retry_policy: "same-queue"
+      },
+      availability: { primary_provider: "orchestrator", status: "online" }
+    }]
+  });
+}
+
+function launch(task: Promise<unknown>) {
+  try {
+    EdgeRuntime.waitUntil(task);
+  } catch {
+    task.catch(console.error);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: H });
   if (req.method !== "GET") return J({ error: "method not allowed" }, 405);
@@ -133,6 +172,7 @@ Deno.serve(async (req) => {
 
     if (!job) {
       let autoRetry: any = null;
+      let stalledRetry: any = null;
       try {
         autoRetry = await rpc(raw, "ai_editorial_claim_retry", {});
       } catch (e) {
@@ -146,26 +186,30 @@ Deno.serve(async (req) => {
         } catch (e) {
           console.error("auto retry event failed", id, e);
         }
-        const task = run(raw, id);
-        try {
-          EdgeRuntime.waitUntil(task);
-        } catch {
-          task.catch(console.error);
-        }
+        launch(run(raw, id));
       } else {
-        const ids = queued(body);
-        if (ids.length) {
-          const task = run(raw, ids[0]);
+        try {
+          stalledRetry = await rpc(raw, "ai_editorial_claim_stalled", { p_stale_seconds: 180 });
+        } catch (e) {
+          console.error("stalled retry claim failed", e);
+        }
+
+        if (stalledRetry?.claimed && stalledRetry?.command_id) {
+          const id = String(stalledRetry.command_id);
           try {
-            EdgeRuntime.waitUntil(task);
-          } catch {
-            task.catch(console.error);
+            await addStallRecoveryEvent(raw, stalledRetry);
+          } catch (e) {
+            console.error("stalled retry event failed", id, e);
           }
+          launch(run(raw, id));
+        } else {
+          const ids = queued(body);
+          if (ids.length) launch(run(raw, ids[0]));
         }
       }
 
       body = normalizeSingleDeliverable(body);
-      body = { ...body, auto_retry: autoRetry };
+      body = { ...body, auto_retry: autoRetry, stalled_retry: stalledRetry };
     }
 
     return J(body);

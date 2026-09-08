@@ -26,12 +26,12 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          PAGES_PROJECT: denkicontrol-preview
         run: |
           mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
           ARTICLE_PATH=""
 
-          # Prefer the article whose basename has a matching image asset directory.
-          # This avoids selecting stale duplicate HTML files when a PR contains more than one article candidate.
           for candidate in "${ARTICLE_CANDIDATES[@]}"; do
             slug="$(basename "$candidate" .html)"
             if [ -d "assets/images/$slug" ]; then
@@ -50,9 +50,11 @@ jobs:
             exit 0
           fi
 
-          PREVIEW_URL="https://deploy-preview-${PR_NUMBER}--frolicking-ganache-2a4a38.netlify.app/${ARTICLE_PATH}"
+          BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
           LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
           echo "Resolved article: $ARTICLE_PATH"
+          echo "Resolved Cloudflare Preview: $PREVIEW_URL"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
           echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
@@ -128,6 +130,7 @@ jobs:
           fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
             pr_number: Number(pr),
             preview_url: previewUrl,
+            preview_provider: 'cloudflare-pages',
             render_source: 'local-pr-head',
             article_path: process.env.ARTICLE_PATH,
             head_sha: process.env.HEAD_SHA,

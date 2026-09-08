@@ -6,22 +6,47 @@
   let manualTop=el.scrollTop||0;
   let restoring=false;
   let lastJob=el.dataset.job||'';
+  let userIntentUntil=0;
 
   function distanceFromBottom(){return Math.max(0,el.scrollHeight-el.scrollTop-el.clientHeight)}
-  function updateFromUser(){
-    if(restoring)return;
+  function markUserIntent(){userIntentUntil=Date.now()+800}
+  function isUserScroll(){return Date.now()<=userIntentUntil}
+
+  function handleScroll(){
+    if(restoring||!isUserScroll())return;
     const currentJob=el.dataset.job||'';
-    if(currentJob!==lastJob){lastJob=currentJob;manualLock=false;manualTop=el.scrollTop||0;return}
-    if(distanceFromBottom()>140){manualLock=true;manualTop=el.scrollTop||0}else{manualLock=false}
+    if(currentJob!==lastJob){
+      lastJob=currentJob;
+      manualLock=false;
+      manualTop=el.scrollTop||0;
+      return;
+    }
+    if(distanceFromBottom()>140){
+      manualLock=true;
+      manualTop=el.scrollTop||0;
+    }else{
+      manualLock=false;
+      manualTop=el.scrollTop||0;
+    }
   }
 
-  el.addEventListener('scroll',updateFromUser,{passive:true});
-  el.addEventListener('wheel',()=>{if(distanceFromBottom()>80){manualLock=true;manualTop=el.scrollTop||0}},{passive:true});
-  el.addEventListener('touchmove',()=>{if(distanceFromBottom()>80){manualLock=true;manualTop=el.scrollTop||0}},{passive:true});
+  el.addEventListener('wheel',markUserIntent,{passive:true});
+  el.addEventListener('touchstart',markUserIntent,{passive:true});
+  el.addEventListener('touchmove',markUserIntent,{passive:true});
+  el.addEventListener('pointerdown',markUserIntent,{passive:true});
+  el.addEventListener('keydown',e=>{
+    if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))markUserIntent();
+  });
+  el.addEventListener('scroll',handleScroll,{passive:true});
 
   const observer=new MutationObserver(()=>{
     const currentJob=el.dataset.job||'';
-    if(currentJob!==lastJob){lastJob=currentJob;manualLock=false;manualTop=el.scrollTop||0;return}
+    if(currentJob!==lastJob){
+      lastJob=currentJob;
+      manualLock=false;
+      manualTop=el.scrollTop||0;
+      return;
+    }
     if(!manualLock)return;
     const target=manualTop;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -31,5 +56,5 @@
       requestAnimationFrame(()=>{restoring=false});
     }));
   });
-  observer.observe(el,{childList:true,subtree:true});
+  observer.observe(el,{childList:true,subtree:true,characterData:true});
 })();

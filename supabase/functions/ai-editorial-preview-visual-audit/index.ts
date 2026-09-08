@@ -7,13 +7,12 @@ const O=Deno.env.get("OPENAI_API_KEY")??"";
 const GH=Deno.env.get("GITHUB_TOKEN")??Deno.env.get("GITHUB_PAT")??Deno.env.get("GITHUB_REPO_TOKEN")??"";
 const REPO=Deno.env.get("AI_EDITORIAL_GITHUB_REPO")??"Syasu-pixel/my-site";
 const REVIEW_MODEL=Deno.env.get("OPENAI_REVIEW_MODEL")??"gpt-5.6-luna";
-const WORKFLOW="ai-editorial-preview-capture.yml";
 const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"POST, OPTIONS","Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"};
 const J=(b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:H});
 
 function outputText(b:any){if(typeof b?.output_text==="string")return b.output_text;for(const i of Array.isArray(b?.output)?b.output:[])if(i?.type==="message")for(const p of Array.isArray(i?.content)?i.content:[])if(p?.type==="output_text"&&typeof p.text==="string")return p.text;return ""}
 async function rpc(raw:string,name:string,args:any){const r=await fetch(`${U}/rest/v1/rpc/${name}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(args)});const t=await r.text();if(!r.ok)throw new Error(`${name} ${r.status}: ${t.slice(0,700)}`);return t?JSON.parse(t):{}}
-async function gh(path:string,init:RequestInit={}){if(!GH)throw new Error("GITHUB_REPO_TOKEN missing");const r=await fetch(`https://api.github.com/repos/${REPO}${path}`,{...init,redirect:"follow",headers:{Authorization:`Bearer ${GH}`,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json",...(init.headers||{})}});if(!r.ok){const t=await r.text();throw new Error(`GitHub ${r.status} ${path}: ${t.slice(0,700)}`)}const ct=r.headers.get("content-type")||"";if(ct.includes("application/json")){const t=await r.text();return t?JSON.parse(t):{}}return new Uint8Array(await r.arrayBuffer())}
+async function gh(path:string,init:RequestInit={}){if(!GH)throw new Error("GITHUB_REPO_TOKEN missing");const r=await fetch(`https://api.github.com/repos/${REPO}${path}`,{...init,redirect:"follow",headers:{Authorization:`Bearer ${GH}`,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(init.headers||{})}});if(!r.ok){const t=await r.text();throw new Error(`GitHub ${r.status} ${path}: ${t.slice(0,700)}`)}const ct=r.headers.get("content-type")||"";if(ct.includes("application/json")){const t=await r.text();return t?JSON.parse(t):{}}return new Uint8Array(await r.arrayBuffer())}
 async function checkpoint(raw:string,id:string,st:any){return rpc(raw,"ai_editorial_builder_checkpoint",{p_command_id:id,p_stage:"preview_wait",p_state:st})}
 async function event(raw:string,id:string,summary:string,state="BUILDING",severity="info",discussion:any={}){return rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"status",summary,evidence:[],severity,state,created_at:new Date().toISOString(),discussion:{command_id:id,...discussion},availability:{primary_provider:"gpt-preview-audit",status:state==="NEEDS_HUMAN"?"waiting-human":"online"}}]})}
 function bytesToB64(bytes:Uint8Array){let bin="";for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin)}
@@ -57,24 +56,22 @@ Deno.serve(async req=>{
     const checks=Number(st.preview_probe_checks||0)+1;let next={...st,preview_probe_checks:checks,preview_last_status:netlify?.state??statuses?.state??"unknown",preview_last_checked_at:new Date().toISOString(),preview_head_sha:sha};
     if(netlify?.state!=="success"){await checkpoint(raw,id,next);return J({ok:true,status:"waiting-netlify",netlify_status:netlify?.state??statuses?.state??"unknown",checks})}
 
-    if(!next.preview_capture_dispatched_at){
-      await gh(`/actions/workflows/${WORKFLOW}/dispatches`,{method:"POST",body:JSON.stringify({ref:"main",inputs:{preview_url:String(st.preview_url),command_id:id}})});
-      next={...next,preview_capture_dispatched_at:new Date().toISOString(),preview_capture_workflow:WORKFLOW};
-      await checkpoint(raw,id,next);await event(raw,id,"PreviewをGPTが直接監査するため、PC/スマホ画面の自動取得を開始しました。","BUILDING","info",{stage:"preview-capture-dispatched"});
-      return J({ok:true,status:"capture-dispatched"});
-    }
-
-    const artifactName=`ai-editorial-preview-${id}`;
+    const artifactName=`ai-editorial-preview-pr-${pr}`;
     const arts=await gh(`/actions/artifacts?name=${encodeURIComponent(artifactName)}&per_page=20`);const arr=Array.isArray(arts?.artifacts)?arts.artifacts.filter((a:any)=>!a.expired):[];const art=arr.sort((a:any,b:any)=>Date.parse(b.created_at)-Date.parse(a.created_at))[0];
-    if(!art){await checkpoint(raw,id,{...next,preview_capture_checks:Number(next.preview_capture_checks||0)+1});return J({ok:true,status:"waiting-capture"})}
+    if(!art){
+      next={...next,preview_capture_checks:Number(next.preview_capture_checks||0)+1,preview_capture_mode:"pull-request-auto",preview_capture_artifact_name:artifactName};
+      await checkpoint(raw,id,next);
+      if(Number(next.preview_capture_checks||0)===1)await event(raw,id,"PR更新に連動したPC/スマホPreview自動取得を待っています。追加のGitHub Actions権限は不要です。","BUILDING","info",{stage:"preview-capture-wait",pr_number:pr});
+      return J({ok:true,status:"waiting-capture",artifact_name:artifactName})
+    }
     if(next.preview_audit_artifact_id===art.id&&next.gpt_visual_audit)return J({ok:true,status:"already-audited",audit:next.gpt_visual_audit});
 
     const zipBytes=await gh(`/actions/artifacts/${art.id}/zip`) as Uint8Array;const zip=await JSZip.loadAsync(zipBytes);
-    const root=`preview-capture/${id}/`;const pick=(name:string)=>zip.file(root+name)||zip.file(name)||Object.values(zip.files).find((f:any)=>String(f.name).endsWith("/"+name));
+    const root=`preview-capture/pr-${pr}/`;const pick=(name:string)=>zip.file(root+name)||zip.file(name)||Object.values(zip.files).find((f:any)=>String(f.name).endsWith("/"+name));
     const d=pick("desktop.png"),m=pick("mobile.png"),h=pick("rendered.html");if(!d||!m||!h)throw new Error("preview artifact files missing");
     const desktop=bytesToB64(await d.async("uint8array"));const mobile=bytesToB64(await m.async("uint8array"));const html=await h.async("string");
-    await event(raw,id,"PC/スマホのPreview画面を取得しました。GPTが本文密度・図解・キャラクター・機器配置・レスポンシブ表示を監査しています。","BUILDING","info",{stage:"gpt-preview-audit-start",artifact_id:art.id});
-    const audit=await auditPreview(desktop,mobile,html);next={...next,preview_audit_artifact_id:art.id,preview_audit_run_at:new Date().toISOString(),gpt_visual_audit:audit};await finalize(raw,id,next,audit);
+    await event(raw,id,"PC/スマホのPreview画面を自動取得しました。GPTが本文密度・図解・キャラクター・機器配置・レスポンシブ表示を監査しています。","BUILDING","info",{stage:"gpt-preview-audit-start",artifact_id:art.id,pr_number:pr});
+    const audit=await auditPreview(desktop,mobile,html);next={...next,preview_audit_artifact_id:art.id,preview_audit_run_at:new Date().toISOString(),gpt_visual_audit:audit,preview_capture_mode:"pull-request-auto"};await finalize(raw,id,next,audit);
     return J({ok:true,status:"needs_human",audit});
   }catch(e){const msg=e instanceof Error?e.message:String(e);try{await checkpoint(raw,id,{...st,preview_visual_last_error:msg,preview_visual_last_error_at:new Date().toISOString()})}catch{}return J({ok:false,error:msg},500)}
 });

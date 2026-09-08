@@ -110,6 +110,46 @@ style.textContent+=`
 @media(max-width:760px){#chibiRoom .person{height:56px;width:42px}#chibiRoom .say{bottom:62px}}
 `;
 const tea=document.createElement('div');tea.className='tea';tea.innerHTML='<div class="cups">☕☕</div><div class="table"></div>';room.append(tea);
+tea.insertAdjacentHTML('beforeend','<div class="kettle"></div><div class="stream"></div><div class="steam">♨</div>');
+let teaProgress=0;
+
+/* Layered CSS puppet: the root never changes size when a face changes. */
+style.textContent+=`
+#chibiRoom .portrait{overflow:visible!important}
+#chibiRoom .rig-body{clip-path:inset(44% 0 32% 0)}
+#chibiRoom .rig-head{clip-path:inset(0 0 55% 0);transform-origin:53% 44%}
+#chibiRoom .rig-leg-left{clip-path:polygon(0 66%,52% 66%,52% 100%,0 100%);transform-origin:45% 68%}
+#chibiRoom .rig-leg-right{clip-path:polygon(52% 66%,100% 66%,100% 100%,52% 100%);transform-origin:61% 68%}
+#chibiRoom .rig-mouth{background-position:33.333333% 0;clip-path:ellipse(6.5% 3.1% at 48% 39.5%);transform:translate(6.2%,.6%);visibility:hidden}
+#chibiRoom .rig-mouth.junior{background-position:33.333333% 100%;transform:translate(5%,0)}
+#chibiRoom .carry{position:absolute;left:20px;top:37px;z-index:4;font-size:16px;line-height:1;display:none;filter:drop-shadow(0 1px 1px #0002)}
+#chibiRoom .carry.visible{display:block}
+#chibiRoom .tea{display:block!important;opacity:0}
+#chibiRoom .tea .kettle{position:absolute;left:7px;top:-8px;width:16px;height:22px;border-radius:5px;background:#a7b7c7;border:1px solid #607b92}
+#chibiRoom .tea .kettle:after{content:'';position:absolute;right:-6px;top:7px;width:7px;height:5px;background:#607b92}
+#chibiRoom .tea .stream{position:absolute;left:27px;top:5px;height:14px;width:2px;background:#82bfec;opacity:0}
+#chibiRoom .tea .steam{position:absolute;left:40px;top:-8px;font-size:16px;color:#789;opacity:0}
+@media(max-width:760px){#chibiRoom .carry{left:15px;top:28px;font-size:13px}}
+`;
+const rigs=people.map((el,i)=>{
+ const portrait=el.querySelector('.portrait');portrait.innerHTML='';
+ const nodes={};
+ ['body','leg-left','leg-right','head','mouth'].forEach(part=>{
+  const n=document.createElement('div');n.className='sprite rig-'+part+(i?' junior':'');portrait.append(n);nodes[part]=n;
+ });
+ const carry=document.createElement('span');carry.className='carry';el.append(carry);nodes.carry=carry;
+ return nodes;
+});
+function puppet(i,t,moving,saying,listening,active){
+ const r=rigs[i],stride=moving?Math.sin(t*10+i*.4):0;
+ r['leg-left'].style.transform='rotate('+(stride*6)+'deg) translateY('+(-Math.max(0,stride)*1.2)+'px)';
+ r['leg-right'].style.transform='rotate('+(-stride*6)+'deg) translateY('+(-Math.max(0,-stride)*1.2)+'px)';
+ r.head.style.transform='rotate('+(listening?Math.sin(t*2.8)*1.2:0)+'deg)';
+ // Only the mouth patch changes; the body and head remain registered.
+ r.mouth.style.visibility=saying&&Math.sin(t*17)>-.2?'visible':'hidden';
+ r.carry.textContent='📋';r.carry.classList.toggle('visible',active&&!saying);
+}
+
 const positions=[null,null];let motionAt=0,scanAt=-10,anchors=[],rest=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function scan(){
@@ -141,8 +181,13 @@ function animate(){
   const age=speech?t-speech.at:999;
   const resting=!!rest&&(wide||(lastMode==='idle'&&Math.floor(t/30)%3===2));
   const arrived=resting&&positions.every((p,i)=>p&&Math.abs(p.x-(rest.x+(i?42:-85)))<3);
-  tea.classList.toggle('show',arrived);
-  if(resting)tea.style.transform='translate('+(rest.x-65)+'px,'+(rest.y-59)+'px)';
+  if(!paused)teaProgress=clamp(teaProgress+(arrived?dt:-dt),0,20);
+  tea.style.opacity=teaProgress>0?'1':'0';
+  const slide=Math.min(1,teaProgress/3);
+  const teaX=rest?(-140+(rest.x+75)*slide):-140;
+  tea.style.transform='translate('+teaX+'px,'+(innerHeight-67)+'px)';
+  tea.querySelector('.stream').style.opacity=teaProgress>4&&teaProgress<7?'1':'0';
+  tea.querySelector('.steam').style.opacity=teaProgress>=7?String(.35+.2*Math.sin(t*2)):0;
   people.forEach((el,i)=>{
    const height=innerWidth<=760?56:72;
    const a=anchors[(Math.floor(t/16)+i*2)%anchors.length];
@@ -151,10 +196,12 @@ function animate(){
    if(!positions[i])positions[i]={...dest};
    positions[i].y=dest.y; // Ground contact is invariant; vertical routes require a ladder.
    const p=positions[i],dx=dest.x-p.x,dy=dest.y-p.y,d=Math.hypot(dx,dy);
-   if(!paused&&d>0){const step=Math.min(d,dt*75);p.x+=dx/d*step;p.y+=dy/d*step}
+   const talkingNow=!!speech&&age<16;
+   if(!paused&&!talkingNow&&d>0){const step=Math.min(d,dt*75);p.x+=dx/d*step;p.y+=dy/d*step}
    el.style.transform='translate('+p.x+'px,'+p.y+'px)';
    const saying=speech&&(i===0?age<8:age>=8&&age<16);
    el.querySelector('.say').textContent=saying?speech.text[i]:'';
+   puppet(i,t,!paused&&!talkingNow&&d>1,saying,talkingNow&&!saying,['work','research','build'].includes(lastMode));
    el.style.setProperty('--bubble-left',clamp(-55,-p.x+4,innerWidth-p.x-180)+'px');
   });
  }

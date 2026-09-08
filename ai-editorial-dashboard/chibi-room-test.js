@@ -131,23 +131,62 @@ style.textContent+=`
 #chibiRoom .tea .steam{position:absolute;left:40px;top:-8px;font-size:16px;color:#789;opacity:0}
 @media(max-width:760px){#chibiRoom .carry{left:15px;top:28px;font-size:13px}}
 `;
+
+/* Slightly larger silhouettes; all face/limb patches share the same box. */
+style.textContent+=`
+#chibiRoom .person,#chibiRoom.large .person,#chibiRoom:not(.large) .person,
+#chibiRoom .portrait,#chibiRoom.large .portrait,#chibiRoom:not(.large) .portrait{width:66px!important;height:88px!important}
+#chibiRoom .say,#chibiRoom:not(.large) .say{bottom:94px}
+#chibiRoom .face-parts{position:absolute;inset:0;transform-origin:53% 43%;transition:transform .18s ease-out}
+#chibiRoom .rig-eyes{background-position:66.666667% 0;clip-path:ellipse(18% 5% at 50% 33%);transform:translateX(4%);visibility:hidden}
+#chibiRoom .rig-eyes.junior{background-position:66.666667% 100%;transform:translateX(3.4%)}
+#chibiRoom .rig-wave{background-position:100% 0;clip-path:polygon(67% 34%,100% 34%,100% 62%,67% 62%);transform-origin:69% 49%;visibility:hidden}
+#chibiRoom .rig-wave.junior{background-position:100% 100%;clip-path:polygon(18% 40%,43% 40%,43% 67%,18% 67%);transform-origin:36% 55%}
+#chibiRoom .waving .rig-body{clip-path:polygon(0 44%,67% 44%,67% 68%,0 68%)}
+#chibiRoom .waving.junior-person .rig-body{clip-path:polygon(39% 44%,100% 44%,100% 68%,39% 68%)}
+#chibiRoom .carry{left:24px;top:46px;font-size:19px}
+#chibiRoom .reading .carry{top:43px;transform:rotate(-7deg)}
+@media(max-width:760px){
+#chibiRoom .person,#chibiRoom.large .person,#chibiRoom:not(.large) .person,
+#chibiRoom .portrait,#chibiRoom.large .portrait,#chibiRoom:not(.large) .portrait{width:51px!important;height:68px!important}
+#chibiRoom .say,#chibiRoom:not(.large) .say{bottom:74px}
+#chibiRoom .carry{left:18px;top:35px;font-size:15px}
+#chibiRoom .reading .carry{top:33px}
+}
+`;
+
 const rigs=people.map((el,i)=>{
  const portrait=el.querySelector('.portrait');portrait.innerHTML='';
  const nodes={};
- ['body','leg-left','leg-right','head','mouth'].forEach(part=>{
-  const n=document.createElement('div');n.className='sprite rig-'+part+(i?' junior':'');portrait.append(n);nodes[part]=n;
+ el.classList.toggle('junior-person',!!i);
+ const face=document.createElement('div');face.className='face-parts';portrait.append(face);nodes.face=face;
+ nodes.el=el;
+ ['body','leg-left','leg-right','head','eyes','mouth','wave'].forEach(part=>{
+  const n=document.createElement('div');n.className='sprite rig-'+part+(i?' junior':'');(['head','eyes','mouth'].includes(part)?face:portrait).append(n);nodes[part]=n;
  });
  const carry=document.createElement('span');carry.className='carry';el.append(carry);nodes.carry=carry;
  return nodes;
 });
-function puppet(i,t,moving,saying,listening,active){
+
+function puppet(i,t,moving,saying,listening,active,waiting){
  const r=rigs[i],stride=moving?Math.sin(t*10+i*.4):0;
  r['leg-left'].style.transform='rotate('+(stride*6)+'deg) translateY('+(-Math.max(0,stride)*1.2)+'px)';
  r['leg-right'].style.transform='rotate('+(-stride*6)+'deg) translateY('+(-Math.max(0,-stride)*1.2)+'px)';
- r.head.style.transform='rotate('+(listening?Math.sin(t*2.8)*1.2:0)+'deg)';
- // Only the mouth patch changes; the body and head remain registered.
+ const reading=!moving&&!saying&&!listening&&!waiting&&(t+i*5)%24<5;
+ const waving=!moving&&!saying&&!reading&&(t+i*9)%31<2.2;
+ const other=positions[1-i],self=positions[i];
+ const direction=other&&self?Math.sign(other.x-self.x):i?-1:1;
+ const looking=listening||waiting||waving;
+ r.head.style.transform='none';
+ r.face.style.transform='perspective(180px) rotateY('+(looking?direction*13:0)+'deg) rotate('+(reading?5:listening?Math.sin(t*2.8)*1.2:0)+'deg)';
+ r.eyes.style.visibility=(t+i*1.7)%4.7<.16?'visible':'hidden';
  r.mouth.style.visibility=saying&&Math.sin(t*17)>-.2?'visible':'hidden';
- r.carry.textContent='📋';r.carry.classList.toggle('visible',active&&!saying);
+ r.wave.style.visibility=waving?'visible':'hidden';
+ r.wave.style.transform='rotate('+(waving?Math.sin(t*9)*5:0)+'deg)';
+ r.el.classList.toggle('waving',waving);
+ r.el.classList.toggle('reading',reading);
+ r.el.dataset.action=saying?'talk':moving?'walk':waiting?'wait-partner':reading?'read-memo':waving?'wave':looking?'look-partner':'idle';
+ r.carry.textContent='📋';r.carry.classList.toggle('visible',(active||reading)&&!saying&&!waving);
 }
 
 const positions=[null,null];let motionAt=0,scanAt=-10,anchors=[],rest=null;
@@ -189,10 +228,11 @@ function animate(){
   tea.querySelector('.stream').style.opacity=teaProgress>4&&teaProgress<7?'1':'0';
   tea.querySelector('.steam').style.opacity=teaProgress>=7?String(.35+.2*Math.sin(t*2)):0;
   people.forEach((el,i)=>{
-   const height=innerWidth<=760?56:72;
+   const height=innerWidth<=760?68:88;
+   const charWidth=height*.75;
    const a=anchors[(Math.floor(t/16)+i*2)%anchors.length];
    const dest=resting?{x:rest.x+(i?42:-85),y:innerHeight-height-8}: {x:a.x+(i?12:-12),y:innerHeight-height-8};
-   dest.x=clamp(dest.x,4,innerWidth-58);dest.y=clamp(dest.y,70,innerHeight-height-8);
+   dest.x=clamp(dest.x,4,innerWidth-charWidth-4);dest.y=clamp(dest.y,70,innerHeight-height-8);
    if(!positions[i])positions[i]={...dest};
    positions[i].y=dest.y; // Ground contact is invariant; vertical routes require a ladder.
    const p=positions[i],dx=dest.x-p.x,dy=dest.y-p.y,d=Math.hypot(dx,dy);
@@ -201,7 +241,7 @@ function animate(){
    el.style.transform='translate('+p.x+'px,'+p.y+'px)';
    const saying=speech&&(i===0?age<8:age>=8&&age<16);
    el.querySelector('.say').textContent=saying?speech.text[i]:'';
-   puppet(i,t,!paused&&!talkingNow&&d>1,saying,talkingNow&&!saying,['work','research','build'].includes(lastMode));
+   puppet(i,t,!paused&&!talkingNow&&d>1,saying,talkingNow&&!saying,['work','research','build'].includes(lastMode),resting&&d<3&&!arrived);
    el.style.setProperty('--bubble-left',clamp(-55,-p.x+4,innerWidth-p.x-180)+'px');
   });
  }

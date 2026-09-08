@@ -242,12 +242,36 @@ function animate(){
    const saying=speech&&(i===0?age<8:age>=8&&age<16);
    el.querySelector('.say').textContent=saying?speech.text[i]:'';
    puppet(i,t,!paused&&!talkingNow&&d>1,saying,talkingNow&&!saying,['work','research','build'].includes(lastMode),resting&&d<3&&!arrived);
-   el.style.setProperty('--bubble-left',clamp(-55,-p.x+4,innerWidth-p.x-180)+'px');
+   const bubbleWidth=Math.min(220,innerWidth-24);
+   const bubbleLeft=clamp(charWidth/2-bubbleWidth/2,12-p.x,innerWidth-p.x-bubbleWidth-12);
+   el.style.setProperty('--bubble-left',bubbleLeft+'px');
+   el.style.setProperty('--tail-left',clamp(charWidth/2-bubbleLeft-7,14,bubbleWidth-28)+'px');
   });
  }
  requestAnimationFrame(animate);
 }
 addEventListener('resize',()=>{scan();});
 document.addEventListener('scroll',()=>{scan();},true);
+
+/* Opaque, high-contrast mascot speech with a character-anchored tail. */
+style.textContent+=`
+#chibiRoom .say,#chibiRoom:not(.large) .say{
+ --speech-bg:#20334f;--speech-accent:#a8cfff;
+ box-sizing:border-box;width:220px;max-width:calc(100vw - 24px);
+ padding:11px 14px 13px;border:1px solid #6580a0;
+ border-radius:19px 19px 19px 7px;
+ background:var(--speech-bg);color:#f7faff;
+ font-size:13px;font-weight:500;line-height:1.7;letter-spacing:.02em;
+ text-align:left;overflow-wrap:anywhere;
+ box-shadow:0 7px 22px #10223838,0 1px 3px #10223833;
+ z-index:10;isolation:isolate;
+}
+#chibiRoom .junior-person .say{--speech-bg:#173f43;--speech-accent:#9fe4d4;border-color:#598e88;border-radius:19px 19px 7px 19px}
+#chibiRoom .say::before{content:'先輩';display:block;margin-bottom:4px;color:var(--speech-accent);font-size:10px;font-weight:750;letter-spacing:.12em}
+#chibiRoom .junior-person .say::before{content:'後輩'}
+#chibiRoom .say::after{content:'';position:absolute;left:var(--tail-left,80px);bottom:-8px;width:15px;height:10px;background:var(--speech-bg);clip-path:polygon(0 0,100% 0,45% 100%)}
+#chibiRoom .say:empty{display:none}
+`;
+
 sync();scan();setInterval(sync,1000);requestAnimationFrame(animate);
 })();

@@ -90,7 +90,10 @@ style.textContent+=`
 #chibiRoom .status,#chibiRoom .stationbar,#chibiRoom .action-label{display:none}
 #chibiRoom .pair,#chibiRoom.large .pair{position:absolute;inset:0;width:100%;height:100%;min-height:0;overflow:visible}
 #chibiRoom .person,#chibiRoom.large .person,#chibiRoom:not(.large) .person{top:0;bottom:auto;left:0;width:54px;height:72px}
-#chibiRoom .portrait{background:transparent}
+#chibiRoom .portrait{background:transparent;position:relative;z-index:2}
+#chibiRoom .person:before{content:'';position:absolute;bottom:0;left:9px;width:35px;height:5px;background:#24354d30;border-radius:50%;filter:blur(1px);z-index:1}
+#chibiRoom .pair{z-index:2}
+#chibiRoom .tea{z-index:3}
 #chibiRoom .say{bottom:78px;width:170px;font-size:12px}
 #chibiRoom .tea{position:absolute;width:130px;height:60px;display:none}
 #chibiRoom .tea.show{display:block}
@@ -118,7 +121,7 @@ function scan(){
  if(qr&&qr.left>=0&&qr.width>170&&qr.right<=w){
   let bottom=qr.top+30;
   [...q.children].forEach(el=>{const r=el.getBoundingClientRect();if(r.height)bottom=Math.max(bottom,r.bottom)});
-  if(qr.bottom-bottom>170)rest={x:qr.left+qr.width/2,y:Math.min(qr.bottom-65,bottom+145)};
+  if(qr.bottom-bottom>170)rest={x:qr.left+qr.width/2,y:innerHeight-8};
  }
  if(!anchors.length)anchors.push({x:w*.48,y:Math.max(160,h-210)});
 }
@@ -131,14 +134,16 @@ function animate(){
   if(slot!==lastSlot){lastSlot=slot;speech=chooseSpeech()}
   const age=speech?t-speech.at:999;
   const resting=!!rest&&(wide||(lastMode==='idle'&&Math.floor(t/30)%3===2));
-  tea.classList.toggle('show',resting);
-  if(resting)tea.style.transform='translate('+(rest.x-65)+'px,'+(rest.y-25)+'px)';
+  const arrived=resting&&positions.every((p,i)=>p&&Math.abs(p.x-(rest.x+(i?42:-85)))<3);
+  tea.classList.toggle('show',arrived);
+  if(resting)tea.style.transform='translate('+(rest.x-65)+'px,'+(rest.y-59)+'px)';
   people.forEach((el,i)=>{
    const height=innerWidth<=760?56:72;
    const a=anchors[(Math.floor(t/16)+i*2)%anchors.length];
-   const dest=resting?{x:rest.x+(i?42:-85),y:rest.y-height}: {x:a.x+(i?12:-12),y:a.y-height};
+   const dest=resting?{x:rest.x+(i?42:-85),y:innerHeight-height-8}: {x:a.x+(i?12:-12),y:innerHeight-height-8};
    dest.x=clamp(dest.x,4,innerWidth-58);dest.y=clamp(dest.y,70,innerHeight-height-8);
    if(!positions[i])positions[i]={...dest};
+   positions[i].y=dest.y; // Ground contact is invariant; vertical routes require a ladder.
    const p=positions[i],dx=dest.x-p.x,dy=dest.y-p.y,d=Math.hypot(dx,dy);
    if(!paused&&d>0){const step=Math.min(d,dt*75);p.x+=dx/d*step;p.y+=dy/d*step}
    el.style.transform='translate('+p.x+'px,'+p.y+'px)';

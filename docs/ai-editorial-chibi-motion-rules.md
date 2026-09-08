@@ -73,11 +73,12 @@ mainのchibi-companions.jsとchibi-dialogues-live.jsが本番用。main保存と
 ## 検証・引き継ぎ
 設計/素材あり/実装あり/関数検証済み/実画面確認済み/本番配信確認済みを分けて記録。
 単体、連結、割込み、再読込、画面サイズ、会話履歴の検証を行い、過去の全身ぶれを再導入しない。
-変更時はこの正本と実装状況を更新する。本番反映は会話で得た承認範囲に従う。今回の本番導入はユーザー承認済み。Preview利用を必須にして作業を止めない。
+変更時はこの正本と実装状況を更新する。本番反映は会話で得た承認範囲に従う。今回の本番導入はユーザー承認済み。
+ちびキャラの実装・調整・確認はNetlify等のPreview環境を前提にせず、GitHubへ反映した本番実環境で行う。Preview待ちを理由に作業を停止しない。
 演出の復旧はindex.htmlの2本のchibi scriptを外すか演出OFFを使う。案件機能に影響させない。
 
 新しいチャットへの引き継ぎ：
-「Syasu-pixel/my-site のmainにある docs/ai-editorial-chibi-motion-rules.md を読み、chibi-companions.jsとchibi-dialogues-live.jsを確認して続けてください。コードの存在と完成・配信を区別してください。まず未対応事項を確認してください。」
+「Syasu-pixel/my-site のmainにある docs/ai-editorial-chibi-motion-rules.md を読み、chibi-companions.jsとchibi-dialogues-live.jsを確認して続けてください。コードの存在と完成・配信を区別してください。まず未対応事項を確認してください。ちびキャラ調整ではPreviewを使わず、本番実環境で確認してください。」
 
 ## 今回の監査で補った点
 旧ルールの専用部屋方針をページ全体へ更新。確定サイズ・配色・名前削除を数値化。透過と本番組込みの古い記述を更新。

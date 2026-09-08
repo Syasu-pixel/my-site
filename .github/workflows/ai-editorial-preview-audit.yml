@@ -1,0 +1,50 @@
+name: AI Editorial Preview Audit Capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Netlify or other Preview URL to capture
+        required: true
+        type: string
+      command_id:
+        description: AI editorial command id
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  PREVIEW_URL: ${{ inputs.preview_url }}
+  COMMAND_ID: ${{ inputs.command_id }}
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture Preview desktop and mobile
+        run: node scripts/capture-ai-editorial-preview.mjs
+
+      - name: Upload Preview audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-editorial-preview-${{ inputs.command_id }}
+          path: preview-audit/${{ inputs.command_id }}/
+          if-no-files-found: error
+          retention-days: 14

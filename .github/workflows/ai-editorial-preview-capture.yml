@@ -1,54 +1,90 @@
 name: AI Editorial Preview Capture
-run-name: AI Editorial Preview ${{ inputs.command_id }}
+run-name: AI Editorial Preview PR #${{ github.event.pull_request.number }}
 
 on:
-  workflow_dispatch:
-    inputs:
-      preview_url:
-        description: Netlify Deploy Preview article URL
-        required: true
-        type: string
-      command_id:
-        description: AI editorial command id
-        required: true
-        type: string
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
 
 jobs:
   capture:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
-      - name: Checkout
+      - name: Checkout PR head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Resolve article Preview URL
+        id: target
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          ARTICLE_PATH="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' | head -n 1 || true)"
+          if [ -z "$ARTICLE_PATH" ]; then
+            echo "No article HTML changed; skip capture."
+            echo "has_article=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PREVIEW_URL="https://deploy-preview-${PR_NUMBER}--frolicking-ganache-2a4a38.netlify.app/${ARTICLE_PATH}"
+          echo "has_article=true" >> "$GITHUB_OUTPUT"
+          echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Netlify Preview
+        if: steps.target.outputs.has_article == 'true'
+        env:
+          PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
+        run: |
+          for i in $(seq 1 60); do
+            code="$(curl -L -s -o /dev/null -w '%{http_code}' "$PREVIEW_URL" || true)"
+            if [ "$code" = "200" ]; then
+              echo "Preview ready"
+              exit 0
+            fi
+            echo "Waiting for Preview ($i/60, HTTP $code)"
+            sleep 5
+          done
+          echo "Preview did not become ready in time" >&2
+          exit 1
 
       - name: Setup Node
+        if: steps.target.outputs.has_article == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Playwright
+        if: steps.target.outputs.has_article == 'true'
         run: |
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
 
       - name: Capture desktop and mobile Preview
+        if: steps.target.outputs.has_article == 'true'
         env:
-          PREVIEW_URL: ${{ inputs.preview_url }}
-          COMMAND_ID: ${{ inputs.command_id }}
+          PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
+          ARTICLE_PATH: ${{ steps.target.outputs.article_path }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          mkdir -p "preview-capture/${COMMAND_ID}"
+          OUT="preview-capture/pr-${PR_NUMBER}"
+          mkdir -p "$OUT"
           cat > /tmp/capture.mjs <<'JS'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
           const url = process.env.PREVIEW_URL;
-          const id = process.env.COMMAND_ID;
-          if (!url || !/^https:\/\//.test(url)) throw new Error('invalid preview_url');
-          const out = `preview-capture/${id}`;
+          const pr = process.env.PR_NUMBER;
+          const out = `preview-capture/pr-${pr}`;
           const browser = await chromium.launch({ headless: true });
 
           async function capture(name, viewport) {
@@ -59,8 +95,7 @@ jobs:
               await new Promise(r => setTimeout(r, 1200));
             });
             await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
-            const html = await page.content();
-            if (name === 'desktop') fs.writeFileSync(`${out}/rendered.html`, html, 'utf8');
+            if (name === 'desktop') fs.writeFileSync(`${out}/rendered.html`, await page.content(), 'utf8');
             await page.close();
           }
 
@@ -69,8 +104,10 @@ jobs:
           await browser.close();
 
           fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
-            command_id: id,
+            pr_number: Number(pr),
             preview_url: url,
+            article_path: process.env.ARTICLE_PATH,
+            head_sha: process.env.HEAD_SHA,
             captured_at: new Date().toISOString(),
             desktop: 'desktop.png',
             mobile: 'mobile.png',
@@ -80,9 +117,10 @@ jobs:
           node /tmp/capture.mjs
 
       - name: Upload Preview evidence
+        if: steps.target.outputs.has_article == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ai-editorial-preview-${{ inputs.command_id }}
-          path: preview-capture/${{ inputs.command_id }}/
+          name: ai-editorial-preview-pr-${{ github.event.pull_request.number }}
+          path: preview-capture/pr-${{ github.event.pull_request.number }}/
           if-no-files-found: error
           retention-days: 14

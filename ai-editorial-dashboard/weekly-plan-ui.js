@@ -81,6 +81,6 @@
   setInterval(loadPlan,30000);
 
   const stability=document.createElement('script');
-  stability.src='./connection-stability.js?v=0.7.10';
+  stability.src='./connection-stability.js?v=0.7.12';
   document.body.appendChild(stability);
 })();

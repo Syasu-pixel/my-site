@@ -1,5 +1,4 @@
 (()=>{
-  const BUILD='0.7.10';
   const style=document.createElement('style');
   style.textContent=`
     .logout{display:none!important}
@@ -27,8 +26,8 @@
     }
   `;
   document.head.appendChild(style);
-  const version=document.querySelector('.version');
-  if(version){version.textContent='system v'+BUILD;version.title='AI編集部 system v'+BUILD;version.dataset.build=BUILD}
+  // Version text is owned only by connection-stability.js.
+  // This visual helper must never overwrite the system build label.
   const attendance=document.querySelector('#attendance');
   const heading=attendance?.previousElementSibling;
   if(heading?.tagName==='H2')heading.textContent='👥 チーム稼働';

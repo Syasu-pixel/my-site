@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta name="robots" content="noindex,nofollow">
+<title>エリアセンサとは？光軸・検出幅・検出距離・PNP出力の見方を初心者向けに整理</title>
+<meta content="エリアセンサの基本と光電センサとの違い、光軸・検出幅・検出距離の読み方、PNP出力を確認するときの注意点を、パナソニック インダストリー NA2-N16-PNを例に解説します。" name="description"/>
+<link href="https://denkicontrol.com/articles/area-sensor-optical-axis-detection-width-pnp.html" rel="canonical"/>
+<link href="https://denkicontrol.com/articles/area-sensor-optical-axis-detection-width-pnp.html" hreflang="ja" rel="alternate"/>
+<link href="https://denkicontrol.com/articles/area-sensor-optical-axis-detection-width-pnp.html" hreflang="x-default" rel="alternate"/>
+<meta content="article" property="og:type"/>
+<meta content="エリアセンサとは？光軸・検出幅・検出距離・PNP出力の見方を初心者向けに整理" property="og:title"/>
+<meta content="エリアセンサの仕組みと仕様表の読み方を初心者向けに解説。NA2-N16-PNの公式仕様を例に、光軸・検出幅・検出距離・PNP出力を確認する手順を整理します。" property="og:description"/>
+<meta content="https://denkicontrol.com/articles/area-sensor-optical-axis-detection-width-pnp.html" property="og:url"/>
+<meta content="https://denkicontrol.com/assets/images/area-sensor-optical-axis-detection-width-pnp/area-sensor-optical-axis-detection-width-pnp-ogp.png" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="エリアセンサとは？光軸・検出幅・検出距離・PNP出力の見方を初心者向けに整理" name="twitter:title"/>
+<meta content="エリアセンサの仕組みと仕様表の読み方を初心者向けに解説。NA2-N16-PNの公式仕様を例に、光軸・検出幅・検出距離・PNP出力を確認する手順を整理します。" name="twitter:description"/>
+<meta content="https://denkicontrol.com/assets/images/area-sensor-optical-axis-detection-width-pnp/area-sensor-optical-axis-detection-width-pnp-ogp.png" name="twitter:image"/>
+<meta content="#f8fbff" name="theme-color"/>
+<link href="../assets/images/common/site-logo-dcl-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-48.png" rel="icon" sizes="48x48" type="image/png"/>
+<link href="../assets/images/common/site-logo-dcl-180.png" rel="apple-touch-icon" sizes="180x180"/>
+<style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0;display:block}
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+      display:block;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+      display:block;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+    }
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .language-menu-icon{font-size:15px;line-height:1}
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+    .language-menu-panel[hidden]{display:none}
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+    .language-menu-item:hover{background:#eff6ff;color:#1d4ed8}
+    .language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}
+    .language-menu-flag{font-size:18px;line-height:1}
+    .language-menu-item strong{
+      display:block;font-size:12px;line-height:1.25;font-weight:900
+    }
+    .language-menu-item small{
+      display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700
+    }
+
+    .sr-only{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+      clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;min-width:0;border:none;outline:none;background:transparent;
+      font-size:12px;color:#334155;font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;background:transparent;color:inherit;padding:0;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;
+      position:relative;flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;
+      right:-5px;bottom:-2px;transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);
+      max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #dbe7f3;
+      border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;z-index:1200;
+    }
+    .search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+    .search-box-empty{
+      margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700
+    }
+
+    .breadcrumb{
+      display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;
+      color:var(--muted);font-size:12px;font-weight:800;
+    }
+    .article-hero{
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);min-height:400px;isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";position:absolute;inset:0;
+      background:url("../assets/images/area-sensor-optical-axis-detection-width-pnp/area-sensor-optical-axis-detection-width-pnp-hero.png") right center / auto 100% no-repeat;
+      opacity:.34;pointer-events:none;z-index:0;
+    }
+    .article-hero::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.24) 64%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);min-height:400px;display:flex;flex-direction:column;
+      justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;
+      border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;
+      font-weight:900;margin-bottom:16px;
+    }
+    h1{margin:0 0 14px;font-size:40px;line-height:1.22;letter-spacing:.01em}
+    .hero-lead{margin:0;max-width:38ch;font-size:15px;color:#334155}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:10px 16px;
+      border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+
+    .top-summary{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{margin:0 0 12px;font-size:18px;line-height:1.4}
+    .summary-card ul{margin:0;padding-left:18px}
+    .summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;padding:22px 20px 16px;border:1px solid var(--line);
+      border-radius:24px;background:var(--card);box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{margin:0 0 14px;font-size:17px;line-height:1.5}
+    .mini-toc{display:flex;flex-wrap:wrap;gap:10px}
+    .mini-toc a{
+      display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;
+      background:#f8fbff;border:1px solid #cfdded;color:var(--blue-deep);
+      font-size:13px;font-weight:900;text-decoration:none;
+    }
+    .mini-toc a:hover{background:#eef4ff;border-color:#b8cde7}
+
+    .page-layout{
+      display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;
+      align-items:start;margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{position:sticky;top:98px;display:grid;gap:16px}
+    .section-card,.side-card{
+      background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);
+    }
+    .section-card{padding:28px;margin-bottom:20px}
+    .side-card{padding:20px}
+    .section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}
+    .section-card h3{margin:20px 0 10px;font-size:17px;line-height:1.5}
+    .section-card p{margin:0 0 14px;font-size:15px}
+    .section-card p:last-child{margin-bottom:0}
+    .term{
+      display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;
+      border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;
+      font-size:13px;font-weight:900;white-space:nowrap;
+    }
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(147,197,253,.55) 58%);
+      font-weight:900;
+    }
+    .key-highlight,.field-highlight,.note-box,.danger-box{
+      padding:18px;border-radius:20px;margin:18px 0;border:1px solid transparent;
+    }
+    .key-highlight{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%)}
+    .field-highlight{border-color:#bbf7d0;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+    .note-box{background:#fff8ea;border-color:#f7dba2}
+    .danger-box{background:var(--red-soft);border-color:#fecaca}
+    .key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{
+      margin:0 0 10px;font-size:16px;line-height:1.5;
+    }
+    .key-highlight p,.field-highlight p,.note-box p,.danger-box p{
+      margin:0;font-size:14px;color:#334155;
+    }
+
+    .icon-points{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;border-radius:20px;border:1px solid #d7e4f3;background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;
+      border-radius:14px;margin-bottom:10px;background:#eff6ff;color:#1d4ed8;
+      font-size:23px;font-weight:900;
+    }
+    .icon-point h3{margin:0 0 8px;font-size:16px;line-height:1.45}
+    .icon-point p{margin:0;color:var(--muted);font-size:14px}
+    .icon-point--orange{border-color:#fed7aa;background:#fff7ed}
+    .icon-point--orange .icon{background:#ffedd5;color:#c2410c}
+    .icon-point--green{border-color:#bbf7d0;background:#ecfdf3}
+    .icon-point--green .icon{background:#dcfce7;color:#15803d}
+
+    .simple-list{margin:0;padding-left:20px}
+    .simple-list li{margin:10px 0 0;font-size:15px}
+    .article-figure{
+      margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff;
+    }
+    .article-figure img{width:100%;height:auto}
+    .article-figure figcaption{
+      padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);
+      font-size:13px;line-height:1.65;background:#fff;
+    }
+
+    .talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}
+    .talk-row{display:flex;align-items:flex-start;gap:12px}
+    .talk-row--right{flex-direction:row-reverse}
+    .talk-avatar{
+      flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center;
+      padding-top:2px;background:transparent;border:none;box-shadow:none;outline:none;
+    }
+    .talk-avatar img{
+      width:76px;height:auto;display:block;object-fit:contain;background:transparent;
+      border:none;box-shadow:none;outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;min-width:0;max-width:min(76%,680px);background:#f8fbff;
+      border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}
+    .talk-name{
+      display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;
+      border-radius:999px;font-size:12px;font-weight:900;vertical-align:middle;
+    }
+    .talk-name--senpai{background:#eaf2ff;color:var(--blue-deep);border:1px solid #bfd5ff}
+    .talk-name--kouhai{background:#f3ebff;color:var(--purple);border:1px solid #ddc9ff}
+    .talk-bubble p{margin:0;font-size:15px;line-height:1.72}
+
+    .check-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}
+    .check-item h3{margin:0 0 8px;font-size:16px;line-height:1.5}
+    .check-item p{margin:0;font-size:14px;color:var(--muted)}
+    .check-item--blue{background:#eff6ff;border-color:#bfdbfe}
+    .check-item--green{background:#ecfdf3;border-color:#bbf7d0}
+    .check-item--orange{background:#fff7e8;border-color:#f7dba2}
+    .check-item--red{background:#fff1f2;border-color:#fecaca}
+
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    th,td{
+      padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;
+      font-size:14px;line-height:1.7;
+    }
+    th{background:#eaf2ff;color:#0f172a;font-weight:900;white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}
+    td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}
+    td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}
+    td.cell-red{background:#fff1f2;font-weight:800;color:#991b1b}
+
+    .side-card h3{
+      margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;
+      font-size:16px;line-height:1.5;
+    }
+    .side-card ul{margin:0;padding-left:18px}
+    .side-card li{margin:9px 0 0;font-size:14px;line-height:1.7}
+
+    .related-grid{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px;
+    }
+    .related-card{
+      display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;
+      padding:16px;color:var(--text);text-decoration:none;
+    }
+    .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
+    .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
+    .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .site-footer{
+      padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);
+      text-align:center;font-size:12px;font-weight:700;
+    }
+
+    .support-card{border-color:#dbeafe}
+    .support-card-title{
+      margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;
+      font-size:15px;line-height:1.5;font-weight:900;color:#1e3a8a;
+    }
+    .support-card-text{margin:0;font-size:13px;line-height:1.75;color:#334155}
+    .support-card-actions{margin-top:12px;display:grid;gap:8px}
+    .support-link{
+      display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:38px;
+      padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;
+      font-weight:900;line-height:1.4;text-align:center;text-decoration:none;white-space:normal;
+    }
+    .support-link:hover{text-decoration:none}
+    .support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}
+    .support-link--coffee:hover{border-color:#eab308;background:#fde68a}
+    .support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .support-link--paypal:hover{border-color:#60a5fa;background:#dbeafe}
+
+    @media (max-width:1100px){
+      .language-menu-current{display:none}
+      .language-menu-button{width:38px;min-width:38px;padding:0}
+      .language-menu-panel{right:0;width:210px}
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;border-radius:24px;
+        background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/area-sensor-optical-axis-detection-width-pnp/area-sensor-optical-axis-detection-width-pnp-hero.png") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.58) 42%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{font-size:15px;line-height:1.2;white-space:nowrap}
+      .header-search{flex:0 0 132px;min-height:38px}
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{width:min(360px,92vw);max-height:min(68vh,520px)}
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      :root{--header-h:66px}
+      html{scroll-padding-top:82px}
+      .site-header{padding:7px 8px}
+      .site-header-inner{gap:6px}
+      .brand{gap:7px}
+      .brand-logo{height:36px}
+      .brand-title{font-size:13px;letter-spacing:0}
+      .brand-sub{display:none}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px}
+      .header-search{flex:0 1 138px;min-height:36px}
+      .search-box{padding:0 9px;gap:6px}
+      .search-box-input{font-size:11px}
+      .header-search-icon{width:14px;height:14px}
+      .search-box-panel{right:-48px;width:min(340px,94vw)}
+      .article-hero::before{
+        background:url("../assets/images/area-sensor-optical-axis-detection-width-pnp/area-sensor-optical-axis-detection-width-pnp-hero.png") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg,rgba(255,255,255,.84) 0%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,.side-card,.mini-toc-card,.summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,.talk-bubble p,.simple-list li{font-size:14px}
+      .talk-row,.talk-row--right{flex-direction:column;gap:8px}
+      .talk-avatar{width:64px;flex-basis:auto;padding-left:4px}
+      .talk-row--right .talk-avatar{align-self:flex-end;padding-right:4px}
+      .talk-avatar img{width:60px}
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+<div class="site-header-inner">
+<a aria-label="トップページへ移動" class="brand" href="../">
+<img alt="電気と制御の実務メモ ロゴ" class="brand-logo" src="../assets/images/common/site-logo-dcl.png"/>
+<div class="brand-copy">
+<p class="brand-title">電気と制御の実務メモ</p>
+<p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+</div>
+</a>
+<div aria-label="言語と地域の切り替え" class="language-menu">
+<button aria-controls="languageMenuPanel" aria-expanded="false" aria-label="言語と地域を切り替える" class="language-menu-button" id="languageMenuButton" type="button">
+<span aria-hidden="true" class="language-menu-icon">🌐</span><span class="language-menu-current">Japan</span>
+</button>
+<div class="language-menu-panel" hidden="" id="languageMenuPanel">
+<a aria-current="page" class="language-menu-item is-active" href="./area-sensor-optical-axis-detection-width-pnp.html" lang="ja">
+<span aria-hidden="true" class="language-menu-flag">🇯🇵</span><span><strong>Japan</strong><small>日本語記事</small></span>
+</a>
+</div>
+</div>
+<form aria-label="サイト内検索" class="header-search search-box" id="siteSearch" role="search">
+<label class="sr-only" for="site-search-input">サイト内検索</label>
+<input autocomplete="off" class="search-box-input" enterkeyhint="search" id="site-search-input" placeholder="キーワードで検索" type="search"/>
+<button aria-label="検索" class="search-box-button" type="submit"><span aria-hidden="true" class="header-search-icon"></span></button>
+<div class="search-box-panel" hidden="" id="site-search-panel"><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" hidden="" id="site-search-empty">該当する記事がありません</p></div>
+</form>
+</div>
+</header>
+<main class="container">
+<nav class="breadcrumb"><a href="../">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>エリアセンサとは？光軸・検出幅・検出距離・PNP出力の見方を初心者向けに整理</span></nav>
+
+<section class="article-hero"><div class="article-hero-copy"><span class="hero-label">センサの基礎</span><h1>エリアセンサとは？光軸・検出幅・検出距離・PNP出力の見方を初心者向けに整理</h1><p class="hero-lead">エリアセンサは、1本の光だけでなく複数の検出位置を使って、一定の範囲に入った物体を検出するセンサです。この記事では、汎用エリアセンサの仕様表を読むための基本を整理します。</p><div class="hero-actions"><a class="btn btn-primary" href="#what-is-area-sensor">本文から読む</a><a class="btn btn-secondary" href="#summary">先に要点を見る</a></div></div></section>
+
+<section aria-label="この記事の要点" class="top-summary" id="summary"><div class="summary-card summary-card--fit"><h2>この記事でわかること</h2><ul><li>エリアセンサと一般的な光電センサの違い</li><li>光軸・検出幅・検出距離の意味</li><li>PNP出力を確認するときの考え方</li><li>型式ごとの仕様を公式資料で照合する手順</li></ul></div><div class="summary-card summary-card--notyet"><h2>先に確認したい注意点</h2><ul><li>汎用エリアセンサは安全ライトカーテンとは別の機器です</li><li>端子番号・線色・詳細配線は型式の公式マニュアルで確認します</li><li>製品ページの数値を別型式へそのまま流用しません</li></ul></div><div class="summary-card summary-card--conclusion"><h2>代表例</h2><ul><li>パナソニック インダストリー NA2-N16-PN</li><li>検出幅・検出距離・光軸ピッチなどは対象型式の公式製品ページで確認</li><li>シリーズ共通仕様と個別型式の仕様を分けて確認</li></ul></div></section>
+
+<section aria-label="記事内メニュー" class="mini-toc-card"><h2>この記事でわかること</h2><div class="mini-toc"><a href="#what-is-area-sensor">エリアセンサとは</a><a href="#difference-from-photoelectric">光電センサとの違い</a><a href="#how-to-read-specs">光軸・検出幅・検出距離の読み方</a><a href="#na2-n16-pn-example">NA2-N16-PNを例に仕様を確認する</a><a href="#pnp-output">PNP出力を確認するときの注意点</a><a href="#confirmation-procedure">導入前に確認する手順</a><a href="#troubleshooting">うまく検出できないときの切り分け</a><a href="#safety">安全上の注意</a><a href="#official-sources">公式参照元</a></div></section>
+
+<div class="page-layout"><article class="main-column">
+<section class="section-card" id="what-is-area-sensor"><h2>エリアセンサとは</h2><p>エリアセンサは、投光側と受光側の間にある検出範囲を使い、物体がその範囲に入ったことを検出するセンサです。搬送物の通過確認、部品の有無確認、一定範囲への侵入検出など、1点だけでなく「範囲」を見たい場面で使われます。</p><p>一般的な光電センサが、設定された1つの検出位置を中心に物体を検出するのに対し、エリアセンサは複数の光軸を使って検出エリアを構成します。ただし、実際の光軸数、検出方式、出力条件は型式によって異なるため、製品ページや取扱説明書で確認してください。</p><div class="note"><p><strong>重要：</strong>汎用エリアセンサを、安全ライトカーテンや安全機器と同じものとして扱ってはいけません。安全機能、安全カテゴリ、PL、SILなどを、製品名や外観だけから判断しないでください。安全用途では、用途に適合した安全機器の公式資料とリスクアセスメントを確認します。</p></div></section>
+<section class="section-card" id="difference-from-photoelectric"><h2>光電センサとの違い</h2><table><thead><tr><th>比較項目</th><th>一般的な光電センサ</th><th>エリアセンサ</th></tr></thead><tbody><tr><th>見る範囲</th><td>設定された検出位置を中心に確認</td><td>複数の光軸で構成された範囲を確認</td></tr><tr><th>得意な確認</th><td>物体の有無、通過、位置など</td><td>一定の高さ・幅の範囲に物体が入ったかどうか</td></tr><tr><th>仕様表で見る項目</th><td>検出距離、検出方式、出力など</td><td>検出幅、光軸ピッチ、検出距離、検出物体、出力など</td></tr><tr><th>注意点</th><td>検出物体や背景の影響を確認</td><td>光軸の間隔や検出範囲と、対象物の大きさ・位置関係を確認</td></tr></tbody></table><p>「範囲を検出できる」ことは、「どのような物体でも確実に検出できる」という意味ではありません。対象物の大きさ、形状、透明・半透明の状態、設置位置などは、型式の仕様と取扱説明書を照合してください。</p></section>
+<section class="section-card" id="how-to-read-specs"><h2>光軸・検出幅・検出距離の読み方</h2><h3>光軸</h3><p>光軸は、投光側から受光側へ向かう検出用の光の通り道です。エリアセンサでは複数の光軸を使って検出範囲を構成します。</p><p><strong>光軸ピッチ</strong>は、隣り合う光軸の間隔を示す項目です。光軸ピッチが小さいほど、細かい間隔で検出できるように見えますが、実際に検出できる対象物の条件は、検出方式や仕様表の「検出物体」などと合わせて判断します。</p><h3>検出幅</h3><p>検出幅は、センサが検出対象として扱う範囲の大きさです。機械の開口部や搬送物の高さと照らし合わせるときに使います。</p><p>検出幅と検出物体の大きさは同じ意味ではありません。検出幅が広くても、対象物が光軸を遮らない位置を通れば検出できない場合があります。</p><h3>検出距離</h3><p>検出距離は、投光器と受光器を設置できる距離の目安です。実際の設置では、取扱説明書にある設置条件、光軸合わせ、周囲光、汚れ、振動なども確認します。</p><div class="checklist"><h3>仕様表を見る順番</h3><ol><li>対象型式が目的の用途に合っているか確認する</li><li>検出幅と、設置したい開口部の寸法を比べる</li><li>光軸ピッチと、検出したい対象物の大きさを確認する</li><li>検出距離が設置距離を満たすか確認する</li><li>検出物体、電源、出力方式、使用環境を確認する</li></ol></div></section>
+<section class="section-card" id="na2-n16-pn-example"><h2>NA2-N16-PNを例に仕様を確認する</h2><p>パナソニック インダストリーの公式製品ページでは、NA2-N16-PNはNA2-Nシリーズの汎用・超薄型エリアセンサとして掲載されています。対象型式の公式ページで確認できる主な項目は次のとおりです。</p><table><thead><tr><th>確認項目</th><th>NA2-N16-PNの公式製品ページに掲載された内容</th><th>読み方</th></tr></thead><tbody><tr><th>出力</th><td>PNP出力</td><td>接続先の入力回路との適合を確認する</td></tr><tr><th>検出幅</th><td>300 mm</td><td>検出したい範囲の寸法と比較する</td></tr><tr><th>検出距離</th><td>5 m</td><td>投光側と受光側の設置距離と比較する</td></tr><tr><th>光軸ピッチ</th><td>20 mm</td><td>対象物の大きさや通過位置と合わせて確認する</td></tr><tr><th>検出物体</th><td>φ30 mm以上の不透明体</td><td>対象物の材質・形状・大きさが条件に合うか確認する</td></tr><tr><th>電源電圧</th><td>12～24 V DC ±10%</td><td>使用する電源が仕様範囲に入るか確認する</td></tr></tbody></table><p>ここに示した値はNA2-N16-PNの型式ページに基づくものです。NA2-Nシリーズの別型式へ、そのまま適用しないでください。仕様変更、受注状況、資料の改訂もあり得るため、購入・設置時には対象型式の公式ページと最新マニュアルを再確認します。</p><p><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/area/number/na2-n16-pn">パナソニック インダストリー NA2-N16-PN 公式製品ページ</a></p></section>
+<section class="section-card" id="pnp-output"><h2>PNP出力を確認するときの注意点</h2><p>PNP出力は、センサの出力方式を表す仕様項目です。制御盤やPLCの入力回路へ接続する場合は、センサ側の出力方式だけでなく、接続先の入力方式、電源電圧、入力定格、負荷条件、信号論理を一緒に確認します。</p><div class="warning"><p><strong>この記事では、端子番号・線色・詳細な配線手順を掲載しません。</strong>それらは型式ごとに異なる可能性があり、公式マニュアルで確認しないまま接続すると、誤動作や機器損傷につながるおそれがあります。</p></div><h3>PNP出力の確認チェック</h3><ul><li>対象型式の公式製品ページで、出力方式がPNPであることを確認する</li><li>対象型式の最新マニュアルで、出力回路と接続条件を確認する</li><li>PLCや制御機器の入力仕様と、センサの電源・出力条件を照合する</li><li>端子番号、線色、極性、許容電流などを、実機銘板と公式資料で確認する</li><li>電源を切った状態で、資格・権限のある担当者が配線を確認する</li></ul><p>マニュアルを確認できない場合は、配線を推測せず、パナソニック インダストリーの公式ダウンロード窓口から対象型式の資料を取得してください。</p></section>
+<section class="section-card" id="confirmation-procedure"><h2>導入前に確認する手順</h2><ol class="procedure"><li><strong>用途を決める：</strong>物体の通過確認、部品の有無確認など、何を検出するかを明確にします。安全防護が目的なら、汎用エリアセンサではなく安全用途に適合した機器を検討します。</li><li><strong>対象物を確認する：</strong>大きさ、材質、透明・不透明、通過方向、検出位置を整理します。</li><li><strong>設置寸法を測る：</strong>必要な検出幅と、投光側・受光側を設置する距離を測定します。</li><li><strong>型式を特定する：</strong>製品本体の銘板、購入記録、公式製品ページの型式を一致させます。</li><li><strong>仕様を照合する：</strong>検出幅、光軸ピッチ、検出距離、検出物体、電源、出力方式を確認します。</li><li><strong>接続資料を確認する：</strong>端子番号、線色、配線、出力回路は、対象型式の最新公式マニュアルで確認します。</li><li><strong>試運転する：</strong>安全な状態で対象物を通過させ、検出表示と制御側の入力状態を確認します。</li><li><strong>記録を残す：</strong>型式、資料名、資料の改訂情報、設定、確認日、確認者を記録します。</li></ol><div class="checklist"><h3>作業前チェック</h3><ul><li>□ 汎用検出用か、安全防護用かを区別した</li><li>□ 実機の型式と公式ページの型式が一致している</li><li>□ 検出幅と設置距離を測定した</li><li>□ 検出物体の大きさ・材質を仕様と照合した</li><li>□ PNP出力と接続先の入力条件を確認した</li><li>□ 最新の公式マニュアルを確認した</li><li>□ 電源遮断や再起動など、設備側の安全手順を確認した</li></ul></div></section>
+<section class="section-card" id="troubleshooting"><h2>うまく検出できないときの切り分け</h2><p>検出できない場合は、いきなり配線を変更せず、次の順で確認します。</p><table><thead><tr><th>確認項目</th><th>確認する内容</th></tr></thead><tbody><tr><th>型式</th><td>製品ページやマニュアルの対象型式と実機銘板が一致しているか</td></tr><tr><th>電源</th><td>公式仕様の電源条件に合っているか、電源状態に異常がないか</td></tr><tr><th>設置</th><td>投光側と受光側の向き、距離、光軸合わせに問題がないか</td></tr><tr><th>検出物体</th><td>大きさ、材質、通過位置が仕様の検出条件に合っているか</td></tr><tr><th>周囲環境</th><td>汚れ、遮光、振動、外乱光などの影響がないか</td></tr><tr><th>出力</th><td>PNP出力と接続先の入力条件、信号論理、負荷条件が合っているか</td></tr><tr><th>資料</th><td>旧資料ではなく、対象型式の最新公式マニュアルを参照しているか</td></tr></tbody></table><p>端子や線を変更する前に、設備の電源を遮断し、公式資料と実機を照合してください。資料と実機の表示が一致しない場合は、メーカーまたは設備担当者へ確認します。</p></section>
+<section class="section-card" id="safety"><h2>安全上の注意</h2><ul><li>汎用エリアセンサを、安全ライトカーテン、安全スキャナ、安全リレーなどの安全機器の代わりに使用しないでください。</li><li>安全機能、安全カテゴリ、PL、SILなどを、NA2-Nシリーズの名称や外観から推測しないでください。</li><li>端子番号、線色、配線、負荷条件を、別型式の資料やインターネット上の断片情報から流用しないでください。</li><li>電源投入中の配線変更や、設備の安全回路を無効にする作業を行わないでください。</li><li>高温、可動部、挟まれ、感電などの危険がある設備では、設備の安全手順と有資格者の指示に従ってください。</li><li>最新の公式製品ページ、取扱説明書、使用上の注意を確認し、資料の改訂や製品の販売状況にも注意してください。</li></ul></section>
+<section class="section-card" id="official-sources"><h2>公式参照元</h2><p>仕様や接続条件は、以下の公式ページを起点に確認してください。製品仕様や資料の掲載状況は変更される可能性があるため、実機の型式と公式資料を照合します。</p><ul><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/area/number/na2-n16-pn">パナソニック インダストリー NA2-N16-PN 公式製品ページ</a></li><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/area/na2-n">パナソニック インダストリー 汎用・超薄型エリアセンサ NA2-N シリーズ</a></li><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/photoelectric">パナソニック インダストリー 光電センサ・レーザセンサ製品一覧</a></li><li><a href="https://industry.panasonic.com/jp/ja/downloads">パナソニック インダストリー ダウンロードセンター</a></li><li><a href="https://denkicontrol.com/index.html">電気と制御の実務メモ トップページ</a></li><li><a href="https://denkicontrol.com/categories/circuit-basics.html">電気と制御の実務メモ 回路カテゴリ</a></li></ul><p>本記事の代表例であるNA2-N16-PNについて、端子番号・線色・詳細な配線を記載する場合は、対象型式の公式マニュアル本文と改訂情報を確認した後に追記します。</p></section>
+<section class="section-card"><h2>先輩・後輩で確認</h2><div class="talk-thread"><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内役"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>エリアセンサを選ぶときは、まず「どの範囲を、どんな物体について検出したいか」を整理しよう。検出幅だけでなく、光軸ピッチ、検出距離、検出物体も一緒に見るのがポイントだよ。</p></div></div><div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内役"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>PNP出力なら、手元にある配線例をそのまま使っても大丈夫ですか？」「いいえ。PNPという情報だけでは、端子番号や線色までは確定できません。実機の型式を確認し、対象型式の公式マニュアルとPLC側の入力仕様を照合してから接続しましょう。安全ライトカーテンとの混同にも注意してください。</p></div></div></div></section>
+<section class="section-card" id="references"><h2>公式参照資料</h2><ul class="simple-list"><li><a href="https://denkicontrol.com/index.html" target="_blank" rel="noopener noreferrer">電気と制御の実務メモ トップページ・カテゴリ構成</a> — 検索クロール時点：先月</li><li><a href="https://denkicontrol.com/categories/circuit-basics.html" target="_blank" rel="noopener noreferrer">電気と制御の実務メモ 回路カテゴリ</a> — 検索クロール時点：昨日</li><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/area/na2-n" target="_blank" rel="noopener noreferrer">パナソニック インダストリー 汎用・超薄型エリアセンサ NA2-N</a> — 検索クロール時点：約2週間前</li><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/area/number/na2-n16-pn" target="_blank" rel="noopener noreferrer">パナソニック インダストリー NA2-N16-PN 製品ページ</a> — 検索クロール時点：約2か月前</li><li><a href="https://industry.panasonic.com/jp/ja/products/fasys/sensor/photoelectric" target="_blank" rel="noopener noreferrer">パナソニック インダストリー 光電センサ・レーザセンサ製品一覧</a> — 検索クロール時点：約4日前</li><li><a href="https://industry.panasonic.com/jp/ja/downloads" target="_blank" rel="noopener noreferrer">パナソニック インダストリー ダウンロードセンター</a> — 検索クロール時点：約4日前</li></ul><p>型式固有の配線・端子・設定は、実機の型式とメーカー公式の最新取扱説明書を照合してください。</p></section>
+</article><aside aria-label="補足情報" class="side-rail">
+<section class="side-card"><h3>見るポイント</h3><ul><li>短絡は低抵抗の異常経路</li><li>地絡は大地・接地側とのつながり</li><li>漏電は本来の電路以外への電流</li><li>保護機器ごとに検出対象が異なる</li><li>実機では正式図面・安全ルールを優先</li></ul></section>
+<section aria-label="サイト応援" class="side-card support-card"><h3 class="support-card-title">このサイトを応援する</h3><p class="support-card-text">記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" rel="noopener noreferrer" target="_blank">Buy Me a Coffeeで応援</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" rel="noopener noreferrer" target="_blank">PayPalで応援</a></div></section>
+</aside></div></main>
+<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br/><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
+<script>
+(function(){const button=document.getElementById("languageMenuButton");const panel=document.getElementById("languageMenuPanel");if(!button||!panel){return;}button.addEventListener("click",function(){const isOpen=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!isOpen));panel.hidden=isOpen;});document.addEventListener("click",function(event){if(!button.contains(event.target)&&!panel.contains(event.target)){button.setAttribute("aria-expanded","false");panel.hidden=true;}});document.addEventListener("keydown",function(event){if(event.key==="Escape"){button.setAttribute("aria-expanded","false");panel.hidden=true;button.focus();}});})();
+</script>
+<script defer="" src="../assets/js/site-search.js"></script>
+</body>
+</html>

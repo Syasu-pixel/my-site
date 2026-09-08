@@ -1,0 +1,87 @@
+name: AI Editorial Preview Capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Netlify Deploy Preview article URL
+        required: true
+        type: string
+      command_id:
+        description: AI editorial command id
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture desktop and mobile Preview
+        env:
+          PREVIEW_URL: ${{ inputs.preview_url }}
+          COMMAND_ID: ${{ inputs.command_id }}
+        run: |
+          mkdir -p "preview-capture/${COMMAND_ID}"
+          cat > /tmp/capture.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const url = process.env.PREVIEW_URL;
+          const id = process.env.COMMAND_ID;
+          if (!url || !/^https:\/\//.test(url)) throw new Error('invalid preview_url');
+          const out = `preview-capture/${id}`;
+          const browser = await chromium.launch({ headless: true });
+
+          async function capture(name, viewport) {
+            const page = await browser.newPage({ viewportSize: viewport, deviceScaleFactor: 1 });
+            await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+            await page.evaluate(async () => {
+              if (document.fonts?.ready) await document.fonts.ready;
+              await new Promise(r => setTimeout(r, 1200));
+            });
+            await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
+            const html = await page.content();
+            if (name === 'desktop') fs.writeFileSync(`${out}/rendered.html`, html, 'utf8');
+            await page.close();
+          }
+
+          await capture('desktop', { width: 1440, height: 1000 });
+          await capture('mobile', { width: 390, height: 844 });
+          await browser.close();
+
+          fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
+            command_id: id,
+            preview_url: url,
+            captured_at: new Date().toISOString(),
+            desktop: 'desktop.png',
+            mobile: 'mobile.png',
+            html: 'rendered.html'
+          }, null, 2));
+          JS
+          node /tmp/capture.mjs
+
+      - name: Upload Preview evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-editorial-preview-${{ inputs.command_id }}
+          path: preview-capture/${{ inputs.command_id }}/
+          if-no-files-found: error
+          retention-days: 14

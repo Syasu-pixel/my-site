@@ -34,26 +34,11 @@ jobs:
             exit 0
           fi
           PREVIEW_URL="https://deploy-preview-${PR_NUMBER}--frolicking-ganache-2a4a38.netlify.app/${ARTICLE_PATH}"
+          LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
           echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
-
-      - name: Wait for Netlify Preview
-        if: steps.target.outputs.has_article == 'true'
-        env:
-          PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
-        run: |
-          for i in $(seq 1 60); do
-            code="$(curl -L -s -o /dev/null -w '%{http_code}' "$PREVIEW_URL" || true)"
-            if [ "$code" = "200" ]; then
-              echo "Preview ready"
-              exit 0
-            fi
-            echo "Waiting for Preview ($i/60, HTTP $code)"
-            sleep 5
-          done
-          echo "Preview did not become ready in time" >&2
-          exit 1
+          echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
         if: steps.target.outputs.has_article == 'true'
@@ -68,10 +53,27 @@ jobs:
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
 
+      - name: Start local PR render server
+        if: steps.target.outputs.has_article == 'true'
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/preview-server.log 2>&1 &
+          echo $! >/tmp/preview-server.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              echo "Local PR render server ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/preview-server.log || true
+          echo "Local PR render server did not start" >&2
+          exit 1
+
       - name: Capture desktop and mobile Preview
         if: steps.target.outputs.has_article == 'true'
         env:
           PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
+          LOCAL_URL: ${{ steps.target.outputs.local_url }}
           ARTICLE_PATH: ${{ steps.target.outputs.article_path }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -82,14 +84,15 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const url = process.env.PREVIEW_URL;
+          const renderUrl = process.env.LOCAL_URL;
+          const previewUrl = process.env.PREVIEW_URL;
           const pr = process.env.PR_NUMBER;
           const out = `preview-capture/pr-${pr}`;
           const browser = await chromium.launch({ headless: true });
 
           async function capture(name, viewport) {
             const page = await browser.newPage({ viewportSize: viewport, deviceScaleFactor: 1 });
-            await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+            await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 90000 });
             await page.evaluate(async () => {
               if (document.fonts?.ready) await document.fonts.ready;
               await new Promise(r => setTimeout(r, 1200));
@@ -105,7 +108,8 @@ jobs:
 
           fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
             pr_number: Number(pr),
-            preview_url: url,
+            preview_url: previewUrl,
+            render_source: 'local-pr-head',
             article_path: process.env.ARTICLE_PATH,
             head_sha: process.env.HEAD_SHA,
             captured_at: new Date().toISOString(),
@@ -115,6 +119,13 @@ jobs:
           }, null, 2));
           JS
           node /tmp/capture.mjs
+
+      - name: Stop local PR render server
+        if: always() && steps.target.outputs.has_article == 'true'
+        run: |
+          if [ -f /tmp/preview-server.pid ]; then
+            kill "$(cat /tmp/preview-server.pid)" || true
+          fi
 
       - name: Upload Preview evidence
         if: steps.target.outputs.has_article == 'true'

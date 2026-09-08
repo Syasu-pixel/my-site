@@ -43,7 +43,6 @@
   const heading=attendance?.previousElementSibling;
   if(heading?.tagName==='H2')heading.textContent='👥 チーム稼働';
 
-  // Keep the desktop menu useful without duplicating the visible logout button.
   const menu=document.querySelector('#mobileMenu');
   if(menu){
     const logout=document.querySelector('#mobileLogout');
@@ -51,6 +50,6 @@
   }
 
   const scrollFix=document.createElement('script');
-  scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll2';
+  scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll3';
   document.body.appendChild(scrollFix);
 })();

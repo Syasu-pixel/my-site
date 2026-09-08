@@ -3,6 +3,7 @@
   let lastGoodHtml='';
   let lastGoodJob='';
   let restoring=false;
+  let renderGuardInstalled=false;
 
   function box(){return document.querySelector('#events')}
   function conn(){return document.querySelector('#conn')}
@@ -32,6 +33,60 @@
     });
     softenConnectionLabel();
   }
+  function latestVisibleGroup(){
+    try{
+      if(typeof window.groupedJobs!=='function')return null;
+      const groups=window.groupedJobs();
+      if(!Array.isArray(groups)||!groups.length)return null;
+      const activeId=document.querySelector('.job.active')?.dataset?.job||'';
+      return groups.find(g=>String(g?.id||'')===activeId)||groups[0]||null;
+    }catch{return null}
+  }
+  function applyMinimalState(){
+    const g=latestVisibleGroup();
+    const last=g?.last||null;
+    if(!last)return;
+    const state=String(last.state||'').toUpperCase();
+    const human=state==='HUMAN_GATE'||state==='NEEDS_HUMAN';
+    const room=document.querySelector('#roomState');if(room)room.textContent=human?'管理者確認':state||'—';
+    const current=document.querySelector('#state');if(current)current.textContent=human?'管理者確認待ち':state||'—';
+    const ps=document.querySelector('#progressStatus');
+    const pm=document.querySelector('#progressMain');
+    const pf=document.querySelector('#progressFlow');
+    const pw=document.querySelector('#progressWarn');
+    if(human){
+      if(ps)ps.className='progressStatus human';
+      if(pm)pm.textContent='🟠 管理者確認待ち';
+      if(pf)pf.textContent='現在：管理者確認 → 次：判断後に再開';
+      if(pw)pw.hidden=true;
+      const gate=document.querySelector('#gate');if(gate)gate.textContent=String(last.summary||'管理者の確認を待っています。');
+      const gateCard=document.querySelector('#gateCard');if(gateCard)gateCard.classList.add('alert');
+    }
+  }
+  function installRenderGuard(){
+    if(renderGuardInstalled)return true;
+    const original=window.render;
+    if(typeof original!=='function')return false;
+    window.render=function(...args){
+      try{
+        const result=original.apply(this,args);
+        const c=conn();if(c&&c.textContent==='ライブ接続中')c.title='';
+        return result;
+      }catch(err){
+        console.error('[AI編集部] dashboard render failed but feed is still available',err);
+        const c=conn();
+        if(c){
+          c.classList.remove('off');
+          c.textContent='ライブ接続中';
+          c.title='データ取得済み / 表示更新の一部でエラー';
+        }
+        try{applyMinimalState()}catch(_){ }
+        return undefined;
+      }
+    };
+    renderGuardInstalled=true;
+    return true;
+  }
   function loadDesktopPolish(){
     if(document.querySelector('script[data-ai-editorial-polish]'))return;
     const s=document.createElement('script');
@@ -42,6 +97,9 @@
   function install(){
     const el=box();if(!el)return setTimeout(install,200);
     rememberHtml(el);
+    if(!installRenderGuard()){
+      let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>20)clearInterval(timer)},200);
+    }
     const observer=new MutationObserver(()=>{
       restoreIfTransient(el);
       /* DOM redraws can temporarily force scrollTop to 0. Never record scroll
@@ -54,7 +112,7 @@
     const c=conn();if(c)new MutationObserver(softenConnectionLabel).observe(c,{childList:true,subtree:true,characterData:true});
     window.addEventListener('offline',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='オフライン（表示保持）'}});
     window.addEventListener('online',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='再接続中…'};try{if(typeof refresh==='function')refresh()}catch{}});
-    const v=document.querySelector('.version');if(v){v.textContent='system v0.7.10';v.title='AI編集部 system v0.7.10';v.dataset.build='0.7.10'}
+    const v=document.querySelector('.version');if(v){v.textContent='system v0.7.12';v.title='AI編集部 system v0.7.12';v.dataset.build='0.7.12'}
     loadDesktopPolish();
   }
   install();

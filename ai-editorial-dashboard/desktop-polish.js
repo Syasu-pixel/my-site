@@ -49,4 +49,8 @@
     const logout=document.querySelector('#mobileLogout');
     if(logout)logout.textContent='ログアウト';
   }
+
+  const scrollFix=document.createElement('script');
+  scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll1';
+  document.body.appendChild(scrollFix);
 })();

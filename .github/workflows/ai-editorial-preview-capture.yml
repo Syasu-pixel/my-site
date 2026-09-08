@@ -27,14 +27,32 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          ARTICLE_PATH="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' | head -n 1 || true)"
+          mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
+          ARTICLE_PATH=""
+
+          # Prefer the article whose basename has a matching image asset directory.
+          # This avoids selecting stale duplicate HTML files when a PR contains more than one article candidate.
+          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+            slug="$(basename "$candidate" .html)"
+            if [ -d "assets/images/$slug" ]; then
+              ARTICLE_PATH="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$ARTICLE_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
+            ARTICLE_PATH="${ARTICLE_CANDIDATES[0]}"
+          fi
+
           if [ -z "$ARTICLE_PATH" ]; then
             echo "No article HTML changed; skip capture."
             echo "has_article=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
           PREVIEW_URL="https://deploy-preview-${PR_NUMBER}--frolicking-ganache-2a4a38.netlify.app/${ARTICLE_PATH}"
           LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
+          echo "Resolved article: $ARTICLE_PATH"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
           echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
@@ -80,7 +98,7 @@ jobs:
         run: |
           OUT="preview-capture/pr-${PR_NUMBER}"
           mkdir -p "$OUT"
-          cat > /tmp/capture.mjs <<'JS'
+          cat > .ai-editorial-capture.mjs <<'JS'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
@@ -92,7 +110,8 @@ jobs:
 
           async function capture(name, viewport) {
             const page = await browser.newPage({ viewportSize: viewport, deviceScaleFactor: 1 });
-            await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 90000 });
+            const response = await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 90000 });
+            if (!response || !response.ok()) throw new Error(`local render failed: ${response?.status() ?? 'no response'} ${renderUrl}`);
             await page.evaluate(async () => {
               if (document.fonts?.ready) await document.fonts.ready;
               await new Promise(r => setTimeout(r, 1200));
@@ -118,7 +137,8 @@ jobs:
             html: 'rendered.html'
           }, null, 2));
           JS
-          node /tmp/capture.mjs
+          node .ai-editorial-capture.mjs
+          rm -f .ai-editorial-capture.mjs
 
       - name: Stop local PR render server
         if: always() && steps.target.outputs.has_article == 'true'

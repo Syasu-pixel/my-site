@@ -11,7 +11,7 @@ const tools=document.createElement('div');tools.id='chibiTools';
 tools.innerHTML='<b style="font-size:12px;align-self:center">ちびキャラ実装テスト</b><button type="button" id="chibiToggle">演出OFF</button><button type="button" id="chibiWide">編集室を広く表示</button><button type="button" id="chibiPause">一時停止</button><a href="./">通常の編集部へ</a>';
 const room=document.createElement('section');room.id='chibiRoom';room.setAttribute('aria-label','先輩と後輩の編集室');
 room.innerHTML='<p class="status"></p><div class="pair"><div class="person"><div class="portrait"><div class="sprite"></div></div><p class="say" data-senior></p></div><div class="person"><div class="portrait"><div class="sprite junior"></div></div><p class="say" data-junior></p></div></div>';
-chat.insertBefore(tools,events);chat.insertBefore(room,events);
+chat.insertBefore(tools,events);document.querySelector('#app').append(room);
 const stations=document.createElement('div');stations.className='stationbar';stations.innerHTML='<span>休憩スペース</span><span>資料・作業スペース</span>';room.querySelector('.pair').before(stations);
 const people=[...room.querySelectorAll('.person')];
 people.forEach(el=>{const label=document.createElement('div');label.className='action-label';el.append(label)});
@@ -45,9 +45,9 @@ const state=String(current.last?.state||'').toUpperCase(),age=Date.now()-Date.pa
 mode=['HUMAN_GATE','NEEDS_HUMAN'].includes(state)?'human':['FAILED','ESCALATED','ERROR'].includes(state)||!Number.isFinite(age)||age>180000?'error':state==='RESEARCHING'?'research':state==='BUILDING'?'build':'work';
 }
 room.hidden=locked||!enabled;const large=enabled&&!locked&&!offline&&(wide||home);room.classList.toggle('large',large);
-events.hidden=large;document.querySelector('.roomHead').hidden=large;
+events.hidden=false;document.querySelector('.roomHead').hidden=false;
 document.querySelector('#chibiToggle').textContent=enabled?'演出OFF':'演出ON';
-document.querySelector('#chibiWide').textContent=wide?'チャット表示へ':'編集室を広く表示';
+document.querySelector('#chibiWide').textContent=wide?'自由移動へ':'左で休憩';
 document.querySelector('#chibiPause').textContent=paused?'再生':'一時停止';
 room.querySelector('.status').textContent=({idle:'待機中',history:'履歴閲覧中',work:'案件対応中',research:'調査中',build:'制作中',human:'管理者確認待ち',error:'状態の確認が必要です'})[mode]+' · キャラクター演出';
 if(mode!==lastMode){lastMode=mode;modeSince=clock();speech=null;room.querySelector('[data-senior]').textContent='';room.querySelector('[data-junior]').textContent='';}
@@ -83,32 +83,73 @@ Object.keys(history).forEach(k=>{if(now-history[k]>7200000)delete history[k]});
 try{localStorage.setItem('chibi-dialog-history-v1',JSON.stringify(history))}catch{}
 return {text:pick.text,at:clock()};
 }
-const positions=[.14,.68];let motionAt=0;
+
+/* The entire dashboard is the stage; no layout space is reserved. */
+style.textContent+=`
+#chibiRoom,#chibiRoom.large{position:fixed;inset:0;z-index:35;padding:0;border:0;background:transparent;max-height:none;overflow:hidden;pointer-events:none}
+#chibiRoom .status,#chibiRoom .stationbar,#chibiRoom .action-label{display:none}
+#chibiRoom .pair,#chibiRoom.large .pair{position:absolute;inset:0;width:100%;height:100%;min-height:0;overflow:visible}
+#chibiRoom .person,#chibiRoom.large .person,#chibiRoom:not(.large) .person{top:0;bottom:auto;left:0;width:54px;height:72px}
+#chibiRoom .portrait{background:transparent}
+#chibiRoom .say{bottom:78px;width:170px;font-size:12px}
+#chibiRoom .tea{position:absolute;width:130px;height:60px;display:none}
+#chibiRoom .tea.show{display:block}
+#chibiRoom .table{position:absolute;left:15px;right:15px;top:26px;height:7px;border-radius:3px;background:#bd9063;box-shadow:0 2px 3px #0002}
+#chibiRoom .table:before,#chibiRoom .table:after{content:'';position:absolute;top:7px;width:5px;height:26px;background:#94704f}
+#chibiRoom .table:before{left:9px}#chibiRoom .table:after{right:9px}
+#chibiRoom .cups{position:absolute;top:2px;left:29px;font-size:20px;letter-spacing:18px}
+@media(max-width:760px){#chibiRoom .person{height:56px;width:42px}#chibiRoom .say{bottom:62px}}
+`;
+const tea=document.createElement('div');tea.className='tea';tea.innerHTML='<div class="cups">☕☕</div><div class="table"></div>';room.append(tea);
+const positions=[null,null];let motionAt=0,scanAt=-10,anchors=[],rest=null;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function scan(){
+ const w=innerWidth,h=innerHeight;
+ anchors=[];
+ document.querySelectorAll('#events .bubble,.side .card,.side .member,.roomHead button,#chibiTools button').forEach(el=>{
+  const r=el.getBoundingClientRect();
+  if(r.width<48||r.top<145||r.top>h-100||r.left<0||r.right>w)return;
+  const scroller=el.closest('#events,.side');
+  if(scroller){const c=scroller.getBoundingClientRect();if(r.top<c.top+75||r.top>c.bottom)return;}
+  anchors.push({x:clamp(r.left+r.width*.45,4,w-60),y:r.top,el});
+ });
+ const q=document.querySelector('.queue'),qr=q?.getBoundingClientRect();
+ rest=null;
+ if(qr&&qr.left>=0&&qr.width>170&&qr.right<=w){
+  let bottom=qr.top+30;
+  [...q.children].forEach(el=>{const r=el.getBoundingClientRect();if(r.height)bottom=Math.max(bottom,r.bottom)});
+  if(qr.bottom-bottom>170)rest={x:qr.left+qr.width/2,y:Math.min(qr.bottom-65,bottom+145)};
+ }
+ if(!anchors.length)anchors.push({x:w*.48,y:Math.max(160,h-210)});
+}
 function animate(){
-if(!room.isConnected)return;
-const t=clock(),local=t-modeSince,dt=Math.max(0,t-motionAt);motionAt=t;
-if(enabled&&!room.hidden){
-const slot=Math.floor(t/55);
-if(slot!==lastSlot){lastSlot=slot;speech=chooseSpeech()}
-const speechAge=speech?t-speech.at:999;
-const stage=Math.floor(local/12)%6,part=(local%12)/12;
-const active=['work','research','build'].includes(lastMode);
-const hold=['error','human','history'].includes(lastMode);
-let targets=hold?[.3,.65]:active?[.62,.8]:stage%2?[.36,.62]:[.12,.77];
-const width=room.querySelector('.pair').clientWidth;
-people.forEach((el,i)=>{
-const aim=targets[i];if(!paused){const delta=aim-positions[i];positions[i]+=Math.sign(delta)*Math.min(Math.abs(delta),dt*.15)}
-const x=Math.max(0,Math.min(width-54,positions[i]*(width-54)));
-el.style.transform='translateX('+x+'px)';
-el.querySelector('.portrait').style.transform='scaleY('+(1+Math.sin(t*1.5+i)*.0015)+')';
-const saying=speech&&(i===0?speechAge<8:speechAge>=8&&speechAge<16);
-el.querySelector('.say').textContent=saying?speech.text[i]:'';
-el.style.setProperty('--bubble-left',Math.min(0,Math.max(-x,width-x-190))+'px');
-const moving=Math.abs(aim-positions[i])>.015;
-el.querySelector('.action-label').textContent=moving?'移動中':lastMode==='research'?'資料を確認':lastMode==='build'?'原稿を整理':lastMode==='work'?'作業中':lastMode==='human'?'確認待ち':lastMode==='error'?'状況を確認':lastMode==='history'?'静かに待機':stage%2?'ひと休み':'散歩';
-});
+ if(!room.isConnected)return;
+ const t=clock(),dt=Math.min(.05,Math.max(0,t-motionAt));motionAt=t;
+ if(t-scanAt>1){scan();scanAt=t}
+ if(enabled&&!room.hidden){
+  const slot=Math.floor(t/55);
+  if(slot!==lastSlot){lastSlot=slot;speech=chooseSpeech()}
+  const age=speech?t-speech.at:999;
+  const resting=!!rest&&(wide||(lastMode==='idle'&&Math.floor(t/30)%3===2));
+  tea.classList.toggle('show',resting);
+  if(resting)tea.style.transform='translate('+(rest.x-65)+'px,'+(rest.y-25)+'px)';
+  people.forEach((el,i)=>{
+   const height=innerWidth<=760?56:72;
+   const a=anchors[(Math.floor(t/16)+i*2)%anchors.length];
+   const dest=resting?{x:rest.x+(i?42:-85),y:rest.y-height}: {x:a.x+(i?12:-12),y:a.y-height};
+   dest.x=clamp(dest.x,4,innerWidth-58);dest.y=clamp(dest.y,70,innerHeight-height-8);
+   if(!positions[i])positions[i]={...dest};
+   const p=positions[i],dx=dest.x-p.x,dy=dest.y-p.y,d=Math.hypot(dx,dy);
+   if(!paused&&d>0){const step=Math.min(d,dt*75);p.x+=dx/d*step;p.y+=dy/d*step}
+   el.style.transform='translate('+p.x+'px,'+p.y+'px)';
+   const saying=speech&&(i===0?age<8:age>=8&&age<16);
+   el.querySelector('.say').textContent=saying?speech.text[i]:'';
+   el.style.setProperty('--bubble-left',clamp(-55,-p.x+4,innerWidth-p.x-180)+'px');
+  });
+ }
+ requestAnimationFrame(animate);
 }
-requestAnimationFrame(animate);
-}
-sync();setInterval(sync,1000);requestAnimationFrame(animate);
+addEventListener('resize',()=>{scan();});
+document.addEventListener('scroll',()=>{scan();},true);
+sync();scan();setInterval(sync,1000);requestAnimationFrame(animate);
 })();

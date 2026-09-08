@@ -31,6 +31,13 @@
     requestAnimationFrame(()=>{el.scrollTop=lastGoodScroll;restoring=false});
     softenConnectionLabel();
   }
+  function loadDesktopPolish(){
+    if(document.querySelector('script[data-ai-editorial-polish]'))return;
+    const s=document.createElement('script');
+    s.src='./desktop-polish.js?v=0.7.11';
+    s.dataset.aiEditorialPolish='1';
+    document.body.appendChild(s);
+  }
   function install(){
     const el=box();if(!el)return setTimeout(install,200);
     remember(el);
@@ -43,7 +50,8 @@
     const c=conn();if(c)new MutationObserver(softenConnectionLabel).observe(c,{childList:true,subtree:true,characterData:true});
     window.addEventListener('offline',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='オフライン（表示保持）'}});
     window.addEventListener('online',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='再接続中…'};try{if(typeof refresh==='function')refresh()}catch{}});
-    const v=document.querySelector('.version');if(v)v.textContent='chat v0.7.10';
+    const v=document.querySelector('.version');if(v){v.textContent='更新 9/8';v.title='AI編集部 UI build 0.7.11';v.dataset.build='0.7.11'}
+    loadDesktopPolish();
   }
   install();
 })();

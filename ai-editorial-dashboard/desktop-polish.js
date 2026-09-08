@@ -49,6 +49,10 @@
     if(logout)logout.textContent='ログアウト';
   }
 
+  const deltaFeed=document.createElement('script');
+  deltaFeed.src='./feed-delta-client.js?v=0.7.10-feed1';
+  document.body.appendChild(deltaFeed);
+
   const scrollFix=document.createElement('script');
   scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll3';
   document.body.appendChild(scrollFix);

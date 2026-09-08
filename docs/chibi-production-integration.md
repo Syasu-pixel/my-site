@@ -1,5 +1,7 @@
 # AI編集部ちびキャラ・本番組込み
 
+最新の作成ルール・確定値・未対応事項は [モーション作成ルール正本](ai-editorial-chibi-motion-rules.md) を参照。この文書は本番組込み時点の記録。
+
 ユーザー承認に基づき、Netlify Previewを経由せず既存の本番index.htmlへ2本のscriptを追加。
 
 - chibi-dialogues-live.js：160組の会話データ。

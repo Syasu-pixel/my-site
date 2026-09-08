@@ -43,7 +43,7 @@
     const c=conn();if(c)new MutationObserver(softenConnectionLabel).observe(c,{childList:true,subtree:true,characterData:true});
     window.addEventListener('offline',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='オフライン（表示保持）'}});
     window.addEventListener('online',()=>{const x=conn();if(x){x.classList.add('off');x.textContent='再接続中…'};try{if(typeof refresh==='function')refresh()}catch{}});
-    const v=document.querySelector('.version');if(v)v.textContent='chat v0.7.9';
+    const v=document.querySelector('.version');if(v)v.textContent='chat v0.7.10';
   }
   install();
 })();

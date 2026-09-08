@@ -51,6 +51,6 @@
   }
 
   const scrollFix=document.createElement('script');
-  scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll1';
+  scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll2';
   document.body.appendChild(scrollFix);
 })();

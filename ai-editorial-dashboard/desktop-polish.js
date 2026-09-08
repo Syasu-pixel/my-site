@@ -56,4 +56,8 @@
   const scrollFix=document.createElement('script');
   scrollFix.src='./scroll-position-lock.js?v=0.7.10-scroll3';
   document.body.appendChild(scrollFix);
+
+  const builder=document.createElement('script');
+  builder.src='./builder-autostart.js?v=0.7.10-builder1';
+  document.body.appendChild(builder);
 })();

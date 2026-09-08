@@ -1,5 +1,5 @@
 (()=>{
-  const BUILD='0.7.11';
+  const BUILD='0.7.10';
   const style=document.createElement('style');
   style.textContent=`
     /* Desktop header: keep account actions inside the hamburger. */
@@ -34,8 +34,8 @@
 
   const version=document.querySelector('.version');
   if(version){
-    version.textContent='更新 9/8';
-    version.title='AI編集部 UI build '+BUILD;
+    version.textContent='system v'+BUILD;
+    version.title='AI編集部 system v'+BUILD;
     version.dataset.build=BUILD;
   }
 

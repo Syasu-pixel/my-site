@@ -83,10 +83,10 @@ Object.keys(history).forEach(k=>{if(now-history[k]>7200000)delete history[k]});
 try{localStorage.setItem('chibi-dialog-history-v1',JSON.stringify(history))}catch{}
 return {text:pick.text,at:clock()};
 }
-const positions=[.14,.68],smooth=x=>x*x*(3-2*x);
+const positions=[.14,.68];let motionAt=0;
 function animate(){
 if(!room.isConnected)return;
-const t=clock(),local=t-modeSince;
+const t=clock(),local=t-modeSince,dt=Math.max(0,t-motionAt);motionAt=t;
 if(enabled&&!room.hidden){
 const slot=Math.floor(t/55);
 if(slot!==lastSlot){lastSlot=slot;speech=chooseSpeech()}
@@ -97,7 +97,7 @@ const hold=['error','human','history'].includes(lastMode);
 let targets=hold?[.3,.65]:active?[.62,.8]:stage%2?[.36,.62]:[.12,.77];
 const width=room.querySelector('.pair').clientWidth;
 people.forEach((el,i)=>{
-const aim=targets[i];if(!paused){const delta=aim-positions[i];positions[i]+=Math.sign(delta)*Math.min(Math.abs(delta),.0025)}
+const aim=targets[i];if(!paused){const delta=aim-positions[i];positions[i]+=Math.sign(delta)*Math.min(Math.abs(delta),dt*.15)}
 const x=Math.max(0,Math.min(width-54,positions[i]*(width-54)));
 el.style.transform='translateX('+x+'px)';
 el.querySelector('.portrait').style.transform='scaleY('+(1+Math.sin(t*1.5+i)*.0015)+')';

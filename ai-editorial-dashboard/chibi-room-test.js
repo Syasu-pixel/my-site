@@ -75,13 +75,19 @@ const banter=[
 ];
 let history={};try{const h=JSON.parse(localStorage.getItem('chibi-dialog-history-v1')||'{}');if(h&&typeof h==='object'&&!Array.isArray(h))history=h}catch{}
 function chooseSpeech(){
-const now=Date.now(),items=lastMode==='idle'?banter:[dialog[lastMode]||dialog.error];
-const candidates=items.map((text,i)=>({text,id:lastMode+':'+i})).filter(x=>!Number.isFinite(history[x.id])||now-history[x.id]>=7200000);
-if(!candidates.length)return null;
-const pick=candidates[Math.floor(Math.random()*candidates.length)];history[pick.id]=now;
-Object.keys(history).forEach(k=>{if(now-history[k]>7200000)delete history[k]});
-try{localStorage.setItem('chibi-dialog-history-v1',JSON.stringify(history))}catch{}
-return {text:pick.text,at:clock()};
+ const now=Date.now();
+ const normal=['idle','work','research','build'].includes(lastMode);
+ const pool=normal?(window.ChibiDialogueBank||[]).filter(x=>x.modes.includes(lastMode)):[{id:'state:'+lastMode,text:dialog[lastMode]||dialog.error}];
+ const candidates=pool.filter(x=>!Number.isFinite(history[x.id])||now-history[x.id]>=7200000);
+ if(!candidates.length)return null;
+ // Prefer never-used or least-recently-used pairs; randomize only equal timestamps.
+ candidates.sort((a,b)=>(history[a.id]||0)-(history[b.id]||0));
+ const oldest=history[candidates[0].id]||0;
+ const tied=candidates.filter(x=>(history[x.id]||0)===oldest);
+ const pick=tied[Math.floor(Math.random()*tied.length)];
+ history[pick.id]=now;
+ try{localStorage.setItem('chibi-dialog-history-v1',JSON.stringify(history))}catch{}
+ return {text:pick.text,at:clock()};
 }
 
 /* The entire dashboard is the stage; no layout space is reserved. */

@@ -1,21 +1,76 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 declare const EdgeRuntime:{waitUntil(p:Promise<unknown>):void};
-const U=Deno.env.get("SUPABASE_URL")??"",K=Deno.env.get("SUPABASE_ANON_KEY")??"";
-const GH=Deno.env.get("GITHUB_TOKEN")??Deno.env.get("GITHUB_PAT")??Deno.env.get("GITHUB_REPO_TOKEN")??"";
-const REPO=Deno.env.get("AI_EDITORIAL_GITHUB_REPO")??"Syasu-pixel/my-site";
+const U=Deno.env.get("SUPABASE_URL")??"";
+const K=Deno.env.get("SUPABASE_ANON_KEY")??"";
 const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"GET, OPTIONS","Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"};
 const J=(b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:H});
-async function rpc(raw:string,name:string,args:any){const r=await fetch(`${U}/rest/v1/rpc/${name}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(args)}),t=await r.text();let b:any={};try{b=t?JSON.parse(t):{}}catch{b={raw:t}}if(!r.ok)throw new Error(`${name} failed ${r.status}: ${t.slice(0,500)}`);return b}
-async function gh(path:string){if(!GH)throw new Error("GITHUB_REPO_TOKEN missing");const r=await fetch(`https://api.github.com/repos/${REPO}${path}`,{headers:{Authorization:`Bearer ${GH}`,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}});const t=await r.text();if(!r.ok)throw new Error(`GitHub ${r.status} ${path}: ${t.slice(0,700)}`);return t?JSON.parse(t):{}}
-function queued(body:any){const es=Array.isArray(body?.events)?body.events:[],m=new Map<string,any>();for(const e of es){const x=String(e?.job_id??"").match(/^command-([0-9a-f-]{36})$/i);if(!x)continue;const p=m.get(x[1]);if(!p||new Date(e?.created_at??0)>new Date(p?.created_at??0))m.set(x[1],e)}return[...m.entries()].filter(([,e])=>String(e?.state)==="QUEUED").map(([id])=>id).slice(0,1)}
-function normalizeSingleDeliverable(body:any){const es=Array.isArray(body?.events)?body.events:null;if(!es)return body;const roots=new Map<string,number>();for(const e of es){const job=String(e?.job_id??"");if(!/^command-[0-9a-f-]{36}$/i.test(job))continue;const d=e?.discussion&&typeof e.discussion==="object"?e.discussion:{},count=Number(d.deliverable_count??d.requested_count??0);if(d.queue_policy==="one-deliverable-one-queue"||count>0)roots.set(job,Number.isFinite(count)&&count>0?count:1)}if(!roots.size)return body;return{...body,events:es.map((e:any)=>{const job=String(e?.job_id??""),m=job.match(/^(command-[0-9a-f-]{36})-(\d{2})$/i);if(!m||roots.get(m[1])!==1)return e;return{...e,job_id:m[1],discussion:e?.discussion&&typeof e.discussion==="object"?{...e.discussion,original_job_id:job,collapsed_to_parent:true}:e?.discussion}})}}
+
+async function rpc(raw:string,name:string,args:any){
+  const r=await fetch(`${U}/rest/v1/rpc/${name}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(args)});
+  const t=await r.text();let b:any={};try{b=t?JSON.parse(t):{}}catch{b={raw:t}}
+  if(!r.ok)throw new Error(`${name} failed ${r.status}: ${t.slice(0,500)}`);
+  return b;
+}
+
+function queued(body:any){
+  const es=Array.isArray(body?.events)?body.events:[],m=new Map<string,any>();
+  for(const e of es){const x=String(e?.job_id??"").match(/^command-([0-9a-f-]{36})$/i);if(!x)continue;const p=m.get(x[1]);if(!p||new Date(e?.created_at??0)>new Date(p?.created_at??0))m.set(x[1],e)}
+  return [...m.entries()].filter(([,e])=>String(e?.state)==="QUEUED").map(([id])=>id).slice(0,1);
+}
+function normalizeSingleDeliverable(body:any){
+  const es=Array.isArray(body?.events)?body.events:null;if(!es)return body;const roots=new Map<string,number>();
+  for(const e of es){const job=String(e?.job_id??"");if(!/^command-[0-9a-f-]{36}$/i.test(job))continue;const d=e?.discussion&&typeof e.discussion==="object"?e.discussion:{},count=Number(d.deliverable_count??d.requested_count??0);if(d.queue_policy==="one-deliverable-one-queue"||count>0)roots.set(job,Number.isFinite(count)&&count>0?count:1)}
+  if(!roots.size)return body;
+  return {...body,events:es.map((e:any)=>{const job=String(e?.job_id??""),m=job.match(/^(command-[0-9a-f-]{36})-(\d{2})$/i);if(!m||roots.get(m[1])!==1)return e;return {...e,job_id:m[1],discussion:e?.discussion&&typeof e.discussion==="object"?{...e.discussion,original_job_id:job,collapsed_to_parent:true}:e?.discussion}})};
+}
 function cursorOf(events:any[]){let best=0,iso="";for(const e of events){const t=Date.parse(e?.created_at??"");if(Number.isFinite(t)&&t>best){best=t;iso=new Date(t).toISOString()}}return iso}
 function applyDelta(body:any,since:string|null,wantsDelta:boolean){const es=Array.isArray(body?.events)?body.events:[];const cursor=cursorOf(es);if(!wantsDelta||!since)return{...body,cursor,delta:false};const s=Date.parse(since);if(!Number.isFinite(s))return{...body,cursor,delta:false};return{...body,events:es.filter((e:any)=>{const t=Date.parse(e?.created_at??"");return Number.isFinite(t)&&t>=s}),cursor,delta:true}}
-async function run(raw:string,id:string,mode:"fresh"|"resume"="fresh"){try{const fn=mode==="resume"?"ai-editorial-resume-command":"ai-editorial-process-command",r=await fetch(`${U}/functions/v1/${fn}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({command_id:id,...(mode==="resume"?{resume:true}:{})})});if(!r.ok)console.error(`${mode} process failed`,id,r.status,(await r.text()).slice(0,500))}catch(e){console.error(`${mode} process exception`,id,e)}}
-async function runBuilder(raw:string,id:string){try{await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:"Article Builderを起動しました。記事HTML・実画像・PR・Preview工程を同じ案件で継続します。",evidence:[],severity:"info",state:"BUILDING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"article-builder-launch",retry_policy:"same-queue",admin_gate:"preview-only"},availability:{primary_provider:"article-builder",status:"online"}}]})}catch(e){console.error("builder launch event failed",id,e)}try{const r=await fetch(`${U}/functions/v1/ai-editorial-article-builder`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({command_id:id})});if(!r.ok)console.error("article builder failed",id,r.status,(await r.text()).slice(0,900))}catch(e){console.error("article builder exception",id,e)}}
-async function runPreviewProbe(raw:string,id:string,st:any){try{const pr=Number(st?.pr_number||0);if(!pr||!st?.preview_url)return;const p=await gh(`/pulls/${pr}`),sha=String(p?.head?.sha||"");if(!sha)return;const statuses=await gh(`/commits/${sha}/status`),list=Array.isArray(statuses?.statuses)?statuses.statuses:[],netlify=list.find((x:any)=>String(x?.context||"").includes("netlify/")&&String(x?.context||"").includes("deploy-preview")),checks=Number(st.preview_probe_checks||0)+1,next={...st,preview_probe_checks:checks,preview_last_status:netlify?.state??statuses?.state??"unknown",preview_last_checked_at:new Date().toISOString(),preview_head_sha:sha};if(netlify?.state==="success"){await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"needs_human",p_last_error:null,p_mark_started:false});await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"article-builder",event_type:"preview-ready",summary:"Previewが完成しました。記事内容・表示・画像・リンク・HTMLソースをGPTと一緒に確認してから採用判断してください。",evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"netlify-preview",ref:st.preview_url}],severity:"info",state:"NEEDS_HUMAN",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"preview-ready",pr_number:st.pr_number,pr_url:st.pr_url,preview_url:st.preview_url,article_path:st.article_path,article_title:st.bp?.title,hero_score:st.hero_score,ogp_score:st.ogp_score,admin_gate:"preview-only",preview_verified_by:"github-netlify-status"},availability:{primary_provider:"article-builder",status:"waiting-human"}}]});await rpc(raw,"ai_editorial_builder_checkpoint",{p_command_id:id,p_stage:"done",p_state:{...next,preview_verified:true,preview_verified_at:new Date().toISOString()}});return}await rpc(raw,"ai_editorial_builder_checkpoint",{p_command_id:id,p_stage:"preview_wait",p_state:next})}catch(e){console.error("preview probe exception",id,e)}}
+
+async function run(raw:string,id:string,mode:"fresh"|"resume"="fresh"){
+  try{const fn=mode==="resume"?"ai-editorial-resume-command":"ai-editorial-process-command";const r=await fetch(`${U}/functions/v1/${fn}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({command_id:id,...(mode==="resume"?{resume:true}:{})})});if(!r.ok)console.error(`${mode} process failed`,id,r.status,(await r.text()).slice(0,500))}catch(e){console.error(`${mode} process exception`,id,e)}
+}
+async function runBuilder(raw:string,id:string){
+  try{await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:"Article Builderを起動しました。記事HTML・実画像・PR・Preview工程を同じ案件で継続します。",evidence:[],severity:"info",state:"BUILDING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"article-builder-launch",retry_policy:"same-queue",admin_gate:"preview-only"},availability:{primary_provider:"article-builder",status:"online"}}]})}catch(e){console.error("builder launch event failed",id,e)}
+  try{const r=await fetch(`${U}/functions/v1/ai-editorial-article-builder`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({command_id:id})});if(!r.ok)console.error("article builder failed",id,r.status,(await r.text()).slice(0,900))}catch(e){console.error("article builder exception",id,e)}
+}
+async function runPreviewProbe(raw:string,id:string,st:any){
+  try{
+    const r=await fetch(`${U}/functions/v1/ai-editorial-preview-visual-audit`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({command_id:id,state:st})});
+    const t=await r.text();
+    if(!r.ok)console.error("preview visual audit failed",id,r.status,t.slice(0,900));
+  }catch(e){console.error("preview visual audit exception",id,e)}
+}
 async function addRetryEvent(raw:string,id:string,retryAt:string|null,provider:string|null){const name=provider==='gemini'?'Gemini API':provider==='openai'?'OpenAI API':'AI API';await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:`${name}の回復予定時刻に達したため、同じ案件を途中工程から自動再開します。`,evidence:[],severity:"info",state:"PLANNING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"auto-retry",retry_at:retryAt,retry_provider:provider,retry_policy:"checkpoint-same-queue"},availability:{primary_provider:"orchestrator",status:"online"}}]})}
 async function addStallRecoveryEvent(raw:string,c:any){const id=String(c.command_id),n=Number(c.stall_recovery_count??1),s=Number(c.stale_seconds??180);await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:`${Math.max(2,Math.round(s/60))}分以上更新がなかったため、完了済み工程は繰り返さず同じ案件を途中から自動再開します（${n}/3）。`,evidence:[],severity:"medium",state:"PLANNING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"stall-auto-retry",previous_status:c.previous_status??null,last_activity:c.last_activity??null,stale_seconds:s,stall_recovery_count:n,retry_policy:"checkpoint-same-queue"},availability:{primary_provider:"orchestrator",status:"online"}}]})}
 function launch(p:Promise<unknown>){try{EdgeRuntime.waitUntil(p)}catch{p.catch(console.error)}}
-Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});if(req.method!=="GET")return J({error:"method not allowed"},405);try{const raw=req.headers.get("authorization")??"";if(!raw.toLowerCase().startsWith("bearer "))return J({error:"authentication required"},401);const u=new URL(req.url),limit=Math.min(Math.max(Number(u.searchParams.get("limit")??"1000")||1000,1),1000),job=u.searchParams.get("job_id"),since=u.searchParams.get("since"),wantsDelta=u.searchParams.get("delta")==="1";const r=await fetch(`${U}/rest/v1/rpc/ai_editorial_secure_feed`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_limit:limit,p_job_id:job})}),t=await r.text();let body:any;try{body=t?JSON.parse(t):{}}catch{body={raw:t}}if(!r.ok)return J({error:"rpc feed failed",status:r.status,detail:body},r.status);if(!job){let a:any=null,s:any=null,p:any=null,b:any=null;try{a=await rpc(raw,"ai_editorial_claim_retry",{})}catch(e){console.error("auto retry claim failed",e)}if(a?.claimed&&a?.command_id){const id=String(a.command_id);try{await addRetryEvent(raw,id,a.retry_at?String(a.retry_at):null,a.provider?String(a.provider):null)}catch(e){console.error("auto retry event failed",id,e)}launch(run(raw,id,"resume"))}else{try{s=await rpc(raw,"ai_editorial_claim_stalled",{p_stale_seconds:180})}catch(e){console.error("stalled retry claim failed",e)}if(s?.claimed&&s?.command_id){const id=String(s.command_id);try{await addStallRecoveryEvent(raw,s)}catch(e){console.error("stalled retry event failed",id,e)}launch(run(raw,id,"resume"))}else{try{p=await rpc(raw,"ai_editorial_claim_preview_wait",{})}catch(e){console.error("preview probe claim failed",e)}if(p?.claimed&&p?.command_id){await runPreviewProbe(raw,String(p.command_id),p.state??{})}else{try{b=await rpc(raw,"ai_editorial_claim_building",{})}catch(e){console.error("builder claim failed",e)}if(b?.claimed&&b?.command_id){launch(runBuilder(raw,String(b.command_id)))}else{const ids=queued(body);if(ids.length)launch(run(raw,ids[0],"fresh"))}}}}body=normalizeSingleDeliverable(body);body={...body,auto_retry:a,stalled_retry:s,preview_probe:p,builder_claim:b}}return J(applyDelta(body,since,wantsDelta))}catch(e){return J({error:"unexpected failure",detail:e instanceof Error?e.message:String(e)},500)}});
+
+Deno.serve(async req=>{
+  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});
+  if(req.method!=="GET")return J({error:"method not allowed"},405);
+  try{
+    const raw=req.headers.get("authorization")??"";if(!raw.toLowerCase().startsWith("bearer "))return J({error:"authentication required"},401);
+    const u=new URL(req.url),limit=Math.min(Math.max(Number(u.searchParams.get("limit")??"1000")||1000,1),1000),job=u.searchParams.get("job_id"),since=u.searchParams.get("since"),wantsDelta=u.searchParams.get("delta")==="1";
+    const r=await fetch(`${U}/rest/v1/rpc/ai_editorial_secure_feed`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_limit:limit,p_job_id:job})});
+    const t=await r.text();let body:any;try{body=t?JSON.parse(t):{}}catch{body={raw:t}}if(!r.ok)return J({error:"rpc feed failed",status:r.status,detail:body},r.status);
+    if(!job){
+      let a:any=null,s:any=null,p:any=null,b:any=null;
+      try{a=await rpc(raw,"ai_editorial_claim_retry",{})}catch(e){console.error("auto retry claim failed",e)}
+      if(a?.claimed&&a?.command_id){const id=String(a.command_id);try{await addRetryEvent(raw,id,a.retry_at?String(a.retry_at):null,a.provider?String(a.provider):null)}catch(e){console.error("auto retry event failed",id,e)}launch(run(raw,id,"resume"))}
+      else{
+        try{s=await rpc(raw,"ai_editorial_claim_stalled",{p_stale_seconds:180})}catch(e){console.error("stalled retry claim failed",e)}
+        if(s?.claimed&&s?.command_id){const id=String(s.command_id);try{await addStallRecoveryEvent(raw,s)}catch(e){console.error("stalled retry event failed",id,e)}launch(run(raw,id,"resume"))}
+        else{
+          try{p=await rpc(raw,"ai_editorial_claim_preview_wait",{})}catch(e){console.error("preview probe claim failed",e)}
+          if(p?.claimed&&p?.command_id){await runPreviewProbe(raw,String(p.command_id),p.state??{})}
+          else{
+            try{b=await rpc(raw,"ai_editorial_claim_building",{})}catch(e){console.error("builder claim failed",e)}
+            if(b?.claimed&&b?.command_id){launch(runBuilder(raw,String(b.command_id)))}else{const ids=queued(body);if(ids.length)launch(run(raw,ids[0],"fresh"))}
+          }
+        }
+      }
+      body=normalizeSingleDeliverable(body);body={...body,auto_retry:a,stalled_retry:s,preview_probe:p,builder_claim:b};
+    }
+    return J(applyDelta(body,since,wantsDelta));
+  }catch(e){return J({error:"unexpected failure",detail:e instanceof Error?e.message:String(e)},500)}
+});

@@ -1,0 +1,60 @@
+name: tmp-preview-probe-content-validation
+on: [push]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/preview-probe-content-validation
+      - name: Patch Preview Probe content validation
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('supabase/functions/ai-editorial-preview-probe/index.ts')
+          s=p.read_text()
+          old='async function reachable(url:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-probe","Cache-Control":"no-cache"}});return {ok:r.ok,status:r.status,noindex:(r.headers.get("x-robots-tag")||"").toLowerCase().includes("noindex"),final_url:r.url}}catch(e){return {ok:false,status:0,noindex:false,final_url:url,error:e instanceof Error?e.message:String(e)}}}'
+          new='async function reachable(url:string,expectedPath:string,expectedTitle:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-probe","Cache-Control":"no-cache"}});const ct=(r.headers.get("content-type")||"").toLowerCase();const body=ct.includes("text/html")?await r.text():"";const lower=body.toLowerCase();const cloudflareMissing=lower.includes("nothing is here yet")||lower.includes("if the project exists, it may not be ready yet")||lower.includes("runs on cloudflare pages");const normalizedPath="/"+String(expectedPath||"").replace(/^\\/+/,"");let finalPath="";try{finalPath=new URL(r.url).pathname}catch{}const pathMatches=!normalizedPath||finalPath===normalizedPath||finalPath===normalizedPath.replace(/\\/index\\.html$/i,"/");const title=String(expectedTitle||"").trim().toLowerCase();const titleMatches=!title||lower.includes(title);const articleMarkers=/<article\\b/i.test(body)||/<main\\b/i.test(body)||/<h1\\b/i.test(body);const contentOk=r.ok&&ct.includes("text/html")&&!cloudflareMissing&&pathMatches&&titleMatches&&articleMarkers;return {ok:contentOk,http_ok:r.ok,status:r.status,noindex:(r.headers.get("x-robots-tag")||"").toLowerCase().includes("noindex"),final_url:r.url,content_type:ct,cloudflare_missing:cloudflareMissing,path_matches:pathMatches,title_matches:titleMatches,article_markers:articleMarkers}}catch(e){return {ok:false,http_ok:false,status:0,noindex:false,final_url:url,error:e instanceof Error?e.message:String(e)}}}'
+          if old not in s: raise SystemExit('reachable pattern not found')
+          s=s.replace(old,new)
+          old2='const check=await reachable(preview);'
+          new2='const check=await reachable(preview,st.article_path,String(st.bp?.title||st.article_title||""));'
+          if old2 not in s: raise SystemExit('call pattern not found')
+          s=s.replace(old2,new2)
+          old3='preview_last_status:check.ok?"success":String(check.status||"waiting"),preview_http_status:check.status,preview_noindex:check.noindex,preview_last_checked_at:new Date().toISOString(),preview_head_sha:sha}'
+          new3='preview_last_status:check.ok?"success":check.cloudflare_missing?"cloudflare-not-ready":check.http_ok?"content-mismatch":String(check.status||"waiting"),preview_http_status:check.status,preview_noindex:check.noindex,preview_last_checked_at:new Date().toISOString(),preview_head_sha:sha,preview_content_valid:check.ok,preview_cloudflare_missing:Boolean(check.cloudflare_missing),preview_path_matches:Boolean(check.path_matches),preview_title_matches:Boolean(check.title_matches),preview_article_markers:Boolean(check.article_markers)}'
+          if old3 not in s: raise SystemExit('state pattern not found')
+          s=s.replace(old3,new3)
+          old4='return J({ok:true,status:"waiting",preview_url:preview,http_status:check.status,checks})'
+          new4='return J({ok:true,status:"waiting",preview_url:preview,http_status:check.status,checks,reason:check.cloudflare_missing?"cloudflare-not-ready":check.http_ok?"content-mismatch":"http-not-ready"})'
+          if old4 not in s: raise SystemExit('return pattern not found')
+          s=s.replace(old4,new4)
+          p.write_text(s)
+      - name: Add audit note
+        shell: bash
+        run: |
+          cat > docs/ai-editorial-preview-probe-content-validation.md <<'EOF'
+          # Preview Probe content validation
+
+          Cloudflare Pages can return an HTTP-success response while showing its own `Nothing is here yet` placeholder. HTTP status alone must therefore never set `preview_verified=true`.
+
+          The probe now requires all of the following before verification:
+          - HTTP success and HTML content type
+          - not a Cloudflare `Nothing is here yet` placeholder
+          - final URL path matches the requested article path
+          - expected article title is present when available
+          - article-like HTML structure (`article`, `main`, or `h1`) is present
+
+          A placeholder or content mismatch stays in the same queue as `waiting` and never advances to the final human gate.
+          EOF
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-preview-probe-content-validation.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "fix: validate Preview article content before verification"
+          git push origin HEAD:ai-editorial/preview-probe-content-validation

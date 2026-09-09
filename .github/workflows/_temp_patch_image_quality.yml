@@ -1,0 +1,61 @@
+name: Patch AI editorial image quality
+
+on:
+  push:
+    branches:
+      - ai-editorial/image-quality-high
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/image-quality-high
+          fetch-depth: 0
+      - name: Upgrade image generation quality
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('supabase/functions/ai-editorial-article-builder-v4/index.ts')
+          s = p.read_text()
+          old1 = 'const IMAGE_MODEL=Deno.env.get("OPENAI_IMAGE_MODEL")??"gpt-image-2";'
+          new1 = 'const IMAGE_MODEL=Deno.env.get("OPENAI_IMAGE_MODEL")??"gpt-image-2";\nconst IMAGE_QUALITY=(Deno.env.get("OPENAI_IMAGE_QUALITY")??"high").toLowerCase();'
+          old2 = 'async function makeImage(prompt:string,size="1536x1024"){const r=await fetch("https://api.openai.com/v1/images/generations",{method:"POST",headers:{Authorization:`Bearer ${O}`,"Content-Type":"application/json"},body:JSON.stringify({model:IMAGE_MODEL,prompt,size,quality:"medium",output_format:"png"})});'
+          new2 = 'async function makeImage(prompt:string,size="1536x1024"){const quality=["low","medium","high","auto"].includes(IMAGE_QUALITY)?IMAGE_QUALITY:"high";const r=await fetch("https://api.openai.com/v1/images/generations",{method:"POST",headers:{Authorization:`Bearer ${O}`,"Content-Type":"application/json"},body:JSON.stringify({model:IMAGE_MODEL,prompt,size,quality,output_format:"png"})});'
+          assert old1 in s, 'IMAGE_MODEL marker missing'
+          assert old2 in s, 'makeImage marker missing'
+          s = s.replace(old1, new1, 1).replace(old2, new2, 1)
+          assert 'quality:"medium"' not in s.split('async function makeImage',1)[1].split('async function goldRefs',1)[0], 'hard-coded medium still remains in makeImage'
+          p.write_text(s)
+          PY
+      - name: Add implementation note
+        shell: bash
+        run: |
+          cat > docs/ai-editorial-image-quality-high.md <<'EOF'
+          # AI編集部 画像生成品質アップデート
+
+          AI編集部 Article Builder の画像生成は OpenAI Images API の `gpt-image-2` を使用し、既定の画質を `medium` から `high` へ変更する。
+
+          - モデル既定値: `gpt-image-2`
+          - 画質既定値: `high`
+          - 環境変数 `OPENAI_IMAGE_QUALITY` で `low` / `medium` / `high` / `auto` を上書き可能
+          - 不正な値の場合は安全に `high` へフォールバック
+          - 既存の画像ピクセル監査（95点基準）と、前回指摘を次回プロンプトへ入れる再生成ループは維持
+          - 画像サイズは既存の `1536x1024` を維持し、品質変更だけを先に行う
+
+          OpenAI公式ドキュメント上、`gpt-image-2` は `low` / `medium` / `high` の品質指定をサポートする。今回、まず画質不足の主因だった `medium` 固定を解除し、既定を `high` にする。
+          EOF
+      - name: Commit patch and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/_temp_patch_image_quality.yml
+          git config user.name "Syasu-pixel"
+          git config user.email "syasuta0819@gmail.com"
+          git add supabase/functions/ai-editorial-article-builder-v4/index.ts docs/ai-editorial-image-quality-high.md .github/workflows/_temp_patch_image_quality.yml
+          git commit -m "AI編集部: 画像生成をhigh品質へ更新"
+          git push origin HEAD:ai-editorial/image-quality-high

@@ -1,0 +1,41 @@
+name: tmp-stale-final-gate-clear
+on:
+  push:
+    branches: [ai-editorial/stale-final-gate-clear]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/stale-final-gate-clear
+      - name: Patch stale final gate UI
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('ai-editorial-dashboard/dashboard-experience.js')
+          s=p.read_text()
+          old="  function previewUrl(ev){return [...urls(ev)].find(u=>{try{return new URL(u).hostname.includes('netlify')}catch{return false}})||''}\n"
+          new="  function previewUrl(ev){return [...urls(ev)].find(u=>{try{const h=new URL(u).hostname;return h.includes('pages.dev')||h.includes('netlify')}catch{return false}})||''}\n"
+          if old in s:
+              s=s.replace(old,new,1)
+          old2="  function renderHumanDecision(){const g=groups().find(x=>x.id===selectedJob),last=g?.last||{},state=String(last.state||'').toUpperCase(),card=document.querySelector('#gateCard');if(!card)return;if(!['HUMAN_GATE','NEEDS_HUMAN'].includes(state))return;const ev=g?.ev||[],preview=previewUrl(ev),summary=String(last.summary||'管理者の判断を待っています。');card.classList.add('alert');"
+          new2="  function renderHumanDecision(){const g=groups().find(x=>x.id===selectedJob),last=g?.last||{},state=String(last.state||'').toUpperCase(),card=document.querySelector('#gateCard');if(!card)return;const ev=g?.ev||[];if(!['HUMAN_GATE','NEEDS_HUMAN'].includes(state)){card.classList.remove('alert');if(!TERMINAL.has(state)){card.innerHTML='<div class=\"humanDecision\"><div class=\"humanDecisionSummary\"><b>再調整中</b><br>自動修正・再監査を続けています。最終Previewが再度合格するまで操作は不要です。</div></div>';}return;}const finalEvent=[...ev].reverse().find(e=>String(e?.discussion?.stage||'')==='gpt-preview-audit'&&String(e?.state||'').toUpperCase()==='NEEDS_HUMAN');const finalReady=Boolean(finalEvent)&&finalEvent?.discussion?.preview_verified===true&&finalEvent?.discussion?.human_gate_policy==='final-preview-only';if(!finalReady){card.classList.remove('alert');card.innerHTML='<div class=\"humanDecision\"><div class=\"humanDecisionSummary\"><b>再調整中</b><br>最終Previewの配信確認と再監査を続けています。合格するまで操作は不要です。</div></div>';return;}const preview=previewUrl(ev),summary=String(last.summary||'管理者の判断を待っています。');card.classList.add('alert');"
+          if old2 not in s:
+              raise SystemExit('renderHumanDecision anchor not found')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          q=Path('ai-editorial-dashboard/index.html')
+          t=q.read_text()
+          t=t.replace('./dashboard-experience.js?v=0.7.6','./dashboard-experience.js?v=0.7.14')
+          q.write_text(t)
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/tmp-stale-final-gate-clear.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "fix: clear stale final review while rebuilding"
+          git push origin HEAD:ai-editorial/stale-final-gate-clear

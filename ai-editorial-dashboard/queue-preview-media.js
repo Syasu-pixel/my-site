@@ -58,14 +58,17 @@
     }
   }
   function renderFinalPreview(root,items){
-    root.querySelectorAll('.queuePreviewPanel').forEach(x=>x.remove());
-    const preview=previewUrl();const ready=Boolean(preview&&previewReady());if(!preview&&!items.length)return;
-    const ogp=[...items].reverse().find(x=>x.label==='OGP');const hero=[...items].reverse().find(x=>x.label==='hero');const others=[...items].reverse().filter(x=>x!==ogp&&x!==hero).slice(0,4);
-    const media=[ogp,hero,...others].filter(Boolean);
-    const panel=document.createElement('section');panel.className='queuePreviewPanel';
-    panel.innerHTML=`<div class="queuePreviewHead"><b>${ready?'🔎 最終Preview':'⏳ Preview構築中'}</b>${ready?`<a class="queuePreviewOpen" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">別タブで開く ↗</a>`:''}</div>${ready?`<iframe class="queuePreviewFrame" loading="lazy" src="${esc(preview)}" title="選択中案件のPreview"></iframe>`:`<div class="queuePreviewWaiting">Cloudflare Pages Previewを準備しています。<br>記事URLの配信確認が取れたら、自動で最終Previewに切り替わります。</div>`}${media.length?`<div class="queuePreviewMedia">${media.map(x=>`<div class="queuePreviewMediaCard ${x.label==='OGP'?'ogp':''}"><img loading="lazy" src="${esc(x.url)}" alt="${esc(x.label)}"><div class="queuePreviewMediaLabel"><span>${esc(x.label)}</span><span>${esc(ageText(x.createdAt))}</span></div></div>`).join('')}</div>`:'<div class="queuePreviewEmpty">OGP / hero / 本文画像は、生成ログに画像URLまたは画像パスが記録されるとここに表示されます。</div>'}`;
-    panel.querySelectorAll('.queuePreviewMediaCard img').forEach((img,i)=>img.onclick=()=>openImage(media[i].url));root.appendChild(panel);
+  root.querySelectorAll('.queuePreviewPanel').forEach(x=>x.remove());
+  const preview=previewUrl();const ready=Boolean(preview&&previewReady());
+  if(!preview&&!items.length)return;
+  const panel=document.createElement('section');panel.className='queuePreviewPanel';
+  if(ready){
+    panel.innerHTML=`<div class="queuePreviewHead"><b>✅ Preview完成</b><a class="queuePreviewOpen" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">別タブでPreviewを開く ↗</a></div><div class="queuePreviewWaiting">最終Previewはチャット内に埋め込みません。<br>上のボタンから別タブで確認してください。</div>`;
+  }else{
+    panel.innerHTML=`<div class="queuePreviewHead"><b>⏳ Preview準備中</b></div><div class="queuePreviewWaiting">Cloudflare Pages Previewを準備しています。<br>記事URLの配信確認が取れるまで操作は不要です。</div>`;
   }
+  root.appendChild(panel);
+}
   let lastSignature='';
   function renderEnhancements(){
     moveArtifactsOut();polishFinalReview();const root=document.querySelector('#events');const id=currentJob();if(!root||!id||id==='__home__')return;

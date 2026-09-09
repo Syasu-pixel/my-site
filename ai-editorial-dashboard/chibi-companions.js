@@ -49,15 +49,43 @@ room.hidden=locked||!enabled;const large=enabled&&!locked&&!offline&&(wide||home
 document.querySelector('#chibiToggle').textContent=enabled?'演出OFF':'演出ON';
 document.querySelector('#chibiWide').textContent=wide?'自由移動へ':'左で休憩';
 document.querySelector('#chibiPause').textContent=paused?'再生':'一時停止';
+document.querySelector('#chibiPause').disabled=!enabled;
+document.querySelector('#chibiWide').disabled=!enabled;
+document.querySelector('#chibiToggle').setAttribute('aria-pressed',String(enabled));
+document.querySelector('#chibiWide').setAttribute('aria-pressed',String(wide));
+document.querySelector('#chibiPause').setAttribute('aria-pressed',String(paused));
 room.querySelector('.status').textContent=({idle:'待機中',history:'履歴閲覧中',work:'案件対応中',research:'調査中',build:'制作中',human:'管理者確認待ち',error:'状態の確認が必要です'})[mode]+' · キャラクター演出';
 if(mode!==lastMode){lastMode=mode;modeSince=clock();speech=null;room.querySelector('[data-senior]').textContent='';room.querySelector('[data-junior]').textContent='';}
 }
-document.querySelector('#chibiToggle').onclick=()=>{enabled=!enabled;try{localStorage.setItem('chibi-room-enabled',String(enabled))}catch{}sync()};
-document.querySelector('#chibiWide').onclick=()=>{wide=!wide;sync()};
-document.querySelector('#chibiPause').onclick=()=>{base+=paused?0:performance.now()-started;started=performance.now();paused=!paused;sync()};
+
+const controlHint=document.createElement('span');controlHint.id='chibiControlHint';controlHint.setAttribute('role','status');controlHint.style.cssText='font-size:12px;align-self:center;color:#526176';tools.append(controlHint);
+function freezeClock(){if(enabled&&!paused)base+=performance.now()-started;started=performance.now();}
+document.querySelector('#chibiToggle').onclick=()=>{
+ freezeClock();enabled=!enabled;
+ try{localStorage.setItem('chibi-room-enabled',String(enabled))}catch{}
+ controlHint.textContent=enabled?(paused?'一時停止中です。「再生」で動きます。':'演出を再開しました。'):'演出を非表示にしました。';
+ sync();
+};
+document.querySelector('#chibiWide').onclick=()=>{
+ if(!enabled)return;
+ if(wide){wide=false;controlHint.textContent='片付けて自由移動へ戻ります。';}
+ else{
+ scan();
+ if(!rest){controlHint.textContent='左側に休憩用の余白がありません。';return}
+ freezeClock();paused=false;wide=true;speech=null;
+ controlHint.textContent=climb?'梯子を降りてから左へ向かいます。':'左へ移動して、お茶休憩を始めます。';
+ }
+ sync();
+};
+document.querySelector('#chibiPause').onclick=()=>{
+ if(!enabled)return;
+ freezeClock();paused=!paused;
+ controlHint.textContent=paused?'一時停止中です。':'再生を再開しました。';
+ sync();
+};
 document.querySelector('#jobs').addEventListener('click',()=>{wide=false;setTimeout(sync,0)});
 
-function clock(){return (base+(paused?0:performance.now()-started))/1000}
+function clock(){return (base+(paused||!enabled?0:performance.now()-started))/1000}
 let modeSince=0,speech=null,lastSlot=-1;
 const banter=[
 ['休憩の準備は万全だね。','メモ帳まで持ってきました！'],
@@ -150,7 +178,7 @@ function renderTea(t,dt,wanted,arrived,center,id){
  if(!teaPlay){tea.style.opacity='0';return null}
  const play=teaPlay;
  if(wanted&&arrived)play.time+=dt;
- if(!wanted&&play.time<34)play.time=34;
+ if(dt>0&&!wanted&&play.time<34)play.time=34;
  if(!wanted)play.time+=dt;
  const u=play.time;
  if(u>=40){tea.style.opacity='0';teaPlay=null;return {done:true}}
@@ -380,7 +408,7 @@ function animate(){
  if(slot!==lastSlot){lastSlot=slot;speech=onLadder||teaPlay||teaIds.has(scene?.id)||wide?null:chooseSpeech()}
  const age=speech?t-speech.at:999,talkingNow=!!speech&&age<16;
  if(talkingNow&&scene&&!climb&&!paused)scene.at+=dt;
- const resting=!onLadder&&!!rest&&(wide||teaIds.has(scene?.id))&&!held;
+ const resting=!onLadder&&!!rest&&(wide||teaIds.has(scene?.id))&&(wide||!held);
  const targets=resting?[rest.x-85,rest.x+42]:scene?.targets||positions.map(p=>p.x);
  const travel=!talkingNow&&(scene?.id==='M01'||resting||!!scene&&t-scene.at<3);
  if(!onLadder){

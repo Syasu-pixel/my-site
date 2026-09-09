@@ -1,0 +1,35 @@
+name: tmp-final-preview-live-validation
+on: [push]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/final-preview-live-validation
+      - name: Patch final live Preview validation
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('supabase/functions/ai-editorial-preview-visual-audit/index.ts')
+          s=p.read_text()
+          anchor='async function previewReachable(url:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-audit","Cache-Control":"no-cache"}});return r.ok}catch{return false}}\n'
+          add='''async function previewReachable(url:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-audit","Cache-Control":"no-cache"}});return r.ok}catch{return false}}\nasync function previewContentReady(url:string,expectedPath:string,expectedTitle:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-final-live-check","Cache-Control":"no-cache"}});const ct=(r.headers.get("content-type")||"").toLowerCase();const body=ct.includes("text/html")?await r.text():"";const lower=body.toLowerCase();const cloudflareMissing=lower.includes("nothing is here yet")||lower.includes("if the project exists, it may not be ready yet")||lower.includes("runs on cloudflare pages");const normalized="/"+String(expectedPath||"").replace(/^\\/+/,"");let finalPath="";try{finalPath=new URL(r.url).pathname}catch{}const pathMatches=!normalized||finalPath===normalized||finalPath===normalized.replace(/\\/index\\.html$/i,"/");const title=String(expectedTitle||"").trim().toLowerCase();const titleMatches=!title||lower.includes(title);const articleMarkers=/<article\\b/i.test(body)||/<main\\b/i.test(body)||/<h1\\b/i.test(body);return {ok:r.ok&&ct.includes("text/html")&&!cloudflareMissing&&pathMatches&&titleMatches&&articleMarkers,status:r.status,cloudflareMissing,pathMatches,titleMatches,articleMarkers}}catch(e){return {ok:false,status:0,error:e instanceof Error?e.message:String(e)}}}\n'''
+          if anchor not in s: raise SystemExit('previewReachable anchor not found')
+          s=s.replace(anchor,add,1)
+          target='  const summary=`GPT Preview監査を通過しました（${audit.score}点）。これが唯一の管理者確認です。`;\n'
+          insert='''  const live=await previewContentReady(String(st.preview_url||""),String(st.article_path||""),String(st.bp?.title||st.article_title||""));\n  if(!live.ok){\n    const next={...st,preview_verified:false,preview_content_valid:false,preview_live_check:live,preview_last_status:live.cloudflareMissing?"cloudflare-not-ready":"content-mismatch",preview_last_checked_at:new Date().toISOString()};\n    await checkpoint(raw,id,"preview_wait",next);\n    await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});\n    await event(raw,id,"自動監査は合格しましたが、現在のCloudflare最終Previewが記事本文ではないため管理者確認には進めません。配信を再確認して同じ案件で継続します。","BUILDING","medium",{stage:"final-preview-live-check-wait",requires_human_decision:false,human_gate_policy:"final-preview-only",preview_live_check:live});\n    return J({ok:true,status:"waiting-live-preview",preview_url:st.preview_url,live});\n  }\n  const summary=`GPT Preview監査を通過しました（${audit.score}点）。これが唯一の管理者確認です。`;\n'''
+          if target not in s: raise SystemExit('final pass target not found')
+          s=s.replace(target,insert,1)
+          p.write_text(s)
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-final-preview-live-validation.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "fix: require live article content before final human gate"
+          git push origin HEAD:ai-editorial/final-preview-live-validation

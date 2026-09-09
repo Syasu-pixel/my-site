@@ -1,5 +1,10 @@
 (()=>{
 'use strict';
+const mobileView=matchMedia('(max-width: 760px), (pointer: coarse) and (max-height: 760px)');
+let initialized=false;
+function initDesktop(){
+if(mobileView.matches||initialized)return;
+initialized=true;
 const chat=document.querySelector('.chat'),events=document.querySelector('#events');
 if(!chat||!events||document.querySelector('#chibiRoom'))return;
 const style=document.createElement('style');
@@ -30,6 +35,7 @@ let enabled=true,wide=false,paused=matchMedia('(prefers-reduced-motion: reduce)'
 let base=0,started=performance.now(),lastMode='';
 try{enabled=localStorage.getItem('chibi-room-enabled')!=='false'}catch{}
 function sync(){
+if(mobileView.matches)return;
 const locked=document.querySelector('#app').classList.contains('appLocked');
 const offline=document.querySelector('#conn').classList.contains('off');
 const home=events.dataset.job==='__home__';
@@ -393,6 +399,7 @@ function selectMotion(t){
 const positions=[null,null];let motionAt=0,scanAt=-10,anchors=[],rest=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function scan(){
+if(mobileView.matches)return;
  const w=innerWidth,h=innerHeight;
  anchors=[];
  document.querySelectorAll('#events .bubble,.side .card,.side .member,.roomHead button,#chibiTools button').forEach(el=>{
@@ -480,7 +487,7 @@ function climbStep(t,dt){
 
 
 function animate(){
- if(!room.isConnected)return;
+ if(!room.isConnected||mobileView.matches)return;
  const t=clock(),dt=Math.min(.05,Math.max(0,t-motionAt));motionAt=t;
  if(t-scanAt>1){scan();scanAt=t}
  if(enabled&&!room.hidden){
@@ -589,5 +596,13 @@ style.textContent+=`
 #chibiRoom .say:empty{display:none}
 `;
 
+style.textContent+='@media (max-width:760px),(pointer:coarse) and (max-height:760px){#chibiRoom,#chibiTools{display:none!important}}';
+mobileView.addEventListener('change',()=>{
+ if(mobileView.matches){freezeClock();}
+ else{started=performance.now();motionAt=clock();sync();scan();requestAnimationFrame(animate);}
+});
 sync();scan();setInterval(sync,1000);requestAnimationFrame(animate);
+}
+mobileView.addEventListener('change',initDesktop);
+initDesktop();
 })();

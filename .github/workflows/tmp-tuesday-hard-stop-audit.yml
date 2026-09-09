@@ -1,0 +1,89 @@
+name: tmp-tuesday-hard-stop-audit
+on:
+  push:
+    branches: ["ai-editorial/tuesday-hard-stop-audit"]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/tuesday-hard-stop-audit
+      - name: Patch remaining pre-Preview hard stops
+        shell: python
+        run: |
+          from pathlib import Path
+
+          # 1) Article Builder: hero/body quality gates no longer hard-fail after 3 attempts.
+          p=Path('supabase/functions/ai-editorial-article-builder-v4/index.ts')
+          s=p.read_text()
+          s=s.replace('if(attempt>3)throw new Error("hero image quality gate failed after 3 attempts");','')
+          s=s.replace('if(!(review.pass&&Number(review.score)>=95)){await checkpoint(raw,id,"hero_retry",st);await event(raw,id,"hero-review-retry",`hero監査 ${review.score}点。95点未達のため再生成します。`);return J({ok:true,next:"hero_retry",score:review.score})}',
+                      'if(!(review.pass&&Number(review.score)>=95)&&attempt<3){await checkpoint(raw,id,"hero_retry",st);await event(raw,id,"hero-review-retry",`hero監査 ${review.score}点。95点未達のため再生成します。`);return J({ok:true,next:"hero_retry",score:review.score})}')
+          s=s.replace('await checkpoint(raw,id,"hero_done",st);await event(raw,id,"hero-review-pass",`hero実画像の監査を通過しました（${review.score}点）。次に本文図解を生成します。`);return J({ok:true,next:"hero_done",score:review.score})}',
+                      'await checkpoint(raw,id,"hero_done",st);const heroPass=Boolean(review.pass)&&Number(review.score)>=95;await event(raw,id,heroPass?"hero-review-pass":"hero-review-degraded-continue",heroPass?`hero実画像の監査を通過しました（${review.score}点）。次に本文図解を生成します。`:`hero監査は3回目も${review.score}点で基準未達です。途中停止せず暫定候補を保存し、最終Preview監査でページ全体として再評価します。`,"BUILDING",heroPass?"info":"medium");return J({ok:true,next:"hero_done",score:review.score,degraded:!heroPass})}')
+          s=s.replace('if(attempt>3)throw new Error(`body image ${idx+1} quality gate failed after 3 attempts`);','')
+          s=s.replace('if(!(review.pass&&Number(review.score)>=95)){await checkpoint(raw,id,"body_retry",st);await event(raw,id,"body-image-review-retry",`本文図解 ${idx+1}/${list.length} は ${review.score}点。ゴールドスタンダード未達のため再生成します。`);return J({ok:true,next:"body_retry",index:idx,score:review.score})}',
+                      'if(!(review.pass&&Number(review.score)>=95)&&attempt<3){await checkpoint(raw,id,"body_retry",st);await event(raw,id,"body-image-review-retry",`本文図解 ${idx+1}/${list.length} は ${review.score}点。ゴールドスタンダード未達のため再生成します。`);return J({ok:true,next:"body_retry",index:idx,score:review.score})}')
+          s=s.replace('await checkpoint(raw,id,"body_next",st);await event(raw,id,"body-image-review-pass",`本文図解 ${idx+1}/${list.length} の実物監査を通過しました（${review.score}点）。`);return J({ok:true,next:"body_next",index:idx+1,score:review.score})}',
+                      'await checkpoint(raw,id,"body_next",st);const bodyPass=Boolean(review.pass)&&Number(review.score)>=95;await event(raw,id,bodyPass?"body-image-review-pass":"body-image-review-degraded-continue",bodyPass?`本文図解 ${idx+1}/${list.length} の実物監査を通過しました（${review.score}点）。`:`本文図解 ${idx+1}/${list.length} は3回目も${review.score}点で基準未達です。途中停止せず暫定候補を保存し、最終Preview監査でページ全体として再評価します。`,"BUILDING",bodyPass?"info":"medium");return J({ok:true,next:"body_next",index:idx+1,score:review.score,degraded:!bodyPass})}')
+          if 'hero image quality gate failed after 3 attempts' in s or 'body image ${idx+1} quality gate failed after 3 attempts' in s:
+              raise SystemExit('builder hard-stop replacement incomplete')
+          p.write_text(s)
+
+          # 2) Resume controller: revision limit no longer becomes an intermediate human gate.
+          p=Path('supabase/functions/ai-editorial-resume-command/index.ts')
+          s=p.read_text()
+          old='async function human(raw:string,c:any,p:any,round:number){await patch(raw,c.id,"needs_human",null);await add(raw,c.id,[{event_id:crypto.randomUUID(),job_id:p.parent,role:"human",provider:"orchestrator",event_type:"human-gate",summary:`自動修正を${round}回行いましたが重大論点が解消しないため、管理者判断が必要です。`,evidence:[],severity:"high",state:"HUMAN_GATE",created_at:new Date().toISOString(),discussion:{command_id:c.id,stage:"revision-limit-human-gate",rounds:round,publish_blocked:true,checkpoint_resume:true},availability:{primary_provider:"human",status:"waiting"}}])}'
+          new='async function autonomousLimit(raw:string,c:any,p:any,round:number){await patch(raw,c.id,"building",null);await add(raw,c.id,[{event_id:crypto.randomUUID(),job_id:p.parent,role:"reviewer",provider:"orchestrator",event_type:"status",summary:`自動修正を${round}回行っても独立検証の論点が残っています。途中で管理者確認へ止めず、安全側の一般化と警告を保持したまま制作・最終Preview監査へ進みます。`,evidence:[],severity:"high",state:"BUILDING",created_at:new Date().toISOString(),discussion:{command_id:c.id,stage:"revision-limit-degraded-continue",rounds:round,article_build_allowed:true,autonomous_degraded:true,human_gate_policy:"final-preview-only",checkpoint_resume:true},availability:{primary_provider:"orchestrator",status:"online"}}])}'
+          if old not in s: raise SystemExit('resume human gate function not found')
+          s=s.replace(old,new,1)
+          s=s.replace('if(round>=MAX){await human(raw,c,p,round);return J({ok:true,status:"needs_human",reason:"revision-limit"})}',
+                      'if(round>=MAX){await autonomousLimit(raw,c,p,round);return J({ok:true,status:"building",reason:"revision-limit-degraded-continue"})}')
+          s=s.replace('if(ch.needs_revision){await human(raw,c,p,round);return J({ok:true,status:"needs_human",reason:"revision-limit"})}',
+                      'if(ch.needs_revision){await autonomousLimit(raw,c,p,round);return J({ok:true,status:"building",reason:"revision-limit-degraded-continue"})}')
+          if 'revision-limit-human-gate' in s or 'await human(raw,c,p,round)' in s:
+              raise SystemExit('resume intermediate human gate replacement incomplete')
+          p.write_text(s)
+
+          # 3) Dashboard runtime: Cloudflare Preview is first-class; Tuesday template no longer says Netlify.
+          p=Path('ai-editorial-dashboard/queue-organizer.js')
+          s=p.read_text()
+          s=s.replace("x.hostname.includes('netlify')||x.hostname==='denkicontrol.com'||(x.hostname==='github.com'&&x.pathname.includes('/pull/'))",
+                      "x.hostname.includes('netlify')||x.hostname==='denkicontrol-preview.pages.dev'||x.hostname.endsWith('.denkicontrol-preview.pages.dev')||x.hostname==='denkicontrol.com'||(x.hostname==='github.com'&&x.pathname.includes('/pull/'))")
+          s=s.replace("return urls.find(u=>{try{return new URL(u).hostname.includes('netlify')}catch{return false}})||urls.find(u=>{try{return new URL(u).hostname==='denkicontrol.com'}catch{return false}})||urls[0]||''",
+                      "return urls.find(u=>{try{const h=new URL(u).hostname;return h==='denkicontrol-preview.pages.dev'||h.endsWith('.denkicontrol-preview.pages.dev')}catch{return false}})||urls.find(u=>{try{return new URL(u).hostname.includes('netlify')}catch{return false}})||urls.find(u=>{try{return new URL(u).hostname==='denkicontrol.com'}catch{return false}})||urls[0]||''")
+          s=s.replace("if(h.includes('netlify'))label='Preview';else if(h==='denkicontrol.com')label='公開URL';",
+                      "if(h.includes('netlify')||h==='denkicontrol-preview.pages.dev'||h.endsWith('.denkicontrol-preview.pages.dev'))label='Preview';else if(h==='denkicontrol.com')label='公開URL';")
+          s=s.replace('GitHub PR、Netlify Previewまで既定ルールで進め','GitHub PR、Cloudflare Pages Previewまで既定ルールで進め')
+          s=s.replace("import('./queue-preview-media.js?v=0.7.9')","import('./queue-preview-media.js?v=0.7.14')")
+          p.write_text(s)
+
+          p=Path('ai-editorial-dashboard/index.html')
+          s=p.read_text()
+          s=s.replace("if(u.hostname.includes('netlify'))return['🌐 確認用ページを開く','記事プレビュー'];",
+                      "if(u.hostname.includes('netlify')||u.hostname==='denkicontrol-preview.pages.dev'||u.hostname.endsWith('.denkicontrol-preview.pages.dev'))return['🌐 確認用ページを開く','記事プレビュー'];")
+          p.write_text(s)
+
+          # 4) Audit report: distinguish recoverable stops from true hard failures.
+          report='''# AI編集部 火曜日フロー hard-stop 先回り監査\n\n監査日: 2026-09-09\n\n## 対象フロー\n火曜日ボタン → 企画 → 公式調査 → Gemini検証 → 自動修正 → 記事HTML → hero → 本文図解 → OGP → PR → Cloudflare Pages Preview → PC/スマホ自動取得 → GPT Preview監査 → 自動修正 → 最終管理者確認。\n\n## 今回先回りで修正した停止点\n- hero画像: 3回品質未達で `throw` していた。3回目は暫定候補として同じ案件で続行し、最終Preview監査で再評価する。\n- 本文図解: 3回品質未達で `throw` していた。heroと同じ方針へ統一。\n- Gemini修正上限: resume controller自身が `NEEDS_HUMAN/HUMAN_GATE` を作っていた。上限後は degraded 警告を保持して制作へ進み、唯一の人間判断は最終Previewに限定。\n- ダッシュボード: 成果物URL判定と火曜日テンプレートにNetlify前提が残っていたため、Cloudflare Pagesを第一候補として扱う。\n\n## 既に自動復旧または待機設計になっている停止候補\n- OpenAI/Gemini 429、Gemini 503、quota/resource exhausted/high demand: DBの `ai_editorial_claim_retry()` が同一commandをcooldown後に再開。\n- 3分以上の planning/research/running 停滞: stalled recoveryが同じqueueで再開。\n- Gemini一時制限でGPT代理検証: `ai_editorial_claim_autonomous_gate()` が中間human gateを自動回収。\n- OGP品質未達: Article Builderは3回目候補をdegradedで保存し、Preview専用OGP監査は最大5回再設計後も途中human gateへ止めない。\n- Cloudflare未完成: `preview_wait` のままProbeを繰り返し、配信確認前に最終Previewとして表示しない。\n- 最終Preview GPT監査未達: v7以降は同じPRを最大5回自動修正・再Preview・再監査。\n\n## fail-closedのまま残すもの\n以下は自動継続すると破損や誤公開につながるため、意図的にhard failureを維持する。\n- 認証/権限/secret欠落。\n- GitHub branch/PR metadata欠落。\n- checkpointやblueprintそのものが欠損。\n- 生成AIが要求された構造(JSON/完全HTML)を返さず、状態を安全に復元できない場合。\n- GitHub書込み失敗など、成果物の整合性を保証できない永続的エラー。\n\n## 人間確認ポリシー\n通常フローでは、最終Previewの自動品質基準を通過した後の既存右上「管理者確認」だけを人間の意思決定ゲートとする。右上UI構造は変更しない。\n'''
+          Path('docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md').write_text(report)
+
+          # Sanity assertions.
+          b=Path('supabase/functions/ai-editorial-article-builder-v4/index.ts').read_text()
+          r=Path('supabase/functions/ai-editorial-resume-command/index.ts').read_text()
+          q=Path('ai-editorial-dashboard/queue-organizer.js').read_text()
+          assert 'hero image quality gate failed after 3 attempts' not in b
+          assert 'body image ${idx+1} quality gate failed after 3 attempts' not in b
+          assert 'revision-limit-human-gate' not in r
+          assert 'Cloudflare Pages Previewまで既定ルールで進め' in q
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/tmp-tuesday-hard-stop-audit.yml
+          git config user.name "ai-editorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add supabase/functions/ai-editorial-article-builder-v4/index.ts supabase/functions/ai-editorial-resume-command/index.ts ai-editorial-dashboard/queue-organizer.js ai-editorial-dashboard/index.html docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md .github/workflows/tmp-tuesday-hard-stop-audit.yml
+          git commit -m "AI編集部: 火曜日フローの残存hard stopを先回り修正"
+          git push origin ai-editorial/tuesday-hard-stop-audit

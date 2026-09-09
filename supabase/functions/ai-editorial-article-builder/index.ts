@@ -1,1 +1,1 @@
-import "https://raw.githubusercontent.com/Syasu-pixel/my-site/105cfa186c72d67d89e93a1df4aa9558b35a9e9d/supabase/functions/ai-editorial-article-builder-v4/index.ts";
+import "https://raw.githubusercontent.com/Syasu-pixel/my-site/fc97d8755d759b4b2529f28f07e055e4b448df53/supabase/functions/ai-editorial-article-builder-v4/index.ts";

@@ -302,6 +302,64 @@ class MotionBag {
  return this.pending.splice(at,1)[0];
 }
 }
+
+const skitIds=new Set(['M12','M13','M14','M15','M16','M17']);
+const skitDefs={
+ M12:{name:'付箋がくっついた',lines:[[3,8,0,'このメモ、どうぞ。'],[9,14,1,'あ、手にも一枚ついていますよ。'],[17,22,0,'そっちが本当の覚え書きかな。']]},
+ M13:{name:'ペンを探す',lines:[[3,8,1,'ペン、どこに置いたかな…。'],[9,14,0,'その手を見てごらん。'],[17,22,1,'探す準備は万全でした。']]},
+ M14:{name:'お茶の温度差',lines:[[3,8,0,'こちらは、ちょうどいいね。'],[9,14,1,'こっちは、もう少し待ちます。'],[17,22,0,'それぞれのペースでいこう。']]},
+ M15:{name:'資料の背比べ',lines:[[3,8,1,'まだ持てます…たぶん。'],[9,14,0,'半分ずつにしようか。'],[17,22,1,'前が見えるようになりました。']]},
+ M16:{name:'掃除の連携',lines:[[3,8,0,'道具を持ち上げておくね。'],[9,14,1,'その下、拭いておきます。'],[17,22,0,'ありがとう。そっと戻そう。']]},
+ M17:{name:'休憩の席づくり',lines:[[3,8,1,'椅子、用意できました。'],[9,14,0,'もう一人いるんだけどな。'],[17,22,1,'もう一脚、持ってきます！']]}
+};
+const skitLayer=document.createElementNS('http://www.w3.org/2000/svg','svg');
+skitLayer.setAttribute('aria-hidden','true');skitLayer.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4';room.append(skitLayer);
+function propSvg(kind,x,y,angle=0){
+ const shapes={
+ note:'<path d="M-10-13h20v22l-5 5h-15z" fill="#f5e5a0" stroke="#bba96a"/><path d="M-6-6h12M-6-1h10M-6 4h8" stroke="#938a69"/>',
+ pen:'<path d="M-2-13h4v22l-2 5-2-5z" fill="#5f8faa" stroke="#335f76"/><path d="M-2-9h4" stroke="#d6e4e7"/>',
+ cup:'<ellipse cy="9" rx="13" ry="3" fill="#b68c60"/><path d="M-9-9h18L7 6Q0 11-7 6z" fill="#e4f0ed" stroke="#6f9796"/><ellipse cy="-9" rx="9" ry="3" fill="#b4b76e" stroke="#6f9796"/>',
+ stack:'<path d="M-16-18h32v33h-32z" fill="#f6f0d9" stroke="#8597a3"/><path d="M-14-12h28M-14-6h28M-14 0h28M-14 6h28M-14 12h28" stroke="#bcc7cb"/>',
+ cloth:'<path d="M-12-5l20-3 6 14-23 3z" fill="#c0dedc" stroke="#67918f"/>',
+ chair:'<path d="M-11-32h22v19h-22z" fill="#d7ad78" stroke="#88633e"/><path d="M-12-11h25v5h-25z" fill="#bd8855" stroke="#88633e"/><path d="M-10-6v19M11-6v19M-9-13v-19M9-13v-19" stroke="#88633e" stroke-width="3"/>'
+ };
+ return '<g transform="translate('+x+' '+y+') rotate('+angle+')">'+shapes[kind]+'</g>';
+}
+function paintSkit(t){
+ const id=scene?.id;if(!skitIds.has(id)){skitLayer.innerHTML='';return}
+ const u=t-scene.at,ps=positions.map(p=>({x:p.x+33,y:p.y+51}));
+ const fade=u<2?u/2:u>25?Math.max(0,(28-u)/3):1;
+ let art='';
+ if(id==='M12'){
+ const transfer=easeTea((u-6)/3);
+ art=propSvg('note',ps[0].x+(ps[1].x-ps[0].x)*transfer,ps[0].y);
+ if(u>8&&u<20)art+=propSvg('note',ps[0].x+16,ps[0].y-4,16);
+ }else if(id==='M13'){
+ art=propSvg('pen',ps[1].x+10,ps[1].y,u<12?Math.sin(t*2)*20:0);
+ }else if(id==='M14'){
+ art=ps.map((p,i)=>propSvg('cup',p.x,p.y-(i?0:8)*easeTea((u-5)/2)*(1-easeTea((u-8)/2)))).join('');
+ if(u<15)art+='<path d="M'+ps[1].x+' '+(ps[1].y-17)+'q-6-7 0-13t0-12" fill="none" stroke="#91aaa9"/>';
+ }else if(id==='M15'){
+ const split=easeTea((u-10)/3);
+ art=propSvg('stack',ps[1].x,ps[1].y)+propSvg('stack',ps[1].x+(ps[0].x-ps[1].x)*split,ps[1].y-24*(1-split));
+ }else if(id==='M16'){
+ const lift=easeTea((u-5)/2)*(1-easeTea((u-19)/2));
+ art=propSvg('stack',ps[0].x+25,ps[0].y-lift*18)+propSvg('cloth',ps[0].x+25+(u>7&&u<18?Math.sin(t*3)*12:0),ps[0].y+12);
+ }else{
+ art=propSvg('chair',ps[1].x,innerHeight-24);
+ if(u>13)art+=propSvg('chair',-20+(ps[0].x+20)*easeTea((u-13)/5),innerHeight-24);
+ }
+ skitLayer.innerHTML='<g opacity="'+fade+'">'+art+'</g>';
+ people.forEach((el,i)=>{
+ const r=rigs[i],line=skitDefs[id].lines.find(l=>l[2]===i&&u>=l[0]&&u<l[1]);
+ el.querySelector('.say').textContent=line?line[3]:'';
+ r.carry.classList.remove('visible');r.wave.style.visibility='hidden';el.classList.remove('waving','reading');
+ r.mouth.style.visibility=line&&Math.sin(t*17)>-.2?'visible':'hidden';
+ const angle=id==='M13'&&i===1&&u<10?Math.sin(t*2)*5:id==='M17'&&i===0&&u>9&&u<14?-5:0;
+ r.face.style.transform='rotate('+angle+'deg)';
+ });
+}
+
 const motionCatalog=[
  {id:'M01',name:'散歩',duration:14},
  {id:'M02',name:'まばたき',duration:4},
@@ -313,7 +371,8 @@ const motionCatalog=[
  {id:'M08',name:'二人分のお茶',duration:90},
  {id:'M10',name:'熱いお茶を冷ます',duration:90},
  {id:'M11',name:'道具をそろえて片付ける',duration:90},
- {id:'M09',name:'梯子で上って戻る',duration:60}
+ {id:'M09',name:'高所の修理と帰還',duration:100},
+ ...Object.entries(skitDefs).map(([id,def])=>({id,name:def.name,duration:28}))
 ];
 let motionBag=null,scene=null;
 function ladderAnchor(){return anchors.filter(a=>a.el&&a.y>innerHeight-370&&a.y<innerHeight-160&&a.x>110&&a.x<innerWidth-180).sort((a,b)=>b.y-a.y)[0]}
@@ -355,6 +414,24 @@ function scan(){
 
 style.textContent+='#chibiRoom .ladder{position:absolute;width:27px;border-inline:4px solid #ba9066;background:repeating-linear-gradient(to top,transparent 0 17px,#bd946e 17px 21px);box-sizing:border-box;z-index:1;transform-origin:bottom;display:none}';
 const ladder=document.createElement('div');ladder.className='ladder';room.append(ladder);
+
+const highLayer=document.createElementNS('http://www.w3.org/2000/svg','svg');
+highLayer.setAttribute('aria-hidden','true');highLayer.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4';
+room.append(highLayer);
+function paintHigh(t){
+ if(!climb){highLayer.innerHTML='';return}
+ const c=climb,p=positions[0],h=innerWidth<=760?68:88;
+ const geared=!['approach','deploy'].includes(c.phase);
+ const repair=c.phase==='repair';
+ const beltX=p.x+h*.375,beltY=p.y+h*.62;
+ highLayer.innerHTML=
+ '<g stroke-linejoin="round"><path d="M'+(c.x-12)+' '+c.top+'h126v8h-126z" fill="#d0b284" stroke="#70593c"/>'+
+ '<path d="M'+(c.x-12)+' '+(c.top+3)+'h126" stroke="#d4a327" stroke-width="4" stroke-dasharray="7 6"/>'+
+ (geared?'<path d="M'+(c.x+94)+' '+(c.top-72)+'V'+c.top+'" stroke="#69848f" stroke-width="3"/><circle cx="'+(c.x+94)+'" cy="'+(c.top-72)+'" r="4" fill="#efc55c"/><path d="M'+(c.x+94)+' '+(c.top-72)+' Q'+(c.x+45)+' '+(beltY-30)+' '+beltX+' '+beltY+'" fill="none" stroke="#c47c30" stroke-width="2"/><path d="M'+(beltX-12)+' '+(beltY-22)+'l9 22h8l9-22M'+(beltX-13)+' '+beltY+'h28" fill="none" stroke="#e1a636" stroke-width="3"/><circle cx="'+beltX+'" cy="'+beltY+'" r="3" fill="#d7e2e4" stroke="#586c70"/>':'')+
+ '<rect x="'+(c.x+78)+'" y="'+(c.top-28)+'" width="24" height="22" rx="3" fill="#c3d5dc" stroke="#526d79"/><path d="M'+(c.x+83)+' '+(c.top-17)+'h14" stroke="#748d96"/>'+
+ (repair?'<g transform="translate('+(p.x+45)+' '+(p.y+48)+') rotate('+(Math.sin(t*5)*18)+')"><path d="M0 0l15-11" stroke="#667f89" stroke-width="4"/><circle cx="15" cy="-11" r="4" fill="none" stroke="#667f89" stroke-width="2"/></g>':'')+'</g>';
+}
+
 let climb=null;
 const approach=(v,target,step)=>v+Math.sign(target-v)*Math.min(Math.abs(target-v),step);
 function climbStep(t,dt){
@@ -368,20 +445,30 @@ function climbStep(t,dt){
  if(dt===0)return true;
  const c=climb,p=positions[0];c.elapsed+=dt;
  const invalid=!c.anchor.isConnected||Math.abs(c.anchor.getBoundingClientRect().top-c.top)>5||wide||c.viewport!==innerWidth+':'+innerHeight||['error','human','history'].includes(lastMode);
- if(invalid&&!['descend','pack'].includes(c.phase)){c.phase=p.y<ground-2?'descend':'pack';c.elapsed=0}
+ if(invalid&&!['return','descend','pack'].includes(c.phase)){c.phase=p.y<ground-2?'return':'pack';c.elapsed=0}
  const phase=c.phase;
  if(phase==='approach'){
   p.x=approach(p.x,c.x,dt*65);p.y=ground;
   if(Math.abs(p.x-c.x)<.1){p.x=c.x;c.phase='deploy';c.elapsed=0}
- }else if(phase==='deploy'&&c.elapsed>=2){c.phase='up';c.elapsed=0}
+ }else if(phase==='deploy'&&c.elapsed>=2){c.phase='gear';c.elapsed=0}
+ else if(phase==='gear'&&c.elapsed>=2){c.phase='up';c.elapsed=0}
  else if(phase==='up'){
   p.y=approach(p.y,c.y,dt*35);
-  if(Math.abs(p.y-c.y)<.1){p.y=c.y;c.phase='peek';c.elapsed=0}
- }else if(phase==='peek'&&c.elapsed>=6){c.phase='descend';c.elapsed=0}
+  if(Math.abs(p.y-c.y)<.1){p.y=c.y;c.phase='step';c.elapsed=0}
+ }else if(phase==='step'){
+ p.x=approach(p.x,c.x+40,dt*24);
+ if(Math.abs(p.x-c.x-40)<.1){c.phase='secure';c.elapsed=0}
+ }else if(phase==='secure'&&c.elapsed>=3){c.phase='repair';c.elapsed=0}
+ else if(phase==='repair'&&c.elapsed>=8){c.phase='stow';c.elapsed=0}
+ else if(phase==='stow'&&c.elapsed>=3){c.phase='return';c.elapsed=0}
+ else if(phase==='return'){
+ p.x=approach(p.x,c.x,dt*25);
+ if(Math.abs(p.x-c.x)<.1){p.x=c.x;c.phase='descend';c.elapsed=0}
+ }
  else if(phase==='descend'){
   p.y=approach(p.y,ground,dt*40);
   if(Math.abs(p.y-ground)<.1){p.y=ground;c.phase='pack';c.elapsed=0}
- }else if(phase==='pack'&&c.elapsed>=2){p.y=ground;climb=null;scene=null;ladder.style.display='none';return false}
+ }else if(phase==='pack'&&c.elapsed>=2&&p.y>=ground-.1){p.y=ground;climb=null;scene=null;ladder.style.display='none';return false}
  const q=positions[1];q.x=approach(q.x,Math.min(innerWidth-80,c.x+100),dt*65);q.y=ground;
  ladder.style.display='block';
  ladder.style.left=((phase==='approach'?p.x:c.x)+20)+'px';
@@ -405,7 +492,7 @@ function animate(){
  const before=positions.map(p=>({...p}));
  const onLadder=climbStep(t,paused?0:dt);
  const slot=Math.floor(t/28);
- if(slot!==lastSlot){lastSlot=slot;speech=onLadder||teaPlay||teaIds.has(scene?.id)||wide?null:chooseSpeech()}
+ if(slot!==lastSlot){lastSlot=slot;speech=onLadder||teaPlay||teaIds.has(scene?.id)||skitIds.has(scene?.id)||wide?null:chooseSpeech()}
  const age=speech?t-speech.at:999,talkingNow=!!speech&&age<16;
  if(talkingNow&&scene&&!climb&&!paused)scene.at+=dt;
  const resting=!onLadder&&!!rest&&(wide||teaIds.has(scene?.id))&&(wide||!held);
@@ -442,9 +529,9 @@ function animate(){
  r['leg-left'].style.transform='translateY('+(-Math.max(0,Math.sin(t*6))*4)+'px)';
  r['leg-right'].style.transform='translateY('+(-Math.max(0,-Math.sin(t*6))*4)+'px)';
  }
- if(climb.phase==='peek'){
+ if(['secure','repair','stow'].includes(climb.phase)){
  r.face.style.transform='rotate('+(i===0?6:-3)+'deg)';
- el.querySelector('.say').textContent=i===0&&climb.elapsed<3?'少し高いね…。ゆっくり戻ろう。':i===1&&climb.elapsed>=3?'慌てず、一段ずつですね。':'';
+ el.querySelector('.say').textContent=i===0&&climb.phase==='secure'?'つながりを確かめてから始めよう。':i===1&&climb.phase==='stow'?'道具をしまってから戻りましょう。':'';
  }else el.querySelector('.say').textContent='';
  }else if(!talkingNow&&!moving&&['M06','M07'].includes(scene?.id)){
  r.carry.classList.add('visible');r.carry.textContent=scene.id==='M06'?'🔎':'🧽';
@@ -474,6 +561,8 @@ function animate(){
  el.style.setProperty('--tail-left',clamp(charWidth/2-left-7,14,bubbleWidth-28)+'px');
  });
  }
+ paintHigh(t);
+ if(enabled&&!room.hidden)paintSkit(t);
  requestAnimationFrame(animate);
 }
 

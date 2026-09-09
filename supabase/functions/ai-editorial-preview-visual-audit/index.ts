@@ -37,16 +37,16 @@ async function auditOgp(ogp:string,title:string,level:string,ogpPrompt:string){
 async function recoverOgp(raw:string,id:string,st:any,audit:any,sha:string){
   const round=Number(st.ogp_dedicated_review_round||0)+1;
   const instructions=(Array.isArray(audit?.redesign_instructions)&&audit.redesign_instructions.length?audit.redesign_instructions:audit?.issues)||["OGPをキャラクター主役級・短い大見出し・主役機器1つへ全面再設計する"];
-  if(round<=2){
+  if(round<=5){
     const next={...st,ogp_attempt:0,ogp_score:Number(audit?.score||0),ogp_issues:instructions,ogp_dedicated_review:audit,ogp_dedicated_review_pass:false,ogp_dedicated_review_round:round,ogp_dedicated_review_head_sha:sha,preview_verified:false,preview_audit_artifact_id:null,gpt_visual_audit:null,gpt_visual_audit_pass:false,...(round===1?{ogp_redesign_round:0}:{})};
     await checkpoint(raw,id,"ogp_retry",next);await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
-    await event(raw,id,`OGP専用Reviewerは${audit.score}点で不合格。キャラクターのブランド一致・サムネイルでのインパクト・技術的正確性を基準に、同じ案件・同じPRでOGPだけ再設計します（専用再設計 ${round}/2）。`,"BUILDING","medium",{stage:"ogp-dedicated-review-retry",score:audit.score,round,axes:audit.axes,fact_fatal:audit.fact_fatal,character_fatal:audit.character_fatal,same_queue:true});
+    await event(raw,id,`OGP専用Reviewerは${audit.score}点で不合格。キャラクターのブランド一致・サムネイルでのインパクト・技術的正確性を基準に、同じ案件・同じPRでOGPだけ再設計します（専用再設計 ${round}/5）。`,"BUILDING","medium",{stage:"ogp-dedicated-review-retry",score:audit.score,round,axes:audit.axes,fact_fatal:audit.fact_fatal,character_fatal:audit.character_fatal,same_queue:true});
     return {status:"ogp_retry",round};
   }
-  const next={...st,ogp_dedicated_review:audit,ogp_dedicated_review_pass:false,ogp_dedicated_review_round:round,ogp_dedicated_review_head_sha:sha};
-  await checkpoint(raw,id,"done",next);await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"needs_human",p_last_error:null,p_mark_started:false});
-  await event(raw,id,`OGP専用Reviewerで2回の全面再設計後も基準未達です（${audit.score}点）。システムERRORにはせず、OGPだけ管理者確認へ回します。`,"NEEDS_HUMAN","medium",{stage:"ogp-dedicated-review-human",score:audit.score,round,same_queue:true});
-  return {status:"needs_human",round};
+  const next={...st,ogp_dedicated_review:audit,ogp_dedicated_review_pass:false,ogp_dedicated_review_round:round,ogp_dedicated_review_head_sha:sha,ogp_degraded_continue:true,preview_verified:false};
+  await checkpoint(raw,id,"preview_wait",next);await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
+  await event(raw,id,`OGP専用Reviewerで5回の全面再設計後も基準未達です（${audit.score}点）。途中で管理者へ止めず、警告を保持したままPreview全体監査へ進みます。`,"BUILDING","high",{stage:"ogp-dedicated-review-degraded-continue",score:audit.score,round,same_queue:true,human_gate_policy:"final-preview-only"});
+  return {status:"ogp_degraded_continue",round};
 }
 
 async function auditPreview(desktop:string,mobile:string,html:string){
@@ -61,7 +61,21 @@ async function auditPreview(desktop:string,mobile:string,html:string){
   const b=await oa({model:REVIEW_MODEL,store:false,reasoning:{effort:"medium"},input:[{role:"user",content}],text:{format:{type:"json_schema",name:"preview_visual_audit",strict:true,schema}}});return JSON.parse(outputText(b));
 }
 
-async function finalize(raw:string,id:string,st:any,audit:any){const pass=Boolean(audit?.pass)&&Number(audit?.score)>=95;const issues=Array.isArray(audit?.blocking_issues)?audit.blocking_issues:[];const summary=pass?`GPT Preview監査を通過しました（${audit.score}点）。管理者の最終確認へ進みます。`:`GPT Preview監査で修正候補を検出しました（${audit.score}点）。スクリーンショットを手作業で集めなくても、監査結果を基に修正判断できます。`;await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"needs_human",p_last_error:null,p_mark_started:false});await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"preview-ready",summary,evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"netlify-preview",ref:st.preview_url}],severity:pass?"info":"medium",state:"NEEDS_HUMAN",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"gpt-preview-audit",pr_number:st.pr_number,pr_url:st.pr_url,preview_url:st.preview_url,article_path:st.article_path,article_title:st.bp?.title,gpt_visual_audit_pass:pass,gpt_visual_audit_score:audit.score,gpt_visual_audit_strengths:audit.strengths||[],gpt_visual_audit_issues:issues,gpt_revision_instructions:audit.revision_instructions||[],ogp_dedicated_review:st.ogp_dedicated_review||null,admin_gate:pass?"final-review":"revision-recommended",preview_verified_by:st.preview_verified_by||"github-actions-playwright+gpt-vision"},availability:{primary_provider:"gpt-preview-audit",status:"waiting-human"}}]});await checkpoint(raw,id,"done",{...st,preview_verified:true,preview_verified_at:new Date().toISOString(),gpt_visual_audit:audit,gpt_visual_audit_pass:pass})}
+async function finalize(raw:string,id:string,st:any,audit:any){
+  const pass=Boolean(audit?.pass)&&Number(audit?.score)>=95;
+  const issues=Array.isArray(audit?.blocking_issues)?audit.blocking_issues:[];
+  if(!pass){
+    const msg=`GPT Preview監査が${audit?.score??0}点で基準未達です。管理者確認には回さず、自動工程の失敗として停止します。`;
+    await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"failed",p_last_error:msg,p_mark_started:false});
+    await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"error",summary:msg,evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"preview",ref:st.preview_url}],severity:"high",state:"ERROR",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"gpt-preview-audit-auto-stop",pr_number:st.pr_number,preview_url:st.preview_url,gpt_visual_audit_pass:false,gpt_visual_audit_score:audit?.score??0,gpt_visual_audit_issues:issues,gpt_revision_instructions:audit?.revision_instructions||[],human_gate_policy:"final-preview-only",requires_human_decision:false},availability:{primary_provider:"gpt-preview-audit",status:"error"}}]});
+    await checkpoint(raw,id,"done",{...st,preview_verified:false,gpt_visual_audit:audit,gpt_visual_audit_pass:false,autonomous_remediation_exhausted:true});
+    return;
+  }
+  const summary=`GPT Preview監査を通過しました（${audit.score}点）。これが唯一の管理者確認です。`;
+  await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"needs_human",p_last_error:null,p_mark_started:false});
+  await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"preview-ready",summary,evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"preview",ref:st.preview_url}],severity:"info",state:"NEEDS_HUMAN",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"gpt-preview-audit",pr_number:st.pr_number,pr_url:st.pr_url,preview_url:st.preview_url,article_path:st.article_path,article_title:st.bp?.title,gpt_visual_audit_pass:true,gpt_visual_audit_score:audit.score,gpt_visual_audit_strengths:audit.strengths||[],gpt_visual_audit_issues:[],gpt_revision_instructions:[],ogp_dedicated_review:st.ogp_dedicated_review||null,admin_gate:"final-review",human_gate_policy:"final-preview-only",preview_verified_by:st.preview_verified_by||"github-actions-playwright+gpt-vision"},availability:{primary_provider:"gpt-preview-audit",status:"waiting-human"}}]});
+  await checkpoint(raw,id,"done",{...st,preview_verified:true,preview_verified_at:new Date().toISOString(),gpt_visual_audit:audit,gpt_visual_audit_pass:true});
+}
 
 Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});if(req.method!=="POST")return J({error:"method not allowed"},405);const raw=req.headers.get("authorization")??"";if(!raw.toLowerCase().startsWith("bearer "))return J({error:"authentication required"},401);let input:any={};try{input=await req.json()}catch{return J({error:"invalid json"},400)}const id=String(input.command_id??"");const st=input.state&&typeof input.state==="object"?input.state:{};if(!/^[0-9a-f-]{36}$/i.test(id))return J({error:"valid command_id required"},400);
   try{const pr=Number(st.pr_number||0);if(!pr||!st.preview_url)return J({ok:false,error:"preview metadata missing"},409);const p=await gh(`/pulls/${pr}`);const sha=String(p?.head?.sha||"");const branch=String(p?.head?.ref||st.branch||"");if(!sha)return J({ok:false,error:"PR head SHA missing"},409);

@@ -43,6 +43,7 @@ async function runPreviewProbe(raw:string,id:string,st:any){
 }
 async function addRetryEvent(raw:string,id:string,retryAt:string|null,provider:string|null){const name=provider==='gemini'?'Gemini API':provider==='openai'?'OpenAI API':'AI API';await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:`${name}の回復予定時刻に達したため、同じ案件を途中工程から自動再開します。`,evidence:[],severity:"info",state:"PLANNING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"auto-retry",retry_at:retryAt,retry_provider:provider,retry_policy:"checkpoint-same-queue"},availability:{primary_provider:"orchestrator",status:"online"}}]})}
 async function addStallRecoveryEvent(raw:string,c:any){const id=String(c.command_id),n=Number(c.stall_recovery_count??1),s=Number(c.stale_seconds??180);await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:`${Math.max(2,Math.round(s/60))}分以上更新がなかったため、完了済み工程は繰り返さず同じ案件を途中から自動再開します（${n}/3）。`,evidence:[],severity:"medium",state:"PLANNING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"stall-auto-retry",previous_status:c.previous_status??null,last_activity:c.last_activity??null,stale_seconds:s,stall_recovery_count:n,retry_policy:"checkpoint-same-queue"},availability:{primary_provider:"orchestrator",status:"online"}}]})}
+async function addAutonomousGateEvent(raw:string,c:any){const id=String(c.command_id),stage=String(c.stage||'');await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"system",provider:"orchestrator",event_type:"status",summary:stage==='gpt-proxy-prebuild-hold'?'Gemini一時制限のためGPT代理検証で同じ案件を自動継続します。管理者確認は最終Previewの1回だけです。':'自動修正上限に達したため安全側の制約を保持したまま制作工程へ継続します。管理者確認は最終Previewの1回だけです。',evidence:[],severity:"medium",state:c.action==='builder'?"BUILDING":"PLANNING",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"autonomous-gate-continue",source_stage:stage,action:c.action,human_gate_policy:"final-preview-only",same_queue:true},availability:{primary_provider:"orchestrator",status:"online"}}]})}
 function launch(p:Promise<unknown>){try{EdgeRuntime.waitUntil(p)}catch{p.catch(console.error)}}
 
 Deno.serve(async req=>{
@@ -54,22 +55,26 @@ Deno.serve(async req=>{
     const r=await fetch(`${U}/rest/v1/rpc/ai_editorial_secure_feed`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_limit:limit,p_job_id:job})});
     const t=await r.text();let body:any;try{body=t?JSON.parse(t):{}}catch{body={raw:t}}if(!r.ok)return J({error:"rpc feed failed",status:r.status,detail:body},r.status);
     if(!job){
-      let a:any=null,s:any=null,p:any=null,b:any=null;
+      let a:any=null,s:any=null,h:any=null,p:any=null,b:any=null;
       try{a=await rpc(raw,"ai_editorial_claim_retry",{})}catch(e){console.error("auto retry claim failed",e)}
       if(a?.claimed&&a?.command_id){const id=String(a.command_id);try{await addRetryEvent(raw,id,a.retry_at?String(a.retry_at):null,a.provider?String(a.provider):null)}catch(e){console.error("auto retry event failed",id,e)}launch(run(raw,id,"resume"))}
       else{
         try{s=await rpc(raw,"ai_editorial_claim_stalled",{p_stale_seconds:180})}catch(e){console.error("stalled retry claim failed",e)}
         if(s?.claimed&&s?.command_id){const id=String(s.command_id);try{await addStallRecoveryEvent(raw,s)}catch(e){console.error("stalled retry event failed",id,e)}launch(run(raw,id,"resume"))}
         else{
+          try{h=await rpc(raw,"ai_editorial_claim_autonomous_gate",{})}catch(e){console.error("autonomous gate claim failed",e)}
+          if(h?.claimed&&h?.command_id){const id=String(h.command_id);try{await addAutonomousGateEvent(raw,h)}catch(e){console.error("autonomous gate event failed",id,e)}if(h.action==='builder')launch(runBuilder(raw,id));else launch(run(raw,id,"resume"))}
+          else{
           try{p=await rpc(raw,"ai_editorial_claim_preview_wait",{})}catch(e){console.error("preview probe claim failed",e)}
           if(p?.claimed&&p?.command_id){await runPreviewProbe(raw,String(p.command_id),p.state??{})}
           else{
             try{b=await rpc(raw,"ai_editorial_claim_building",{})}catch(e){console.error("builder claim failed",e)}
             if(b?.claimed&&b?.command_id){launch(runBuilder(raw,String(b.command_id)))}else{const ids=queued(body);if(ids.length)launch(run(raw,ids[0],"fresh"))}
           }
+          }
         }
       }
-      body=normalizeSingleDeliverable(body);body={...body,auto_retry:a,stalled_retry:s,preview_probe:p,builder_claim:b};
+      body=normalizeSingleDeliverable(body);body={...body,auto_retry:a,stalled_retry:s,autonomous_gate:h,preview_probe:p,builder_claim:b};
     }
     return J(applyDelta(body,since,wantsDelta));
   }catch(e){return J({error:"unexpected failure",detail:e instanceof Error?e.message:String(e)},500)}

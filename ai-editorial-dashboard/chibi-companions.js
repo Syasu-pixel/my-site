@@ -111,9 +111,75 @@ style.textContent+=`
 #chibiRoom .cups{position:absolute;top:2px;left:29px;font-size:20px;letter-spacing:18px}
 @media(max-width:760px){#chibiRoom .person{height:56px;width:42px}#chibiRoom .say{bottom:62px}}
 `;
-const tea=document.createElement('div');tea.className='tea';tea.innerHTML='<div class="cups">☕☕</div><div class="table"></div>';room.append(tea);
-tea.insertAdjacentHTML('beforeend','<div class="kettle"></div><div class="stream"></div><div class="steam">♨</div>');
-let teaProgress=0;
+const tea=document.createElement('div');tea.className='tea';tea.innerHTML='';room.append(tea);
+
+
+/* Tea theatre: vector props share a floor and explicit contact coordinates. */
+const teaIds=new Set(['M08','M10','M11']);
+const teaLines={
+ M08:[[6,11,0,'今日は、二人分をゆっくり淹れよう。'],[12,17,1,'湯飲みの向きまでそろえました。'],[22,28,0,'ありがとう。ひと息つこう。'],[29,34,1,'片付けまでが休憩ですね。']],
+ M10:[[6,11,1,'湯気が、まだ元気ですね。'],[12,17,0,'少し冷めるまで待とうか。'],[22,28,1,'お茶より先に、肩の力が抜けました。'],[29,34,0,'それも、いい休憩だね。']],
+ M11:[[6,11,0,'飲み終えたら、道具も定位置へ。'],[12,17,1,'次の休憩が始めやすくなりますね。'],[22,28,0,'机の隅まで、きれいにしよう。'],[29,34,1,'はい。湯飲みも二つ、そろいました。']]
+};
+style.textContent+='#chibiRoom .tea{width:210px;height:140px;max-width:none;overflow:visible;z-index:3}#chibiRoom .tea svg{width:210px;height:140px;overflow:visible}#chibiRoom .tea .steam-line{fill:none;stroke:#91a9b4;stroke-width:1.1;stroke-linecap:round}';
+tea.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 140" aria-hidden="true">
+<defs>
+<linearGradient id="chibi-wood" x2="0" y2="1"><stop stop-color="#edcc98"/><stop offset="1" stop-color="#c48d56"/></linearGradient>
+<linearGradient id="chibi-pot" x2="1" y2=".8"><stop stop-color="#fff9e8"/><stop offset=".48" stop-color="#e5ede5"/><stop offset="1" stop-color="#a4bcb4"/></linearGradient>
+<linearGradient id="chibi-cup" x2="1" y2="0"><stop stop-color="#fafdfb"/><stop offset=".5" stop-color="#e1eeeb"/><stop offset="1" stop-color="#b6d1ce"/></linearGradient>
+<g id="chibi-yunomi"><ellipse cy="10" rx="11" ry="3" fill="#82694d" opacity=".16"/><ellipse cy="7" rx="12" ry="3" fill="#b68150" stroke="#795b40" stroke-width=".8"/><path d="M-8-7Q-8 5-5 6Q0 9 5 6Q8 5 8-7Z" fill="url(#chibi-cup)" stroke="#587e7d" stroke-width="1"/><ellipse cy="-7" rx="8" ry="2.8" fill="#eff8ed" stroke="#587e7d" stroke-width="1"/><ellipse cy="-6.5" rx="6" ry="1.7" fill="#a6a25c"/><path d="M-5-1Q0 2 5-1M-4 3Q0 5 4 3" fill="none" stroke="#70a7b0" stroke-width="1.2"/></g>
+</defs>
+<g data-table>
+<ellipse cx="105" cy="133" rx="82" ry="4" fill="#23374d" opacity=".13"/>
+<g data-legs stroke="#73533a" stroke-width="1.2" fill="#b98758"><path d="M41 88L48 89L43 132L37 132Z"/><path d="M162 88L169 87L174 132L168 132Z"/><path d="M47 111H168V115H47Z"/></g>
+<path d="M23 80Q105 66 188 80L185 88Q105 100 26 88Z" fill="url(#chibi-wood)" stroke="#826040" stroke-width="1.3"/>
+<path d="M25 80Q104 94 186 80M43 80Q75 77 95 80M121 79Q152 77 169 81" fill="none" stroke="#f9dfb5" stroke-width="1.2"/>
+</g>
+<g data-tray><ellipse cx="106" cy="78" rx="37" ry="7" fill="#8b5f40" stroke="#634833"/><ellipse cx="106" cy="76" rx="34" ry="5" fill="#d2aa76" stroke="#ecd0a8"/></g>
+<g data-pot><path d="M6-15C25-29 31-1 12 3" fill="none" stroke="#526f68" stroke-width="5"/><path d="M6-15C25-29 31-1 12 3" fill="none" stroke="#bacfc4" stroke-width="2"/><path d="M-12-10L-29-18L-24-5L-12 2" fill="url(#chibi-pot)" stroke="#526f68" stroke-width="1.3"/><path d="M-13-20Q-18-11-14 6Q0 14 14 6Q18-11 12-20Z" fill="url(#chibi-pot)" stroke="#526f68" stroke-width="1.3"/><ellipse cy="-20" rx="13" ry="4" fill="#cee0d3" stroke="#526f68"/><path d="M-12-23Q0-32 12-23Z" fill="#e9f0de" stroke="#526f68"/><ellipse cy="-28" rx="4" ry="2.5" fill="#789b89"/><path d="M-9-14Q-12-4-8 2" fill="none" stroke="#fffdf4" stroke-width="2"/></g>
+<path data-pour d="" fill="none" stroke="#b4b97b" stroke-width="1.5" stroke-linecap="round"/>
+<g data-cup="0"><use href="#chibi-yunomi"/></g><g data-cup="1"><use href="#chibi-yunomi"/></g>
+<g data-steam="0"><path class="steam-line" d="M-3-16C-9-23 4-26-2-34M4-19C-1-26 11-28 5-36"/></g>
+<g data-steam="1"><path class="steam-line" d="M-3-16C-9-23 4-26-2-34M4-19C-1-26 11-28 5-36"/></g>
+<g data-cloth><path d="M0 0L17-2L21 8L3 11Z" fill="#c5dedd" stroke="#6e999a"/><path d="M4 3L16 1M7 7L18 5" stroke="#fff" opacity=".7"/></g>
+</svg>`;
+let teaPlay=null;
+const easeTea=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
+function renderTea(t,dt,wanted,arrived,center,id){
+ if(wanted&&!teaPlay)teaPlay={id:teaIds.has(id)?id:'M08',time:0,center};
+ if(!teaPlay){tea.style.opacity='0';return null}
+ const play=teaPlay;
+ if(wanted&&arrived)play.time+=dt;
+ if(!wanted&&play.time<34)play.time=34;
+ if(!wanted)play.time+=dt;
+ const u=play.time;
+ if(u>=40){tea.style.opacity='0';teaPlay=null;return {done:true}}
+ const enter=easeTea(u/3),exit=easeTea((u-35)/5);
+ const x=play.center-105-(1-enter)*240-exit*240;
+ tea.style.opacity='1';tea.style.transform='translate('+x+'px,'+(innerHeight-140-8)+'px)';
+ const table=tea.querySelector('[data-table]');
+ table.setAttribute('transform','translate(0 '+((1-enter)*8)+')');
+ const tray=tea.querySelector('[data-tray]');
+ tray.setAttribute('transform','translate(0 '+(-easeTea((u-4)/2)*2)+')');
+ const potX=115-30*easeTea((u-7)/2)+30*easeTea((u-13)/2);
+ const pour=u>9&&u<12;
+ tea.querySelector('[data-pot]').setAttribute('transform','translate('+potX+' 60) rotate('+(pour?-22:0)+') scale(.7)');
+ tea.querySelector('[data-pour]').setAttribute('d',pour?'M64 58Q60 63 60 69':'');
+ const served=easeTea((u-14)/3)*(1-easeTea((u-30)/3));
+ const drink=play.id==='M10'?easeTea((u-24)/2)*(1-easeTea((u-27)/2)):play.id==='M08'?easeTea((u-20)/2)*(1-easeTea((u-24)/2)):0;
+ [0,1].forEach(i=>{
+ const cx=90+i*30+(i?46:-38)*served,cy=74-(i?0:12)*drink;
+ tea.querySelector('[data-cup="'+i+'"]').setAttribute('transform','translate('+cx+' '+cy+') rotate('+(!i?drink*-8:0)+')');
+ const steam=tea.querySelector('[data-steam="'+i+'"]');
+ steam.setAttribute('transform','translate('+cx+' '+(cy-Math.sin(t*2+i)*1.5)+')');
+ steam.style.opacity=u>12&&u<32?String(.5+.15*Math.sin(t*2+i)):'0';
+ });
+ const wiping=play.id==='M11'&&u>=18&&u<28;
+ const cloth=tea.querySelector('[data-cloth]');cloth.style.opacity=wiping?'1':'0';
+ cloth.setAttribute('transform','translate('+(65+Math.sin(t*2)*16)+' 79)');
+ return {id:play.id,time:u,done:false,lines:teaLines[play.id],drink};
+}
+
 
 /* Layered CSS puppet: the root never changes size when a face changes. */
 style.textContent+=`
@@ -216,7 +282,9 @@ const motionCatalog=[
  {id:'M05',name:'手を振る',duration:5},
  {id:'M06',name:'虫眼鏡で確認',duration:7},
  {id:'M07',name:'拭き掃除',duration:7},
- {id:'M08',name:'お茶休憩',duration:32},
+ {id:'M08',name:'二人分のお茶',duration:90},
+ {id:'M10',name:'熱いお茶を冷ます',duration:90},
+ {id:'M11',name:'道具をそろえて片付ける',duration:90},
  {id:'M09',name:'梯子で上って戻る',duration:60}
 ];
 let motionBag=null,scene=null;
@@ -225,7 +293,7 @@ function selectMotion(t){
  // Permanently unavailable mobile ladder is not part of that page's deck.
  if(!motionBag)motionBag=new MotionBag(motionCatalog.filter(m=>innerWidth>760||m.id!=='M09').map(m=>m.id));
  const quiet=['error','human','history'].includes(lastMode);
- const allowed=id=>id==='M08'?!!rest&&lastMode==='idle':id==='M09'?!quiet&&innerWidth>760&&!!ladderAnchor():quiet?['M01','M02','M03','M05'].includes(id):true;
+ const allowed=id=>teaIds.has(id)?!!rest&&lastMode==='idle':id==='M09'?!quiet&&innerWidth>760&&!!ladderAnchor():quiet?['M01','M02','M03','M05'].includes(id):true;
  const id=motionBag.take(allowed);
  if(!id){scene=null;room.dataset.motion='waiting-for-condition';return}
  const def=motionCatalog.find(m=>m.id===id);
@@ -305,14 +373,14 @@ function animate(){
  if(!positions[0]){const center=innerWidth*(.3+Math.random()*.3);positions[0]={x:center-90,y:ground};positions[1]={x:center+30,y:ground}}
  const held=['error','human','history'].includes(lastMode);
  if(held&&!climb&&scene&&!['M01','M02','M03','M05'].includes(scene.id))scene=null;
- if(!paused&&!climb&&(!scene||t-scene.at>=scene.duration)){selectMotion(t)}
+ if(!paused&&!climb&&!teaPlay&&(!scene||t-scene.at>=scene.duration)){selectMotion(t)}
  const before=positions.map(p=>({...p}));
  const onLadder=climbStep(t,paused?0:dt);
  const slot=Math.floor(t/28);
- if(slot!==lastSlot){lastSlot=slot;speech=onLadder?null:chooseSpeech()}
+ if(slot!==lastSlot){lastSlot=slot;speech=onLadder||teaPlay||teaIds.has(scene?.id)||wide?null:chooseSpeech()}
  const age=speech?t-speech.at:999,talkingNow=!!speech&&age<16;
  if(talkingNow&&scene&&!climb&&!paused)scene.at+=dt;
- const resting=!onLadder&&!!rest&&(wide||scene?.id==='M08')&&!held;
+ const resting=!onLadder&&!!rest&&(wide||teaIds.has(scene?.id))&&!held;
  const targets=resting?[rest.x-85,rest.x+42]:scene?.targets||positions.map(p=>p.x);
  const travel=!talkingNow&&(scene?.id==='M01'||resting||!!scene&&t-scene.at<3);
  if(!onLadder){
@@ -328,11 +396,10 @@ function animate(){
  });
  }
  const arrived=resting&&positions.every((p,i)=>Math.abs(p.x-targets[i])<3);
- if(!paused)teaProgress=clamp(teaProgress+(arrived?dt:-dt),0,20);
- tea.style.opacity=teaProgress>0?'1':'0';
- tea.style.transform='translate('+(rest?(-140+(rest.x+75)*Math.min(1,teaProgress/3)):-140)+'px,'+(innerHeight-67)+'px)';
- tea.querySelector('.stream').style.opacity=teaProgress>4&&teaProgress<7?'1':'0';
- tea.querySelector('.steam').style.opacity=teaProgress>=7?String(.35+.2*Math.sin(t*2)):0;
+
+ const teaState=renderTea(t,paused?0:dt,resting,arrived,rest?.x||105,scene?.id);
+ if(teaState?.done&&!wide&&teaIds.has(scene?.id))scene=null;
+
  people.forEach((el,i)=>{
  const p=positions[i],delta=p.x-before[i].x,moving=Math.abs(delta)>.001;
  el.style.transform='translate('+p.x+'px,'+p.y+'px)';
@@ -354,6 +421,15 @@ function animate(){
  }else if(!talkingNow&&!moving&&['M06','M07'].includes(scene?.id)){
  r.carry.classList.add('visible');r.carry.textContent=scene.id==='M06'?'🔎':'🧽';
  r.carry.style.transform=scene.id==='M07'?'translateX('+Math.sin(t*3)*5+'px)':'translateY(-6px)';
+ }
+
+ if(teaState&&!teaState.done){
+  r.carry.classList.remove('visible');r.wave.style.visibility='hidden';
+  el.classList.remove('waving','reading');
+  const line=teaState.lines.find(x=>teaState.time>=x[0]&&teaState.time<x[1]&&x[2]===i);
+  el.querySelector('.say').textContent=line?line[3]:'';
+  r.mouth.style.visibility=line&&Math.sin(t*17)>-.2?'visible':'hidden';
+  r.face.style.transform='rotate('+(teaState.id==='M10'&&teaState.time>17&&teaState.time<24?5:line?0:i?-2:2)+'deg)';
  }
  const walking=moving&&walkReady;
  el.classList.toggle('sidewalking',walking);

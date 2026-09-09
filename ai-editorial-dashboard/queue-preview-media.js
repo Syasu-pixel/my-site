@@ -21,7 +21,7 @@
   function eventsForSelected(){const id=currentJob();if(!id)return[];const g=grouped().find(x=>String(x.id)===id);return g?.ev||feedRows().filter(r=>String(r.job_id||'')===id)}
   function allStrings(v,out=[],depth=0){if(depth>7||v==null)return out;if(typeof v==='string'){out.push(v);return out}if(Array.isArray(v)){v.forEach(x=>allStrings(x,out,depth+1));return out}if(typeof v==='object')Object.values(v).forEach(x=>allStrings(x,out,depth+1));return out}
   function absoluteUrls(v,out=new Set(),depth=0){if(depth>7||v==null)return out;if(typeof v==='string'){(v.match(/https:\/\/[^\s"'<>]+/g)||[]).forEach(u=>out.add(u.replace(/[),.;]+$/,'')));return out}if(Array.isArray(v)){v.forEach(x=>absoluteUrls(x,out,depth+1));return out}if(typeof v==='object')Object.values(v).forEach(x=>absoluteUrls(x,out,depth+1));return out}
-  function previewUrl(){const urls=[...absoluteUrls(eventsForSelected())];return urls.find(u=>{try{return new URL(u).hostname.includes('netlify')}catch{return false}})||urls.find(u=>{try{return new URL(u).hostname==='denkicontrol.com'}catch{return false}})||''}
+  function previewUrl(){const urls=[...absoluteUrls(eventsForSelected())];return urls.find(u=>{try{const h=new URL(u).hostname.toLowerCase();return h==='denkicontrol-preview.pages.dev'||h.endsWith('.denkicontrol-preview.pages.dev')}catch{return false}})||''}
   function mediaLabel(url){const s=String(url).toLowerCase();if(s.includes('ogp'))return'OGP';if(s.includes('hero'))return'hero';if(s.includes('overview'))return'overview';if(s.includes('comparison'))return'comparison';if(s.includes('flow'))return'flow';return'生成画像'}
   function mediaItems(){
     const base=previewUrl();const found=[];const seen=new Set();

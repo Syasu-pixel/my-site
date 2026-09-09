@@ -12,34 +12,34 @@ jobs:
         with:
           ref: ai-editorial/remove-inline-final-preview
       - name: Remove embedded final Preview
-        shell: python
         run: |
+          python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('ai-editorial-dashboard/queue-preview-media.js')
           s=p.read_text()
           start=s.index('  function renderFinalPreview(root,items){')
           end=s.index('\n  let lastSignature=', start)
-          new=r'''  function renderFinalPreview(root,items){
-    root.querySelectorAll('.queuePreviewPanel').forEach(x=>x.remove());
-    const preview=previewUrl();const ready=Boolean(preview&&previewReady());
-    if(!preview&&!items.length)return;
-    const panel=document.createElement('section');panel.className='queuePreviewPanel';
-    if(ready){
-      panel.innerHTML=`<div class="queuePreviewHead"><b>✅ Preview完成</b><a class="queuePreviewOpen" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">別タブでPreviewを開く ↗</a></div><div class="queuePreviewWaiting">最終Previewはチャット内に埋め込みません。<br>上のボタンから別タブで確認してください。</div>`;
-    }else{
-      panel.innerHTML=`<div class="queuePreviewHead"><b>⏳ Preview準備中</b></div><div class="queuePreviewWaiting">Cloudflare Pages Previewを準備しています。<br>記事URLの配信確認が取れるまで操作は不要です。</div>`;
-    }
-    root.appendChild(panel);
-  }'''
+          new='''  function renderFinalPreview(root,items){
+            root.querySelectorAll('.queuePreviewPanel').forEach(x=>x.remove());
+            const preview=previewUrl();const ready=Boolean(preview&&previewReady());
+            if(!preview&&!items.length)return;
+            const panel=document.createElement('section');panel.className='queuePreviewPanel';
+            if(ready){
+              panel.innerHTML=`<div class="queuePreviewHead"><b>✅ Preview完成</b><a class="queuePreviewOpen" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">別タブでPreviewを開く ↗</a></div><div class="queuePreviewWaiting">最終Previewはチャット内に埋め込みません。<br>上のボタンから別タブで確認してください。</div>`;
+            }else{
+              panel.innerHTML=`<div class="queuePreviewHead"><b>⏳ Preview準備中</b></div><div class="queuePreviewWaiting">Cloudflare Pages Previewを準備しています。<br>記事URLの配信確認が取れるまで操作は不要です。</div>`;
+            }
+            root.appendChild(panel);
+          }'''
           s=s[:start]+new+s[end:]
           p.write_text(s)
-
-          import re
           for q in Path('ai-editorial-dashboard').glob('*'):
             if q.suffix not in {'.js','.html'}: continue
             t=q.read_text()
             u=re.sub(r'queue-preview-media\.js\?v=[0-9.]+','queue-preview-media.js?v=0.7.15',t)
             if u!=t:q.write_text(u)
+          PY
       - name: Remove temporary workflow and commit
         run: |
           rm .github/workflows/tmp-remove-inline-final-preview.yml

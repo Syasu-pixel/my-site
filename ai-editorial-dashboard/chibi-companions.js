@@ -58,7 +58,7 @@ document.querySelector('#chibiPause').onclick=()=>{base+=paused?0:performance.no
 document.querySelector('#jobs').addEventListener('click',()=>{wide=false;setTimeout(sync,0)});
 
 function clock(){return (base+(paused?0:performance.now()-started))/1000}
-let modeSince=0,speech=null,lastSlot=0;
+let modeSince=0,speech=null,lastSlot=-1;
 const banter=[
 ['休憩の準備は万全だね。','メモ帳まで持ってきました！'],
 ['その付箋、ずいぶん増えたね。','大事なところに貼ったら、全部大事でした。'],
@@ -75,15 +75,17 @@ const banter=[
 ];
 let history={};try{const h=JSON.parse(localStorage.getItem('chibi-dialog-history-v1')||'{}');if(h&&typeof h==='object'&&!Array.isArray(h))history=h}catch{}
 function chooseSpeech(){
- const now=Date.now();
- const normal=['idle','work','research','build'].includes(lastMode);
- const pool=normal?(window.ChibiDialogueBank||[]).filter(x=>x.modes.includes(lastMode)):[{id:'state:'+lastMode,text:dialog[lastMode]||dialog.error}];
- const candidates=pool.filter(x=>!Number.isFinite(history[x.id])||now-history[x.id]>=7200000);
- if(!candidates.length)return null;
- // Prefer never-used or least-recently-used pairs; randomize only equal timestamps.
- candidates.sort((a,b)=>(history[a.id]||0)-(history[b.id]||0));
- const oldest=history[candidates[0].id]||0;
- const tied=candidates.filter(x=>(history[x.id]||0)===oldest);
+ const now=Date.now(),normal=['idle','work','research','build'].includes(lastMode);
+ const bank=window.ChibiDialogueBank||[];
+ const pool=normal?bank.filter(x=>x.modes.includes(lastMode)):[
+ {id:'state:'+lastMode,text:dialog[lastMode]||dialog.error},
+ ...bank.filter(x=>x.id.startsWith('break-'))
+ ];
+ if(!pool.length)return {text:dialog[lastMode]||dialog.idle,at:clock()};
+ // Prefer least-recently used dialogue without silencing the characters.
+ const sorted=[...pool].sort((a,b)=>(history[a.id]||0)-(history[b.id]||0));
+ const oldest=history[sorted[0].id]||0;
+ const tied=sorted.filter(x=>(history[x.id]||0)===oldest);
  const pick=tied[Math.floor(Math.random()*tied.length)];
  history[pick.id]=now;
  try{localStorage.setItem('chibi-dialog-history-v1',JSON.stringify(history))}catch{}
@@ -199,7 +201,12 @@ function puppet(i,t,moving,saying,listening,active,waiting){
 class MotionBag {
  constructor(ids,random=Math.random){this.ids=[...ids];this.random=random;this.pending=[];this.cycle=0;this.refill();}
  refill(){this.pending=[...this.ids];for(let i=this.pending.length-1;i>0;i--){const j=Math.floor(this.random()*(i+1));[this.pending[i],this.pending[j]]=[this.pending[j],this.pending[i]];}this.cycle++;}
- take(allowed){if(!this.pending.length)this.refill();const at=this.pending.findIndex(allowed);return at<0?null:this.pending.splice(at,1)[0];}
+ take(allowed){
+ if(!this.ids.some(allowed))return null;
+ if(!this.pending.some(allowed))this.refill();
+ const at=this.pending.findIndex(allowed);
+ return this.pending.splice(at,1)[0];
+}
 }
 const motionCatalog=[
  {id:'M01',name:'散歩',duration:14},
@@ -217,7 +224,8 @@ function ladderAnchor(){return anchors.filter(a=>a.el&&a.y>innerHeight-370&&a.y<
 function selectMotion(t){
  // Permanently unavailable mobile ladder is not part of that page's deck.
  if(!motionBag)motionBag=new MotionBag(motionCatalog.filter(m=>innerWidth>760||m.id!=='M09').map(m=>m.id));
- const allowed=id=>id==='M08'?!!rest&&lastMode==='idle':id==='M09'?innerWidth>760&&!!ladderAnchor():true;
+ const quiet=['error','human','history'].includes(lastMode);
+ const allowed=id=>id==='M08'?!!rest&&lastMode==='idle':id==='M09'?!quiet&&innerWidth>760&&!!ladderAnchor():quiet?['M01','M02','M03','M05'].includes(id):true;
  const id=motionBag.take(allowed);
  if(!id){scene=null;room.dataset.motion='waiting-for-condition';return}
  const def=motionCatalog.find(m=>m.id===id);
@@ -296,17 +304,17 @@ function animate(){
  const height=innerWidth<=760?68:88,charWidth=height*.75,ground=innerHeight-height-8;
  if(!positions[0]){const center=innerWidth*(.3+Math.random()*.3);positions[0]={x:center-90,y:ground};positions[1]={x:center+30,y:ground}}
  const held=['error','human','history'].includes(lastMode);
- if(held&&!climb)scene=null;
- if(!paused&&!held&&!climb&&(!scene||t-scene.at>=scene.duration)){selectMotion(t)}
+ if(held&&!climb&&scene&&!['M01','M02','M03','M05'].includes(scene.id))scene=null;
+ if(!paused&&!climb&&(!scene||t-scene.at>=scene.duration)){selectMotion(t)}
  const before=positions.map(p=>({...p}));
  const onLadder=climbStep(t,paused?0:dt);
- const slot=Math.floor(t/55);
+ const slot=Math.floor(t/28);
  if(slot!==lastSlot){lastSlot=slot;speech=onLadder?null:chooseSpeech()}
  const age=speech?t-speech.at:999,talkingNow=!!speech&&age<16;
  if(talkingNow&&scene&&!climb&&!paused)scene.at+=dt;
  const resting=!onLadder&&!!rest&&(wide||scene?.id==='M08')&&!held;
  const targets=resting?[rest.x-85,rest.x+42]:scene?.targets||positions.map(p=>p.x);
- const travel=!held&&!talkingNow&&(scene?.id==='M01'||resting);
+ const travel=!talkingNow&&(scene?.id==='M01'||resting||!!scene&&t-scene.at<3);
  if(!onLadder){
  positions.forEach((p,i)=>{
  p.y=ground;

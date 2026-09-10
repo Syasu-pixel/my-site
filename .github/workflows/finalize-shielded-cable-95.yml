@@ -1,0 +1,66 @@
+name: Finalize shielded cable 9.5
+
+on:
+  push:
+    branches:
+      - preview-shielded-cable-20260910
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-shielded-cable-20260910
+          fetch-depth: 0
+
+      - name: Apply final wording consistency fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('articles/shielded-cable-basic.html')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+            'シールド層は、外から入ってくるノイズを受け止めたり、信号線から出るノイズを外へ広げにくくしたりする役割があります。':
+            'シールド層は、外部からの電磁的な干渉を抑えたり、ケーブルからの不要な放射を抑えたりする役割があります。',
+            '<td>シールド層と接地処理で対策しやすい</td>':
+            '<td>シールド層と適切な終端・接続で対策しやすい</td>',
+            '<h2>シールド接地の流れ</h2>':
+            '<h2>シールド接続を確認する流れ</h2>',
+            'alt="シールド線のシールド層からFG端子や接地端子へノイズを逃がす流れを示した図"':
+            'alt="シールド線のシールド層とFG端子・接地端子・シールドクランプなどの接続先を確認する流れを示した図"',
+            'シールド層で受けたノイズを、FG端子や接地端子へ逃がす流れで見ると、シールド接地の役割が分かりやすくなります。':
+            'シールド層の接続先と接続方法を確認する流れで見ると、シールド対策の考え方を整理しやすくなります。',
+            'シールド線は、弱い信号をノイズから守るための電線です。ケーブルの種類だけでなく、シールドの接地先と配線ルートまでセットで確認しましょう。':
+            'シールド線は、弱い信号をノイズの影響から守りやすくするための電線です。ケーブルの種類だけでなく、シールドの接続先・接続方法と配線ルートまでセットで確認しましょう。',
+          }
+          for old, new in replacements.items():
+            if old not in s:
+              raise SystemExit(f'missing expected text: {old}')
+            s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Clean temporary preview files
+        run: |
+          rm -f .github/.preview-trigger-1409
+          rm -f .github/workflows/refine-shielded-cable-95.yml
+          rm -f .github/workflows/finalize-shielded-cable-95.yml
+
+      - name: Verify final diff
+        run: |
+          git diff --check
+          git status --short
+
+      - name: Commit final cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/shielded-cable-basic.html .github
+          git commit -m "Finalize shielded cable article quality pass"
+          git push origin HEAD:preview-shielded-cable-20260910

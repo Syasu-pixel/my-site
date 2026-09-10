@@ -19,46 +19,43 @@ jobs:
           ref: preview-selector-switch-audit-20260910
           fetch-depth: 0
 
-      - name: Import adopted image through artifact broker
-        id: broker
+      - name: Resolve adopted image from firestorage API
+        id: firestorage
         shell: bash
         env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_BROKER_TOKEN }}
           SHARE_ID: xbhg8BJvoS_f
           FILE_ID: 01a08bb9dbf775e6b660e2ad947bd954
           FILE_NAME: selector-switch-two-vs-three.png
-          EXPECTED_SHA256: 61ae7e1150332b25a661e5c92017e30a4e7b7c37f774df89d5baa6c5621dd1cc
         run: |
-          if [ -z "$BROKER_URL" ]; then echo 'ARTIFACT_BROKER_URL is missing' >&2; exit 1; fi
-          if [ -z "$BROKER_TOKEN" ]; then echo 'ARTIFACT_BROKER_TOKEN is missing' >&2; exit 1; fi
-          payload="$(python3 - <<'PY'
-          import json, os
-          print(json.dumps({
-              'action':'import_firestorage',
-              'share_id':os.environ['SHARE_ID'],
-              'file_id':os.environ['FILE_ID'],
-              'file_name':os.environ['FILE_NAME'],
-              'sha256':os.environ['EXPECTED_SHA256'],
-          }))
-          PY
-          )"
-          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 \
-            -X POST -H 'content-type: application/json' \
-            -H "x-artifact-broker-token: $BROKER_TOKEN" \
-            --data "$payload" "$BROKER_URL")"
-          python3 - "$response" <<'PY' >> "$GITHUB_OUTPUT"
-          import json, sys
+          meta="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 \
+            "https://api.firestorage.ai/dev/file/shares/$SHARE_ID/files?maxResults=1000")"
+          python3 - "$meta" <<'PY'
+          import json, os, sys
           d=json.loads(sys.argv[1])
-          print('download_url='+d['download_url'])
-          print('object_path='+d['object_path'])
-          print('sha256='+d['sha256'])
+          matches=[f for f in d.get('files',[]) if f.get('fileId')==os.environ['FILE_ID']]
+          if len(matches)!=1:
+              raise SystemExit('firestorage metadata did not contain requested file')
+          f=matches[0]
+          if f.get('fileName')!=os.environ['FILE_NAME']:
+              raise SystemExit('firestorage filename mismatch')
+          print('metadata verified:', f.get('fileName'), f.get('sizeBytes'))
+          PY
+          dl="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 \
+            -X POST "https://api.firestorage.ai/dev/file/shares/$SHARE_ID/files/$FILE_ID/download")"
+          python3 - "$dl" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys, urllib.parse
+          d=json.loads(sys.argv[1])
+          u=d.get('downloadUrl','')
+          p=urllib.parse.urlparse(u)
+          if p.scheme!='https' or p.username or p.password or p.port or p.hostname!='s3.ap-northeast-1.wasabisys.com':
+              raise SystemExit('unexpected download host')
+          print('download_url='+u)
           PY
 
       - name: Download, verify, and replace image
         shell: bash
         env:
-          DOWNLOAD_URL: ${{ steps.broker.outputs.download_url }}
+          DOWNLOAD_URL: ${{ steps.firestorage.outputs.download_url }}
           EXPECTED_SHA256: 61ae7e1150332b25a661e5c92017e30a4e7b7c37f774df89d5baa6c5621dd1cc
           TARGET: assets/images/selector-switch-basic/two-position-vs-three-position-selector.png
         run: |
@@ -70,7 +67,7 @@ jobs:
           p=Path('assets/images/selector-switch-basic/two-position-vs-three-position-selector.png')
           b=p.read_bytes()
           assert b[:8] == b'\x89PNG\r\n\x1a\n'
-          assert len(b) > 100000
+          assert len(b) == 1853186
           print('PNG verified:', len(b), 'bytes')
           PY
 
@@ -83,24 +80,3 @@ jobs:
           git add assets/images/selector-switch-basic/two-position-vs-three-position-selector.png
           git commit -m 'Replace selector switch comparison image with character version'
           git push origin HEAD:preview-selector-switch-audit-20260910
-
-      - name: Cleanup broker object
-        if: ${{ success() }}
-        shell: bash
-        env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          CLEANUP_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_BROKER_TOKEN }}
-          OBJECT_PATH: ${{ steps.broker.outputs.object_path }}
-        run: |
-          token="$CLEANUP_TOKEN"
-          if [ -z "$token" ]; then token="$BROKER_TOKEN"; fi
-          payload="$(python3 - <<'PY'
-          import json, os
-          print(json.dumps({'action':'delete','object_path':os.environ['OBJECT_PATH']}))
-          PY
-          )"
-          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 \
-            -X POST -H 'content-type: application/json' \
-            -H "x-artifact-broker-token: $token" \
-            --data "$payload" "$BROKER_URL"

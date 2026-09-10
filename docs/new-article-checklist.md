@@ -1942,3 +1942,14 @@ assets/images/{slug}/{slug}-comparison.png
 assets/images/{slug}/{slug}-{optional-purpose}.png
 docs/reference-notes/{slug}.md
 ```
+
+## 関連記事カード画像チェック
+- [ ] 「あわせて読みたい」「関連記事」は、原則として画像付きカードになっている
+- [ ] 関連記事画像は対象記事のOGPを第一候補にしている
+- [ ] OGPが不向きな場合だけheroを使用している
+- [ ] 縮小表示で記事テーマが判別できる
+- [ ] 画像内文字や主要要素がカードのトリミングで欠けていない
+- [ ] `loading="lazy"` を設定している
+- [ ] PC・スマホPreviewで画像・タイトル・説明のバランスを確認している
+- [ ] 画像がない既存記事に低品質な仮画像を無理に追加していない
+

@@ -21,7 +21,7 @@ jobs:
           workflow = Path('docs/article-workflow.md')
           s = workflow.read_text(encoding='utf-8')
           old = '- 黄色系を基本とし、警告・危険表現と混同する配色は避ける。'
-          new = '- PE・FG・SG記事で使っている `.mark` の薄い青（文字の下半分に入るマーカーペン風強調）を標準とする。黄色系を基本にはしない。'
+          new = '- PE・FG・SG記事で使っている `.mark` の薄い青（文字の下半分に入るマーカーペン風強調）を標準とする。警告・危険表現とは別の装飾として扱う。'
           if old not in s:
               raise SystemExit('Expected yellow marker rule not found in article-workflow.md')
           workflow.write_text(s.replace(old, new, 1), encoding='utf-8')
@@ -36,9 +36,8 @@ jobs:
               s = s.replace(anchor, anchor + addition, 1)
           checklist.write_text(s, encoding='utf-8')
 
-          # Guard against the mistaken rule remaining.
-          if '黄色系を基本' in workflow.read_text(encoding='utf-8'):
-              raise SystemExit('Yellow marker default rule still remains')
+          if old in workflow.read_text(encoding='utf-8'):
+              raise SystemExit('Old yellow marker default rule still remains')
           print('Blue marker rule corrected')
           PY
       - name: Commit docs and remove helper workflow

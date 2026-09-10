@@ -1,0 +1,27 @@
+name: PE FG SG asset transfer inspect
+on:
+  push:
+    branches: [preview-pe-fg-sg-20260910]
+    paths:
+      - '.github/workflows/pefgsg-firestorage-inspect.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect firestorage share
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --fail --silent --show-error 'https://firestorage.ai/ja/f/s5coTINZYIVD' -o page.html
+          echo '--- content type / size ---'
+          file page.html || true
+          wc -c page.html
+          echo '--- candidate URLs / state ---'
+          grep -Eo 'https?://[^"'"'"'<> ]+' page.html | grep -Ei 'download|api|file|zip|share' | head -200 || true
+          echo '--- lines containing our filenames ---'
+          grep -nE 'role\.webp|manual\.webp|confirm-small\.webp|ogp-final\.jpg|s5coTINZYIVD|BpW93B2PRfAq2UBz' page.html | head -200 || true
+          echo '--- first 120 lines ---'
+          sed -n '1,120p' page.html

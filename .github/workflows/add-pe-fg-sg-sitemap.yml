@@ -1,0 +1,42 @@
+name: Add PE FG SG to sitemap
+on:
+  push:
+    branches: [add-pe-fg-sg-to-sitemap-20260910]
+permissions:
+  contents: write
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: add-pe-fg-sg-to-sitemap-20260910
+      - name: Add article URL to sitemap
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          p = Path('sitemap.xml')
+          s = p.read_text(encoding='utf-8')
+          url = 'https://denkicontrol.com/articles/pe-fg-sg-difference-basic.html'
+          if url not in s:
+              anchor = '''  <url>\n    <loc>https://denkicontrol.com/articles/panel-heater-basic.html</loc>\n  </url>\n'''
+              block = '''  <url>\n    <loc>https://denkicontrol.com/articles/pe-fg-sg-difference-basic.html</loc>\n  </url>\n'''
+              if anchor not in s:
+                  raise SystemExit('Sitemap anchor not found')
+              s = s.replace(anchor, anchor + block, 1)
+              p.write_text(s, encoding='utf-8')
+          if p.read_text(encoding='utf-8').count(url) != 1:
+              raise SystemExit('Expected exactly one PE FG SG URL in sitemap')
+          print('Sitemap updated')
+          PY
+      - name: Commit sitemap and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml
+          git rm .github/workflows/add-pe-fg-sg-sitemap.yml
+          git commit -m 'Add PE FG SG article to sitemap'
+          git push origin HEAD:add-pe-fg-sg-to-sitemap-20260910

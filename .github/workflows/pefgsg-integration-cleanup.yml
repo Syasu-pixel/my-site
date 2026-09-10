@@ -1,0 +1,54 @@
+name: PE FG SG integration cleanup
+on:
+  push:
+    branches: [preview-pe-fg-sg-20260910]
+    paths:
+      - '.github/workflows/pefgsg-integration-cleanup.yml'
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pe-fg-sg-20260910
+      - name: Remove duplicate search entry and verify category
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('assets/data/search-index.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          target='/articles/pe-fg-sg-difference-basic.html'
+          seen=False; out=[]
+          for item in data:
+              if item.get('url')==target:
+                  if seen:
+                      continue
+                  seen=True
+              out.append(item)
+          if not seen:
+              raise SystemExit('PE/FG/SG search entry missing')
+          # Formatting the whole file is avoided unless a duplicate actually existed.
+          if len(out)!=len(data):
+              # Rebuild using the repository's normal two-space JSON style.
+              p.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          cat=Path('categories/control-basics.html').read_text(encoding='utf-8')
+          href='../articles/pe-fg-sg-difference-basic.html'
+          if cat.count(href)!=1:
+              raise SystemExit(f'Expected one category link, found {cat.count(href)}')
+          print('search entries:', sum(1 for x in out if x.get('url')==target))
+          print('category links:', cat.count(href))
+          PY
+      - name: Commit cleanup and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/data/search-index.json
+          git rm .github/workflows/pefgsg-integration-cleanup.yml
+          git commit -m 'Clean PE FG SG site integration'
+          git push origin HEAD:preview-pe-fg-sg-20260910

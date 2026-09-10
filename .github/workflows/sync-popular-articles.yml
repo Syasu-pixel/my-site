@@ -1,0 +1,91 @@
+name: Sync popular articles
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'assets/data/popular-articles.json'
+      - '.github/workflows/sync-popular-articles.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-popular-articles
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate and sync ranking
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          data_path = Path('assets/data/popular-articles.json')
+          index_path = Path('index.html')
+
+          data = json.loads(data_path.read_text(encoding='utf-8'))
+          items = data.get('items', [])
+
+          if len(items) != 10:
+              raise SystemExit(f'Popular articles must contain exactly 10 items, got {len(items)}')
+
+          seen = set()
+          rendered = []
+          for pos, item in enumerate(items, 1):
+              href = str(item.get('href', '')).strip()
+              title = str(item.get('title', '')).strip()
+              kind = str(item.get('kind', '')).strip()
+
+              if not href.startswith('articles/') or not href.endswith('.html'):
+                  raise SystemExit(f'#{pos}: invalid article href: {href}')
+              if not title:
+                  raise SystemExit(f'#{pos}: title is empty')
+              if kind != 'technical':
+                  raise SystemExit(f'#{pos}: kind must be technical')
+              if href in seen:
+                  raise SystemExit(f'#{pos}: duplicate href: {href}')
+              seen.add(href)
+              if not Path(href).is_file():
+                  raise SystemExit(f'#{pos}: article file does not exist: {href}')
+
+              rendered.append(f'                <li><a href="{href}">{title}</a></li>')
+
+          text = index_path.read_text(encoding='utf-8')
+          pattern = re.compile(
+              r'(<section class="info-box">\s*<h3>人気記事</h3>\s*<ol class="ranked-list">)'
+              r'.*?'
+              r'(\s*</ol>)',
+              re.S,
+          )
+          matches = list(pattern.finditer(text))
+          if len(matches) != 1:
+              raise SystemExit(f'Popular articles block must match exactly once, got {len(matches)}')
+
+          new_block = matches[0].group(1) + '\n' + '\n'.join(rendered) + matches[0].group(2)
+          new_text = text[:matches[0].start()] + new_block + text[matches[0].end():]
+          index_path.write_text(new_text, encoding='utf-8')
+          PY
+
+      - name: Commit synchronized index
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'Popular articles already synchronized.'
+            exit 0
+          fi
+          git config user.name 'denkicontrol-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Sync popular articles ranking'
+          git push

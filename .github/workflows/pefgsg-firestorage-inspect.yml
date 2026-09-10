@@ -10,16 +10,20 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage app bundle
+      - name: Inspect firestorage client chunks
         shell: bash
         run: |
           set -euxo pipefail
           base='https://firestorage.ai'
           curl -LfsS "$base/ja/f/s5coTINZYIVD" -o page.html
-          chunk=$(grep -Eo '/_next/static/chunks/app/[^" ]+\.js' page.html | grep '/ja/f/' | head -1)
-          echo "chunk=$chunk"
-          curl -LfsS "$base$chunk" -o app.js
-          echo '--- endpoints and download strings ---'
-          grep -Eo '.{0,140}(download|shareId|publicId|fileId|presign|signed|api/).{0,220}' app.js | head -300 || true
-          echo '--- URL-like paths ---'
-          grep -Eo '["'"'"'][^"'"'"']*(api|download|share|file)[^"'"'"']*["'"'"']' app.js | head -300 || true
+          grep -Eo '/_next/static/chunks/[^" ]+\.js' page.html | sort -u > chunks.txt
+          : > all.js
+          while IFS= read -r c; do curl -LfsS "$base$c" >> all.js || true; echo >> all.js; done < chunks.txt
+          echo '--- interesting strings ---'
+          python - <<'PY'
+import re
+s=open('all.js',encoding='utf-8',errors='ignore').read()
+for pat in [r'.{0,180}/api/.{0,260}',r'.{0,180}download.{0,260}',r'.{0,180}shareId.{0,260}',r'.{0,180}publicId.{0,260}',r'.{0,180}presign.{0,260}',r'.{0,180}signed.{0,260}']:
+  print('\nPAT',pat)
+  for m in list(re.finditer(pat,s,re.I))[:100]: print(m.group(0))
+PY

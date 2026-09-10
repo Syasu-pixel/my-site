@@ -51,13 +51,26 @@ jobs:
           fi
 
           BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
-          PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
           LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
+
+          case "$BRANCH_NAME" in
+            ai-editorial/*|preview-*|pilot-*)
+              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
+              PREVIEW_PROVIDER="cloudflare-pages"
+              echo "Resolved Cloudflare Preview candidate: $PREVIEW_URL"
+              ;;
+            *)
+              PREVIEW_URL=""
+              PREVIEW_PROVIDER="local-only"
+              echo "Branch '$BRANCH_NAME' is outside Cloudflare Pages preview branch rules; no public Preview URL will be advertised."
+              ;;
+          esac
+
           echo "Resolved article: $ARTICLE_PATH"
-          echo "Resolved Cloudflare Preview: $PREVIEW_URL"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
           echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "preview_provider=$PREVIEW_PROVIDER" >> "$GITHUB_OUTPUT"
           echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
@@ -93,6 +106,7 @@ jobs:
         if: steps.target.outputs.has_article == 'true'
         env:
           PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
+          PREVIEW_PROVIDER: ${{ steps.target.outputs.preview_provider }}
           LOCAL_URL: ${{ steps.target.outputs.local_url }}
           ARTICLE_PATH: ${{ steps.target.outputs.article_path }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -106,6 +120,7 @@ jobs:
 
           const renderUrl = process.env.LOCAL_URL;
           const previewUrl = process.env.PREVIEW_URL;
+          const previewProvider = process.env.PREVIEW_PROVIDER || 'local-only';
           const pr = process.env.PR_NUMBER;
           const out = `preview-capture/pr-${pr}`;
           const browser = await chromium.launch({ headless: true });
@@ -129,8 +144,8 @@ jobs:
 
           fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
             pr_number: Number(pr),
-            preview_url: previewUrl,
-            preview_provider: 'cloudflare-pages',
+            preview_url: previewUrl || null,
+            preview_provider: previewProvider,
             render_source: 'local-pr-head',
             article_path: process.env.ARTICLE_PATH,
             head_sha: process.env.HEAD_SHA,

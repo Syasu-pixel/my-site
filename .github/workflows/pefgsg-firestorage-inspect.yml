@@ -1,29 +1,121 @@
-name: PE FG SG asset transfer inspect
+name: PE FG SG asset transfer finalize
 on:
   push:
     branches: [preview-pe-fg-sg-20260910]
     paths:
       - '.github/workflows/pefgsg-firestorage-inspect.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  inspect:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage client chunks
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pe-fg-sg-20260910
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install browser tools
+        run: |
+          python -m pip install --quiet playwright pillow
+          python -m playwright install --with-deps chromium
+      - name: Download adopted assets from temporary share
         shell: bash
         run: |
-          set -euxo pipefail
-          base='https://firestorage.ai'
-          curl -LfsS "$base/ja/f/s5coTINZYIVD" -o page.html
-          grep -Eo '/_next/static/chunks/[^" ]+\.js' page.html | sort -u > chunks.txt
-          : > all.js
-          while IFS= read -r c; do curl -LfsS "$base$c" >> all.js || true; echo >> all.js; done < chunks.txt
-          echo '--- interesting strings ---'
-          python - <<'PY'
-import re
-s=open('all.js',encoding='utf-8',errors='ignore').read()
-for pat in [r'.{0,180}/api/.{0,260}',r'.{0,180}download.{0,260}',r'.{0,180}shareId.{0,260}',r'.{0,180}publicId.{0,260}',r'.{0,180}presign.{0,260}',r'.{0,180}signed.{0,260}']:
-  print('\nPAT',pat)
-  for m in list(re.finditer(pat,s,re.I))[:100]: print(m.group(0))
-PY
+          python <<'PY'
+          from pathlib import Path
+          import re, shutil, zipfile
+          from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+          from PIL import Image
+
+          share='https://firestorage.ai/ja/f/s5coTINZYIVD'
+          dl=Path('/tmp/pefgsg-downloads'); dl.mkdir(parents=True, exist_ok=True)
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(accept_downloads=True)
+              page.goto(share, wait_until='domcontentloaded', timeout=120000)
+              page.wait_for_timeout(12000)
+              print('BODY:', page.locator('body').inner_text()[:12000])
+              print('BUTTONS:', page.locator('button').all_inner_texts())
+              print('LINKS:', [(a.inner_text(), a.get_attribute('href')) for a in page.locator('a').all()][:100])
+
+              downloaded=[]
+              # Prefer a bulk-download control if present.
+              controls=page.get_by_text(re.compile('まとめて.*ダウンロード|すべて.*ダウンロード|一括.*ダウンロード', re.I))
+              if controls.count():
+                  try:
+                      with page.expect_download(timeout=60000) as info:
+                          controls.first.click()
+                      d=info.value; path=dl/d.suggested_filename; d.save_as(str(path)); downloaded.append(path)
+                  except Exception as e:
+                      print('bulk download failed:', repr(e))
+
+              # Otherwise click individual download buttons/links.
+              if not downloaded:
+                  candidates=[]
+                  for sel in ['button','a']:
+                      for el in page.locator(sel).all():
+                          try:
+                              txt=(el.inner_text() or '').strip()
+                              aria=(el.get_attribute('aria-label') or '').strip()
+                              title=(el.get_attribute('title') or '').strip()
+                              if re.search('ダウンロード|download', txt+' '+aria+' '+title, re.I):
+                                  candidates.append(el)
+                          except Exception:
+                              pass
+                  for i,el in enumerate(candidates[:12]):
+                      try:
+                          with page.expect_download(timeout=30000) as info:
+                              el.click()
+                          d=info.value; path=dl/d.suggested_filename; d.save_as(str(path)); downloaded.append(path)
+                          print('downloaded', path)
+                      except Exception as e:
+                          print('individual download failed', i, repr(e))
+              browser.close()
+
+          # Expand any downloaded ZIPs.
+          for z in list(dl.glob('*.zip')):
+              with zipfile.ZipFile(z) as f: f.extractall(dl/'unzipped')
+
+          found=list(dl.rglob('*'))
+          print('FILES:', [(str(x), x.stat().st_size) for x in found if x.is_file()])
+          expected={
+              'role.webp':'pe-fg-sg-role-comparison.webp',
+              'manual.webp':'pe-fg-sg-manual-check.webp',
+              'confirm-small.webp':'pe-fg-sg-confirm-flow.webp',
+              'ogp-final.jpg':'pe-fg-sg-difference-basic-ogp.jpg',
+          }
+          out=Path('assets/images/pe-fg-sg-difference-basic')
+          out.mkdir(parents=True, exist_ok=True)
+          for src_name,dst_name in expected.items():
+              matches=[x for x in found if x.is_file() and x.name==src_name]
+              if not matches:
+                  raise SystemExit(f'Missing adopted source file: {src_name}')
+              src=matches[0]
+              shutil.copyfile(src, out/dst_name)
+
+          checks={
+              'pe-fg-sg-role-comparison.webp':((1000,600),100000),
+              'pe-fg-sg-manual-check.webp':((1000,600),100000),
+              'pe-fg-sg-confirm-flow.webp':((1000,600),80000),
+              'pe-fg-sg-difference-basic-ogp.jpg':((1200,630),100000),
+          }
+          for name,(mins,minbytes) in checks.items():
+              pth=out/name
+              im=Image.open(pth)
+              print(name, im.size, pth.stat().st_size, im.format)
+              if im.size[0] < mins[0] or im.size[1] < mins[1] or pth.stat().st_size < minbytes:
+                  raise SystemExit(f'Asset quality guard failed: {name}')
+          PY
+      - name: Commit adopted assets and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/images/pe-fg-sg-difference-basic
+          git rm .github/workflows/pefgsg-firestorage-inspect.yml
+          git commit -m 'Install adopted PE FG SG article images'
+          git push origin HEAD:preview-pe-fg-sg-20260910

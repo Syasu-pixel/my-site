@@ -1,0 +1,76 @@
+name: PE FG SG publication integration
+on:
+  push:
+    branches: [preview-pe-fg-sg-20260910]
+    paths:
+      - '.github/workflows/pefgsg-publication-integration.yml'
+permissions:
+  contents: write
+jobs:
+  integrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pe-fg-sg-20260910
+      - name: Add category card and search index entry
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import json
+
+          article_url = '/articles/pe-fg-sg-difference-basic.html'
+
+          # Search index: append one compact entry without reformatting the entire existing index.
+          idx_path = Path('assets/data/search-index.json')
+          idx = idx_path.read_text(encoding='utf-8')
+          if article_url not in idx:
+              entry = {
+                  'title': 'PE・FG・SGの違いとは？保護接地・フレームグランド・シグナルグランドを整理',
+                  'url': article_url,
+                  'category': '制御の基礎',
+                  'description': 'PE・FG・SGの違いを初心者向けに整理。PE（保護接地）、FG（フレームグランド）、SG（シグナルグランド）の役割と、図面・端子表・公式マニュアルで確認する考え方を解説します。',
+                  'keywords': ['PE','FG','SG','保護接地','フレームグランド','シグナルグランド','Protective Earth','Frame Ground','Signal Ground','接地','アース','0V','制御盤','pe fg sg','pe-fg-sg-difference-basic'],
+                  'synonyms': ['PE FG SG 違い','PEとは','FGとは','SGとは','保護接地 フレームグランド シグナルグランド']
+              }
+              rendered = json.dumps(entry, ensure_ascii=False, indent=2)
+              pos = idx.rfind('\n]')
+              if pos < 0:
+                  raise SystemExit('search-index.json closing bracket not found')
+              prefix = idx[:pos].rstrip()
+              if prefix.endswith('}'):
+                  prefix += ','
+              idx = prefix + '\n  ' + rendered.replace('\n','\n  ') + idx[pos:]
+              idx_path.write_text(idx, encoding='utf-8')
+
+          # Category: add a normal article card at the start of the article shelf.
+          cat_path = Path('categories/control-basics.html')
+          cat = cat_path.read_text(encoding='utf-8')
+          href = '../articles/pe-fg-sg-difference-basic.html'
+          if href not in cat:
+              marker = '          <div class="article-shelf article-shelf--grid">\n'
+              card = '''            <a class="article-row" href="../articles/pe-fg-sg-difference-basic.html" data-control-category="plc">\n              <span class="article-row-media" aria-hidden="true">\n                <img src="../assets/images/pe-fg-sg-difference-basic/pe-fg-sg-difference-basic-ogp.jpg" alt="">\n              </span>\n              <span class="article-row-body">\n                <span class="article-row-tag-wrap"><span class="article-row-tag">PLC・制御の入口</span></span>\n                <h3>PE・FG・SGの違いとは？</h3>\n                <p>保護接地・フレームグランド・シグナルグランドの役割と、端子表・公式資料で確認する考え方を整理します。</p>\n              </span>\n            </a>\n\n'''
+              if marker not in cat:
+                  raise SystemExit('control-basics article shelf marker not found')
+              cat = cat.replace(marker, marker + card, 1)
+              cat_path.write_text(cat, encoding='utf-8')
+
+          # Validate index JSON after the minimal insertion.
+          data = json.loads(idx_path.read_text(encoding='utf-8'))
+          matches = [x for x in data if x.get('url') == article_url]
+          if len(matches) != 1:
+              raise SystemExit(f'Expected one search-index entry, found {len(matches)}')
+          if cat_path.read_text(encoding='utf-8').count(href) != 1:
+              raise SystemExit('Expected exactly one category article link')
+          PY
+      - name: Commit integration and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/data/search-index.json categories/control-basics.html
+          git rm .github/workflows/pefgsg-publication-integration.yml
+          git commit -m 'Integrate PE FG SG article into site navigation'
+          git push origin HEAD:preview-pe-fg-sg-20260910

@@ -35,15 +35,22 @@ MEDIUM/HIGHの記事について、管理者がNetlify Deploy Previewを目視�
 ## Google
 - IndexNowをGoogleへの直接登録手段として扱わない。
 - Google向けの基礎経路は、正しい内部リンク、canonical、robots、運用中sitemap、本番到達性、自然クロールとする。
+- 次のような**重要更新**は、本番反映後にGoogle Search ConsoleのURL検査を行い、問題がなければ「インデックス登録をリクエスト」を1回実施する候補とする。
+  - Google Search Consoleで流入上位の既存記事を、技術内容・構成・画像・主要導線まで明確に更新した場合
+  - サイト内で重要な柱記事を新規公開した場合
+  - 検索意図に影響するタイトル・主要説明・大きな内容修正を行った場合
+- 軽微な文言修正、CSSのみ、画像パスだけの調整、同日に多数のURLを更新した場合は、原則としてURL検査の手動リクエストを乱発せず、sitemap・内部リンク・自然クロールを優先する。
+- 同一更新について短時間に「インデックス登録をリクエスト」を繰り返さない。
 - Google Search ConsoleのURL検査/インデックス登録リクエストを自動化できる正式な接続・許可済み手段が存在する場合のみ、その手段を使用する。
-- 接続がない場合は「Google登録リクエスト済み」と記録しない。
+- 接続がない場合は、重要更新を `GOOGLE_REQUEST_PENDING_MANUAL` として管理者へ表示し、対象URLを明記する。「Google登録リクエスト済み」とは記録しない。
 - Search Console上で確認できる状態と、検索結果へ実際にインデックスされた状態を分けて記録する。
 
 ## 状態の分離
 公開後は少なくとも次の状態を混同しない。
 - `PUBLISHED`: main反映・本番URL表示確認済み
 - `INDEXNOW_ACCEPTED`: Bing/IndexNow通知が200/202で受理済み
-- `GOOGLE_REQUESTED`: 許可済みSearch Console経路でGoogleへ登録リクエストを実施済み
+- `GOOGLE_REQUEST_PENDING_MANUAL`: 重要更新だが、許可済み自動経路がなくSearch ConsoleでのURL検査/登録リクエストが未実施
+- `GOOGLE_REQUESTED`: 許可済みSearch Console経路または管理者操作でGoogleへ登録リクエストを実施済み
 - `INDEX_CONFIRMED`: 対象検索エンジンでインデックス状態を後日確認済み
 - `INDEX_NOTIFY_FAILED`: 通知/リクエスト工程が失敗
 - `COMPLETED`: 必須公開工程と当日実行可能な通知・監査が完了。インデックス確認待ちがある場合はその事実を別状態/監査記録として保持する。
@@ -55,6 +62,7 @@ AI編集部は管理者へ以下を表示する。
 - sitemap/search-index更新結果
 - IndexNow通知結果
 - Google登録リクエスト結果（実行できた場合のみ）
+- 重要更新で手動URL検査が必要な場合は、その対象URLと `GOOGLE_REQUEST_PENDING_MANUAL`
 - インデックス確認状況
 - エラーまたは後日確認が必要な項目
 

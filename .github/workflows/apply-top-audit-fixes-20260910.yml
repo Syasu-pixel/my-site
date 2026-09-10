@@ -1,0 +1,59 @@
+name: Apply top audit fixes 2026-09-10
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-top-audit-fixes-20260910.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply verified wording fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+            Path('articles/pilot-lamp-basic.html'): [
+              ('<td class="cell-green">安全 / 正常な状態</td>', '<td class="cell-green">正常な状態</td>'),
+              ('<td>安全または正常な状態などを示す代表的な色です。運転中を意味するとは限りません。</td>', '<td>正常な状態を示す代表的な色です。運転中を意味するとは限りません。</td>'),
+              ('<td class="cell-blue">一般的な状態表示</td>', '<td class="cell-blue">中立 / その他の状態</td>'),
+              ('<td>特定の意味を固定しない一般的な状態表示などに使われます。</td>', '<td>赤・黄・緑・青に当てはまらない中立的な状態や、その他の状態表示に使われます。</td>'),
+            ],
+            Path('articles/control-panel-grounding-basic.html'): [
+              ('<p>金属製の盤や扉を接地へつなぎ、安全側へ逃がす道を作ります。</p>', '<p>金属製の盤や扉などの露出導電部を保護接地系へ接続し、絶縁故障時の感電リスク低減に関わる経路を確保します。</p>'),
+              ('安全のための接地は、漏電や異常時に人が危険な電圧に触れにくくするための考え方です。\n            金属製の盤本体や筐体を接地へつなぐことで、異常時に電流の逃げ道を作ります。', '安全のための保護接地は、金属製の盤本体や筐体などの露出導電部を接地系へ接続し、絶縁故障時の感電リスクを低減するための重要な要素です。\n            実際の保護は接地方式や遮断器などの保護装置と組み合わせて成立するため、接地だけで安全が決まるわけではありません。'),
+              ('<td>感電防止、漏電時の保護、金属部の電位上昇を抑える</td>', '<td>絶縁故障時の感電リスク低減、金属部の危険な電位上昇を抑えることに関わる</td>'),
+            ],
+          }
+
+          for path, pairs in replacements.items():
+            text = path.read_text(encoding='utf-8')
+            for old, new in pairs:
+              count = text.count(old)
+              if count != 1:
+                raise SystemExit(f'{path}: expected exactly one match, got {count}: {old[:60]}')
+              text = text.replace(old, new, 1)
+            path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit and remove one-time workflow
+        run: |
+          git config user.name 'denkicontrol-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/apply-top-audit-fixes-20260910.yml
+          git add articles/pilot-lamp-basic.html articles/control-panel-grounding-basic.html
+          git commit -m 'Refine pilot lamp and grounding technical wording'
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          exit 1

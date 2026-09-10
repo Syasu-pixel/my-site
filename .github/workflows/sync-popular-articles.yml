@@ -84,8 +84,22 @@ jobs:
             echo 'Popular articles already synchronized.'
             exit 0
           fi
+
           git config user.name 'denkicontrol-bot'
           git config user.email 'actions@users.noreply.github.com'
           git add index.html
           git commit -m 'Sync popular articles ranking'
-          git push
+
+          # main is edited frequently by the editorial workflow. Rebase immediately
+          # before pushing so a harmless concurrent commit does not make this job fail.
+          for attempt in 1 2 3; do
+            echo "Push attempt ${attempt}/3"
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+
+          echo 'Failed to synchronize popular articles after 3 attempts.'
+          exit 1

@@ -1,0 +1,54 @@
+name: Step2 PE FG SG internal links
+on:
+  push:
+    branches: [step2-pe-fg-sg-internal-links-20260910]
+permissions:
+  contents: write
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: step2-pe-fg-sg-internal-links-20260910
+      - name: Add reciprocal internal links and marker usage rule
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          target='pe-fg-sg-difference-basic.html'
+          def insert_after_once(path, needle, addition):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              if target in s:
+                  print(path, 'already links target; skipping'); return
+              if needle not in s:
+                  raise SystemExit(f'Anchor not found in {path}')
+              p.write_text(s.replace(needle, needle+addition, 1), encoding='utf-8')
+          grounding_anchor='''          <p>\n            初心者のうちは、PEは保護接地寄り、FGは機器フレームや筐体の接地寄り、SGは信号の基準やシールド関係で出てくることがある、くらいに整理しておくと入りやすいです。\n          </p>'''
+          grounding_add='''\n\n          <div class="key-highlight">\n            <h3>PE・FG・SGを詳しく整理したいとき</h3>\n            <p><a href="pe-fg-sg-difference-basic.html"><span class="mark">PE・FG・SGの違い</span>を、保護接地・フレームグランド・シグナルグランドの役割と、端子表・回路図・公式資料での確認順まで詳しく整理しています。</a></p>\n          </div>'''
+          insert_after_once('articles/control-panel-grounding-basic.html', grounding_anchor, grounding_add)
+          shield_anchor='''          <p>\n            接続先は、機器のFG端子、盤内の接地端子台、シールドクランプなどがあります。\n            通信機器やアナログ機器では、メーカー指定の接続方法があることも多いです。\n          </p>'''
+          shield_add='''\n\n          <div class="key-highlight">\n            <h3>FG・SGとの関係も確認する</h3>\n            <p>シールドの接続先を見るときは、<a href="pe-fg-sg-difference-basic.html"><span class="mark">PE・FG・SGの違い</span></a>も合わせて確認すると、端子名だけで接続先を決めずに整理しやすくなります。</p>\n          </div>'''
+          insert_after_once('articles/shielded-cable-basic.html', shield_anchor, shield_add)
+          power_anchor='''          <p>\n            次に、盤内でどのルートを通すかを考えます。\n            既存の配線ダクト、機器配置、端子台の位置、PLCやインバータの位置を見ながら、できるだけ近づけすぎないルートにします。\n          </p>'''
+          power_add='''\n\n          <div class="key-highlight">\n            <h3>接地・グランドも同時に見る</h3>\n            <p>配線分離だけでなく、シールドや接地端子の役割も合わせて確認します。<a href="pe-fg-sg-difference-basic.html"><span class="mark">PE・FG・SGの違い</span></a>を先に整理しておくと、ノイズ対策の確認ポイントを追いやすくなります。</p>\n          </div>'''
+          insert_after_once('articles/power-signal-wiring-separation-basic.html', power_anchor, power_add)
+          docs={'docs/article-workflow.md':'''\n\n### マーカーペン強調の標準運用\n- 重要な結論・注意点・覚えてほしい短い語句は、太字だけで終わらせず、既存テンプレートの `.mark` などのマーカーペン風強調を積極的に使う。\n- 1セクションで何行も連続して塗らず、「ここだけ覚える」が一目で分かる短い語句・1文の一部に限定する。\n- 黄色系を基本とし、警告・危険表現と混同する配色は避ける。\n- 新規記事では完成済みテンプレートの既存マーカースタイルを流用し、記事ごとに別デザインを増やさない。\n''','docs/new-article-checklist.md':'''\n\n### マーカーペン強調チェック\n- [ ] 各主要セクションの要点で、必要に応じて既存 `.mark` 等のマーカーペン風強調を使っている\n- [ ] 強調範囲は短い語句または1文の一部に絞り、段落全体を塗っていない\n- [ ] 太字・マーカーが多すぎて本文の読みやすさを落としていない\n- [ ] 既存テンプレートの強調スタイルを流用し、独自色・独自装飾を増やしていない\n'''}
+          for path, block in docs.items():
+              p=Path(path); s=p.read_text(encoding='utf-8'); heading=block.strip().splitlines()[0]
+              if heading not in s: p.write_text(s.rstrip()+block+'\n', encoding='utf-8')
+          for path in ['articles/control-panel-grounding-basic.html','articles/shielded-cable-basic.html','articles/power-signal-wiring-separation-basic.html']:
+              s=Path(path).read_text(encoding='utf-8')
+              if s.count(target)!=1: raise SystemExit(f'{path}: expected exactly one link, got {s.count(target)}')
+          print('Step2 internal links and marker rules OK')
+          PY
+      - name: Commit changes and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/control-panel-grounding-basic.html articles/shielded-cable-basic.html articles/power-signal-wiring-separation-basic.html docs/article-workflow.md docs/new-article-checklist.md
+          git rm .github/workflows/step2-pe-fg-sg-internal-links.yml
+          git commit -m 'Add PE FG SG Step2 internal links and marker rule'
+          git push origin HEAD:step2-pe-fg-sg-internal-links-20260910

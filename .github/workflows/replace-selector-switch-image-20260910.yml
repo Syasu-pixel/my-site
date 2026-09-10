@@ -19,97 +19,88 @@ jobs:
           ref: preview-selector-switch-audit-20260910
           fetch-depth: 0
 
-      - name: Download adopted image from firestorage
+      - name: Import adopted image through artifact broker
+        id: broker
+        shell: bash
         env:
-          SHARE_URL: https://firestorage.ai/ja/f/lJQDDqkbe-gH
-          TARGET: assets/images/selector-switch-basic/two-position-vs-three-position-selector.png
+          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
+          BROKER_TOKEN: ${{ secrets.ARTIFACT_BROKER_TOKEN }}
+          SHARE_ID: xbhg8BJvoS_f
+          FILE_ID: 01a08bb9dbf775e6b660e2ad947bd954
+          FILE_NAME: selector-switch-two-vs-three.png
           EXPECTED_SHA256: 61ae7e1150332b25a661e5c92017e30a4e7b7c37f774df89d5baa6c5621dd1cc
         run: |
-          python3 - <<'PY'
-          import hashlib, html, os, re, sys, urllib.parse, urllib.request
-
-          share = os.environ['SHARE_URL']
-          target = os.environ['TARGET']
-          expected = os.environ['EXPECTED_SHA256']
-          headers = {'User-Agent': 'Mozilla/5.0'}
-
-          def fetch(url):
-              req = urllib.request.Request(url, headers=headers)
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  return r.geturl(), r.headers, r.read()
-
-          final, hdrs, body = fetch(share)
-          ctype = (hdrs.get('Content-Type') or '').lower()
-          candidates = []
-          if 'image/' in ctype and len(body) > 100000:
-              candidates.append((final, hdrs, body))
-          else:
-              text = body.decode('utf-8', 'ignore')
-              text = html.unescape(text)
-              patterns = [
-                  r'''(?:href|src)=["']([^"']+)["']''',
-                  r'''https?://[^"'<> ]+''',
-              ]
-              seen = set()
-              urls = []
-              for pat in patterns:
-                  for m in re.findall(pat, text):
-                      u = m if isinstance(m, str) else m[0]
-                      u = urllib.parse.urljoin(final, u)
-                      if u in seen:
-                          continue
-                      seen.add(u)
-                      if any(k in u.lower() for k in ('download','file','attachment','.png','.jpg','.jpeg','.webp')):
-                          urls.append(u)
-              for u in urls:
-                  try:
-                      fu, fh, fb = fetch(u)
-                  except Exception:
-                      continue
-                  ct = (fh.get('Content-Type') or '').lower()
-                  cd = (fh.get('Content-Disposition') or '').lower()
-                  if len(fb) > 100000 and ('image/' in ct or 'attachment' in cd or fb[:8] == b'\x89PNG\r\n\x1a\n'):
-                      candidates.append((fu, fh, fb))
-                      if hashlib.sha256(fb).hexdigest() == expected:
-                          break
-
-          chosen = None
-          for item in candidates:
-              if hashlib.sha256(item[2]).hexdigest() == expected:
-                  chosen = item
-                  break
-          if chosen is None and candidates:
-              # Accept only a PNG candidate when the service transparently re-encodes the public file.
-              pngs = [x for x in candidates if x[2][:8] == b'\x89PNG\r\n\x1a\n']
-              if len(pngs) == 1:
-                  chosen = pngs[0]
-          if chosen is None:
-              print('Could not resolve downloadable PNG from share page', file=sys.stderr)
-              sys.exit(2)
-
-          data = chosen[2]
-          if data[:8] != b'\x89PNG\r\n\x1a\n':
-              print('Resolved file is not PNG', file=sys.stderr)
-              sys.exit(3)
-          os.makedirs(os.path.dirname(target), exist_ok=True)
-          with open(target, 'wb') as f:
-              f.write(data)
-          print('saved', target, len(data), hashlib.sha256(data).hexdigest())
+          if [ -z "$BROKER_URL" ]; then echo 'ARTIFACT_BROKER_URL is missing' >&2; exit 1; fi
+          if [ -z "$BROKER_TOKEN" ]; then echo 'ARTIFACT_BROKER_TOKEN is missing' >&2; exit 1; fi
+          payload="$(python3 - <<'PY'
+          import json, os
+          print(json.dumps({
+              'action':'import_firestorage',
+              'share_id':os.environ['SHARE_ID'],
+              'file_id':os.environ['FILE_ID'],
+              'file_name':os.environ['FILE_NAME'],
+              'sha256':os.environ['EXPECTED_SHA256'],
+          }))
+          PY
+          )"
+          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 \
+            -X POST -H 'content-type: application/json' \
+            -H "x-artifact-broker-token: $BROKER_TOKEN" \
+            --data "$payload" "$BROKER_URL")"
+          python3 - "$response" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          d=json.loads(sys.argv[1])
+          print('download_url='+d['download_url'])
+          print('object_path='+d['object_path'])
+          print('sha256='+d['sha256'])
           PY
 
-      - name: Verify image and commit
+      - name: Download, verify, and replace image
+        shell: bash
+        env:
+          DOWNLOAD_URL: ${{ steps.broker.outputs.download_url }}
+          EXPECTED_SHA256: 61ae7e1150332b25a661e5c92017e30a4e7b7c37f774df89d5baa6c5621dd1cc
+          TARGET: assets/images/selector-switch-basic/two-position-vs-three-position-selector.png
         run: |
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 \
+            -o "$TARGET" "$DOWNLOAD_URL"
+          echo "$EXPECTED_SHA256  $TARGET" | sha256sum -c -
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('assets/images/selector-switch-basic/two-position-vs-three-position-selector.png')
-          b = p.read_bytes()
+          p=Path('assets/images/selector-switch-basic/two-position-vs-three-position-selector.png')
+          b=p.read_bytes()
           assert b[:8] == b'\x89PNG\r\n\x1a\n'
           assert len(b) > 100000
           print('PNG verified:', len(b), 'bytes')
           PY
+
+      - name: Commit adopted image to preview branch
+        shell: bash
+        run: |
           git diff --check
-          git config user.name 'denkicontrol-bot'
+          git config user.name 'denkicontrol-ai-writer'
           git config user.email 'actions@users.noreply.github.com'
           git add assets/images/selector-switch-basic/two-position-vs-three-position-selector.png
           git commit -m 'Replace selector switch comparison image with character version'
           git push origin HEAD:preview-selector-switch-audit-20260910
+
+      - name: Cleanup broker object
+        if: ${{ success() }}
+        shell: bash
+        env:
+          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
+          CLEANUP_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          BROKER_TOKEN: ${{ secrets.ARTIFACT_BROKER_TOKEN }}
+          OBJECT_PATH: ${{ steps.broker.outputs.object_path }}
+        run: |
+          token="$CLEANUP_TOKEN"
+          if [ -z "$token" ]; then token="$BROKER_TOKEN"; fi
+          payload="$(python3 - <<'PY'
+          import json, os
+          print(json.dumps({'action':'delete','object_path':os.environ['OBJECT_PATH']}))
+          PY
+          )"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 \
+            -X POST -H 'content-type: application/json' \
+            -H "x-artifact-broker-token: $token" \
+            --data "$payload" "$BROKER_URL"

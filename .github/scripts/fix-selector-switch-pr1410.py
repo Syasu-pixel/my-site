@@ -69,7 +69,7 @@ new_related = '''        <section class="section-card" id="sources">
               <span class="related-card-body"><h3>PLC入出力ユニットとは？</h3><p>セレクタスイッチの信号がPLC入力でどう扱われるかを理解しやすくなります。</p></span>
             </a>
             <a class="related-card" href="relay-basic.html">
-              <span class="related-card-media"><img src="../assets/images/relay-basic/relay-basic-hero.png" alt="リレーの基本記事" loading="lazy" decoding="async"></span>
+              <span class="related-card-media"><img src="../assets/images/relay-basic/relay-overview.png" alt="リレーの基本記事" loading="lazy" decoding="async"></span>
               <span class="related-card-body"><h3>リレーとは？</h3><p>選択した信号をリレー回路でどう扱うかを整理できます。</p></span>
             </a>
           </div>
@@ -77,9 +77,9 @@ new_related = '''        <section class="section-card" id="sources">
 one(old_related, new_related)
 
 anchor = '''    .related-card:hover{
-      transform:translateY(-2px);
-      border-color:#b8cde7;
-      box-shadow:0 12px 24px rgba(37,99,235,.08);
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
     }
 '''
 extra = '''    .related-card-media{display:block;overflow:hidden;border-radius:14px;aspect-ratio:1200 / 630;margin-bottom:12px;background:#eef4ff;}

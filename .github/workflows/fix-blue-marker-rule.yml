@@ -1,0 +1,52 @@
+name: Fix blue marker rule
+on:
+  push:
+    branches: [fix-blue-marker-rule-20260910]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-blue-marker-rule-20260910
+      - name: Correct marker color rule
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          workflow = Path('docs/article-workflow.md')
+          s = workflow.read_text(encoding='utf-8')
+          old = '- 黄色系を基本とし、警告・危険表現と混同する配色は避ける。'
+          new = '- PE・FG・SG記事で使っている `.mark` の薄い青（文字の下半分に入るマーカーペン風強調）を標準とする。黄色系を基本にはしない。'
+          if old not in s:
+              raise SystemExit('Expected yellow marker rule not found in article-workflow.md')
+          workflow.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+          checklist = Path('docs/new-article-checklist.md')
+          s = checklist.read_text(encoding='utf-8')
+          anchor = '- [ ] 既存テンプレートの強調スタイルを流用し、独自色・独自装飾を増やしていない'
+          addition = '\n- [ ] マーカーペン風強調は、PE・FG・SG記事の `.mark` と同じ薄い青・文字下半分の見せ方を標準としている'
+          if addition.strip() not in s:
+              if anchor not in s:
+                  raise SystemExit('Marker checklist anchor not found')
+              s = s.replace(anchor, anchor + addition, 1)
+          checklist.write_text(s, encoding='utf-8')
+
+          # Guard against the mistaken rule remaining.
+          if '黄色系を基本' in workflow.read_text(encoding='utf-8'):
+              raise SystemExit('Yellow marker default rule still remains')
+          print('Blue marker rule corrected')
+          PY
+      - name: Commit docs and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/article-workflow.md docs/new-article-checklist.md
+          git rm .github/workflows/fix-blue-marker-rule.yml
+          git commit -m 'Correct marker rule to blue underline style'
+          git push origin HEAD:fix-blue-marker-rule-20260910

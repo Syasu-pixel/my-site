@@ -1,0 +1,149 @@
+name: Finalize PE FG SG preview
+
+on:
+  push:
+    branches:
+      - preview-pe-fg-sg-20260910
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: ${{ !contains(github.event.head_commit.message, '[pe-fg-sg-finalized]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pe-fg-sg-20260910
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python -m pip install --quiet pillow
+      - name: Generate adopted PNG assets and update article
+        run: |
+          python <<'PY'
+          from PIL import Image, ImageDraw, ImageFont
+          from pathlib import Path
+
+          out = Path('assets/images/pe-fg-sg-difference-basic')
+          out.mkdir(parents=True, exist_ok=True)
+          article = Path('articles/pe-fg-sg-difference-basic.html')
+
+          def font(size, bold=False):
+              candidates = [
+                  '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc' if bold else '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+                  '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf' if bold else '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+              ]
+              for p in candidates:
+                  if Path(p).exists():
+                      return ImageFont.truetype(p, size)
+              return ImageFont.load_default()
+
+          def text(d, xy, s, size, fill='#1f2a37', bold=False, anchor=None, align='left'):
+              d.text(xy, s, font=font(size, bold), fill=fill, anchor=anchor, align=align, spacing=8)
+
+          def panel(d, box, fill, outline='#d6dee8'):
+              d.rounded_rectangle(box, radius=22, fill=fill, outline=outline, width=3)
+
+          def character(d, cx, cy, helmet, body):
+              d.line((cx-60, cy+45, cx-112, cy+78), fill='#334155', width=7)
+              d.line((cx+60, cy+45, cx+112, cy+78), fill='#334155', width=7)
+              d.ellipse((cx-38, cy-56, cx+38, cy+20), fill='#ffe1bf', outline='#865f43', width=2)
+              d.pieslice((cx-48, cy-82, cx+48, cy-12), 180, 360, fill=helmet, outline='#475569', width=2)
+              d.rectangle((cx-42, cy-46, cx+42, cy-32), fill=helmet, outline='#475569', width=2)
+              d.arc((cx-20, cy-24, cx-6, cy-12), 0, 180, fill='#111827', width=2)
+              d.arc((cx+6, cy-24, cx+20, cy-12), 0, 180, fill='#111827', width=2)
+              d.arc((cx-15, cy-4, cx+15, cy+12), 0, 180, fill='#7c2d12', width=2)
+              d.rounded_rectangle((cx-52, cy+18, cx+52, cy+120), radius=20, fill=body, outline='#334155', width=2)
+
+          def save(img, name):
+              img = img.convert('P', palette=Image.Palette.ADAPTIVE, colors=128)
+              img.save(out / name, optimize=True)
+
+          def header(d, title, sub=None, w=1200):
+              text(d, (60, 42), title, 48, '#0f172a', True)
+              if sub:
+                  text(d, (62, 104), sub, 25, '#475569')
+              d.line((60, 142, w-60, 142), fill='#d8e0ea', width=3)
+
+          def role():
+              img = Image.new('RGB', (1200, 675), '#f7fbff'); d = ImageDraw.Draw(img)
+              header(d, 'PE・FG・SGの役割比較', '端子名だけで判断せず、役割と確認先を分けて見る')
+              data = [('PE','Protective Earth','#2f9e44','保護・安全','感電や故障時の逃げ道'), ('FG','Frame / Functional Ground','#2563eb','筐体・シールド','機能上の接地'), ('SG','Signal Ground','#ea580c','通信・計測','信号の基準')]
+              for x, row in zip([205,600,995], data):
+                  n,en,c,a,b = row; panel(d, (x-155,185,x+155,540), '#ffffff')
+                  d.ellipse((x-58,220,x+58,336), fill=c, outline='#1f2937', width=3)
+                  text(d, (x,280), n, 42, 'white', True, anchor='mm')
+                  text(d, (x,370), en, 23, '#334155', True, anchor='mm')
+                  text(d, (x,450), a, 29, '#111827', True, anchor='mm')
+                  text(d, (x,482), b, 25, '#111827', True, anchor='mm')
+              text(d, (600,638), '安全目的・機能目的・信号基準を同じものとして扱わない', 28, '#0f172a', True, anchor='mm')
+              save(img, 'pe-fg-sg-role-comparison.png')
+
+          def manual():
+              img = Image.new('RGB', (1200,675), '#fbfcf8'); d = ImageDraw.Draw(img)
+              header(d, 'FG・SGは機器ごとに確認', 'メーカー資料・端子表・通信仕様で定義が変わることがある')
+              panel(d, (70,190,520,560), '#ffffff'); panel(d, (680,190,1130,560), '#ffffff')
+              character(d, 180, 330, '#f8fafc', '#2563eb')
+              text(d, (345,265), '確認する資料', 32, '#0f172a', True, anchor='mm')
+              for i, s in enumerate(['回路図','端子表','取扱説明書','通信仕様']):
+                  y = 305 + i*54; d.rounded_rectangle((275,y-20,470,y+20), radius=10, fill=['#ecfdf5','#eff6ff','#fff7ed','#f8fafc'][i], outline='#cbd5e1', width=2); text(d, (373,y), s, 23, '#1f2937', True, anchor='mm')
+              d.rounded_rectangle((542,330,660,386), radius=28, fill='#0f172a'); text(d, (601,358), '確認', 28, '#ffffff', True, anchor='mm')
+              text(d, (905,265), '判断のポイント', 32, '#0f172a', True, anchor='mm')
+              for i, s in enumerate(['FG=必ずPEとは限らない','SG=必ず0Vとは限らない','機器固有の定義を優先']):
+                  y = 320 + i*72; d.ellipse((755,y-13,781,y+13), fill='#f97316'); text(d, (810,y-18), s, 28, '#111827', True)
+              d.rounded_rectangle((780,500,1088,535), radius=14, fill='#fff7ed', outline='#fed7aa', width=2); text(d, (934,517), '略号だけで接続先を決めない', 21, '#7c2d12', True, anchor='mm')
+              text(d, (600,620), '同じ表記でもシリーズや用途で意味が変わるため、資料確認を前提にする', 26, '#334155', True, anchor='mm')
+              save(img, 'pe-fg-sg-manual-check.png')
+
+          def flow():
+              img = Image.new('RGB', (1200,675), '#f9fbff'); d = ImageDraw.Draw(img)
+              header(d, '図面・端子表で迷ったときの確認手順', '推測で接続せず、資料を順番にたどる')
+              character(d, 1020, 92, '#f8fafc', '#2563eb')
+              steps = [('1','端子名','略号と正式名称'), ('2','回路図','どの回路につながるか'), ('3','端子表','注記と用途'), ('4','説明書','接地・通信・シールド'), ('5','保留','不明なら確認してから')]
+              for i, (num, title, sub) in enumerate(steps):
+                  x = 85 + i*215; panel(d, (x,235,x+190,480), ['#e8f8ef','#eaf3ff','#fff3e6','#f2f5f9','#fef2f2'][i])
+                  d.ellipse((x+58,265,x+132,339), fill='#0f172a'); text(d, (x+95,302), num, 32, 'white', True, anchor='mm')
+                  text(d, (x+95,376), title, 31, '#0f172a', True, anchor='mm')
+                  text(d, (x+95,421), sub, 20, '#334155', False, anchor='mm')
+                  if i < 4:
+                      d.line((x+196,358,x+238,358), fill='#64748b', width=5)
+              text(d, (600,638), '端子名 → 回路図 → 端子表 → 取扱説明書。不明点は推測でつながない。', 27, '#0f172a', True, anchor='mm')
+              save(img, 'pe-fg-sg-confirm-flow.png')
+
+          def ogp():
+              img = Image.new('RGB', (1200,630), '#f7fbff'); d = ImageDraw.Draw(img)
+              d.rectangle((0,0,1200,78), fill='#0f172a'); text(d, (60,40), '電気と制御の実務メモ', 28, '#ffffff', True, anchor='lm')
+              character(d, 150, 300, '#f8fafc', '#2563eb'); character(d, 1040, 305, '#93c5fd', '#64748b')
+              text(d, (600,177), 'PE・FG・SG', 72, '#0f172a', True, anchor='mm'); text(d, (600,250), '違いと使い分け', 56, '#1d4ed8', True, anchor='mm')
+              for x, n, c, s in [(410,'PE','#2f9e44','保護・安全'), (600,'FG','#2563eb','筐体・機能'), (790,'SG','#ea580c','信号基準')]:
+                  d.ellipse((x-55,315,x+55,425), fill=c, outline='#1f2937', width=3); text(d, (x,370), n, 38, 'white', True, anchor='mm'); text(d, (x,462), s, 25, '#111827', True, anchor='mm')
+              d.rounded_rectangle((300,515,900,575), radius=22, fill='#ffffff', outline='#cbd5e1', width=2); text(d, (600,545), '端子名だけで判断しない。機器ごとの定義を確認する。', 27, '#0f172a', True, anchor='mm')
+              save(img, 'pe-fg-sg-difference-basic-ogp.png')
+
+          role(); manual(); flow(); ogp()
+
+          html = article.read_text(encoding='utf-8')
+          html = html.replace('https://denkicontrol.com/assets/images/pe-fg-sg-difference-basic/pe-fg-sg-difference-basic-hero.webp', 'https://denkicontrol.com/assets/images/pe-fg-sg-difference-basic/pe-fg-sg-difference-basic-ogp.png', 2)
+          if '<meta property="og:image:width" content="1200">' not in html:
+              html = html.replace('<meta property="og:site_name" content="電気と制御の実務メモ">', '<meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n  <meta property="og:site_name" content="電気と制御の実務メモ">')
+          html = html.replace('pe-fg-sg-role-comparison.svg', 'pe-fg-sg-role-comparison.png')
+          html = html.replace('pe-fg-sg-manual-check.svg', 'pe-fg-sg-manual-check.png')
+          html = html.replace('pe-fg-sg-confirm-flow.svg', 'pe-fg-sg-confirm-flow.png')
+          article.write_text(html, encoding='utf-8')
+
+          for name in ['pe-fg-sg-role-comparison.svg', 'pe-fg-sg-manual-check.svg', 'pe-fg-sg-confirm-flow.svg']:
+              p = out / name
+              if p.exists():
+                  p.unlink()
+          PY
+      - name: Commit finalized preview assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/pe-fg-sg-difference-basic.html assets/images/pe-fg-sg-difference-basic
+          git rm --ignore-unmatch .github/workflows/finalize-pe-fg-sg-preview.yml
+          git status --short
+          git commit -m "Finalize PE FG SG preview images [pe-fg-sg-finalized]" || exit 0
+          git push origin HEAD:preview-pe-fg-sg-20260910

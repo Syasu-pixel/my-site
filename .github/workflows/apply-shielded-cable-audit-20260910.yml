@@ -1,0 +1,69 @@
+name: Apply shielded cable audit 2026-09-10
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-shielded-cable-audit-20260910.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply minimal verified wording fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('articles/shielded-cable-basic.html')
+          text = path.read_text(encoding='utf-8')
+          pairs = [
+            ('そのシールドをどこで接地するかによって、ノイズの逃がし方が変わります。',
+             'そのシールドをどこへ、どの方法で接続するかによって、ノイズ対策の考え方が変わります。'),
+            ('シールド線は、弱い信号をノイズから守るための電線です。シールド部分は、ノイズを受けて逃がすための外側の層として見ます。',
+             'シールド線は、弱い信号をノイズの影響から守りやすくするための電線です。シールド部分は、電磁的な干渉を抑えるための外側の遮蔽層として見ます。'),
+            ('シールド線は、信号を通す芯線の外側にシールド層があり、その外側を外被で保護しています。シールド層を接地することでノイズを逃がします。',
+             'シールド線は、信号を通す芯線の外側にシールド層があり、その外側を外被で保護しています。シールド層は、機器やメーカーが指定する方法で筐体・接地系などへ接続して使います。'),
+            ('このシールド層がノイズを受け止め、接地側へ逃がすことで、芯線の信号を守りやすくします。',
+             'このシールド層は電磁的な干渉を抑える役割を持ち、適切な終端・接続と組み合わせて芯線の信号を守りやすくします。'),
+          ]
+          for old, new in pairs:
+            count = text.count(old)
+            if count != 1:
+              raise SystemExit(f'{path}: expected exactly one match, got {count}: {old[:80]}')
+            text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Record audit note
+        run: |
+          cat >> docs/search-top-content-audit-2026-09-10.md <<'EOF'
+
+## 進捗追記：シールド線
+- `articles/shielded-cable-basic.html` をメーカー一次資料と照合。
+- Siemens EMC Configuration Manual (2024/03) は、シールド線が外来・放射の電磁妨害を抑える役割を持つこと、対象ケーブルでは両端を大面積接続する施策を示す。
+- Omron CK3W-AD□100 は、対象アナログ入力でシールド線を使用し両側を接地するよう明記している。
+- したがって「片側接地が常に基本」「両側接地が常に基本」のような一般化は避け、機器・信号・メーカー指示ごとに確認する。
+- 現記事の中心方針は維持し、「ノイズを受けて逃がす」「接地すればノイズを逃がす」という単純化が強い4表現だけ、遮蔽機能と指定された終端・接続を組み合わせる表現へ最小修正した。
+- 記事構造、キャラクター会話、画像、固定ヘッダー、右カラム、支援導線は変更していない。
+
+次: `articles/selector-switch-basic.html`
+EOF
+      - name: Commit and remove one-time workflow
+        run: |
+          git config user.name 'denkicontrol-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/apply-shielded-cable-audit-20260910.yml
+          git add articles/shielded-cable-basic.html docs/search-top-content-audit-2026-09-10.md
+          git commit -m 'Refine shielded cable technical wording'
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          exit 1

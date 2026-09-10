@@ -1,0 +1,66 @@
+name: Audit shielded cable wording 2026-09-10
+
+on:
+  push:
+    branches: [audit-shielded-cable-20260910]
+    paths:
+      - '.github/workflows/audit-shielded-cable-20260910.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-shielded-cable-20260910
+          fetch-depth: 0
+      - name: Apply minimal verified wording refinements
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('articles/shielded-cable-basic.html')
+          text = path.read_text(encoding='utf-8')
+          pairs = [
+            ('そのシールドをどこで接地するかによって、ノイズの逃がし方が変わります。',
+             'そのシールドをどこへ、どの方法で接続するかによって、ノイズ対策の考え方が変わります。'),
+            ('シールド線は、弱い信号をノイズから守るための電線です。シールド部分は、ノイズを受けて逃がすための外側の層として見ます。',
+             'シールド線は、弱い信号をノイズの影響から守りやすくするための電線です。シールド部分は、電磁的な干渉を抑えるための外側の遮蔽層として見ます。'),
+            ('シールド線は、信号を通す芯線の外側にシールド層があり、その外側を外被で保護しています。シールド層を接地することでノイズを逃がします。',
+             'シールド線は、信号を通す芯線の外側にシールド層があり、その外側を外被で保護しています。シールド層は、機器やメーカーが指定する方法で筐体・接地系などへ接続して使います。'),
+            ('このシールド層がノイズを受け止め、接地側へ逃がすことで、芯線の信号を守りやすくします。',
+             'このシールド層は電磁的な干渉を抑える役割を持ち、適切な終端・接続と組み合わせて芯線の信号を守りやすくします。'),
+          ]
+          for old, new in pairs:
+            count = text.count(old)
+            if count != 1:
+              raise SystemExit(f'expected exactly one match, got {count}: {old[:80]}')
+            text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Record audit note
+        run: |
+          cat >> docs/search-top-content-audit-2026-09-10.md <<'EOF'
+
+## 進捗追記：シールド線
+- `articles/shielded-cable-basic.html` を公式資料と照合。
+- Siemens EMC Configuration Manual (2024/03) では、用途によってシールド付きケーブルを指定し、シールドを両端で大面積接続する一般的なEMC施策を示している。
+- Omron CK3W-AD□100 では、対象機種のアナログ入力配線についてシールド線を使用し両側接地するよう明記している。
+- したがって「シールドは片側接地が基本」「両側接地が基本」のような一律表現は避け、機器・信号・メーカー指示ごとに確認する方針を維持する。
+- 現記事は片側/両側を断定せずメーカー指示確認を促しており中心方針は良好。
+- 一方、「ノイズを受けて逃がす」「接地することでノイズを逃がす」という説明は単純化しすぎるため、シールドの遮蔽機能と指定された終端・接続を組み合わせる表現へ最小修正した。
+- 記事構造、キャラクター会話、画像、固定ヘッダー、右カラム、支援導線は変更しない。
+
+次: `articles/selector-switch-basic.html`
+EOF
+      - name: Commit and remove one-time workflow
+        run: |
+          git config user.name 'denkicontrol-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/audit-shielded-cable-20260910.yml
+          git add articles/shielded-cable-basic.html docs/search-top-content-audit-2026-09-10.md
+          git commit -m 'Refine shielded cable technical wording'
+          git push origin HEAD:audit-shielded-cable-20260910

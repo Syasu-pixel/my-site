@@ -1,0 +1,163 @@
+name: Air Cylinder Basic Refresh
+
+on:
+  push:
+    branches:
+      - air-cylinder-basic-refresh-20260911
+    paths:
+      - .github/workflows/air-cylinder-refresh.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout refresh branch
+        uses: actions/checkout@v4
+        with:
+          ref: air-cylinder-basic-refresh-20260911
+          fetch-depth: 1
+
+      - name: Strengthen air cylinder basic article
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('articles/air-cylinder-basic.html')
+          s = p.read_text(encoding='utf-8')
+
+          def replace_once(old, new, label):
+              global s
+              count = s.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 match, got {count}')
+              s = s.replace(old, new, 1)
+
+          replace_once(
+              '          <a href="#structure">基本構造</a>\n          <a href="#movement">前進・後退の仕組み</a>\n          <a href="#valve">エアバルブとの関係</a>',
+              '          <a href="#structure">基本構造</a>\n          <a href="#types">単動・複動と基本仕様</a>\n          <a href="#movement">前進・後退の仕組み</a>\n          <a href="#speed-cushion">速度・クッション</a>\n          <a href="#valve">エアバルブとの関係</a>',
+              'toc core'
+          )
+
+          movement_marker = '          <section class="section-card" id="movement">\n            <h2>前進・後退の仕組み</h2>'
+          types_section = '''          <section class="section-card" id="types">
+            <h2>単動・複動と、最初に見る基本仕様</h2>
+            <p>
+              エアシリンダの作動方式は、大きく<span class="term">単動形</span>と<span class="term">複動形</span>に分けて考えると理解しやすくなります。
+              CKDの公式解説では、単動形は一方向を空気圧で動かし、戻りをばねや外力で行う方式、複動形は両方向を空気圧で動かす方式として整理されています。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>作動方式</th>
+                    <th>動きの考え方</th>
+                    <th>初心者が見るポイント</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">単動形</td>
+                    <td>一方向を空気圧で動かし、反対方向はばねや外力で戻す</td>
+                    <td>空気を入れた時にどちらへ動く型式か確認する</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">複動形</td>
+                    <td>前進・後退の両方向を空気圧で動かす</td>
+                    <td>2つのポートと、どちら側へ空気が送られるかを見る</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>ボア径（チューブ内径）</h3>
+            <p>
+              <span class="marker-blue">ボア径は、シリンダの太さ・出力を考える基本寸法</span>です。
+              同じ使用圧力などの条件なら、一般にボア径が大きいほど大きな力を得やすくなります。ただし実際の選定は、負荷、取付姿勢、速度、使用圧力などを含めてメーカーの選定資料で確認します。
+            </p>
+
+            <h3>ストローク</h3>
+            <p>
+              ストロークは、シリンダが移動する距離です。<strong>ボア径とストロークは別の項目</strong>なので、型式を見る時は「どれくらいの太さか」と「どれくらい動くか」を分けて確認します。
+            </p>
+
+            <div class="key-highlight">
+              <h3>型式を見る時の最初の4項目</h3>
+              <p>
+                初心者はまず、<span class="marker-blue">作動方式・ボア径・ストローク・オートスイッチの有無</span>を見ると、シリンダの基本仕様をつかみやすくなります。
+              </p>
+            </div>
+          </section>
+
+'''
+          replace_once(movement_marker, types_section + movement_marker, 'types section insert')
+
+          valve_marker = '          <section class="section-card" id="valve">\n            <h2>エアバルブとの関係</h2>'
+          speed_section = '''          <section class="section-card" id="speed-cushion">
+            <h2>速度調整とクッションの考え方</h2>
+            <p>
+              エアシリンダの速度は、供給・排気する空気の流れと関係します。設備では<span class="term">スピードコントローラ</span>を使って流量を調整し、シリンダの動く速さを整える構成がよく使われます。
+            </p>
+            <p>
+              一方、ストローク端での衝撃をやわらげるために、シリンダ側に<span class="term">クッション機構</span>を持つ製品もあります。CKDの公式解説では、エアクッションやゴムクッションなどが紹介されています。
+            </p>
+            <div class="note-box">
+              <h3>速度調整とクッションは役割が違う</h3>
+              <p>
+                スピードコントローラは主に動作速度を整える部品、クッションは主にストローク端の衝撃をやわらげる仕組みです。調整方法や許容条件は型式ごとに異なるため、実機ではメーカー資料を優先します。
+              </p>
+            </div>
+          </section>
+
+'''
+          replace_once(valve_marker, speed_section + valve_marker, 'speed cushion insert')
+
+          summary_marker = '          <section class="section-card" id="summary">\n            <h2>まとめ：エアシリンダは空気で直線運動する部品</h2>'
+          sources_section = '''          <section class="section-card" id="sources">
+            <h2>メーカー公式資料で確認するポイント</h2>
+            <p>
+              エアシリンダは見た目が似ていても、作動方式、ボア径、ストローク、クッション、オートスイッチ、使用圧力などの条件が型式ごとに異なります。<strong>実際の選定・調整・交換では、対象型式の最新カタログや取扱説明書を優先</strong>してください。
+            </p>
+            <ul class="simple-list">
+              <li><a href="https://www.ckd.co.jp/kiki/jp/technopedia/pneumatic/system/actuator/" target="_blank" rel="noopener noreferrer">CKD：テクノペディア［空気圧システム 駆動機器］（公式）</a></li>
+              <li><a href="https://www.smcworld.com/webcatalog/ja-jp/air-cylinders/air-cylinders-round-type/CJ2-CDJ2-Z/" target="_blank" rel="noopener noreferrer">SMC：エアシリンダ CJ2/CDJ2-Zシリーズ WEBカタログ（公式）</a></li>
+            </ul>
+            <div class="field-highlight">
+              <h3>型式固有の数値は一般化しない</h3>
+              <p>
+                使用圧力、速度範囲、許容負荷、クッション調整、スイッチ仕様などは製品ごとに異なります。別シリーズの数値をそのまま当てはめず、対象型式の仕様表で確認します。
+              </p>
+            </div>
+          </section>
+
+'''
+          replace_once(summary_marker, sources_section + summary_marker, 'sources insert')
+
+          # Add official sources to the article menu after field link when present.
+          field_link = '          <a href="#field">現場で見るポイント</a>'
+          if field_link in s and 'href="#sources">公式資料</a>' not in s:
+              s = s.replace(field_link, field_link + '\n          <a href="#sources">公式資料</a>', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify and commit article refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'id="types"' articles/air-cylinder-basic.html
+          grep -q 'id="speed-cushion"' articles/air-cylinder-basic.html
+          grep -q 'id="sources"' articles/air-cylinder-basic.html
+          grep -q 'CKD：テクノペディア' articles/air-cylinder-basic.html
+          grep -q 'SMC：エアシリンダ' articles/air-cylinder-basic.html
+          git diff --check
+          git config user.name "denkicontrol-article-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/air-cylinder-basic.html
+          git commit -m "Strengthen air cylinder basic article"
+          git push origin HEAD:air-cylinder-basic-refresh-20260911

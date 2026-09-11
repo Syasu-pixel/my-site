@@ -14,14 +14,21 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect Firestorage app API
+      - name: Inspect all Firestorage client chunks
         shell: bash
         run: |
           set -euo pipefail
           base="https://firestorage.ai"
-          chunk="/_next/static/chunks/app/(files)/ja/f/page-4d19ae0a4ce39d79.js"
-          curl -L -sS "$base$chunk" -o /tmp/page.js
-          echo "-- api-like strings --"
-          grep -Eo '.{0,100}(api|download|share|files|objects).{0,140}' /tmp/page.js | head -120 || true
-          echo "-- absolute/relative endpoints --"
-          grep -Eo 'https?://[^\" ]+|/[A-Za-z0-9_./?=&:-]{6,}' /tmp/page.js | grep -Ei 'api|download|share|file|object' | head -120 || true
+          curl -L -sS "$base/ja/f/GIPwz47iReLf" -o /tmp/page.html
+          grep -o 'src="[^"]*\.js"' /tmp/page.html | sed 's/src="//;s/"$//' | sort -u > /tmp/scripts.txt
+          cat /tmp/scripts.txt
+          mkdir -p /tmp/js
+          while read -r src; do
+            file="/tmp/js/$(echo "$src" | tr '/()' '___')"
+            curl -L -sS "$base$src" -o "$file" || true
+          done < /tmp/scripts.txt
+          cat /tmp/js/* > /tmp/all.js || true
+          echo "-- keywords --"
+          grep -Eo '.{0,160}(shareId|publicId|download|presign|signed|object|fileId|files|api).{0,220}' /tmp/all.js | head -300 || true
+          echo "-- endpoint-ish --"
+          grep -Eo 'https?://[^\" ]+|/[A-Za-z0-9_./?=&:-]{5,}' /tmp/all.js | grep -Ei 'api|download|share|file|object|presign|signed' | sort -u | head -300 || true

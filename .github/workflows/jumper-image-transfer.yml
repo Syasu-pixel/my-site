@@ -1,0 +1,154 @@
+name: Jumper Image Transfer
+
+on:
+  push:
+    branches:
+      - tmp-jumper-image-transfer
+    paths:
+      - .github/workflows/jumper-image-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout transfer branch
+        uses: actions/checkout@v4
+        with:
+          ref: tmp-jumper-image-transfer
+          fetch-depth: 1
+
+      - name: Download approved WebP assets from firestorage
+        shell: bash
+        run: |
+          set -euo pipefail
+          API="https://api.firestorage.ai/dev/file"
+          mkdir -p /tmp/jumper-assets assets/images/terminal-block-jumper-basic
+
+          download_one() {
+            SHARE_ID="$1"
+            FILE_ID="$2"
+            FILE_NAME="$3"
+            EXPECTED_SHA256="$4"
+            OUT="$5"
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+
+            python3 - "$FILE_ID" "$FILE_NAME" <<'PY'
+          import json, sys
+          meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
+          file_id=sys.argv[1]
+          file_name=sys.argv[2]
+          files=meta.get('files') or []
+          hit=next((f for f in files if f.get('fileId')==file_id), None)
+          if not hit:
+              raise SystemExit('firestorage file id not found')
+          if hit.get('fileName') != file_name:
+              raise SystemExit('firestorage filename mismatch')
+          size=hit.get('sizeBytes')
+          if not isinstance(size,int) or size < 1 or size > 5*1024*1024:
+              raise SystemExit('firestorage file size rejected')
+          print(f"metadata ok: {file_name} {size} bytes")
+          PY
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              -X POST "$API/shares/$SHARE_ID/files/$FILE_ID/download" > /tmp/download.json
+
+            DOWNLOAD_URL="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/download.json','r',encoding='utf-8'))
+          u=d.get('downloadUrl')
+          if not isinstance(u,str) or not u.startswith('https://s3.ap-northeast-1.wasabisys.com/'):
+              raise SystemExit('download URL rejected')
+          print(u)
+          PY
+          )"
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              "$DOWNLOAD_URL" -o "$OUT"
+
+            printf '%s  %s\n' "$EXPECTED_SHA256" "$OUT" | sha256sum -c -
+            python3 - "$OUT" <<'PY'
+          import sys
+          p=sys.argv[1]
+          data=open(p,'rb').read(12)
+          if len(data) < 12 or data[:4] != b'RIFF' or data[8:12] != b'WEBP':
+              raise SystemExit('WebP signature mismatch')
+          PY
+          }
+
+          download_one \
+            "6toiVUvtWMM4" \
+            "01a0908df9c871f5ab297feba6c546ec" \
+            "terminal-block-jumper-basic-hero.webp" \
+            "3ad0282c821f700e9ebf07e76e713e86fe728a4261f7ee6b42ae5cf39fe0b2f2" \
+            "assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.webp"
+
+          download_one \
+            "T9LOVL-lbYA7" \
+            "01a0908e18a8706b89e4dcdb2ae2cd22" \
+            "terminal-block-jumper-basic-ogp.webp" \
+            "9cef2f8404fd5d404400a9b5da03c912f4ec3ecf686cf5e80bdc8732eed72d1d" \
+            "assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-ogp.webp"
+
+      - name: Update article and category references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('articles/terminal-block-jumper-basic.html'): [
+                  ('terminal-block-jumper-basic-hero.png', 'terminal-block-jumper-basic-hero.webp'),
+                  ('terminal-block-jumper-basic-ogp.png', 'terminal-block-jumper-basic-ogp.webp'),
+              ],
+              Path('categories/control-basics.html'): [
+                  ('terminal-block-jumper-basic-hero.png', 'terminal-block-jumper-basic-hero.webp'),
+              ],
+          }
+
+          for path, pairs in replacements.items():
+              text = path.read_text(encoding='utf-8')
+              original = text
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'expected reference not found in {path}: {old}')
+                  text = text.replace(old, new)
+              if text == original:
+                  raise SystemExit(f'no changes made in {path}')
+              path.write_text(text, encoding='utf-8')
+
+          old_assets = [
+              Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.png'),
+              Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-ogp.png'),
+          ]
+          for p in old_assets:
+              if p.exists():
+                  p.unlink()
+          PY
+
+      - name: Verify references and commit transfer result
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'terminal-block-jumper-basic-hero.webp' articles/terminal-block-jumper-basic.html
+          grep -q 'terminal-block-jumper-basic-ogp.webp' articles/terminal-block-jumper-basic.html
+          grep -q 'terminal-block-jumper-basic-hero.webp' categories/control-basics.html
+          test -s assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.webp
+          test -s assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-ogp.webp
+
+          git config user.name "denkicontrol-image-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A \
+            assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.webp \
+            assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-ogp.webp \
+            assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.png \
+            assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-ogp.png \
+            articles/terminal-block-jumper-basic.html \
+            categories/control-basics.html
+          git commit -m "Replace jumper hero and OGP with approved WebP images"
+          git push origin HEAD:tmp-jumper-image-transfer

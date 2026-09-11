@@ -1,0 +1,38 @@
+name: Import Air Cylinder Assets
+
+on:
+  push:
+    branches:
+      - air-cylinder-assets-20260911
+    paths:
+      - .github/workflows/import-air-cylinder-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: air-cylinder-assets-20260911
+          fetch-depth: 1
+
+      - name: Inspect transfer links
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in hero:GIPwz47iReLf ogp:qciCYcCK8EoO; do
+            name="${item%%:*}"
+            id="${item##*:}"
+            url="https://firestorage.ai/ja/f/${id}"
+            echo "=== ${name} ==="
+            curl -L -sS -D "/tmp/${name}.headers" "$url" -o "/tmp/${name}.body"
+            file "/tmp/${name}.body" || true
+            grep -Eio 'https?://[^\"[:space:]]+' "/tmp/${name}.body" | head -20 || true
+            grep -Eio '[^\"[:space:]]+\.webp[^\"[:space:]]*' "/tmp/${name}.body" | head -20 || true
+            head -c 500 "/tmp/${name}.body" | tr '\n' ' ' || true
+            echo
+          done

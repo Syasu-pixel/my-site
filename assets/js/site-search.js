@@ -141,8 +141,6 @@
     const hasMatch = (values, fn) =>
       queryVariants.some((qv) => values.some((value) => fn(value, qv)));
 
-    // Token coverage is deliberately the strongest signal. Field weights then
-    // decide the order among entries with the same number of matching words.
     let score = matchedTokens.length * 1200;
     score += Math.round((matchedTokens.length / queryTokens.length) * 500);
     if (matchedTokens.length === queryTokens.length) score += 1000;
@@ -159,8 +157,6 @@
       score += getFieldScore(description, token.variants, { exact: 15, startsWith: 15, includes: 8 });
     });
 
-    // Keep the existing whole-query preference, especially for unspaced terms,
-    // without allowing it to outweigh an article matching more query tokens.
     if (queryVariants.some((variant) => title.some((value) => value === variant))) score += 300;
     else if (hasMatch(title, (v, q) => v.startsWith(q))) score += 220;
     else if (hasMatch(title, (v, q) => v.includes(q))) score += 180;
@@ -374,4 +370,60 @@
       indexEntries = [];
       closePanel();
     });
+})();
+
+(() => {
+  const path = location.pathname.replace(/\/+$/, '') || '/';
+  if (path !== '/' && path !== '/index.html') return;
+  if (location.pathname.startsWith('/en/')) return;
+  if (document.querySelector('[data-category-shelf="career"]')) return;
+
+  const compareCard = document.querySelector('[data-category-shelf="compare"]');
+  const grid = compareCard && compareCard.closest('.support-category-grid');
+  const pills = document.querySelector('.finder-pills');
+  if (!compareCard || !grid || !pills) return;
+
+  const style = document.createElement('style');
+  style.id = 'career-preview-home-style';
+  style.textContent = `
+    .support-category-card--career{border-color:#c4b5fd;background:linear-gradient(135deg,#faf7ff 0%,#fff 100%)}
+    .support-category-card--career .support-category-card__image{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ede9fe,#f8f7ff);font-size:48px}
+    .support-category-card--career .support-category-card__title{color:#5b21b6}
+    .support-category-card--career .support-category-card__description{color:#64748b}
+  `;
+  document.head.appendChild(style);
+
+  const card = document.createElement('a');
+  card.className = 'support-category-card support-category-card--career';
+  card.id = 'shelf-career';
+  card.href = 'categories/career.html';
+  card.dataset.categoryShelf = 'career';
+  card.setAttribute('aria-label', 'キャリア・転職の記事一覧へ');
+  card.innerHTML = `
+    <span class="support-category-card__image" aria-hidden="true">🧭</span>
+    <span class="support-category-card__body">
+      <span class="support-category-card__title">キャリア・転職</span>
+      <span class="support-category-card__description">電気・FAの仕事、必要なスキル、キャリア、転職先の考え方を技術者目線で整理します。</span>
+    </span>`;
+  grid.appendChild(card);
+
+  const careerButton = document.createElement('button');
+  careerButton.className = 'finder-pill category-filter';
+  careerButton.type = 'button';
+  careerButton.dataset.categoryFilter = 'career';
+  careerButton.dataset.filter = 'career';
+  careerButton.setAttribute('aria-pressed', 'false');
+  careerButton.textContent = 'キャリア・転職';
+  pills.appendChild(careerButton);
+
+  careerButton.addEventListener('click', () => {
+    document.querySelectorAll('.finder-pills .category-filter[data-category-filter]').forEach((button) => {
+      const active = button === careerButton;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-category-shelf]').forEach((shelf) => {
+      shelf.hidden = shelf !== card;
+    });
+  });
 })();

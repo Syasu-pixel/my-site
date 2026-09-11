@@ -1,0 +1,104 @@
+name: Career Hero HQ Transfer
+
+on:
+  push:
+    branches:
+      - preview-career-category-v2
+    paths:
+      - .github/workflows/career-hero-hq-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-career-category-v2
+          fetch-depth: 1
+
+      - name: Download and verify approved hero image
+        shell: bash
+        env:
+          SHARE_ID: ffCvS_SWm0jJ
+          FILE_ID: 01a090083161757a91e16fb00823e6cc
+          FILE_NAME: career-hero-v2.jpg
+          EXPECTED_SHA256: 13d73065784221eb77eed1340f79e3ede9715d91221154bb0dc5ca75f2e4a2d5
+        run: |
+          set -euo pipefail
+          API="https://api.firestorage.ai/dev/file"
+
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+
+          python3 - <<'PY'
+          import json, os, sys
+          meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
+          file_id=os.environ['FILE_ID']
+          file_name=os.environ['FILE_NAME']
+          files=meta.get('files') or []
+          hit=next((f for f in files if f.get('fileId')==file_id), None)
+          if not hit:
+              raise SystemExit('firestorage file id not found')
+          if hit.get('fileName') != file_name:
+              raise SystemExit('firestorage filename mismatch')
+          size=hit.get('sizeBytes')
+          if not isinstance(size,int) or size < 1 or size > 5*1024*1024:
+              raise SystemExit('firestorage file size rejected')
+          print(f"metadata ok: {file_name} {size} bytes")
+          PY
+
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            -X POST "$API/shares/$SHARE_ID/files/$FILE_ID/download" > /tmp/download.json
+
+          DOWNLOAD_URL="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/download.json','r',encoding='utf-8'))
+          u=d.get('downloadUrl')
+          if not isinstance(u,str) or not u.startswith('https://s3.ap-northeast-1.wasabisys.com/'):
+              raise SystemExit('download URL rejected')
+          print(u)
+          PY
+          )"
+
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "$DOWNLOAD_URL" -o /tmp/career-hero-v2.jpg
+
+          printf '%s  %s\n' "$EXPECTED_SHA256" /tmp/career-hero-v2.jpg | sha256sum -c -
+          python3 - <<'PY'
+          p='/tmp/career-hero-v2.jpg'
+          data=open(p,'rb').read(3)
+          if data != b'\xff\xd8\xff':
+              raise SystemExit('JPEG signature mismatch')
+          PY
+
+          mkdir -p assets/images/career
+          cp /tmp/career-hero-v2.jpg assets/images/career/career-hero-v2.jpg
+
+      - name: Point career page to cache-busted HQ asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('categories/career.html')
+          s=p.read_text(encoding='utf-8')
+          old='../assets/images/career/career-hero.webp'
+          new='../assets/images/career/career-hero-v2.jpg'
+          if old not in s:
+              raise SystemExit('expected current hero path not found')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+
+      - name: Commit HQ hero to preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/images/career/career-hero-v2.jpg categories/career.html
+          git commit -m "Replace career hero with native-resolution HQ image"
+          git push origin HEAD:preview-career-category-v2

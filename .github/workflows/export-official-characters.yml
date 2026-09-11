@@ -1,0 +1,34 @@
+name: Export Official Characters
+
+on:
+  push:
+    branches:
+      - temp-character-export-20260911
+    paths:
+      - .github/workflows/export-official-characters.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: temp-character-export-20260911
+          sparse-checkout: |
+            assets/images/guide-characters
+          sparse-checkout-cone-mode: false
+      - name: Pack official characters
+        run: |
+          mkdir -p export
+          cp assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png export/senpai.png
+          cp assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png export/kouhai.png
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-characters
+          path: export/
+          if-no-files-found: error

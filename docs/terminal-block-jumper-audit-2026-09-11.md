@@ -33,4 +33,7 @@
 - Phoenix Contact / WAGO の公式一次資料導線を記事内に追加。
 - 固定ヘッダー、3カラム/右レール、先輩・後輩会話、支援導線、既存画像構成は維持。
 
+## Preview再確認
+- 2026-09-11: GitHub Actions `AI Editorial Preview Capture` が `action_required` で開始前停止したため、再トリガーしてCloudflare Pages Preview生成を再確認する。
+
 Preview確認前のため safe to merge: NO

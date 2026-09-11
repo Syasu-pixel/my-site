@@ -1,0 +1,157 @@
+name: Finalize terminal block jumper article
+
+on:
+  push:
+    branches:
+      - preview-terminal-block-jumper-audit-20260911
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download adopted common-bar image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/images/terminal-block-jumper-basic /tmp/commonbar
+          SHARE_URL='https://firestorage.ai/ja/f/ky_eCRiYEaAs'
+          OUT='assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp'
+
+          curl -L --fail --retry 2 -A 'Mozilla/5.0' "$SHARE_URL" -o /tmp/commonbar/share
+          if file --mime-type -b /tmp/commonbar/share | grep -q '^image/webp$'; then
+            cp /tmp/commonbar/share "$OUT"
+          else
+            python - <<'PY'
+          from pathlib import Path
+          import re, html, urllib.parse, urllib.request
+
+          p = Path('/tmp/commonbar/share')
+          data = p.read_text(encoding='utf-8', errors='ignore')
+          base = 'https://firestorage.ai/ja/f/ky_eCRiYEaAs'
+          candidates = []
+          patterns = [
+              r'href=["\']([^"\']+)["\']',
+              r'src=["\']([^"\']+)["\']',
+              r'https?://[^"\'<> ]+',
+          ]
+          for pat in patterns:
+              for m in re.findall(pat, data, flags=re.I):
+                  u = html.unescape(m)
+                  if isinstance(u, tuple):
+                      u = u[0]
+                  u = urllib.parse.urljoin(base, u)
+                  low = u.lower()
+                  if any(k in low for k in ['download', '.webp', 'file', 'object', 'storage']):
+                      candidates.append(u)
+
+          seen = set()
+          out = Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp')
+          for u in candidates:
+              if u in seen:
+                  continue
+              seen.add(u)
+              try:
+                  req = urllib.request.Request(u, headers={'User-Agent':'Mozilla/5.0'})
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      b = r.read()
+                      ct = (r.headers.get('content-type') or '').lower()
+                  if b[:4] == b'RIFF' and b[8:12] == b'WEBP':
+                      out.write_bytes(b)
+                      print('downloaded', u, len(b), ct)
+                      break
+              except Exception as e:
+                  print('candidate failed', u, e)
+          else:
+              raise SystemExit('Could not resolve a direct WebP download from the firestorage share page')
+          PY
+          fi
+
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp')
+          b=p.read_bytes()
+          assert b[:4]==b'RIFF' and b[8:12]==b'WEBP', 'downloaded file is not WebP'
+          print('WebP OK:', len(b), 'bytes')
+          PY
+
+      - name: Refine article image and emphasis
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('articles/terminal-block-jumper-basic.html')
+          s=p.read_text(encoding='utf-8')
+
+          old='''            <img src="../assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-comparison.png" alt="短い電線で渡す渡り線と、専用金属バーで渡すジャンパーバーの違いを比較した図">
+            <figcaption>
+              渡り線は短い電線で端子同士をつなぐ方法です。ジャンパーバーは端子台専用部品で、複数端子をまとめて接続しやすい方法です。
+            </figcaption>'''
+          new='''            <img src="../assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp" alt="Y端子タイプの絶縁被覆付きコモンバーと、端子台専用ジャンパーの違いを比較した図" loading="lazy" decoding="async">
+            <figcaption>
+              現場で見かけるY端子タイプのコモンバーと、端子台シリーズ専用ジャンパーの違いをイメージで整理しています。
+            </figcaption>'''
+          if old not in s:
+              raise SystemExit('old comparison figure marker not found')
+          s=s.replace(old,new,1)
+
+          replacements={
+          '''            渡り線は、短い電線を使って隣の端子へ電気を渡す方法です。
+            現場で柔軟に作りやすい一方、線が増えると端子周りが混みやすくなります。''':
+          '''            <span class="term">渡り線</span>は、短い電線で<strong>端子間を電気的につなぐ方法</strong>です。
+            現場で柔軟に作りやすい一方、線が増えると端子周りが混みやすくなります。''',
+          '''            現場では、一般的なねじ式端子台に、端子へかませる部分がY端子・フォーク端子に似た形の絶縁被覆付きコモンバーを共締めし、DC24V、0V、COMなどを複数端子へ共通化している盤もあります。黒・緑・オレンジなどの被覆色を見かけるタイプです。''':
+          '''            現場では、一般的なねじ式端子台に、<span class="marker-blue">Y端子・フォーク端子に似た形の絶縁被覆付きコモンバー</span>を共締めし、<strong>DC24V・0V・COMなどを複数端子へ共通化</strong>している盤もあります。黒・緑・オレンジなどの被覆色を見かけるタイプです。''',
+          '''            一方で、Phoenix Contactなどの端子台では、そのシリーズ専用のプラグインブリッジやジャンパーを使う構成もあります。対応する端子台シリーズ、ピッチ、極数、取り付け位置などが決まっているため、メーカーの適合情報を確認して選びます。許容電流もジャンパー単体の代表値だけで判断せず、組み合わせる端子台側の仕様を確認します。''':
+          '''            一方で、Phoenix Contactなどでは、<span class="term">シリーズ専用のプラグインブリッジ／ジャンパー</span>を使う構成もあります。<span class="marker-blue">端子台シリーズ・ピッチ・極数・取り付け位置などの適合確認</span>が必要です。許容電流もジャンパー単体の代表値だけで判断せず、<strong>端子台とアクセサリの組み合わせ仕様</strong>を確認します。''',
+          '''              <p>ねじ式端子台で同電位をまとめるときに見かけるタイプ。ねじサイズ、極数、定格電流、端子台側の使用可否を確認します。</p>''':
+          '''              <p><span class="marker-blue">ねじ式端子台で同電位をまとめる</span>ときに見かけるタイプ。ねじサイズ、極数、定格電流、端子台側の使用可否を確認します。</p>''',
+          '''              <p>シリーズ専用アクセサリで共通化。ピッチや極数、端子台との組み合わせ仕様を確認します。</p>''':
+          '''              <p>シリーズ専用アクセサリで共通化。<strong>ピッチや極数、端子台との組み合わせ仕様</strong>を確認します。</p>''',
+          }
+          for a,b in replacements.items():
+              if a not in s:
+                  raise SystemExit('text marker missing: '+a[:70])
+              s=s.replace(a,b,1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Sanity checks
+        run: |
+          set -euo pipefail
+          git diff --check
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('articles/terminal-block-jumper-basic.html').read_text(encoding='utf-8')
+          required=[
+            'terminal-block-jumper-common-bar-comparison.webp',
+            'Y端子・フォーク端子に似た形の絶縁被覆付きコモンバー',
+            'class="marker-blue"',
+            'class="term"',
+            '<strong>DC24V・0V・COMなどを複数端子へ共通化</strong>',
+            'related-card-image'
+          ]
+          missing=[x for x in required if x not in s]
+          if missing: raise SystemExit('Missing markers: '+repr(missing))
+          img=Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp')
+          if not img.exists(): raise SystemExit('new image missing')
+          print('sanity checks passed')
+          PY
+
+      - name: Commit final article update and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp-finalize-terminal-block-jumper.yml
+          git add articles/terminal-block-jumper-basic.html assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp
+          git diff --cached --check
+          git commit -m "Finalize common bar visual and article emphasis"
+          git push

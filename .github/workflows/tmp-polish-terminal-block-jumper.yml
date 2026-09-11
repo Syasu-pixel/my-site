@@ -12,82 +12,48 @@ jobs:
   polish:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: preview-terminal-block-jumper-audit-20260911
           fetch-depth: 0
 
-      - name: Patch article structure
+      - name: Apply article and related-card improvements
         run: |
-          python3 - <<'PY'
+          python - <<'PY'
           from pathlib import Path
-          import re
 
           p = Path('articles/terminal-block-jumper-basic.html')
-          html = p.read_text(encoding='utf-8')
+          text = p.read_text(encoding='utf-8')
 
-          html = html.replace(
-              '端子台の渡り線・ジャンパーの基本を初心者向けに整理。電源やコモンを分岐する理由、渡り線とジャンパーバーの違い、図面での見方、現場で確認するポイントまでやさしく解説します。',
-              '端子台の渡り線・ジャンパーの基本を初心者向けに整理。渡り線、Y端子タイプのコモンバー、端子台専用ジャンパーの違いと、DC24V・0V・コモンを分岐するときの確認ポイントをやさしく解説します。'
-          )
-          html = html.replace('<a href="#comparison">渡り線/ジャンパー</a>', '<a href="#comparison">渡り線/コモンバー/ジャンパー</a>')
-          html = html.replace('<h2>渡り線とジャンパーバーの違い</h2>', '<h2>渡り線・コモンバー・端子台専用ジャンパーの違い</h2>')
+          replacements = {
+            '端子台の渡り線・ジャンパーの基本を初心者向けに整理。電源やコモンを分岐する理由、渡り線とジャンパーバーの違い、図面での見方、現場で確認するポイントまでやさしく解説します。':
+            '端子台の渡り線・ジャンパーの基本を初心者向けに整理。渡り線、Y端子タイプのコモンバー、端子台専用ジャンパーの違いと、DC24V・0V・コモンを分岐するときの確認ポイントをやさしく解説します。',
+            '<a href="#comparison">渡り線/ジャンパー</a>':
+            '<a href="#comparison">渡り線/コモンバー/ジャンパー</a>',
+            '<h2>渡り線とジャンパーバーの違い</h2>':
+            '<h2>渡り線・コモンバー・端子台専用ジャンパーの違い</h2>',
+            'ジャンパーバーやショートバーは、端子台専用の部品で複数端子をまとめて接続します。\n            対応する端子台シリーズ、ピッチ、極数などが決まっているため、メーカーの適合情報を確認して選びます。許容電流もジャンパー単体の代表値だけで判断せず、組み合わせる端子台側の仕様を確認します。':
+            '現場では、一般的なねじ式端子台に、端子へかませる部分がY端子・フォーク端子に似た形の絶縁被覆付きコモンバーを共締めし、DC24V、0V、COMなどを複数端子へ共通化している盤もあります。黒・緑・オレンジなどの被覆色を見かけるタイプです。\n          </p>\n          <p>\n            一方で、Phoenix Contactなどの端子台では、そのシリーズ専用のプラグインブリッジやジャンパーを使う構成もあります。対応する端子台シリーズ、ピッチ、極数、取り付け位置などが決まっているため、メーカーの適合情報を確認して選びます。許容電流もジャンパー単体の代表値だけで判断せず、組み合わせる端子台側の仕様を確認します。'
+          }
 
-          figure_re = re.compile(r'''<figure class="article-figure">\s*<img src="\.\./assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-comparison\.png"[\s\S]*?</figure>''')
-          replacement = '''<figure class="article-figure">
-            <img src="../assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp" alt="Y端子タイプの絶縁被覆付きコモンバーと端子台専用ジャンパーの違いを比較した図" loading="lazy" decoding="async">
-            <figcaption>
-              現場でよく見るY端子タイプのコモンバーと、Phoenix Contactなどで使われる端子台専用ジャンパー（プラグインブリッジ）を比較。どちらも同電位の共通化に使うことがありますが、使用する端子台に合う製品を選ぶことが前提です。
-            </figcaption>
-          </figure>
-          <p>
-            一般的なねじ式端子台では、絶縁被覆付きのコモンバーを端子ねじへ共締めし、DC24V、0V、COMなどを複数端子へ共通化している盤もあります。端子へかませる部分がY端子・フォーク端子に似た形で、黒・緑・オレンジなどの被覆色を見かけるタイプです。
-          </p>
-          <p>
-            一方で、Phoenix Contactなどの端子台では、そのシリーズ専用のプラグインブリッジやジャンパーを使う構成もあります。外観だけで互換性を判断せず、端子台シリーズ、ピッチ、極数、取り付け位置、定格電流などをメーカー仕様で確認します。
-          </p>
-          <div class="check-grid">
-            <div class="check-item check-item--blue">
-              <h3>渡り線</h3>
-              <p>端子間を短い電線で接続。行き先を柔軟に変えやすい方法です。</p>
-            </div>
-            <div class="check-item check-item--green">
-              <h3>Y端子タイプのコモンバー</h3>
-              <p>ねじ式端子台で同電位をまとめるときに見かけるタイプ。ねじサイズ、極数、定格、端子台側の使用可否を確認します。</p>
-            </div>
-            <div class="check-item check-item--orange">
-              <h3>端子台専用ジャンパー</h3>
-              <p>シリーズ専用アクセサリで共通化。ピッチや極数などの適合確認が特に重要です。</p>
-            </div>
-          </div>'''
-          html, n = figure_re.subn(replacement, html, count=1)
-          assert n == 1, 'comparison figure replacement failed'
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit('Expected marker missing: ' + old[:80])
+              text = text.replace(old, new, 1)
 
-          html = html.replace(
-              'ジャンパーバーやショートバーは、端子台専用の部品で複数端子をまとめて接続します。',
-              'ジャンパーバーやショートバーという呼び方は現場やメーカーで幅があります。Y端子タイプのコモンバーのようにねじ端子へ共締めするものもあれば、端子台シリーズ専用のプラグインブリッジで複数端子をまとめて接続するものもあります。'
-          )
+          marker = '''          <div class="table-wrap">\n            <table>\n              <thead>\n                <tr>\n                  <th>項目</th>\n                  <th>渡り線</th>\n                  <th>ジャンパーバー</th>'''
+          cards = '''          <div class="check-grid">\n            <div class="check-item check-item--blue">\n              <h3>渡り線</h3>\n              <p>端子間を短い電線で接続。行き先を柔軟に変えやすい方法です。</p>\n            </div>\n            <div class="check-item check-item--green">\n              <h3>Y端子タイプのコモンバー</h3>\n              <p>ねじ式端子台で同電位をまとめるときに見かけるタイプ。ねじサイズ、極数、定格電流、端子台側の使用可否を確認します。</p>\n            </div>\n            <div class="check-item check-item--orange">\n              <h3>端子台専用ジャンパー</h3>\n              <p>シリーズ専用アクセサリで共通化。ピッチや極数、端子台との組み合わせ仕様を確認します。</p>\n            </div>\n          </div>\n\n'''
+          if marker not in text:
+              raise SystemExit('Comparison table marker missing')
+          text = text.replace(marker, cards + marker, 1)
 
-          css_anchor = '''    .related-card:hover{
-      text-decoration:none;'''
-          css_insert = '''    .related-card-image{
-      width:calc(100% + 32px);
-      max-width:none;
-      aspect-ratio:16 / 9;
-      object-fit:cover;
-      margin:-16px -16px 14px;
-      border-bottom:1px solid #d7e4f3;
-      background:#eef4ff;
-    }
-    .related-card:hover{
-      text-decoration:none;'''
-          assert css_anchor in html, 'related card CSS anchor missing'
-          html = html.replace(css_anchor, css_insert, 1)
+          css_marker = '''    .article-footer-nav{\n      display:flex;'''
+          css = '''    .related-card-image{\n      width:calc(100% + 32px);\n      max-width:none;\n      aspect-ratio:16 / 9;\n      object-fit:cover;\n      margin:-16px -16px 14px;\n      border-bottom:1px solid #d7e4f3;\n      background:#eef4ff;\n    }\n    .article-footer-nav{\n      display:flex;'''
+          if css_marker not in text:
+              raise SystemExit('Related CSS marker missing')
+          text = text.replace(css_marker, css, 1)
 
-          cards = {
+          related = {
             'terminal-block-basic.html': ('../assets/images/terminal-block-basic/terminal-block-hero.png', '端子台の基本を解説する記事イメージ'),
             'dc24v-power-supply-basic.html': ('../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png', 'DC24V電源の基本を解説する記事イメージ'),
             'plc-io-unit-basic.html': ('../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png', 'PLC入力ユニット・出力ユニットを解説する記事イメージ'),
@@ -95,99 +61,43 @@ jobs:
             'circuit-protector-basic.html': ('../assets/images/circuit-protector-basic/circuit-protector-hero.png', 'サーキットプロテクタを解説する記事イメージ'),
             'wiring-duct-basic.html': ('../assets/images/wiring-duct-basic/wiring-duct-basic-hero.png', '配線ダクトを解説する記事イメージ'),
           }
-          for href, (src, alt) in cards.items():
-              anchor = f'<a class="related-card" href="{href}">\n              <h3>'
-              repl = f'<a class="related-card" href="{href}">\n              <img class="related-card-image" src="{src}" alt="{alt}" loading="lazy" decoding="async">\n              <h3>'
-              assert anchor in html, f'related card anchor missing: {href}'
-              html = html.replace(anchor, repl, 1)
+          for href, (src, alt) in related.items():
+              old = f'<a class="related-card" href="{href}">\n              <h3>'
+              new = f'<a class="related-card" href="{href}">\n              <img class="related-card-image" src="{src}" alt="{alt}" loading="lazy" decoding="async">\n              <h3>'
+              if old not in text:
+                  raise SystemExit('Related card marker missing: ' + href)
+              text = text.replace(old, new, 1)
 
-          html = html.replace(
-              '.related-card{padding:14px}',
-              '.related-card{padding:14px;overflow:hidden}\n      .related-card-image{width:calc(100% + 28px);margin:-14px -14px 12px}'
-          )
+          text = text.replace('.related-card{padding:14px}', '.related-card{padding:14px;overflow:hidden}\n      .related-card-image{width:calc(100% + 28px);margin:-14px -14px 12px}')
 
-          p.write_text(html, encoding='utf-8')
+          p.write_text(text, encoding='utf-8')
           PY
 
-      - name: Download adopted comparison image
+      - name: Sanity checks
         run: |
-          python3 - <<'PY'
+          python - <<'PY'
           from pathlib import Path
-          import html as htmllib, json, re, urllib.request, urllib.parse
-
-          share = 'https://firestorage.ai/ja/f/TsrK13pvv01r'
-          out = Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp')
-          out.parent.mkdir(parents=True, exist_ok=True)
-          headers = {'User-Agent':'Mozilla/5.0'}
-
-          def get(url):
-              req = urllib.request.Request(url, headers=headers)
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  return r.read(), r.headers.get('content-type',''), r.geturl()
-
-          body, ctype, final = get(share)
-          if body[:4] == b'RIFF' and b'WEBP' in body[:16]:
-              out.write_bytes(body)
-          else:
-              text = htmllib.unescape(body.decode('utf-8', 'ignore')).replace('\\/','/')
-              candidates = []
-              patterns = [
-                  r'https://[^\"\'<> ]+\.webp(?:\?[^\"\'<> ]*)?',
-                  r'https://[^\"\'<> ]+(?:download|file|object|storage)[^\"\'<> ]+',
-                  r'\"(?:download_url|downloadUrl|file_url|fileUrl|signed_url|signedUrl)\"\s*:\s*\"([^\"]+)\"',
-                  r'href=[\"\']([^\"\']+)[\"\']',
-              ]
-              for pat in patterns:
-                  for m in re.finditer(pat, text, re.I):
-                      u = m.group(1) if m.lastindex else m.group(0)
-                      u = u.replace('\\u0026','&').replace('\\/','/')
-                      if u.startswith('/'):
-                          u = urllib.parse.urljoin(final, u)
-                      if u.startswith('http') and u not in candidates:
-                          candidates.append(u)
-              ok = False
-              for u in candidates:
-                  try:
-                      data, ct, _ = get(u)
-                  except Exception:
-                      continue
-                  if data[:4] == b'RIFF' and b'WEBP' in data[:16]:
-                      out.write_bytes(data)
-                      ok = True
-                      break
-              if not ok:
-                  Path('/tmp/firestorage-share.html').write_text(text[:200000], encoding='utf-8')
-                  print('No direct WebP URL found. Candidate URLs:')
-                  for u in candidates[:40]: print(u)
-                  raise SystemExit('Could not resolve adopted WebP from firestorage share page')
-
-          data = out.read_bytes()
-          assert data[:4] == b'RIFF' and b'WEBP' in data[:16], 'downloaded file is not WebP'
-          print('Downloaded adopted WebP:', out, len(data), 'bytes')
-          PY
-
-      - name: Validate local references
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
           p=Path('articles/terminal-block-jumper-basic.html')
           s=p.read_text(encoding='utf-8')
-          assert 'terminal-block-jumper-common-bar-comparison.webp' in s
-          assert Path('assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp').exists()
-          for src in re.findall(r'<img[^>]+src="([^"]+)"', s):
-              if src.startswith('../'):
-                  target=(p.parent / src).resolve()
-                  if not target.exists():
-                      raise SystemExit(f'missing image: {src}')
-          print('Image references OK')
+          required=[
+            'Y端子タイプのコモンバー',
+            '渡り線/コモンバー/ジャンパー',
+            'related-card-image',
+            '../assets/images/terminal-block-basic/terminal-block-hero.png',
+            '../assets/images/wiring-duct-basic/wiring-duct-basic-hero.png'
+          ]
+          missing=[x for x in required if x not in s]
+          if missing:
+              raise SystemExit('Missing markers: '+repr(missing))
+          print('sanity checks passed')
           PY
 
-      - name: Commit article and image
+      - name: Commit article update and remove temporary workflow
         run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add articles/terminal-block-jumper-basic.html assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp-polish-terminal-block-jumper.yml
+          git add articles/terminal-block-jumper-basic.html
           git diff --cached --check
           git commit -m "Add common bar guidance and visual related cards"
-          git push origin HEAD:preview-terminal-block-jumper-audit-20260911
+          git push

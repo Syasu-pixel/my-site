@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>端子台の渡り線・ジャンパーとは？制御盤配線の分岐をやさしく解説</title>
-  <meta name="description" content="端子台の渡り線・ジャンパーの基本を初心者向けに整理。電源やコモンを分岐する理由、渡り線とジャンパーバーの違い、図面での見方、現場で確認するポイントまでやさしく解説します。">
+  <meta name="description" content="端子台の渡り線・ジャンパーの基本を初心者向けに整理。渡り線、Y端子タイプのコモンバー、端子台専用ジャンパーの違いと、DC24V・0V・コモンを分岐するときの確認ポイントをやさしく解説します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/terminal-block-jumper-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/terminal-block-jumper-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/terminal-block-jumper-basic.html">
@@ -589,6 +589,10 @@
       background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
       font-weight:900;
     }
+    .marker-blue{
+      background:linear-gradient(transparent 58%,rgba(147,197,253,.55) 58%);
+      font-weight:900;
+    }
     .term{
       display:inline-flex;
       align-items:center;
@@ -938,6 +942,15 @@
       color:var(--muted);
       line-height:1.75;
     }
+    .related-card-image{
+      width:calc(100% + 32px);
+      max-width:none;
+      aspect-ratio:16 / 9;
+      object-fit:cover;
+      margin:-16px -16px 14px;
+      border-bottom:1px solid #d7e4f3;
+      background:#eef4ff;
+    }
     .article-footer-nav{
       display:flex;
       flex-wrap:wrap;
@@ -1081,6 +1094,9 @@
       .talk-bubble{max-width:none}
     }
     @media (max-width:640px){
+      .article-hero{
+        border-radius:22px;
+      }
       .article-hero::before{
         background:url("../assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-hero.png") right -40px bottom -20px / 178% auto no-repeat;
         opacity:.14;
@@ -1088,18 +1104,60 @@
       .article-hero::after{
         background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
       }
+      .article-hero-copy{
+        min-height:332px;
+        padding:26px 18px 30px;
+      }
+      h1{
+        font-size:28px;
+        line-height:1.26;
+      }
+      .hero-label{margin-bottom:12px}
+      .hero-lead{
+        max-width:none;
+        font-size:14px;
+        line-height:1.75;
+      }
+      .hero-actions{
+        margin-top:20px;
+        gap:8px;
+      }
+      .hero-actions .btn{
+        min-height:46px;
+        padding:9px 14px;
+      }
       .container{width:min(100%,calc(100% - 20px))}
       .breadcrumb{margin-top:14px}
+      .top-summary{
+        gap:12px;
+        margin:16px 0 18px;
+      }
       .mini-toc{gap:8px}
       .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
       .section-card,
       .side-card,
       .mini-toc-card,
       .summary-card{border-radius:22px}
+      .section-card{
+        padding:20px;
+        margin-bottom:16px;
+      }
       .section-card h2{font-size:20px}
       .section-card p,
       .talk-bubble p,
       .simple-list li{font-size:14px}
+      .article-figure{
+        margin:22px -8px;
+        border-radius:18px;
+      }
+      .article-figure figcaption{
+        padding:10px 12px 12px;
+        font-size:12px;
+      }
+      .related-grid{gap:10px}
+      .related-card{padding:14px;overflow:hidden}
+      .related-card-image{width:calc(100% + 28px);margin:-14px -14px 12px}
+      .side-rail{gap:12px}
       .talk-row,
       .talk-row--right{
         flex-direction:column;
@@ -1297,7 +1355,7 @@
         <a href="#basic">渡り線とは</a>
         <a href="#overview">基本構成</a>
         <a href="#reason">なぜ必要か</a>
-        <a href="#comparison">渡り線/ジャンパー</a>
+        <a href="#comparison">渡り線/コモンバー/ジャンパー</a>
         <a href="#flow">分岐の流れ</a>
         <a href="#field">現場で見るポイント</a>
       </div>
@@ -1308,8 +1366,8 @@
         <section class="section-card" id="basic">
           <h2>端子台の渡り線・ジャンパーとは</h2>
           <p>
-            端子台の渡り線とは、隣の端子同士や複数の端子を電気的につなぐための線です。
-            たとえば、DC24Vを複数のセンサーへ分けたいとき、0Vを複数の回路で共通にしたいときなどに使います。
+            <span class="term">渡り線</span>とは、端子間を電気的につなぐための短い電線です。
+            たとえば、<span class="marker-blue">DC24Vを複数のセンサーへ分けたいとき</span>や、0Vを複数の回路で共通にしたいときなどに使います。
           </p>
           <p>
             ジャンパーは、同じ目的で端子同士をつなぐための部品です。
@@ -1317,13 +1375,13 @@
           </p>
           <p>
             現場では、端子台に短い線が何本も入っていたり、金属バーで隣同士がつながっていたりします。
-            これは「同じ電源や同じコモンを分けている」ことが多いです。
+            これは、電源やコモンなどの同じ電位を分岐している場合があります。実際の用途は、図面・端子番号・機器仕様と合わせて確認します。
           </p>
 
           <div class="key-highlight">
             <h3>まずはこう覚える</h3>
             <p>
-              渡り線・ジャンパーは、端子台で電源やコモンを分けるためのつなぎです。1つの電源を複数の端子へ配るときに使う、と考えると分かりやすいです。
+              <span class="marker-blue">渡り線・ジャンパーは、同じ電位を複数端子へ共通化・分岐する方法の一つ</span>です。<strong>用途や接続範囲は、端子台と回路の仕様に合わせて確認</strong>します。
             </p>
           </div>
 
@@ -1333,7 +1391,7 @@
                 <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>端子台で隣同士がつながっている時は、だいたい電源やコモンを分けていることが多いよ。どこからどこまで同じ電位かを見るのが大事だね。</p>
+                <p><span class="talk-name talk-name--senpai">先輩</span>端子台で隣同士がつながっている時は、電源やコモンの分岐に使われている場合があるよ。どこからどこまで同じ電位かを図面と実物で確認するのが大事だね。</p>
               </div>
             </div>
             <div class="talk-row talk-row--right">
@@ -1438,21 +1496,38 @@
         </section>
 
         <section class="section-card" id="comparison">
-          <h2>渡り線とジャンパーバーの違い</h2>
+          <h2>渡り線・コモンバー・端子台専用ジャンパーの違い</h2>
           <figure class="article-figure">
-            <img src="../assets/images/terminal-block-jumper-basic/terminal-block-jumper-basic-comparison.png" alt="短い電線で渡す渡り線と、専用金属バーで渡すジャンパーバーの違いを比較した図">
+            <img src="../assets/images/terminal-block-jumper-basic/terminal-block-jumper-common-bar-comparison.webp" alt="Y端子タイプの絶縁被覆付きコモンバーと、端子台専用ジャンパーの違いを比較した図">
             <figcaption>
-              渡り線は短い電線で端子同士をつなぐ方法です。ジャンパーバーは端子台専用部品で、複数端子をまとめて接続しやすい方法です。
+              現場で見かけるY端子タイプのコモンバーと、端子台シリーズ専用ジャンパーの違いをイメージで整理しています。
             </figcaption>
           </figure>
           <p>
-            渡り線は、短い電線を使って隣の端子へ電気を渡す方法です。
+            <span class="term">渡り線</span>は、<span class="marker-blue">端子間を短い電線で電気的につなぐ方法</span>です。
             現場で柔軟に作りやすい一方、線が増えると端子周りが混みやすくなります。
           </p>
           <p>
-            ジャンパーバーやショートバーは、端子台専用の部品で複数端子をまとめて接続します。
-            見た目がすっきりしやすく、同じ端子台シリーズでは扱いやすいことがあります。
+            現場では、一般的なねじ式端子台に、<span class="term">Y端子タイプのコモンバー</span>を共締めして、<span class="marker-blue">DC24V・0V・COMなどの同電位を複数端子へ共通化</span>している盤もあります。端子へかませる部分がY端子・フォーク端子に似た形で、製品によって黒・緑・オレンジなどの絶縁被覆色があります。<strong>色だけで用途や電位を判断せず、図面・線番・仕様で確認</strong>します。
           </p>
+          <p>
+            一方、端子台によっては<span class="term">シリーズ専用ジャンパー（プラグインブリッジ）</span>を使う構成があります。<strong>対応する端子台シリーズ・ピッチ・極数・取り付け位置</strong>などの適合情報を確認して選びます。許容電流もジャンパー単体の代表値だけで判断せず、<span class="marker-blue">端子台とアクセサリの組み合わせ仕様</span>を確認します。
+          </p>
+
+          <div class="check-grid">
+            <div class="check-item check-item--blue">
+              <h3>渡り線</h3>
+              <p>端子間を短い電線で接続。行き先を柔軟に変えやすい方法です。</p>
+            </div>
+            <div class="check-item check-item--green">
+              <h3>Y端子タイプのコモンバー</h3>
+              <p>ねじ式端子台で同電位をまとめるときに見かけるタイプ。ねじサイズ、極数、定格電流、端子台側の使用可否を確認します。</p>
+            </div>
+            <div class="check-item check-item--orange">
+              <h3>端子台専用ジャンパー</h3>
+              <p>シリーズ専用アクセサリで共通化。ピッチや極数、端子台との組み合わせ仕様を確認します。</p>
+            </div>
+          </div>
 
           <div class="table-wrap">
             <table>
@@ -1460,29 +1535,34 @@
                 <tr>
                   <th>項目</th>
                   <th>渡り線</th>
-                  <th>ジャンパーバー</th>
+                  <th>Y端子タイプのコモンバー</th>
+                  <th>端子台専用ジャンパー</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>形</td>
-                  <td class="cell-blue">短い電線で端子同士を接続</td>
-                  <td class="cell-green">専用のバーや金具で複数端子を接続</td>
+                  <td class="cell-blue">短い電線で端子間を接続</td>
+                  <td class="cell-green">絶縁被覆付きバーを端子ねじ部へ取り付けるタイプ</td>
+                  <td class="cell-orange">端子台シリーズ専用のブリッジ部品</td>
                 </tr>
                 <tr>
-                  <td>自由度</td>
-                  <td>現場で長さや行き先を調整しやすい</td>
-                  <td>対応端子台やピッチに合わせる必要がある</td>
+                  <td>向いている場面</td>
+                  <td>行き先や長さを柔軟に変えたいとき</td>
+                  <td>ねじ式端子台で同電位を複数極へまとめたいとき</td>
+                  <td>専用アクセサリ対応端子台で共通化したいとき</td>
                 </tr>
                 <tr>
-                  <td>見た目</td>
-                  <td class="cell-orange">多くなると混みやすい</td>
-                  <td>すっきりしやすい</td>
+                  <td>確認ポイント</td>
+                  <td>複数導体接続の可否、導体サイズ、締付、線番</td>
+                  <td>ねじサイズ、極数、定格電流、端子台側の使用可否</td>
+                  <td>シリーズ、ピッチ、極数、取り付け位置、組み合わせ定格</td>
                 </tr>
                 <tr>
                   <td>注意点</td>
-                  <td>端子への入れすぎ、締付、線番に注意</td>
-                  <td class="cell-red">不要な端子までつながないよう注意</td>
+                  <td>線が増えると端子周りが混みやすい</td>
+                  <td>被覆色だけで電位を判断しない</td>
+                  <td class="cell-red">不要な端子まで共通化しない</td>
                 </tr>
               </tbody>
             </table>
@@ -1505,8 +1585,8 @@
             </figcaption>
           </figure>
           <p>
-            基本の流れは、電源、保護機器、端子台、渡り線・ジャンパー、各負荷の順です。
-            まずどこから電源が入っているかを確認し、そこからどの端子へ渡っているかを追います。
+            代表的な見方の一例として、電源、保護機器、端子台、渡り線・ジャンパー、各負荷の順に追うと整理しやすい場合があります。
+            実際の回路構成は盤や機器によって異なるため、まず図面で電源の入り口と保護範囲を確認し、そこからどの端子へ渡っているかを追います。
           </p>
           <p>
             図面では、同じ線番や同じ電位の記号で表されていることがあります。
@@ -1580,8 +1660,8 @@
               <p>どこからどこまで同じ電位でつながっているかを確認します。</p>
             </div>
             <div class="check-item check-item--green">
-              <h3>端子の締付</h3>
-              <p>渡り線が緩んでいないか、端子に正しく入っているかを見ます。</p>
+              <h3>端子の接続条件</h3>
+              <p>渡り線が緩んでいないかに加え、1端子に複数導体を接続できる製品か、指定された導体本数・サイズ・締付条件に合っているかを確認します。</p>
             </div>
             <div class="check-item check-item--orange">
               <h3>保護範囲</h3>
@@ -1618,31 +1698,55 @@
           </div>
         </section>
 
+        <section class="section-card" id="sources">
+          <h2>メーカー公式資料で確認するポイント</h2>
+          <p>
+            専用ジャンパーは、<strong>端子台シリーズ・ピッチ・極数などの適合条件</strong>を確認して使います。
+            また、ジャンパーの電流値は組み合わせる端子台によって変わる場合があるため、<span class="marker-blue">ジャンパー単体の代表値だけで決めず、端子台側のアクセサリ仕様まで確認</span>します。
+          </p>
+          <ul class="simple-list">
+            <li><a href="https://www.phoenixcontact.com/en-us/products/jumper-fbs-135-8-3032389" target="_blank" rel="noopener noreferrer">Phoenix Contact：FBS 1/3/5-8 Plug-in bridge（公式製品情報）</a></li>
+            <li><a href="https://www.wago.com/global/industries/building-technology/electrical-installers/helpful-tips/application-tips-rail-mount-terminal-blocks" target="_blank" rel="noopener noreferrer">WAGO：Tips and Responsibilities for Using Rail-Mount Terminal Blocks（公式）</a></li>
+          </ul>
+          <div class="field-highlight">
+            <h3>型式ごとの仕様を優先</h3>
+            <p>
+              実際の選定では、端子台本体とジャンパーの最新カタログ・製品ページ・取扱説明書を優先してください。型式固有の適合条件や電流値を、別シリーズへそのまま一般化しないことが重要です。
+            </p>
+          </div>
+        </section>
+
         <section class="section-card" id="related">
           <h2>関連記事</h2>
           <p>渡り線・ジャンパーは、端子台、制御電源、PLC I/O、線番とセットで見ると理解しやすくなります。</p>
           <div class="related-grid">
             <a class="related-card" href="terminal-block-basic.html">
+              <img class="related-card-image" src="../assets/images/terminal-block-basic/terminal-block-hero.png" alt="端子台の基本を解説する記事イメージ" loading="lazy" decoding="async">
               <h3>端子台とは？</h3>
               <p>外部配線と盤内配線をつなぐ端子台の基本を整理します。</p>
             </a>
             <a class="related-card" href="dc24v-power-supply-basic.html">
+              <img class="related-card-image" src="../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png" alt="DC24V電源の基本を解説する記事イメージ" loading="lazy" decoding="async">
               <h3>DC24V電源とは？</h3>
               <p>制御盤でよく使うDC24V電源の役割と見るポイントを解説します。</p>
             </a>
             <a class="related-card" href="plc-io-unit-basic.html">
+              <img class="related-card-image" src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-hero.png" alt="PLC入力ユニット・出力ユニットを解説する記事イメージ" loading="lazy" decoding="async">
               <h3>PLC入力ユニット・出力ユニットとは？</h3>
               <p>PLCのI/O配線、端子番号、コモンの見方を整理します。</p>
             </a>
             <a class="related-card" href="wire-number-marker-basic.html">
+              <img class="related-card-image" src="../assets/images/wire-number-marker-basic/wire-number-marker-basic-hero.png" alt="線番・マークチューブを解説する記事イメージ" loading="lazy" decoding="async">
               <h3>線番・マークチューブとは？</h3>
               <p>図面と実配線をつなぐ線番の基本を整理します。</p>
             </a>
             <a class="related-card" href="circuit-protector-basic.html">
+              <img class="related-card-image" src="../assets/images/circuit-protector-basic/circuit-protector-hero.png" alt="サーキットプロテクタを解説する記事イメージ" loading="lazy" decoding="async">
               <h3>サーキットプロテクタとは？</h3>
               <p>制御回路やDC24V回路で使われる小型保護機器の基本を整理します。</p>
             </a>
             <a class="related-card" href="wiring-duct-basic.html">
+              <img class="related-card-image" src="../assets/images/wiring-duct-basic/wiring-duct-basic-hero.png" alt="配線ダクトを解説する記事イメージ" loading="lazy" decoding="async">
               <h3>配線ダクトとは？</h3>
               <p>制御盤の電線を整理する配線ダクトの基本を解説します。</p>
             </a>

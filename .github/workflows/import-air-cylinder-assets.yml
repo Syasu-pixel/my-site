@@ -11,15 +11,9 @@ permissions:
   contents: write
 
 jobs:
-  import:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: air-cylinder-assets-20260911
-          fetch-depth: 1
-
       - name: Inspect transfer links
         shell: bash
         run: |
@@ -30,9 +24,15 @@ jobs:
             url="https://firestorage.ai/ja/f/${id}"
             echo "=== ${name} ==="
             curl -L -sS -D "/tmp/${name}.headers" "$url" -o "/tmp/${name}.body"
+            echo "-- headers --"
+            sed -n '1,40p' "/tmp/${name}.headers"
+            echo "-- file --"
             file "/tmp/${name}.body" || true
-            grep -Eio 'https?://[^\"[:space:]]+' "/tmp/${name}.body" | head -20 || true
-            grep -Eio '[^\"[:space:]]+\.webp[^\"[:space:]]*' "/tmp/${name}.body" | head -20 || true
-            head -c 500 "/tmp/${name}.body" | tr '\n' ' ' || true
+            echo "-- candidate urls --"
+            grep -Eio 'https?://[^\"[:space:]]+' "/tmp/${name}.body" | head -50 || true
+            echo "-- webp refs --"
+            grep -Eio '[^\"[:space:]]+\.webp[^\"[:space:]]*' "/tmp/${name}.body" | head -50 || true
+            echo "-- first bytes --"
+            head -c 1200 "/tmp/${name}.body" | tr '\n' ' ' || true
             echo
           done

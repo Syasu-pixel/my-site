@@ -1,0 +1,97 @@
+name: Update selector switch adopted images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-selector-switch-images-20260911.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-selector-switch-audit-20260910
+          fetch-depth: 0
+
+      - name: Download adopted images from firestorage
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, urllib.parse
+          from pathlib import Path
+
+          items = [
+            {
+              'share':'MZrIkDoePidfLbP4',
+              'file':'01a08deeda3f746090e3ed891b8767cb',
+              'name':'セレクタスイッチの基本と操作例.png',
+              'target':'assets/images/selector-switch-basic/selector-switch-overview.png',
+              'sha':'e199e8d03c0b1c2bdeef9bcaa801e9279689932e5119e1719f8c63e16ffbe667',
+            },
+            {
+              'share':'8LA31rTLBl4iir7v',
+              'file':'01a08def26627033b65a8a245134b233',
+              'name':'手動_切替_自動の運転ガイド.png',
+              'target':'assets/images/selector-switch-basic/manual-auto-selector-flow.png',
+              'sha':'9f64fb890c2bf5ef45d2a727eb8c523d64b6cb660cff5c92138a17772c179f82',
+            },
+            {
+              'share':'tu1ErucCMYVqAlCe',
+              'file':'01a08def6b1573478ab9ea5ec912f12c',
+              'name':'セレクタスイッチの基本ガイド.png',
+              'target':'assets/images/selector-switch-basic/selector-switch-basic-ogp.png',
+              'sha':'4ab31e55a11355daaeefc81a842bcf36f02fb1b68aec2a3f05704a7f4c14cc85',
+            },
+          ]
+
+          for x in items:
+              meta_url=f"https://api.firestorage.ai/dev/file/shares/{x['share']}/files?maxResults=1000"
+              meta=json.loads(subprocess.check_output(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','30',meta_url], text=True))
+              matches=[f for f in meta.get('files',[]) if f.get('fileId')==x['file']]
+              if len(matches)!=1 or matches[0].get('fileName')!=x['name']:
+                  raise SystemExit(f"firestorage metadata mismatch: {x['target']}")
+              dl_url=f"https://api.firestorage.ai/dev/file/shares/{x['share']}/files/{x['file']}/download"
+              dl=json.loads(subprocess.check_output(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','30','-X','POST',dl_url], text=True))
+              u=dl.get('downloadUrl','')
+              p=urllib.parse.urlparse(u)
+              if p.scheme!='https' or p.username or p.password or p.hostname!='s3.ap-northeast-1.wasabisys.com':
+                  raise SystemExit(f"unexpected download host: {x['target']}")
+              Path(x['target']).parent.mkdir(parents=True, exist_ok=True)
+              subprocess.check_call(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','60','-o',x['target'],u])
+          PY
+
+      - name: Verify image hashes and update OGP reference
+        shell: bash
+        run: |
+          echo 'e199e8d03c0b1c2bdeef9bcaa801e9279689932e5119e1719f8c63e16ffbe667  assets/images/selector-switch-basic/selector-switch-overview.png' | sha256sum -c -
+          echo '9f64fb890c2bf5ef45d2a727eb8c523d64b6cb660cff5c92138a17772c179f82  assets/images/selector-switch-basic/manual-auto-selector-flow.png' | sha256sum -c -
+          echo '4ab31e55a11355daaeefc81a842bcf36f02fb1b68aec2a3f05704a7f4c14cc85  assets/images/selector-switch-basic/selector-switch-basic-ogp.png' | sha256sum -c -
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/selector-switch-basic.html')
+          s=p.read_text(encoding='utf-8')
+          old='<meta property="og:image" content="https://denkicontrol.com/assets/images/selector-switch-basic/selector-switch-overview.png">'
+          new='<meta property="og:image" content="https://denkicontrol.com/assets/images/selector-switch-basic/selector-switch-basic-ogp.png">'
+          if old not in s:
+              raise SystemExit('old og:image reference not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+          git diff --check
+
+      - name: Commit adopted images to preview branch
+        shell: bash
+        run: |
+          git config user.name 'denkicontrol-ai-writer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add articles/selector-switch-basic.html \
+            assets/images/selector-switch-basic/selector-switch-overview.png \
+            assets/images/selector-switch-basic/manual-auto-selector-flow.png \
+            assets/images/selector-switch-basic/selector-switch-basic-ogp.png
+          git commit -m 'Refresh selector switch character images and OGP'
+          git push origin HEAD:preview-selector-switch-audit-20260910

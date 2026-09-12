@@ -1,114 +1,69 @@
-name: Temp PLC Career Preview Capture
+name: Temp PLC Career Image Repair
 
 on:
   push:
     branches:
       - preview-career-hero-binary-fix
+    paths:
+      - '.github/workflows/temp-mobile-polish-plc-career.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  capture:
+  repair:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - name: Checkout branch head
         uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          ref: preview-career-hero-binary-fix
+          fetch-depth: 0
 
-      - name: Install Playwright
+      - name: Restore approved career progression image
+        shell: bash
         run: |
-          npm init -y >/dev/null 2>&1
-          npm install playwright@1.55.0
-          npx playwright install --with-deps chromium
+          set -euo pipefail
+          api='https://api.firestorage.ai/dev/file'
+          share_id='f1NhZnXUBM1O'
+          target='assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp'
+          meta="$(curl -fsSL "$api/shares/$share_id/files?maxResults=1000")"
+          file_id="$(printf '%s' "$meta" | jq -r '.files[0].fileId')"
+          test -n "$file_id" && test "$file_id" != 'null'
+          download_url="$(curl -fsSL -X POST "$api/shares/$share_id/files/$file_id/download" | jq -r '.downloadUrl')"
+          test -n "$download_url" && test "$download_url" != 'null'
+          curl -fL "$download_url" -o "$target"
+          file "$target"
+          size="$(stat -c%s "$target")"
+          echo "bytes=$size"
+          test "$size" -gt 100000
+          test "$size" -lt 300000
 
-      - name: Start local render server
+      - name: Validate restored WebP
+        shell: bash
         run: |
-          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/preview-server.log 2>&1 &
-          echo $! >/tmp/preview-server.pid
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
-              exit 0
-            fi
-            sleep 1
-          done
-          cat /tmp/preview-server.log || true
-          exit 1
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image
+          p='assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp'
+          with Image.open(p) as im:
+              print('format=', im.format, 'size=', im.size, 'mode=', im.mode)
+              assert im.format == 'WEBP'
+              assert im.size == (1200, 900)
+          PY
 
-      - name: Capture PLC career desktop and mobile
-        env:
-          ARTICLE_PATH: articles/plc-control-engineer-career.html
-          HEAD_SHA: ${{ github.sha }}
+      - name: Commit restored approved image
+        shell: bash
         run: |
-          OUT="preview-capture/plc-career"
-          mkdir -p "$OUT"
-          cat > .temp-plc-capture.mjs <<'JS'
-          import { chromium } from 'playwright';
-          import fs from 'node:fs';
-
-          const articlePath = process.env.ARTICLE_PATH;
-          const renderUrl = `http://127.0.0.1:4173/${articlePath}`;
-          const out = 'preview-capture/plc-career';
-          const browser = await chromium.launch({ headless: true });
-
-          async function capture(name, viewport) {
-            const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
-            const response = await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 90000 });
-            if (!response || !response.ok()) throw new Error(`render failed: ${response?.status() ?? 'no response'} ${renderUrl}`);
-            await page.evaluate(async () => {
-              if (document.fonts?.ready) await document.fonts.ready;
-              const step = Math.max(500, window.innerHeight * 0.8);
-              for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-                window.scrollTo(0, y);
-                await new Promise(r => setTimeout(r, 90));
-              }
-              window.scrollTo(0, document.documentElement.scrollHeight);
-              await new Promise(r => setTimeout(r, 500));
-              window.scrollTo(0, 0);
-              await Promise.all([...document.images].map(img => img.complete ? Promise.resolve() : new Promise(resolve => {
-                img.addEventListener('load', resolve, { once: true });
-                img.addEventListener('error', resolve, { once: true });
-              })));
-              await new Promise(r => setTimeout(r, 500));
-            });
-            await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
-            if (name === 'desktop') fs.writeFileSync(`${out}/rendered.html`, await page.content(), 'utf8');
-            await page.close();
-          }
-
-          await capture('desktop', { width: 1440, height: 1000 });
-          await capture('mobile', { width: 390, height: 844 });
-          await browser.close();
-
-          fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
-            article_path: articlePath,
-            render_source: 'local-branch-head',
-            head_sha: process.env.HEAD_SHA,
-            captured_at: new Date().toISOString(),
-            desktop: 'desktop.png',
-            mobile: 'mobile.png',
-            html: 'rendered.html'
-          }, null, 2));
-          JS
-          node .temp-plc-capture.mjs
-          rm -f .temp-plc-capture.mjs
-
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f /tmp/preview-server.pid ]; then
-            kill "$(cat /tmp/preview-server.pid)" || true
+          set -euo pipefail
+          git config user.name 'denkicontrol-preview-writer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp
+          if git diff --cached --quiet; then
+            echo 'No image change needed.'
+            exit 0
           fi
-
-      - name: Upload PLC career preview
-        uses: actions/upload-artifact@v4
-        with:
-          name: temp-plc-career-preview
-          path: preview-capture/plc-career/
-          if-no-files-found: error
-          retention-days: 7
+          git commit -m 'Repair PLC career progression image'
+          git push origin HEAD:preview-career-hero-binary-fix

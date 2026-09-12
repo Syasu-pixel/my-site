@@ -1,0 +1,110 @@
+name: Finalize pilot lamp preview
+
+on:
+  push:
+    branches:
+      - preview-pilot-lamp-refresh
+    paths:
+      - '.github/workflows/pilot-lamp-finalize-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pilot-lamp-refresh
+          fetch-depth: 1
+
+      - name: Fetch adopted images and update preview article
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save puppeteer-core@24 >/dev/null 2>&1
+          cat > /tmp/fetch-share.js <<'NODE'
+          const puppeteer = require('puppeteer-core');
+          const fs = require('fs');
+
+          async function capture(shareUrl, outPath) {
+            const browser = await puppeteer.launch({
+              executablePath: '/usr/bin/google-chrome',
+              headless: true,
+              args: ['--no-sandbox','--disable-dev-shm-usage']
+            });
+            const page = await browser.newPage();
+            let best = null;
+            page.on('response', async (res) => {
+              try {
+                const headers = res.headers();
+                const ct = (headers['content-type'] || '').toLowerCase();
+                if (!ct.startsWith('image/')) return;
+                const buf = await res.buffer();
+                if (buf.length < 200000) return;
+                if (!best || buf.length > best.length) best = buf;
+              } catch (_) {}
+            });
+            await page.goto(shareUrl, {waitUntil: 'networkidle2', timeout: 60000});
+            await new Promise(r => setTimeout(r, 6000));
+            if (!best) {
+              const links = await page.$$eval('a', as => as.map(a => ({href:a.href,text:(a.textContent||'').trim()})));
+              const candidate = links.find(x => /download|ダウンロード/i.test(x.text) || /download/i.test(x.href));
+              if (candidate) {
+                const r = await page.goto(candidate.href, {waitUntil:'networkidle2', timeout:60000});
+                const b = await r.buffer();
+                if (b.length > 200000) best = b;
+              }
+            }
+            if (!best) throw new Error('Could not capture shared image from ' + shareUrl);
+            fs.writeFileSync(outPath, best);
+            console.log(outPath, best.length);
+            await browser.close();
+          }
+
+          (async()=>{
+            await capture('https://firestorage.ai/ja/f/PdyVWgqH1gr7','/tmp/pilot-hero-source');
+            await capture('https://firestorage.ai/ja/f/FFE--UZ7oM3A','/tmp/pilot-ogp-source');
+          })().catch(e=>{console.error(e); process.exit(1);});
+          NODE
+          node /tmp/fetch-share.js
+
+          mkdir -p assets/images/pilot-lamp-basic
+          if command -v magick >/dev/null 2>&1; then
+            magick /tmp/pilot-hero-source -resize '1280x1280>' -quality 72 assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp
+            magick /tmp/pilot-ogp-source  -resize '1280x1280>' -quality 72 assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp
+          else
+            convert /tmp/pilot-hero-source -resize '1280x1280>' -quality 72 assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp
+            convert /tmp/pilot-ogp-source  -resize '1280x1280>' -quality 72 assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/pilot-lamp-basic.html')
+          s=p.read_text(encoding='utf-8')
+          reps={
+            'https://denkicontrol.com/assets/images/pilot-lamp-basic/pilot-lamp-overview.png':'https://denkicontrol.com/assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp',
+            'background:url("../assets/images/pilot-lamp-basic/pilot-lamp-overview.png") right center / auto 100% no-repeat;':'background:url("../assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp") right center / auto 100% no-repeat;'
+          }
+          for old,new in reps.items():
+            c=s.count(old)
+            if old.startswith('https://'):
+              if c != 2: raise SystemExit(f'expected 2 meta refs, got {c}')
+            else:
+              if c != 1: raise SystemExit(f'expected 1 hero ref, got {c}')
+            s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+
+          test -s assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp
+          test -s assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp
+          grep -q 'pilot-lamp-basic-hero.webp' articles/pilot-lamp-basic.html
+          test "$(grep -o 'pilot-lamp-basic-ogp.webp' articles/pilot-lamp-basic.html | wc -l)" -eq 2
+
+          rm -f .github/workflows/pilot-lamp-finalize-preview.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/pilot-lamp-basic.html assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp .github/workflows/pilot-lamp-finalize-preview.yml
+          git commit -m 'Add adopted pilot lamp hero and OGP for preview'
+          git push origin HEAD:preview-pilot-lamp-refresh

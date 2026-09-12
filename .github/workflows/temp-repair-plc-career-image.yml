@@ -1,0 +1,69 @@
+name: Temp repair PLC career image
+
+on:
+  push:
+    branches: [preview-career-hero-binary-fix]
+    paths:
+      - '.github/workflows/temp-repair-plc-career-image.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+          fetch-depth: 0
+
+      - name: Download approved repaired image
+        shell: bash
+        run: |
+          set -euo pipefail
+          api='https://api.firestorage.ai/dev/file'
+          share_id='f1NhZnXUBM1O'
+          target='assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp'
+          meta="$(curl -fsSL "$api/shares/$share_id/files?maxResults=1000")"
+          file_id="$(printf '%s' "$meta" | jq -r '.files[0].fileId')"
+          test -n "$file_id"
+          test "$file_id" != "null"
+          download_url="$(curl -fsSL -X POST "$api/shares/$share_id/files/$file_id/download" | jq -r '.downloadUrl')"
+          test -n "$download_url"
+          test "$download_url" != "null"
+          curl -fL "$download_url" -o "$target"
+          file "$target"
+          size="$(stat -c%s "$target")"
+          test "$size" -gt 100000
+          test "$size" -lt 300000
+
+      - name: Validate WebP dimensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image
+          p='assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp'
+          with Image.open(p) as im:
+              print('format=', im.format, 'size=', im.size, 'mode=', im.mode)
+              assert im.format == 'WEBP'
+              assert im.size == (1200, 900)
+          PY
+
+      - name: Commit repaired image
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'denkicontrol-preview-writer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/images/plc-control-engineer-career/plc-control-engineer-career-career.webp
+          if git diff --cached --quiet; then
+            echo 'No image change needed.'
+            exit 0
+          fi
+          git commit -m 'Repair PLC career progression image'
+          git push origin HEAD:preview-career-hero-binary-fix

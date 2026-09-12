@@ -1,0 +1,34 @@
+name: Pilot lamp image transfer
+
+on:
+  push:
+    branches:
+      - preview-pilot-lamp-refresh
+    paths:
+      - '.github/workflows/pilot-lamp-image-transfer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inspect-share:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pilot-lamp-refresh
+      - name: Inspect public share pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          for item in hero:PdyVWgqH1gr7 ogp:FFE--UZ7oM3A; do
+            name="${item%%:*}"
+            id="${item##*:}"
+            url="https://firestorage.ai/ja/f/${id}"
+            echo "===== ${name} ${url} ====="
+            curl -LfsS -A 'Mozilla/5.0' "$url" -o "/tmp/${name}.html"
+            echo "bytes: $(wc -c < /tmp/${name}.html)"
+            grep -Eo 'https?://[^"<> ]+|/[^"<> ]*(download|file|api)[^"<> ]*' "/tmp/${name}.html" | head -n 120 || true
+            echo '--- filename matches ---'
+            grep -nE 'wide_clean|wide_clean_modern|\.png|download|object|storage|share' "/tmp/${name}.html" | head -n 120 || true
+          done

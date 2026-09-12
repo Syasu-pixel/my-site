@@ -1,157 +1,78 @@
-name: Deploy GitHub Pages
+name: Pilot lamp preview editor
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [preview-pilot-lamp-refresh]
+    paths: [.github/workflows/pages.yml]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  edit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-pilot-lamp-refresh
+          fetch-depth: 0
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Prepare Pages artifact
+      - name: Apply focused edits
+        shell: bash
         run: |
-          rsync -a ./ _site/ \
-            --exclude '_site/' \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude 'node_modules/' \
-            --exclude '.netlify/' \
-            --exclude '.wrangler/' \
-            --exclude '.cache/' \
-            --exclude 'tmp/' \
-            --exclude 'temp/' \
-            --exclude '*.zip' \
-            --exclude '*.tar' \
-            --exclude '*.tar.gz' \
-            --exclude '*.7z' \
-            --exclude '*.psd' \
-            --exclude '*.ai'
-
-          echo 'Before image optimization:'
-          du -sh _site _site/assets/images
-
-      - name: Optimize published images to WebP
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq webp
-
-          # Convert PNG/JPEG assets in the publish copy only. The repository originals
-          # remain untouched until the optimized deployment has been verified.
-          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
-            | xargs -0 -r -P 4 -I{} bash -c '
-                src="$1"
-                dst="${src%.*}.webp"
-                [ -e "$dst" ] && exit 0
-                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
-              ' _ {}
-
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
-          root = Path('_site')
-          image_root = root / 'assets' / 'images'
-          mapping = {}
-          for src in image_root.rglob('*'):
-              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
-                  continue
-              dst = src.with_suffix('.webp')
-              if dst.exists() and dst.stat().st_size > 0:
-                  rel_src = src.relative_to(root).as_posix()
-                  rel_dst = dst.relative_to(root).as_posix()
-                  mapping[rel_src] = rel_dst
+          p = Path('articles/pilot-lamp-basic.html')
+          s = p.read_text(encoding='utf-8')
 
-          # Only rewrite files that can affect the published site. Internal Markdown/TXT
-          # docs contain example placeholders such as {slug} and must not be treated as
-          # live asset references.
-          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
-          changed = 0
-          for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in text_exts:
-                  continue
-              try:
-                  text = path.read_text(encoding='utf-8')
-              except UnicodeDecodeError:
-                  continue
-              new = text
-              for old, replacement in mapping.items():
-                  new = new.replace('/' + old, '/' + replacement)
-                  new = new.replace(old, replacement)
-              if new != text:
-                  path.write_text(new, encoding='utf-8')
-                  changed += 1
+          def once(a, b, label):
+              global s
+              if a not in s:
+                  raise SystemExit(f'missing target: {label}')
+              s = s.replace(a, b, 1)
 
-          # Remove originals only from the generated publish copy and only when a
-          # valid WebP counterpart exists.
-          removed = 0
-          for old in mapping:
-              src = root / old
-              if src.exists():
-                  src.unlink()
-                  removed += 1
+          once('  <meta name="twitter:card" content="summary_large_image">\n  <meta name="theme-color" content="#f8fbff">', '  <meta name="twitter:card" content="summary_large_image">\n  <meta name="twitter:title" content="パイロットランプ・表示灯とは？制御盤のランプ表示の見方をやさしく解説">\n  <meta name="twitter:description" content="パイロットランプ・表示灯の役割、色の意味、点灯しない時の確認順、交換時の注意点を初心者向けに整理します。">\n  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/pilot-lamp-basic/pilot-lamp-overview.png">\n  <meta name="theme-color" content="#f8fbff">', 'twitter metadata')
 
-          # Guard against stale references in actual published web files only.
-          stale = []
-          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
-          for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in text_exts:
-                  continue
-              try:
-                  text = path.read_text(encoding='utf-8')
-              except UnicodeDecodeError:
-                  continue
-              for match in pattern.findall(text):
-                  candidate = root / match.lstrip('/')
-                  if not candidate.exists():
-                      stale.append(f'{path}: {match}')
+          css = '''\n\n    .term{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:900;line-height:1.45;}\n    .marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900;}\n    .related-card-thumb{width:100%;overflow:hidden;border-radius:14px;aspect-ratio:1200 / 630;margin-bottom:12px;background:#eef4ff;border:1px solid #d7e4f3;}\n    .related-card-thumb img{width:100%;height:100%;object-fit:cover;}\n'''
+          once('</style>', css + '\n</style>', 'utility styles')
+          s = s.replace('class="mark"', 'class="marker-blue"')
 
-          print(f'Converted images: {len(mapping)}')
-          print(f'Updated published files: {changed}')
-          print(f'Removed publish-copy originals: {removed}')
-          if stale:
-              print('Stale image references detected in published files:')
-              print('\n'.join(stale[:100]))
-              raise SystemExit(1)
+          once('            パイロットランプ・表示灯とは、制御盤や操作盤に取り付けられる表示用のランプです。\n            装置の動作状態や信号の有無を、ランプの点灯・消灯・色で知らせます。', '            <span class="term">パイロットランプ・表示灯</span>とは、制御盤や操作盤に取り付けられる表示用のランプです。\n            <span class="marker-blue">装置の動作状態や信号の有無を、ランプの点灯・消灯・色で知らせる</span>役割があります。', 'basic definition')
+          once('            色には安全・正常、危険・異常などを伝えるための一般的な意味があります。ただし、色だけで運転中や停止中と判断することはできません。\n            実際の設備では、図面、盤面の銘板、設備仕様、現場ルールを確認して表示の意味を判断します。', '            色には状態を伝えるための一般的な意味があります。ただし、<span class="marker-blue">色だけで「運転中」「停止中」と決めつけることはできません</span>。\n            実際の設備では、<strong>図面、盤面の銘板、設備仕様、現場ルールを優先</strong>して表示の意味を判断します。', 'basic color caution')
+          once('            表示灯は色で状態を分けることが多く、JIS C 0448やIEC 60073では、表示に用いる色についての一般原則が示されています。\n            以下はその代表的な考え方であり、すべての設備にそのまま当てはまる絶対的なルールではありません。\n            実際の設備では、図面、銘板、設備仕様、現場ルールを優先して確認します。', '            機械の表示灯について、<span class="marker-blue">IEC 60204-1では、赤＝非常、黄＝異常、青＝強制、緑＝正常、白＝中立</span>という意味づけが示されています。\n            これは状態表示を読み解く基本ですが、個々の設備で「運転」「停止」などの具体的な意味まで一律に決まるわけではありません。\n            実際の設備では、<strong>図面、銘板、設備仕様、現場ルールを優先</strong>して確認します。', 'color standards intro')
+
+          for a,b in [
+            ('<td class="cell-orange">危険 / 非常 / 重大な異常・故障</td>','<td class="cell-orange"><strong>非常 / 危険状態</strong></td>'),
+            ('<td>危険や非常事態、直ちに注意が必要な重大な異常・故障などを示す代表的な色です。</td>','<td>危険状態を示し、即時の対応が必要な状態に用いる代表的な色です。</td>'),
+            ('<td class="cell-orange">注意 / 警告 / 異常状態</td>','<td class="cell-orange"><strong>異常 / 危険が差し迫った状態</strong></td>'),
+            ('<td>注意や警告、監視や対応が必要な異常状態などを示す代表的な色です。</td>','<td>異常状態や危険が差し迫った状態を示し、監視や介入が必要な場面に用いる代表的な色です。</td>'),
+            ('<td class="cell-green">正常な状態</td>','<td class="cell-green"><strong>正常</strong></td>'),
+            ('<td class="cell-blue">行動を求める指示</td>','<td class="cell-blue"><strong>強制 / 行動が必要</strong></td>'),
+            ('<td class="cell-blue">中立 / その他の状態</td>','<td class="cell-blue"><strong>中立 / その他の状態</strong></td>')]:
+              once(a,b,'color table')
+
+          once('            表示灯が点かない時は、すぐに「ランプ切れ」と決めつけず、ランプの定格電圧、電源側、接点やリレー、PLC等からの出力信号、配線、ランプ本体を概念的に切り分けます。\n            LEDタイプでも、配線不良や出力信号がないことで点灯しない場合があります。', '            表示灯が点かない時は、<span class="marker-blue">すぐに「ランプ切れ」と決めつけず</span>、<strong>定格電圧 → 電源 → 出力信号 → 接点・リレー → 配線 → ランプ本体</strong>の順に切り分けると原因を追いやすくなります。\n            LEDタイプでも、配線不良や出力信号がないことで点灯しない場合があります。', 'troubleshooting')
+          once('            表示灯は見た目が似ていても、定格電圧、AC/DC、色、サイズ、端子方式が違います。\n            交換時は、見た目だけで決めずに仕様を確認することが大切です。', '            表示灯は見た目が似ていても、<span class="marker-blue">定格電圧、AC/DC、色、取付穴サイズ、端子方式</span>が違います。\n            交換時は、見た目だけで決めずに<strong>既設品の仕様と設備側の条件を照合</strong>することが大切です。', 'selection')
+
+          old = '''            <a class="related-card" href="push-button-switch-basic.html">\n              <h3>押しボタンスイッチとは？</h3>\n              <p>操作盤でよく使う基本部品です。表示灯付きボタンとのつながりもイメージしやすくなります。</p>\n            </a>\n\n            <a class="related-card" href="selector-switch-basic.html">\n              <h3>セレクタスイッチとは？</h3>\n              <p>表示灯と並んで盤面でよく見る操作部品です。手動・自動の見方も整理できます。</p>\n            </a>\n\n            <a class="related-card" href="relay-basic.html">\n              <h3>リレーとは？</h3>\n              <p>表示灯がどの接点や信号で点くのかを理解する入口としてつながりやすい記事です。</p>\n            </a>'''
+          new = '''            <a class="related-card" href="push-button-switch-basic.html">\n              <div class="related-card-thumb"><img src="../assets/images/push-button-switch-basic/push-button-switch-overview.png" alt="押しボタンスイッチの基本を解説する記事" loading="lazy" decoding="async"></div>\n              <h3>押しボタンスイッチとは？</h3>\n              <p>操作盤でよく使う基本部品です。表示灯付きボタンとのつながりもイメージしやすくなります。</p>\n            </a>\n\n            <a class="related-card" href="selector-switch-basic.html">\n              <div class="related-card-thumb"><img src="../assets/images/selector-switch-basic/selector-switch-basic-ogp.png" alt="セレクタスイッチの基本を解説する記事" loading="lazy" decoding="async"></div>\n              <h3>セレクタスイッチとは？</h3>\n              <p>表示灯と並んで盤面でよく見る操作部品です。手動・自動の見方も整理できます。</p>\n            </a>\n\n            <a class="related-card" href="relay-basic.html">\n              <div class="related-card-thumb"><img src="../assets/images/relay-basic/relay-overview.png" alt="リレーの基本を解説する記事" loading="lazy" decoding="async"></div>\n              <h3>リレーとは？</h3>\n              <p>表示灯がどの接点や信号で点くのかを理解する入口としてつながりやすい記事です。</p>\n            </a>'''
+          once(old,new,'related cards')
+          p.write_text(s,encoding='utf-8')
           PY
 
-          echo 'After image optimization:'
-          du -sh _site _site/assets/images
-
-          # GitHub Pages published sites must remain below 1 GB. Keep headroom so
-          # future articles cannot silently cross the limit.
-          bytes=$(du -sb _site | cut -f1)
-          limit=$((900 * 1024 * 1024))
-          echo "Published artifact bytes: $bytes"
-          if [ "$bytes" -ge "$limit" ]; then
-            echo "ERROR: optimized Pages artifact is still >= 900 MiB; refusing oversized deploy."
-            exit 1
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Validate and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'class="mark"' articles/pilot-lamp-basic.html
+          grep -q 'IEC 60204-1' articles/pilot-lamp-basic.html
+          grep -q 'related-card-thumb' articles/pilot-lamp-basic.html
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/pages.yml
+          rm -f .github/workflows/pilot-lamp-refresh-temp.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/pilot-lamp-basic.html .github/workflows/pages.yml .github/workflows/pilot-lamp-refresh-temp.yml
+          git commit -m 'Improve pilot lamp article for preview [skip ci]'
+          git push origin HEAD:preview-pilot-lamp-refresh

@@ -1,0 +1,89 @@
+name: Temp fix career category header
+
+on:
+  push:
+    branches:
+      - fix-career-header-standard
+    paths:
+      - '.github/workflows/temp-fix-career-header.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: fix-career-header-standard
+
+      - name: Align career header with standard article header
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          target = Path('categories/career.html')
+          standard = Path('articles/plc-control-engineer-career.html')
+          t = target.read_text(encoding='utf-8')
+          s = standard.read_text(encoding='utf-8')
+
+          # Reuse the exact fixed-header CSS from the approved PLC article.
+          m = re.search(r'(    \.site-header\{.*?)(?=    \.breadcrumb\{)', s, re.S)
+          if not m:
+              raise SystemExit('Could not extract standard header CSS')
+          standard_header_css = m.group(1)
+          t, n = re.subn(r'    \.site-header\{.*?(?=    \.breadcrumb\{)', standard_header_css, t, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit(f'Header CSS replacement count: {n}')
+
+          # Add variables used by the standard search header.
+          t = t.replace('--container:1180px;--header-h:76px}', '--container:1180px;--header-h:76px;--line-header:#dbe7f3;--muted-2:#64748b}', 1)
+          t = t.replace('line-height:1.8;overflow-wrap:break-word}a{', 'line-height:1.8;overflow-wrap:break-word}button,input{font:inherit}a{', 1)
+
+          # Reuse the exact standard header markup, adapting the active language link to this category page.
+          hm = re.search(r'  <header class="site-header">.*?  </header>', s, re.S)
+          if not hm:
+              raise SystemExit('Could not extract standard header markup')
+          header_html = hm.group(0).replace('href="./plc-control-engineer-career.html"', 'href="./career.html"')
+          t, n = re.subn(r'  <header class="site-header">.*?  </header>', lambda _: header_html, t, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit(f'Header HTML replacement count: {n}')
+
+          # Add later responsive overrides so mobile/tablet header behavior matches the approved article.
+          responsive = '''
+    @media(max-width:1100px){.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}}
+    @media(max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px;white-space:nowrap}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}}
+'''
+          t = t.replace('  </style>', responsive + '  </style>', 1)
+
+          # Add the same language-menu behavior and site search script used by the standard article.
+          scripts = '''  <script>(function(){const button=document.getElementById('languageMenuButton');const panel=document.getElementById('languageMenuPanel');if(!button||!panel)return;button.addEventListener('click',function(){const open=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!open));panel.hidden=open;});document.addEventListener('click',function(event){if(!button.contains(event.target)&&!panel.contains(event.target)){button.setAttribute('aria-expanded','false');panel.hidden=true;}});document.addEventListener('keydown',function(event){if(event.key==='Escape'){button.setAttribute('aria-expanded','false');panel.hidden=true;button.focus();}});})();</script>
+  <script src="../assets/js/site-search.js"></script>
+'''
+          if '../assets/js/site-search.js' not in t:
+              t = t.replace('</body>', scripts + '</body>', 1)
+
+          # Safety checks: old simple actions gone; new standard controls present.
+          required = ['class="language-menu"', 'id="siteSearch"', '../assets/js/site-search.js', 'class="brand-copy"']
+          for token in required:
+              if token not in t:
+                  raise SystemExit(f'Missing required token: {token}')
+          if '<div class="header-actions">' in t:
+              raise SystemExit('Old header-actions still present')
+
+          target.write_text(t, encoding='utf-8')
+
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/temp-fix-career-header.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add categories/career.html .github/workflows/temp-fix-career-header.yml
+          git commit -m 'Align career category header with site standard'
+          git push origin HEAD:fix-career-header-standard

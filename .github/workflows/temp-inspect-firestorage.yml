@@ -14,25 +14,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Inspect share client API
+      - name: Inspect share client chunks
         shell: bash
         run: |
           set -euxo pipefail
           base='https://firestorage.ai'
           share='https://firestorage.ai/ja/f/f1NhZnXUBM1O'
           curl -fsSL "$share" -o /tmp/page.html
-          chunk=$(grep -Eo '/_next/static/chunks/app/\(files\)/ja/f/page-[A-Za-z0-9]+\.js' /tmp/page.html | head -1)
-          echo "chunk=$chunk"
-          test -n "$chunk"
-          curl -fsSL "$base$chunk" -o /tmp/page.js
-          echo '--- API/fetch refs ---'
+          grep -Eo '/_next/static/chunks/[^" ]+\.js' /tmp/page.html | sort -u > /tmp/chunks.txt
+          cat /tmp/chunks.txt
+          rm -f /tmp/all.js
+          while IFS= read -r chunk; do
+            echo "===== $chunk =====" >> /tmp/all.js
+            curl -fsSL "$base$chunk" >> /tmp/all.js || true
+            printf '\n' >> /tmp/all.js
+          done < /tmp/chunks.txt
           python3 - <<'PY'
           import re
-          s=open('/tmp/page.js',encoding='utf-8').read()
-          for pat in [r'.{0,180}fetch\(.{0,350}',r'.{0,180}/api/.{0,350}',r'.{0,180}download.{0,350}',r'.{0,180}share.{0,350}']:
+          s=open('/tmp/all.js',encoding='utf-8',errors='replace').read()
+          pats=[r'.{0,220}fetch\(.{0,500}',r'.{0,220}/api/.{0,500}',r'.{0,220}(presign|signed|download|fileId|public_id|shareId|storage).{0,500}']
+          for pat in pats:
               print('\nPATTERN',pat)
+              seen=set()
               for m in re.finditer(pat,s,re.I|re.S):
-                  print(m.group(0)[:800].replace('\n',' '))
+                  x=m.group(0)[:1000].replace('\n',' ')
+                  if x not in seen:
+                      seen.add(x); print(x)
           PY
-          echo '--- strings with endpoints ---'
-          grep -Eo '"/[^" ]*(api|download|share)[^" ]*"' /tmp/page.js | sort -u | head -100 || true

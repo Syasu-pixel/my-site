@@ -1,0 +1,34 @@
+name: TEMP inspect firestorage API
+
+on:
+  push:
+    branches:
+      - preview/air-cylinder-final-20260912
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch client chunk and inspect endpoints
+        run: |
+          set -euxo pipefail
+          curl -L --fail -o client.js 'https://firestorage.ai/_next/static/chunks/app/(files)/ja/f/page-4d19ae0a4ce39d79.js'
+          wc -c client.js
+          python - <<'PY'
+          import re
+          s=open('client.js',encoding='utf-8',errors='ignore').read()
+          pats=[r'https?://[^"\x27` ]+',r'/api/[^"\x27` ]+',r'fetch\([^)]{0,300}\)',r'download[^,;)]{0,250}',r'share[^,;)]{0,250}']
+          out=[]
+          for p in pats:
+              out += re.findall(p,s,re.I)
+          open('endpoints.txt','w').write('\n\n'.join(dict.fromkeys(out)))
+          print(open('endpoints.txt').read()[:20000])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: temp-firestorage-api-inspection
+          path: |
+            client.js
+            endpoints.txt
+          retention-days: 1

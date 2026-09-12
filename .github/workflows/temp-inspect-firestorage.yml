@@ -1,30 +1,20 @@
-name: Temp inspect firestorage share
+name: Temp inspect firestorage
 
 on:
   push:
     branches:
       - preview-career-hero-binary-fix
 
-permissions:
-  contents: read
-
 jobs:
   inspect:
-    if: github.event.head_commit.message != 'chore: remove temp firestorage inspector'
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect share page
-        shell: bash
+      - name: Fetch share page
         run: |
-          set -euo pipefail
-          URL='https://firestorage.ai/ja/f/ncTOrNLYMb6L'
-          curl -LfsS "$URL" -o page.html
-          echo '--- content type / size ---'
-          file page.html || true
+          curl -L -sS https://firestorage.ai/ja/f/ncTOrNLYMb6L -o page.html
+          echo SIZE
           wc -c page.html
-          echo '--- target filenames ---'
-          grep -oE '.{0,180}(plc-control-engineer-career-[^"<> ]+).{0,180}' page.html || true
-          echo '--- candidate urls ---'
-          grep -oE 'https?://[^"<> ]+' page.html | grep -E 'firestorage|download|storage|webp|api' | head -100 || true
-          echo '--- candidate paths ---'
-          grep -oE '(/[A-Za-z0-9_./?=&%-]{8,})' page.html | grep -E 'download|file|api|webp' | head -100 || true
+          echo NAMES
+          grep -o 'plc-control-engineer-career-[^"< ]*' page.html || true
+          echo URLS
+          grep -o 'https[^"< ]*' page.html | head -50 || true

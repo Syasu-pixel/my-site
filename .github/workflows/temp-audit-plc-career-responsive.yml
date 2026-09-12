@@ -1,0 +1,96 @@
+name: Temp audit PLC career responsive
+
+on:
+  push:
+    branches: [preview-career-hero-binary-fix]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/plc-audit-server.log 2>&1 &
+          echo $! >/tmp/plc-audit-server.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/plc-audit-server.log || true
+          exit 1
+
+      - name: Capture PLC career responsive views
+        run: |
+          mkdir -p plc-career-responsive-audit
+          cat > .temp-plc-audit.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const url='http://127.0.0.1:4173/articles/plc-control-engineer-career.html';
+          const targets=[
+            ['desktop',1440,1000],
+            ['iphone',390,844],
+            ['ipad',820,1180],
+            ['ipad-pro',1024,1366]
+          ];
+          for (const [name,width,height] of targets){
+            const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+            const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+            if(!response||!response.ok()) throw new Error(`${name}: ${response?.status()}`);
+            await page.evaluate(async()=>{
+              if(document.fonts?.ready) await document.fonts.ready;
+              const imgs=[...document.images];
+              for(const img of imgs){
+                img.scrollIntoView({block:'center'});
+                await new Promise(r=>setTimeout(r,80));
+              }
+              window.scrollTo(0,0);
+              await new Promise(r=>setTimeout(r,700));
+            });
+            const metrics=await page.evaluate(()=>({
+              viewport:innerWidth,
+              scrollWidth:document.documentElement.scrollWidth,
+              bodyScrollWidth:document.body.scrollWidth,
+              figures:[...document.querySelectorAll('.article-figure img')].map(img=>({src:img.getAttribute('src'),clientWidth:img.clientWidth,naturalWidth:img.naturalWidth})),
+              hero:{width:document.querySelector('.article-hero')?.clientWidth||0,height:document.querySelector('.article-hero')?.clientHeight||0},
+              layout:{width:document.querySelector('.layout')?.clientWidth||0},
+              side:{width:document.querySelector('.side')?.clientWidth||0}
+            }));
+            fs.writeFileSync(`plc-career-responsive-audit/${name}.json`,JSON.stringify(metrics,null,2));
+            await page.screenshot({path:`plc-career-responsive-audit/${name}.png`,fullPage:true});
+            await page.close();
+          }
+          await browser.close();
+          JS
+          node .temp-plc-audit.mjs
+          rm -f .temp-plc-audit.mjs
+
+      - name: Stop local server
+        if: always()
+        run: |
+          if [ -f /tmp/plc-audit-server.pid ]; then kill "$(cat /tmp/plc-audit-server.pid)" || true; fi
+
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: plc-career-responsive-audit
+          path: plc-career-responsive-audit/
+          retention-days: 3

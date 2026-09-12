@@ -1,0 +1,46 @@
+name: Temp wire career comparison preview links
+
+on:
+  push:
+    branches:
+      - preview-career-hero-binary-fix
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    if: github.event.head_commit.message != 'chore: wire career comparison preview links'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+          fetch-depth: 0
+      - name: Wire preview-only internal links
+        shell: python
+        run: |
+          from pathlib import Path
+
+          career = Path('categories/career.html')
+          text = career.read_text(encoding='utf-8')
+          old = '<div class="step-links"><span>転職サービス比較：準備中</span><span>求人の見方：準備中</span></div>'
+          new = '<div class="step-links"><a href="../articles/fa-engineer-career-service-comparison.html">転職サービスの選び方・比較</a><span>求人の見方：準備中</span></div>'
+          if old not in text:
+              raise SystemExit('career STEP4 target not found')
+          career.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          plc = Path('articles/plc-control-engineer-career.html')
+          text = plc.read_text(encoding='utf-8')
+          anchor = '<p>「PLC経験者募集」とだけ書かれていても、実際の仕事はかなり違います。求人票で分からない部分は、面接や転職サービスの担当者を通して具体的に確認するのがおすすめです。</p>'
+          addition = anchor + '\n            <div class="cta"><div><h3>転職サービスを比べる前に</h3><p>正社員転職・スカウト・技術者派遣は役割が違います。働き方を分けて比較すると選びやすくなります。</p></div><a href="fa-engineer-career-service-comparison.html">転職サービスの比較を見る →</a></div>'
+          if anchor not in text:
+              raise SystemExit('PLC career target not found')
+          plc.write_text(text.replace(anchor, addition, 1), encoding='utf-8')
+      - name: Commit preview-only wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add categories/career.html articles/plc-control-engineer-career.html
+          git commit -m "chore: wire career comparison preview links"
+          git push origin HEAD:preview-career-hero-binary-fix

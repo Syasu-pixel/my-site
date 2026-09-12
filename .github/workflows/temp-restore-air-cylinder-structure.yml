@@ -1,0 +1,43 @@
+name: TEMP restore air-cylinder structure
+
+on:
+  push:
+    branches:
+      - preview-air-cylinder-final-20260912
+    paths:
+      - '.github/workflows/temp-restore-air-cylinder-structure.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore article structure from main
+        run: |
+          git fetch origin main
+          git show origin/main:articles/air-cylinder-basic.html > articles/air-cylinder-basic.html
+          git show origin/main:netlify.toml > netlify.toml
+      - name: Keep approved hero and OGP refs only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/air-cylinder-basic.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('https://denkicontrol.com/assets/images/air-cylinder-basic/air-cylinder-basic-hero.png','https://denkicontrol.com/assets/images/air-cylinder-basic/air-cylinder-basic-ogp.webp',2)
+          s=s.replace('url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png")','url("../assets/images/air-cylinder-basic/air-cylinder-basic-hero.webp")')
+          s=s.replace('../assets/images/air-cylinder-basic/air-cylinder-basic-01.png','../assets/images/air-cylinder-basic/air-cylinder-basic-structure.webp')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Remove temporary workflow and commit
+        run: |
+          rm -f .github/workflows/temp-restore-air-cylinder-structure.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/air-cylinder-basic.html netlify.toml .github/workflows/temp-restore-air-cylinder-structure.yml
+          git commit -m 'Restore air-cylinder article structure before final polish'
+          git push

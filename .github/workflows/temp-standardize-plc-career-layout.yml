@@ -1,0 +1,130 @@
+name: Temp standardize PLC career layout
+
+on:
+  push:
+    branches: [preview-career-hero-binary-fix]
+    paths:
+      - '.github/workflows/temp-standardize-plc-career-layout.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  standardize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+          fetch-depth: 0
+
+      - name: Standardize article structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('articles/plc-control-engineer-career.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Standard class names used by current completed articles.
+          s = s.replace('.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}.main{min-width:0}.side{position:sticky;top:98px;display:grid;gap:14px}',
+                        '.page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}')
+          s = s.replace('.article-card', '.section-card')
+          s = s.replace('class="article-card"', 'class="section-card"')
+          s = s.replace('.layout{grid-template-columns:1fr}.side{position:static}', '.page-layout{grid-template-columns:1fr}.side-rail{position:static}')
+
+          # Move hero + top summary outside the two-column body layout.
+          hero_pat = re.compile(r'(\s*<section class="article-hero" id="top">.*?</section>\s*<section class="top-summary" aria-label="この記事の要点">.*?</section>)', re.S)
+          m = hero_pat.search(s)
+          if not m:
+              raise SystemExit('hero/top-summary block not found')
+          hero_summary = m.group(1).strip()
+          s = s[:m.start()] + '\n' + s[m.end():]
+
+          old_open = '    <div class="layout">\n      <main class="main"><article>'
+          if old_open in s:
+              s = s.replace(old_open, '    <div class="page-layout">\n      <article class="main-column">', 1)
+          else:
+              s = s.replace('    <div class="layout">\n      <main class="main"><article>', '    <div class="page-layout">\n      <article class="main-column">', 1)
+
+          s = s.replace('      </article></main>\n      <aside class="side"', '      </article>\n      <aside class="side-rail"', 1)
+
+          nav_end = '</nav>'
+          pos = s.find(nav_end)
+          if pos < 0:
+              raise SystemExit('breadcrumb end not found')
+          pos += len(nav_end)
+          s = s[:pos] + '\n\n    ' + hero_summary.replace('\n', '\n    ') + '\n' + s[pos:]
+
+          # Upgrade summary cards to the same information-card pattern used by completed articles.
+          summary_pat = re.compile(r'<section class="top-summary" aria-label="この記事の要点">.*?</section>', re.S)
+          summary_new = '''<section class="top-summary" aria-label="この記事の要点">
+      <article class="summary-card summary-card--fit">
+        <h2>仕事内容</h2>
+        <ul><li>仕様・回路・I/Oを設計する</li><li>PLC・周辺機器をつないで動かす</li><li>試運転・改善まで確認する</li></ul>
+      </article>
+      <article class="summary-card summary-card--caution">
+        <h2>必要スキル</h2>
+        <ul><li>電気回路の基礎</li><li>PLC・周辺機器の理解</li><li>現場で原因を切り分ける力</li></ul>
+      </article>
+      <article class="summary-card summary-card--conclusion">
+        <h2>キャリア</h2>
+        <ul><li>担当範囲を広げる</li><li>設備メーカー・SIerへつなげる</li><li>生産技術・保全にも広がる</li></ul>
+      </article>
+    </section>'''
+          s, n = summary_pat.subn(summary_new, s, count=1)
+          if n != 1:
+              raise SystemExit(f'summary replacement count={n}')
+
+          # Standard summary-card typography.
+          extra_summary_css = '''
+    .summary-card h2{margin:0 0 10px;font-size:18px;line-height:1.45}
+    .summary-card ul{margin:0;padding-left:1.25em;color:#64748b}
+    .summary-card li{margin:6px 0;font-size:13px;line-height:1.7}
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--caution h2{color:#b45309}
+    .summary-card--conclusion h2{color:#1d4ed8}
+'''
+          s = s.replace('.summary-card span{display:block;margin-top:5px;font-size:12px;line-height:1.6;color:#64748b}',
+                        '.summary-card span{display:block;margin-top:5px;font-size:12px;line-height:1.6;color:#64748b}' + extra_summary_css, 1)
+
+          # Required iPad / iPad Pro intermediate breakpoint from article rules.
+          mid = '''
+    @media (min-width:744px) and (max-width:1100px){
+      .page-layout{grid-template-columns:1fr}
+      .side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .article-hero{min-height:360px}
+      .article-hero::before{background:url("../assets/images/plc-control-engineer-career/plc-control-engineer-career-hero.webp") right center / auto 92% no-repeat;opacity:.24}
+      .article-hero-copy{width:min(100%,600px);min-height:360px;padding:34px 26px}
+      .article-hero h1{font-size:32px}
+      .top-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    }
+'''
+          marker = '    @media(max-width:900px)'
+          if marker not in s:
+              raise SystemExit('900px media marker not found')
+          s = s.replace(marker, mid + '\n' + marker, 1)
+
+          # At phone widths, summary cards stack and support rail remains readable.
+          s = s.replace('.top-summary{gap:8px;margin:12px 0 16px}', '.top-summary{grid-template-columns:1fr;gap:8px;margin:12px 0 16px}', 1)
+
+          # Structural assertions.
+          hero_index = s.index('<section class="article-hero"')
+          layout_index = s.index('<div class="page-layout">')
+          if not hero_index < layout_index:
+              raise SystemExit('hero is not outside page-layout')
+          if '<main class="main"><article>' in s or '<aside class="side"' in s or 'class="layout"' in s:
+              raise SystemExit('legacy layout classes remain')
+          if s.count('site-search.js') != 1:
+              raise SystemExit('site-search.js count is not 1')
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/plc-control-engineer-career.html
+          git commit -m "Align PLC career page with standard article layout"
+          git push origin HEAD:preview-career-hero-binary-fix

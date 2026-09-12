@@ -1,34 +1,52 @@
-name: Temp inspect firestorage
+name: Temp import PLC career images
 
 on:
   push:
     branches:
       - preview-career-hero-binary-fix
 
+permissions:
+  contents: write
+
 jobs:
-  inspect:
+  import:
+    if: github.event.head_commit.message != 'chore: add approved PLC career images'
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage client chunks
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+      - name: Download approved images from firestorage
         shell: bash
         run: |
           set -euo pipefail
-          BASE='https://firestorage.ai'
-          curl -L -sS "$BASE/ja/f/ncTOrNLYMb6L" -o page.html
-          mkdir -p chunks
-          grep -o 'src="[^"]*\.js"' page.html | sed 's/^src="//;s/"$//' | sort -u > js-paths.txt
-          while IFS= read -r p; do
-            f=$(basename "$p")
-            curl -L -sS "$BASE$p" -o "chunks/$f" || true
-          done < js-paths.txt
-          echo '--- API / download matches ---'
-          grep -RniE 'api/|download|presign|signed|shareId|publicId|file_id|fileId|objects' chunks | head -300 || true
-      - name: Upload sources
-        uses: actions/upload-artifact@v4
-        with:
-          name: firestorage-client-all
-          path: |
-            page.html
-            js-paths.txt
-            chunks/
-          retention-days: 1
+          API='https://api.firestorage.ai/dev/file'
+          SHARE='ncTOrNLYMb6L'
+          OUT='assets/images/plc-control-engineer-career'
+          mkdir -p "$OUT"
+          curl -LfsS "$API/shares/$SHARE/files?maxResults=1000" -o files.json
+          for name in \
+            plc-control-engineer-career-hero.webp \
+            plc-control-engineer-career-ogp.webp \
+            plc-control-engineer-career-overview.webp \
+            plc-control-engineer-career-skills.webp \
+            plc-control-engineer-career-career.webp
+          do
+            id=$(jq -r --arg n "$name" '.files[] | select(.fileName==$n) | .fileId' files.json | head -1)
+            test -n "$id" && test "$id" != null
+            curl -LfsS -X POST "$API/shares/$SHARE/files/$id/download" -o download.json
+            url=$(jq -r '.downloadUrl' download.json)
+            test -n "$url" && test "$url" != null
+            curl -LfsS "$url" -o "$OUT/$name"
+            file "$OUT/$name"
+          done
+      - name: Commit approved images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/images/plc-control-engineer-career
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: add approved PLC career images'
+          git push origin HEAD:preview-career-hero-binary-fix

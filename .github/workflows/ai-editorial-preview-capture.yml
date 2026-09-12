@@ -32,13 +32,21 @@ jobs:
           mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
           ARTICLE_PATH=""
 
-          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
-            slug="$(basename "$candidate" .html)"
-            if [ -d "assets/images/$slug" ]; then
-              ARTICLE_PATH="$candidate"
-              break
-            fi
-          done
+          # Career comparison Preview: explicitly prefer the article under review.
+          PREFERRED_ARTICLE="articles/fa-engineer-career-service-comparison.html"
+          if printf '%s\n' "${ARTICLE_CANDIDATES[@]}" | grep -Fxq "$PREFERRED_ARTICLE"; then
+            ARTICLE_PATH="$PREFERRED_ARTICLE"
+          fi
+
+          if [ -z "$ARTICLE_PATH" ]; then
+            for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+              slug="$(basename "$candidate" .html)"
+              if [ -d "assets/images/$slug" ]; then
+                ARTICLE_PATH="$candidate"
+                break
+              fi
+            done
+          fi
 
           if [ -z "$ARTICLE_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
             ARTICLE_PATH="${ARTICLE_CANDIDATES[0]}"

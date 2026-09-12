@@ -1,0 +1,29 @@
+name: Temp inspect firestorage share
+
+on:
+  push:
+    branches: [preview-career-hero-binary-fix]
+    paths:
+      - '.github/workflows/temp-inspect-firestorage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect share page
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -fsSL -D /tmp/headers.txt 'https://firestorage.ai/ja/f/f1NhZnXUBM1O' -o /tmp/page.html
+          echo '--- headers ---'
+          cat /tmp/headers.txt
+          echo '--- interesting urls ---'
+          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/page.html | head -100 || true
+          echo '--- webp refs ---'
+          grep -Eio '.{0,120}(career-q70|\.webp|download).{0,220}' /tmp/page.html | head -100 || true
+          echo '--- first 100 lines ---'
+          sed -n '1,100p' /tmp/page.html

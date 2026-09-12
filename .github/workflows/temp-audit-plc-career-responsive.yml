@@ -58,18 +58,33 @@ jobs:
             await page.evaluate(async()=>{
               if(document.fonts?.ready) await document.fonts.ready;
               const imgs=[...document.images];
+              for(const img of imgs) img.loading='eager';
               for(const img of imgs){
                 img.scrollIntoView({block:'center'});
-                await new Promise(r=>setTimeout(r,80));
+                try { await img.decode(); } catch (_) {}
               }
+              await Promise.all(imgs.map(img=>new Promise(resolve=>{
+                if(img.complete) return resolve();
+                img.addEventListener('load',resolve,{once:true});
+                img.addEventListener('error',resolve,{once:true});
+              })));
               window.scrollTo(0,0);
-              await new Promise(r=>setTimeout(r,700));
+              await new Promise(r=>setTimeout(r,500));
             });
-            const metrics=await page.evaluate(()=>({
+            const metrics=await page.evaluate(async()=>({
               viewport:innerWidth,
               scrollWidth:document.documentElement.scrollWidth,
               bodyScrollWidth:document.body.scrollWidth,
-              figures:[...document.querySelectorAll('.article-figure img')].map(img=>({src:img.getAttribute('src'),clientWidth:img.clientWidth,naturalWidth:img.naturalWidth})),
+              figures:await Promise.all([...document.querySelectorAll('.article-figure img')].map(async img=>{
+                let fetchStatus=null, contentType=null, bytes=null;
+                try {
+                  const r=await fetch(img.src,{cache:'no-store'});
+                  fetchStatus=r.status;
+                  contentType=r.headers.get('content-type');
+                  bytes=(await r.arrayBuffer()).byteLength;
+                } catch (_) {}
+                return {src:img.getAttribute('src'),clientWidth:img.clientWidth,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete,fetchStatus,contentType,bytes};
+              })),
               hero:{width:document.querySelector('.article-hero')?.clientWidth||0,height:document.querySelector('.article-hero')?.clientHeight||0},
               layout:{width:document.querySelector('.layout')?.clientWidth||0},
               side:{width:document.querySelector('.side')?.clientWidth||0}

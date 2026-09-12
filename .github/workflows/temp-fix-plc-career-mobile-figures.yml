@@ -1,0 +1,38 @@
+name: Temp fix PLC career mobile figures
+
+on:
+  push:
+    branches: [preview-career-hero-binary-fix]
+    paths:
+      - '.github/workflows/temp-fix-plc-career-mobile-figures.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+          fetch-depth: 0
+      - name: Fix mobile article figures
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('articles/plc-control-engineer-career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.article-figure{margin:14px -7px 6px;overflow-x:auto;padding-bottom:4px}.article-figure img{width:680px;max-width:none;border-radius:12px}.article-figure figcaption{padding:0 12px;font-size:10px;text-align:left}'
+          new = '.article-figure{margin:14px 0 6px;overflow:visible;padding-bottom:0}.article-figure img{width:100%;max-width:100%;height:auto;border-radius:12px}.article-figure figcaption{padding:0 4px;font-size:10px;text-align:left}'
+          if old not in s:
+              raise SystemExit('target mobile figure CSS not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/plc-control-engineer-career.html
+          git commit -m "Fix PLC career mobile figure responsiveness"
+          git push origin HEAD:preview-career-hero-binary-fix

@@ -9,13 +9,23 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch share page
+      - name: Inspect firestorage client
         run: |
-          curl -L -sS https://firestorage.ai/ja/f/ncTOrNLYMb6L -o page.html
-          wc -c page.html
-      - name: Upload page source
+          set -e
+          BASE='https://firestorage.ai'
+          curl -L -sS "$BASE/ja/f/ncTOrNLYMb6L" -o page.html
+          JS=$(grep -o '/_next/static/chunks/app/(files)/ja/f/page-[^" ]*\.js' page.html | head -1)
+          echo "JS=$JS"
+          curl -L -sS "$BASE$JS" -o page.js
+          echo 'API candidates:'
+          grep -oE '.{0,120}(/api/[^"` ]+).{0,120}' page.js | head -80 || true
+          echo 'Download candidates:'
+          grep -oE '.{0,140}(download|share|signed|presign|files).{0,140}' page.js | head -120 || true
+      - name: Upload sources
         uses: actions/upload-artifact@v4
         with:
-          name: firestorage-share-source
-          path: page.html
+          name: firestorage-client-source
+          path: |
+            page.html
+            page.js
           retention-days: 1

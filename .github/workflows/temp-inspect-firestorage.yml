@@ -14,16 +14,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Inspect share page
+      - name: Inspect share client API
         shell: bash
         run: |
           set -euxo pipefail
-          curl -fsSL -D /tmp/headers.txt 'https://firestorage.ai/ja/f/f1NhZnXUBM1O' -o /tmp/page.html
-          echo '--- headers ---'
-          cat /tmp/headers.txt
-          echo '--- interesting urls ---'
-          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/page.html | head -100 || true
-          echo '--- webp refs ---'
-          grep -Eio '.{0,120}(career-q70|\.webp|download).{0,220}' /tmp/page.html | head -100 || true
-          echo '--- first 100 lines ---'
-          sed -n '1,100p' /tmp/page.html
+          base='https://firestorage.ai'
+          share='https://firestorage.ai/ja/f/f1NhZnXUBM1O'
+          curl -fsSL "$share" -o /tmp/page.html
+          chunk=$(grep -Eo '/_next/static/chunks/app/\(files\)/ja/f/page-[A-Za-z0-9]+\.js' /tmp/page.html | head -1)
+          echo "chunk=$chunk"
+          test -n "$chunk"
+          curl -fsSL "$base$chunk" -o /tmp/page.js
+          echo '--- API/fetch refs ---'
+          python3 - <<'PY'
+          import re
+          s=open('/tmp/page.js',encoding='utf-8').read()
+          for pat in [r'.{0,180}fetch\(.{0,350}',r'.{0,180}/api/.{0,350}',r'.{0,180}download.{0,350}',r'.{0,180}share.{0,350}']:
+              print('\nPATTERN',pat)
+              for m in re.finditer(pat,s,re.I|re.S):
+                  print(m.group(0)[:800].replace('\n',' '))
+          PY
+          echo '--- strings with endpoints ---'
+          grep -Eo '"/[^" ]*(api|download|share)[^" ]*"' /tmp/page.js | sort -u | head -100 || true

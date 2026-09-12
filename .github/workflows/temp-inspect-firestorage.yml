@@ -9,23 +9,26 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage client
+      - name: Inspect firestorage client chunks
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
           BASE='https://firestorage.ai'
           curl -L -sS "$BASE/ja/f/ncTOrNLYMb6L" -o page.html
-          JS=$(grep -o '/_next/static/chunks/app/(files)/ja/f/page-[^" ]*\.js' page.html | head -1)
-          echo "JS=$JS"
-          curl -L -sS "$BASE$JS" -o page.js
-          echo 'API candidates:'
-          grep -oE '.{0,120}(/api/[^"` ]+).{0,120}' page.js | head -80 || true
-          echo 'Download candidates:'
-          grep -oE '.{0,140}(download|share|signed|presign|files).{0,140}' page.js | head -120 || true
+          mkdir -p chunks
+          grep -o 'src="[^"]*\.js"' page.html | sed 's/^src="//;s/"$//' | sort -u > js-paths.txt
+          while IFS= read -r p; do
+            f=$(basename "$p")
+            curl -L -sS "$BASE$p" -o "chunks/$f" || true
+          done < js-paths.txt
+          echo '--- API / download matches ---'
+          grep -RniE 'api/|download|presign|signed|shareId|publicId|file_id|fileId|objects' chunks | head -300 || true
       - name: Upload sources
         uses: actions/upload-artifact@v4
         with:
-          name: firestorage-client-source
+          name: firestorage-client-all
           path: |
             page.html
-            page.js
+            js-paths.txt
+            chunks/
           retention-days: 1

@@ -1,0 +1,30 @@
+name: TEMP inspect firestorage preview
+
+on:
+  push:
+    branches:
+      - preview/air-cylinder-final-20260912
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch public share page
+        run: |
+          set -euxo pipefail
+          curl -L -D headers.txt -o page.html 'https://firestorage.ai/ja/f/uTwrONsoMsxc'
+          wc -c page.html
+          grep -Eo 'https?://[^"'"'"' <>]+' page.html | sort -u > urls.txt || true
+          grep -Ei 'download|webp|BZDUnKzaWcWW9Eup|uTwrONsoMsxc' page.html > hints.txt || true
+          head -200 urls.txt || true
+          head -200 hints.txt || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: temp-firestorage-inspection
+          path: |
+            headers.txt
+            page.html
+            urls.txt
+            hints.txt
+          retention-days: 1

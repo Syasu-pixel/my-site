@@ -1,0 +1,57 @@
+name: Temp capture PLC career preview
+
+on:
+  push:
+    branches:
+      - preview-career-hero-binary-fix
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-hero-binary-fix
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/plc-preview.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          exit 1
+      - name: Capture PLC career article
+        run: |
+          mkdir -p plc-career-preview
+          cat > capture.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const url='http://127.0.0.1:4173/articles/plc-control-engineer-career.html';
+          for (const [name, viewport] of Object.entries({desktop:{width:1440,height:1000},mobile:{width:390,height:844}})) {
+            const page = await browser.newPage({viewport,deviceScaleFactor:1});
+            const r = await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+            if (!r || !r.ok()) throw new Error(`render failed ${r?.status()}`);
+            await page.evaluate(async()=>{ if(document.fonts?.ready) await document.fonts.ready; await new Promise(r=>setTimeout(r,1000)); });
+            await page.screenshot({path:`plc-career-preview/${name}.png`,fullPage:true});
+            await page.close();
+          }
+          await browser.close();
+          JS
+          node capture.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plc-career-preview
+          path: plc-career-preview/
+          retention-days: 2

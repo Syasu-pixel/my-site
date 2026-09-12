@@ -19,26 +19,22 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
+
           p = Path('articles/air-cylinder-basic.html')
           s = p.read_text(encoding='utf-8')
 
-          # Text emphasis: existing site classes only, restrained density.
           replacements = {
             'エアシリンダとは、圧縮空気の力でロッドやスライダを動かす空圧機器です。設備では、ワークを押す、引く、持ち上げる、位置決めする、開閉するなど、まっすぐな動きを作る場面でよく使われます。':
             '<span class="term">エアシリンダ</span>とは、<span class="marker-blue">圧縮空気の力でロッドやスライダを動かす空圧機器</span>です。設備では、ワークを押す、引く、持ち上げる、位置決めする、開閉するなど、まっすぐな動きを作る場面でよく使われます。',
-
             '電気制御の現場では、PLCやリレーの信号でエアバルブを切り替え、その空気の流れでエアシリンダを動かす構成がよくあります。つまり、エアシリンダを見る時は、シリンダ単体だけでなく、電気信号・エアバルブ・空気圧もセットで見ることが大切です。':
             '電気制御の現場では、<span class="marker-blue">PLCやリレーの信号でエアバルブを切り替え、その空気の流れでエアシリンダを動かす</span>構成がよくあります。つまり、エアシリンダを見る時は、シリンダ単体だけでなく、<strong>電気信号・エアバルブ・空気圧をセットで見る</strong>ことが大切です。',
-
             'エアシリンダは、空気を入れる向きによって前進・後退します。複動シリンダの場合、片側に空気を送ると前進し、反対側に空気を送ると後退します。':
             'エアシリンダは、<span class="marker-blue">空気を入れる向きによって前進・後退</span>します。複動シリンダの場合、片側に空気を送ると前進し、反対側に空気を送ると後退します。',
-
             'エアシリンダでは、前進端や後退端を確認するためにリードスイッチやオートスイッチが使われることがあります。これは、シリンダが「どこまで動いたか」をPLCへ知らせるためのセンサです。':
             'エアシリンダでは、前進端や後退端を確認するために<span class="term">リードスイッチ／オートスイッチ</span>が使われることがあります。これは、<span class="marker-blue">シリンダが「どこまで動いたか」をPLCへ知らせるためのセンサ</span>です。',
-
             'エアシリンダを見る時は、シリンダ単体だけでなく、電気側・空気側・機械側を分けて確認すると切り分けしやすくなります。':
             'エアシリンダを見る時は、シリンダ単体だけでなく、<span class="marker-blue">電気側・空気側・機械側を分けて確認する</span>と切り分けしやすくなります。',
-
             '現場で見る時は、エアシリンダ本体だけでなく、エアバルブ、空気圧、チューブ、スピードコントローラ、リードスイッチ、PLC入力・出力をセットで確認します。':
             '現場で見る時は、エアシリンダ本体だけでなく、<strong>エアバルブ、空気圧、チューブ、スピードコントローラ、リードスイッチ、PLC入力・出力をセットで確認</strong>します。'
           }
@@ -46,28 +42,7 @@ jobs:
               if old in s:
                   s = s.replace(old, new, 1)
 
-          # Related cards: keep same links/text, add established image-card structure.
-          old_related = '''          <section class="section-card" aria-labelledby="related-title">
-            <h2 id="related-title">関連記事</h2>
-            <div class="related-grid">
-              <a class="related-card" href="./air-valve-basic.html">
-                <h3>エアバルブとは？</h3>
-                <p>エアシリンダを前進・後退させる空気の流れを切り替える部品について整理します。</p>
-              </a>
-              <a class="related-card" href="./reed-switch-basic.html">
-                <h3>リードスイッチとは？</h3>
-                <p>エアシリンダの前進端・後退端を確認するセンサの基本を整理します。</p>
-              </a>
-              <a class="related-card" href="./plc-io-unit-basic.html">
-                <h3>入力と出力の違いとは？</h3>
-                <p>PLC出力でバルブを動かし、入力でシリンダ位置を確認する流れを理解しやすくします。</p>
-              </a>
-              <a class="related-card" href="./sensor-basic.html">
-                <h3>センサーとは？</h3>
-                <p>設備の状態確認に使うセンサーの基本を、現場目線で整理します。</p>
-              </a>
-            </div>'''
-          new_related = '''          <section class="section-card" aria-labelledby="related-title">
+          related = '''          <section class="section-card" aria-labelledby="related-title">
             <h2 id="related-title">あわせて読みたい記事</h2>
             <div class="related-grid">
               <a class="related-card" href="./air-valve-basic.html">
@@ -90,31 +65,36 @@ jobs:
                 <h3>センサーとは？</h3>
                 <p>設備の状態確認に使うセンサーの基本を、現場目線で整理します。</p>
               </a>
-            </div>'''
-          assert old_related in s, 'related block not found'
-          s = s.replace(old_related, new_related, 1)
+            </div>
+            <div class="article-footer-nav">'''
 
-          # Established related-card thumbnail style used elsewhere on the site.
+          pattern = re.compile(
+              r'\s*<section class="section-card" aria-labelledby="related-title">\s*'
+              r'<h2 id="related-title">.*?</h2>\s*'
+              r'<div class="related-grid">.*?</div>\s*'
+              r'<div class="article-footer-nav">',
+              re.S
+          )
+          s, n = pattern.subn('\n' + related, s, count=1)
+          assert n == 1, f'related section replacement count={n}'
+
           if '.related-card-thumb{' not in s:
               css = '''\n    .related-card-thumb{\n      width:100%;\n      overflow:hidden;\n      border-radius:14px;\n      aspect-ratio:1200 / 630;\n      margin-bottom:12px;\n      background:#eef4ff;\n      border:1px solid #d7e4f3;\n    }\n\n    .related-card-thumb img{\n      width:100%;\n      height:100%;\n      object-fit:cover;\n    }\n'''
               assert '</style>' in s
               s = s.replace('</style>', css + '</style>', 1)
 
-          # Guardrails.
           for img in [
               'air-valve-basic-ogp.png','reed-switch-basic-ogp.png',
-              'plc-io-unit-basic-ogp.png','sensor-basic-ogp.png'
+              'plc-io-unit-basic-ogp.png','sensor-basic-ogp.png',
+              'air-cylinder-basic-structure.webp','air-cylinder-basic-types.webp',
+              'air-cylinder-basic-forward.webp','air-cylinder-basic-reverse.webp',
+              'air-cylinder-basic-auto-switch.webp','air-cylinder-basic-maintenance.webp'
           ]:
-              assert img in s
+              assert img in s, img
           assert s.count('<!DOCTYPE html>') == 1
           assert 'class="page-layout"' in s
           assert 'class="side-rail"' in s
-          assert 'air-cylinder-basic-structure.webp' in s
-          assert 'air-cylinder-basic-types.webp' in s
-          assert 'air-cylinder-basic-forward.webp' in s
-          assert 'air-cylinder-basic-reverse.webp' in s
-          assert 'air-cylinder-basic-auto-switch.webp' in s
-          assert 'air-cylinder-basic-maintenance.webp' in s
+          assert s.count('class="related-card-thumb"') == 4
 
           p.write_text(s, encoding='utf-8')
           PY

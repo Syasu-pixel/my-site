@@ -1,0 +1,33 @@
+name: temp-firestorage-probe
+
+on:
+  push:
+    branches:
+      - preview-production-engineering-career
+    paths:
+      - .github/workflows/temp-firestorage-probe.yml
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect firestorage client API
+        run: |
+          python - <<'PY'
+          import requests,re
+          base='https://firestorage.ai'
+          share='https://firestorage.ai/ja/f/GSXLCJ4iva7T'
+          s=requests.Session()
+          html=s.get(share,timeout=30).text
+          chunks=re.findall(r'<script[^>]+src="([^"]+\.js)"',html)
+          print('chunks',len(chunks))
+          for path in chunks:
+            if 'app/(files)' in path or 'app/%28files%29' in path or '/ja/f/' in path or 'page-' in path:
+              u=base+path
+              print('FETCH',u)
+              js=s.get(u,timeout=30).text
+              print('JS_LEN',len(js))
+              for pat in [r'/api/[^"\'` ]+',r'fetch\([^)]{0,300}',r'axios[^;]{0,300}',r'public[_-]?id.{0,300}',r'download.{0,400}',r'share.{0,400}']:
+                ms=re.findall(pat,js,re.I)
+                for m in ms[:30]: print('MATCH',m[:700])
+          PY

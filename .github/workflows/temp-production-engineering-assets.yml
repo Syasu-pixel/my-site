@@ -1,0 +1,70 @@
+name: temp-production-engineering-assets
+
+on:
+  push:
+    branches:
+      - preview-production-engineering-career
+    paths:
+      - .github/workflows/temp-production-engineering-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-production-engineering-career
+          fetch-depth: 0
+      - name: Download adopted assets
+        env:
+          SHARE_URL: https://firestorage.ai/ja/f/GSXLCJ4iva7T
+        run: |
+          python - <<'PY'
+          import os,re,requests
+          from urllib.parse import urljoin
+          u=os.environ['SHARE_URL']
+          s=requests.Session()
+          r=s.get(u,timeout=30)
+          r.raise_for_status()
+          text=r.text
+          pats=[
+            r'href=["\']([^"\']+\.zip(?:\?[^"\']*)?)["\']',
+            r'href=["\']([^"\']*(?:download|file)[^"\']*)["\']',
+            r'"(https?://[^" ]+\.zip(?:\?[^" ]*)?)"',
+          ]
+          candidates=[]
+          for pat in pats:
+            candidates += re.findall(pat,text,re.I)
+          seen=[]
+          for c in candidates:
+            c=urljoin(u,c.replace('\\/','/'))
+            if c not in seen: seen.append(c)
+          for c in seen:
+            try:
+              q=s.get(c,timeout=60,allow_redirects=True)
+              if q.content[:2]==b'PK':
+                open('/tmp/assets.zip','wb').write(q.content)
+                print('downloaded',c,len(q.content))
+                break
+            except Exception as e:
+              print('candidate failed',c,e)
+          else:
+            print(text[:12000])
+            raise SystemExit('ZIP download URL not found')
+          PY
+      - name: Install assets
+        run: |
+          mkdir -p assets/images/production-engineering-career
+          unzip -o /tmp/assets.zip -d assets/images/production-engineering-career
+          ls -lh assets/images/production-engineering-career
+      - name: Commit assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/production-engineering-career
+          git commit -m "Add adopted production engineering article images"
+          git push origin HEAD:preview-production-engineering-career

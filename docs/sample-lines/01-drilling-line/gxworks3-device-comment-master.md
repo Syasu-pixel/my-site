@@ -179,6 +179,8 @@ M100～M167は `gxworks3-input-mapping-spec.md` を正とする。
 
 ## 8. M400帯 — 搬送
 
+### Busy
+
 | Device | Comment |
 |---|---|
 | M430 | T1_CV01→CV02_BUSY |
@@ -186,7 +188,53 @@ M100～M167は `gxworks3-input-mapping-spec.md` を正とする。
 | M432 | T3_CV03→CV04_BUSY |
 | M433 | T4_CV04→加工ST_BUSY |
 
-M440帯以降は搬送サブステップ用として、GX Works3実装時にT1→T4の順でまとまった連番を割り当てる。
+### T1 CV01→CV02
+
+| Device | Comment |
+|---|---|
+| M440 | T1_RELEASE_ST01_DOWN |
+| M441 | T1_ST01_DOWN_OK |
+| M442 | T1_CV01_CV02_RUN |
+| M443 | T1_PASS_SEEN |
+| M444 | T1_PASS_COMPLETE |
+| M445 | T1_TRANSFER_OK |
+| M446 | T1_RESTORE_ST01_UP |
+
+### T2 CV02→CV03
+
+| Device | Comment |
+|---|---|
+| M450 | T2_RELEASE_ST02_DOWN |
+| M451 | T2_ST02_DOWN_OK |
+| M452 | T2_CV02_CV03_RUN |
+| M453 | T2_PASS_SEEN |
+| M454 | T2_PASS_COMPLETE |
+| M455 | T2_TRANSFER_OK |
+| M456 | T2_RESTORE_ST02_UP |
+
+### T3 CV03→CV04
+
+| Device | Comment |
+|---|---|
+| M460 | T3_RELEASE_ST03_DOWN |
+| M461 | T3_ST03_DOWN_OK |
+| M462 | T3_CV03_CV04_RUN |
+| M463 | T3_PASS_SEEN |
+| M464 | T3_PASS_COMPLETE |
+| M465 | T3_TRANSFER_OK |
+| M466 | T3_RESTORE_ST03_UP |
+
+### T4 CV04→加工ST
+
+| Device | Comment |
+|---|---|
+| M470 | T4_RELEASE_ST04_DOWN |
+| M471 | T4_ST04_DOWN_OK |
+| M472 | T4_CV04_ST_RUN |
+| M473 | T4_PASS_SEEN |
+| M474 | T4_PASS_COMPLETE |
+| M475 | T4_TRANSFER_OK |
+| M476 | T4_RESTORE_ST04_UP |
 
 ## 9. M500帯 — 加工ステップ
 
@@ -275,16 +323,74 @@ M440帯以降は搬送サブステップ用として、GX Works3実装時にT1�
 - M892 異常表示要求
 - M893 ブザー出力要求
 
-## 12. M900帯 — GOT
+## 12. M900 / M940 / M980帯 — GOT
 
-用途帯：
+### M900～M913 手動操作要求
 
-- M900～M919：GOT手動操作要求
-- M920～M939：GOT表示状態
-- M940～M959：操作不可理由
-- M960～M979：アラーム確認 / 履歴補助
+| Device | Comment |
+|---|---|
+| M900 | GOT_CV01_RUN_REQ |
+| M901 | GOT_CV02_RUN_REQ |
+| M902 | GOT_CV03_RUN_REQ |
+| M903 | GOT_CV04_RUN_REQ |
+| M904 | GOT_ST01_UP_REQ |
+| M905 | GOT_ST01_DOWN_REQ |
+| M906 | GOT_ST02_UP_REQ |
+| M907 | GOT_ST02_DOWN_REQ |
+| M908 | GOT_ST03_UP_REQ |
+| M909 | GOT_ST03_DOWN_REQ |
+| M910 | GOT_ST04_UP_REQ |
+| M911 | GOT_ST04_DOWN_REQ |
+| M912 | GOT_ST05_UP_REQ |
+| M913 | GOT_ST05_DOWN_REQ |
 
-詳細割付はGOT画面仕様確定時に追加する。
+### M920～M939 表示状態
+
+GOT表示補助用。正式割付は画面仕様確定時に追加する。
+
+### M940～M959 操作不可理由
+
+| Device | Comment |
+|---|---|
+| M940 | BLOCK_手動モードでない |
+| M941 | BLOCK_安全監視未成立 |
+| M942 | BLOCK_異常中 |
+| M943 | BLOCK_相反要求あり |
+| M944 | BLOCK_隣接搬送動作中 |
+| M945 | BLOCK_搬送先在荷あり |
+| M946 | BLOCK_加工ST受入不可 |
+| M947 | BLOCK_CY01位置不成立 |
+| M948 | BLOCK_CY02位置不成立 |
+| M949 | BLOCK_CY03位置不成立 |
+| M950 | BLOCK_CY04位置不成立 |
+| M951 | BLOCK_CY05位置不成立 |
+| M952 | BLOCK_ワーク位置不成立 |
+| M953 | BLOCK_主軸異常 |
+| M954 | BLOCK_搬出満杯 |
+| M955 | BLOCK_工程干渉 |
+| M956～M959 | SPARE |
+
+### M960～M979 アラーム確認 / 履歴補助
+
+正式割付はGOTアラーム画面仕様確定時に追加する。
+
+### M980～M990 加工軸手動操作要求
+
+| Device | Comment |
+|---|---|
+| M980 | GOT_CY01_HOME_REQ |
+| M981 | GOT_CY01_PROCESS_REQ |
+| M982 | GOT_CY02_BACK_REQ |
+| M983 | GOT_CY02_FWD_REQ |
+| M984 | GOT_CY03_RELEASE_REQ |
+| M985 | GOT_CY03_POSITION_REQ |
+| M986 | GOT_CY04_RELEASE_REQ |
+| M987 | GOT_CY04_CLAMP_REQ |
+| M988 | GOT_CY05_UP_REQ |
+| M989 | GOT_CY05_DOWN_REQ |
+| M990 | GOT_SPINDLE_RUN_REQ |
+
+GOTからYへ直接書き込まない。GOT要求はMANUAL sectionで条件確認後、M830～M854へ変換する。
 
 ## 13. Dデバイス
 
@@ -317,4 +423,4 @@ M440帯以降は搬送サブステップ用として、GX Works3実装時にT1�
 5. 各GX Works3仕様ファイル
 6. GOTタグ / 表示
 
-特にM500～M517、M700帯、M800帯は記事・GOT・ラダーで共通参照するため、番号を途中で変更しない基準とする。
+特にM440～M476、M500～M517、M700帯、M800帯、M900/M940/M980帯は記事・GOT・ラダーで共通参照するため、番号を途中で変更しない基準とする。

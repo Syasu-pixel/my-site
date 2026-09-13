@@ -1,0 +1,42 @@
+name: Temp swap equipment talk colors
+
+on:
+  push:
+    branches:
+      - preview-equipment-maintenance-career-v2
+    paths:
+      - .github/workflows/temp-swap-equipment-talk-colors.yml
+
+permissions:
+  contents: write
+
+jobs:
+  swap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-equipment-maintenance-career-v2
+          fetch-depth: 1
+      - name: Swap senior and junior bubble colors
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/equipment-maintenance-career.html')
+          s=p.read_text(encoding='utf-8')
+          old='.talk-bubble{max-width:720px;padding:14px 16px;border-radius:18px;border:1px solid #a9cee9;background:#e3f2ff;color:#263b50}.talk-row--right .talk-bubble{border-color:#e7b9c8;background:#ffe9ef;color:#50323f}'
+          new='.talk-bubble{max-width:720px;padding:14px 16px;border-radius:18px;border:1px solid #e7b9c8;background:#ffe9ef;color:#50323f}.talk-row--right .talk-bubble{border-color:#a9cee9;background:#e3f2ff;color:#263b50}'
+          if old not in s:
+              raise SystemExit('expected talk bubble CSS not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Commit preview-only color fix and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          rm .github/workflows/temp-swap-equipment-talk-colors.yml
+          git add articles/equipment-maintenance-career.html .github/workflows/temp-swap-equipment-talk-colors.yml
+          git commit -m "Preview: swap equipment article talk bubble colors"
+          git push origin HEAD:preview-equipment-maintenance-career-v2

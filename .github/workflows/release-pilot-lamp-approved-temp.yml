@@ -1,0 +1,37 @@
+name: Release approved pilot lamp article
+
+on:
+  push:
+    branches:
+      - release-pilot-lamp-approved
+
+permissions:
+  contents: write
+
+jobs:
+  apply-approved-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Copy exact approved files from preview branch
+        run: |
+          git fetch origin preview-pilot-lamp-refresh
+          mkdir -p articles assets/images/pilot-lamp-basic
+          git show origin/preview-pilot-lamp-refresh:articles/pilot-lamp-basic.html > articles/pilot-lamp-basic.html
+          git show origin/preview-pilot-lamp-refresh:assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp > assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp
+          git show origin/preview-pilot-lamp-refresh:assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp > assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp
+
+      - name: Remove temporary workflow and commit approved release
+        run: |
+          rm -f .github/workflows/release-pilot-lamp-approved-temp.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/pilot-lamp-basic.html assets/images/pilot-lamp-basic/pilot-lamp-basic-hero.webp assets/images/pilot-lamp-basic/pilot-lamp-basic-ogp.webp .github/workflows/release-pilot-lamp-approved-temp.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Publish approved pilot lamp article"
+          git push origin HEAD:release-pilot-lamp-approved

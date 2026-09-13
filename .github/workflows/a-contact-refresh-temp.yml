@@ -1,0 +1,74 @@
+name: Refresh a-contact b-contact article preview
+
+on:
+  push:
+    branches:
+      - preview-a-contact-b-contact-refresh
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-a-contact-b-contact-refresh
+          fetch-depth: 0
+      - name: Apply approved-scope article improvements
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('articles/a-contact-b-contact-basic.html')
+          s = path.read_text(encoding='utf-8')
+
+          def rep(old, new, count=1):
+              global s
+              if old not in s:
+                  raise SystemExit(f'pattern not found: {old[:120]!r}')
+              s = s.replace(old, new, count)
+
+          rep('''    .mark{\n      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);\n      font-weight:900;\n    }''', '''    .mark{\n      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);\n      font-weight:900;\n    }\n\n    .term{\n      font-weight:900;\n      color:#1d4ed8;\n    }\n\n    .marker-blue{\n      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);\n      font-weight:900;\n    }''')
+
+          rep('''    .related-card p{\n      margin:0;\n      font-size:13px;\n      color:var(--muted);\n      line-height:1.75;\n    }''', '''    .related-card p{\n      margin:0;\n      font-size:13px;\n      color:var(--muted);\n      line-height:1.75;\n    }\n\n    .related-card-thumb{\n      width:100%;\n      aspect-ratio:16 / 9;\n      object-fit:cover;\n      border-radius:14px;\n      margin:0 0 12px;\n      border:1px solid #dbe7f3;\n      background:#fff;\n    }''')
+
+          s = s.replace('class="mark"', 'class="marker-blue"')
+
+          rep('''          <a href="#field-view">現場での見方</a>\n          <a href="#plc-view">PLC入力での見方</a>''', '''          <a href="#field-view">現場での見方</a>\n          <a href="#ladder-view">回路図・ラダー図</a>\n          <a href="#plc-view">PLC入力での見方</a>''')
+
+          rep('''            <p>\n              a接点・b接点と一緒によく出てくるのが、NO / NC です。NOはNormally Open、NCはNormally Closedの略です。\n            </p>''', '''            <p>\n              <span class="term">a接点</span>・<span class="term">b接点</span>と一緒によく出てくるのが、NO / NC です。NOはNormally Open、NCはNormally Closedの略です。一般的なリレーやスイッチでは、a接点はメーク接点（NO）、b接点はブレーク接点（NC）として整理できます。\n            </p>''')
+
+          rep('''            <p>\n              大まかには、a接点はNO、b接点はNCと考えて問題ありません。ただし、図面や機器によって表記が違うことがあるため、最終的には接点記号や端子表記も確認します。\n            </p>''', '''            <p>\n              一般的な接点表記では、<span class="marker-blue">a接点 = NO、b接点 = NC</span> と整理できます。ただし、端子番号や記号の付け方は機器ごとに異なるため、最終的には回路図・端子表記・メーカー仕様書を確認します。a接点とb接点を1組にした切替接点は、c接点（トランスファ接点）と呼ばれます。\n            </p>''')
+
+          ladder_section = '''\n          <section class="section-card" id="ladder-view">\n            <h2>回路図・ラダー図でa接点・b接点を見る</h2>\n            <p>\n              現物の接点とPLCラダー上の接点は、同じ「a接点・b接点」という言葉でも見方が少し違います。<span class="marker-blue">現物では通常時の開閉、ラダーではデバイスのON/OFFに対して条件が成立するか</span>を見ます。\n            </p>\n\n            <div class="table-wrap">\n              <table>\n                <thead>\n                  <tr>\n                    <th>見る場所</th>\n                    <th>a接点</th>\n                    <th>b接点</th>\n                  </tr>\n                </thead>\n                <tbody>\n                  <tr>\n                    <td class="cell-blue">押しボタン・リレーなどの現物</td>\n                    <td>通常時は開、動作すると閉</td>\n                    <td>通常時は閉、動作すると開</td>\n                  </tr>\n                  <tr>\n                    <td class="cell-green">PLCラダーの条件</td>\n                    <td>対象デバイスがONのとき条件成立</td>\n                    <td>対象デバイスがOFFのとき条件成立</td>\n                  </tr>\n                </tbody>\n              </table>\n            </div>\n\n            <div class="note-box">\n              <h3>外部がb接点でも、ラダーで必ずb接点を使うわけではない</h3>\n              <p>\n                たとえば外部機器がNC（b接点）でも、PLC入力Xが通常ONになる配線なら、ラダー上では「XがONのとき成立させたい」のか「XがOFFのとき成立させたい」のかでa接点命令・b接点命令を選びます。現物の接点種別とラダー上の条件を1対1で決めつけないことが大切です。\n              </p>\n            </div>\n          </section>\n\n'''
+          rep('''          <section class="section-card" id="plc-view">''', ladder_section + '''          <section class="section-card" id="plc-view">''')
+
+          rep('''              PLC入力を見る時は、<strong>接点の名前だけで判断せず</strong>、<span class="marker-blue">普段の状態、操作した時の変化</span>、ラダーや回路の意味をセットで確認します。''', '''              PLC入力を見る時は、<strong>接点の名前だけで判断せず</strong>、<span class="marker-blue">普段の入力状態、操作した時の変化、ラダー上で成立させたい条件</span>をセットで確認します。''')
+
+          rep('''                GX Works3などで入力モニタを見ると、X0がONかOFFかは分かります。ただし、そのON/OFFがa接点なのかb接点なのかは、現物の接点種別と配線を見ないと判断できません。''', '''                GX Works3などで入力モニタを見ると、X0がONかOFFかは分かります。ただし、入力モニタのON/OFFだけでは外部機器がa接点かb接点かは判断できません。現物の接点、配線、入力デバイスの状態を合わせて確認します。''')
+
+          rep('''      .talk-row,\n      .talk-row--right{\n        flex-direction:column;\n        gap:8px;\n      }''', '''      .talk-row{\n        flex-direction:row;\n        gap:8px;\n      }\n\n      .talk-row--right{\n        flex-direction:row-reverse;\n        gap:8px;\n      }''')
+
+          rep('''              <a class="related-card" href="./no-nc-basic.html">\n                <h3>NO / NC の違いとは？</h3>''', '''              <a class="related-card" href="./no-nc-basic.html">\n                <img class="related-card-thumb" src="../assets/images/no-nc-basic/no-nc-basic-ogp.png" alt="NOとNCの違いを解説する記事の画像" loading="lazy">\n                <h3>NO / NC の違いとは？</h3>''')
+          rep('''              <a class="related-card" href="./relay-basic.html">\n                <h3>リレーとは？</h3>''', '''              <a class="related-card" href="./relay-basic.html">\n                <img class="related-card-thumb" src="../assets/images/relay-basic/relay-overview.png" alt="リレーの基本を解説する記事の画像" loading="lazy">\n                <h3>リレーとは？</h3>''')
+          rep('''              <a class="related-card" href="./plc-io-unit-basic.html">\n                <h3>入力と出力の違いとは？</h3>''', '''              <a class="related-card" href="./plc-io-unit-basic.html">\n                <img class="related-card-thumb" src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png" alt="PLC入出力ユニットを解説する記事の画像" loading="lazy">\n                <h3>入力と出力の違いとは？</h3>''')
+          rep('''              <a class="related-card" href="./push-button-switch-basic.html">\n                <h3>押しボタンスイッチとは？</h3>''', '''              <a class="related-card" href="./push-button-switch-basic.html">\n                <img class="related-card-thumb" src="../assets/images/push-button-switch-basic/push-button-switch-overview.png" alt="押しボタンスイッチの基本を解説する記事の画像" loading="lazy">\n                <h3>押しボタンスイッチとは？</h3>''')
+          rep('''              <a class="related-card" href="./ladder-and-or-basic.html">\n                <h3>ラダーのAND・OR回路とは？</h3>''', '''              <a class="related-card" href="./ladder-and-or-basic.html">\n                <img class="related-card-thumb" src="../assets/images/ladder-and-or-basic/ladder-and-or-basic-ogp.png" alt="ラダーのAND・OR回路を解説する記事の画像" loading="lazy">\n                <h3>ラダーのAND・OR回路とは？</h3>''')
+
+          rep('''              <li><a href="#field-view">現場での見方</a></li>\n              <li><a href="#plc-view">PLC入力での見方</a></li>''', '''              <li><a href="#field-view">現場での見方</a></li>\n              <li><a href="#ladder-view">回路図・ラダー図</a></li>\n              <li><a href="#plc-view">PLC入力での見方</a></li>''')
+
+          path.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit preview changes and remove temporary workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/a-contact-refresh-temp.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/a-contact-b-contact-basic.html .github/workflows/a-contact-refresh-temp.yml
+          git commit -m "Improve a-contact b-contact article for preview"
+          git push origin HEAD:preview-a-contact-b-contact-refresh

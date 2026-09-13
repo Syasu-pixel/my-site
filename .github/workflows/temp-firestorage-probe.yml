@@ -1,4 +1,4 @@
-name: temp-firestorage-probe
+name: temp-production-engineering-asset-transfer
 
 on:
   push:
@@ -7,26 +7,50 @@ on:
     paths:
       - .github/workflows/temp-firestorage-probe.yml
 
+permissions:
+  contents: write
+
 jobs:
-  probe:
+  transfer:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe firestorage download endpoints
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-production-engineering-career
+          fetch-depth: 0
+      - name: Download adopted image bundle
         run: |
           python - <<'PY'
-          import requests
-          base='https://api.firestorage.ai/dev/file/shares/GSXLCJ4iva7T/files/01a09a50a19a744d862450390824251f'
-          suffixes=['','/download','/download-url','/url','/cushion','/prepare-download','/presign']
-          for s in suffixes:
-            u=base+s
-            for method in ('GET','POST'):
-              try:
-                r=requests.request(method,u,timeout=20,allow_redirects=False,stream=True)
-                print('\n',method,u,'STATUS',r.status_code,'TYPE',r.headers.get('content-type'),'LOC',r.headers.get('location'))
-                if r.status_code not in (301,302,303,307,308) and 'application/octet-stream' not in (r.headers.get('content-type') or '') and 'application/zip' not in (r.headers.get('content-type') or ''):
-                  try: print('BODY',r.text[:1500])
-                  except: pass
-                r.close()
-              except Exception as e:
-                print('ERR',method,u,e)
+          import requests, pathlib, zipfile
+          api='https://api.firestorage.ai/dev/file/shares/GSXLCJ4iva7T/files/01a09a50a19a744d862450390824251f/download'
+          r=requests.post(api,timeout=30)
+          r.raise_for_status()
+          url=r.json()['downloadUrl']
+          q=requests.get(url,timeout=120)
+          q.raise_for_status()
+          p=pathlib.Path('/tmp/production-engineering-assets.zip')
+          p.write_bytes(q.content)
+          with zipfile.ZipFile(p) as z:
+            names=set(z.namelist())
+            expected={
+              'production-engineering-career-hero.webp',
+              'production-engineering-career-ogp.webp',
+              'production-engineering-career-overview.webp',
+              'production-engineering-career-skills.webp',
+              'production-engineering-career-career.webp',
+            }
+            if names != expected:
+              raise SystemExit(f'unexpected archive contents: {sorted(names)}')
+            out=pathlib.Path('assets/images/production-engineering-career')
+            out.mkdir(parents=True,exist_ok=True)
+            z.extractall(out)
+          print('downloaded',len(q.content),'bytes')
           PY
+      - name: Commit adopted assets and remove temporary workflow
+        run: |
+          rm -f .github/workflows/temp-firestorage-probe.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/production-engineering-career .github/workflows/temp-firestorage-probe.yml
+          git commit -m "Add adopted production engineering article images"
+          git push origin HEAD:preview-production-engineering-career

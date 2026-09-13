@@ -1,0 +1,24 @@
+name: Rebuild production engineering from PLC template
+on:
+  push:
+    branches: [preview-production-engineering-career]
+permissions:
+  contents: write
+jobs:
+  rebuild:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-production-engineering-career
+      - name: Rebuild article from PLC template
+        run: python scripts/rebuild_production_engineering_from_plc.py
+      - name: Commit article and remove temporary builder
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f scripts/rebuild_production_engineering_from_plc.py .github/workflows/rebuild-production-engineering-from-plc.yml
+          git add articles/production-engineering-career.html scripts/rebuild_production_engineering_from_plc.py .github/workflows/rebuild-production-engineering-from-plc.yml
+          git commit -m "Rebuild production engineering article from PLC career template"
+          git push origin HEAD:preview-production-engineering-career

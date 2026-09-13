@@ -47,13 +47,13 @@ if n != 1:
     raise RuntimeError('hero replace failed')
 
 # Summary contains nested <section> tags, so replace by the stable layout marker instead of regex nesting.
-cur_summary_block, _, _ = between(cur, '<section class="top-summary"', '    <div class="layout">')
+cur_summary_block, _, _ = between(cur, '<section class="top-summary"', '<div class="layout">')
 inner_start = cur_summary_block.find('>') + 1
 inner_end = cur_summary_block.rfind('</section>')
 if inner_start <= 0 or inner_end < 0:
     raise RuntimeError('missing production summary inner content')
-summary = '<section class="top-summary" aria-label="この記事の要点">' + cur_summary_block[inner_start:inner_end] + '</section>\n\n'
-tpl_summary_block, a, b = between(s, '<section class="top-summary"', '    <div class="layout">')
+summary = '<section class="top-summary" aria-label="この記事の要点">' + cur_summary_block[inner_start:inner_end] + '</section>\n\n    '
+tpl_summary_block, a, b = between(s, '<section class="top-summary"', '<div class="layout">')
 s = s[:a] + summary + s[b:]
 
 for sid in ['overview','work','skills','beginner','career','job-check','service','summary']:

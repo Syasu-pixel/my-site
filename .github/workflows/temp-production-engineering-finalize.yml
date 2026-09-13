@@ -1,0 +1,58 @@
+name: temp-production-engineering-finalize
+
+on:
+  push:
+    branches:
+      - preview-production-engineering-career
+    paths:
+      - .github/workflows/temp-production-engineering-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-production-engineering-career
+          fetch-depth: 0
+      - name: Align article text with adopted figures
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('articles/production-engineering-career.html')
+          s=p.read_text(encoding='utf-8')
+
+          def one(old,new,label):
+            global s
+            c=s.count(old)
+            if c!=1:
+              raise SystemExit(f'{label}: expected 1 match, got {c}')
+            s=s.replace(old,new)
+
+          one('<meta property="og:image:height" content="630">','<meta property="og:image:height" content="675">','og height')
+          one('alt="工程設計、設備・治具導入、量産立上げ、改善までの生産技術の仕事の全体像" width="1200" height="900"','alt="企画・検討から設計・構想、製作・立ち上げ、生産・改善、運用・保守までの生産技術の仕事の全体像" width="1200" height="800"','overview image')
+          one('製品設計と製造現場の間に入り、工程・設備・品質・生産性をつないで量産できる仕組みにします。','企画・検討から運用・保守まで、生産技術は工程・設備・品質・生産性をつなぎ、安定して作り続けられる仕組みを支えます。','overview caption')
+
+          skills='''<section class="article-card" id="skills"><h2>必要なスキルは3つの軸で考えると分かりやすい</h2><p>生産技術では、<span class="marker-blue">技術の土台・改善に使う力・現場で進める力</span>を組み合わせて仕事を進めます。すべてを最初から同じ深さで身につける必要はなく、会社・業種・担当設備によって求められる比重は変わります。</p><figure class="article-figure"><img src="../assets/images/production-engineering-career/production-engineering-career-skills.webp" alt="工程設計、設備・機械知識、電気・制御、CAD・図面、データ分析、改善力、コミュニケーション、安全・品質という生産技術に役立つスキル" width="1200" height="900" loading="lazy"><figcaption>技術知識だけでなく、課題を見つけて改善し、関係者と連携して現場で形にする力まで幅広く役立ちます。</figcaption></figure><div class="skill-grid"><div class="skill"><h3>1. 工程設計</h3><p>製品仕様から作業順序・レイアウト・生産能力を考え、<strong>安定して作れる工程</strong>へ落とし込みます。</p></div><div class="skill"><h3>2. 設備・機械知識</h3><p>機械構造や設備仕様、治具、保全性などを理解し、設備選定や改善に活かします。</p></div><div class="skill"><h3>3. 電気・制御</h3><p>PLC、センサ、アクチュエータ、電気回路、安全回路など。自動化設備を理解する土台です。</p></div><div class="skill"><h3>4. CAD・図面</h3><p>設備・治具の構想や図面の作成・読解に使い、関係者との仕様共有にも役立てます。</p></div><div class="skill"><h3>5. データ分析</h3><p>生産データ、停止時間、不良率などを可視化し、<strong>課題と優先順位</strong>を見つけます。</p></div><div class="skill"><h3>6. 改善力</h3><p>原因を整理して対策を考え、品質・生産性・コスト・保守性の改善につなげます。</p></div><div class="skill"><h3>7. 現場対応・コミュニケーション</h3><p>製造、設計、品質、保全、メーカーなどと連携し、条件や日程を調整して形にします。</p></div><div class="skill"><h3>8. 安全・品質</h3><p>安全な設備・作業環境と、安定した品質を守る視点を工程や設備の設計に組み込みます。</p></div></div><div class="figure-note">会社・業種・担当する設備によって、求められるスキルの比重は異なります。まず基本を押さえ、自分の現場で必要な分野から重点的に伸ばすのが現実的です。</div><h3>当サイトで先に押さえたい記事</h3><div class="internal-grid"><a class="internal-link" href="plc-basic.html"><strong>PLCとは？</strong><span>自動化設備の制御の中心をつかむ</span></a><a class="internal-link" href="plc-io-unit-basic.html"><strong>PLC入出力ユニットの基礎</strong><span>設備とPLCの信号のつながり</span></a><a class="internal-link" href="inverter-basic.html"><strong>インバータの基礎</strong><span>モータ速度制御を理解する</span></a><a class="internal-link" href="safety-control-basic.html"><strong>安全制御の全体像</strong><span>設備導入で欠かせない安全を理解する</span></a></div></section>'''
+          pat=r'<section class="article-card" id="skills">.*?</section>\n        <section class="article-card" id="beginner">'
+          s,n=re.subn(pat,skills+'\n        <section class="article-card" id="beginner">',s,count=1,flags=re.S)
+          if n!=1: raise SystemExit(f'skills section: expected 1 match, got {n}')
+
+          one('同じ生産技術経験でも、<span class="marker-blue">担当できる範囲によって仕事の幅は変わります。</span> 工程改善だけでなく、設備仕様、自動化、PLC・ロボット、量産立上げ、投資計画まで経験すると、設備設計、制御設計、工場技術、プロジェクト管理など複数の方向へつながりやすくなります。','同じ生産技術経験でも、<span class="marker-blue">担当できる範囲や得意分野によってキャリアの広がり方は変わります。</span> 現場経験を土台に、工程改善・ライン改善、設備導入・立ち上げ、自動化・FA、品質・生産管理との連携、プロジェクトリーダー、管理職、専門職など複数の方向へ進めます。','career intro')
+          one('alt="現場改善から設備導入、生産技術、プロジェクトリーダー、専門職や管理職へ広がるキャリア例"','alt="生産技術の現場経験から工程改善、設備導入、自動化・FA、品質・生産管理、プロジェクトリーダー、管理職、スペシャリストへ広がるキャリア例"','career alt')
+          one('キャリアの広がり方の一例。担当工程や会社の役割分担によって進み方は変わります。','現場経験を起点に、改善・設備導入・自動化・連携・リーダー・管理職・専門職へ広がる代表的なキャリア例です。','career caption')
+
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit final article adjustments and remove temporary workflow
+        run: |
+          rm -f .github/workflows/temp-production-engineering-finalize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/production-engineering-career.html .github/workflows/temp-production-engineering-finalize.yml
+          git commit -m "Align production engineering article with adopted visuals"
+          git push origin HEAD:preview-production-engineering-career

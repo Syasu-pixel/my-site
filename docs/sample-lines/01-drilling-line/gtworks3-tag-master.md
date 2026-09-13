@@ -20,6 +20,7 @@ GT Works3で使用する主要タグ名とPLCデバイスを一対一で管理�
 - `CNT_`：生産数
 - `TIM_`：時間/タクト
 - `SET_`：設定値
+- `MNT_`：保守統計
 
 タグ名は意味を表す英字、画面上表示は日本語を基本とする。
 
@@ -182,7 +183,58 @@ GT Works3で使用する主要タグ名とPLCデバイスを一対一で管理�
 | TIM_MaxCycle | D212 | 最大サイクル |
 | TIM_MinCycle | D213 | 最小サイクル |
 
-## 11. 実出力表示タグ
+## 11. 保守統計タグ
+
+| GT Tag | PLC | 意味 |
+|---|---|---|
+| MNT_CV01_RunTime | D300 | CV01累積運転時間 |
+| MNT_CV02_RunTime | D301 | CV02累積運転時間 |
+| MNT_CV03_RunTime | D302 | CV03累積運転時間 |
+| MNT_CV04_RunTime | D303 | CV04累積運転時間 |
+| MNT_Spindle_RunTime | D304 | 主軸累積運転時間 |
+| MNT_Auto_RunTime | D305 | 自動運転累積時間 |
+| MNT_ST01_Count | D310 | ST01動作回数 |
+| MNT_ST02_Count | D311 | ST02動作回数 |
+| MNT_ST03_Count | D312 | ST03動作回数 |
+| MNT_ST04_Count | D313 | ST04動作回数 |
+| MNT_ST05_Count | D314 | ST05動作回数 |
+| MNT_CY01_Count | D315 | CY01動作回数 |
+| MNT_CY02_Count | D316 | CY02動作回数 |
+| MNT_CY03_Count | D317 | CY03動作回数 |
+| MNT_CY04_Count | D318 | CY04動作回数 |
+| MNT_CY05_Count | D319 | CY05動作回数 |
+| MNT_T1_TimeoutCount | D330 | A101回数 |
+| MNT_T2_TimeoutCount | D331 | A102回数 |
+| MNT_T3_TimeoutCount | D332 | A103回数 |
+| MNT_T4_TimeoutCount | D333 | A104回数 |
+| MNT_ST01_AlarmCount | D334 | A111回数 |
+| MNT_ST02_AlarmCount | D335 | A112回数 |
+| MNT_ST03_AlarmCount | D336 | A113回数 |
+| MNT_ST04_AlarmCount | D337 | A114回数 |
+| MNT_ST05_AlarmCount | D338 | A115回数 |
+| MNT_CY01_AlarmCount | D339 | A201回数 |
+| MNT_CY02_AlarmCount | D340 | A202回数 |
+| MNT_CY03_AlarmCount | D341 | A203回数 |
+| MNT_CY04_AlarmCount | D342 | A204回数 |
+| MNT_CY05_DownAlarmCount | D343 | A205回数 |
+| MNT_CY05_UpAlarmCount | D344 | A206回数 |
+| MNT_ProcessPositionAlarmCount | D345 | A210回数 |
+| MNT_AirPressureAlarmCount | D346 | A301回数 |
+| MNT_INV01_AlarmCount | D347 | A401回数 |
+| MNT_INV02_AlarmCount | D348 | A402回数 |
+| MNT_INV03_AlarmCount | D349 | A403回数 |
+| MNT_INV04_AlarmCount | D350 | A404回数 |
+| MNT_SpindleAlarmCount | D351 | A410回数 |
+| MNT_TotalAlarmCount | D360 | 総異常発生回数 |
+| MNT_TotalWarningCount | D361 | 総警告発生回数 |
+| MNT_ResetAcceptedCount | D362 | 有効RESET回数 |
+| MNT_RecoveryRequiredCount | D363 | 復旧要求発生回数 |
+| MNT_DischargeFullCount | D364 | 搬出満杯発生回数 |
+| MNT_TaktOverCount | D365 | タクト超過発生回数 |
+
+D306～D309、D320～D329、D352～D359、D366～D399は用途確定までタグを作らない。
+
+## 12. 実出力表示タグ
 
 GOTでは監視のみ。
 
@@ -202,11 +254,11 @@ GOTでは監視のみ。
 - `OUT_CY05_*` → Y26/Y27
 - `OUT_SpindleRun` → Y30
 
-## 12. タグ運用ルール
+## 13. タグ運用ルール
 
 - GTタグ名とPLCコメントの意味を一致させる。
 - GOTからYを直接書き込まない。
 - CMDタグはPLC側MANUAL処理を必ず経由する。
-- FB/STS/OUTタグは原則読み取り表示。
+- FB/STS/OUT/MNTタグは原則読み取り表示。
 - SPAREデバイスは用途確定までタグを作らない。
-- デバイス変更時は `gxworks3-device-comment-master.md` と本ファイルを同時更新する。
+- デバイス変更時は `gxworks3-device-comment-master.md`、`gxworks3-maintenance-device-map.md` と本ファイルを同時更新する。

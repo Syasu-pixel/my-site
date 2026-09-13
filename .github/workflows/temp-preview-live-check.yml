@@ -1,0 +1,42 @@
+name: temp-preview-live-check
+
+on:
+  push:
+    branches:
+      - preview-production-engineering-career
+    paths:
+      - .github/workflows/temp-preview-live-check.yml
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe likely Cloudflare Preview URLs
+        run: |
+          python - <<'PY'
+          import requests
+          urls=[
+            'https://preview-production-engineering-career.denkicontrol-preview.pages.dev/articles/production-engineering-career.html',
+            'https://preview-production-career.denkicontrol-preview.pages.dev/articles/production-engineering-career.html',
+          ]
+          for u in urls:
+            try:
+              r=requests.get(u,timeout=20)
+              t=r.text[:2000]
+              print('URL',u,'STATUS',r.status_code,'LEN',len(r.content),'TITLE_MATCH',('生産技術' in t),'PLACEHOLDER',('まだ何もここにはない' in t or 'Nothing is here yet' in t))
+            except Exception as e: print('ERR',u,e)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-production-engineering-career
+      - name: Remove temporary check
+        run: |
+          rm -f .github/workflows/temp-preview-live-check.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/temp-preview-live-check.yml
+          git commit -m "Remove temporary preview live check"
+          git push origin HEAD:preview-production-engineering-career

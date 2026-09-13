@@ -11,12 +11,22 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage share API
+      - name: Probe firestorage download endpoints
         run: |
           python - <<'PY'
-          import requests,json
-          u='https://api.firestorage.ai/dev/file/shares/GSXLCJ4iva7T/files?maxResults=1000'
-          r=requests.get(u,timeout=30)
-          print('STATUS',r.status_code)
-          print(r.text[:20000])
+          import requests
+          base='https://api.firestorage.ai/dev/file/shares/GSXLCJ4iva7T/files/01a09a50a19a744d862450390824251f'
+          suffixes=['','/download','/download-url','/url','/cushion','/prepare-download','/presign']
+          for s in suffixes:
+            u=base+s
+            for method in ('GET','POST'):
+              try:
+                r=requests.request(method,u,timeout=20,allow_redirects=False,stream=True)
+                print('\n',method,u,'STATUS',r.status_code,'TYPE',r.headers.get('content-type'),'LOC',r.headers.get('location'))
+                if r.status_code not in (301,302,303,307,308) and 'application/octet-stream' not in (r.headers.get('content-type') or '') and 'application/zip' not in (r.headers.get('content-type') or ''):
+                  try: print('BODY',r.text[:1500])
+                  except: pass
+                r.close()
+              except Exception as e:
+                print('ERR',method,u,e)
           PY

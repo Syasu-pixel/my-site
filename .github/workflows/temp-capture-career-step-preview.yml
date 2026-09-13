@@ -1,0 +1,49 @@
+name: Temp capture career step preview
+
+on:
+  push:
+    branches:
+      - preview-career-freeze-audit-v2
+    paths:
+      - '.github/workflows/temp-capture-career-step-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright >/dev/null 2>&1
+          npx playwright install chromium >/dev/null 2>&1
+      - name: Start local server
+        run: |
+          python3 -m http.server 8000 >/tmp/career-preview.log 2>&1 &
+          sleep 2
+      - name: Capture mobile STEP section
+        run: |
+          cat > /tmp/capture.js <<'JS'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser = await chromium.launch({headless:true});
+            const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:8000/categories/career.html', { waitUntil: 'networkidle' });
+            const target = page.locator('.step').nth(1);
+            await target.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(300);
+            await target.screenshot({ path: 'career-step2-mobile.png' });
+            await browser.close();
+          })();
+          JS
+          node /tmp/capture.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: career-step2-mobile-preview
+          path: career-step2-mobile.png

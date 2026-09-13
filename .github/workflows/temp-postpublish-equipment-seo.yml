@@ -1,0 +1,101 @@
+name: Temp post-publish equipment SEO wiring
+
+on:
+  push:
+    branches:
+      - postpublish-equipment-maintenance-seo-wiring
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: postpublish-equipment-maintenance-seo-wiring
+          fetch-depth: 0
+
+      - name: Update category, search index and sitemap
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          # 1) Career category: turn the published equipment-maintenance item into a live link.
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<span>設備保全の記事は準備中</span>'
+          new = '<a href="../articles/equipment-maintenance-career.html">設備保全とは？</a>'
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif 'equipment-maintenance-career.html' not in s:
+              raise SystemExit('career.html target not found')
+          p.write_text(s, encoding='utf-8')
+
+          # 2) Site search index: ensure the career category and the two published pillar articles are searchable.
+          ip = Path('assets/data/search-index.json')
+          data = json.loads(ip.read_text(encoding='utf-8'))
+          existing = {item.get('url') for item in data}
+          additions = [
+              {
+                  'title': '電気・FAエンジニアのキャリア・転職',
+                  'url': '/categories/career.html',
+                  'category': 'キャリア・転職',
+                  'description': 'PLC・制御設計、設備保全、生産技術など、電気・FA分野の仕事・必要スキル・キャリア・転職を技術者目線で整理するカテゴリページです。',
+                  'keywords': ['キャリア','転職','電気','FA','PLC','制御設計','設備保全','生産技術','仕事','スキル'],
+                  'synonyms': ['キャリア転職','FAエンジニア','電気エンジニア','career']
+              },
+              {
+                  'title': 'PLC・制御設計エンジニアとは？仕事内容・必要スキル・キャリアを解説',
+                  'url': '/articles/plc-control-engineer-career.html',
+                  'category': 'キャリア・転職',
+                  'description': 'PLC・制御設計エンジニアの仕事内容、必要な電気知識・PLCスキル、向いている人、キャリアの広げ方、転職時に確認したいポイントを現場目線で整理します。',
+                  'keywords': ['PLC','制御設計','制御設計エンジニア','PLCエンジニア','仕事内容','必要スキル','キャリア','転職','FA'],
+                  'synonyms': ['PLC技術者','シーケンス制御','制御エンジニア','plc control engineer']
+              },
+              {
+                  'title': '設備保全とは？仕事内容・必要スキル・キャリアを現場目線で解説',
+                  'url': '/articles/equipment-maintenance-career.html',
+                  'category': 'キャリア・転職',
+                  'description': '設備保全の仕事内容、日常点検・予防保全・故障対応、必要な電気・機械・PLCの基礎、向いている人、キャリアの広げ方を現場目線で整理します。',
+                  'keywords': ['設備保全','保全','メンテナンス','予防保全','故障対応','点検','PLC','電気','機械','キャリア','転職'],
+                  'synonyms': ['設備メンテナンス','保全員','保全エンジニア','equipment maintenance']
+              }
+          ]
+          for item in additions:
+              if item['url'] not in existing:
+                  data.append(item)
+                  existing.add(item['url'])
+          ip.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          # 3) Operational sitemap only. /seo/sitemap.xml is intentionally untouched.
+          sp = Path('sitemap.xml')
+          xml = sp.read_text(encoding='utf-8')
+          urls = [
+              'https://denkicontrol.com/categories/career.html',
+              'https://denkicontrol.com/articles/plc-control-engineer-career.html',
+              'https://denkicontrol.com/articles/equipment-maintenance-career.html',
+          ]
+          block = ''
+          for url in urls:
+              if f'<loc>{url}</loc>' not in xml:
+                  block += f'  <url>\n    <loc>{url}</loc>\n  </url>\n'
+          if block:
+              xml = xml.replace('</urlset>', block + '</urlset>')
+              sp.write_text(xml, encoding='utf-8')
+          PY
+
+      - name: Commit cleanup
+        run: |
+          rm -f .github/workflows/temp-postpublish-equipment-seo.yml
+          git config user.name "denkicontrol-postpublish"
+          git config user.email "actions@users.noreply.github.com"
+          git add categories/career.html assets/data/search-index.json sitemap.xml .github/workflows/temp-postpublish-equipment-seo.yml
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "Add post-publish career SEO wiring"
+          git push origin HEAD:postpublish-equipment-maintenance-seo-wiring

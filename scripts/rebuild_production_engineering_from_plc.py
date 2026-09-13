@@ -28,26 +28,39 @@ def section(html, sid):
         raise RuntimeError(f'missing section: {sid}')
     return m.group(0)
 
+def between(html, start_marker, end_marker):
+    a = html.find(start_marker)
+    if a < 0:
+        raise RuntimeError(f'missing start marker: {start_marker}')
+    b = html.find(end_marker, a)
+    if b < 0:
+        raise RuntimeError(f'missing end marker: {end_marker}')
+    return html[a:b], a, b
+
 # Hero: keep PLC outer structure/id exactly, use production-engineering copy only for the inner copy.
 hero_cur = re.search(r'<section class="article-hero"[^>]*>\s*<div class="article-hero-copy">(.*?)</div>\s*</section>', cur, re.S)
 if not hero_cur:
     raise RuntimeError('missing production hero')
 hero = '<section class="article-hero" id="top">\n      <div class="article-hero-copy">' + hero_cur.group(1) + '</div>\n    </section>'
 s, n = re.subn(r'<section class="article-hero" id="top">.*?</section>', hero, s, count=1, flags=re.S)
-if n != 1: raise RuntimeError('hero replace failed')
+if n != 1:
+    raise RuntimeError('hero replace failed')
 
-# Summary: keep PLC aria/outer shape.
-summary_cur = re.search(r'<section class="top-summary"[^>]*>(.*?)</section>\s*\n\s*<div class="layout">', cur, re.S)
-if not summary_cur:
-    raise RuntimeError('missing production summary')
-summary = '<section class="top-summary" aria-label="この記事の要点">' + summary_cur.group(1) + '</section>\n\n    <div class="layout">'
-s, n = re.subn(r'<section class="top-summary" aria-label="この記事の要点">.*?</section>\s*\n\s*<div class="layout">', summary, s, count=1, flags=re.S)
-if n != 1: raise RuntimeError('summary replace failed')
+# Summary contains nested <section> tags, so replace by the stable layout marker instead of regex nesting.
+cur_summary_block, _, _ = between(cur, '<section class="top-summary"', '    <div class="layout">')
+inner_start = cur_summary_block.find('>') + 1
+inner_end = cur_summary_block.rfind('</section>')
+if inner_start <= 0 or inner_end < 0:
+    raise RuntimeError('missing production summary inner content')
+summary = '<section class="top-summary" aria-label="この記事の要点">' + cur_summary_block[inner_start:inner_end] + '</section>\n\n'
+tpl_summary_block, a, b = between(s, '<section class="top-summary"', '    <div class="layout">')
+s = s[:a] + summary + s[b:]
 
 for sid in ['overview','work','skills','beginner','career','job-check','service','summary']:
     new = section(cur, sid)
     s, n = re.subn(rf'<section class="article-card" id="{re.escape(sid)}">.*?</section>', lambda m,new=new:new, s, count=1, flags=re.S)
-    if n != 1: raise RuntimeError(f'replace failed: {sid}')
+    if n != 1:
+        raise RuntimeError(f'replace failed: {sid}')
 
 # Keep PLC dialogue placement: kouhai on right/pink, senpai on left/blue.
 overview = section(s, 'overview')
@@ -55,10 +68,15 @@ overview = overview.replace('<div class="talk-row"><div class="talk-avatar"><img
 overview = overview.replace('<div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png"', '<div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png"', 1)
 s = re.sub(r'<section class="article-card" id="overview">.*?</section>', overview, s, count=1, flags=re.S)
 
-# PLC figure markup convention.
+# PLC figure markup convention: fixed 1200x900 body figures, lazy loading.
 for name in ['overview','skills','career']:
-    s = s.replace(f'production-engineering-career-{name}.webp" alt=', f'production-engineering-career-{name}.webp" alt=', 1)
-    s = re.sub(rf'(<img src="\.\./assets/images/production-engineering-career/production-engineering-career-{name}\.webp"[^>]*?)(?:\s+loading="lazy")?(?:\s+decoding="async")?>', lambda m: re.sub(r'\s+loading="lazy"|\s+decoding="async"','',m.group(1)) + ' width="1200" height="900" loading="lazy">', s, count=1)
+    pattern = rf'<img src="\.\./assets/images/production-engineering-career/production-engineering-career-{name}\.webp"([^>]*)>'
+    def fix_img(m):
+        attrs = re.sub(r'\s+(?:width|height|loading|decoding)="[^"]*"', '', m.group(1))
+        return f'<img src="../assets/images/production-engineering-career/production-engineering-career-{name}.webp"{attrs} width="1200" height="900" loading="lazy">'
+    s, n = re.subn(pattern, fix_img, s, count=1)
+    if n != 1:
+        raise RuntimeError(f'figure replace failed: {name}')
 
 # Side content can change, but the aside structure remains PLC.
 aside_cur = re.search(r'<aside class="side" aria-label="補足情報">(.*?)</aside>', cur, re.S)

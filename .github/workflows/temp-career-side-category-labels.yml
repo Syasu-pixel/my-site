@@ -1,0 +1,44 @@
+name: Temp career sidebar category labels
+
+on:
+  push:
+    branches:
+      - preview-career-freeze-audit-v2
+    paths:
+      - '.github/workflows/temp-career-side-category-labels.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-freeze-audit-v2
+      - name: Clarify category-top links in sidebar
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          reps = {
+            '<section class="side-card"><h3>技術を先に学ぶ</h3><p>転職を考える前に、現在のスキルの穴を確認したい場合はこちら。</p><ul class="side-list"><li><a href="control-basics.html">制御の基礎</a></li><li><a href="circuit-basics.html">回路</a></li><li><a href="air-pneumatic.html">空圧・エア機器</a></li></ul></section>':
+            '<section class="side-card"><h3>技術カテゴリから学ぶ</h3><p>基礎を確認したいときは、各カテゴリトップから関連記事をたどれます。</p><ul class="side-list"><li><a href="control-basics.html">制御の基礎カテゴリを見る →</a></li><li><a href="circuit-basics.html">回路カテゴリを見る →</a></li><li><a href="air-pneumatic.html">空圧・エア機器カテゴリを見る →</a></li></ul></section>'
+          }
+          for old,new in reps.items():
+              if old not in s:
+                  raise SystemExit('Expected sidebar block not found')
+              s = s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/temp-career-side-category-labels.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add categories/career.html .github/workflows/temp-career-side-category-labels.yml
+          git commit -m 'Preview: clarify career sidebar category-top links'
+          git push origin HEAD:preview-career-freeze-audit-v2

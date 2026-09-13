@@ -11,19 +11,12 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Render firestorage share page
+      - name: Inspect firestorage share API
         run: |
-          set -euxo pipefail
-          SHARE='https://firestorage.ai/ja/f/GSXLCJ4iva7T'
-          google-chrome --headless=new --no-sandbox --disable-gpu --virtual-time-budget=15000 --dump-dom "$SHARE" > /tmp/rendered.html
           python - <<'PY'
-          import re
-          text=open('/tmp/rendered.html',encoding='utf-8',errors='ignore').read()
-          print('DOM_LEN',len(text))
-          for pat in [r'href="([^"]+)"',r'src="([^"]+)"']:
-            for m in re.findall(pat,text,re.I):
-              if any(k in m.lower() for k in ['download','file','api','zip','production-engineering']): print('LINK',m)
-          print('TEXT_EXCERPT')
-          clean=re.sub(r'<[^>]+>',' ',text)
-          print(re.sub(r'\s+',' ',clean)[-5000:])
+          import requests,json
+          u='https://api.firestorage.ai/dev/file/shares/GSXLCJ4iva7T/files?maxResults=1000'
+          r=requests.get(u,timeout=30)
+          print('STATUS',r.status_code)
+          print(r.text[:20000])
           PY

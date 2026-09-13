@@ -323,7 +323,7 @@ M100～M167は `gxworks3-input-mapping-spec.md` を正とする。
 - M892 異常表示要求
 - M893 ブザー出力要求
 
-## 12. M900 / M940 / M980帯 — GOT
+## 12. M900 / M920 / M940 / M960 / M980帯 — GOT
 
 ### M900～M913 手動操作要求
 
@@ -344,9 +344,30 @@ M100～M167は `gxworks3-input-mapping-spec.md` を正とする。
 | M912 | GOT_ST05_UP_REQ |
 | M913 | GOT_ST05_DOWN_REQ |
 
-### M920～M939 表示状態
+### M920～M939 表示補助
 
-GOT表示補助用。正式割付は画面仕様確定時に追加する。
+| Device | Comment |
+|---|---|
+| M920 | GOT_AUTO_READY |
+| M921 | GOT_AUTO_RUNNING |
+| M922 | GOT_AUTO_STARTABLE |
+| M923 | GOT_LOAD_PERMITTED |
+| M924 | GOT_STATION_ACCEPTABLE |
+| M925 | GOT_ALARM_ACTIVE |
+| M926 | GOT_WARNING_ACTIVE |
+| M927 | GOT_MANUAL_MODE |
+| M928 | GOT_AUTO_MODE |
+| M929 | GOT_MODE_INVALID |
+| M930 | GOT_PROCESS_WORK_PRESENT |
+| M931 | GOT_JIG_WORK_PRESENT |
+| M932 | GOT_DISCHARGE_FULL |
+| M933 | GOT_SPINDLE_RUNNING |
+| M934 | GOT_SPINDLE_FAULT |
+| M935 | GOT_RECOVERY_REQUIRED |
+| M936 | GOT_TRANSFER_BUSY_ANY |
+| M937 | GOT_PROCESS_ACTIVE |
+| M938 | GOT_SETTINGS_CHANGE_PERMIT |
+| M939 | SPARE |
 
 ### M940～M959 操作不可理由
 
@@ -370,9 +391,25 @@ GOT表示補助用。正式割付は画面仕様確定時に追加する。
 | M955 | BLOCK_工程干渉 |
 | M956～M959 | SPARE |
 
-### M960～M979 アラーム確認 / 履歴補助
+### M960～M979 アラーム / 履歴補助
 
-正式割付はGOTアラーム画面仕様確定時に追加する。
+| Device | Comment |
+|---|---|
+| M960 | GOT_ALARM_ACK_REQ |
+| M961 | GOT_ALARM_RESET_REQ |
+| M962 | GOT_BUZZER_SILENCE_REQ |
+| M963 | GOT_ALARM_RESET_PERMIT |
+| M964 | GOT_ALARM_RESET_BLOCKED |
+| M965 | GOT_ALARM_NEW_PULSE |
+| M966 | GOT_ALARM_HISTORY_EVENT |
+| M967 | GOT_WARNING_NEW_PULSE |
+| M968 | GOT_ALARM_PRESENT_LATCH |
+| M969 | GOT_RECOVERY_GUIDE_ACTIVE |
+| M970 | GOT_HISTORY_CLEAR_REQ |
+| M971 | GOT_HISTORY_CLEAR_PERMIT |
+| M972～M979 | SPARE |
+
+M961はGOT RESET候補であり、物理RESET PBを正式操作とする基準を維持する。採用する場合も安全機能RESET・運転準備SET・自動起動を代替しない。
 
 ### M980～M990 加工軸手動操作要求
 
@@ -423,4 +460,4 @@ GOTからYへ直接書き込まない。GOT要求はMANUAL sectionで条件確�
 5. 各GX Works3仕様ファイル
 6. GOTタグ / 表示
 
-特にM440～M476、M500～M517、M700帯、M800帯、M900/M940/M980帯は記事・GOT・ラダーで共通参照するため、番号を途中で変更しない基準とする。
+特にM440～M476、M500～M517、M700帯、M800帯、M900/M920/M940/M960/M980帯は記事・GOT・ラダーで共通参照するため、番号を途中で変更しない基準とする。

@@ -1,0 +1,48 @@
+name: temp-final-preview-verify
+
+on:
+  push:
+    branches:
+      - preview-production-career
+    paths:
+      - .github/workflows/temp-final-preview-verify.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for and verify Cloudflare Preview
+        run: |
+          python - <<'PY'
+          import requests,time
+          page='https://preview-production-career.denkicontrol-preview.pages.dev/articles/production-engineering-career.html'
+          hero='https://preview-production-career.denkicontrol-preview.pages.dev/assets/images/production-engineering-career/production-engineering-career-hero.webp'
+          required='必要なスキルは3つの軸で考えると分かりやすい'
+          for i in range(18):
+            try:
+              r=requests.get(page,timeout=20)
+              h=requests.get(hero,timeout=20)
+              ok=(r.status_code==200 and required in r.text and h.status_code==200 and len(h.content)>10000)
+              print('TRY',i+1,'PAGE',r.status_code,'FINAL_TEXT',required in r.text,'HERO',h.status_code,'HERO_BYTES',len(h.content),'OK',ok)
+              if ok: raise SystemExit(0)
+            except requests.RequestException as e:
+              print('ERR',e)
+            time.sleep(10)
+          raise SystemExit('final Preview did not become ready in time')
+          PY
+      - uses: actions/checkout@v4
+        if: always()
+        with:
+          ref: preview-production-career
+      - name: Remove temporary verifier
+        if: always()
+        run: |
+          rm -f .github/workflows/temp-final-preview-verify.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/temp-final-preview-verify.yml
+          git commit -m "Remove temporary final Preview verifier" || exit 0
+          git push origin HEAD:preview-production-career

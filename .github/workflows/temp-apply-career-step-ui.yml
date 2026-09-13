@@ -1,0 +1,48 @@
+name: Temp apply career step UI preview
+
+on:
+  push:
+    branches:
+      - preview-career-freeze-audit-v2
+    paths:
+      - '.github/workflows/temp-apply-career-step-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-freeze-audit-v2
+          fetch-depth: 0
+      - name: Apply unified STEP button UI
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.step-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.step-links a,.step-links span{display:inline-flex;align-items:center;min-height:34px;padding:6px 10px;border-radius:10px;font-size:12px;font-weight:900}.step-links a{gap:7px;border:1px solid #2563eb;background:linear-gradient(180deg,#ffffff 0%,#eef5ff 100%);color:#1d4ed8;box-shadow:0 4px 10px rgba(37,99,235,.08)}.step-links a::after{content:"→";font-size:12px;font-weight:900;line-height:1;transition:transform .2s ease}.step-links a:hover,.step-links a:focus{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 7px 16px rgba(37,99,235,.18);transform:translateY(-1px)}.step-links a:hover::after,.step-links a:focus::after{transform:translateX(2px)}.step-links span{border:1px dashed #cbd5e1;background:#f8fafc;color:#64748b;box-shadow:none}'
+          new = '.step-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.step-links a,.step-links span{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:10px 13px;border-radius:12px;font-size:12px;font-weight:900;line-height:1.45}.step-links a{border:1px solid #2563eb;background:linear-gradient(180deg,#ffffff 0%,#eef5ff 100%);color:#1d4ed8;box-shadow:0 5px 12px rgba(37,99,235,.10)}.step-links a::after{content:"→";flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1;transition:.2s ease}.step-links a:hover,.step-links a:focus{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 8px 18px rgba(37,99,235,.20);transform:translateY(-1px)}.step-links a:hover::after,.step-links a:focus::after{background:#fff;color:#2563eb;transform:translateX(2px)}.step-links span{border:1px dashed #cbd5e1;background:#f8fafc;color:#64748b;box-shadow:none}.step-links span::after{content:"準備中";flex:0 0 auto;padding:2px 7px;border-radius:999px;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:900}'
+          if old not in s:
+              raise SystemExit('Expected STEP link CSS not found')
+          s = s.replace(old, new, 1)
+          mobile = '@media(max-width:640px){body{padding-top:66px}'
+          replacement = '@media(max-width:640px){.step-links{grid-template-columns:1fr}.step-links a,.step-links span{min-height:48px;font-size:13px;padding:11px 13px}body{padding-top:66px}'
+          if mobile not in s:
+              raise SystemExit('Mobile media block not found')
+          s = s.replace(mobile, replacement, 1)
+          p.write_text(s, encoding='utf-8')
+      - name: Clean temporary workflows and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/temp-apply-career-step-ui.yml
+          rm -f .github/workflows/temp-capture-career-step-preview.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add categories/career.html .github/workflows/temp-apply-career-step-ui.yml .github/workflows/temp-capture-career-step-preview.yml
+          git commit -m 'Preview: unify STEP link button design'
+          git push origin HEAD:preview-career-freeze-audit-v2

@@ -1,0 +1,40 @@
+name: Temp preview career step buttons
+
+on:
+  push:
+    branches:
+      - preview-career-freeze-audit-v2
+    paths:
+      - '.github/workflows/temp-preview-career-step-buttons.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  tweak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-freeze-audit-v2
+      - name: Improve step link button affordance
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.step-links a{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8}.step-links span{border:1px dashed #cbd5e1;background:#f8fafc;color:#64748b}'
+          new = '.step-links a{gap:7px;border:1px solid #2563eb;background:linear-gradient(180deg,#ffffff 0%,#eef5ff 100%);color:#1d4ed8;box-shadow:0 4px 10px rgba(37,99,235,.08)}.step-links a::after{content:"→";font-size:12px;font-weight:900;line-height:1;transition:transform .2s ease}.step-links a:hover,.step-links a:focus{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 7px 16px rgba(37,99,235,.18);transform:translateY(-1px)}.step-links a:hover::after,.step-links a:focus::after{transform:translateX(2px)}.step-links span{border:1px dashed #cbd5e1;background:#f8fafc;color:#64748b;box-shadow:none}'
+          if old not in s:
+              raise SystemExit('target CSS not found')
+          s = s.replace(old,new,1)
+          p.write_text(s, encoding='utf-8')
+      - name: Remove workflow and commit
+        shell: bash
+        run: |
+          rm -f .github/workflows/temp-preview-career-step-buttons.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add categories/career.html .github/workflows/temp-preview-career-step-buttons.yml
+          git commit -m 'Preview: clarify career step links as buttons'
+          git push origin HEAD:preview-career-freeze-audit-v2

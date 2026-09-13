@@ -1,0 +1,72 @@
+from pathlib import Path
+import re
+
+p = Path('articles/equipment-maintenance-career.html')
+s = p.read_text(encoding='utf-8')
+
+s = s.replace('https://denkicontrol.com/assets/images/plc-control-engineer-career/plc-control-engineer-career-ogp.webp', 'https://denkicontrol.com/assets/images/equipment-maintenance-career/equipment-maintenance-career-ogp.webp')
+s = s.replace('../assets/images/plc-control-engineer-career/plc-control-engineer-career-hero.webp', '../assets/images/equipment-maintenance-career/equipment-maintenance-career-hero.webp')
+s = s.replace('../assets/images/plc-control-engineer-career/plc-control-engineer-career-overview.webp', '../assets/images/equipment-maintenance-career/equipment-maintenance-career-overview.webp')
+s = s.replace('    <!-- Preview段階では完成済みPLCキャリア記事の画像をレイアウト確認用に一時流用。採用後に設備保全専用画像へ差し替える。 -->\n', '')
+s = s.replace('alt="設備保全の仕事の全体像を確認するための仮画像"', 'alt="設備保全の仕事を日常点検・予防保全・故障対応・再発防止の4工程で整理した図"')
+s = s.replace('※ Preview用の仮画像です。記事構造採用後に設備保全専用画像へ差し替えます。', '日常点検から再発防止まで、設備保全は設備のライフサイクル全体を支えます。')
+
+work = '''        <section class="article-card" id="work">
+          <h2>設備保全の仕事は4つの流れで考えると分かりやすい</h2>
+          <p>設備保全の仕事は、単発の修理ではなく、<strong>日常点検 → 予防保全 → 故障対応 → 再発防止</strong>を繰り返す仕事です。4つをつなげて見ると、なぜ点検記録や原因分析が必要なのかも理解しやすくなります。</p>
+          <div class="flow">
+            <div class="flow-item"><span class="flow-no">1</span><div><h3>日常点検・巡回</h3><p>異音、振動、温度、漏れ、摩耗、センサ状態などを確認し、普段と違う小さな変化を早めに見つけます。</p></div></div>
+            <div class="flow-item"><span class="flow-no">2</span><div><h3>予防保全・定期整備</h3><p>清掃、給油、締付け、消耗部品の交換、測定などを計画的に行い、突発停止のリスクを下げます。</p></div></div>
+            <div class="flow-item"><span class="flow-no">3</span><div><h3>故障対応・復旧</h3><p>停止時は、症状、電源、I/O、センサ、アクチュエータ、機械側の状態を順に確認し、原因を切り分けて復旧します。</p></div></div>
+            <div class="flow-item"><span class="flow-no">4</span><div><h3>再発防止・改善</h3><p>原因を記録し、部品選定、配線、機構、制御条件、点検周期や作業手順を見直して、同じトラブルを繰り返さない仕組みにします。</p></div></div>
+          </div>
+          <div class="highlight">保全履歴・交換周期・予備品の管理は、この4工程を支える共通の土台です。記録が残るほど、次の異常を早く判断しやすくなります。</div>
+        </section>'''
+s, n = re.subn(r'        <section class="article-card" id="work">.*?        </section>', work, s, count=1, flags=re.S)
+if n != 1:
+    raise SystemExit('work section replacement failed')
+
+skills = '''        <section class="article-card" id="skills">
+          <h2>必要スキルは「6つの柱」で整理すると学ぶ順番が見えやすい</h2>
+          <p>設備保全では、一つの専門だけで設備全体を判断できない場面があります。最初から全部を深く覚える必要はありませんが、<span class="marker-blue">電気・機械・制御を横断して原因を切り分ける</span>ための基礎を少しずつ増やしていくことが重要です。</p>
+          <div class="skill-grid">
+            <div class="skill"><h3>1. 電気の基礎</h3><p>DC24V、リレー、センサ、モータ、電源、電気図面など。電圧や信号を追うための土台です。</p></div>
+            <div class="skill"><h3>2. 機械の基礎</h3><p>ベアリング、ベルト、チェーン、軸、締結部など。摩耗やガタ、異音の原因を考えるために役立ちます。</p></div>
+            <div class="skill"><h3>3. 制御の知識</h3><p>PLC、I/O、センサ、インターロック、シーケンスを理解すると、「なぜ動かないか」を追いやすくなります。</p></div>
+            <div class="skill"><h3>4. トラブル対応力</h3><p>現象を整理し、電気・機械・空圧・制御のどこに原因があるかを確認結果から絞り込む力です。</p></div>
+            <div class="skill"><h3>5. コミュニケーション</h3><p>製造、品質、生産技術、メーカーなどと情報を共有し、停止状況や復旧方針を正確につなぎます。</p></div>
+            <div class="skill"><h3>6. 改善の視点</h3><p>直して終わりにせず、再発防止、標準化、点検周期の見直しまで考えることで設備の安定性を高めます。</p></div>
+          </div>
+          <figure class="article-figure">
+            <img src="../assets/images/equipment-maintenance-career/equipment-maintenance-career-skills.webp" alt="設備保全に必要な電気・機械・制御・トラブル対応・コミュニケーション・改善の6スキル" loading="lazy" decoding="async">
+            <figcaption>設備保全は、複数分野の基礎を組み合わせてトラブルを切り分ける仕事です。</figcaption>
+          </figure>
+          <h3>当サイトで先に押さえたい記事</h3>
+          <div class="internal-grid">
+            <a class="internal-link" href="../categories/control-basics.html"><strong>制御の基礎</strong><span>リレー、センサ、PLCなど制御全体を整理する</span></a>
+            <a class="internal-link" href="../categories/circuit-basics.html"><strong>回路の基礎</strong><span>電源・回路・配線の考え方を学ぶ</span></a>
+            <a class="internal-link" href="./plc-io-unit-basic.html"><strong>PLC入出力ユニット</strong><span>設備の信号がPLCへどう入るかを理解する</span></a>
+            <a class="internal-link" href="./air-regulator-basic.html"><strong>エアレギュレータ</strong><span>空圧機器の基本から確認する</span></a>
+          </div>
+        </section>'''
+s, n = re.subn(r'        <section class="article-card" id="skills">.*?        </section>', skills, s, count=1, flags=re.S)
+if n != 1:
+    raise SystemExit('skills section replacement failed')
+
+career = '''        <section class="article-card" id="career">
+          <h2>経験を積むほど、設備保全から広がるキャリアは増えていく</h2>
+          <p>まずは現場担当として、点検・修理・復旧を経験します。その後、作業計画や後輩育成を担う<strong>リーダー</strong>、保全計画や予算・更新を管理する<strong>管理職</strong>、電気・機械・制御を深める<strong>専門職</strong>など、得意分野に合わせて役割を広げられます。</p>
+          <p>さらに、生産技術、設備設計、品質・安全、メーカーのサービスエンジニアなど、保全で身につけた「設備を見て原因を考える力」を活かせる道もあります。大切なのは肩書きより、<span class="marker-blue">どこまで自分で原因を追い、改善までつなげられるか</span>です。</p>
+          <figure class="article-figure">
+            <img src="../assets/images/equipment-maintenance-career/equipment-maintenance-career-career.webp" alt="設備保全の現場担当からリーダー・管理職・専門職や関連職種へ広がるキャリアマップ" loading="lazy" decoding="async">
+            <figcaption>現場経験を土台に、マネジメント・専門職・生産技術や設備設計などへ選択肢を広げられます。</figcaption>
+          </figure>
+        </section>'''
+s, n = re.subn(r'        <section class="article-card" id="career">.*?        </section>', career, s, count=1, flags=re.S)
+if n != 1:
+    raise SystemExit('career section replacement failed')
+
+s = s.replace('電気・機械・空圧・PLCの基礎に加えて、現象から原因候補を絞る切り分け力が重要です。', '電気・機械・制御の基礎に加えて、切り分け・連携・改善まで含めた総合力が重要です。')
+s = s.replace('保全経験を土台に、改善、予防保全、生産技術、制御、設備導入などへ担当範囲を広げられます。', '保全経験を土台に、リーダー・管理職・専門職・生産技術・設備設計などへ選択肢を広げられます。')
+
+p.write_text(s, encoding='utf-8')

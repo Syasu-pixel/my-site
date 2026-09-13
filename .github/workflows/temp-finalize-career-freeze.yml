@@ -1,0 +1,40 @@
+name: Temp finalize career freeze
+
+on:
+  push:
+    branches:
+      - preview-career-freeze-audit-v2
+    paths:
+      - '.github/workflows/temp-finalize-career-freeze.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Finalize STEP arrow and clean preview marker
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.step-links a::after{content:"→";flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1;transition:.2s ease}'
+          new = '.step-links a::after{content:"›";flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-family:Arial,sans-serif;font-size:18px;font-weight:900;line-height:1;transition:.2s ease}'
+          if old not in s:
+              raise SystemExit('Expected STEP arrow CSS not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          Path('.preview-refresh-career-buttons').unlink(missing_ok=True)
+      - name: Remove temporary workflow and commit final preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/temp-finalize-career-freeze.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A categories/career.html .preview-refresh-career-buttons .github/workflows/temp-finalize-career-freeze.yml
+          git commit -m 'Finalize career category STEP CTA arrows'
+          git push origin HEAD:preview-career-freeze-audit-v2

@@ -10,12 +10,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Build article
-        run: python .github/scripts/temp_build_equipment_v2.py
+      - name: Patch and build article
+        run: |
+          python .github/scripts/temp_patch_equipment_v2.py
+          python .github/scripts/temp_build_equipment_v2.py
       - name: Commit and clean temporary files
         run: |
           rm -f .github/workflows/temp-build-equipment-maintenance-v2.yml
           rm -f .github/scripts/temp_build_equipment_v2.py
+          rm -f .github/scripts/temp_patch_equipment_v2.py
           rm -f .preview-trigger-equipment-v2
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com

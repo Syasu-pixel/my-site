@@ -11,23 +11,19 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage client API
+      - name: Render firestorage share page
         run: |
+          set -euxo pipefail
+          SHARE='https://firestorage.ai/ja/f/GSXLCJ4iva7T'
+          google-chrome --headless=new --no-sandbox --disable-gpu --virtual-time-budget=15000 --dump-dom "$SHARE" > /tmp/rendered.html
           python - <<'PY'
-          import requests,re
-          base='https://firestorage.ai'
-          share='https://firestorage.ai/ja/f/GSXLCJ4iva7T'
-          s=requests.Session()
-          html=s.get(share,timeout=30).text
-          chunks=re.findall(r'<script[^>]+src="([^"]+\.js)"',html)
-          print('chunks',len(chunks))
-          for path in chunks:
-            if 'app/(files)' in path or 'app/%28files%29' in path or '/ja/f/' in path or 'page-' in path:
-              u=base+path
-              print('FETCH',u)
-              js=s.get(u,timeout=30).text
-              print('JS_LEN',len(js))
-              for pat in [r'/api/[^"\'` ]+',r'fetch\([^)]{0,300}',r'axios[^;]{0,300}',r'public[_-]?id.{0,300}',r'download.{0,400}',r'share.{0,400}']:
-                ms=re.findall(pat,js,re.I)
-                for m in ms[:30]: print('MATCH',m[:700])
+          import re
+          text=open('/tmp/rendered.html',encoding='utf-8',errors='ignore').read()
+          print('DOM_LEN',len(text))
+          for pat in [r'href="([^"]+)"',r'src="([^"]+)"']:
+            for m in re.findall(pat,text,re.I):
+              if any(k in m.lower() for k in ['download','file','api','zip','production-engineering']): print('LINK',m)
+          print('TEXT_EXCERPT')
+          clean=re.sub(r'<[^>]+>',' ',text)
+          print(re.sub(r'\s+',' ',clean)[-5000:])
           PY

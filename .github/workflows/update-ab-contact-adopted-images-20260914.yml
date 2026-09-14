@@ -1,0 +1,87 @@
+name: Update a-b contact adopted images
+
+on:
+  push:
+    branches: [preview-ab-contact]
+    paths:
+      - '.github/workflows/update-ab-contact-adopted-images-20260914.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-ab-contact
+          fetch-depth: 0
+
+      - name: Download adopted images from firestorage
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, urllib.parse
+          from pathlib import Path
+
+          items = [
+            {
+              'share':'wXSD95jod39b',
+              'file':'01a09ed64cec71ac99396f309c92b067',
+              'name':'a-contact-b-contact-basic-a-b-contact-difference.webp',
+              'target':'assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-a-b-contact-difference.webp',
+              'sha':'bd987d551215b094c2333246d0d2936d2ac05cd8c405b285931500c3f45fa83a',
+            },
+            {
+              'share':'wXSD95jod39b',
+              'file':'01a09ed848d4709a850e8080c573ffd7',
+              'name':'a-contact-b-contact-basic-physical-vs-plc.webp',
+              'target':'assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-physical-vs-plc.webp',
+              'sha':'2f6e21e1641fa6326f846babb620599cb9d16b3cae863d816b625662ae118431',
+            },
+            {
+              'share':'wXSD95jod39b',
+              'file':'01a09ed883b2702288792a511bb4b9bb',
+              'name':'a-contact-b-contact-basic-pushbutton-relay-plc-basic-flow.webp',
+              'target':'assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-pushbutton-relay-plc-basic-flow.webp',
+              'sha':'323913353dbf29495d70ecaa34a539155c5796e48b40fb22bb5ae6cad5d24272',
+            },
+          ]
+
+          for x in items:
+              meta_url=f"https://api.firestorage.ai/dev/file/shares/{x['share']}/files?maxResults=1000"
+              meta=json.loads(subprocess.check_output(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','30',meta_url], text=True))
+              matches=[f for f in meta.get('files',[]) if f.get('fileId')==x['file']]
+              if len(matches)!=1 or matches[0].get('fileName')!=x['name']:
+                  raise SystemExit(f"firestorage metadata mismatch: {x['target']}")
+              dl_url=f"https://api.firestorage.ai/dev/file/shares/{x['share']}/files/{x['file']}/download"
+              dl=json.loads(subprocess.check_output(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','30','-X','POST',dl_url], text=True))
+              u=dl.get('downloadUrl','')
+              p=urllib.parse.urlparse(u)
+              if p.scheme!='https' or p.username or p.password or p.hostname!='s3.ap-northeast-1.wasabisys.com':
+                  raise SystemExit(f"unexpected download host: {x['target']}")
+              Path(x['target']).parent.mkdir(parents=True, exist_ok=True)
+              subprocess.check_call(['curl','--proto','=https','--tlsv1.2','--fail-with-body','--silent','--show-error','--max-time','60','-o',x['target'],u])
+          PY
+
+      - name: Verify image hashes
+        shell: bash
+        run: |
+          echo 'bd987d551215b094c2333246d0d2936d2ac05cd8c405b285931500c3f45fa83a  assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-a-b-contact-difference.webp' | sha256sum -c -
+          echo '2f6e21e1641fa6326f846babb620599cb9d16b3cae863d816b625662ae118431  assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-physical-vs-plc.webp' | sha256sum -c -
+          echo '323913353dbf29495d70ecaa34a539155c5796e48b40fb22bb5ae6cad5d24272  assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-pushbutton-relay-plc-basic-flow.webp' | sha256sum -c -
+
+      - name: Commit adopted images and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'denkicontrol-preview-writer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-a-b-contact-difference.webp \
+            assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-physical-vs-plc.webp \
+            assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-pushbutton-relay-plc-basic-flow.webp
+          git rm .github/workflows/update-ab-contact-adopted-images-20260914.yml
+          git diff --cached --check
+          git commit -m 'Replace a-contact b-contact article diagrams'
+          git push origin HEAD:preview-ab-contact

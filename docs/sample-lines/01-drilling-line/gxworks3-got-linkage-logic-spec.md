@@ -129,8 +129,32 @@ M941は安全機能そのものではなく、通常PLCが受ける安全監視�
 ```text
 M944 = 搬送JOG要求あり AND 関連隣接transfer busy
 M945 = 搬送JOG要求あり AND 対象搬送先在荷
-M946 = CV04→加工ST関連要求あり AND NOT M330
 ```
+
+CV04→加工STの手動BLOCKは、自動専用のM330をそのまま使わない。M330にはM305自動運転中が含まれるため、手動モードでは常時不成立となり、M946が誤って常時BLOCKになり得る。
+
+手動用の受入条件は説明用論理名 `MANUAL_STATION_ACCEPT_OK` とし、未登録Mを新設せず次を基準に評価する。
+
+```text
+MANUAL_STATION_ACCEPT_OK =
+    M500
+AND NOT M140
+AND NOT M141
+AND M142
+AND M144
+AND M146
+AND M150
+AND M152
+AND NOT M166
+AND NOT M167
+AND NOT M154
+AND NOT M324
+
+M946 = CV04→加工ST関連手動要求あり
+       AND NOT MANUAL_STATION_ACCEPT_OK
+```
+
+M300手動モード、安全監視、必要なM111エア条件などの共通操作許可はSection 09側で判定し、M946は加工ST受入に固有の機械状態理由を表示する。
 
 各CVの具体的な対象搬送先は搬送仕様と一致させる。
 
@@ -349,6 +373,8 @@ transfer state -> D101
 8. M938 OFF時はG10設定編集不可。
 9. M970履歴消去で設備制御状態が変化しない。
 10. M961採用時もRESET後に自動再始動しない。
+11. 手動モードでCV04→加工ST関連要求を出した際、M330がOFFであることだけを理由にM946が常時ONにならない。
+12. `MANUAL_STATION_ACCEPT_OK` が成立した手動受入状態ではM946 OFF、固有条件が不足した場合のみM946 ONとなる。
 
 ## 16. 未確定事項
 

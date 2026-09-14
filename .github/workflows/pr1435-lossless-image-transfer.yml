@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  actions: read
 
 jobs:
   dispatch-lossless-images:
@@ -25,10 +24,8 @@ jobs:
           TARGET_BRANCH: preview-career-step3-beginner-fa-engineer
         run: |
           set -euo pipefail
-          if [ -z "${BROKER_URL:-}" ] || [ -z "${BROKER_TOKEN:-}" ]; then
-            echo "artifact broker configuration missing" >&2
-            exit 1
-          fi
+          test -n "${BROKER_URL:-}"
+          test -n "${BROKER_TOKEN:-}"
 
           transfer() {
             file_id="$1"
@@ -37,71 +34,17 @@ jobs:
             target_path="$4"
             commit_message="$5"
 
-            payload="$(python3 - "$file_id" "$file_name" "$sha256" <<'PY'
-import json,sys
-print(json.dumps({
-  'action':'import_firestorage',
-  'share_id':'IlRa6v_KsMx4',
-  'file_id':sys.argv[1],
-  'file_name':sys.argv[2],
-  'sha256':sys.argv[3],
-}))
-PY
-)"
+            payload="$(jq -nc --arg file_id "$file_id" --arg file_name "$file_name" --arg sha256 "$sha256" '{action:"import_firestorage",share_id:"IlRa6v_KsMx4",file_id:$file_id,file_name:$file_name,sha256:$sha256}')"
+            response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL")"
+            artifact_url="$(jq -r '.download_url' <<<"$response")"
+            object_path="$(jq -r '.object_path' <<<"$response")"
+            test -n "$artifact_url"
+            test -n "$object_path"
 
-            response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 \
-              -X POST \
-              -H 'content-type: application/json' \
-              -H "x-artifact-broker-token: $BROKER_TOKEN" \
-              --data "$payload" \
-              "$BROKER_URL")"
-
-            artifact_url="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["download_url"])' <<<"$response")"
-            object_path="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["object_path"])' <<<"$response")"
-
-            dispatch="$(python3 - "$artifact_url" "$sha256" "$TARGET_BRANCH" "$target_path" "$commit_message" "$object_path" <<'PY'
-import json,sys
-print(json.dumps({
-  'event_type':'ai-artifact-ready',
-  'client_payload':{
-    'artifact_url':sys.argv[1],
-    'sha256':sys.argv[2],
-    'target_branch':sys.argv[3],
-    'target_path':sys.argv[4],
-    'commit_message':sys.argv[5],
-    'cleanup_object_path':sys.argv[6],
-  }
-}))
-PY
-)"
-
-            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 \
-              -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H 'Accept: application/vnd.github+json' \
-              -H 'X-GitHub-Api-Version: 2022-11-28' \
-              -H 'content-type: application/json' \
-              --data "$dispatch" \
-              "https://api.github.com/repos/$REPO/dispatches"
+            dispatch="$(jq -nc --arg artifact_url "$artifact_url" --arg sha256 "$sha256" --arg target_branch "$TARGET_BRANCH" --arg target_path "$target_path" --arg commit_message "$commit_message" --arg cleanup_object_path "$object_path" '{event_type:"ai-artifact-ready",client_payload:{artifact_url:$artifact_url,sha256:$sha256,target_branch:$target_branch,target_path:$target_path,commit_message:$commit_message,cleanup_object_path:$cleanup_object_path}}')"
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -H 'content-type: application/json' --data "$dispatch" "https://api.github.com/repos/$REPO/dispatches"
           }
 
-          transfer \
-            '01a09f7e867172b68c48b7887325ce43' \
-            'fa-engineer-beginner-career-hero-lossless.webp' \
-            'b811aceb1258d0e67366b4e53c5eca9ddd5cd29f08a658cd15b7c2c722341a33' \
-            'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-hero.webp' \
-            'Replace beginner career hero with lossless WebP'
-
-          transfer \
-            '01a09f7eddb47504839ca8345747967f' \
-            'fa-engineer-beginner-career-comparison-lossless.webp' \
-            'fcf6784df185425f12ab9a162f96eb85922432bcc76c67233cf3b5df3e2786a7' \
-            'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-comparison.webp' \
-            'Replace beginner career comparison with lossless WebP'
-
-          transfer \
-            '01a09f7f16a375828dcc91cd352472c4' \
-            'fa-engineer-beginner-career-roadmap-lossless.webp' \
-            '5ac5f1cac593c625515e8c2dd1e6c127db1f15b99b44f1079080541a862ad283' \
-            'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-roadmap.webp' \
-            'Replace beginner career roadmap with lossless WebP'
+          transfer '01a09f7e867172b68c48b7887325ce43' 'fa-engineer-beginner-career-hero-lossless.webp' 'b811aceb1258d0e67366b4e53c5eca9ddd5cd29f08a658cd15b7c2c722341a33' 'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-hero.webp' 'Replace beginner career hero with lossless WebP'
+          transfer '01a09f7eddb47504839ca8345747967f' 'fa-engineer-beginner-career-comparison-lossless.webp' 'fcf6784df185425f12ab9a162f96eb85922432bcc76c67233cf3b5df3e2786a7' 'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-comparison.webp' 'Replace beginner career comparison with lossless WebP'
+          transfer '01a09f7f16a375828dcc91cd352472c4' 'fa-engineer-beginner-career-roadmap-lossless.webp' '5ac5f1cac593c625515e8c2dd1e6c127db1f15b99b44f1079080541a862ad283' 'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-roadmap.webp' 'Replace beginner career roadmap with lossless WebP'

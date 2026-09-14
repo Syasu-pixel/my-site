@@ -1,0 +1,31 @@
+name: PR1435 comparison transfer
+
+on:
+  push:
+    branches:
+      - preview-career-step3-beginner-fa-engineer
+    paths:
+      - .github/workflows/pr1435-comparison-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  dispatch-comparison:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Import reviewed comparison and dispatch constrained writer
+        shell: bash
+        env:
+          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
+          BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          payload="$(jq -nc '{action:"import_firestorage",share_id:"IlRa6v_KsMx4",file_id:"01a09f7eddb47504839ca8345747967f",file_name:"fa-engineer-beginner-career-comparison-lossless.webp",sha256:"fcf6784df185425f12ab9a162f96eb85922432bcc76c67233cf3b5df3e2786a7"}')"
+          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL")"
+          artifact_url="$(jq -r '.download_url' <<<"$response")"
+          object_path="$(jq -r '.object_path' <<<"$response")"
+          dispatch="$(jq -nc --arg artifact_url "$artifact_url" --arg object_path "$object_path" '{event_type:"ai-artifact-ready",client_payload:{artifact_url:$artifact_url,sha256:"fcf6784df185425f12ab9a162f96eb85922432bcc76c67233cf3b5df3e2786a7",target_branch:"preview-career-step3-beginner-fa-engineer",target_path:"assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-comparison.webp",commit_message:"Replace beginner career comparison with lossless WebP",cleanup_object_path:$object_path}}')"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -H 'content-type: application/json' --data "$dispatch" "https://api.github.com/repos/$REPO/dispatches"

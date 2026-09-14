@@ -1,1 +1,0 @@
-Preview image assets are being prepared for PR #1435. Do not merge before visual approval.

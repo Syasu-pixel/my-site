@@ -22,22 +22,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-from pathlib import Path
-p = Path('articles/fa-engineer-beginner-career.html')
-s = p.read_text(encoding='utf-8')
-repls = {
-  'https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-hero.webp': 'https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-ogp.webp',
-  '<meta property="og:image:width" content="650">': '<meta property="og:image:width" content="1731">',
-  '<meta property="og:image:height" content="366">': '<meta property="og:image:height" content="909">',
-  '<meta property="og:image:alt" content="未経験から電気・FAエンジニアを目指す先輩と後輩のイメージ">': '<meta property="og:image:alt" content="未経験から電気・FAエンジニアを目指すには？ PLC・設備保全・生産技術の入口がわかる">',
-}
-for old, new in repls.items():
-    if old not in s:
-        raise SystemExit(f'missing expected metadata: {old}')
-    s = s.replace(old, new)
-p.write_text(s, encoding='utf-8')
-PY
+          python3 -c "from pathlib import Path; p=Path('articles/fa-engineer-beginner-career.html'); s=p.read_text(encoding='utf-8'); s=s.replace('https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-hero.webp','https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-ogp.webp').replace('<meta property=\"og:image:width\" content=\"650\">','<meta property=\"og:image:width\" content=\"1731\">').replace('<meta property=\"og:image:height\" content=\"366\">','<meta property=\"og:image:height\" content=\"909\">').replace('<meta property=\"og:image:alt\" content=\"未経験から電気・FAエンジニアを目指す先輩と後輩のイメージ\">','<meta property=\"og:image:alt\" content=\"未経験から電気・FAエンジニアを目指すには？ PLC・設備保全・生産技術の入口がわかる\">'); p.write_text(s,encoding='utf-8')"
+          grep -q 'fa-engineer-beginner-career-ogp.webp' articles/fa-engineer-beginner-career.html
           git rm .github/workflows/pr1435-ogp-transfer.yml
           git config user.name "denkicontrol-preview-writer"
           git config user.email "actions@users.noreply.github.com"

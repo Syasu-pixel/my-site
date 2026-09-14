@@ -23,70 +23,61 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-from pathlib import Path
-import json
+          from pathlib import Path
+          import json
 
-slug = '/articles/fa-engineer-beginner-career.html'
-full_url = 'https://denkicontrol.com/articles/fa-engineer-beginner-career.html'
+          slug = '/articles/fa-engineer-beginner-career.html'
+          full_url = 'https://denkicontrol.com/articles/fa-engineer-beginner-career.html'
 
-# 1) Career category: STEP3 prep item -> live article link.
-p = Path('categories/career.html')
-s = p.read_text(encoding='utf-8')
-old = '<span>未経験からの入り方：準備中</span>'
-new = '<a href="../articles/fa-engineer-beginner-career.html">未経験から電気・FAエンジニアを目指すには？</a>'
-if old not in s:
-    raise SystemExit('career STEP3 placeholder not found')
-s = s.replace(old, new, 1)
-p.write_text(s, encoding='utf-8')
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<span>未経験からの入り方：準備中</span>'
+          new = '<a href="../articles/fa-engineer-beginner-career.html">未経験から電気・FAエンジニアを目指すには？</a>'
+          if old not in s:
+              raise SystemExit('career STEP3 placeholder not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
 
-# 2) Add inbound links from the three core career articles.
-for fn in [
-    'articles/plc-control-engineer-career.html',
-    'articles/equipment-maintenance-career.html',
-    'articles/production-engineering-career.html',
-]:
-    p = Path(fn)
-    s = p.read_text(encoding='utf-8')
-    if 'fa-engineer-beginner-career.html' in s:
-        continue
-    marker = '<section class="article-card" id="related-career"><h2>関連する仕事を比較する</h2>'
-    insert = marker + '<p class="highlight">未経験から3職種の違いと学ぶ順番をまとめて見たい方は、<a href="fa-engineer-beginner-career.html"><strong>未経験から電気・FAエンジニアを目指すには？</strong></a>も参考にしてください。</p>'
-    if marker not in s:
-        raise SystemExit(f'related-career marker not found: {fn}')
-    s = s.replace(marker, insert, 1)
-    p.write_text(s, encoding='utf-8')
+          for fn in [
+              'articles/plc-control-engineer-career.html',
+              'articles/equipment-maintenance-career.html',
+              'articles/production-engineering-career.html',
+          ]:
+              p = Path(fn)
+              s = p.read_text(encoding='utf-8')
+              if 'fa-engineer-beginner-career.html' in s:
+                  continue
+              marker = '<section class="article-card" id="related-career"><h2>関連する仕事を比較する</h2>'
+              insert = marker + '<p class="highlight">未経験から3職種の違いと学ぶ順番をまとめて見たい方は、<a href="fa-engineer-beginner-career.html"><strong>未経験から電気・FAエンジニアを目指すには？</strong></a>も参考にしてください。</p>'
+              if marker not in s:
+                  raise SystemExit(f'related-career marker not found: {fn}')
+              s = s.replace(marker, insert, 1)
+              p.write_text(s, encoding='utf-8')
 
-# 3) Site search index.
-p = Path('assets/data/search-index.json')
-data = json.loads(p.read_text(encoding='utf-8'))
-if not any(item.get('url') == slug for item in data):
-    data.append({
-        'title': '未経験から電気・FAエンジニアを目指すには？入りやすい職種と学ぶ順番を解説',
-        'url': slug,
-        'category': 'キャリア・転職',
-        'description': '未経験から電気・FAエンジニアを目指す人向けに、PLC・制御設計、設備保全、生産技術の違い、入りやすさの考え方、先に学ぶ内容、求人で確認したいポイントを現場目線で整理します。',
-        'keywords': ['未経験','FAエンジニア','PLC','制御設計','設備保全','生産技術','キャリア','転職']
-    })
-p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          p = Path('assets/data/search-index.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          if not any(item.get('url') == slug for item in data):
+              data.append({
+                  'title': '未経験から電気・FAエンジニアを目指すには？入りやすい職種と学ぶ順番を解説',
+                  'url': slug,
+                  'category': 'キャリア・転職',
+                  'description': '未経験から電気・FAエンジニアを目指す人向けに、PLC・制御設計、設備保全、生産技術の違い、入りやすさの考え方、先に学ぶ内容、求人で確認したいポイントを現場目線で整理します。',
+                  'keywords': ['未経験','FAエンジニア','PLC','制御設計','設備保全','生産技術','キャリア','転職']
+              })
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
-# 4) Operational sitemap.
-p = Path('sitemap.xml')
-s = p.read_text(encoding='utf-8')
-if full_url not in s:
-    entry = f'  <url>\n    <loc>{full_url}</loc>\n  </url>\n'
-    if '</urlset>' not in s:
-        raise SystemExit('sitemap closing tag not found')
-    s = s.replace('</urlset>', entry + '</urlset>', 1)
-p.write_text(s, encoding='utf-8')
-PY
+          p = Path('sitemap.xml')
+          s = p.read_text(encoding='utf-8')
+          if full_url not in s:
+              entry = f'  <url>\n    <loc>{full_url}</loc>\n  </url>\n'
+              if '</urlset>' not in s:
+                  raise SystemExit('sitemap closing tag not found')
+              s = s.replace('</urlset>', entry + '</urlset>', 1)
+          p.write_text(s, encoding='utf-8')
+          PY
           git rm .github/workflows/publish-career-step3-beginner-routing.yml
           git config user.name "denkicontrol-publish-writer"
           git config user.email "actions@users.noreply.github.com"
-          git add categories/career.html \
-                  articles/plc-control-engineer-career.html \
-                  articles/equipment-maintenance-career.html \
-                  articles/production-engineering-career.html \
-                  assets/data/search-index.json \
-                  sitemap.xml
+          git add categories/career.html articles/plc-control-engineer-career.html articles/equipment-maintenance-career.html articles/production-engineering-career.html assets/data/search-index.json sitemap.xml
           git commit -m "Add routing for beginner FA career guide"
           git push origin HEAD:publish-career-step3-beginner-routing

@@ -1,4 +1,4 @@
-name: PR1435 OGP transfer
+name: PR1435 OGP finalize
 
 on:
   push:
@@ -11,28 +11,36 @@ permissions:
   contents: write
 
 jobs:
-  dispatch-ogp:
+  finalize-ogp:
     runs-on: ubuntu-latest
     steps:
-      - name: Import reviewed OGP and dispatch constrained writer
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-step3-beginner-fa-engineer
+          fetch-depth: 1
+      - name: Point article metadata to dedicated OGP and remove temporary workflow
         shell: bash
-        env:
-          BROKER_URL: ${{ vars.ARTIFACT_BROKER_URL }}
-          BROKER_TOKEN: ${{ secrets.ARTIFACT_CLEANUP_TOKEN }}
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          TARGET_BRANCH: preview-career-step3-beginner-fa-engineer
         run: |
           set -euo pipefail
-          test -n "${BROKER_URL:-}"
-          test -n "${BROKER_TOKEN:-}"
-
-          payload="$(jq -nc --arg file_id '01a09fa3d7f777f3a0cd82a2a02ade8d' --arg file_name 'fa-engineer-beginner-career-ogp.webp' --arg sha256 '4f96e2ec2a3f8a038dc2067e1dc49023ecc67950df2f68dc66d395fc9deb1d1d' '{action:"import_firestorage",share_id:"yIJgswDTnK05",file_id:$file_id,file_name:$file_name,sha256:$sha256}')"
-          response="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 60 -X POST -H 'content-type: application/json' -H "x-artifact-broker-token: $BROKER_TOKEN" --data "$payload" "$BROKER_URL")"
-          artifact_url="$(jq -r '.download_url' <<<"$response")"
-          object_path="$(jq -r '.object_path' <<<"$response")"
-          test -n "$artifact_url"
-          test -n "$object_path"
-
-          dispatch="$(jq -nc --arg artifact_url "$artifact_url" --arg sha256 '4f96e2ec2a3f8a038dc2067e1dc49023ecc67950df2f68dc66d395fc9deb1d1d' --arg target_branch "$TARGET_BRANCH" --arg target_path 'assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-ogp.webp' --arg commit_message 'Add dedicated OGP for beginner FA career article' --arg cleanup_object_path "$object_path" '{event_type:"ai-artifact-ready",client_payload:{artifact_url:$artifact_url,sha256:$sha256,target_branch:$target_branch,target_path:$target_path,commit_message:$commit_message,cleanup_object_path:$cleanup_object_path}}')"
-          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error --max-time 30 -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -H 'content-type: application/json' --data "$dispatch" "https://api.github.com/repos/$REPO/dispatches"
+          python3 - <<'PY'
+from pathlib import Path
+p = Path('articles/fa-engineer-beginner-career.html')
+s = p.read_text(encoding='utf-8')
+repls = {
+  'https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-hero.webp': 'https://denkicontrol.com/assets/images/fa-engineer-beginner-career/fa-engineer-beginner-career-ogp.webp',
+  '<meta property="og:image:width" content="650">': '<meta property="og:image:width" content="1731">',
+  '<meta property="og:image:height" content="366">': '<meta property="og:image:height" content="909">',
+  '<meta property="og:image:alt" content="未経験から電気・FAエンジニアを目指す先輩と後輩のイメージ">': '<meta property="og:image:alt" content="未経験から電気・FAエンジニアを目指すには？ PLC・設備保全・生産技術の入口がわかる">',
+}
+for old, new in repls.items():
+    if old not in s:
+        raise SystemExit(f'missing expected metadata: {old}')
+    s = s.replace(old, new)
+p.write_text(s, encoding='utf-8')
+PY
+          git rm .github/workflows/pr1435-ogp-transfer.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/fa-engineer-beginner-career.html
+          git commit -m "Use dedicated OGP for beginner FA career article"
+          git push origin HEAD:preview-career-step3-beginner-fa-engineer

@@ -1,0 +1,101 @@
+name: DC24V Common Text Refresh V2
+
+"on":
+  push:
+    branches:
+      - preview-dc24v-common-text-refresh-20260916
+    paths:
+      - .github/workflows/dc24v-common-text-refresh-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-dc24v-common-text-refresh-20260916
+          fetch-depth: 0
+      - name: Update article and backlog
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          article = Path('articles/dc24v-common-basic.html')
+          backlog = Path('docs/existing-article-improvement-backlog.md')
+          s = article.read_text(encoding='utf-8')
+
+          if '.related-card-thumb{' not in s:
+              s, n = re.subn(
+                  r'(\.related-card p\{[^}]+\})',
+                  r'\1.related-card-thumb{margin:-16px -16px 14px;aspect-ratio:16/9;overflow:hidden;border-radius:19px 19px 12px 12px;background:#eaf1f8;border-bottom:1px solid #d7e4f3}.related-card-thumb img{width:100%;height:100%;object-fit:cover}.related-card h3{line-height:1.5}',
+                  s,
+                  count=1
+              )
+              if n != 1:
+                  raise SystemExit('related card CSS not found')
+
+          reading = '''
+        <section class="section-card" id="reading-order">
+          <h2>7. COM配線で迷ったときは、4つを分けて読む</h2>
+          <p>プラスコモン・マイナスコモンという呼び方だけで判断すると、機種や回路によって意味を取り違えやすくなります。<strong>入力ユニットのCOM端子、DC24V電源の+24V/0V、接続機器の出力方式、図面上の端子番号</strong>を分けて確認すると整理しやすくなります。</p>
+          <ol class="number-list">
+            <li><strong>入力ユニットのCOM端子を見る：</strong>対象入力グループの共通端子がどこかを確認します。</li>
+            <li><strong>COMの接続先を図面で追う：</strong>+24V側か0V側かを、正式図面とメーカー資料で確認します。</li>
+            <li><strong>接続機器の出力方式を見る：</strong>無電圧接点、NPN、PNPなど、信号側の方式を確認します。</li>
+            <li><strong>線番・端子番号まで合わせる：</strong>線色や見た目だけで決めず、図面と実機表示が一致しているか確認します。</li>
+          </ol>
+          <div class="key-highlight"><h3>覚え方</h3><p><strong>「COMがどこにつながるか」と「信号側が何を出すか」をセットで見る</strong>と、プラスコモン・マイナスコモンを整理しやすくなります。</p></div>
+        </section>
+'''
+          if 'id="reading-order"' not in s:
+              marker = '<section class="section-card" aria-labelledby="related-title">'
+              if marker not in s:
+                  raise SystemExit('related section marker not found')
+              s = s.replace(marker, reading + '\n        ' + marker, 1)
+
+          related = '''<section class="section-card" aria-labelledby="related-title">
+          <h2 id="related-title">あわせて読みたい記事</h2>
+          <p>DC24VのCOMを理解したら、PLC入出力、NPN/PNP、DC24V電源を続けて見ると、入力回路全体のつながりを整理しやすくなります。</p>
+          <div class="related-grid">
+            <a class="related-card" href="plc-io-unit-basic.html"><div class="related-card-thumb"><img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png" alt="PLC入出力ユニットの基本記事" loading="lazy" decoding="async"></div><h3>PLC入出力ユニットとは？</h3><p>入力端子、出力端子、COM、端子番号の関係を整理し、PLC配線の全体像につなげます。</p></a>
+            <a class="related-card" href="npn-pnp-basic.html"><div class="related-card-thumb"><img src="../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png" alt="NPNとPNPの違いを解説する記事" loading="lazy" decoding="async"></div><h3>NPN / PNP の違いとは？</h3><p>センサー出力とPLC入力の組み合わせを、COMとの関係も含めて整理します。</p></a>
+            <a class="related-card" href="dc24v-power-supply-basic.html"><div class="related-card-thumb"><img src="../assets/images/dc24v-power-supply-basic/dc24v-power-supply-hero.png" alt="DC24Vパワーサプライの基本記事" loading="lazy" decoding="async"></div><h3>DC24Vパワーサプライの基本</h3><p>+24Vと0Vを作る電源側から見ることで、COM配線の位置づけを理解しやすくします。</p></a>
+          </div>
+        </section>'''
+          s, n = re.subn(r'<section class="section-card" aria-labelledby="related-title">.*?</section>', related, s, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('related section replacement failed')
+
+          if '<a href="#reading-order">COM配線の読み方</a>' not in s:
+              s = s.replace('<a href="#summary">まとめ</a>', '<a href="#reading-order">COM配線の読み方</a>\n        <a href="#summary">まとめ</a>', 1)
+          if '<li><a href="#reading-order">COM配線の読み方</a></li>' not in s:
+              s = s.replace('<li><a href="#summary">まとめ</a></li>', '<li><a href="#reading-order">COM配線の読み方</a></li>\n            <li><a href="#summary">まとめ</a></li>', 1)
+
+          article.write_text(s, encoding='utf-8')
+
+          md = backlog.read_text(encoding='utf-8')
+          old = '- [ ] `articles/dc24v-common-basic.html` — DC24Vコモン'
+          new = '- [ ] `articles/dc24v-common-basic.html` — DC24Vコモン — 本文更新済み / 関連記事画像カード済み / 追加画像は保留'
+          if old in md:
+              md = md.replace(old, new, 1)
+          elif new not in md:
+              raise SystemExit('DC24V backlog row not found')
+          note = '- 画像生成が利用できない期間は、本文・構成・内部リンク・既存画像を使った関連記事カードを先行改善し、追加画像だけ保留として記録する。\n'
+          anchor = '- 完了後は必要に応じて Google のインデックス状態確認と、既存 GitHub Actions の IndexNow 通知を確認する。\n'
+          if note not in md:
+              if anchor not in md:
+                  raise SystemExit('backlog rule anchor not found')
+              md = md.replace(anchor, anchor + note, 1)
+          backlog.write_text(md, encoding='utf-8')
+          PY
+          rm -f .github/workflows/dc24v-common-text-refresh.yml
+          rm -f .github/workflows/dc24v-common-text-refresh-v2.yml
+          git config user.name denkicontrol-preview-writer
+          git config user.email actions@users.noreply.github.com
+          git add articles/dc24v-common-basic.html docs/existing-article-improvement-backlog.md .github/workflows/dc24v-common-text-refresh.yml .github/workflows/dc24v-common-text-refresh-v2.yml
+          git commit -m "Refresh DC24V common article text and related cards"
+          git push origin HEAD:preview-dc24v-common-text-refresh-20260916

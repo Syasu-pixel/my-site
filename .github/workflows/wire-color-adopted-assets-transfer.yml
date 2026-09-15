@@ -1,0 +1,114 @@
+name: Wire Color Adopted Assets Transfer
+
+on:
+  push:
+    branches:
+      - preview-control-panel-wire-color-refresh-v2-20260914
+    paths:
+      - .github/workflows/wire-color-adopted-assets-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-control-panel-wire-color-refresh-v2-20260914
+          fetch-depth: 1
+
+      - name: Download and verify adopted assets
+        shell: bash
+        env:
+          SHARE_ID: QQKRW9lrGRaI
+        run: |
+          set -euo pipefail
+          API="https://api.firestorage.ai/dev/file"
+          mkdir -p /tmp/wirecolor assets/images/control-panel-wire-color-basic
+
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+
+          download_one() {
+            FILE_ID="$1"
+            FILE_NAME="$2"
+            EXPECTED_SIZE="$3"
+            EXPECTED_SHA256="$4"
+            EXPECTED_WIDTH="$5"
+            EXPECTED_HEIGHT="$6"
+            OUT="$7"
+
+            FILE_ID="$FILE_ID" FILE_NAME="$FILE_NAME" EXPECTED_SIZE="$EXPECTED_SIZE" python3 - <<'PY'
+          import json, os
+          meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
+          file_id=os.environ['FILE_ID']
+          file_name=os.environ['FILE_NAME']
+          expected_size=int(os.environ['EXPECTED_SIZE'])
+          files=meta.get('files') or []
+          hit=next((f for f in files if f.get('fileId')==file_id), None)
+          if not hit:
+              raise SystemExit(f'file id not found: {file_id}')
+          if hit.get('fileName') != file_name:
+              raise SystemExit(f"filename mismatch: {hit.get('fileName')} != {file_name}")
+          if hit.get('sizeBytes') != expected_size:
+              raise SystemExit(f"size mismatch: {hit.get('sizeBytes')} != {expected_size}")
+          print(f"metadata ok: {file_name} {expected_size} bytes")
+          PY
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              -X POST "$API/shares/$SHARE_ID/files/$FILE_ID/download" > /tmp/download.json
+
+            DOWNLOAD_URL="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/download.json','r',encoding='utf-8'))
+          u=d.get('downloadUrl')
+          if not isinstance(u,str) or not u.startswith('https://s3.ap-northeast-1.wasabisys.com/'):
+              raise SystemExit('download URL rejected')
+          print(u)
+          PY
+            )"
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$DOWNLOAD_URL" -o "$OUT"
+            test "$(wc -c < "$OUT")" = "$EXPECTED_SIZE"
+            printf '%s  %s\n' "$EXPECTED_SHA256" "$OUT" | sha256sum -c -
+            OUT="$OUT" EXPECTED_WIDTH="$EXPECTED_WIDTH" EXPECTED_HEIGHT="$EXPECTED_HEIGHT" python3 - <<'PY'
+          from pathlib import Path
+          import os, struct
+          p=Path(os.environ['OUT'])
+          data=p.read_bytes()
+          if not data.startswith(b'\x89PNG\r\n\x1a\n') or data[12:16] != b'IHDR':
+              raise SystemExit('PNG verification failed')
+          width,height=struct.unpack('>II',data[16:24])
+          ew=int(os.environ['EXPECTED_WIDTH']); eh=int(os.environ['EXPECTED_HEIGHT'])
+          if (width,height)!=(ew,eh):
+              raise SystemExit(f'PNG dimensions mismatch: {width}x{height} != {ew}x{eh}')
+          print(f'PNG verified: {width}x{height}, {len(data)} bytes')
+          PY
+          }
+
+          download_one "01a0a599ebb27661b6115abcec67082a" "hero.png" "1690789" "883c988936c48fd889a8b67331c1293d899fac1f4eecb11be5e981df31ad374e" "2103" "748" "/tmp/wirecolor/hero.png"
+          download_one "01a0a59a5963725eac089efdae7d863c" "ogp.png" "1906965" "9a9935d6cd7358182fa74a43058b4ebe143108b65c821f9ca3f0fc8000cc5689" "1672" "941" "/tmp/wirecolor/ogp.png"
+          download_one "01a0a59a903c7361adb87ef7cdc2502d" "a_clean_infographic_poster_in_japanese_about_contr.png" "2051623" "6876100dd6676675ebc85689282c72a426009f4ac67909674a4959bacdb6352d" "1536" "1024" "/tmp/wirecolor/overview.png"
+          download_one "01a0a59ac6ce72b2a32b28f22b06e6c3" "a_wide_infographic_panel_in_a_clean_instructional.png" "2028988" "b461cba54071e8682a09254967d3041aadd61360692cd8674ba83fd609c5fc7a" "1536" "1024" "/tmp/wirecolor/comparison.png"
+          download_one "01a0a59b096772c3854edf455ab67870" "a_clean_colorful_manga_style_infographic_poster.png" "1945752" "7e2dcb98f69b28541ceca07a8fda895b6c365d6b1ad8f3c6c5531edc153bfb72" "1536" "1024" "/tmp/wirecolor/tracing-flow.png"
+
+          cp /tmp/wirecolor/hero.png assets/images/control-panel-wire-color-basic/control-panel-wire-color-basic-hero.png
+          cp /tmp/wirecolor/ogp.png assets/images/control-panel-wire-color-basic/control-panel-wire-color-basic-ogp.png
+          cp /tmp/wirecolor/overview.png assets/images/control-panel-wire-color-basic/control-panel-wire-color-basic-overview.png
+          cp /tmp/wirecolor/comparison.png assets/images/control-panel-wire-color-basic/control-panel-wire-color-basic-comparison.png
+          cp /tmp/wirecolor/tracing-flow.png assets/images/control-panel-wire-color-basic/control-panel-wire-color-basic-tracing-flow.png
+
+      - name: Commit adopted assets and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/wire-color-adopted-assets-transfer.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A assets/images/control-panel-wire-color-basic .github/workflows/wire-color-adopted-assets-transfer.yml
+          git diff --cached --check
+          git commit -m "Apply adopted wire color article images at native quality"
+          git push origin HEAD:preview-control-panel-wire-color-refresh-v2-20260914

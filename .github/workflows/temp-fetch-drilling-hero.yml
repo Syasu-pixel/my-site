@@ -15,19 +15,25 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage share response
+      - name: Inspect firestorage share internals
         shell: bash
         run: |
           set -euxo pipefail
-          URL='https://firestorage.ai/ja/f/xPe7yqqGiulP'
-          curl -L --fail --silent --show-error -D /tmp/headers.txt -o /tmp/body "$URL"
-          echo '--- headers ---'
-          cat /tmp/headers.txt
-          echo '--- file ---'
-          file /tmp/body
-          echo '--- size ---'
-          wc -c /tmp/body
-          echo '--- candidate links ---'
-          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/body | grep -Ei 'download|file|webp|storage|api' | head -n 100 || true
-          echo '--- relative candidates ---'
-          grep -Eo '(href|src)=["'"'"'][^"'"'"']+' /tmp/body | grep -Ei 'download|file|webp|api' | head -n 100 || true
+          BASE='https://firestorage.ai'
+          URL="$BASE/ja/f/xPe7yqqGiulP"
+          curl -L --fail --silent --show-error -o /tmp/page "$URL"
+          echo '--- page identifiers / api strings ---'
+          grep -Eo '.{0,120}(xPe7yqqGiulP|hWMCDtMWYBejXySs|01a0a56b168d74e08b69eb350fce33fa|/api/|download).{0,180}' /tmp/page | head -n 100 || true
+          echo '--- page scripts ---'
+          grep -Eo 'src="[^"]+\.js' /tmp/page | sed 's/^src="//' > /tmp/scripts.txt || true
+          cat /tmp/scripts.txt
+          while read -r script; do
+            [ -z "$script" ] && continue
+            case "$script" in
+              http*) src="$script" ;;
+              *) src="$BASE$script" ;;
+            esac
+            curl -L --fail --silent --show-error -o /tmp/script.js "$src" || continue
+            echo "--- matches in $script ---"
+            grep -Eo '.{0,140}(/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId).{0,220}' /tmp/script.js | head -n 120 || true
+          done < /tmp/scripts.txt

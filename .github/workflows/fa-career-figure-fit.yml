@@ -1,0 +1,38 @@
+name: Fix FA Career Article Figure Fit
+on:
+  push:
+    branches:
+      - preview-career-service-makersjob-v1
+    paths:
+      - .github/workflows/fa-career-figure-fit.yml
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-service-makersjob-v1
+          token: ${{ secrets.PREVIEW_WRITER_PAT }}
+      - name: Adjust article figure image fit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('articles/fa-engineer-career-service-comparison.html')
+          s = p.read_text(encoding='utf-8')
+          old = '.article-figure img{width:100%;aspect-ratio:16/9;object-fit:cover}'
+          new = '.article-figure img{width:100%;height:auto;object-fit:contain;background:#fff;padding:8px}'
+          if old not in s:
+              raise SystemExit('target article-figure CSS not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/fa-engineer-career-service-comparison.html
+          git rm .github/workflows/fa-career-figure-fit.yml
+          git commit -m "Fix article figure image cropping"
+          git push origin HEAD:preview-career-service-makersjob-v1

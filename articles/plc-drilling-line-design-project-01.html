@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCで設備を1から設計する｜穴あけ生産ライン設計プロジェクト 第1回</title>
+  <meta name="description" content="PLC・コンベヤ・エアシリンダ・加工ステーションを組み合わせた穴あけ生産ラインを、設備仕様からI/O、制御シーケンスまで1から設計していく実践プロジェクト。第1回は設備全体像と設計の進め方を整理します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCで設備を1から設計する｜穴あけ生産ライン設計プロジェクト 第1回">
+  <meta property="og:description" content="設備仕様からI/O、搬送、加工シーケンスまで。PLCを使った設備設計を1台分まるごと追いかける実践シリーズです。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f8fbff">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+
+  <style>
+    :root{--bg:#f5f8fc;--card:#fff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--blue-soft:#eef4ff;--green:#16a34a;--green-soft:#ecfdf3;--orange:#f59e0b;--orange-soft:#fff7e8;--red:#dc2626;--purple:#7c3aed;--shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px}
+    *{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:100px} body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);line-height:1.8;padding-top:var(--header-h)}
+    img{max-width:100%;display:block} a{color:var(--blue-deep);text-decoration:none} a:hover{text-decoration:underline}.container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff;border-bottom:1px solid #dbe7f3;box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{height:46px;width:auto}.brand-title{margin:0;font-size:17px;font-weight:900;color:#0f172a;line-height:1.25}.brand-sub{margin:2px 0 0;font-size:11px;color:#475569;font-weight:700}.header-nav{display:flex;align-items:center;gap:6px}.header-link{padding:7px 12px;border-radius:999px;color:#334155;font-size:12px;font-weight:800}.header-link:hover{background:#eff6ff;text-decoration:none}
+    .breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}
+    .article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:radial-gradient(circle at 78% 30%,rgba(37,99,235,.14),transparent 28%),radial-gradient(circle at 88% 72%,rgba(22,163,74,.10),transparent 24%),linear-gradient(135deg,#fff 0%,#f6f9ff 60%,#eef5ff 100%);box-shadow:var(--shadow);min-height:410px}.article-hero::before{content:"";position:absolute;right:5%;top:12%;width:290px;height:290px;border:2px solid rgba(37,99,235,.12);border-radius:32px;transform:rotate(8deg)}.article-hero::after{content:"PLC  →  搬送  →  加工  →  排出";position:absolute;right:6%;bottom:16%;padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.82);border:1px solid #cfe0f4;color:#1d4ed8;font-size:18px;font-weight:900;letter-spacing:.03em;box-shadow:0 12px 28px rgba(15,23,42,.08)}.article-hero-copy{position:relative;z-index:2;width:min(100%,700px);min-height:410px;padding:48px 42px;display:flex;flex-direction:column;justify-content:center}.hero-label{display:inline-flex;align-self:flex-start;padding:6px 11px;border-radius:999px;background:#eaf2ff;border:1px solid #bfd5ff;color:#1d4ed8;font-size:12px;font-weight:900}.article-hero h1{margin:16px 0 14px;font-size:40px;line-height:1.28;letter-spacing:-.02em}.hero-lead{margin:0;max-width:46ch;color:#475569;font-size:15px;font-weight:700}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;border:1px solid transparent}.btn:hover{text-decoration:none}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card,.mini-toc-card,.section-card,.side-card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}.summary-card{border-radius:24px;padding:22px 20px}.summary-card h2{margin:0 0 10px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:#1d4ed8}.mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border-radius:24px}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:#1d4ed8;font-size:13px;font-weight:900}.mini-toc a:hover{background:#eef4ff;text-decoration:none}
+    .page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card{padding:28px;border-radius:28px;margin-bottom:20px}.side-card{padding:20px;border-radius:28px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{line-height:1.5}.section-card p{margin:0 0 14px;font-size:15px}.simple-list{margin:0;padding-left:20px}.simple-list li{margin:9px 0;font-size:15px}.mark{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}.key-highlight,.field-highlight,.note-box,.danger-box{border-radius:20px;padding:18px;margin:18px 0}.key-highlight{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#f8fbff)}.field-highlight{border:1px solid #bbf7d0;background:linear-gradient(180deg,#ecfdf3,#f8fffb)}.note-box{border:1px solid #f7dba2;background:#fff8ea}.danger-box{border:1px solid #fecaca;background:#fff1f2}.key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{margin:0 0 8px;font-size:16px}.key-highlight p,.field-highlight p,.note-box p,.danger-box p{margin:0;font-size:14px;color:#475569}
+    .project-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:20px 0}.project-step{position:relative;padding:16px 12px;border:1px solid #d7e4f3;border-radius:18px;background:#f8fbff;text-align:center}.project-step strong{display:block;color:#1d4ed8;font-size:14px}.project-step span{display:block;margin-top:4px;color:#64748b;font-size:12px}.decision-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.decision-card{padding:17px;border:1px solid #d7e4f3;border-radius:20px;background:#fff}.decision-card strong{display:block;margin-bottom:6px;color:#0f172a}.decision-card p{margin:0;font-size:14px;color:#64748b}.status-strip{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.status-chip{display:inline-flex;padding:7px 10px;border-radius:999px;background:#eef4ff;border:1px solid #c9daf2;color:#1d4ed8;font-size:12px;font-weight:900}
+    .talk-thread{display:grid;gap:12px;margin-top:18px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row--right{flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px}.talk-avatar img{width:76px;height:auto}.talk-bubble{flex:0 1 auto;max-width:min(76%,680px);background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row--right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-right:8px;border-radius:999px;font-size:12px;font-weight:900}.talk-name--senpai{background:#eaf2ff;color:#1d4ed8;border:1px solid #bfd5ff}.talk-name--kouhai{background:#f3ebff;color:#7c3aed;border:1px solid #ddc9ff}.talk-bubble p{margin:0;font-size:15px}
+    .table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:680px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}th{background:#f8fbff;font-weight:900;white-space:nowrap}.side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px}.side-card ul{margin:0;padding-left:18px}.side-card li{margin:9px 0;font-size:14px}.support-card{border-color:#dbeafe}.support-card-title{margin:0 0 8px;padding-bottom:8px;border-bottom:1px solid #dbeafe;font-size:15px;font-weight:900;color:#1e3a8a}.support-card-text{margin:0;font-size:13px;color:#334155}.support-card-actions{margin-top:12px;display:grid;gap:8px}.support-link{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid #cbdcf2;font-size:12px;font-weight:900}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}
+    .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text)}.related-card:hover{text-decoration:none;background:#fbfdff}.related-card h3{margin:0 0 8px;font-size:16px;color:#1d4ed8}.related-card p{margin:0;font-size:13px;color:#64748b}.feedback-card{margin-top:20px;padding:24px;border:1px solid #cfe0f4;border-radius:24px;background:linear-gradient(180deg,#f8fbff,#fff);text-align:center}.feedback-card h2{margin:0 0 6px;font-size:20px}.feedback-card p{margin:0;color:#64748b;font-size:14px}.feedback-actions{display:flex;justify-content:center;gap:12px;margin-top:16px}.feedback-button{min-width:130px;padding:12px 16px;border-radius:16px;border:1px solid #cddced;background:#fff;font-weight:900;font-size:15px;cursor:pointer}.feedback-button:hover{background:#eef4ff}.feedback-button[disabled]{opacity:.6;cursor:default}.feedback-note{margin-top:10px!important;font-size:12px!important}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:#64748b;text-align:center;font-size:12px;font-weight:700}
+    @media(max-width:1100px){.page-layout{grid-template-columns:1fr}.side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.article-hero::after{opacity:.45}.project-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(min-width:744px) and (max-width:1100px){.article-hero{min-height:360px}.article-hero-copy{min-height:360px;padding:40px 34px}.article-hero h1{font-size:34px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:760px){:root{--header-h:68px}.site-header{padding:8px}.header-nav{display:none}.brand-logo{height:38px}.brand-title{font-size:14px}.brand-sub{display:none}.article-hero{min-height:auto;border-radius:24px}.article-hero-copy{min-height:360px;padding:34px 22px}.article-hero h1{font-size:30px}.article-hero::before,.article-hero::after{display:none}.top-summary{grid-template-columns:1fr}.side-rail{grid-template-columns:1fr}.decision-grid,.related-grid{grid-template-columns:1fr}.project-flow{grid-template-columns:1fr}.section-card{padding:22px}.talk-row,.talk-row--right{flex-direction:column}.talk-row--right .talk-avatar{align-self:flex-end}.talk-bubble{max-width:none}.feedback-actions{flex-direction:column}.feedback-button{width:100%}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="../" class="brand" aria-label="トップページへ移動">
+      <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+      <div><p class="brand-title">電気と制御の実務メモ</p><p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p></div>
+    </a>
+    <nav class="header-nav" aria-label="主要ナビゲーション">
+      <a class="header-link" href="../index.html">ホーム</a>
+      <a class="header-link" href="../categories/control-basics.html">制御の基礎</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><span>実践・設備設計</span><span>›</span><span>穴あけ生産ライン設計 第1回</span></nav>
+
+  <section class="article-hero" aria-labelledby="page-title">
+    <div class="article-hero-copy">
+      <span class="hero-label">実践・設備設計シリーズ #01</span>
+      <h1 id="page-title">PLCで設備を1から設計する<br>穴あけ生産ライン設計プロジェクト</h1>
+      <p class="hero-lead">「PLCの命令は分かった。でも設備1台をどう設計すればいい？」というところから、仕様・I/O・搬送・加工・異常処理までを1つの設備でつないでいきます。</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#machine">今回つくる設備を見る</a><a class="btn btn-secondary" href="#roadmap">設計ロードマップを見る</a></div>
+    </div>
+  </section>
+
+  <section class="top-summary" aria-label="記事の導入まとめ">
+    <section class="summary-card summary-card--fit"><h2>こんな人向け</h2><ul><li>PLCの基礎から次へ進みたい</li><li>設備設計の順番を知りたい</li><li>I/Oとラダーを実機イメージでつなげたい</li></ul></section>
+    <section class="summary-card summary-card--notyet"><h2>この記事ではまだやらない</h2><ul><li>実機の主回路・保護定格の確定</li><li>完成ラダーの丸写し</li><li>GX Works2の実画面シミュレーション結果</li></ul></section>
+    <section class="summary-card summary-card--conclusion"><h2>このシリーズのゴール</h2><ul><li>設備仕様から制御へ落とす</li><li>「なぜそう設計したか」を残す</li><li>最後はPLCプログラムとして確認する</li></ul></section>
+  </section>
+
+  <section class="mini-toc-card"><h2>第1回でわかること</h2><div class="mini-toc"><a href="#machine">設備全体像</a><a href="#conditions">設計条件</a><a href="#decisions">設計判断</a><a href="#roadmap">シリーズ全体</a><a href="#current">現在地</a><a href="#safety">実機との線引き</a><a href="#feedback">アンケート</a></div></section>
+
+  <div class="page-layout">
+    <div class="main-column">
+      <section class="section-card" id="machine">
+        <h2>今回つくるのは「搬送して、位置決めして、穴をあけて、排出する」設備</h2>
+        <p>題材にするのは、樹脂ワークをコンベヤで搬送し、加工ステーションで位置決め・クランプして穴あけしたあと、排出する小型生産ラインです。</p>
+        <div class="project-flow" aria-label="設備工程の流れ">
+          <div class="project-step"><strong>01 投入</strong><span>作業者が1個ずつ投入</span></div>
+          <div class="project-step"><strong>02 搬送</strong><span>CV01〜CV04で蓄積搬送</span></div>
+          <div class="project-step"><strong>03 位置決め</strong><span>ストッパーとシリンダ</span></div>
+          <div class="project-step"><strong>04 穴あけ</strong><span>主軸とドリル上下</span></div>
+          <div class="project-step"><strong>05 排出</strong><span>完成ワークを外へ送る</span></div>
+        </div>
+        <div class="talk-thread">
+          <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>PLCの勉強って、普通は入力と出力の例題で終わることが多いですよね。</p></div></div>
+          <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>今回はその先までやります。機械の条件を決めて、センサとアクチュエータを割り付けて、最後に制御へ落とします。</p></div></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="conditions">
+        <h2>最初に「機械の条件」を固定する</h2>
+        <p>いきなりラダーを書き始めると、途中でI/Oや動作条件が足りなくなります。そこで先に、設備として何を実現するかを決めました。</p>
+        <div class="table-wrap"><table><thead><tr><th>項目</th><th>今回の基準</th><th>設計で効いてくる部分</th></tr></thead><tbody>
+          <tr><td>ワーク</td><td>MCナイロン W100×D60×H20 mm</td><td>センサ配置、位置決め、クランプ</td></tr>
+          <tr><td>加工</td><td>上面中央へ φ8・深さ15 mmの止まり穴</td><td>主軸、ドリル上下、加工時間</td></tr>
+          <tr><td>搬送</td><td>CV01〜CV04、各約500 mm</td><td>在荷管理、隣接搬送の排他</td></tr>
+          <tr><td>バッファ</td><td>CV02〜CV04に最大3個待機</td><td>下流空きによる搬送許可</td></tr>
+          <tr><td>目標タクト</td><td>30秒以内</td><td>加工時間、搬送待ち、生産統計</td></tr>
+        </tbody></table></div>
+        <div class="key-highlight"><h3>ラダーより先に設備仕様</h3><p>「何を検出して、何を動かして、何を完了条件にするか」が決まれば、PLCのロジックはかなり整理しやすくなります。</p></div>
+      </section>
+
+      <section class="section-card" id="decisions">
+        <h2>このシリーズでは「設計判断」も見せる</h2>
+        <p>完成したI/O表だけを見ても、なぜその構成になったかは分かりません。そこで今回は、設計途中で出てきた判断も記事に残します。</p>
+        <div class="decision-grid">
+          <div class="decision-card"><strong>搬送は1本の長いコンベヤにしない</strong><p>区間ごとに在荷を管理して、下流の空きを見ながら送れるようにCV01〜CV04へ分けます。</p></div>
+          <div class="decision-card"><strong>隣り合う搬送は同時に動かさない</strong><p>ワーク受け渡しの競合を避けつつ、離れた区間は同時搬送できる構成にします。</p></div>
+          <div class="decision-card"><strong>完了は時間ではなくFBで見る</strong><p>シリンダやストッパーは「何秒たったから完了」ではなく、端センサ成立を次工程への条件にします。</p></div>
+          <div class="decision-card"><strong>警告と故障を分ける</strong><p>搬出満杯や下流待ちは正常な待機。指令を出したのにFBが来ない場合を故障として分離します。</p></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="roadmap">
+        <h2>1記事に全部詰めず、設備設計の順番でシリーズ化する</h2>
+        <p>この題材は1ページに詰め込むより、実際の設計手順に沿って分けた方が理解しやすくなります。</p>
+        <ol class="simple-list">
+          <li><strong>第1回：</strong>設備仕様と全体構想 ← 今ここ</li>
+          <li><strong>第2回：</strong>PLC・I/O構成を決める</li>
+          <li><strong>第3回：</strong>CV01〜CV04の搬送制御を考える</li>
+          <li><strong>第4回：</strong>加工ステーションのシーケンスを作る</li>
+          <li><strong>第5回：</strong>手動運転・異常処理・復旧を設計する</li>
+          <li><strong>第6回：</strong>GOT画面と保守・生産情報を作る</li>
+          <li><strong>最終：</strong>GX Works2へ実装してシミュレーションする</li>
+        </ol>
+        <div class="field-highlight"><h3>完成コードより「作る順番」を重視</h3><p>PLCプログラムだけでなく、仕様→I/O→シーケンス→異常→HMI→試験までを一連の設計として追えるシリーズにします。</p></div>
+      </section>
+
+      <section class="section-card" id="current">
+        <h2>現在地：設計はかなり進んでいるが、GX Works2実装はこれから</h2>
+        <div class="status-strip"><span class="status-chip">設備仕様：設計済み</span><span class="status-chip">I/O：約56DI / 29DO</span><span class="status-chip">工程：M500〜M517設計済み</span><span class="status-chip">GX Works2：未入力</span><span class="status-chip">Simulator：未試験</span></div>
+        <p>制御思想、搬送、加工ステップ、手動運転、異常処理、GOT、生産・保守統計までは設計資料として整理しています。一方で、GX Works2への実入力とGX Simulator2での確認はまだ行っていません。</p>
+        <div class="note-box"><h3>「設計済み」と「動作確認済み」は分けて表示します</h3><p>このシリーズでは、紙上設計・PLC入力・シミュレーション確認を同じ「完成」にまとめません。実際に確認できた段階を記事内でも更新していきます。</p></div>
+      </section>
+
+      <section class="section-card" id="safety">
+        <h2>教材として扱う範囲と、実機で別途確認する範囲</h2>
+        <p>このシリーズで扱う中心は、PLCの通常制御、I/O、シーケンス、HMI、シミュレーションです。非常停止などの安全機能は通常PLCだけで成立させる前提にはしません。</p>
+        <div class="danger-box"><h3>実機の主回路・保護・安全設計は別確認</h3><p>実機へ適用する場合は、最新のメーカー資料、現地電源・故障条件、機械リスクアセスメントをもとに、資格・責任を持つ設計者が確認する必要があります。</p></div>
+      </section>
+
+      <section class="section-card">
+        <h2>次はPLCとI/Oを決める</h2>
+        <p>次回は、この設備に必要な入力と出力を洗い出し、どのセンサ・スイッチ・シリンダ・モータがPLCのどこにつながるかを整理します。</p>
+        <p>いきなりX0やY0を決めるのではなく、まず<strong>信号名と役割を正本</strong>にしてからアドレスを割り付ける考え方を使います。</p>
+      </section>
+
+      <section class="section-card">
+        <h2>あわせて読みたい記事</h2>
+        <div class="related-grid">
+          <a class="related-card" href="./plc-io-unit-basic.html"><h3>PLC I/Oユニットの基本</h3><p>入力と出力をPLCでどう扱うかを先に確認したい人向け。</p></a>
+          <a class="related-card" href="./sensor-2wire-3wire-basic.html"><h3>センサ2線式・3線式の基本</h3><p>設備の入力信号を考える前に、センサ配線の違いを整理します。</p></a>
+          <a class="related-card" href="./dc24v-common-basic.html"><h3>DC24VとCOMの基本</h3><p>PLC入出力回路の共通線と考え方を基礎から確認できます。</p></a>
+        </div>
+      </section>
+
+      <section class="feedback-card" id="feedback" aria-labelledby="feedback-title">
+        <h2 id="feedback-title">この実践シリーズ、役に立ちそうですか？</h2>
+        <p>今後の内容や見せ方を改善するため、1クリックで教えてください。</p>
+        <div class="feedback-actions">
+          <button class="feedback-button" type="button" data-vote="good">👍 いいと思う</button>
+          <button class="feedback-button" type="button" data-vote="bad">👎 いまひとつ</button>
+        </div>
+        <p class="feedback-note" id="feedbackMessage">PreviewではUI確認中です。集計バックエンドは公開前に接続します。</p>
+      </section>
+    </div>
+
+    <aside class="side-rail" aria-label="補足情報">
+      <section class="side-card"><h3>この記事の見るポイント</h3><ul><li>ラダーを書く前に何を決めるか</li><li>設備仕様からPLCへどうつなぐか</li><li>完成結果だけでなく設計判断も追う</li><li>設計・実装・SIMを分けて管理する</li></ul></section>
+      <section class="side-card support-card"><p class="support-card-title">このサイトを応援する</p><p class="support-card-text">記事が役立ったら、今後の技術コンテンツ制作を支援していただけるとうれしいです。</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">PayPalで応援</a></div></section>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer"><div class="container">© 電気と制御の実務メモ</div></footer>
+
+<script>
+  (() => {
+    const buttons = document.querySelectorAll('[data-vote]');
+    const message = document.getElementById('feedbackMessage');
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        buttons.forEach((item) => { item.disabled = true; });
+        message.textContent = 'ありがとうございます。Preview段階では表示確認のみで、投票集計はまだ送信していません。';
+      });
+    });
+  })();
+</script>
+</body>
+</html>

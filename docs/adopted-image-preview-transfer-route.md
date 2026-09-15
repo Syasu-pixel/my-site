@@ -32,6 +32,15 @@ ChatGPT で採用済みの画像を、画質を落とさず GitHub の Preview �
 15. Cloudflare Pages の Branch Preview URL で PC / スマホ / OGP / Hero / 本文画像 / 関連記事画像を確認する。
 16. ユーザー承認後にだけ本番反映へ進む。
 
+## 関連記事カードの画像ルール
+
+- 関連記事カードのサムネイルは、原則としてリンク先記事の **OGP 画像を使用する**。
+- Hero や本文図解は、記事名が画像だけでは伝わりにくい場合があるため、関連記事カードでは代用しない。
+- OGP が存在しない記事を関連記事へ載せる場合は、その場で記事タイトルが一目で分かる OGP を新規作成してから使用する。
+- 新規 OGP は原則 1200×630 系の横長比率とし、スマホでも記事タイトルを読める文字サイズにする。
+- OGP を新規作成した場合も、Preview へ反映してカード表示を確認してから本番へ進む。
+- 関連記事カードを実装する前に、参照する OGP の実在パスを GitHub で確認する。ファイル名を推測して実装しない。
+
 ## Workflow の考え方
 
 - `permissions: contents: write`
@@ -47,6 +56,8 @@ ChatGPT で採用済みの画像を、画質を落とさず GitHub の Preview �
 ## 2026-09-16 の実績
 
 `articles/control-panel-wire-color-basic.html` の Preview で、Hero / OGP / 本文画像3枚の合計5枚をこの方式で反映し、GitHub Actions 成功後に Cloudflare Pages Preview で表示確認できた。
+
+同記事の関連記事カードでは、Hero 画像だと記事名が一目で伝わりにくいことが確認できたため、関連記事カードは OGP 優先へ統一した。OGP が無かった `terminal-block-basic` と `tester` は、その場で OGP を新規作成して Preview で使用する運用に変更した。
 
 また、過去の `fa-engineer-skill-map` 記事でも同様の one-shot Workflow による native-quality 画像転送の成功履歴がある。
 

@@ -1,0 +1,40 @@
+name: Fix FA Career Select Image
+on:
+  push:
+    branches:
+      - preview-career-service-makersjob-v1
+    paths:
+      - .github/workflows/fix-fa-career-select-image.yml
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-service-makersjob-v1
+          token: ${{ github.token }}
+      - name: Fix image extension and article reference
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          article = Path('articles/fa-engineer-career-service-comparison.html')
+          s = article.read_text(encoding='utf-8')
+          old = '../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.webp'
+          new = '../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.png'
+          if old not in s:
+              raise SystemExit('select image reference not found')
+          article.write_text(s.replace(old, new, 1), encoding='utf-8')
+          src = Path('assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.webp')
+          dst = Path('assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.png')
+          dst.write_bytes(src.read_bytes())
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/fa-engineer-career-service-comparison.html assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.png
+          git rm .github/workflows/fix-fa-career-select-image.yml
+          git commit -m "Fix career comparison image display"
+          git push origin HEAD:preview-career-service-makersjob-v1

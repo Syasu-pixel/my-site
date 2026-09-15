@@ -20,14 +20,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Resolve article Preview URL
+      - name: Resolve article Preview target
         id: target
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
-          PAGES_PROJECT: denkicontrol-preview
         run: |
           mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
           ARTICLE_PATH=""
@@ -50,26 +48,22 @@ jobs:
             exit 0
           fi
 
-          BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
           LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
 
           case "$BRANCH_NAME" in
             ai-editorial/*|preview-*|pilot-*)
-              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
-              PREVIEW_PROVIDER="cloudflare-pages"
-              echo "Resolved Cloudflare Preview candidate: $PREVIEW_URL"
+              PREVIEW_PROVIDER="cloudflare-pages-pr-comment"
+              echo "Cloudflare Preview branch detected. Public Preview URL must be read from the successful cloudflare-workers-and-pages[bot] PR comment; do not guess it from the branch name."
               ;;
             *)
-              PREVIEW_URL=""
               PREVIEW_PROVIDER="local-only"
-              echo "Branch '$BRANCH_NAME' is outside Cloudflare Pages preview branch rules; no public Preview URL will be advertised."
+              echo "Branch '$BRANCH_NAME' is outside Cloudflare Pages preview branch rules; public Preview is not expected."
               ;;
           esac
 
           echo "Resolved article: $ARTICLE_PATH"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
           echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
-          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "preview_provider=$PREVIEW_PROVIDER" >> "$GITHUB_OUTPUT"
           echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"
 
@@ -105,7 +99,6 @@ jobs:
       - name: Capture desktop and mobile Preview
         if: steps.target.outputs.has_article == 'true'
         env:
-          PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
           PREVIEW_PROVIDER: ${{ steps.target.outputs.preview_provider }}
           LOCAL_URL: ${{ steps.target.outputs.local_url }}
           ARTICLE_PATH: ${{ steps.target.outputs.article_path }}
@@ -119,7 +112,6 @@ jobs:
           import fs from 'node:fs';
 
           const renderUrl = process.env.LOCAL_URL;
-          const previewUrl = process.env.PREVIEW_URL;
           const previewProvider = process.env.PREVIEW_PROVIDER || 'local-only';
           const pr = process.env.PR_NUMBER;
           const out = `preview-capture/pr-${pr}`;
@@ -144,8 +136,11 @@ jobs:
 
           fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
             pr_number: Number(pr),
-            preview_url: previewUrl || null,
+            preview_url: null,
             preview_provider: previewProvider,
+            public_preview_source: previewProvider === 'cloudflare-pages-pr-comment'
+              ? 'cloudflare-workers-and-pages[bot] PR comment'
+              : null,
             render_source: 'local-pr-head',
             article_path: process.env.ARTICLE_PATH,
             head_sha: process.env.HEAD_SHA,

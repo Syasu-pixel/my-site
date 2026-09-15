@@ -1,0 +1,93 @@
+name: Apply career service Step 2
+on:
+  push:
+    branches:
+      - release-career-service-step2
+    paths:
+      - '.github/workflows/apply-career-service-step2.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release-career-service-step2
+      - name: Update category search sitemap and backlog
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          slug = 'fa-engineer-career-service-comparison.html'
+          article_url = f'/articles/{slug}'
+          full_url = f'https://denkicontrol.com/articles/{slug}'
+
+          # category
+          p = Path('categories/career.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<span>転職サービス比較：準備中</span>'
+          new = '<a href="../articles/fa-engineer-career-service-comparison.html">電気・FAエンジニア向け転職サービス比較</a>'
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif slug not in s:
+              raise SystemExit('career category target not found')
+          p.write_text(s, encoding='utf-8')
+
+          # search index
+          p = Path('assets/data/search-index.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          if not any(item.get('url') == article_url for item in data):
+              data.append({
+                  'title': '電気・FAエンジニア向け転職サービスの選び方・比較',
+                  'url': article_url,
+                  'category': 'キャリア・転職',
+                  'description': '電気・FA・製造業の技術者向けに、転職サービスの選び方と確認ポイントを整理。現在は製造業特化のメーカーズジョブを掲載しています。',
+                  'keywords': ['転職サービス', 'FAエンジニア 転職', '電気エンジニア 転職', '製造業 転職', 'メーカーズジョブ'],
+                  'synonyms': ['転職エージェント', 'キャリアサービス', 'FA 転職']
+              })
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          # sitemap
+          p = Path('sitemap.xml')
+          s = p.read_text(encoding='utf-8')
+          if full_url not in s:
+              entry = f'  <url>\n    <loc>{full_url}</loc>\n  </url>\n'
+              if '</urlset>' not in s:
+                  raise SystemExit('sitemap closing tag not found')
+              s = s.replace('</urlset>', entry + '</urlset>', 1)
+          p.write_text(s, encoding='utf-8')
+
+          # backlog publication record
+          p = Path('docs/article-backlog.md')
+          s = p.read_text(encoding='utf-8')
+          marker = f'`articles/{slug}`'
+          if marker not in s:
+              section = '\n\n## 公開反映メモ\n'
+              bullet = f'\n- [x] キャリア・転職 STEP 4: {marker} — 転職サービス比較（メーカーズジョブ掲載）を公開。\n'
+              if '## 公開反映メモ' in s:
+                  s += bullet
+              else:
+                  s += section + bullet
+          p.write_text(s, encoding='utf-8')
+
+          # validate
+          json.loads(Path('assets/data/search-index.json').read_text(encoding='utf-8'))
+          import xml.etree.ElementTree as ET
+          ET.parse('sitemap.xml')
+
+          # remove this one-shot workflow
+          wf = Path('.github/workflows/apply-career-service-step2.yml')
+          if wf.exists():
+              wf.unlink()
+          PY
+      - name: Commit Step 2
+        shell: bash
+        run: |
+          git config user.name "denkicontrol-step2"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Add public routes for career service comparison"
+          git push origin HEAD:release-career-service-step2

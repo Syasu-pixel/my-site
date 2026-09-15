@@ -15,25 +15,24 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect firestorage share internals
+      - name: Inspect firestorage download route
         shell: bash
         run: |
           set -euxo pipefail
           BASE='https://firestorage.ai'
-          URL="$BASE/ja/f/xPe7yqqGiulP"
-          curl -L --fail --silent --show-error -o /tmp/page "$URL"
-          echo '--- page identifiers / api strings ---'
-          grep -Eo '.{0,120}(xPe7yqqGiulP|hWMCDtMWYBejXySs|01a0a56b168d74e08b69eb350fce33fa|/api/|download).{0,180}' /tmp/page | head -n 100 || true
-          echo '--- page scripts ---'
-          grep -Eo 'src="[^"]+\.js' /tmp/page | sed 's/^src="//' > /tmp/scripts.txt || true
-          cat /tmp/scripts.txt
-          while read -r script; do
-            [ -z "$script" ] && continue
-            case "$script" in
-              http*) src="$script" ;;
-              *) src="$BASE$script" ;;
-            esac
-            curl -L --fail --silent --show-error -o /tmp/script.js "$src" || continue
-            echo "--- matches in $script ---"
-            grep -Eo '.{0,140}(/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId).{0,220}' /tmp/script.js | head -n 120 || true
-          done < /tmp/scripts.txt
+          JS="$BASE/_next/static/chunks/4899-d89df949f2dbd5af.js"
+          curl -L --fail --silent --show-error -o /tmp/page.js "$JS"
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('/tmp/page.js').read_text(errors='ignore')
+          for needle in ['async function v()', '/download', 'files?maxResults=1000', 'window.location.pathname.match', 'let f=', 'const f=']:
+              print('\n===== '+needle+' =====')
+              start=0
+              hits=0
+              while True:
+                  i=s.find(needle,start)
+                  if i<0 or hits>=8: break
+                  print(s[max(0,i-1800):min(len(s),i+3200)])
+                  start=i+len(needle)
+                  hits+=1
+          PY

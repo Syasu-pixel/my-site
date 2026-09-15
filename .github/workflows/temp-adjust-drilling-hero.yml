@@ -1,0 +1,57 @@
+name: Temp adjust drilling hero
+
+on:
+  push:
+    branches:
+      - docs-sample-line-drilling
+    paths:
+      - '.github/workflows/temp-adjust-drilling-hero.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  adjust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs-sample-line-drilling
+
+      - name: Keep full approved hero visible
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('articles/plc-drilling-line-design-project-01.html')
+          s=p.read_text()
+          old="background-size:cover;background-position:center center;background-repeat:no-repeat;"
+          new="background-size:100% 100%,auto 100%;background-position:center,right center;background-repeat:no-repeat,no-repeat;background-color:#fff;"
+          if old not in s:
+              raise SystemExit('desktop hero CSS target not found')
+          s=s.replace(old,new,1)
+          old2=".article-hero{background-position:58% center}"
+          new2=".article-hero{background-position:center,right center}"
+          if old2 not in s:
+              raise SystemExit('tablet hero CSS target not found')
+          s=s.replace(old2,new2,1)
+          old3="background-position:72% center}"
+          new3="background-size:100% 100%,auto 100%;background-position:center,right center}"
+          if old3 not in s:
+              raise SystemExit('mobile hero CSS target not found')
+          s=s.replace(old3,new3,1)
+          p.write_text(s)
+          PY
+
+      - name: Commit adjustment
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/plc-drilling-line-design-project-01.html
+          git commit -m 'style: keep drilling hero artwork fully visible'
+          git push origin HEAD:docs-sample-line-drilling

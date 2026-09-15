@@ -1,0 +1,116 @@
+name: Skill Map Adopted Assets Transfer
+
+on:
+  push:
+    branches:
+      - preview-career-step3-skill-map
+    paths:
+      - .github/workflows/skill-map-adopted-assets-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-career-step3-skill-map
+          fetch-depth: 1
+
+      - name: Download and verify adopted assets
+        shell: bash
+        env:
+          SHARE_ID: xuUzDCG3iZiGkFeE
+        run: |
+          set -euo pipefail
+          API="https://api.firestorage.ai/dev/file"
+          mkdir -p /tmp/skillmap assets/images/fa-engineer-skill-map
+
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+
+          download_one() {
+            FILE_ID="$1"
+            FILE_NAME="$2"
+            EXPECTED_SIZE="$3"
+            EXPECTED_SHA256="$4"
+            OUT="$5"
+
+            FILE_ID="$FILE_ID" FILE_NAME="$FILE_NAME" EXPECTED_SIZE="$EXPECTED_SIZE" python3 - <<'PY'
+          import json, os
+          meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
+          file_id=os.environ['FILE_ID']
+          file_name=os.environ['FILE_NAME']
+          expected_size=int(os.environ['EXPECTED_SIZE'])
+          files=meta.get('files') or []
+          hit=next((f for f in files if f.get('fileId')==file_id), None)
+          if not hit:
+              raise SystemExit(f'file id not found: {file_id}')
+          if hit.get('fileName') != file_name:
+              raise SystemExit(f"filename mismatch: {hit.get('fileName')} != {file_name}")
+          if hit.get('sizeBytes') != expected_size:
+              raise SystemExit(f"size mismatch: {hit.get('sizeBytes')} != {expected_size}")
+          print(f"metadata ok: {file_name} {expected_size} bytes")
+          PY
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              -X POST "$API/shares/$SHARE_ID/files/$FILE_ID/download" > /tmp/download.json
+
+            DOWNLOAD_URL="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/download.json','r',encoding='utf-8'))
+          u=d.get('downloadUrl')
+          if not isinstance(u,str) or not u.startswith('https://s3.ap-northeast-1.wasabisys.com/'):
+              raise SystemExit('download URL rejected')
+          print(u)
+          PY
+            )"
+
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$DOWNLOAD_URL" -o "$OUT"
+            test "$(wc -c < "$OUT")" = "$EXPECTED_SIZE"
+            printf '%s  %s\n' "$EXPECTED_SHA256" "$OUT" | sha256sum -c -
+            OUT="$OUT" python3 - <<'PY'
+          from pathlib import Path
+          import os, struct
+          p=Path(os.environ['OUT'])
+          data=p.read_bytes()
+          if not data.startswith(b'\x89PNG\r\n\x1a\n') or data[12:16] != b'IHDR':
+              raise SystemExit('PNG verification failed')
+          width,height=struct.unpack('>II',data[16:24])
+          if (width,height)!=(1672,941):
+              raise SystemExit(f'PNG dimensions mismatch: {width}x{height}')
+          print(f'PNG verified: {width}x{height}, {len(data)} bytes')
+          PY
+          }
+
+          download_one "01a0a464773b765abf90f969d87291a8" "未経験から学ぶfa資格スキルマップ.png" "1954716" "ccd53326c4a711f8dfec567aebc8815eb13a26d2c2f80f1bab17422fb5389d9d" "/tmp/skillmap/ogp.png"
+          download_one "01a0a464bdd672f3a217e4ff47eabe93" "資格と実務スキルの成長ステップ.png" "1739075" "a5aae91f28897b781f96de69e7caf4d2a6c6fff78e326705751fafd0fd3e1de8" "/tmp/skillmap/relation.png"
+          download_one "01a0a464f3e87547955c5aaa91c631b7" "電気_制御資格のキャリアガイド.png" "1826098" "4de44d05a80caef6d48acd08da3cbb2ce17ca0e939b4fa937cd8d89ac71ec993" "/tmp/skillmap/priority.png"
+
+          cp /tmp/skillmap/ogp.png assets/images/fa-engineer-skill-map/fa-engineer-skill-map-ogp.png
+          cp /tmp/skillmap/relation.png assets/images/fa-engineer-skill-map/fa-engineer-skill-map-relation.png
+          cp /tmp/skillmap/priority.png assets/images/fa-engineer-skill-map/fa-engineer-skill-map-priority.png
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/fa-engineer-skill-map-career.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('fa-engineer-skill-map-ogp.webp','fa-engineer-skill-map-ogp.png')
+          s=s.replace('fa-engineer-skill-map-relation.webp','fa-engineer-skill-map-relation.png')
+          s=s.replace('fa-engineer-skill-map-priority.webp','fa-engineer-skill-map-priority.png')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Commit adopted assets and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/skill-map-adopted-assets-transfer.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A articles/fa-engineer-skill-map-career.html assets/images/fa-engineer-skill-map .github/workflows/skill-map-adopted-assets-transfer.yml
+          git commit -m "Add adopted skill map article images at native quality"
+          git push origin HEAD:preview-career-step3-skill-map

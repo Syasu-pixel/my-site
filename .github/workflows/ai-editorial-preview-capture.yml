@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Resolve article Preview URL
+      - name: Resolve Preview URL
         id: target
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -29,46 +29,51 @@ jobs:
           BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
           PAGES_PROJECT: denkicontrol-preview
         run: |
-          mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
-          ARTICLE_PATH=""
+          mapfile -t CHANGED_FILES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          mapfile -t ARTICLE_CANDIDATES < <(printf '%s\n' "${CHANGED_FILES[@]}" | grep -E '^articles/.*\.html$' || true)
+          TARGET_PATH=""
 
-          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
-            slug="$(basename "$candidate" .html)"
-            if [ -d "assets/images/$slug" ]; then
-              ARTICLE_PATH="$candidate"
-              break
-            fi
-          done
-
-          if [ -z "$ARTICLE_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
-            ARTICLE_PATH="${ARTICLE_CANDIDATES[0]}"
+          if printf '%s\n' "${CHANGED_FILES[@]}" | grep -Eq '^(index\.html|assets/js/site-search\.js)$'; then
+            TARGET_PATH="index.html"
           fi
 
-          if [ -z "$ARTICLE_PATH" ]; then
-            echo "No article HTML changed; skip capture."
+          if [ -z "$TARGET_PATH" ]; then
+            for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+              slug="$(basename "$candidate" .html)"
+              if [ -d "assets/images/$slug" ]; then
+                TARGET_PATH="$candidate"
+                break
+              fi
+            done
+          fi
+
+          if [ -z "$TARGET_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
+            TARGET_PATH="${ARTICLE_CANDIDATES[0]}"
+          fi
+
+          if [ -z "$TARGET_PATH" ]; then
+            echo "No supported Preview target changed; skip capture."
             echo "has_article=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
-          LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
+          LOCAL_URL="http://127.0.0.1:4173/${TARGET_PATH}"
 
           case "$BRANCH_NAME" in
             ai-editorial/*|preview-*|pilot-*)
-              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
+              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${TARGET_PATH}"
               PREVIEW_PROVIDER="cloudflare-pages"
-              echo "Resolved Cloudflare Preview candidate: $PREVIEW_URL"
               ;;
             *)
               PREVIEW_URL=""
               PREVIEW_PROVIDER="local-only"
-              echo "Branch '$BRANCH_NAME' is outside Cloudflare Pages preview branch rules; no public Preview URL will be advertised."
               ;;
           esac
 
-          echo "Resolved article: $ARTICLE_PATH"
+          echo "Resolved Preview target: $TARGET_PATH"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
-          echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
+          echo "article_path=$TARGET_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "preview_provider=$PREVIEW_PROVIDER" >> "$GITHUB_OUTPUT"
           echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"

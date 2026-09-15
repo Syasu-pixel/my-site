@@ -1,0 +1,49 @@
+name: Wire Color Related Image Fix
+
+on:
+  push:
+    branches:
+      - preview-control-panel-wire-color-refresh-v2-20260914
+    paths:
+      - .github/workflows/wire-color-related-image-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-control-panel-wire-color-refresh-v2-20260914
+          fetch-depth: 1
+
+      - name: Fix terminal block related image path
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/control-panel-wire-color-basic.html')
+          s=p.read_text(encoding='utf-8')
+          old='../assets/images/terminal-block-basic/terminal-block-basic-hero.png'
+          new='../assets/images/terminal-block-basic/terminal-block-hero.png'
+          if old not in s:
+              raise SystemExit('target image path not found')
+          s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PY
+          test -f assets/images/terminal-block-basic/terminal-block-hero.png
+
+      - name: Commit fix and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/wire-color-related-image-fix.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/control-panel-wire-color-basic.html .github/workflows/wire-color-related-image-fix.yml
+          git commit -m "Fix terminal block related image in wire color preview"
+          git push origin HEAD:preview-control-panel-wire-color-refresh-v2-20260914

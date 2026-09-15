@@ -21,7 +21,7 @@
 - [x] `articles/terminal-block-jumper-basic.html` — 端子台ジャンパ
 - [x] `articles/air-cylinder-basic.html` — エアシリンダ
 - [x] `articles/a-contact-b-contact-basic.html` — a接点・b接点
-- [ ] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
+- [x] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
 - [ ] `articles/dc24v-common-basic.html` — DC24Vコモン
 - [ ] `articles/no-nc-basic.html` — NO・NC
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
@@ -41,6 +41,6 @@
 
 ## 現在位置
 
-次の改善対象は `articles/control-panel-wire-color-basic.html`。
+次の改善対象は `articles/dc24v-common-basic.html`。
 
-最終更新: 2026-09-14
+最終更新: 2026-09-16

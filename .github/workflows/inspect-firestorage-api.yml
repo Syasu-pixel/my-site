@@ -1,0 +1,24 @@
+name: Inspect firestorage API
+on:
+  push:
+    branches: [preview-career-service-makersjob-v1]
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect JS API endpoints
+        run: |
+          python - <<'PY'
+          import requests,re
+          base='https://firestorage.ai'
+          p=requests.get(base+'/ja/f/gh7jdPJmJChv',timeout=30).text
+          m=re.search(r'src="([^"]*app/\(files\)/ja/f/page-[^"]+\.js)"',p)
+          print('chunk',m.group(1) if m else None)
+          if not m: raise SystemExit(1)
+          js=requests.get(base+m.group(1),timeout=30).text
+          print('JS LEN',len(js))
+          for s in sorted(set(re.findall(r'[^"\']{0,100}(?:api|download|share|file)[^"\']{0,180}',js,re.I))):
+              if '/' in s:
+                  print(s[:600])
+          PY

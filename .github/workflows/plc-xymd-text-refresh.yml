@@ -1,0 +1,30 @@
+name: PLC XYMD Text Refresh
+
+"on":
+  push:
+    branches:
+      - preview-plc-xymd-text-refresh-20260916
+    paths:
+      - .github/workflows/plc-xymd-text-refresh.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-plc-xymd-text-refresh-20260916
+          fetch-depth: 0
+      - name: Apply refresh
+        run: python scripts/plc_xymd_text_refresh_20260916.py
+      - name: Commit result and remove one-shot files
+        run: |
+          rm -f scripts/plc_xymd_text_refresh_20260916.py .github/workflows/plc-xymd-text-refresh.yml
+          git config user.name denkicontrol-preview-writer
+          git config user.email actions@users.noreply.github.com
+          git add articles/plc-xymd-device-basic.html docs/existing-article-improvement-backlog.md scripts/plc_xymd_text_refresh_20260916.py .github/workflows/plc-xymd-text-refresh.yml
+          git commit -m "Refresh PLC X/Y/M/D article text and related cards"
+          git push origin HEAD:preview-plc-xymd-text-refresh-20260916

@@ -416,6 +416,15 @@
   careerButton.textContent = 'キャリア・転職';
   pills.appendChild(careerButton);
 
+  pills.querySelectorAll('.category-filter[data-category-filter]').forEach((button) => {
+    if (button === careerButton) return;
+    button.addEventListener('click', () => {
+      careerButton.classList.remove('active');
+      careerButton.setAttribute('aria-pressed', 'false');
+      card.hidden = true;
+    });
+  });
+
   careerButton.addEventListener('click', () => {
     document.querySelectorAll('.finder-pills .category-filter[data-category-filter]').forEach((button) => {
       const active = button === careerButton;

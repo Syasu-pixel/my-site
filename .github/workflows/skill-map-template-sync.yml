@@ -1,0 +1,109 @@
+name: Skill Map Template Sync
+
+on:
+  push:
+    branches:
+      - preview-career-step3-skill-map
+    paths:
+      - .github/workflows/skill-map-template-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-career-step3-skill-map
+          fetch-depth: 1
+
+      - name: Rebuild article shell from canonical career template
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          target_path = Path('articles/fa-engineer-skill-map-career.html')
+          template_path = Path('articles/plc-control-engineer-career.html')
+          target = target_path.read_text(encoding='utf-8')
+          template = template_path.read_text(encoding='utf-8')
+
+          def one(pattern, text, label, flags=re.S):
+              m = re.search(pattern, text, flags)
+              if not m:
+                  raise SystemExit(f'could not extract {label}')
+              return m.group(1)
+
+          # Preserve article-specific metadata, but take the entire CSS block from the canonical article.
+          target_head_prefix = one(r'(?s)\A(.*?)(?=\s*<style>)', target, 'target head prefix')
+          canonical_style = one(r'(?s)(<style>.*?</style>)', template, 'canonical style')
+          canonical_style = canonical_style.replace(
+              '../assets/images/plc-control-engineer-career/plc-control-engineer-career-hero.webp',
+              '../assets/images/fa-engineer-skill-map/fa-engineer-skill-map-hero.png'
+          )
+
+          # Copy fixed header, footer and script exactly from the canonical article.
+          canonical_header = one(r'(?s)(<header class="site-header">.*?</header>)', template, 'canonical header')
+          canonical_footer = one(r'(?s)(<footer class="site-footer">.*?</footer>)', template, 'canonical footer')
+          canonical_script = one(r'(?s)(<script>.*?</script>)', template, 'canonical script')
+
+          # Keep only article-specific visible content from the draft.
+          breadcrumb = one(r'(?s)(<nav class="breadcrumb".*?</nav>)', target, 'breadcrumb')
+          hero = one(r'(?s)(<section class="article-hero".*?</section>)\s*\n\s*<section class="top-summary"', target, 'hero')
+          top_summary = one(r'(?s)(<section class="top-summary".*?</section>)\s*\n\s*<div class="layout">', target, 'top summary')
+          article_inner = one(r'(?s)<main class="main"><article>(.*?)</article>', target, 'article inner')
+          aside_inner = one(r'(?s)<aside class="side">(.*?)</aside>', target, 'aside inner')
+
+          rebuilt = (
+              target_head_prefix.rstrip() + '\n' + canonical_style + '\n</head>\n<body>\n' +
+              canonical_header + '\n' +
+              '  <div class="container">\n' +
+              '    ' + breadcrumb + '\n\n' +
+              '    ' + hero + '\n\n' +
+              '    ' + top_summary + '\n\n' +
+              '    <div class="layout">\n' +
+              '      <main class="main"><article>' + article_inner + '</article></main>\n' +
+              '      <aside class="side">' + aside_inner + '</aside>\n' +
+              '    </div>\n' +
+              '  </div>\n' +
+              canonical_footer + '\n' + canonical_script + '\n</body>\n</html>\n'
+          )
+
+          # Structural guardrails: these must match the canonical shell exactly.
+          checks = [
+              '<header class="site-header">',
+              '<div class="site-header-inner">',
+              '<div class="layout">',
+              '<main class="main"><article>',
+              '</article></main>',
+              '<aside class="side">',
+              '<footer class="site-footer">',
+              'position:fixed;top:0;left:0;width:100%;z-index:999',
+              'grid-template-columns:minmax(0,1fr) 300px',
+              'right center / auto 100% no-repeat',
+          ]
+          for token in checks:
+              if token not in rebuilt:
+                  raise SystemExit(f'structural guardrail missing: {token}')
+
+          if '<main class="main"><article>' not in template or '</article></main>' not in template:
+              raise SystemExit('canonical template no longer matches expected layout')
+
+          target_path.write_text(rebuilt, encoding='utf-8')
+          PY
+
+      - name: Commit synced template and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/skill-map-template-sync.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/fa-engineer-skill-map-career.html .github/workflows/skill-map-template-sync.yml
+          git commit -m "Sync skill map article to canonical career template"
+          git push origin HEAD:preview-career-step3-skill-map

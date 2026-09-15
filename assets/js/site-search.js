@@ -427,3 +427,48 @@
     });
   });
 })();
+
+(() => {
+  const path = location.pathname.replace(/\/+$/, '') || '/';
+  if (path !== '/' && path !== '/index.html') return;
+  if (location.pathname.startsWith('/en/')) return;
+  if (document.querySelector('.project-series-entry')) return;
+
+  const featured = document.getElementById('featured');
+  if (!featured) return;
+
+  const style = document.createElement('style');
+  style.id = 'project-series-entry-style';
+  style.textContent = `
+    .project-series-entry{margin:2px 0 12px;padding:0 20px;border-top:none!important}
+    .project-series-entry__link{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;align-items:center;padding:14px 16px;border:1px solid #bfdbfe;border-radius:18px;background:linear-gradient(135deg,#eff6ff 0%,#fff 62%);box-shadow:0 6px 16px rgba(15,23,42,.05);color:#0f172a;text-decoration:none}
+    .project-series-entry__link:hover,.project-series-entry__link:focus-visible{border-color:#60a5fa;background:#f8fbff;box-shadow:0 12px 24px rgba(15,23,42,.09);transform:translateY(-1px);text-decoration:none}
+    .project-series-entry__media{width:180px;height:112px;overflow:hidden;border-radius:14px;border:1px solid #dbeafe;background:#fff}
+    .project-series-entry__media img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+    .project-series-entry__body{min-width:0}
+    .project-series-entry__kicker{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-bottom:6px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:900}
+    .project-series-entry__title{display:block;margin:0;color:#0f172a;font-size:19px;line-height:1.4;font-weight:900}
+    .project-series-entry__sub{display:block;margin-top:4px;color:#475569;font-size:13.5px;line-height:1.55;font-weight:700}
+    .project-series-entry__cta{display:inline-flex;margin-top:8px;color:#1d4ed8;font-size:13px;line-height:1.4;font-weight:900}
+    @media(max-width:768px){.project-series-entry{padding:0 13px;margin:4px 0 10px}.project-series-entry__link{grid-template-columns:104px minmax(0,1fr);gap:11px;padding:11px;border-radius:16px}.project-series-entry__media{width:104px;height:78px;border-radius:12px}.project-series-entry__title{font-size:15px}.project-series-entry__sub{font-size:12px;line-height:1.45}.project-series-entry__cta{margin-top:5px;font-size:12px}}
+    @media(max-width:430px){.project-series-entry__link{grid-template-columns:1fr}.project-series-entry__media{width:100%;height:132px}.project-series-entry__title{font-size:16px}}
+  `;
+  document.head.appendChild(style);
+
+  const section = document.createElement('section');
+  section.className = 'panel-block section project-series-entry';
+  section.setAttribute('aria-label', '実践・設備設計シリーズ');
+  section.innerHTML = `
+    <a class="project-series-entry__link" href="articles/plc-drilling-line-design-project-01.html">
+      <span class="project-series-entry__media">
+        <img src="assets/images/articles/plc-drilling-line-design-project-01-hero.webp" alt="穴あけ加工ライン設計プロジェクト" loading="lazy" decoding="async">
+      </span>
+      <span class="project-series-entry__body">
+        <span class="project-series-entry__kicker">実践・設備設計</span>
+        <strong class="project-series-entry__title">PLCで設備を1から設計する</strong>
+        <span class="project-series-entry__sub">穴あけ加工ライン設計プロジェクト</span>
+        <span class="project-series-entry__cta">第1回：設備全体の構想から始めよう →</span>
+      </span>
+    </a>`;
+  featured.insertAdjacentElement('afterend', section);
+})();

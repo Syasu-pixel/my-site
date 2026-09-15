@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Resolve article Preview URL
+      - name: Resolve Preview URL
         id: target
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -29,33 +29,33 @@ jobs:
           BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
           PAGES_PROJECT: denkicontrol-preview
         run: |
-          mapfile -t ARTICLE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^articles/.*\.html$' || true)
-          ARTICLE_PATH=""
+          mapfile -t PAGE_CANDIDATES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^(articles|services)/.*\.html$' || true)
+          PAGE_PATH=""
 
-          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+          for candidate in "${PAGE_CANDIDATES[@]}"; do
             slug="$(basename "$candidate" .html)"
             if [ -d "assets/images/$slug" ]; then
-              ARTICLE_PATH="$candidate"
+              PAGE_PATH="$candidate"
               break
             fi
           done
 
-          if [ -z "$ARTICLE_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
-            ARTICLE_PATH="${ARTICLE_CANDIDATES[0]}"
+          if [ -z "$PAGE_PATH" ] && [ "${#PAGE_CANDIDATES[@]}" -gt 0 ]; then
+            PAGE_PATH="${PAGE_CANDIDATES[0]}"
           fi
 
-          if [ -z "$ARTICLE_PATH" ]; then
-            echo "No article HTML changed; skip capture."
+          if [ -z "$PAGE_PATH" ]; then
+            echo "No previewable HTML changed; skip capture."
             echo "has_article=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
-          LOCAL_URL="http://127.0.0.1:4173/${ARTICLE_PATH}"
+          LOCAL_URL="http://127.0.0.1:4173/${PAGE_PATH}"
 
           case "$BRANCH_NAME" in
             ai-editorial/*|preview-*|pilot-*)
-              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${ARTICLE_PATH}"
+              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${PAGE_PATH}"
               PREVIEW_PROVIDER="cloudflare-pages"
               echo "Resolved Cloudflare Preview candidate: $PREVIEW_URL"
               ;;
@@ -66,9 +66,9 @@ jobs:
               ;;
           esac
 
-          echo "Resolved article: $ARTICLE_PATH"
+          echo "Resolved page: $PAGE_PATH"
           echo "has_article=true" >> "$GITHUB_OUTPUT"
-          echo "article_path=$ARTICLE_PATH" >> "$GITHUB_OUTPUT"
+          echo "article_path=$PAGE_PATH" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "preview_provider=$PREVIEW_PROVIDER" >> "$GITHUB_OUTPUT"
           echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"

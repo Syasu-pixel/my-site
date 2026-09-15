@@ -1,0 +1,19 @@
+name: Test firestorage endpoints
+on:
+  push:
+    branches: [preview-career-service-makersjob-v1]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe API
+        run: |
+          python - <<'PY'
+          import requests
+          base='https://firestorage.ai'
+          for p in ['/api/shares/gh7jdPJmJChv/files?maxResults=1000','/api/public/shares/gh7jdPJmJChv/files?maxResults=1000','/api/v1/shares/gh7jdPJmJChv/files?maxResults=1000','/api/files/shares/gh7jdPJmJChv/files?maxResults=1000']:
+              try:
+                  r=requests.get(base+p,timeout=20)
+                  print(p,r.status_code,r.headers.get('content-type'),r.text[:1000])
+              except Exception as e: print(p,e)
+          PY

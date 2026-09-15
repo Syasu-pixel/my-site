@@ -1,0 +1,79 @@
+name: Skill Map Header Responsive Sync
+
+on:
+  push:
+    branches:
+      - preview-career-step3-skill-map
+    paths:
+      - .github/workflows/skill-map-header-responsive-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-step3-skill-map
+          fetch-depth: 1
+
+      - name: Sync fixed header and responsive rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('articles/fa-engineer-skill-map-career.html')
+          s = p.read_text(encoding='utf-8')
+
+          # 1) Add the current site-standard desktop header navigation from index.html.
+          nav_css = '.header-nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:flex-end;flex:1 1 auto;margin-left:auto;margin-right:4px}.header-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.2;color:#334155;background:#fff;border:1px solid transparent;white-space:nowrap}.header-link:hover{color:var(--blue);background:#f8fbff;border-color:#dbeafe}'
+          anchor = '.brand-sub{display:block;margin:2px 0 0;font-size:11px;color:#475569;font-weight:700}'
+          if '.header-nav{' not in s:
+              if anchor not in s:
+                  raise SystemExit('brand CSS anchor not found')
+              s = s.replace(anchor, anchor + nav_css, 1)
+
+          # 2) Match index.html alignment: nav owns the auto margin; language control follows it.
+          s = s.replace('.language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:auto}',
+                        '.language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center}', 1)
+
+          # 3) Restore latest index-style interaction/details without changing article content.
+          s = s.replace('.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05)}',
+                        '.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}.language-menu-button:hover,.language-menu-button:focus{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}.language-menu-icon{font-size:15px;line-height:1}.language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}', 1)
+          s = s.replace('.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}',
+                        '.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-input::placeholder{color:#94a3b8}', 1)
+          s = s.replace('.search-box-button{border:none;background:transparent;padding:0;cursor:pointer}',
+                        '.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}', 1)
+          s = s.replace('.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;display:block}',
+                        '.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;display:block;flex:0 0 auto}', 1)
+
+          # 4) Header markup: same desktop button order as index.html.
+          marker = '      <div class="language-menu" aria-label="言語と地域の切り替え">'
+          nav_html = '      <nav class="header-nav" aria-label="固定ナビゲーション"><a class="header-link" href="../index.html#category">カテゴリ一覧</a><a class="header-link" href="../index.html#new">新着記事</a></nav>\n'
+          if '<nav class="header-nav"' not in s:
+              if marker not in s:
+                  raise SystemExit('language menu markup anchor not found')
+              s = s.replace(marker, nav_html + marker, 1)
+          s = s.replace('<span aria-hidden="true">🌐</span><span class="language-menu-current">Japan</span>',
+                        '<span class="language-menu-icon" aria-hidden="true">🌐</span><span class="language-menu-current">日本語</span>', 1)
+          s = s.replace('<span aria-hidden="true">🇯🇵</span><span><strong>Japan</strong><small>日本語記事</small></span>',
+                        '<span class="language-menu-flag" aria-hidden="true">🇯🇵</span><span><strong>日本語</strong><small>日本語記事</small></span>', 1)
+
+          # 5) Follow the documented responsive header behavior exactly.
+          s = s.replace('@media(max-width:900px){.layout{',
+                        '@media(max-width:900px){.header-nav{display:none}.header-search{margin-left:auto}.layout{', 1)
+          s = s.replace('.brand-title{font-size:13px;white-space:nowrap}',
+                        '.brand-title{font-size:13px;letter-spacing:0;white-space:nowrap}', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+          rm -f .github/workflows/skill-map-header-responsive-sync.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A articles/fa-engineer-skill-map-career.html .github/workflows/skill-map-header-responsive-sync.yml
+          git commit -m "Align skill map header and responsive behavior with site standard"
+          git push origin HEAD:preview-career-step3-skill-map

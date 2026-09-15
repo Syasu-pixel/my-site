@@ -459,6 +459,7 @@
     .project-series-entry__title{display:block;margin:0;color:#0f172a;font-size:19px;line-height:1.4;font-weight:900}
     .project-series-entry__sub{display:block;margin-top:4px;color:#475569;font-size:13.5px;line-height:1.55;font-weight:700}
     .project-series-entry__cta{display:inline-flex;margin-top:8px;color:#1d4ed8;font-size:13px;line-height:1.4;font-weight:900}
+    @media(min-width:1101px){.project-series-entry__link{width:824px;max-width:824px}}
     @media(max-width:768px){.project-series-entry{padding:0 13px;margin:4px 0 10px}.project-series-entry__link{grid-template-columns:104px minmax(0,1fr);gap:11px;padding:11px;border-radius:16px}.project-series-entry__media{width:104px;height:78px;border-radius:12px}.project-series-entry__title{font-size:15px}.project-series-entry__sub{font-size:12px;line-height:1.45}.project-series-entry__cta{margin-top:5px;font-size:12px}}
     @media(max-width:430px){.project-series-entry__link{grid-template-columns:1fr}.project-series-entry__media{width:100%;height:132px}.project-series-entry__title{font-size:16px}}
   `;
@@ -480,4 +481,69 @@
       </span>
     </a>`;
   featured.insertAdjacentElement('afterend', section);
+})();
+
+(() => {
+  const path = location.pathname.replace(/\/+$/, '') || '/';
+  if (path !== '/' && path !== '/index.html') return;
+  if (location.pathname.startsWith('/en/')) return;
+
+  const mainCard = document.querySelector('#featured .feature-main');
+  const miniCards = document.querySelectorAll('#featured .feature-side-stack .featured-mini-card');
+  if (!mainCard || miniCards.length < 2) return;
+
+  const mainMedia = mainCard.querySelector('.feature-main-media');
+  const mainImage = mainCard.querySelector('.feature-main-media img');
+  const mainTitle = mainCard.querySelector('.feature-main-body h3');
+  const mainDesc = mainCard.querySelector('.feature-main-body p');
+  const mainCta = mainCard.querySelector('.feature-main-body .btn');
+
+  if (mainMedia) {
+    mainMedia.href = 'articles/star-delta-start-basic.html';
+    mainMedia.setAttribute('aria-label', 'スターデルタ始動の記事へ');
+  }
+  if (mainImage) {
+    mainImage.src = 'assets/images/star-delta-start-basic/star-delta-start-overview.webp';
+    mainImage.alt = 'スターデルタ始動の結線と切替を示す記事イメージ';
+  }
+  if (mainTitle) mainTitle.innerHTML = 'スターデルタ始動とは？<br>結線・回路図・始動電流を整理';
+  if (mainDesc) mainDesc.textContent = 'スター結線からデルタ結線へ切り替える流れ、始動電流を抑える理由、接触器とタイマの役割まで図で追いやすく整理します。';
+  if (mainCta) {
+    mainCta.href = 'articles/star-delta-start-basic.html';
+    mainCta.textContent = 'スターデルタ始動の記事を読む';
+  }
+
+  const shield = miniCards[0];
+  shield.href = 'articles/shielded-cable-basic.html';
+  const shieldImage = shield.querySelector('img');
+  const shieldTag = shield.querySelector('.mini-card-tag');
+  const shieldTitle = shield.querySelector('h3');
+  const shieldDesc = shield.querySelector('p');
+  if (shieldImage) {
+    shieldImage.src = 'assets/images/shielded-cable-basic/shielded-cable-basic-ogp.png';
+    shieldImage.alt = 'シールドケーブルの基本';
+  }
+  if (shieldTag) {
+    shieldTag.className = 'mini-card-tag orange';
+    shieldTag.textContent = 'ノイズ対策';
+  }
+  if (shieldTitle) shieldTitle.textContent = 'シールドケーブルの基本';
+  if (shieldDesc) shieldDesc.textContent = 'ノイズ対策、接地、配線ルートの考え方を現場目線で整理。';
+
+  const air = miniCards[1];
+  air.href = 'articles/air-cylinder-basic.html';
+  const airImage = air.querySelector('img');
+  const airTag = air.querySelector('.mini-card-tag');
+  const airTitle = air.querySelector('h3');
+  const airDesc = air.querySelector('p');
+  if (airImage) {
+    airImage.src = 'assets/images/air-cylinder-basic/air-cylinder-basic-ogp.webp';
+    airImage.alt = 'エアシリンダの基本';
+  }
+  if (airTag) {
+    airTag.className = 'mini-card-tag green';
+    airTag.textContent = 'FA機器';
+  }
+  if (airTitle) airTitle.textContent = 'エアシリンダの基本';
+  if (airDesc) airDesc.textContent = '圧縮空気で動く仕組みと、バルブ・リードスイッチとの関係を整理。';
 })();

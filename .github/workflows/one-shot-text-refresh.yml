@@ -1,0 +1,31 @@
+name: One Shot Text Refresh
+
+"on":
+  push:
+    branches:
+      - preview-one-shot-circuit-text-refresh-20260916
+    paths:
+      - .github/workflows/one-shot-text-refresh.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-one-shot-circuit-text-refresh-20260916
+          fetch-depth: 0
+      - name: Apply refresh
+        run: python scripts/one-shot-text-refresh.py
+      - name: Commit result and remove one-shot files
+        run: |
+          rm -f scripts/one-shot-text-refresh.py
+          rm -f .github/workflows/one-shot-text-refresh.yml
+          git config user.name denkicontrol-preview-writer
+          git config user.email actions@users.noreply.github.com
+          git add articles/one-shot-circuit-basic.html docs/existing-article-improvement-backlog.md scripts/one-shot-text-refresh.py .github/workflows/one-shot-text-refresh.yml
+          git commit -m "Refresh one-shot circuit article text and related cards"
+          git push origin HEAD:preview-one-shot-circuit-text-refresh-20260916

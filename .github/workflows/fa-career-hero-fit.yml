@@ -1,0 +1,50 @@
+name: Fix FA Career Hero Fit
+
+on:
+  push:
+    branches:
+      - preview-career-service-makersjob-v1
+    paths:
+      - .github/workflows/fa-career-hero-fit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-career-service-makersjob-v1
+          fetch-depth: 1
+      - name: Adjust hero image fit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('articles/fa-engineer-career-service-comparison.html')
+          s=p.read_text(encoding='utf-8')
+          old='background:url("../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-hero.webp") center/cover no-repeat;z-index:0'
+          new='background:url("../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-hero.webp") right center/auto 100% no-repeat;z-index:0'
+          if old not in s:
+              raise SystemExit('hero background rule not found')
+          s=s.replace(old,new,1)
+          old_mobile='.article-hero::before{background-position:66% center}'
+          new_mobile='.article-hero::before{background-position:right center;background-size:auto 100%}'
+          if old_mobile in s:
+              s=s.replace(old_mobile,new_mobile,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git diff --check
+      - name: Commit fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/fa-engineer-career-service-comparison.html
+          git rm .github/workflows/fa-career-hero-fit.yml
+          git commit -m "Fix career comparison hero image fit"
+          git push origin HEAD:preview-career-service-makersjob-v1

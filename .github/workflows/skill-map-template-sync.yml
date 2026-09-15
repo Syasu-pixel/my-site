@@ -33,31 +33,52 @@ jobs:
           target = target_path.read_text(encoding='utf-8')
           template = template_path.read_text(encoding='utf-8')
 
-          def one(pattern, text, label, flags=re.S):
-              m = re.search(pattern, text, flags)
+          def one(pattern, text, label):
+              m = re.search(pattern, text, re.S)
               if not m:
                   raise SystemExit(f'could not extract {label}')
               return m.group(1)
 
-          # Preserve article-specific metadata, but take the entire CSS block from the canonical article.
-          target_head_prefix = one(r'(?s)\A(.*?)(?=\s*<style>)', target, 'target head prefix')
-          canonical_style = one(r'(?s)(<style>.*?</style>)', template, 'canonical style')
+          def section(text, start_token, end_token, label):
+              s = text.find(start_token)
+              if s < 0:
+                  raise SystemExit(f'could not find start of {label}')
+              e = text.find(end_token, s)
+              if e < 0:
+                  raise SystemExit(f'could not find end of {label}')
+              return text[s:e]
+
+          # Keep article metadata, but copy the canonical CSS exactly except for this article's hero image path.
+          target_head_prefix = one(r'\A(.*?)(?=\s*<style>)', target, 'target head prefix')
+          canonical_style = one(r'(<style>.*?</style>)', template, 'canonical style')
           canonical_style = canonical_style.replace(
               '../assets/images/plc-control-engineer-career/plc-control-engineer-career-hero.webp',
               '../assets/images/fa-engineer-skill-map/fa-engineer-skill-map-hero.png'
           )
 
-          # Copy fixed header, footer and script exactly from the canonical article.
-          canonical_header = one(r'(?s)(<header class="site-header">.*?</header>)', template, 'canonical header')
-          canonical_footer = one(r'(?s)(<footer class="site-footer">.*?</footer>)', template, 'canonical footer')
-          canonical_script = one(r'(?s)(<script>.*?</script>)', template, 'canonical script')
+          # Copy common shell directly from the canonical career article.
+          canonical_header = one(r'(<header class="site-header">.*?</header>)', template, 'canonical header')
+          canonical_footer = one(r'(<footer class="site-footer">.*?</footer>)', template, 'canonical footer')
+          canonical_script = one(r'(<script>.*?</script>)', template, 'canonical script')
 
-          # Keep only article-specific visible content from the draft.
-          breadcrumb = one(r'(?s)(<nav class="breadcrumb".*?</nav>)', target, 'breadcrumb')
-          hero = one(r'(?s)(<section class="article-hero".*?</section>)\s*\n\s*<section class="top-summary"', target, 'hero')
-          top_summary = one(r'(?s)(<section class="top-summary".*?</section>)\s*\n\s*<div class="layout">', target, 'top summary')
-          article_inner = one(r'(?s)<main class="main"><article>(.*?)</article>', target, 'article inner')
-          aside_inner = one(r'(?s)<aside class="side">(.*?)</aside>', target, 'aside inner')
+          # Preserve only article-specific content from the draft.
+          breadcrumb = one(r'(<nav class="breadcrumb".*?</nav>)', target, 'breadcrumb')
+          hero = section(target, '<section class="article-hero"', '</section>', 'hero') + '</section>'
+          top_summary = section(target, '<div class="top-summary"', '<div class="layout">', 'top summary').strip()
+
+          if '<div class="layout"><article class="main">' in target:
+              article_start = target.index('<div class="layout"><article class="main">') + len('<div class="layout"><article class="main">')
+          elif '<main class="main"><article>' in target:
+              article_start = target.index('<main class="main"><article>') + len('<main class="main"><article>')
+          else:
+              raise SystemExit('could not locate draft article body')
+          article_end = target.index('</article>', article_start)
+          article_inner = target[article_start:article_end]
+
+          aside_start_token = '<aside class="side">'
+          aside_start = target.index(aside_start_token, article_end) + len(aside_start_token)
+          aside_end = target.index('</aside>', aside_start)
+          aside_inner = target[aside_start:aside_end]
 
           rebuilt = (
               target_head_prefix.rstrip() + '\n' + canonical_style + '\n</head>\n<body>\n' +
@@ -74,7 +95,6 @@ jobs:
               canonical_footer + '\n' + canonical_script + '\n</body>\n</html>\n'
           )
 
-          # Structural guardrails: these must match the canonical shell exactly.
           checks = [
               '<header class="site-header">',
               '<div class="site-header-inner">',
@@ -91,8 +111,11 @@ jobs:
               if token not in rebuilt:
                   raise SystemExit(f'structural guardrail missing: {token}')
 
-          if '<main class="main"><article>' not in template or '</article></main>' not in template:
-              raise SystemExit('canonical template no longer matches expected layout')
+          # Reject the two draft-only structures that caused the mismatch.
+          if '<main class="container">' in rebuilt:
+              raise SystemExit('draft container structure survived unexpectedly')
+          if '<div class="layout"><article class="main">' in rebuilt:
+              raise SystemExit('draft layout structure survived unexpectedly')
 
           target_path.write_text(rebuilt, encoding='utf-8')
           PY

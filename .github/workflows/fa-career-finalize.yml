@@ -29,36 +29,23 @@ jobs:
           set -euo pipefail
           API="https://api.firestorage.ai/dev/file"
           mkdir -p assets/images/fa-engineer-career-service-comparison
-          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
-            "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
 
           download_one() {
             local file_id="$1"
             local file_name="$2"
             local expected_sha="$3"
             local target="$4"
-            python3 - "$file_id" "$file_name" <<'PY'
-import json,sys
-fid,name=sys.argv[1:3]
-meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
-files=meta.get('files') or []
-hit=next((f for f in files if f.get('fileId')==fid),None)
-if not hit: raise SystemExit(f'file id not found: {fid}')
-if hit.get('fileName')!=name: raise SystemExit(f'filename mismatch: {hit.get("fileName")} != {name}')
-size=hit.get('sizeBytes')
-if not isinstance(size,int) or size<1 or size>5*1024*1024: raise SystemExit('file size rejected')
-print(f'metadata ok: {name} {size} bytes')
-PY
-            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
-              -X POST "$API/shares/$SHARE_ID/files/$file_id/download" > /tmp/download.json
+            local actual_name
+            local size
             local url
-            url="$(python3 - <<'PY'
-import json
-u=json.load(open('/tmp/download.json','r',encoding='utf-8')).get('downloadUrl')
-if not isinstance(u,str) or not u.startswith('https://'): raise SystemExit('download URL rejected')
-print(u)
-PY
-)"
+            actual_name="$(jq -r --arg id "$file_id" '.files[] | select(.fileId==$id) | .fileName' /tmp/meta.json)"
+            size="$(jq -r --arg id "$file_id" '.files[] | select(.fileId==$id) | .sizeBytes' /tmp/meta.json)"
+            [ "$actual_name" = "$file_name" ]
+            [ "$size" -gt 0 ]
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error -X POST "$API/shares/$SHARE_ID/files/$file_id/download" > /tmp/download.json
+            url="$(jq -r '.downloadUrl' /tmp/download.json)"
+            case "$url" in https://*) ;; *) echo "invalid download url" >&2; exit 1 ;; esac
             curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$url" -o "$target"
             printf '%s  %s\n' "$expected_sha" "$target" | sha256sum -c -
           }
@@ -73,41 +60,29 @@ PY
         run: |
           set -euo pipefail
           python3 - <<'PY'
-from pathlib import Path
-p=Path('articles/fa-engineer-career-service-comparison.html')
-s=p.read_text(encoding='utf-8')
-
-old='.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.93) 34%,rgba(255,255,255,.72) 52%,rgba(255,255,255,.22) 75%,rgba(255,255,255,.04) 100%);z-index:1}'
-new='.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.86) 33%,rgba(255,255,255,.54) 52%,rgba(255,255,255,.12) 75%,rgba(255,255,255,.02) 100%);z-index:1}'
-if old in s: s=s.replace(old,new,1)
-
-css_marker='.faq-item p{margin:6px 0 0;font-size:13px}'
-figure_css='.article-figure{margin:18px 0 0;border:1px solid #dbe7f3;border-radius:18px;overflow:hidden;background:#f8fbff;box-shadow:var(--shadow-soft)}.article-figure img{width:100%;aspect-ratio:16/9;object-fit:cover}.article-figure figcaption{padding:10px 13px;color:#64748b;font-size:12px;line-height:1.7;background:#fff}'
-if figure_css not in s:
-    if css_marker not in s: raise SystemExit('figure CSS marker missing')
-    s=s.replace(css_marker,css_marker+figure_css,1)
-
-mobile_marker='.cta{padding:14px}.support-card-actions'
-if '.article-figure{margin-top:14px' not in s:
-    if mobile_marker not in s: raise SystemExit('mobile CSS marker missing')
-    s=s.replace(mobile_marker,'.cta{padding:14px}.article-figure{margin-top:14px;border-radius:14px}.article-figure figcaption{padding:8px 10px;font-size:11px}.support-card-actions',1)
-
-select_img='../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.webp'
-if select_img not in s:
-    marker='</div><div class="highlight" style="margin-top:16px">特にFA系では、<strong>「何を触ったか」より「どこまで自分で判断・設計・復旧したか」</strong>を整理しておくと、求人との相性を見てもらいやすくなります。</div></section>'
-    repl='</div><div class="highlight" style="margin-top:16px">特にFA系では、<strong>「何を触ったか」より「どこまで自分で判断・設計・復旧したか」</strong>を整理しておくと、求人との相性を見てもらいやすくなります。</div><figure class="article-figure"><img src="'+select_img+'" alt="電気・FAエンジニア向け転職サービスを比較するときの考え方を整理したイメージ"><figcaption>転職サービスは、求人数だけでなく、製造業・FAへの理解、経験の伝えやすさ、キャリア支援まで含めて比較します。</figcaption></figure></section>'
-    if marker not in s: raise SystemExit('howto section marker missing')
-    s=s.replace(marker,repl,1)
-
-prepare_img='../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-prepare.webp'
-if prepare_img not in s:
-    marker='<div class="caution">「PLCができます」だけでは幅が広すぎます。設備規模や担当工程、どこまで自分で判断していたかまで言えると伝わりやすくなります。</div></section>'
-    repl='<div class="caution">「PLCができます」だけでは幅が広すぎます。設備規模や担当工程、どこまで自分で判断していたかまで言えると伝わりやすくなります。</div><figure class="article-figure"><img src="'+prepare_img+'" alt="電気・FAエンジニアが転職前に経験とキャリアを整理するイメージ"><figcaption>面談前は、担当設備・制御経験・担当範囲・働き方・次にやりたいことを整理しておくと、技術経験を伝えやすくなります。</figcaption></figure></section>'
-    if marker not in s: raise SystemExit('prepare section marker missing')
-    s=s.replace(marker,repl,1)
-
-p.write_text(s,encoding='utf-8')
-PY
+          from pathlib import Path
+          p=Path('articles/fa-engineer-career-service-comparison.html')
+          s=p.read_text(encoding='utf-8')
+          old='.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.93) 34%,rgba(255,255,255,.72) 52%,rgba(255,255,255,.22) 75%,rgba(255,255,255,.04) 100%);z-index:1}'
+          new='.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.86) 33%,rgba(255,255,255,.54) 52%,rgba(255,255,255,.12) 75%,rgba(255,255,255,.02) 100%);z-index:1}'
+          if old in s:
+              s=s.replace(old,new,1)
+          css_marker='.faq-item p{margin:6px 0 0;font-size:13px}'
+          figure_css='.article-figure{margin:18px 0 0;border:1px solid #dbe7f3;border-radius:18px;overflow:hidden;background:#f8fbff;box-shadow:var(--shadow-soft)}.article-figure img{width:100%;aspect-ratio:16/9;object-fit:cover}.article-figure figcaption{padding:10px 13px;color:#64748b;font-size:12px;line-height:1.7;background:#fff}'
+          if figure_css not in s:
+              s=s.replace(css_marker,css_marker+figure_css,1)
+          select_img='../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-select.webp'
+          if select_img not in s:
+              marker='</div><div class="highlight" style="margin-top:16px">特にFA系では、<strong>「何を触ったか」より「どこまで自分で判断・設計・復旧したか」</strong>を整理しておくと、求人との相性を見てもらいやすくなります。</div></section>'
+              repl='</div><div class="highlight" style="margin-top:16px">特にFA系では、<strong>「何を触ったか」より「どこまで自分で判断・設計・復旧したか」</strong>を整理しておくと、求人との相性を見てもらいやすくなります。</div><figure class="article-figure"><img src="'+select_img+'" alt="電気・FAエンジニア向け転職サービスを比較するときの考え方を整理したイメージ"><figcaption>転職サービスは、求人数だけでなく、製造業・FAへの理解、経験の伝えやすさ、キャリア支援まで含めて比較します。</figcaption></figure></section>'
+              s=s.replace(marker,repl,1)
+          prepare_img='../assets/images/fa-engineer-career-service-comparison/fa-engineer-career-service-comparison-prepare.webp'
+          if prepare_img not in s:
+              marker='<div class="caution">「PLCができます」だけでは幅が広すぎます。設備規模や担当工程、どこまで自分で判断していたかまで言えると伝わりやすくなります。</div></section>'
+              repl='<div class="caution">「PLCができます」だけでは幅が広すぎます。設備規模や担当工程、どこまで自分で判断していたかまで言えると伝わりやすくなります。</div><figure class="article-figure"><img src="'+prepare_img+'" alt="電気・FAエンジニアが転職前に経験とキャリアを整理するイメージ"><figcaption>面談前は、担当設備・制御経験・担当範囲・働き方・次にやりたいことを整理しておくと、技術経験を伝えやすくなります。</figcaption></figure></section>'
+              s=s.replace(marker,repl,1)
+          p.write_text(s,encoding='utf-8')
+          PY
 
       - name: Validate finished preview
         shell: bash

@@ -1,0 +1,33 @@
+name: Restore Wire Color Tracing Flow
+
+on:
+  push:
+    branches:
+      - restore-wire-color-tracing-flow-20260916
+    paths:
+      - .github/workflows/restore-wire-color-tracing-flow.yml
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: restore-wire-color-tracing-flow-20260916
+          fetch-depth: 0
+
+      - name: Revert mistaken removal
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git revert -m 1 --no-edit 7f0c9dc9b971308986416f41976661f5c4ce8491
+          rm -f .github/workflows/restore-wire-color-tracing-flow.yml
+          git add -A .github/workflows/restore-wire-color-tracing-flow.yml
+          git commit --amend --no-edit
+          git push origin HEAD:restore-wire-color-tracing-flow-20260916

@@ -1,0 +1,32 @@
+name: Solenoid Valve Text Refresh V2
+
+"on":
+  push:
+    branches:
+      - preview-solenoid-valve-troubleshooting-text-refresh-20260916
+    paths:
+      - .github/workflows/solenoid-valve-troubleshooting-text-refresh-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-solenoid-valve-troubleshooting-text-refresh-20260916
+          fetch-depth: 0
+      - name: Run refresh script
+        run: python scripts/solenoid_valve_text_refresh.py
+      - name: Commit result
+        run: |
+          rm -f .github/workflows/solenoid-valve-troubleshooting-text-refresh.yml
+          rm -f .github/workflows/solenoid-valve-troubleshooting-text-refresh-v2.yml
+          rm -f scripts/solenoid_valve_text_refresh.py
+          git config user.name denkicontrol-preview-writer
+          git config user.email actions@users.noreply.github.com
+          git add articles/solenoid-valve-troubleshooting-basic.html docs/existing-article-improvement-backlog.md .github/workflows/solenoid-valve-troubleshooting-text-refresh.yml .github/workflows/solenoid-valve-troubleshooting-text-refresh-v2.yml scripts/solenoid_valve_text_refresh.py
+          git commit -m "Refresh solenoid valve troubleshooting article text and related cards"
+          git push origin HEAD:preview-solenoid-valve-troubleshooting-text-refresh-20260916

@@ -1,0 +1,33 @@
+name: Temp fetch drilling hero
+
+on:
+  push:
+    branches:
+      - docs-sample-line-drilling
+    paths:
+      - '.github/workflows/temp-fetch-drilling-hero.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect firestorage share response
+        shell: bash
+        run: |
+          set -euxo pipefail
+          URL='https://firestorage.ai/ja/f/xPe7yqqGiulP'
+          curl -L --fail --silent --show-error -D /tmp/headers.txt -o /tmp/body "$URL"
+          echo '--- headers ---'
+          cat /tmp/headers.txt
+          echo '--- file ---'
+          file /tmp/body
+          echo '--- size ---'
+          wc -c /tmp/body
+          echo '--- candidate links ---'
+          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/body | grep -Ei 'download|file|webp|storage|api' | head -n 100 || true
+          echo '--- relative candidates ---'
+          grep -Eo '(href|src)=["'"'"'][^"'"'"']+' /tmp/body | grep -Ei 'download|file|webp|api' | head -n 100 || true

@@ -1,0 +1,31 @@
+name: Terminal Block Text Refresh
+
+"on":
+  push:
+    branches:
+      - preview-terminal-block-text-refresh-20260916
+    paths:
+      - .github/workflows/terminal-block-text-refresh.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-terminal-block-text-refresh-20260916
+          fetch-depth: 0
+      - name: Apply refresh
+        run: python scripts/terminal-block-text-refresh.py
+      - name: Commit result and remove one-shot files
+        run: |
+          rm -f scripts/terminal-block-text-refresh.py
+          rm -f .github/workflows/terminal-block-text-refresh.yml
+          git config user.name denkicontrol-preview-writer
+          git config user.email actions@users.noreply.github.com
+          git add articles/terminal-block-basic.html docs/existing-article-improvement-backlog.md scripts/terminal-block-text-refresh.py .github/workflows/terminal-block-text-refresh.yml
+          git commit -m "Refresh terminal block article text and related cards"
+          git push origin HEAD:preview-terminal-block-text-refresh-20260916

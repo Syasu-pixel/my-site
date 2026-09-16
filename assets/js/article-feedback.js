@@ -45,12 +45,14 @@
 
     const related = document.getElementById('related')
       || document.getElementById('related-career')
-      || mainColumn.querySelector('[id^="related"]')
       || [...mainColumn.querySelectorAll('section')].find((element) => {
         const heading = element.querySelector('h2');
-        const label = heading?.textContent?.trim() || '';
-        return label.includes('あわせて読みたい記事') || label === '関連記事';
-      });
+        const label = heading?.textContent?.replace(/\s+/g, ' ').trim() || '';
+        return label === 'あわせて読みたい'
+          || label.includes('あわせて読みたい記事')
+          || label === '関連記事';
+      })
+      || mainColumn.querySelector('.related-grid')?.closest('section');
     if (related && mainColumn.contains(related) && related.parentElement) related.parentElement.insertBefore(section, related);
     else mainColumn.appendChild(section);
   }

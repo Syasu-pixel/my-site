@@ -1,0 +1,117 @@
+name: Import PLC02 preview images
+
+on:
+  push:
+    branches:
+      - preview-plc-drilling-project-02-outline
+    paths:
+      - .github/workflows/import-plc02-images.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-plc-drilling-project-02-outline
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser tooling
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Download approved images
+        env:
+          SHARE_URL: https://firestorage.ai/ja/f/OJYWBvhkCUHQ
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          wanted = [
+              'plc-drilling-line-design-project-02-ogp.webp',
+              'plc-drilling-line-design-project-02-hero.webp',
+              'plc-drilling-line-design-project-02-io-overview.webp',
+              'plc-drilling-line-design-project-02-xy-addressing.webp',
+              'plc-drilling-line-design-project-02-spare-io.webp',
+          ]
+          outdir = Path('assets/images/articles')
+          outdir.mkdir(parents=True, exist_ok=True)
+
+          def click_download_for(page, filename):
+              page.goto(os.environ['SHARE_URL'], wait_until='networkidle', timeout=120000)
+              row_text = page.get_by_text(filename, exact=True)
+              if row_text.count() == 0:
+                  row_text = page.get_by_text(filename)
+              if row_text.count() == 0:
+                  raise RuntimeError(f'file row not found: {filename}')
+              target = row_text.first
+              target.scroll_into_view_if_needed()
+
+              # Try the nearest row/card first.
+              containers = [
+                  target.locator('xpath=ancestor-or-self::*[self::tr or @role="row"][1]'),
+                  target.locator('xpath=ancestor-or-self::*[self::li or self::article][1]'),
+                  target.locator('xpath=ancestor-or-self::div[1]'),
+              ]
+              patterns = [r'ダウンロード', r'Download', r'保存']
+              for container in containers:
+                  try:
+                      if container.count() == 0:
+                          continue
+                      for pat in patterns:
+                          btn = container.get_by_role('button', name=pat)
+                          if btn.count():
+                              with page.expect_download(timeout=30000) as di:
+                                  btn.first.click()
+                              di.value.save_as(outdir / filename)
+                              return
+                          link = container.get_by_role('link', name=pat)
+                          if link.count():
+                              with page.expect_download(timeout=30000) as di:
+                                  link.first.click()
+                              di.value.save_as(outdir / filename)
+                              return
+                  except Exception:
+                      pass
+
+              # Fallback: open the file/preview, then click a global download control.
+              target.click()
+              page.wait_for_timeout(1500)
+              for pat in patterns:
+                  for role in ('button', 'link'):
+                      try:
+                          loc = page.get_by_role(role, name=pat)
+                          if loc.count():
+                              with page.expect_download(timeout=30000) as di:
+                                  loc.first.click()
+                              di.value.save_as(outdir / filename)
+                              return
+                      except Exception:
+                          pass
+              raise RuntimeError(f'download control not found: {filename}')
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              page = browser.new_page(accept_downloads=True)
+              for name in wanted:
+                  click_download_for(page, name)
+                  path = outdir / name
+                  if not path.exists() or path.stat().st_size < 5000:
+                      raise RuntimeError(f'invalid download: {name}')
+                  print(name, path.stat().st_size)
+              browser.close()
+          PY
+      - name: Commit imported images
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/images/articles/plc-drilling-line-design-project-02-*.webp
+          git diff --cached --quiet && exit 0
+          git commit -m '第2回I/O設計編の採用画像を追加'
+          git push origin HEAD:preview-plc-drilling-project-02-outline

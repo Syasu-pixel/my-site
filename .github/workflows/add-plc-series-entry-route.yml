@@ -1,0 +1,57 @@
+name: Add PLC series entry route
+
+on:
+  push:
+    branches:
+      - preview-plc-series-entry-route
+    paths:
+      - .github/workflows/add-plc-series-entry-route.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add series entry routes via GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = 'preview-plc-series-entry-route';
+
+            async function update(path, transform, message) {
+              const { data } = await github.rest.repos.getContent({ owner, repo, path, ref: branch });
+              if (Array.isArray(data) || !data.content) throw new Error(`${path}: file not found`);
+              let text = Buffer.from(data.content, 'base64').toString('utf8');
+              const next = transform(text);
+              if (next === text) throw new Error(`${path}: no change`);
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo, path, branch, message,
+                content: Buffer.from(next, 'utf8').toString('base64'), sha: data.sha
+              });
+            }
+
+            const css = `\n    .plc-series-entry{border:1px solid #bfd5ff;background:linear-gradient(135deg,#eff6ff 0%,#ffffff 72%);overflow:hidden}\n    .plc-series-entry-grid{display:grid;grid-template-columns:minmax(280px,420px) minmax(0,1fr);gap:24px;align-items:center}\n    .plc-series-entry-media{display:block;border-radius:18px;overflow:hidden;border:1px solid #dbeafe;background:#fff}\n    .plc-series-entry-media img{width:100%;aspect-ratio:16/9;object-fit:cover}\n    .plc-series-entry-kicker{display:inline-flex;margin-bottom:8px;padding:5px 10px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:900}\n    .plc-series-entry-copy h2,.plc-series-entry-copy h3{margin:0 0 10px;color:#0f172a}\n    .plc-series-entry-copy p{margin:0 0 16px;color:#475569}\n    .plc-series-entry-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff!important;font-weight:900;text-decoration:none!important}\n    @media(max-width:768px){.plc-series-entry-grid{grid-template-columns:1fr}.plc-series-entry-copy{padding-top:2px}}\n`;
+
+            await update('categories/control-basics.html', (text) => {
+              if (text.includes('id="plc-design-series-entry"')) return text;
+              const anchor = '        <section class="section-card" id="articles" aria-labelledby="articles-heading">';
+              if (!text.includes(anchor)) throw new Error('category anchor missing');
+              const block = `        <section class="section-card plc-series-entry" id="plc-design-series-entry" aria-labelledby="plc-design-series-entry-heading">\n          <div class="plc-series-entry-grid">\n            <a class="plc-series-entry-media" href="../articles/plc-drilling-line-design-project-01.html" aria-label="PLCで設備を1から設計する 第1回を読む">\n              <img src="../assets/images/articles/plc-drilling-line-design-project-01-ogp.webp" alt="PLCで設備を1から設計する 穴あけ加工ライン設計プロジェクト 第1回" loading="lazy" decoding="async">\n            </a>\n            <div class="plc-series-entry-copy">\n              <span class="plc-series-entry-kicker">実践編｜設備設計を順番に追う</span>\n              <h2 id="plc-design-series-entry-heading">基礎を学んだら、1台の設備を最初から設計してみる</h2>\n              <p>PLC・I/O・搬送・加工シーケンスを、穴あけ加工ラインを題材に設計順で追う実践シリーズです。シリーズは第1回から順番に進めます。</p>\n              <a class="plc-series-entry-button" href="../articles/plc-drilling-line-design-project-01.html">第1回から始める</a>\n            </div>\n          </div>\n        </section>\n\n`;
+              text = text.replace(anchor, block + anchor);
+              if (!text.includes('.plc-series-entry{')) text = text.replace('</style>', css + '  </style>');
+              return text;
+            }, '制御の基礎カテゴリにPLC設計シリーズ入口を追加');
+
+            await update('articles/plc-io-unit-basic.html', (text) => {
+              if (text.includes('id="plc-design-series-entry"')) return text;
+              const anchor = '        <section class="section-card" id="related">';
+              if (!text.includes(anchor)) throw new Error('PLC I/O related anchor missing');
+              const block = `        <section class="section-card plc-series-entry" id="plc-design-series-entry" aria-labelledby="plc-design-series-entry-heading">\n          <div class="plc-series-entry-grid">\n            <a class="plc-series-entry-media" href="plc-drilling-line-design-project-01.html" aria-label="PLCで設備を1から設計する 第1回を読む">\n              <img src="../assets/images/articles/plc-drilling-line-design-project-01-ogp.webp" alt="PLCで設備を1から設計する 穴あけ加工ライン設計プロジェクト 第1回" loading="lazy" decoding="async">\n            </a>\n            <div class="plc-series-entry-copy">\n              <span class="plc-series-entry-kicker">次のステップ｜実践設計</span>\n              <h2 id="plc-design-series-entry-heading">I/Oの基礎を、実際の設備設計につなげる</h2>\n              <p>入力・出力の役割が分かったら、穴あけ加工ラインを題材に「設備仕様 → I/O → 搬送 → 加工」の順で設計する実践シリーズへ進めます。</p>\n              <a class="plc-series-entry-button" href="plc-drilling-line-design-project-01.html">第1回から設計を始める</a>\n            </div>\n          </div>\n        </section>\n\n`;
+              text = text.replace(anchor, block + anchor);
+              if (!text.includes('.plc-series-entry{')) text = text.replace('</style>', css + '  </style>');
+              return text;
+            }, 'PLC I/O基礎記事にPLC設計シリーズ入口を追加');

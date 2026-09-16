@@ -1,0 +1,49 @@
+name: Patch direct feedback preview
+on:
+  push:
+    branches: [preview-article-feedback-rollout]
+    paths: ['.github/workflows/patch-direct-feedback-preview.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-article-feedback-rollout
+      - name: Add direct feedback script to two preview articles
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          targets = [
+              Path('articles/air-cylinder-basic.html'),
+              Path('articles/tester.html'),
+          ]
+          marker = '<script src="../assets/js/article-feedback.js?v=20260916-7" defer></script>'
+          for p in targets:
+              s = p.read_text(encoding='utf-8')
+              if marker in s:
+                  continue
+              site_search = '<script src="../assets/js/site-search.js" defer></script>'
+              if site_search in s:
+                  s = s.replace(site_search, marker + '\n' + site_search, 1)
+              elif '</body>' in s:
+                  s = s.replace('</body>', marker + '\n</body>', 1)
+              else:
+                  raise SystemExit(f'No insertion point: {p}')
+              p.write_text(s, encoding='utf-8')
+          Path('.github/workflows/patch-direct-feedback-preview.yml').unlink()
+          PY
+      - name: Verify narrow scope
+        run: |
+          git diff --name-only
+          git diff -- articles/air-cylinder-basic.html articles/tester.html
+      - name: Commit preview patch
+        run: |
+          git config user.name 'Syasu-pixel'
+          git config user.email 'syasuta0819@gmail.com'
+          git add articles/air-cylinder-basic.html articles/tester.html .github/workflows/patch-direct-feedback-preview.yml
+          git commit -m 'Preview: load article feedback directly on sample articles'
+          git push origin HEAD:preview-article-feedback-rollout

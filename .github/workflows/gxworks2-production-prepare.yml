@@ -1,5 +1,4 @@
 name: GX Works2 Production Preparation
-
 on:
   push:
     branches: [preview-gxworks2-production-20260917]
@@ -7,14 +6,11 @@ on:
       - .github/workflows/gxworks2-production-prepare.yml
       - scripts/_gxworks2_prepare_release.py
       - scripts/_gxworks2_test_release.py
-
 permissions:
   contents: write
-
 concurrency:
   group: gxworks2-production-preparation
   cancel-in-progress: false
-
 jobs:
   prepare-and-test:
     if: github.repository == 'Syasu-pixel/my-site' && github.ref == 'refs/heads/preview-gxworks2-production-20260917'
@@ -44,6 +40,9 @@ jobs:
           old='const d=document;\\n'
           assert src.count(old)==1
           src=src.replace(old,'const d=document;const code=d.getElementById("preview-case-code");\\n')
+          anchor="document.getElementById('zip-password').setAttribute('aria-label','ZIPパスワード');"
+          assert src.count(anchor)==1
+          src=src.replace(anchor,anchor+"\n      document.querySelectorAll('.zip-paste-btn').forEach(e=>e.remove());")
           prep.write_text(src,encoding='utf-8')
           p=Path('scripts/_gxworks2_test_release.py')
           s=p.read_text(encoding='utf-8')
@@ -54,9 +53,9 @@ jobs:
           ctx="context = browser.new_context(viewport={'width': 1440, 'height': 1000})"
           assert s.count(ctx)==1
           s=s.replace(ctx,"context = browser.new_context(viewport={'width': 1440, 'height': 1000}, permissions=['clipboard-read','clipboard-write'])")
-          anchor="        assert len(records) == 1\n        page.locator('#zip-password').fill"
+          anchor="        assert len(records) == 1\n        page.locator('#zip-password').fill('mock-password-not-sent')"
           assert s.count(anchor)==1
-          s=s.replace(anchor,"        assert len(records) == 1\n        page.locator('#preview-copy-case').click()\n        page.wait_for_function(\"() => document.getElementById('preview-copy-case').textContent==='コピーしました'\")\n        assert page.evaluate('navigator.clipboard.readText()') == 'GXW-20990101-00000001'\n        page.locator('#zip-password').fill")
+          s=s.replace(anchor,"        assert len(records) == 1\n        page.locator('#preview-copy-case').click()\n        page.wait_for_function(\"() => document.getElementById('preview-copy-case').textContent==='コピーしました'\")\n        assert page.evaluate('navigator.clipboard.readText()') == 'GXW-20990101-00000001'\n        page.evaluate(\"navigator.clipboard.writeText('mock-password-not-sent')\")\n        page.locator('.zip-paste-btn').click()\n        page.wait_for_function(\"() => document.getElementById('zip-password').value==='mock-password-not-sent'\")")
           p.write_text(s,encoding='utf-8')
           PY
       - name: Prepare and test locally without contacting the blocked API
@@ -91,6 +90,7 @@ jobs:
           result=json.loads(Path('gxw-release-evidence/report.json').read_text())
           assert result.get('all_local_checks_passed') and result.get('live_consultations_created') == 0
           assert result['live_origin_verified'] is False and result['production_release_ready'] is False
+          result['checks'].append('Receipt copy and password clipboard paste verified in both normal and retry flows')
           Path('docs/gxworks2-release-verification-20260917.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           git config user.name denkicontrol-release

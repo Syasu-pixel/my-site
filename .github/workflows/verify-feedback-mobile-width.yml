@@ -1,0 +1,149 @@
+name: Verify feedback mobile width
+on:
+  push:
+    branches: [preview-feedback-mobile-width]
+    paths: [.github/workflows/verify-feedback-mobile-width.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Compare original and corrected article layouts
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/width-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          cat > .width-test.mjs <<'JS'
+          import fs from 'node:fs';
+          import {createHash} from 'node:crypto';
+          import {chromium} from 'playwright';
+          const out='width-evidence';fs.mkdirSync(out,{recursive:true});
+          const files=['control-panel-noise-troubleshooting-guide.html','plc-xymd-device-basic.html'];
+          const widths=[320,360,390,768,1024,1440,1920];
+          const css='    /* Allow wide tables to scroll inside the article without expanding its grid column. */\n    .main-column{min-width:0}\n';
+          const originals=new Map(files.map(f=>[f,fs.readFileSync('articles/'+f,'utf8')]));
+          const hash=s=>createHash('sha256').update(s).digest('hex');
+          const browser=await chromium.launch({headless:true});
+          const rows=[],production=[],errors=[];
+          const measure=()=>{
+            const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,right:r.right,bottom:r.bottom};};
+            const main=document.querySelector('.main-column,.article-main,.main');
+            const card=document.getElementById('articleFeedbackCard');
+            const related=card?.nextElementSibling;
+            const c=rect(card),r=rect(related),m=rect(main),v=document.documentElement.clientWidth;
+            const issues=[];
+            if(document.querySelectorAll('#articleFeedbackCard').length!==1)issues.push('card-count');
+            if(!main?.contains(card))issues.push('outside-main');
+            if(!related?.querySelector('.related-grid'))issues.push('not-before-related-block');
+            if(c&&r&&(Math.abs(c.x-r.x)>1||Math.abs(c.width-r.width)>1))issues.push('alignment');
+            if(c&&r&&r.y<c.bottom-1)issues.push('overlap');
+            if(m&&(m.x< -1||m.right>v+1))issues.push('main-viewport-overflow');
+            if(c&&(c.x< -1||c.right>v+1))issues.push('card-viewport-overflow');
+            if(document.documentElement.scrollWidth>v+1)issues.push('page-horizontal-overflow');
+            const buttons=card?[...card.querySelectorAll('button')]:[];
+            if(buttons.length!==2)issues.push('button-count');
+            if(c&&buttons.some(b=>{const q=rect(b);return q.x<c.x||q.right>c.right+1;}))issues.push('button-overflow');
+            const tables=[...document.querySelectorAll('.table-wrap')].map(w=>{
+              const original=w.scrollLeft;w.scrollLeft=w.scrollWidth;
+              const item={width:w.clientWidth,scrollWidth:w.scrollWidth,canScroll:w.scrollLeft>0,overflowX:getComputedStyle(w).overflowX};
+              w.scrollLeft=original;return item;
+            });
+            if(v<=390&&tables.some(t=>t.scrollWidth>t.width+1&&!t.canScroll))issues.push('table-cannot-scroll');
+            return {issues,viewport:v,pageWidth:document.documentElement.scrollWidth,main:m,card:c,related:r,tables};
+          };
+          async function run(file,width,phase,origin='http://127.0.0.1:4173'){
+            const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+            await page.route('**/*',route=>{
+              const r=route.request();
+              if(!r.url().startsWith(origin+'/')||!['GET','HEAD'].includes(r.method()))return route.abort();
+              return route.continue();
+            });
+            try{
+              const response=await page.goto(origin+'/articles/'+file,{waitUntil:'networkidle',timeout:45000});
+              if(!response?.ok())throw new Error('HTTP '+response?.status());
+              await page.waitForSelector('#articleFeedbackCard',{timeout:10000});
+              await page.evaluate(async()=>{await document.fonts.ready;document.querySelectorAll('img[loading="lazy"]').forEach(i=>i.loading='eager');});
+              await page.waitForLoadState('networkidle');
+              const row={file,width,phase,...await page.evaluate(measure)};
+              if(width===390||width===1440){
+                await page.addStyleTag({content:'html{scroll-behavior:auto!important}'});
+                for(const [label,selector]of [['feedback','#articleFeedbackCard'],['table','.table-wrap']]){
+                  await page.evaluate(sel=>{const e=document.querySelector(sel);if(e)window.scrollTo(0,e.getBoundingClientRect().top+scrollY-110);},selector);
+                  await page.waitForTimeout(200);
+                  await page.screenshot({path:`${out}/${phase}-${file.replace('.html','')}-${width}-${label}.png`});
+                }
+              }
+              return row;
+            }finally{await page.close();}
+          }
+          for(const phase of ['before','after']){
+            if(phase==='after')for(const f of files){
+              const text=originals.get(f);
+              if(text.split('</style>').length!==2||text.includes('.main-column{min-width:0}'))throw new Error('Unexpected CSS '+f);
+              const next=text.replace('  </style>',css+'  </style>');
+              if(next===text||next.slice(next.indexOf('<body'))!==text.slice(text.indexOf('<body')))throw new Error('Body preservation failed');
+              fs.writeFileSync('articles/'+f,next);fs.writeFileSync(`${out}/${f}`,next);
+            }
+            for(const f of files)for(const w of widths){
+              try{rows.push(await run(f,w,phase));}catch(e){errors.push({file:f,width:w,phase,error:String(e)});}
+            }
+          }
+          for(const f of ['plc-basic.html','power-watt-basic.html','alternate-operation-circuit-basic.html','gxw3-mul-div-instruction-basic.html']){
+            try{production.push(await run(f,390,'production','https://denkicontrol.com'));}catch(e){production.push({file:f,error:String(e)});}
+          }
+          await browser.close();
+          const summary={source_sha:process.env.SOURCE_SHA,widths,after_checks:rows.filter(r=>r.phase==='after').length,after_failures:rows.filter(r=>r.phase==='after'&&r.issues.length),errors,body_unchanged:true,real_votes_sent:0,files:files.map(f=>({file:f,before_sha256:hash(originals.get(f)),after_sha256:hash(fs.readFileSync('articles/'+f,'utf8'))}))};
+          fs.writeFileSync(`${out}/report.json`,JSON.stringify({summary,rows,production},null,2));
+          console.log('WIDTH_SUMMARY '+JSON.stringify(summary));
+          console.log('PRODUCTION_CHECKS '+JSON.stringify(production));
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Width verification\n```json\n'+JSON.stringify(summary,null,2)+'\n```\n');
+          if(summary.after_checks!==files.length*widths.length||summary.after_failures.length||errors.length)process.exitCode=1;
+          JS
+          node .width-test.mjs
+      - name: Commit only the two verified CSS additions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const {owner,repo}=context.repo;
+            const branch='preview-feedback-mobile-width';
+            if(context.ref!==`refs/heads/${branch}`)throw new Error('Wrong branch');
+            const ref=await github.rest.git.getRef({owner,repo,ref:`heads/${branch}`});
+            if(ref.data.object.sha!==context.sha)throw new Error('Branch changed during test');
+            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:context.sha});
+            const expected={'articles/control-panel-noise-troubleshooting-guide.html':'c92d00a4f69a379c13817728e37f84e73221827f','articles/plc-xymd-device-basic.html':'486926f3544da30e5a0c3368aa3df19c0a3b0cf6'};
+            const tree=[];
+            for(const [path,sha]of Object.entries(expected)){
+              const current=await github.rest.repos.getContent({owner,repo,path,ref:context.sha});
+              if(current.data.sha!==sha)throw new Error('Unexpected original '+path);
+              const blob=await github.rest.git.createBlob({owner,repo,content:fs.readFileSync(path,'utf8'),encoding:'utf-8'});
+              tree.push({path,mode:'100644',type:'blob',sha:blob.data.sha});
+            }
+            const t=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree});
+            const c=await github.rest.git.createCommit({owner,repo,message:'fix: contain wide tables in mobile article columns',tree:t.data.sha,parents:[context.sha]});
+            await github.rest.git.updateRef({owner,repo,ref:`heads/${branch}`,sha:c.data.sha,force:false});
+            fs.writeFileSync('width-evidence/commit.json',JSON.stringify({branch,commit:c.data.sha,files:Object.keys(expected)},null,2));
+            console.log('VERIFIED_FIX_COMMIT '+c.data.sha);
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feedback-mobile-width-evidence
+          path: width-evidence/
+          retention-days: 7
+          if-no-files-found: error

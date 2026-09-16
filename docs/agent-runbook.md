@@ -9,8 +9,9 @@
 2. `docs/article-workflow.md` を確認する。
 3. `docs/new-article-checklist.md` を確認する。
 4. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
-5. 画像がある場合は `docs/image-generation-rules.md` を確認する。
-6. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
+5. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。
+6. 画像がある場合は `docs/image-generation-rules.md` を確認する。
+7. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
 
 ## 制作担当の正本
 - ChatGPT / AI編集部が完成記事HTMLと記事画像を作成する。
@@ -28,6 +29,15 @@
 - hero採用後は、正本テンプレート + 採用済みhero の両方をキャラクター入り後続画像で参照する。
 - 画像は5枚固定ではない。hero + OGP + 本文1〜4枚を原則とし、不要な説明画像を枚数合わせで作らない。
 - 生成側自己評価95点以上 + 独立IMAGE REVIEWER通過をPreview採用条件とする。
+
+## 記事評価カード運用の要点
+- 記事評価を扱う場合は `docs/article-feedback-rules.md` を正本として確認する。
+- 評価カードは共通 `assets/js/article-feedback.js` を使い、記事ごとの投票処理を別JSへ複製しない。
+- `article_slug` は記事固有値とし、別記事へコピー元のslugを残さない。
+- 1ブラウザ・1記事・1票を維持し、2回目は追加・上書きせず投票済み表示へ遷移させる。
+- 新しい記事へ追加した場合は、記事側だけでなくbackendの許可記事登録と `/admin/` の記事別集計まで確認する。
+- `site-search.js` 等へ投票処理を重複実装しない。
+- JS更新時はキャッシュキーを更新し、旧JSが残らないようにする。
 
 ## 記事更新時の要点
 - まず更新理由と公式参照元を確認する。

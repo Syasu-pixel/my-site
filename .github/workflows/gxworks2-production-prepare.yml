@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip install playwright
           python -m playwright install --with-deps chromium
-      - name: Record blocked live verification and isolate local tests
+      - name: Preserve live verification blocker and prepare isolated checks
         shell: bash
         run: |
           set -euo pipefail
@@ -39,12 +39,24 @@ jobs:
           out=Path('gxw-release-evidence');out.mkdir(exist_ok=True)
           block={'live_origin_verified':False,'production_release_ready':False,'reason':'Cloudflare rejected the GitHub runner health request with HTTP 403 / Error 1010 (browser_signature_banned). No retries, user-agent spoofing, or security setting changes.','evidence_run_id':35134257333,'evidence_job_id':104922539313,'ray_id':'a3c1e95e1d1c8b02','required_before_publication':'Verify the real intake API from an authorized normal browser on the production origin. Local UI tests do not establish live API availability.'}
           (out/'live-origin-blocker.json').write_text(json.dumps(block,indent=2),encoding='utf-8')
+          prep=Path('scripts/_gxworks2_prepare_release.py')
+          src=prep.read_text(encoding='utf-8')
+          old='const d=document;\\n'
+          assert src.count(old)==1
+          src=src.replace(old,'const d=document;const code=d.getElementById("preview-case-code");\\n')
+          prep.write_text(src,encoding='utf-8')
           p=Path('scripts/_gxworks2_test_release.py')
           s=p.read_text(encoding='utf-8')
           start=s.index('# Read-only checks against the already deployed Worker.')
           end=s.index("html = (ROOT / SERVICE.lstrip('/'))",start)
           s=s[:start]+"# Live probes are not retried after the explicit Cloudflare denial.\nreport['live_origin_verified'] = False\nreport['production_release_ready'] = False\nreport['live_origin_blocker'] = 'HTTP 403 / Cloudflare Error 1010; owner-browser verification required'\n\n"+s[end:]
           s=s.replace("report['all_passed'] = True", "report['all_local_checks_passed'] = True")
+          ctx="context = browser.new_context(viewport={'width': 1440, 'height': 1000})"
+          assert s.count(ctx)==1
+          s=s.replace(ctx,"context = browser.new_context(viewport={'width': 1440, 'height': 1000}, permissions=['clipboard-read','clipboard-write'])")
+          anchor="        assert len(records) == 1\n        page.locator('#zip-password').fill"
+          assert s.count(anchor)==1
+          s=s.replace(anchor,"        assert len(records) == 1\n        page.locator('#preview-copy-case').click()\n        page.wait_for_function(\"() => document.getElementById('preview-copy-case').textContent==='コピーしました'\")\n        assert page.evaluate('navigator.clipboard.readText()') == 'GXW-20990101-00000001'\n        page.locator('#zip-password').fill")
           p.write_text(s,encoding='utf-8')
           PY
       - name: Prepare and test locally without contacting the blocked API

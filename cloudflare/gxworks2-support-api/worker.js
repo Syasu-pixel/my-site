@@ -12,16 +12,23 @@ export default {
     }
 
     if (request.method === 'GET' && url.pathname === '/') {
-      return json({ ok: true, service: 'gxworks2-support-api', message: 'Worker is running' }, 200, origin);
-    }
-
-    if (request.method === 'POST' && url.pathname === '/test-email') {
-      return sendTestEmail(env, origin);
+      return json({
+        ok: true,
+        service: 'gxworks2-support-api',
+        message: 'Worker is running',
+        r2: Boolean(env.GXW_FILES),
+        db: Boolean(env.DB),
+      }, 200, origin);
     }
 
     if (request.method === 'POST' && url.pathname === '/consultations') {
       if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return createConsultation(request, env, origin);
+    }
+
+    if (request.method === 'PUT' && url.pathname === '/consultations/zip') {
+      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
+      return uploadConsultationZip(request, env, origin);
     }
 
     if (request.method === 'POST' && url.pathname === '/consultations/status') {
@@ -34,7 +41,7 @@ export default {
 };
 
 async function createConsultation(request, env, origin) {
-  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL || !env.DB) {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL || !env.DB || !env.GXW_FILES) {
     return json({ ok: false, error: 'Server configuration is incomplete' }, 500, origin);
   }
 
@@ -54,9 +61,13 @@ async function createConsultation(request, env, origin) {
   if (!data.name || !isValidEmail(data.email) || !data.problem || !data.desired) {
     return json({ ok: false, error: 'Required fields are missing or invalid' }, 400, origin);
   }
+  if (!isZipName(data.zipName) || data.zipSize < 1) {
+    return json({ ok: false, error: 'A ZIP file is required' }, 400, origin);
+  }
 
   const requestHash = await sha256Hex(JSON.stringify(data));
   let row = await getConsultationByIdempotency(env.DB, idempotencyKey);
+  const existed = Boolean(row);
 
   if (row && row.request_hash !== requestHash) {
     return json({ ok: false, error: 'This request key was already used for different content' }, 409, origin);
@@ -65,7 +76,6 @@ async function createConsultation(request, env, origin) {
   if (!row) {
     const now = new Date().toISOString();
     const caseNumber = createCaseNumber();
-    const storageMode = plannedZipMode(data.zipSize);
 
     try {
       await env.DB.prepare(`
@@ -73,11 +83,11 @@ async function createConsultation(request, env, origin) {
           idempotency_key, request_hash, case_number, state, accepted_at, updated_at,
           name, email, company, plc, problem, desired, photo, gxdata,
           zip_name, zip_size, zip_storage_mode
-        ) VALUES (?1, ?2, ?3, 'received', ?4, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+        ) VALUES (?1, ?2, ?3, 'awaiting_zip', ?4, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, 'r2-private-pending')
       `).bind(
         idempotencyKey, requestHash, caseNumber, now,
         data.name, data.email, data.company, data.plc, data.problem, data.desired,
-        data.photo, data.gxdata, data.zipName, data.zipSize, storageMode
+        data.photo, data.gxdata, data.zipName, data.zipSize
       ).run();
     } catch (error) {
       row = await getConsultationByIdempotency(env.DB, idempotencyKey);
@@ -92,26 +102,133 @@ async function createConsultation(request, env, origin) {
 
     row = row || await getConsultationByIdempotency(env.DB, idempotencyKey);
     if (!row) return json({ ok: false, error: 'Receipt database read failed' }, 503, origin);
-    await addEvent(env.DB, row.id, 'received', 'Consultation accepted into D1');
+    await addEvent(env.DB, row.id, 'received', 'Consultation metadata accepted into D1; ZIP upload pending');
   }
 
-  return continueConsultation(row, env, origin);
+  if (row.zip_object_key) {
+    return continueConsultation(row, env, origin, existed);
+  }
+
+  return json({
+    ok: true,
+    duplicate: existed,
+    uploadRequired: true,
+    caseNumber: row.case_number,
+    acceptedAt: row.accepted_at,
+    state: row.state,
+    zipUploaded: false,
+  }, existed ? 200 : 201, origin);
 }
 
-async function continueConsultation(row, env, origin) {
+async function uploadConsultationZip(request, env, origin) {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL || !env.DB || !env.GXW_FILES) {
+    return json({ ok: false, error: 'Server configuration is incomplete' }, 500, origin);
+  }
+
+  const idempotencyKey = clean(request.headers.get('X-GXW-Idempotency-Key') || '', 80);
+  if (!isValidIdempotencyKey(idempotencyKey)) {
+    return json({ ok: false, error: 'A valid idempotency key is required' }, 400, origin);
+  }
+
+  let row = await getConsultationByIdempotency(env.DB, idempotencyKey);
+  if (!row) return json({ ok: false, error: 'Consultation was not found' }, 404, origin);
+
+  if (row.state === 'completed' && row.zip_object_key) {
+    return completedResponse(row, origin, true);
+  }
+
+  if (row.zip_object_key) {
+    const existing = await env.GXW_FILES.head(row.zip_object_key);
+    if (existing && (!row.zip_size || existing.size === row.zip_size)) {
+      return continueConsultation(row, env, origin, true);
+    }
+  }
+
+  if (!request.body) {
+    return json({ ok: false, error: 'ZIP request body is required' }, 400, origin);
+  }
+
+  const contentType = (request.headers.get('Content-Type') || '').toLowerCase();
+  if (contentType && !contentType.includes('zip') && !contentType.includes('octet-stream')) {
+    return json({ ok: false, error: 'ZIP content type is required' }, 415, origin);
+  }
+
+  const declaredSize = parsePositiveInteger(request.headers.get('X-GXW-File-Size'));
+  const contentLength = parsePositiveInteger(request.headers.get('Content-Length'));
+  const expectedSize = row.zip_size || declaredSize || contentLength;
+
+  if (row.zip_size && declaredSize && row.zip_size !== declaredSize) {
+    return json({ ok: false, error: 'ZIP size does not match the consultation metadata' }, 409, origin);
+  }
+  if (row.zip_size && contentLength && row.zip_size !== contentLength) {
+    return json({ ok: false, error: 'ZIP size does not match the request body' }, 409, origin);
+  }
+
+  const objectKey = `consultations/${row.case_number}/source.zip`;
+  let stored;
+  try {
+    stored = await env.GXW_FILES.put(objectKey, request.body, {
+      httpMetadata: { contentType: 'application/zip' },
+      customMetadata: { caseNumber: row.case_number },
+    });
+  } catch (error) {
+    console.error('R2 put failed', error);
+    await addEvent(env.DB, row.id, 'zip_upload_failed', safeDetail(error?.message || error));
+    return json({ ok: false, recoverable: true, caseNumber: row.case_number, error: 'ZIP storage failed' }, 503, origin);
+  }
+
+  if (!stored) {
+    await addEvent(env.DB, row.id, 'zip_upload_failed', 'R2 put returned no object');
+    return json({ ok: false, recoverable: true, caseNumber: row.case_number, error: 'ZIP storage failed' }, 503, origin);
+  }
+
+  if (expectedSize && stored.size !== expectedSize) {
+    try { await env.GXW_FILES.delete(objectKey); } catch {}
+    await addEvent(env.DB, row.id, 'zip_upload_failed', `Size mismatch expected=${expectedSize} stored=${stored.size}`);
+    return json({ ok: false, recoverable: true, caseNumber: row.case_number, error: 'ZIP size verification failed' }, 409, origin);
+  }
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(`
+    UPDATE consultations
+       SET state='zip_uploaded',
+           zip_size=?2,
+           zip_storage_mode='r2-private',
+           zip_object_key=?3,
+           updated_at=?4,
+           last_error=NULL
+     WHERE id=?1
+  `).bind(row.id, stored.size, objectKey, now).run();
+  await addEvent(env.DB, row.id, 'zip_uploaded', `Stored privately in R2: ${objectKey} (${stored.size} bytes)`);
+
+  row = await getConsultationById(env.DB, row.id);
+  return continueConsultation(row, env, origin, false);
+}
+
+async function continueConsultation(row, env, origin, duplicate = false) {
   let current = row;
+
+  if (!current.zip_object_key || current.zip_storage_mode !== 'r2-private') {
+    return json({
+      ok: true,
+      duplicate,
+      uploadRequired: true,
+      caseNumber: current.case_number,
+      acceptedAt: current.accepted_at,
+      state: current.state,
+      zipUploaded: false,
+    }, 200, origin);
+  }
 
   if (current.admin_mail_status !== 'sent') {
     const claim = await claimMail(env.DB, current.id, 'admin');
-    if (claim === 'busy') {
-      return processingResponse(current, origin);
-    }
+    if (claim === 'busy') return processingResponse(current, origin);
     if (claim === 'claimed') {
       const result = await sendEmail(env, buildAdminEmail(current));
       if (!result.ok) {
         await markMailFailed(env.DB, current.id, 'admin', result.body);
         await addEvent(env.DB, current.id, 'admin_mail_failed', safeDetail(result.body));
-        return json({ ok: false, recoverable: true, caseNumber: current.case_number, error: 'Notification email failed' }, 502, origin);
+        return json({ ok: false, recoverable: true, caseNumber: current.case_number, zipUploaded: true, error: 'Notification email failed' }, 502, origin);
       }
       await markMailSent(env.DB, current.id, 'admin', result.body.id || '');
       await addEvent(env.DB, current.id, 'admin_mail_sent', result.body.id || '');
@@ -121,15 +238,13 @@ async function continueConsultation(row, env, origin) {
 
   if (current.customer_mail_status !== 'sent') {
     const claim = await claimMail(env.DB, current.id, 'customer');
-    if (claim === 'busy') {
-      return processingResponse(current, origin);
-    }
+    if (claim === 'busy') return processingResponse(current, origin);
     if (claim === 'claimed') {
       const result = await sendEmail(env, buildCustomerEmail(current));
       if (!result.ok) {
         await markMailFailed(env.DB, current.id, 'customer', result.body);
         await addEvent(env.DB, current.id, 'customer_mail_failed', safeDetail(result.body));
-        return json({ ok: false, recoverable: true, caseNumber: current.case_number, error: 'Customer confirmation email failed' }, 502, origin);
+        return json({ ok: false, recoverable: true, caseNumber: current.case_number, zipUploaded: true, error: 'Customer confirmation email failed' }, 502, origin);
       }
       await markMailSent(env.DB, current.id, 'customer', result.body.id || '');
       await addEvent(env.DB, current.id, 'customer_mail_sent', result.body.id || '');
@@ -137,23 +252,37 @@ async function continueConsultation(row, env, origin) {
     current = await getConsultationById(env.DB, current.id);
   }
 
-  const completedAt = new Date().toISOString();
-  await env.DB.prepare(`
-    UPDATE consultations
-       SET state='completed', updated_at=?2, last_error=NULL
-     WHERE id=?1 AND admin_mail_status='sent' AND customer_mail_status='sent'
-  `).bind(current.id, completedAt).run();
-  await addEvent(env.DB, current.id, 'completed', 'Receipt and both emails completed');
-  current = await getConsultationById(env.DB, current.id);
+  if (current.state !== 'completed') {
+    const completedAt = new Date().toISOString();
+    const result = await env.DB.prepare(`
+      UPDATE consultations
+         SET state='completed', updated_at=?2, last_error=NULL
+       WHERE id=?1
+         AND zip_object_key IS NOT NULL
+         AND admin_mail_status='sent'
+         AND customer_mail_status='sent'
+         AND state!='completed'
+    `).bind(current.id, completedAt).run();
+    if ((result.meta?.changes || 0) > 0) {
+      await addEvent(env.DB, current.id, 'completed', 'ZIP stored in R2 and both emails completed');
+    }
+    current = await getConsultationById(env.DB, current.id);
+  }
 
+  return completedResponse(current, origin, duplicate);
+}
+
+function completedResponse(row, origin, duplicate = false) {
   return json({
     ok: true,
-    duplicate: current.idempotency_key !== '',
-    caseNumber: current.case_number,
-    acceptedAt: current.accepted_at,
-    state: current.state,
-    zipHandling: current.zip_storage_mode,
-    note: 'Preview phase: ZIP bytes are not uploaded yet.',
+    duplicate,
+    uploadRequired: false,
+    caseNumber: row.case_number,
+    acceptedAt: row.accepted_at,
+    state: row.state,
+    zipUploaded: Boolean(row.zip_object_key),
+    zipHandling: row.zip_storage_mode,
+    completed: row.state === 'completed',
   }, 200, origin);
 }
 
@@ -175,6 +304,8 @@ async function consultationStatus(request, env, origin) {
     caseNumber: row.case_number,
     acceptedAt: row.accepted_at,
     state: row.state,
+    zipUploaded: Boolean(row.zip_object_key),
+    zipStorageMode: row.zip_storage_mode,
     adminMail: row.admin_mail_status,
     customerMail: row.customer_mail_status,
     completed: row.state === 'completed',
@@ -231,7 +362,7 @@ async function getConsultationById(db, id) {
   return db.prepare('SELECT * FROM consultations WHERE id=?1 LIMIT 1').bind(id).first();
 }
 
-async function addEvent(db, consultationId, eventType, detail='') {
+async function addEvent(db, consultationId, eventType, detail = '') {
   try {
     await db.prepare(`
       INSERT INTO consultation_events (consultation_id, event_type, event_at, detail)
@@ -249,6 +380,7 @@ function processingResponse(row, origin) {
     caseNumber: row.case_number,
     acceptedAt: row.accepted_at,
     state: row.state,
+    zipUploaded: Boolean(row.zip_object_key),
     message: 'The receipt is already being processed. Check status instead of resubmitting.',
   }, 202, origin);
 }
@@ -256,10 +388,11 @@ function processingResponse(row, origin) {
 function buildAdminEmail(row) {
   return {
     from: 'GX Works2 オンライン相談 <support@denkicontrol.com>',
-    to: [row.notify_to_email || undefined].filter(Boolean),
+    to: [],
     subject: `[${row.case_number}] GX Works2 新規相談受付`,
     text: [
-      'GX Works2 オンライン相談を受け付けました。','',
+      'GX Works2 オンライン相談を受け付けました。',
+      '',
       `相談番号: ${row.case_number}`,
       `受付日時: ${row.accepted_at}`,
       `お名前: ${row.name}`,
@@ -268,11 +401,17 @@ function buildAdminEmail(row) {
       `PLC型式: ${row.plc || '未入力'}`,
       `設備写真: ${row.photo || '未入力'}`,
       `GX Works2データ: ${row.gxdata || '未入力'}`,
-      `ZIPファイル名: ${row.zip_name || '未接続'}`,
-      `ZIP容量: ${formatBytes(row.zip_size)}`,'',
-      '現在困っていること:',row.problem,'',
-      'どのように変更したいか:',row.desired,'',
-      '※ 現在のPreview段階ではZIP本体の保存・添付はまだ接続していません。'
+      `ZIPファイル名: ${row.zip_name || '未入力'}`,
+      `ZIP容量: ${formatBytes(row.zip_size)}`,
+      `ZIP保存: 非公開R2 (${row.zip_object_key || '未保存'})`,
+      '',
+      '現在困っていること:',
+      row.problem,
+      '',
+      'どのように変更したいか:',
+      row.desired,
+      '',
+      '※ ZIP本体はメール添付ではなく、非公開R2バケットに保存されています。'
     ].join('\n'),
     reply_to: row.email,
   };
@@ -284,28 +423,18 @@ function buildCustomerEmail(row) {
     to: [row.email],
     subject: `[${row.case_number}] GX Works2 オンライン相談を受け付けました`,
     text: [
-      `${row.name} 様`,'',
+      `${row.name} 様`,
+      '',
       'GX Works2 オンライン相談を受け付けました。',
-      `相談番号: ${row.case_number}`,'',
+      `相談番号: ${row.case_number}`,
+      '',
+      'パスワード付きZIPファイルの受信が完了しています。',
       '続けて、画面に表示された相談番号を使ってZIPパスワードを別送してください。',
-      '内容を確認後、返信用メールアドレスへご連絡します。','',
+      '内容を確認後、返信用メールアドレスへご連絡します。',
+      '',
       '電気と制御の実務メモ'
     ].join('\n'),
   };
-}
-
-async function sendTestEmail(env, origin) {
-  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL) {
-    return json({ ok: false, error: 'Server configuration is incomplete' }, 500, origin);
-  }
-  const result = await sendEmail(env, {
-    from: 'GX Works2 オンライン相談 <support@denkicontrol.com>',
-    to: [env.NOTIFY_TO_EMAIL],
-    subject: 'GX Works2 受付システム テストメール',
-    text: 'GX Works2 オンライン相談受付システムのテストメールです。\n\nCloudflare Workers → Resend のメール送信に成功しました。',
-  });
-  if (!result.ok) return json({ ok: false, error: 'Email sending failed', details: result.body }, result.status, origin);
-  return json({ ok: true, message: 'Test email sent', id: result.body.id }, 200, origin);
 }
 
 async function sendEmail(env, payload) {
@@ -341,19 +470,17 @@ function sanitizeConsultation(body) {
 }
 
 function createCaseNumber() {
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(now.getUTCDate()).padStart(2, '0');
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
   const bytes = new Uint8Array(4);
   crypto.getRandomValues(bytes);
   const suffix = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-  return `GXW-${y}${m}${d}-${suffix}`;
-}
-
-function plannedZipMode(size) {
-  if (!size) return 'pending';
-  return size < 20 * 1024 * 1024 ? 'email-attachment-planned' : 'private-storage-planned';
+  return `GXW-${values.year}${values.month}${values.day}-${suffix}`;
 }
 
 async function sha256Hex(value) {
@@ -363,6 +490,16 @@ async function sha256Hex(value) {
 
 function isValidIdempotencyKey(value) {
   return /^[A-Za-z0-9_-]{20,80}$/.test(value);
+}
+
+function isZipName(value) {
+  return typeof value === 'string' && value.toLowerCase().endsWith('.zip');
+}
+
+function parsePositiveInteger(value) {
+  if (value === null || value === undefined || value === '') return 0;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 }
 
 function clean(value, max) {
@@ -375,7 +512,7 @@ function isValidEmail(value) {
 }
 
 function formatBytes(value) {
-  if (!value || value < 1) return '未接続';
+  if (!value || value < 1) return '未入力';
   if (value < 1024) return `${value} B`;
   if (value < 1024 ** 2) return `${(value / 1024).toFixed(1)} KB`;
   if (value < 1024 ** 3) return `${(value / 1024 ** 2).toFixed(1)} MB`;
@@ -402,8 +539,8 @@ function isAllowedOrigin(origin) {
 
 function corsHeaders(origin) {
   const headers = {
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-GXW-Idempotency-Key, X-GXW-File-Size',
     'Access-Control-Max-Age': '86400',
     'Cache-Control': 'no-store',
   };

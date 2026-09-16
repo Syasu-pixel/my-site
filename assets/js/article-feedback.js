@@ -16,7 +16,7 @@
       .article-feedback-button{min-width:190px;min-height:48px;padding:10px 18px;border:1px solid #cbd5e1;border-radius:16px;background:#fff;color:#334155;font-weight:900;cursor:pointer;box-shadow:0 6px 16px rgba(15,23,42,.04);transition:.15s ease}
       .article-feedback-button:hover,.article-feedback-button:focus-visible{transform:translateY(-1px);border-color:#93c5fd;box-shadow:0 10px 20px rgba(15,23,42,.08)}
       .article-feedback-button.is-selected{border-color:#60a5fa;background:#eff6ff;color:#1d4ed8}
-      .article-feedback-button:disabled{cursor:not-allowed;opacity:.48;transform:none;box-shadow:none}
+      .article-feedback-button:disabled{cursor:default;opacity:.48;transform:none;box-shadow:none}
       .article-feedback-button.is-selected:disabled{opacity:.82}
       .article-feedback-status{min-height:26px;margin:14px 0 0!important;color:#475569;font-size:13px!important;font-weight:800}
       .article-feedback-note{margin:4px 0 0!important;color:#94a3b8;font-size:11px!important}
@@ -96,7 +96,10 @@
     locked = true;
     storage.set(voteStorage, vote);
     renderSelection(vote);
-    buttons.forEach((button) => { button.disabled = true; });
+    buttons.forEach((button) => {
+      button.disabled = true;
+      button.style.cursor = 'default';
+    });
     status.textContent = message;
   };
 

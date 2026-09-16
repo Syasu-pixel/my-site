@@ -1,0 +1,141 @@
+name: Audit article feedback placement
+
+on:
+  push:
+    branches:
+      - audit-article-feedback-20260917
+    paths:
+      - .github/workflows/audit-article-feedback.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan article HTML structure
+        shell: python
+        run: |
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import json, re
+
+          class Node:
+              def __init__(self, tag='', attrs=None, parent=None):
+                  self.tag = tag
+                  self.attrs = dict(attrs or [])
+                  self.parent = parent
+                  self.children = []
+                  self.text = ''
+              def classes(self):
+                  return set((self.attrs.get('class') or '').split())
+              def contains(self, other):
+                  cur = other
+                  while cur:
+                      if cur is self: return True
+                      cur = cur.parent
+                  return False
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.root = Node('root')
+                  self.stack = [self.root]
+              def handle_starttag(self, tag, attrs):
+                  n = Node(tag, attrs, self.stack[-1])
+                  self.stack[-1].children.append(n)
+                  if tag not in {'meta','link','img','br','hr','input','source','area','base','col','embed','param','track','wbr'}:
+                      self.stack.append(n)
+              def handle_startendtag(self, tag, attrs):
+                  n = Node(tag, attrs, self.stack[-1]); self.stack[-1].children.append(n)
+              def handle_endtag(self, tag):
+                  for i in range(len(self.stack)-1, 0, -1):
+                      if self.stack[i].tag == tag:
+                          self.stack = self.stack[:i]
+                          return
+              def handle_data(self, data):
+                  self.stack[-1].text += data
+
+          def walk(n):
+              yield n
+              for c in n.children:
+                  yield from walk(c)
+
+          def text_content(n):
+              return (n.text + ''.join(text_content(c) for c in n.children)).strip()
+
+          files = sorted(Path('articles').glob('*.html'))
+          rows = []
+          for path in files:
+              html = path.read_text(encoding='utf-8', errors='replace')
+              p = Parser(); p.feed(html)
+              nodes = list(walk(p.root))
+              scripts = [n.attrs.get('src','') for n in nodes if n.tag == 'script']
+              has_site_search = any('assets/js/site-search.js' in s for s in scripts)
+              has_direct_feedback = any('assets/js/article-feedback.js' in s for s in scripts)
+              hardcoded = any(n.attrs.get('id') == 'articleFeedbackCard' for n in nodes)
+
+              main = None
+              for n in nodes:
+                  cls = n.classes()
+                  if 'main-column' in cls or 'article-main' in cls or 'main' in cls:
+                      main = n; break
+
+              related_candidates = []
+              for n in nodes:
+                  nid = n.attrs.get('id','')
+                  if nid == 'related' or nid == 'related-career' or nid.startswith('related'):
+                      related_candidates.append(('id:'+nid, n))
+              if not related_candidates and main:
+                  for n in walk(main):
+                      if n.tag == 'section':
+                          h2 = next((c for c in n.children if c.tag == 'h2'), None)
+                          if h2:
+                              label = re.sub(r'\s+',' ', text_content(h2))
+                              if 'あわせて読みたい記事' in label or label == '関連記事':
+                                  related_candidates.append(('heading:'+label, n)); break
+
+              related = related_candidates[0][1] if related_candidates else None
+              related_label = related_candidates[0][0] if related_candidates else ''
+              related_inside_main = bool(main and related and main.contains(related))
+
+              # site-search auto loader is only for /articles/*.html on production.
+              feedback_enabled = has_direct_feedback or has_site_search
+              issue = []
+              if not feedback_enabled: issue.append('NO_FEEDBACK_LOADER')
+              if feedback_enabled and not main: issue.append('NO_MAIN_CONTAINER')
+              if feedback_enabled and main and not related: issue.append('NO_RELATED_TARGET_APPEND_TO_MAIN_END')
+              if feedback_enabled and main and related and not related_inside_main: issue.append('RELATED_OUTSIDE_MAIN_APPEND_TO_MAIN_END')
+              if has_direct_feedback and has_site_search: issue.append('DIRECT_PLUS_AUTO_SAFE_BUT_MIXED')
+              if hardcoded: issue.append('HARDCODED_FEEDBACK_CARD')
+              if len(related_candidates) > 1: issue.append('MULTIPLE_RELATED_TARGETS')
+
+              rows.append({
+                  'file': str(path),
+                  'loader': 'direct+auto' if has_direct_feedback and has_site_search else 'direct' if has_direct_feedback else 'auto' if has_site_search else 'none',
+                  'main': bool(main),
+                  'related': related_label or '-',
+                  'related_inside_main': related_inside_main,
+                  'hardcoded': hardcoded,
+                  'issues': issue,
+              })
+
+          print(f'TOTAL_ARTICLES={len(rows)}')
+          print(f'FEEDBACK_ENABLED={sum(r["loader"]!="none" for r in rows)}')
+          print(f'ISSUE_ARTICLES={sum(bool(r["issues"]) for r in rows)}')
+          print('\n=== ISSUE ARTICLES ===')
+          for r in rows:
+              if r['issues']:
+                  print(f"{r['file']} | loader={r['loader']} | main={r['main']} | related={r['related']} | inside={r['related_inside_main']} | issues={','.join(r['issues'])}")
+          print('\n=== ALL ARTICLES ===')
+          for r in rows:
+              print(f"{r['file']} | loader={r['loader']} | main={r['main']} | related={r['related']} | inside={r['related_inside_main']} | issues={','.join(r['issues']) or 'OK'}")
+
+          Path('feedback-audit.json').write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding='utf-8')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: article-feedback-audit
+          path: feedback-audit.json
+          retention-days: 7

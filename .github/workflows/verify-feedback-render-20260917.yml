@@ -1,0 +1,130 @@
+name: Verify feedback rendered placement
+on:
+  push:
+    branches: [preview-article-feedback-placement-fix]
+    paths: [.github/workflows/verify-feedback-render-20260917.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify actual DOM and card dimensions
+        env:
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/feedback-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          cat > /tmp/feedback-test-note.txt <<'NOTE'
+          Read-only browser test. No real votes are submitted. External requests are blocked.
+          NOTE
+          cat > .feedback-render-test.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const out = 'feedback-render-evidence';
+          fs.mkdirSync(out, {recursive:true});
+          const browser = await chromium.launch({headless:true});
+          const files = fs.readdirSync('articles').filter(f=>f.endsWith('.html')).sort();
+          const rows = [];
+          const errors = [];
+          const representatives = ['plc-basic.html','relay-basic.html','power-watt-basic.html','safety-control-basic.html','motor-nameplate-basic.html','gxw3-mul-div-instruction-basic.html','tester.html','plc-drilling-line-design-project-01.html'];
+          async function guard(page, images) {
+            await page.route('**/*', route => {
+              const request = route.request();
+              if (!request.url().startsWith('http://127.0.0.1:4173/')) return route.abort();
+              if (!images && ['image','media','font'].includes(request.resourceType())) return route.abort();
+              if (!['GET','HEAD'].includes(request.method())) return route.abort();
+              return route.continue();
+            });
+          }
+          const measure = () => {
+            const main = document.querySelector('.main-column, .article-main, .main');
+            const card = document.getElementById('articleFeedbackCard');
+            const norm = s => (s || '').normalize('NFKC').replace(/^\s*\d+[.．、:：)）\s]+/,'').replace(/\s+/g,'').trim();
+            const labelMatches = s => /^(?:あわせて読みたい(?:記事)?|合わせて読みたい(?:記事)?|関連記事)$/.test(norm(s));
+            const headings = main ? [...main.querySelectorAll('h2')].filter(h=>!card?.contains(h) && labelMatches(h.textContent)) : [];
+            const candidates = headings.map(h=>h.closest('section')).filter(s=>s && main.contains(s));
+            const expected = candidates.find(s=>s.querySelector('.related-grid')) || candidates[0] || main?.querySelector('.related-grid')?.closest('section');
+            const rect = el => {if(!el) return null; const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};
+            const c = rect(card), r = rect(expected);
+            const buttons = card ? [...card.querySelectorAll('[data-feedback-vote]')] : [];
+            const issues=[];
+            if(document.querySelectorAll('#articleFeedbackCard').length !== 1) issues.push('card-count');
+            if(!main?.contains(card)) issues.push('outside-main');
+            if(!expected) issues.push('expected-related-missing');
+            if(card && expected && (card.parentElement !== expected.parentElement || card.nextElementSibling !== expected)) issues.push('not-independent-before-related');
+            if(c && r && (Math.abs(c.x-r.x)>2 || Math.abs(c.width-r.width)>2)) issues.push('column-width-alignment');
+            if(c && (c.x < -1 || c.right > window.innerWidth+1)) issues.push('card-viewport-overflow');
+            if(c && r && r.y-c.bottom < -1) issues.push('card-related-overlap');
+            if(buttons.length !== 2) issues.push('button-count');
+            if(c && buttons.some(b=>{const x=rect(b);return x.x<c.x-1 || x.right>c.right+1})) issues.push('button-overflow');
+            return {issues, card:c, related:r, relatedHeading:expected?.querySelector('h2')?.textContent?.trim(), cardParent:card?.parentElement?.className, relatedParent:expected?.parentElement?.className, gap:c&&r?r.y-c.bottom:null, headingAlign:card?getComputedStyle(card.querySelector('h2')).textAlign:null};
+          };
+          for (const [name,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]]) {
+            let cursor=0;
+            async function worker(){
+              const page=await browser.newPage({viewport});
+              await guard(page,false);
+              while(cursor<files.length){
+                const file=files[cursor++];
+                try{
+                  const response=await page.goto(`http://127.0.0.1:4173/articles/${file}`,{waitUntil:'domcontentloaded',timeout:20000});
+                  if(!response?.ok()) throw new Error(`HTTP ${response?.status()}`);
+                  await page.waitForSelector('#articleFeedbackCard',{timeout:5000});
+                  const row={file,viewport:name,...await page.evaluate(measure)};
+                  rows.push(row);
+                  if(row.issues.length) console.log('FAIL '+JSON.stringify(row));
+                }catch(e){errors.push({file,viewport:name,error:String(e)});}
+              }
+              await page.close();
+            }
+            await Promise.all([worker(),worker(),worker()]);
+          }
+          const exclusions=[];
+          for(const path of ['en/articles/plc-basic.html','en/articles/tester.html','categories/control-basics.html','index.html']){
+            const page=await browser.newPage({viewport:{width:390,height:844}}); await guard(page,false);
+            const response=await page.goto('http://127.0.0.1:4173/'+path,{waitUntil:'domcontentloaded',timeout:20000});
+            await page.waitForTimeout(300);
+            exclusions.push({path,status:response?.status(),cards:await page.locator('#articleFeedbackCard').count()}); await page.close();
+          }
+          for(const file of representatives){
+            for(const [name,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]]){
+              const page=await browser.newPage({viewport}); await guard(page,true);
+              await page.goto('http://127.0.0.1:4173/articles/'+file,{waitUntil:'networkidle',timeout:30000});
+              await page.waitForSelector('#articleFeedbackCard');
+              await page.addStyleTag({content:'html{scroll-behavior:auto!important}'});
+              await page.evaluate(async()=>{await document.fonts.ready;const c=document.getElementById('articleFeedbackCard');window.scrollTo(0,c.getBoundingClientRect().top+window.scrollY-130);});
+              await page.waitForTimeout(400);
+              await page.screenshot({path:`${out}/${file.replace('.html','')}-${name}.png`});
+              await page.close();
+            }
+          }
+          await browser.close();
+          const summary={head_sha:process.env.HEAD_SHA,source:'local checkout of exact PR head; scripts executed in Chromium',article_count:files.length,rendered:rows.length,passed:rows.filter(x=>!x.issues.length).length,failed:rows.filter(x=>x.issues.length).length,errors,exclusions,representative_screenshots:representatives.length*2,real_votes_sent:0};
+          fs.writeFileSync(`${out}/report.json`,JSON.stringify({summary,rows},null,2));
+          console.log('FEEDBACK_RENDER_SUMMARY '+JSON.stringify(summary));
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Feedback rendered placement\n```json\n'+JSON.stringify(summary,null,2)+'\n```\n');
+          if(summary.failed || errors.length || exclusions.some(x=>x.cards!==0 || x.status!==200)) process.exitCode=1;
+          JS
+          node .feedback-render-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feedback-render-evidence
+          path: feedback-render-evidence/
+          retention-days: 7
+          if-no-files-found: error

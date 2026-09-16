@@ -15,6 +15,8 @@
   <script>
     (()=>{
       const API='https://gxworks2-support-api.syasuta0819.workers.dev';
+      const STORAGE_KEY='gxw-preview-idempotency-key';
+      const STORAGE_PAYLOAD='gxw-preview-idempotency-payload';
       const shell=document.getElementById('previewShell');
       let wired=false;
 
@@ -24,6 +26,61 @@
           const inner=outer?.getElementById('previewFrame');
           return inner?.contentDocument||null;
         }catch{return null;}
+      }
+
+      function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+
+      function createIdempotencyKey(){
+        if(crypto.randomUUID)return `gxw_${crypto.randomUUID()}`;
+        const bytes=new Uint8Array(24);
+        crypto.getRandomValues(bytes);
+        return `gxw_${Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}`;
+      }
+
+      function getOrCreateSubmission(payload){
+        const serialized=JSON.stringify(payload);
+        const savedKey=sessionStorage.getItem(STORAGE_KEY)||'';
+        const savedPayload=sessionStorage.getItem(STORAGE_PAYLOAD)||'';
+        if(savedKey&&savedPayload===serialized)return {key:savedKey,serialized};
+        const key=createIdempotencyKey();
+        sessionStorage.setItem(STORAGE_KEY,key);
+        sessionStorage.setItem(STORAGE_PAYLOAD,serialized);
+        return {key,serialized};
+      }
+
+      function clearPendingSubmission(){
+        sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_PAYLOAD);
+      }
+
+      async function postJson(path,body){
+        const res=await fetch(`${API}${path}`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(body)
+        });
+        const data=await res.json().catch(()=>({}));
+        return {res,data};
+      }
+
+      async function getReceiptStatus(idempotencyKey){
+        try{
+          const {res,data}=await postJson('/consultations/status',{idempotencyKey});
+          if(res.status===404)return {found:false};
+          if(!res.ok||!data.ok)return {found:false,error:data.error||`HTTP ${res.status}`};
+          return data;
+        }catch(err){
+          return {found:false,error:err.message};
+        }
+      }
+
+      async function waitForCompletion(idempotencyKey,attempts=4){
+        for(let i=0;i<attempts;i++){
+          const state=await getReceiptStatus(idempotencyKey);
+          if(state.found&&state.completed)return state;
+          if(i<attempts-1)await sleep(900*(i+1));
+        }
+        return getReceiptStatus(idempotencyKey);
       }
 
       function injectPlcSelector(d){
@@ -170,12 +227,84 @@
         const button=oldButton.cloneNode(true);
         button.textContent='相談内容を実送信する';
         oldButton.replaceWith(button);
-        status.textContent='Live Preview：相談内容をWorkerへ実送信します。ZIPは未選択でもテストできます。';
-        if(localOnly)localOnly.textContent='Live Preview：現在はZIP本体をアップロードしません。ZIP未選択のまま受付テストできます。';
-        if(notice)notice.textContent='公開前Live Previewです。相談内容は実際に受付APIへ送信され、相談番号の発行と受付メール送信まで確認できます。ZIP本体とパスワードはまだ保存しません。';
+        status.textContent='Live Preview：D1受付台帳と二重送信防止を使って実送信します。ZIP本体はまだ送信しません。';
+        if(localOnly)localOnly.textContent='Live Preview：現在はZIP本体をアップロードしません。相談内容・相談番号・受付状態のみ実際に保存します。';
+        if(notice)notice.textContent='公開前Live Previewです。相談内容はD1へ保存され、同じ送信の再試行では同じ相談番号を引き継ぎます。ZIP本体とパスワードはまだ保存しません。';
 
         const fields={name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')};
         let submitted=false;
+
+        function showCompleted(data,message='受付が完了しました。'){
+          submitted=true;
+          caseCode.textContent=data.caseNumber;
+          caseInput.value=data.caseNumber;
+          const p=complete.querySelector('p');
+          if(p)p.innerHTML='相談内容をD1へ保存し、相談番号発行・受付メール送信まで<strong>実際に完了しました</strong>。同じ送信を再試行しても相談番号は増えません。';
+          complete.classList.add('is-visible');
+          button.textContent='送信済み';
+          button.disabled=true;
+          button.setAttribute('aria-disabled','true');
+          status.textContent=`${message} 相談番号：${data.caseNumber}`;
+          complete.scrollIntoView({behavior:'smooth',block:'center'});
+        }
+
+        function buildPayload(){
+          const file=zipInput.files?.[0]||null;
+          return {
+            name:fields.name.value,
+            email:fields.email.value,
+            company:fields.company?.value||'',
+            plc:fields.plc?.value||'',
+            problem:fields.problem.value,
+            desired:fields.desired.value,
+            photo:fields.photo?.value||'',
+            gxdata:fields.gxdata?.value||'',
+            zipName:file?.name||'',
+            zipSize:file?.size||0
+          };
+        }
+
+        async function submitWithRecovery(payload,idempotencyKey){
+          let first;
+          try{
+            first=await postJson('/consultations',{...payload,idempotencyKey});
+          }catch(err){
+            const recovered=await waitForCompletion(idempotencyKey,3);
+            if(recovered.found&&recovered.completed)return {ok:true,data:recovered,recovered:true};
+            if(recovered.found){
+              try{
+                const resumed=await postJson('/consultations',{...payload,idempotencyKey});
+                if(resumed.res.ok&&resumed.data.ok&&!resumed.data.processing)return {ok:true,data:resumed.data,recovered:true};
+                if(resumed.res.ok&&resumed.data.processing){
+                  const finalState=await waitForCompletion(idempotencyKey,4);
+                  if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
+                }
+              }catch{}
+            }
+            throw err;
+          }
+
+          if(first.res.ok&&first.data.ok&&!first.data.processing)return {ok:true,data:first.data};
+          if(first.res.ok&&first.data.ok&&first.data.processing){
+            const finalState=await waitForCompletion(idempotencyKey,4);
+            if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
+            return {ok:false,processing:true,data:first.data};
+          }
+
+          if(first.data?.recoverable){
+            await sleep(900);
+            const retry=await postJson('/consultations',{...payload,idempotencyKey});
+            if(retry.res.ok&&retry.data.ok&&!retry.data.processing)return {ok:true,data:retry.data,recovered:true};
+            if(retry.res.ok&&retry.data.processing){
+              const finalState=await waitForCompletion(idempotencyKey,4);
+              if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
+            }
+          }
+
+          const error=new Error(first.data?.error||`HTTP ${first.res.status}`);
+          error.httpStatus=first.res.status;
+          throw error;
+        }
 
         button.addEventListener('click',async()=>{
           if(submitted)return;
@@ -191,45 +320,68 @@
             status.textContent='ZIPを選択する場合はZIPファイルを指定してください。';return;
           }
 
+          const payload=buildPayload();
+          const {key:idempotencyKey}=getOrCreateSubmission(payload);
           button.disabled=true;
-          status.textContent='相談内容を送信中…';
+          status.textContent='D1へ受付内容を保存して送信中…';
           complete.classList.remove('is-visible');
+
           try{
-            const res=await fetch(`${API}/consultations`,{
-              method:'POST',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({
-                name:fields.name.value,
-                email:fields.email.value,
-                company:fields.company?.value||'',
-                plc:fields.plc?.value||'',
-                problem:fields.problem.value,
-                desired:fields.desired.value,
-                photo:fields.photo?.value||'',
-                gxdata:fields.gxdata?.value||'',
-                zipName:file?.name||'',
-                zipSize:file?.size||0
-              })
-            });
-            const data=await res.json().catch(()=>({}));
-            if(!res.ok||!data.ok)throw new Error(data.error||`HTTP ${res.status}`);
-            submitted=true;
-            caseCode.textContent=data.caseNumber;
-            caseInput.value=data.caseNumber;
-            const p=complete.querySelector('p');
-            if(p)p.innerHTML='相談内容の受付・相談番号発行・受付メール送信まで<strong>実際に完了しました</strong>。ZIP本体のアップロードは次の実装段階で接続します。';
-            complete.classList.add('is-visible');
-            button.textContent='送信済み';
-            button.setAttribute('aria-disabled','true');
-            status.textContent='送信済みです。受付メールと相談番号を確認してください。';
-            complete.scrollIntoView({behavior:'smooth',block:'center'});
+            const result=await submitWithRecovery(payload,idempotencyKey);
+            if(result.ok){
+              showCompleted(result.data,result.recovered?'受付状態を復元して完了を確認しました。':'送信成功。D1保存とメール送信を確認しました。');
+              return;
+            }
+            if(result.processing){
+              status.textContent=`受付処理中です。相談番号 ${result.data.caseNumber} を保持したまま確認します。`;
+              button.disabled=false;
+              return;
+            }
           }catch(err){
             console.error(err);
-            status.textContent=`送信に失敗しました：${err.message}`;
-          }finally{
-            button.disabled=submitted;
+            const state=await getReceiptStatus(idempotencyKey);
+            if(state.found&&state.completed){
+              showCompleted(state,'画面応答は途切れましたが、受付済みであることを確認しました。');
+              return;
+            }
+            if(state.found){
+              status.textContent=`受付番号 ${state.caseNumber} は保存済みですが処理が未完了です。もう一度押しても同じ相談番号で続きから再開します。`;
+            }else if(err.httpStatus===409){
+              clearPendingSubmission();
+              status.textContent='入力内容が前回送信時から変更されています。もう一度押すと新しい受付として送信します。';
+            }else{
+              status.textContent=`送信に失敗しました：${err.message}。もう一度押しても同じ送信キーを使うため、二重受付にはなりません。`;
+            }
+            button.disabled=false;
           }
         });
+
+        (async()=>{
+          const savedKey=sessionStorage.getItem(STORAGE_KEY)||'';
+          const savedPayload=sessionStorage.getItem(STORAGE_PAYLOAD)||'';
+          if(!savedKey||!savedPayload)return;
+          status.textContent='前回の受付状態を確認しています…';
+          const state=await getReceiptStatus(savedKey);
+          if(state.found&&state.completed){
+            showCompleted(state,'前回の受付済み状態を復元しました。');
+            return;
+          }
+          if(state.found){
+            try{
+              const payload=JSON.parse(savedPayload);
+              const resumed=await submitWithRecovery(payload,savedKey);
+              if(resumed.ok){
+                showCompleted(resumed.data,'前回途中だった受付を続きから完了しました。');
+                return;
+              }
+            }catch(err){
+              console.error('Receipt restore failed',err);
+            }
+            status.textContent=`前回の受付番号 ${state.caseNumber} は保存済みです。必要なら送信ボタンで同じ受付を続きから再開できます。`;
+          }else{
+            status.textContent='Live Preview：D1受付台帳と二重送信防止を使って実送信します。ZIP本体はまだ送信しません。';
+          }
+        })();
       }
 
       shell.addEventListener('load',()=>{

@@ -23,66 +23,57 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Diagnose actual Cloudflare Preview
+      - name: Verify actual Cloudflare branch Preview
         env:
-          PREVIEW_BASE: https://21a95118.denkicontrol-preview.pages.dev
+          PREVIEW_BASE: https://preview-article-feedback-rol.denkicontrol-preview.pages.dev
         run: |
           node <<'NODE'
           const { chromium } = require('playwright');
           const cases = [
-            '/articles/air-cylinder-basic.html',
-            '/articles/tester.html'
+            { path: '/articles/air-cylinder-basic.html', label: 'air-cylinder' },
+            { path: '/articles/tester.html', label: 'tester' }
           ];
           (async () => {
             const browser = await chromium.launch({ headless: true });
-            for (const path of cases) {
+            const failures = [];
+            for (const c of cases) {
               const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-              const consoleErrors = [];
               const pageErrors = [];
-              page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
               page.on('pageerror', err => pageErrors.push(err.message));
-              const url = process.env.PREVIEW_BASE + path + '?remotecheck=' + Date.now();
-              let response = null;
-              try {
-                response = await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
-              } catch (e) {
-                console.log(JSON.stringify({ path, navigationError: e.message }, null, 2));
-                await page.close();
-                continue;
-              }
-              await page.waitForTimeout(1500);
-              const status = response ? response.status() : 0;
-              const scriptSrcs = await page.locator('script').evaluateAll(nodes => nodes.map(n => n.src).filter(Boolean));
-              const feedbackSrc = scriptSrcs.find(src => src.includes('/assets/js/article-feedback.js')) || null;
-              let feedbackStatus = null;
-              let feedbackText = '';
-              if (feedbackSrc) {
-                const r = await page.request.get(feedbackSrc, { headers: { 'cache-control': 'no-cache' } });
-                feedbackStatus = r.status();
-                feedbackText = await r.text();
-              }
-              const dom = await page.evaluate(() => ({
-                pathname: location.pathname,
-                bodySlug: document.body?.dataset?.articleSlug || null,
-                mainColumnCount: document.querySelectorAll('.main-column, .article-main, .main').length,
-                relatedIdCount: document.querySelectorAll('#related, #related-career').length,
-                feedbackCount: document.querySelectorAll('#articleFeedbackCard').length,
-                styleCount: document.querySelectorAll('#article-feedback-style').length
-              }));
-              console.log(JSON.stringify({
-                path,
-                status,
-                feedbackSrc,
-                feedbackStatus,
-                feedbackTextStart: feedbackText.slice(0, 500),
-                feedbackHasPathMatch: feedbackText.includes('pathMatch'),
-                feedbackHasMainFallback: feedbackText.includes('.main-column, .article-main, .main'),
-                dom,
-                pageErrors,
-                consoleErrors
-              }, null, 2));
+              const url = process.env.PREVIEW_BASE + c.path + '?remotecheck=' + Date.now();
+              const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+              await page.waitForTimeout(1200);
+              const result = await page.evaluate(() => {
+                const card = document.getElementById('articleFeedbackCard');
+                const relatedById = document.getElementById('related') || document.getElementById('related-career');
+                const main = document.querySelector('.main-column, .article-main, .main');
+                const relatedByText = main ? [...main.children].find((el) => {
+                  const text = el.querySelector?.('h2')?.textContent?.trim() || '';
+                  return text.includes('あわせて読みたい記事') || text === '関連記事';
+                }) : null;
+                const related = relatedById || relatedByText;
+                return {
+                  pathname: location.pathname,
+                  cardCount: document.querySelectorAll('#articleFeedbackCard').length,
+                  cardText: card?.innerText || '',
+                  styleCount: document.querySelectorAll('#article-feedback-style').length,
+                  cardBeforeRelated: Boolean(card && related && (card.compareDocumentPosition(related) & Node.DOCUMENT_POSITION_FOLLOWING)),
+                  feedbackScripts: [...document.scripts].map(s => s.src).filter(src => src.includes('article-feedback.js'))
+                };
+              });
+              console.log(JSON.stringify({ label: c.label, status: response?.status(), ...result, pageErrors }, null, 2));
+              if (!response || response.status() >= 400) failures.push(`${c.label}: bad HTTP status`);
+              if (result.cardCount !== 1) failures.push(`${c.label}: expected 1 feedback card, got ${result.cardCount}`);
+              if (!result.cardBeforeRelated) failures.push(`${c.label}: feedback card not before related section`);
+              if (pageErrors.length) failures.push(`${c.label}: page errors: ${pageErrors.join(' | ')}`);
               await page.close();
             }
             await browser.close();
+            if (failures.length) {
+              console.error('FAILURES');
+              failures.forEach(f => console.error('- ' + f));
+              process.exit(1);
+            }
+            console.log('REMOTE BRANCH PREVIEW CHECK PASSED');
           })();
           NODE

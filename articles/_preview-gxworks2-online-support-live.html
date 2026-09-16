@@ -72,7 +72,6 @@
     const s=d.createElement('style');s.id='live-preview-extra-style';s.textContent=`
       #plc{width:100%;min-height:46px;padding:10px 40px 10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#0f172a;font:inherit;font-size:16px}
       #case-number[readonly]{background:#f1f5f9!important;color:#0f172a!important;font-weight:800;cursor:default;border-color:#cbd5e1!important}
-      #zip-password.zip-password-masked{-webkit-text-security:disc}
       .zip-paste-btn{margin-top:9px;min-height:44px;padding:10px 14px;border:1px solid #93c5fd;border-radius:10px;background:#eff6ff;color:#1d4ed8;font:inherit;font-weight:700;cursor:pointer}
       .receipt-keep-note{margin-top:12px;padding:12px 14px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#78350f;font-size:12px;font-weight:800;line-height:1.65}
       .password-send-ok{margin-top:12px;padding:13px 15px;border:1px solid #86efac;border-radius:12px;background:#f0fdf4;color:#166534;font-size:13px;font-weight:800;line-height:1.6}
@@ -92,9 +91,12 @@
     c.replaceWith(s);const f=s.closest('.form-field'),l=f?.querySelector('label[for="plc"]');if(l)l.innerHTML='PLC型式 <small>分かる範囲で</small>';
   }
   function passwordUx(d,input){
-    input.type='text';input.name='zip_secret';input.autocomplete='off';input.setAttribute('autocapitalize','none');input.setAttribute('autocorrect','off');input.setAttribute('spellcheck','false');input.classList.add('zip-password-masked');
-    const wrap=input.parentElement,eye=wrap?.querySelector('button');
-    if(eye&&!eye.dataset.liveBound){eye.dataset.liveBound='1';eye.addEventListener('click',()=>input.classList.toggle('zip-password-masked'));}
+    input.type='password';input.name='zip_secret';input.autocomplete='off';input.setAttribute('autocapitalize','none');input.setAttribute('autocorrect','off');input.setAttribute('spellcheck','false');input.classList.remove('zip-password-masked');
+    const wrap=input.parentElement,oldEye=wrap?.querySelector('button');
+    if(oldEye){
+      const eye=oldEye.cloneNode(true);oldEye.replaceWith(eye);eye.type='button';eye.setAttribute('aria-label','パスワードの表示切替');
+      eye.addEventListener('click',()=>{input.type=input.type==='password'?'text':'password';});
+    }
     if(wrap&&!wrap.parentElement?.querySelector('.zip-paste-btn')){
       const b=d.createElement('button');b.type='button';b.className='zip-paste-btn';b.textContent='クリップボードから貼り付け';
       b.addEventListener('click',async()=>{try{input.value=(await navigator.clipboard.readText()).trim();input.dispatchEvent(new Event('input',{bubbles:true}));b.textContent='貼り付けました';setTimeout(()=>b.textContent='クリップボードから貼り付け',1200);}catch{input.focus();b.textContent='Ctrl+Vで貼り付け';setTimeout(()=>b.textContent='クリップボードから貼り付け',1600);}});

@@ -10,6 +10,7 @@
 - 完了済み記事は、明確な不具合・技術情報更新・検索データ上の大きな問題がない限り不用意に再編集しない。
 - Preview承認前に main へ入れない。
 - 完了後は必要に応じて Google のインデックス状態確認と、既存 GitHub Actions の IndexNow 通知を確認する。
+- 画像生成が利用できない期間は、本文・構成・内部リンク・既存画像を使った関連記事カードを先行改善し、追加画像だけ保留として記録する。
 
 ## 改善進捗
 
@@ -31,7 +32,7 @@
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
 - [ ] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング
-- [ ] `articles/din-rail-basic.html` — DINレール
+- [ ] `articles/din-rail-basic.html` — DINレール — 作業中（本文見直し / 関連記事画像カード化 / 追加画像は保留）
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
 - [ ] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ
@@ -41,6 +42,6 @@
 
 ## 現在位置
 
-次の改善対象は `articles/dc24v-common-basic.html`。
+現在は本文先行で複数記事をPreview中。次の新規着手候補は `articles/alternate-operation-circuit-basic.html`。
 
 最終更新: 2026-09-16

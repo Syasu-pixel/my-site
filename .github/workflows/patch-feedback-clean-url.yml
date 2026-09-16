@@ -1,0 +1,62 @@
+name: Patch feedback clean URL support
+
+on:
+  push:
+    branches:
+      - preview-article-feedback-rollout
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-article-feedback-rollout
+          fetch-depth: 0
+      - name: Patch shared feedback scripts only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          feedback = Path('assets/js/article-feedback.js')
+          text = feedback.read_text(encoding='utf-8')
+          old = "const pathMatch = location.pathname.match(/^\\/articles\\/([a-z0-9][a-z0-9-]*)\\.html$/i);"
+          new = "const pathMatch = location.pathname.replace(/\\/+$/, '').match(/^\\/articles\\/([a-z0-9][a-z0-9-]*)(?:\\.html)?$/i);"
+          if old not in text and new not in text:
+              raise SystemExit('article-feedback path matcher not found')
+          text = text.replace(old, new)
+
+          old_related = """    const related = document.getElementById('related') || document.getElementById('related-career') || mainColumn.querySelector('[id^=\"related\"]');\n    if (related && related.parentElement === mainColumn) mainColumn.insertBefore(section, related);\n    else mainColumn.appendChild(section);"""
+          new_related = """    const related = document.getElementById('related')\n      || document.getElementById('related-career')\n      || mainColumn.querySelector('[id^=\"related\"]')\n      || [...mainColumn.children].find((element) => {\n        const heading = element.querySelector?.('h2');\n        const label = heading?.textContent?.trim() || '';\n        return label.includes('あわせて読みたい記事') || label === '関連記事';\n      });\n    if (related && related.parentElement === mainColumn) mainColumn.insertBefore(section, related);\n    else mainColumn.appendChild(section);"""
+          if old_related not in text and new_related not in text:
+              raise SystemExit('article-feedback related insertion block not found')
+          text = text.replace(old_related, new_related)
+          feedback.write_text(text, encoding='utf-8')
+
+          search = Path('assets/js/site-search.js')
+          text = search.read_text(encoding='utf-8')
+          old = "if (!/^\\/articles\\/[a-z0-9][a-z0-9-]*\\.html$/i.test(path)) return;"
+          new = "if (!/^\\/articles\\/[a-z0-9][a-z0-9-]*(?:\\.html)?$/i.test(path)) return;"
+          if old not in text and new not in text:
+              raise SystemExit('site-search feedback loader matcher not found')
+          text = text.replace(old, new)
+          text = text.replace("/assets/js/article-feedback.js?v=20260916-6", "/assets/js/article-feedback.js?v=20260916-8")
+          search.write_text(text, encoding='utf-8')
+          PY
+
+          git diff --check
+          git diff -- assets/js/article-feedback.js assets/js/site-search.js
+      - name: Commit patch when needed
+        run: |
+          if git diff --quiet -- assets/js/article-feedback.js assets/js/site-search.js; then
+            echo "No patch needed"
+            exit 0
+          fi
+          git config user.name 'Syasu-pixel'
+          git config user.email 'syasuta0819@gmail.com'
+          git add assets/js/article-feedback.js assets/js/site-search.js
+          git commit -m 'Fix: support Cloudflare clean article URLs in feedback'
+          git push origin HEAD:preview-article-feedback-rollout

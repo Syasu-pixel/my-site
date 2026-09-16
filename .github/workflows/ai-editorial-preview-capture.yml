@@ -33,22 +33,23 @@ jobs:
           mapfile -t ARTICLE_CANDIDATES < <(printf '%s\n' "${CHANGED_FILES[@]}" | grep -E '^articles/.*\.html$' || true)
           TARGET_PATH=""
 
-          if printf '%s\n' "${CHANGED_FILES[@]}" | grep -Eq '^(index\.html|assets/js/site-search\.js)$'; then
-            TARGET_PATH="index.html"
-          fi
-
-          if [ -z "$TARGET_PATH" ]; then
-            for candidate in "${ARTICLE_CANDIDATES[@]}"; do
-              slug="$(basename "$candidate" .html)"
-              if [ -d "assets/images/$slug" ]; then
-                TARGET_PATH="$candidate"
-                break
-              fi
-            done
-          fi
+          # If an article HTML changed, preview the article first even when shared
+          # assets such as site-search.js changed in the same PR.
+          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+            slug="$(basename "$candidate" .html)"
+            if [ -d "assets/images/$slug" ]; then
+              TARGET_PATH="$candidate"
+              break
+            fi
+          done
 
           if [ -z "$TARGET_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
             TARGET_PATH="${ARTICLE_CANDIDATES[0]}"
+          fi
+
+          # Only fall back to the home page when no article HTML changed.
+          if [ -z "$TARGET_PATH" ] && printf '%s\n' "${CHANGED_FILES[@]}" | grep -Eq '^(index\.html|assets/js/site-search\.js)$'; then
+            TARGET_PATH="index.html"
           fi
 
           if [ -z "$TARGET_PATH" ]; then

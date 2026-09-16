@@ -1,0 +1,68 @@
+name: Verify remote feedback preview
+
+on:
+  push:
+    branches:
+      - preview-article-feedback-rollout
+
+permissions:
+  contents: read
+
+jobs:
+  verify-remote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify actual Cloudflare Preview
+        env:
+          PREVIEW_BASE: https://21a95118.denkicontrol-preview.pages.dev
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const cases = [
+            '/articles/air-cylinder-basic.html',
+            '/articles/tester.html'
+          ];
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+            const failures = [];
+            for (const path of cases) {
+              const url = process.env.PREVIEW_BASE + path + '?remotecheck=' + Date.now();
+              let response;
+              try {
+                response = await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+              } catch (e) {
+                failures.push(`${path}: navigation failed: ${e.message}`);
+                continue;
+              }
+              const status = response ? response.status() : 0;
+              await page.waitForTimeout(1500);
+              const title = await page.title();
+              const scriptSrcs = await page.locator('script').evaluateAll(nodes => nodes.map(n => n.src).filter(Boolean));
+              const count = await page.locator('#articleFeedbackCard').count();
+              const text = count ? await page.locator('#articleFeedbackCard').innerText() : '';
+              console.log(JSON.stringify({ path, status, title, count, text, scriptSrcs }, null, 2));
+              if (status >= 400 || status === 0) failures.push(`${path}: HTTP ${status}`);
+              if (!scriptSrcs.some(src => src.includes('/assets/js/article-feedback.js'))) failures.push(`${path}: article-feedback.js not loaded`);
+              if (count !== 1) failures.push(`${path}: expected 1 feedback card, got ${count}`);
+            }
+            await browser.close();
+            if (failures.length) {
+              console.error('FAILURES');
+              for (const f of failures) console.error('- ' + f);
+              process.exit(1);
+            }
+            console.log('REMOTE PREVIEW CHECK PASSED');
+          })();
+          NODE

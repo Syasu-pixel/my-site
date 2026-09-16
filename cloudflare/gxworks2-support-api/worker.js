@@ -1,6 +1,7 @@
 const ALLOWED_ORIGIN_SUFFIX = '.denkicontrol-preview.pages.dev';
 const PROD_ORIGIN = 'https://denkicontrol.com';
 const MAIL_LOCK_MS = 120000;
+const ADMIN_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024;
 
 export default {
   async fetch(request, env) {
@@ -19,6 +20,7 @@ export default {
         r2: Boolean(env.GXW_FILES),
         db: Boolean(env.DB),
         passwordStorage: Boolean(env.GXW_PASSWORD_KEY),
+        adminZipAttachmentMaxBytes: ADMIN_ATTACHMENT_MAX_BYTES,
       }, 200, origin);
     }
 
@@ -213,14 +215,20 @@ async function continueConsultation(row, env, origin, duplicate = false) {
     const claim = await claimMail(env.DB, current.id, 'admin');
     if (claim === 'busy') return processingResponse(current, origin);
     if (claim === 'claimed') {
-      const result = await sendEmail(env, buildAdminEmail(current));
+      let adminPayload = await buildAdminEmail(current, env, true);
+      let result = await sendEmail(env, adminPayload);
+      if (!result.ok && adminPayload.attachments?.length) {
+        await addEvent(env.DB, current.id, 'admin_mail_attachment_failed', safeDetail(result.body));
+        adminPayload = await buildAdminEmail(current, env, false);
+        result = await sendEmail(env, adminPayload);
+      }
       if (!result.ok) {
         await markMailFailed(env.DB, current.id, 'admin', result.body);
         await addEvent(env.DB, current.id, 'admin_mail_failed', safeDetail(result.body));
         return json({ ok: false, recoverable: true, caseNumber: current.case_number, zipUploaded: true, error: 'Notification email failed' }, 502, origin);
       }
       await markMailSent(env.DB, current.id, 'admin', result.body.id || '');
-      await addEvent(env.DB, current.id, 'admin_mail_sent', result.body.id || '');
+      await addEvent(env.DB, current.id, 'admin_mail_sent', adminPayload.attachments?.length ? 'ZIP attached to admin email' : (result.body.id || ''));
     }
     current = await getConsultationById(env.DB, current.id);
   }
@@ -451,7 +459,10 @@ async function encryptPassword(password, secret) {
 
 function bytesToBase64(bytes) {
   let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+  }
   return btoa(binary);
 }
 
@@ -549,8 +560,34 @@ function processingResponse(row, origin) {
   }, 202, origin);
 }
 
-function buildAdminEmail(row) {
-  return {
+async function buildAdminEmail(row, env, includeAttachment = true) {
+  const canAttach = includeAttachment && row.zip_object_key && row.zip_size > 0 && row.zip_size <= ADMIN_ATTACHMENT_MAX_BYTES;
+  let attachment = null;
+
+  if (canAttach) {
+    try {
+      const object = await env.GXW_FILES.get(row.zip_object_key);
+      if (object) {
+        const bytes = new Uint8Array(await object.arrayBuffer());
+        if (bytes.byteLength === row.zip_size) {
+          attachment = {
+            filename: row.zip_name || `${row.case_number}.zip`,
+            content: bytesToBase64(bytes),
+          };
+        }
+      }
+    } catch (error) {
+      console.error('R2 attachment read failed', error);
+    }
+  }
+
+  const attachmentNote = attachment
+    ? '※ ZIP本体をこの管理者メールに添付しています。R2にも控えを保存しています。'
+    : row.zip_size > ADMIN_ATTACHMENT_MAX_BYTES
+      ? '※ ZIP本体は20MBを超えているためメール添付していません。非公開R2に保存されています。'
+      : '※ ZIP本体はメール添付せず、非公開R2に保存されています。';
+
+  const payload = {
     from: 'GX Works2 オンライン相談 <support@denkicontrol.com>',
     to: [],
     subject: `[${row.case_number}] GX Works2 新規相談受付`,
@@ -569,10 +606,13 @@ function buildAdminEmail(row) {
       `ZIP保存: 非公開R2 (${row.zip_object_key || '未保存'})`, '',
       '現在困っていること:', row.problem, '',
       'どのように変更したいか:', row.desired, '',
-      '※ ZIP本体はメール添付ではなく、非公開R2バケットに保存されています。'
+      attachmentNote
     ].join('\n'),
     reply_to: row.email,
   };
+
+  if (attachment) payload.attachments = [attachment];
+  return payload;
 }
 
 function buildCustomerEmail(row) {
@@ -603,7 +643,7 @@ function buildPasswordAdminEmail(row, password) {
       `お名前: ${row.name}`,
       `返信先: ${row.email}`, '',
       `ZIPパスワード: ${password}`, '',
-      '※ ZIP本体はこのメールには添付されていません。非公開R2に別管理されています。',
+      '※ ZIP本体はこのメールには添付されていません。新規相談受付メール側の添付、または非公開R2の保存データをご確認ください。',
       '※ パスワードはD1内では暗号化して保存しています。'
     ].join('\n'),
     reply_to: row.email,

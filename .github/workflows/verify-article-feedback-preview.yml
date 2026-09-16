@@ -1,0 +1,85 @@
+name: Verify article feedback preview
+on:
+  push:
+    branches: [preview-article-feedback-rollout]
+    paths: ['.github/workflows/verify-article-feedback-preview.yml']
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-article-feedback-rollout
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 > /tmp/feedback-preview-server.log 2>&1 &
+          echo $! > /tmp/feedback-preview-server.pid
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify article feedback DOM
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const cases = [
+            { path: '/articles/air-cylinder-basic.html', expect: true, label: 'normal technical' },
+            { path: '/articles/tester.html', expect: true, label: 'tool article' },
+            { path: '/articles/plc-drilling-line-design-project-01.html', expect: true, label: 'PLC project' },
+            { path: '/articles/fa-engineer-beginner-career.html', expect: true, label: 'career alternate layout' },
+            { path: '/articles/fa-engineer-skill-map-career.html', expect: true, label: 'career direct include' },
+            { path: '/en/articles/air-cylinder-basic.html', expect: false, label: 'English article excluded' },
+          ];
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const page = await browser.newPage({ viewport: { width: 1365, height: 1000 } });
+            const failures = [];
+            for (const c of cases) {
+              const response = await page.goto('http://127.0.0.1:4173' + c.path, { waitUntil: 'networkidle' });
+              if (!response || response.status() >= 400) {
+                failures.push(`${c.label}: HTTP ${response ? response.status() : 'no response'} ${c.path}`);
+                continue;
+              }
+              await page.waitForTimeout(500);
+              const count = await page.locator('#articleFeedbackCard').count();
+              if (c.expect && count !== 1) failures.push(`${c.label}: expected exactly 1 card, got ${count}`);
+              if (!c.expect && count !== 0) failures.push(`${c.label}: expected no card, got ${count}`);
+              if (c.expect && count === 1) {
+                const placement = await page.evaluate(() => {
+                  const card = document.getElementById('articleFeedbackCard');
+                  const main = card?.parentElement;
+                  if (!card || !main) return { ok: false, reason: 'missing parent' };
+                  const related = document.getElementById('related') || document.getElementById('related-career') || main.querySelector('[id^="related"]');
+                  if (!related || related.parentElement !== main) return { ok: true, reason: 'no direct related section' };
+                  const rel = card.compareDocumentPosition(related);
+                  return { ok: Boolean(rel & Node.DOCUMENT_POSITION_FOLLOWING), reason: 'related section present' };
+                });
+                if (!placement.ok) failures.push(`${c.label}: feedback card is not before related section`);
+              }
+              console.log(`${c.label}: ${count} card(s) — ${c.path}`);
+            }
+            await browser.close();
+            if (failures.length) {
+              console.error('\nFAILURES');
+              for (const f of failures) console.error('- ' + f);
+              process.exit(1);
+            }
+            console.log('\nAll feedback preview checks passed.');
+          })();
+          NODE
+      - name: Remove temporary workflow
+        if: success()
+        run: |
+          rm .github/workflows/verify-article-feedback-preview.yml
+          git config user.name 'Syasu-pixel'
+          git config user.email 'syasuta0819@gmail.com'
+          git add -A
+          git commit -m 'Chore: remove temporary feedback verification workflow'
+          git push origin HEAD:preview-article-feedback-rollout

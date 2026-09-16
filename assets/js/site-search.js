@@ -554,7 +554,7 @@
   if (document.querySelector('script[src*="/assets/js/article-feedback.js"]')) return;
 
   const script = document.createElement('script');
-  script.src = '/assets/js/article-feedback.js?v=20260916-5';
+  script.src = '/assets/js/article-feedback.js?v=20260916-6';
   script.async = false;
   script.dataset.articleFeedbackLoader = 'true';
   document.head.appendChild(script);

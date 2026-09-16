@@ -1,0 +1,105 @@
+name: GX Works2 HQ Image Transfer
+
+on:
+  push:
+    branches:
+      - preview-gxworks2-online-support-v3
+    paths:
+      - .github/workflows/gxworks2-hq-image-transfer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-gxworks2-online-support-v3
+          fetch-depth: 1
+
+      - name: Download and verify approved HQ images
+        shell: bash
+        env:
+          SHARE_ID: EGThTksv9WzM
+          HERO_FILE_ID: 01a0ab3666dd72619557d76f814c7aa3
+          HERO_FILE_NAME: gxworks2-online-support-hero-lossless.webp
+          HERO_SHA256: b0c09ad7faf0e77f08aef4524859bace0e5f3bb91de1ba48646855bacad58ccf
+          OGP_FILE_ID: 01a0ab3a3a6a736eb3c545b00e0dae1c
+          OGP_FILE_NAME: gxworks2-online-support-ogp-lossless.webp
+          OGP_SHA256: 3504b6ade8d8227a1e25a65a1de20875529492f7a92a2972dfeb580954dad855
+        run: |
+          set -euo pipefail
+          API="https://api.firestorage.ai/dev/file"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "$API/shares/$SHARE_ID/files?maxResults=1000" > /tmp/meta.json
+
+          python3 - <<'PY'
+          import json, os
+          meta=json.load(open('/tmp/meta.json','r',encoding='utf-8'))
+          files=meta.get('files') or []
+          for prefix in ('HERO','OGP'):
+              fid=os.environ[prefix+'_FILE_ID']
+              fname=os.environ[prefix+'_FILE_NAME']
+              hit=next((f for f in files if f.get('fileId')==fid), None)
+              if not hit:
+                  raise SystemExit(f'{prefix}: firestorage file id not found')
+              if hit.get('fileName') != fname:
+                  raise SystemExit(f'{prefix}: filename mismatch')
+              size=hit.get('sizeBytes')
+              if not isinstance(size,int) or size < 100000 or size > 5*1024*1024:
+                  raise SystemExit(f'{prefix}: file size rejected: {size}')
+              print(f'{prefix}: metadata ok: {fname} {size} bytes')
+          PY
+
+          download_one() {
+            local file_id="$1"
+            local out="$2"
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+              -X POST "$API/shares/$SHARE_ID/files/$file_id/download" > /tmp/download.json
+            local url
+            url="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/download.json','r',encoding='utf-8'))
+          u=d.get('downloadUrl')
+          if not isinstance(u,str) or not u.startswith('https://s3.ap-northeast-1.wasabisys.com/'):
+              raise SystemExit('download URL rejected')
+          print(u)
+          PY
+          )"
+            curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$url" -o "$out"
+          }
+
+          download_one "$HERO_FILE_ID" /tmp/gxworks2-online-support-hero.webp
+          download_one "$OGP_FILE_ID" /tmp/gxworks2-online-support-ogp.webp
+
+          printf '%s  %s\n' "$HERO_SHA256" /tmp/gxworks2-online-support-hero.webp | sha256sum -c -
+          printf '%s  %s\n' "$OGP_SHA256" /tmp/gxworks2-online-support-ogp.webp | sha256sum -c -
+
+          python3 - <<'PY'
+          for p in ('/tmp/gxworks2-online-support-hero.webp','/tmp/gxworks2-online-support-ogp.webp'):
+              b=open(p,'rb').read(12)
+              if len(b) < 12 or b[:4] != b'RIFF' or b[8:12] != b'WEBP':
+                  raise SystemExit(f'WebP signature mismatch: {p}')
+          print('WebP signatures OK')
+          PY
+
+          mkdir -p assets/images/services
+          cp /tmp/gxworks2-online-support-hero.webp assets/images/services/gxworks2-online-support-hero.webp
+          cp /tmp/gxworks2-online-support-ogp.webp assets/images/services/gxworks2-online-support-ogp.webp
+
+      - name: Commit HQ images to preview branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/images/services/gxworks2-online-support-hero.webp assets/images/services/gxworks2-online-support-ogp.webp
+          if git diff --cached --quiet; then
+            echo "Images already match HQ originals"
+            exit 0
+          fi
+          git commit -m "Replace GX Works2 hero and OGP with full-quality WebP originals"
+          git push origin HEAD:preview-gxworks2-online-support-v3

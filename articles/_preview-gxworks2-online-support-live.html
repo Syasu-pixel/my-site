@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>GX Works2 オンライン相談 Live Preview</title>
+  <title>GX Works2 オンライン相談</title>
   <style>html,body{margin:0;min-height:100%;background:#f5f8fc}#previewShell{display:block;width:100%;height:100vh;border:0;background:#fff}</style>
 </head>
 <body>
-<iframe id="previewShell" title="GX Works2 オンライン相談 Live Preview" src="./_preview-gxworks2-online-support.html"></iframe>
+<iframe id="previewShell" title="GX Works2 オンライン相談" src="./_preview-gxworks2-online-support.html"></iframe>
 <script>
 (()=>{
   const API='https://gxworks2-support-api.syasuta0819.workers.dev';
@@ -112,8 +112,8 @@
     caseInput.readOnly=true;caseInput.setAttribute('readonly','');caseInput.placeholder='STEP 1 完了後に自動入力されます';
     const cf=caseInput.closest('.form-field');const cl=cf?.querySelector('label[for="case-number"]');if(cl)cl.textContent='相談番号（自動入力）';const ch=cf?.querySelector('.case-help');if(ch)ch.textContent='STEP 1完了後に自動で設定されます。相談番号は変更・削除できません。';
 
-    const main=old.cloneNode(true);main.textContent='相談内容とZIPを実送信する';old.replaceWith(main);
-    sendStatus.textContent='Live Preview：D1・非公開R2への実送信テストです。';
+    const main=old.cloneNode(true);main.textContent='相談内容とZIPを送信する';old.replaceWith(main);
+    sendStatus.textContent='';
     const fields={name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')};
     let selected=zip.files?.[0]||null,submitted=false;
     zip.addEventListener('change',()=>selected=zip.files?.[0]||null);d.getElementById('zip-drop')?.addEventListener('drop',e=>selected=e.dataTransfer?.files?.[0]||null,true);d.getElementById('zip-remove')?.addEventListener('click',()=>selected=null,true);
@@ -133,7 +133,7 @@
 
     function completed(data,msg='受付が完了しました。'){
       submitted=true;caseCode.textContent=data.caseNumber;caseInput.value=data.caseNumber;
-      const p=complete.querySelector('p');if(p)p.innerHTML='相談内容をD1へ保存し、ZIP本体を<strong>非公開R2へ保存</strong>、相談番号発行・受付メール送信まで完了しました。';
+      const p=complete.querySelector('p');if(p)p.innerHTML='相談内容とパスワード付きZIPを受け付け、相談番号を発行しました。';
       if(!complete.querySelector('.receipt-keep-note')){const n=d.createElement('div');n.className='receipt-keep-note';n.textContent='この相談番号はSTEP 2で使用します。「番号をコピー」で控えるか、スクリーンショット等で保存してください。';complete.querySelector('.preview-case-number')?.insertAdjacentElement('afterend',n);}
       complete.classList.add('is-visible');main.textContent='送信済み';main.disabled=true;sendStatus.textContent=`${msg} 相談番号：${data.caseNumber}`;syncP();
     }
@@ -144,8 +144,8 @@
       for(const [label,el] of [['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]]){if(!el?.value?.trim()){sendStatus.textContent=`${label}を入力してください。`;el?.focus();return;}}
       if(!f){sendStatus.textContent='パスワード付きZIPファイルを選択してください。';return;}if(!f.name.toLowerCase().endsWith('.zip')){sendStatus.textContent='ZIPファイルを指定してください。';return;}
       const pl=payload(),key=submission(pl);main.disabled=true;
-      try{const data=await submitAll(pl,f,key,t=>sendStatus.textContent=t);completed(data,'送信成功。D1・R2・メール送信を確認しました。');}
-      catch(e){const s=await status(key);if(s.found&&s.completed)completed(s,'画面応答は途切れましたが受付済みです。');else{sendStatus.textContent=`送信に失敗しました：${e.message}`;main.disabled=false;}}
+      try{const data=await submitAll(pl,f,key,t=>sendStatus.textContent=t);completed(data,'送信が完了しました。');}
+      catch(e){const s=await status(key);if(s.found&&s.completed)completed(s,'受付済みです。');else{sendStatus.textContent=`送信に失敗しました：${e.message}`;main.disabled=false;}}
     });
 
     pbtn?.addEventListener('click',async()=>{
@@ -154,11 +154,11 @@
       if(!caseNumber){if(pstat)pstat.textContent='相談番号を確認できません。STEP 1から同じタブで続けてください。';return;}
       if(!password){if(pstat)pstat.textContent='ZIPパスワードを入力してください。';pass.focus();return;}
       if(!key){if(pstat)pstat.textContent='受付情報を確認できません。STEP 1から同じタブで続けてください。';return;}
-      pbtn.disabled=true;pbtn.textContent='送信中';if(pstat)pstat.textContent='パスワードを別経路へ送信中';sec?.querySelector('.password-send-error')?.remove();
+      pbtn.disabled=true;pbtn.textContent='送信中';if(pstat)pstat.textContent='パスワードを別送中';sec?.querySelector('.password-send-error')?.remove();
       try{
         const {res,data}=await post('/consultations/password',{idempotencyKey:key,caseNumber,password});if(!res.ok||!data.ok)throw new Error(data.error||`HTTP ${res.status}`);
         pass.value='';pbtn.dataset.sent='1';pbtn.textContent='パスワード送信済み';pbtn.disabled=true;if(pstat)pstat.textContent='パスワードの別送が完了しました。';
-        let ok=sec.querySelector('.password-send-ok');if(!ok){ok=d.createElement('div');ok.className='password-send-ok';sec.appendChild(ok);}ok.textContent='ZIPパスワードを受け付けました。ZIP本体とは別に管理され、管理者へ別通知されます。';
+        let ok=sec.querySelector('.password-send-ok');if(!ok){ok=d.createElement('div');ok.className='password-send-ok';sec.appendChild(ok);}ok.textContent='ZIPパスワードを受け付けました。これで相談受付は完了です。原則2営業日以内にメールでご連絡いたします。';
       }catch(e){pbtn.textContent='パスワードを別送する';pbtn.disabled=false;if(pstat)pstat.textContent='送信できませんでした。内容を確認して再度お試しください。';const er=d.createElement('div');er.className='password-send-error';er.textContent=`送信エラー：${e.message}`;sec.appendChild(er);}
     });
 
@@ -166,7 +166,7 @@
       const key=sessionStorage.getItem(STORAGE_KEY)||'',sp=sessionStorage.getItem(STORAGE_PAYLOAD)||'';if(!key||!sp){syncP();return;}
       sendStatus.textContent='前回の受付状態を確認中';const s=await status(key);
       if(s.found&&s.completed){completed(s,'前回の受付済み状態を復元しました。');if(s.passwordReceived&&pbtn){pbtn.dataset.sent='1';pbtn.textContent='パスワード送信済み';pbtn.disabled=true;if(pstat)pstat.textContent='パスワードは受信済みです。';}return;}
-      if(s.found){caseInput.value=s.caseNumber;sendStatus.textContent=`前回の受付番号 ${s.caseNumber} は保存済みです。${s.zipUploaded?'ZIPも保存済みです。':'ZIP本体は未保存です。'}`;syncP();}else sendStatus.textContent='Live Preview：D1・非公開R2への実送信テストです。';
+      if(s.found){caseInput.value=s.caseNumber;sendStatus.textContent=`前回の受付番号 ${s.caseNumber} は保存済みです。${s.zipUploaded?'ZIPも保存済みです。':'ZIP本体は未保存です。'}`;syncP();}else sendStatus.textContent='';
     })();
   }
 

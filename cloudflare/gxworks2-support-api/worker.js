@@ -276,6 +276,8 @@ async function consultationStatus(request, env, origin) {
 
   let passwordRow = null;
   try { passwordRow = await getPasswordByConsultationId(env.DB, row.id); } catch {}
+  let passwordCustomerConfirmation = false;
+  try { passwordCustomerConfirmation = await hasEvent(env.DB, row.id, 'password_customer_confirmation_sent'); } catch {}
 
   return json({
     ok: true,
@@ -290,6 +292,7 @@ async function consultationStatus(request, env, origin) {
     completed: row.state === 'completed',
     passwordReceived: Boolean(passwordRow),
     passwordNotification: passwordRow?.notification_status || 'not_received',
+    passwordCustomerConfirmation,
   }, 200, origin);
 }
 
@@ -326,44 +329,54 @@ async function submitConsultationPassword(request, env, origin) {
 
   const passwordHash = await sha256Hex(password);
   const existing = await getPasswordByConsultationId(env.DB, row.id);
-  if (existing && existing.password_hash === passwordHash && existing.notification_status === 'sent') {
-    return json({ ok: true, duplicate: true, caseNumber, passwordReceived: true, notificationSent: true }, 200, origin);
+  const customerAlreadyConfirmed = await hasEvent(env.DB, row.id, 'password_customer_confirmation_sent');
+  if (existing && existing.password_hash === passwordHash && existing.notification_status === 'sent' && customerAlreadyConfirmed) {
+    return json({
+      ok: true,
+      duplicate: true,
+      caseNumber,
+      passwordReceived: true,
+      notificationSent: true,
+      customerConfirmationSent: true,
+    }, 200, origin);
   }
 
-  let encrypted;
-  try { encrypted = await encryptPassword(password, env.GXW_PASSWORD_KEY); }
-  catch (error) {
-    console.error('Password encryption failed', error);
-    return json({ ok: false, error: 'Password encryption failed' }, 500, origin);
+  if (!existing || existing.password_hash !== passwordHash || existing.notification_status !== 'sent') {
+    let encrypted;
+    try { encrypted = await encryptPassword(password, env.GXW_PASSWORD_KEY); }
+    catch (error) {
+      console.error('Password encryption failed', error);
+      return json({ ok: false, error: 'Password encryption failed' }, 500, origin);
+    }
+
+    const now = new Date().toISOString();
+    await env.DB.prepare(`
+      INSERT INTO consultation_passwords (
+        consultation_id, password_hash, ciphertext, iv,
+        submitted_at, updated_at, notification_status, last_error
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?5, 'pending', NULL)
+      ON CONFLICT(consultation_id) DO UPDATE SET
+        password_hash=excluded.password_hash,
+        ciphertext=excluded.ciphertext,
+        iv=excluded.iv,
+        updated_at=excluded.updated_at,
+        notification_status=CASE
+          WHEN consultation_passwords.password_hash=excluded.password_hash
+           AND consultation_passwords.notification_status='sent'
+          THEN 'sent' ELSE 'pending' END,
+        notification_sent_at=CASE
+          WHEN consultation_passwords.password_hash=excluded.password_hash
+           AND consultation_passwords.notification_status='sent'
+          THEN consultation_passwords.notification_sent_at ELSE NULL END,
+        notification_provider_id=CASE
+          WHEN consultation_passwords.password_hash=excluded.password_hash
+           AND consultation_passwords.notification_status='sent'
+          THEN consultation_passwords.notification_provider_id ELSE NULL END,
+        last_error=NULL
+    `).bind(row.id, passwordHash, encrypted.ciphertext, encrypted.iv, now).run();
+
+    await addEvent(env.DB, row.id, 'password_received', 'ZIP password received and encrypted in separate D1 storage');
   }
-
-  const now = new Date().toISOString();
-  await env.DB.prepare(`
-    INSERT INTO consultation_passwords (
-      consultation_id, password_hash, ciphertext, iv,
-      submitted_at, updated_at, notification_status, last_error
-    ) VALUES (?1, ?2, ?3, ?4, ?5, ?5, 'pending', NULL)
-    ON CONFLICT(consultation_id) DO UPDATE SET
-      password_hash=excluded.password_hash,
-      ciphertext=excluded.ciphertext,
-      iv=excluded.iv,
-      updated_at=excluded.updated_at,
-      notification_status=CASE
-        WHEN consultation_passwords.password_hash=excluded.password_hash
-         AND consultation_passwords.notification_status='sent'
-        THEN 'sent' ELSE 'pending' END,
-      notification_sent_at=CASE
-        WHEN consultation_passwords.password_hash=excluded.password_hash
-         AND consultation_passwords.notification_status='sent'
-        THEN consultation_passwords.notification_sent_at ELSE NULL END,
-      notification_provider_id=CASE
-        WHEN consultation_passwords.password_hash=excluded.password_hash
-         AND consultation_passwords.notification_status='sent'
-        THEN consultation_passwords.notification_provider_id ELSE NULL END,
-      last_error=NULL
-  `).bind(row.id, passwordHash, encrypted.ciphertext, encrypted.iv, now).run();
-
-  await addEvent(env.DB, row.id, 'password_received', 'ZIP password received and encrypted in separate D1 storage');
 
   let passwordRow = await getPasswordByConsultationId(env.DB, row.id);
   if (passwordRow.notification_status !== 'sent') {
@@ -382,6 +395,7 @@ async function submitConsultationPassword(request, env, origin) {
         caseNumber,
         passwordReceived: true,
         notificationSent: false,
+        customerConfirmationSent: false,
         error: 'Password was saved, but owner notification failed',
       }, 502, origin);
     }
@@ -396,6 +410,25 @@ async function submitConsultationPassword(request, env, origin) {
     await addEvent(env.DB, row.id, 'password_notification_sent', result.body.id || '');
   }
 
+  let customerConfirmationSent = await hasEvent(env.DB, row.id, 'password_customer_confirmation_sent');
+  if (!customerConfirmationSent) {
+    const result = await sendEmail(env, buildPasswordCustomerEmail(row));
+    if (!result.ok) {
+      await addEvent(env.DB, row.id, 'password_customer_confirmation_failed', safeDetail(result.body));
+      return json({
+        ok: false,
+        recoverable: true,
+        caseNumber,
+        passwordReceived: true,
+        notificationSent: true,
+        customerConfirmationSent: false,
+        error: 'Password was saved and owner was notified, but customer confirmation failed',
+      }, 502, origin);
+    }
+    await addEvent(env.DB, row.id, 'password_customer_confirmation_sent', result.body.id || '');
+    customerConfirmationSent = true;
+  }
+
   passwordRow = await getPasswordByConsultationId(env.DB, row.id);
   return json({
     ok: true,
@@ -403,6 +436,7 @@ async function submitConsultationPassword(request, env, origin) {
     caseNumber,
     passwordReceived: true,
     notificationSent: passwordRow?.notification_status === 'sent',
+    customerConfirmationSent,
   }, 200, origin);
 }
 
@@ -482,6 +516,14 @@ async function getConsultationById(db, id) {
 }
 async function getPasswordByConsultationId(db, consultationId) {
   return db.prepare('SELECT * FROM consultation_passwords WHERE consultation_id=?1 LIMIT 1').bind(consultationId).first();
+}
+async function hasEvent(db, consultationId, eventType) {
+  const row = await db.prepare(`
+    SELECT id FROM consultation_events
+     WHERE consultation_id=?1 AND event_type=?2
+     ORDER BY id DESC LIMIT 1
+  `).bind(consultationId, eventType).first();
+  return Boolean(row);
 }
 
 async function addEvent(db, consultationId, eventType, detail = '') {
@@ -565,6 +607,23 @@ function buildPasswordAdminEmail(row, password) {
       '※ パスワードはD1内では暗号化して保存しています。'
     ].join('\n'),
     reply_to: row.email,
+  };
+}
+
+function buildPasswordCustomerEmail(row) {
+  return {
+    from: 'GX Works2 オンライン相談 <support@denkicontrol.com>',
+    to: [row.email],
+    subject: `[${row.case_number}] GX Works2 オンライン相談の受付が完了しました`,
+    text: [
+      `${row.name} 様`, '',
+      'ZIPパスワードの登録が完了しました。',
+      'これでGX Works2オンライン相談の受付は完了です。',
+      `相談番号: ${row.case_number}`, '',
+      'お送りいただいたGX Works2プロジェクトデータとご相談内容を確認し、',
+      '原則2営業日以内にメールでご連絡いたします。', '',
+      '電気と制御の実務メモ'
+    ].join('\n'),
   };
 }
 

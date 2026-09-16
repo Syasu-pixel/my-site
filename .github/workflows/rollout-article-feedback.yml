@@ -1,0 +1,36 @@
+name: Rollout article feedback loader
+
+on:
+  push:
+    branches:
+      - preview-article-feedback-rollout
+    paths:
+      - .github/workflows/rollout-article-feedback.yml
+
+permissions:
+  contents: write
+
+jobs:
+  rollout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-article-feedback-rollout
+          fetch-depth: 0
+
+      - name: Apply rollout
+        run: python scripts/rollout-article-feedback.py
+
+      - name: Commit rollout result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Preview: 日本語記事評価を共通ローダーで横展開"
+          git push origin HEAD:preview-article-feedback-rollout

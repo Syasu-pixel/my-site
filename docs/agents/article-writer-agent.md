@@ -16,3 +16,15 @@
 - OGP画像は `.png` を指定する
 - `@media (min-width:744px) and (max-width:1100px)` を落とさない
 - hero画像の中間幅指定は `right center / auto 92% no-repeat` 相当を維持する
+
+## 記事評価カードを含む記事の追加ルール
+- 記事評価を追加・流用する場合は `docs/article-feedback-rules.md` を必ず確認する。
+- 共通処理は `assets/js/article-feedback.js` を使う。
+- コピー元記事の `article_slug` を新記事へ残さず、その記事固有slugへ差し替える。
+- 第1回実装の `plc-drilling-line-design-project-01` を他記事へそのまま流用しない。
+- 評価カードは原則として記事本文・次回案内等の後、`あわせて読みたい記事` / `related-grid` より前に置く。
+- `site-search.js` 等へ投票処理をコピーしない。1つのボタンへ複数の投票ハンドラを付けない。
+- 1ブラウザ・1記事・1票を維持し、投票済みでは両ボタンを無効化する。
+- 投票済み状態では待機カーソルを出さない。
+- 新記事へ追加した場合、backend側でそのslugを受け付けることと `/admin/` で正しい記事に集計されることまで確認する。
+- `article-feedback.js` を更新した場合は、記事HTML側のキャッシュキーも更新する。

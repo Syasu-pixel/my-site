@@ -116,7 +116,7 @@
 
       async function submitAll(payload,file,idempotencyKey,onStage){
         onStage('受付情報をD1へ保存しています…');
-        const init=await postJson('/consultations',{...payload,idempotencyKey});
+        let init=await postJson('/consultations',{...payload,idempotencyKey});
         if(!init.res.ok||!init.data.ok){
           const err=new Error(init.data?.error||`HTTP ${init.res.status}`);
           err.httpStatus=init.res.status;
@@ -334,6 +334,13 @@
           gxdata:d.getElementById('gxdata')
         };
         let submitted=false;
+        let liveSelectedFile=zipInput.files?.[0]||null;
+        const zipDrop=d.getElementById('zip-drop');
+        const zipRemove=d.getElementById('zip-remove');
+        zipInput.addEventListener('change',()=>{liveSelectedFile=zipInput.files?.[0]||null;});
+        zipDrop?.addEventListener('drop',e=>{liveSelectedFile=e.dataTransfer?.files?.[0]||null;},true);
+        zipRemove?.addEventListener('click',()=>{liveSelectedFile=null;},true);
+        const getSelectedZip=()=>zipInput.files?.[0]||liveSelectedFile;
 
         function showCompleted(data,message='受付が完了しました。'){
           submitted=true;
@@ -350,7 +357,7 @@
         }
 
         function buildPayload(){
-          const file=zipInput.files?.[0]||null;
+          const file=getSelectedZip()||null;
           return {
             name:fields.name.value,
             email:fields.email.value,
@@ -367,7 +374,7 @@
 
         button.addEventListener('click',async()=>{
           if(submitted)return;
-          const file=zipInput.files?.[0]||null;
+          const file=getSelectedZip()||null;
           const required=[
             ['お名前',fields.name],
             ['返信用メールアドレス',fields.email],

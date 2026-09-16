@@ -1,0 +1,23 @@
+name: Cleanup feedback test artifacts
+on:
+  push:
+    branches: [preview-article-feedback-rollout]
+    paths: ['.github/workflows/cleanup-feedback-test-artifacts.yml']
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-article-feedback-rollout
+      - name: Remove temporary test artifacts only
+        run: |
+          rm -rf node_modules
+          rm .github/workflows/cleanup-feedback-test-artifacts.yml
+          git config user.name 'Syasu-pixel'
+          git config user.email 'syasuta0819@gmail.com'
+          git add -A
+          git commit -m 'Chore: remove temporary feedback test artifacts'
+          git push origin HEAD:preview-article-feedback-rollout

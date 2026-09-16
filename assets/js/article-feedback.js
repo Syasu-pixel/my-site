@@ -1,5 +1,10 @@
 (() => {
-  const articleSlug = 'plc-drilling-line-design-project-01';
+  const pathMatch = location.pathname.match(/^\/articles\/([a-z0-9][a-z0-9-]*)\.html$/i);
+  if (!pathMatch) return;
+
+  const articleSlug = (document.body?.dataset?.articleSlug || pathMatch[1]).trim();
+  if (!/^[a-z0-9][a-z0-9-]{0,119}$/i.test(articleSlug)) return;
+
   const mainColumn = document.querySelector('.main-column');
   if (!mainColumn) return;
 

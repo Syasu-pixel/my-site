@@ -115,10 +115,10 @@
 
         wired=true;
         const button=oldButton.cloneNode(true);
-        button.textContent='相談内容を実送信する（ZIP本体は次段階）';
+        button.textContent='相談内容を実送信する';
         oldButton.replaceWith(button);
-        status.textContent='Live Preview：相談内容・ZIP情報をWorkerへ実送信します。ZIP本体はまだ送信しません。';
-        if(localOnly)localOnly.textContent='Live Preview：ZIPのファイル名・容量だけ送信します。ZIP本体のアップロードはR2接続後に有効化します。';
+        status.textContent='Live Preview：相談内容をWorkerへ実送信します。ZIPは未選択でもテストできます。';
+        if(localOnly)localOnly.textContent='Live Preview：現在はZIP本体をアップロードしません。ZIP未選択のまま受付テストできます。';
         if(notice)notice.textContent='公開前Live Previewです。相談内容は実際に受付APIへ送信され、相談番号の発行と受付メール送信まで確認できます。ZIP本体とパスワードはまだ保存しません。';
 
         const fields={
@@ -126,7 +126,7 @@
         };
 
         button.addEventListener('click',async()=>{
-          const file=zipInput.files?.[0];
+          const file=zipInput.files?.[0]||null;
           const required=[['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]];
           for(const [label,el] of required){
             if(!el?.value?.trim()){
@@ -134,12 +134,8 @@
               el?.focus();return;
             }
           }
-          if(!file){
-            status.textContent='パスワード付きZIPファイルを選択してください。';
-            d.getElementById('zip-drop')?.scrollIntoView({behavior:'smooth',block:'center'});return;
-          }
-          if(!file.name.toLowerCase().endsWith('.zip')){
-            status.textContent='ZIPファイルを選択してください。';return;
+          if(file&&!file.name.toLowerCase().endsWith('.zip')){
+            status.textContent='ZIPを選択する場合はZIPファイルを指定してください。';return;
           }
 
           button.disabled=true;
@@ -158,8 +154,8 @@
                 desired:fields.desired.value,
                 photo:fields.photo?.value||'',
                 gxdata:fields.gxdata?.value||'',
-                zipName:file.name,
-                zipSize:file.size
+                zipName:file?.name||'',
+                zipSize:file?.size||0
               })
             });
             const data=await res.json().catch(()=>({}));

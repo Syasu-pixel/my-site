@@ -25,7 +25,7 @@
           const intro=prep.querySelector('p');
           if(intro)intro.innerHTML='ご相談時には、確認できる資料を<strong>1つのパスワード付きZIPファイル</strong>にまとめてください。ラダーPDFやCSVを別途作成していただく必要はありません。設備仕様書や取扱説明書など、すでにお持ちの資料があれば一緒に入れていただくと確認がスムーズです。';
           const list=prep.querySelector('.number-list');
-          if(list){
+          if(list&&!list.textContent.includes('設備仕様書・機械仕様書')){
             const extra1=d.createElement('li');
             extra1.innerHTML='<strong>設備仕様書・機械仕様書・動作仕様書などのPDF（あれば）</strong>';
             const extra2=d.createElement('li');
@@ -45,10 +45,13 @@
           ns.querySelectorAll('li').forEach(li=>{
             if(li.textContent.includes('現地確認をしないと安全に変更内容を判断できない'))li.remove();
           });
-          const open=document.createElement('div');
-          open.className='key-highlight';
-          open.innerHTML='<h3>回路変更・動作変更は、内容を問わずまずご相談いただけます</h3><p>GX Works2プロジェクトデータとご要望を確認したうえで、対応可否とお見積りをご案内します。変更後データの実機書込み・動作確認・設備としての最終確認はお客様側で実施してください。</p>';
-          ns.parentNode.insertBefore(open,ns);
+          if(!d.getElementById('open-consultation-note')){
+            const open=d.createElement('div');
+            open.className='key-highlight';
+            open.id='open-consultation-note';
+            open.innerHTML='<h3>回路変更・動作変更は、内容を問わずまずご相談いただけます</h3><p>GX Works2プロジェクトデータとご要望を確認したうえで、対応可否とお見積りをご案内します。変更後データの実機書込み・動作確認・設備としての最終確認はお客様側で実施してください。</p>';
+            ns.parentNode.insertBefore(open,ns);
+          }
         }
 
         // 写真がないこと自体を受付不可にしない表現へ。
@@ -58,10 +61,29 @@
           }
         });
 
+        // Preview専用スタイル。
+        const style=d.createElement('style');
+        style.textContent=`
+          .preview-demo-button{cursor:pointer!important;opacity:1!important}
+          .preview-complete{display:none;margin-top:18px;padding:22px;border:1px solid #bbf7d0;border-radius:20px;background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%)}
+          .preview-complete.is-visible{display:block}
+          .preview-complete h3{margin:0 0 8px;font-size:18px;color:#166534}
+          .preview-case-number{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0;padding:14px 16px;border:1px solid #86efac;border-radius:14px;background:#fff}
+          .preview-case-number code{font-size:18px;font-weight:900;color:#0f172a;letter-spacing:.03em}
+          .preview-copy{border:1px solid #cbd5e1;border-radius:10px;background:#fff;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}
+          .password-wrap{position:relative}
+          .password-wrap input{padding-right:48px!important}
+          .password-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:9px;background:transparent;cursor:pointer;display:grid;place-items:center;color:#475569}
+          .password-eye:hover{background:#f1f5f9}
+          .password-eye svg{width:20px;height:20px;display:block}
+          .case-help{margin-top:6px;color:#64748b;font-size:11px}
+        `;
+        d.head.appendChild(style);
+
         const consultation=d.getElementById('consultation');
         if(consultation){
           const notice=consultation.querySelector('.preview-notice');
-          if(notice)notice.textContent='このページは公開前Previewです。現在は画面確認用のため、送信・ファイルアップロードは行われません。';
+          if(notice)notice.textContent='このページは公開前Previewです。現在は画面確認用のため、実際の送信・ファイルアップロードは行われません。下のボタンでは送信完了後の画面だけ確認できます。';
 
           const fileBox=consultation.querySelector('.file-box');
           if(fileBox){
@@ -70,7 +92,25 @@
 
           const submitRow=consultation.querySelector('.submit-row');
           if(submitRow){
-            submitRow.innerHTML='<button class="btn btn-primary" type="button" disabled>相談内容とZIPを送信する</button><small>送信完了時に相談番号を発行し、続けて別のパスワード送信フォームへ進む想定です。</small>';
+            submitRow.innerHTML='<button id="preview-submit-demo" class="btn btn-primary preview-demo-button" type="button">Preview：送信完了画面を見る</button><small>実際のデータ送信は行いません。相談番号の自動発行イメージを確認できます。</small>';
+          }
+
+          let complete=d.getElementById('preview-complete');
+          if(!complete){
+            complete=d.createElement('div');
+            complete.id='preview-complete';
+            complete.className='preview-complete';
+            complete.innerHTML=`
+              <h3>相談を受け付けました</h3>
+              <p>本番では、相談内容とZIPの受付完了後に<strong>相談番号をサーバー側で自動発行</strong>し、この画面と受付完了メールの両方に表示する想定です。</p>
+              <div class="preview-case-number">
+                <span>相談番号</span>
+                <code id="preview-case-code">GXW-20260916-001</code>
+                <button id="preview-copy-case" class="preview-copy" type="button">番号をコピー</button>
+              </div>
+              <p><strong>この番号はパスワード送信時に使います。</strong>このまま下の「ZIPパスワードを別送する」へ進んでください。</p>
+            `;
+            consultation.appendChild(complete);
           }
 
           const passwordSection=d.createElement('section');
@@ -81,24 +121,58 @@
             <div class="preview-notice">Step 2｜ZIP本体とは別の送信系統です。Previewのため現在は送信されません。</div>
             <div class="key-highlight">
               <h3>ZIPとパスワードは同時に送信しません</h3>
-              <p>相談フォームでZIPを送信したあと、発行された相談番号を使って、この別フォームからZIPパスワードだけを登録する想定です。ファイル本体とパスワードを分離して扱います。</p>
+              <p>相談フォームでZIPを送信したあと、自動発行された相談番号を使って、この別フォームからZIPパスワードだけを登録する想定です。ファイル本体とパスワードを分離して扱います。</p>
             </div>
             <form onsubmit="return false;">
               <div class="form-grid">
-                <div class="form-field"><label for="case-number">相談番号</label><input id="case-number" type="text" placeholder="例：GXW-20260916-001"></div>
-                <div class="form-field"><label for="zip-password">ZIPパスワード</label><input id="zip-password" type="password" placeholder="ZIPに設定したパスワード"></div>
+                <div class="form-field"><label for="case-number">相談番号</label><input id="case-number" type="text" placeholder="例：GXW-20260916-001"><div class="case-help">本番ではStep 1完了後、この番号を自動表示・引き継ぎする想定です。</div></div>
+                <div class="form-field"><label for="zip-password">ZIPパスワード</label><div class="password-wrap"><input id="zip-password" type="password" autocomplete="off" placeholder="ZIPに設定したパスワード"><button id="password-eye" class="password-eye" type="button" aria-label="パスワードを表示" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="case-help">通常は伏せ字で表示します。目のマークを押している間ではなく、クリックで表示／非表示を切り替えます。</div></div>
               </div>
               <div class="submit-row"><button class="btn btn-primary" type="button" disabled>パスワードを別送する</button><small>本番ではZIP保管先とは分離して受け付ける設計にします。</small></div>
             </form>
           `;
-          consultation.insertAdjacentElement('afterend',passwordSection);
+          const existing=d.getElementById('password-submit');
+          if(existing)existing.replaceWith(passwordSection); else consultation.insertAdjacentElement('afterend',passwordSection);
+
+          const demoButton=d.getElementById('preview-submit-demo');
+          const completeBox=d.getElementById('preview-complete');
+          const caseInput=d.getElementById('case-number');
+          const code=d.getElementById('preview-case-code');
+          if(demoButton&&completeBox&&caseInput&&code){
+            demoButton.addEventListener('click',()=>{
+              const sample='GXW-20260916-001';
+              code.textContent=sample;
+              caseInput.value=sample;
+              completeBox.classList.add('is-visible');
+              completeBox.scrollIntoView({behavior:'smooth',block:'center'});
+            });
+          }
+
+          const copy=d.getElementById('preview-copy-case');
+          if(copy&&code){
+            copy.addEventListener('click',async()=>{
+              try{await navigator.clipboard.writeText(code.textContent);copy.textContent='コピーしました';setTimeout(()=>copy.textContent='番号をコピー',1400)}catch(e){copy.textContent='番号を選択してコピー';}
+            });
+          }
+
+          const eye=d.getElementById('password-eye');
+          const pass=d.getElementById('zip-password');
+          if(eye&&pass){
+            eye.addEventListener('click',()=>{
+              const show=pass.type==='password';
+              pass.type=show?'text':'password';
+              eye.setAttribute('aria-pressed',show?'true':'false');
+              eye.setAttribute('aria-label',show?'パスワードを隠す':'パスワードを表示');
+            });
+          }
         }
 
         // 送受信ルールを利用者に見える形で明示。
         const faq=d.getElementById('faq');
-        if(faq){
+        if(faq&&!d.getElementById('data-transfer-rule')){
           const rule=d.createElement('div');
           rule.className='field-highlight';
+          rule.id='data-transfer-rule';
           rule.innerHTML='<h3>データの送受信ルール</h3><p>お客様からの送信時も、変更済みデータの返却時も、パスワード付きZIPとパスワードを同じ送信にまとめません。返却時はZIP本体とパスワードを別々にご案内します。</p>';
           faq.appendChild(rule);
         }
@@ -107,7 +181,7 @@
         d.querySelectorAll('.side-card').forEach(card=>{
           if(card.textContent.includes('相談前に')){
             const p=card.querySelector('p');
-            if(p)p.textContent='相談内容＋パスワード付きZIPを送信後、別フォームからZIPパスワードを送る2段階受付です。';
+            if(p)p.textContent='相談内容＋パスワード付きZIPを送信後、自動発行された相談番号を使って別フォームからZIPパスワードを送る2段階受付です。';
           }
         });
       });

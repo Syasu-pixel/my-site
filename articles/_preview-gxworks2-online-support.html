@@ -19,6 +19,22 @@
         const d=frame.contentDocument;
         if(!d)return;
 
+        // Preview専用：ご用意いただく資料を拡張。
+        const prep=d.getElementById('prepare');
+        if(prep){
+          const intro=prep.querySelector('p');
+          if(intro)intro.innerHTML='ご相談時には、確認できる資料を<strong>1つのパスワード付きZIPファイル</strong>にまとめてください。ラダーPDFやCSVを別途作成していただく必要はありません。設備仕様書や取扱説明書など、すでにお持ちの資料があれば一緒に入れていただくと確認がスムーズです。';
+          const list=prep.querySelector('.number-list');
+          if(list){
+            const extra1=d.createElement('li');
+            extra1.innerHTML='<strong>設備仕様書・機械仕様書・動作仕様書などのPDF（あれば）</strong>';
+            const extra2=d.createElement('li');
+            extra2.innerHTML='<strong>電気図面・取扱説明書・メーカー資料など（あれば）</strong>';
+            list.appendChild(extra1);
+            list.appendChild(extra2);
+          }
+        }
+
         // Preview専用：相談受付の間口を広げ、安全関連だけを入口で除外しない。
         d.querySelectorAll('.note-box').forEach(box=>{
           const h=box.querySelector('h3');
@@ -49,7 +65,7 @@
 
           const fileBox=consultation.querySelector('.file-box');
           if(fileBox){
-            fileBox.innerHTML='<strong>Step 1｜パスワード付きZIPを送信</strong><br><small>GX Works2データ・説明メモ・任意の設備写真を1つのZIPにまとめ、ZIP自体にパスワードを設定して送信します。ZIPのパスワードは、このフォームには入力しません。</small>';
+            fileBox.innerHTML='<strong>Step 1｜パスワード付きZIPを送信</strong><br><small>GX Works2データ・説明メモ・任意の設備写真に加え、設備仕様書、電気図面、取扱説明書、メーカー資料などお持ちの資料があれば、1つのZIPにまとめてください。ZIP自体にパスワードを設定し、そのパスワードはこのフォームには入力しません。</small>';
           }
 
           const submitRow=consultation.querySelector('.submit-row');
@@ -81,7 +97,7 @@
         // 送受信ルールを利用者に見える形で明示。
         const faq=d.getElementById('faq');
         if(faq){
-          const rule=document.createElement('div');
+          const rule=d.createElement('div');
           rule.className='field-highlight';
           rule.innerHTML='<h3>データの送受信ルール</h3><p>お客様からの送信時も、変更済みデータの返却時も、パスワード付きZIPとパスワードを同じ送信にまとめません。返却時はZIP本体とパスワードを別々にご案内します。</p>';
           faq.appendChild(rule);

@@ -1,29 +1,27 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>GX Works2 オンライン相談</title>
-  <style>html,body{margin:0;min-height:100%;background:#f5f8fc}#previewShell{display:block;width:100%;height:100vh;border:0;background:#fff}</style>
-</head>
-<body>
-<iframe id="previewShell" title="GX Works2 オンライン相談" src="./_preview-gxworks2-online-support.html"></iframe>
-<script>
+// GX Works2 public intake: approved two-step API flow, no demo handlers.
+(()=>{const d=document;const code=d.getElementById("preview-case-code");
+        let selectedZip=null;
+        const drop=d.getElementById('zip-drop'),input=d.getElementById('zip-input'),selected=d.getElementById('zip-selected'),fileName=d.getElementById('zip-file-name'),fileSize=d.getElementById('zip-file-size'),remove=d.getElementById('zip-remove'),error=d.getElementById('zip-error');
+        const humanSize=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':n<1073741824?(n/1048576).toFixed(1)+' MB':(n/1073741824).toFixed(2)+' GB';
+        const clearError=()=>{error.textContent='';error.classList.remove('is-visible');};
+        const showError=m=>{error.textContent=m;error.classList.add('is-visible');};
+        const setFile=f=>{clearError();if(!f)return;const zip=f.name.toLowerCase().endsWith('.zip')||['application/zip','application/x-zip-compressed'].includes(f.type);if(!zip){selectedZip=null;selected.classList.remove('is-visible');showError('ZIPファイルのみ選択できます。');return;}selectedZip=f;fileName.textContent=f.name;fileSize.textContent=humanSize(f.size);selected.classList.add('is-visible');};
+        drop.addEventListener('click',e=>{if(e.target!==input)input.click();});drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click();}});input.addEventListener('change',()=>setFile(input.files?.[0]));
+        ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.add('is-dragover');}));['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove('is-dragover');}));drop.addEventListener('drop',e=>setFile(e.dataTransfer?.files?.[0]));remove.addEventListener('click',e=>{e.stopPropagation();selectedZip=null;input.value='';selected.classList.remove('is-visible');clearError();});
+
+        const copy=d.getElementById('preview-copy-case');copy?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.textContent);copy.textContent='コピーしました';setTimeout(()=>copy.textContent='番号をコピー',1400)}catch{copy.textContent='番号を選択してコピー';}});
+        const eye=d.getElementById('password-eye'),pass=d.getElementById('zip-password');eye?.addEventListener('click',()=>{const show=pass.type==='password';pass.type=show?'text':'password';eye.setAttribute('aria-pressed',show?'true':'false');eye.setAttribute('aria-label',show?'パスワードを隠す':'パスワードを表示');});
+
+
+})();
 (()=>{
   const API='https://gxworks2-support-api.syasuta0819.workers.dev';
-  const STORAGE_KEY='gxw-preview-idempotency-key';
-  const STORAGE_PAYLOAD='gxw-preview-idempotency-payload';
-  const shell=document.getElementById('previewShell');
+  const STORAGE_KEY='gxw-consultation-idempotency-key-v1';
+  const STORAGE_PAYLOAD='gxw-consultation-idempotency-payload-v1';
   let wired=false;
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-  function doc(){
-    try{
-      const outer=shell.contentDocument;
-      return outer?.getElementById('previewFrame')?.contentDocument||null;
-    }catch{return null;}
-  }
+  function doc(){return document;}
   function newKey(){
     if(crypto.randomUUID)return `gxw_${crypto.randomUUID()}`;
     const b=new Uint8Array(24);crypto.getRandomValues(b);
@@ -112,7 +110,7 @@
     caseInput.readOnly=true;caseInput.setAttribute('readonly','');caseInput.placeholder='STEP 1 完了後に自動入力されます';
     const cf=caseInput.closest('.form-field');const cl=cf?.querySelector('label[for="case-number"]');if(cl)cl.textContent='相談番号（自動入力）';const ch=cf?.querySelector('.case-help');if(ch)ch.textContent='STEP 1完了後に自動で設定されます。相談番号は変更・削除できません。';
 
-    const main=old.cloneNode(true);main.textContent='相談内容とZIPを送信する';old.replaceWith(main);
+    const main=old.cloneNode(true);main.disabled=false;main.textContent='相談内容とZIPを送信する';old.replaceWith(main);
     sendStatus.textContent='';
     const fields={name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')};
     let selected=zip.files?.[0]||null,submitted=false;
@@ -143,6 +141,8 @@
       if(submitted)return;const f=zip.files?.[0]||selected;
       for(const [label,el] of [['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]]){if(!el?.value?.trim()){sendStatus.textContent=`${label}を入力してください。`;el?.focus();return;}}
       if(!f){sendStatus.textContent='パスワード付きZIPファイルを選択してください。';return;}if(!f.name.toLowerCase().endsWith('.zip')){sendStatus.textContent='ZIPファイルを指定してください。';return;}
+      if(!fields.email.checkValidity()){sendStatus.textContent='返信用メールアドレスをご確認ください。';fields.email.focus();return;}
+      if(f.size<1){sendStatus.textContent='空のZIPファイルは送信できません。';return;}
       const pl=payload(),key=submission(pl);main.disabled=true;
       try{const data=await submitAll(pl,f,key,t=>sendStatus.textContent=t);completed(data,'送信が完了しました。');}
       catch(e){const s=await status(key);if(s.found&&s.completed)completed(s,'受付済みです。');else{sendStatus.textContent=`送信に失敗しました：${e.message}`;main.disabled=false;}}
@@ -170,8 +170,6 @@
     })();
   }
 
-  shell.addEventListener('load',()=>{let n=0;const t=setInterval(()=>{n++;wire();if(wired||n>80)clearInterval(t);},250);});
+  wire();
 })();
-</script>
-</body>
-</html>
+

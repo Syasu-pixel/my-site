@@ -22,14 +22,13 @@
         try{
           const outer=shell.contentDocument;
           const inner=outer?.getElementById('previewFrame');
-          return inner?.contentDocument || null;
+          return inner?.contentDocument||null;
         }catch{return null;}
       }
 
       function injectPlcSelector(d){
         const current=d.getElementById('plc');
         if(!current||current.tagName==='SELECT')return;
-
         const select=d.createElement('select');
         select.id='plc';
         select.name='plc';
@@ -69,7 +68,6 @@
             <option value="一覧にないGX Works2対応機種">一覧にないGX Works2対応機種</option>
           </optgroup>`;
         current.replaceWith(select);
-
         const field=select.closest('.form-field');
         const label=field?.querySelector('label[for="plc"]');
         if(label)label.innerHTML='PLC型式 <small>分かる範囲で</small>';
@@ -79,7 +77,6 @@
           help.textContent='GX Works2で扱う主なMELSEC-Q / L / FXシリーズから選択できます。型式が分からない場合は「型式不明・確認中」を選んでください。';
           select.insertAdjacentElement('afterend',help);
         }
-
         if(!d.getElementById('plc-select-mobile-style')){
           const style=d.createElement('style');
           style.id='plc-select-mobile-style';
@@ -87,11 +84,7 @@
             #plc{width:100%;min-height:46px;padding:10px 40px 10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#0f172a;font:inherit;font-size:16px;line-height:1.35}
             #plc:focus{outline:2px solid #93c5fd;outline-offset:1px;border-color:#2563eb}
             .plc-help{margin-top:7px;line-height:1.55}
-            @media(max-width:760px){
-              #plc{min-height:50px;font-size:16px;padding-top:12px;padding-bottom:12px}
-              #plc option,#plc optgroup{font-size:16px}
-              .plc-help{font-size:12px}
-            }
+            @media(max-width:760px){#plc{min-height:50px;font-size:16px;padding-top:12px;padding-bottom:12px}#plc option,#plc optgroup{font-size:16px}.plc-help{font-size:12px}}
           `;
           d.head.appendChild(style);
         }
@@ -101,7 +94,6 @@
         const input=d.getElementById('zip-password');
         if(!input||input.dataset.pasteUx==='1')return;
         input.dataset.pasteUx='1';
-
         input.type='text';
         input.name='zip_secret';
         input.autocomplete='off';
@@ -109,17 +101,13 @@
         input.setAttribute('autocorrect','off');
         input.setAttribute('spellcheck','false');
         input.classList.add('zip-password-masked');
-
         const wrap=input.parentElement;
         const eye=wrap?.querySelector('button');
         if(eye){
           eye.setAttribute('aria-label','パスワードの表示切替');
-          eye.addEventListener('click',()=>{
-            input.classList.toggle('zip-password-masked');
-          });
+          eye.addEventListener('click',()=>input.classList.toggle('zip-password-masked'));
         }
-
-        if(wrap&&!wrap.querySelector('.zip-paste-btn')){
+        if(wrap&&!wrap.parentElement?.querySelector('.zip-paste-btn')){
           const btn=d.createElement('button');
           btn.type='button';
           btn.className='zip-paste-btn';
@@ -140,7 +128,6 @@
           });
           wrap.insertAdjacentElement('afterend',btn);
         }
-
         const field=input.closest('.form-field');
         if(field&&!field.querySelector('.zip-paste-help')){
           const help=d.createElement('div');
@@ -149,19 +136,14 @@
           const btn=field.querySelector('.zip-paste-btn');
           if(btn)btn.insertAdjacentElement('afterend',help);
         }
-
         if(!d.getElementById('zip-password-paste-style')){
           const style=d.createElement('style');
           style.id='zip-password-paste-style';
           style.textContent=`
             #zip-password.zip-password-masked{-webkit-text-security:disc}
             .zip-paste-btn{margin-top:9px;min-height:44px;padding:10px 14px;border:1px solid #93c5fd;border-radius:10px;background:#eff6ff;color:#1d4ed8;font:inherit;font-weight:700;cursor:pointer}
-            .zip-paste-btn:hover{background:#dbeafe}
-            .zip-paste-help{margin-top:7px;line-height:1.55}
-            @media(max-width:760px){
-              .zip-paste-btn{width:100%;min-height:48px;font-size:16px}
-              .zip-paste-help{font-size:12px}
-            }
+            .zip-paste-btn:hover{background:#dbeafe}.zip-paste-help{margin-top:7px;line-height:1.55}
+            @media(max-width:760px){.zip-paste-btn{width:100%;min-height:48px;font-size:16px}.zip-paste-help{font-size:12px}}
           `;
           d.head.appendChild(style);
         }
@@ -183,8 +165,8 @@
 
         injectPlcSelector(d);
         injectPasswordPasteUx(d);
-
         wired=true;
+
         const button=oldButton.cloneNode(true);
         button.textContent='相談内容を実送信する';
         oldButton.replaceWith(button);
@@ -192,11 +174,11 @@
         if(localOnly)localOnly.textContent='Live Preview：現在はZIP本体をアップロードしません。ZIP未選択のまま受付テストできます。';
         if(notice)notice.textContent='公開前Live Previewです。相談内容は実際に受付APIへ送信され、相談番号の発行と受付メール送信まで確認できます。ZIP本体とパスワードはまだ保存しません。';
 
-        const fields={
-          name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')
-        };
+        const fields={name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')};
+        let submitted=false;
 
         button.addEventListener('click',async()=>{
+          if(submitted)return;
           const file=zipInput.files?.[0]||null;
           const required=[['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]];
           for(const [label,el] of required){
@@ -231,18 +213,21 @@
             });
             const data=await res.json().catch(()=>({}));
             if(!res.ok||!data.ok)throw new Error(data.error||`HTTP ${res.status}`);
+            submitted=true;
             caseCode.textContent=data.caseNumber;
             caseInput.value=data.caseNumber;
             const p=complete.querySelector('p');
             if(p)p.innerHTML='相談内容の受付・相談番号発行・受付メール送信まで<strong>実際に完了しました</strong>。ZIP本体のアップロードは次の実装段階で接続します。';
             complete.classList.add('is-visible');
-            status.textContent='送信成功。受付メールと相談番号を確認してください。';
+            button.textContent='送信済み';
+            button.setAttribute('aria-disabled','true');
+            status.textContent='送信済みです。受付メールと相談番号を確認してください。';
             complete.scrollIntoView({behavior:'smooth',block:'center'});
           }catch(err){
             console.error(err);
             status.textContent=`送信に失敗しました：${err.message}`;
           }finally{
-            button.disabled=false;
+            button.disabled=submitted;
           }
         });
       }

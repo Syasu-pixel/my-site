@@ -1,0 +1,68 @@
+name: Adjust PLC02 roadmap and summary
+
+on:
+  push:
+    branches:
+      - preview-plc-drilling-project-02-outline
+    paths:
+      - .github/workflows/adjust-plc02-roadmap-summary.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update article via GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const path = 'articles/plc-drilling-line-design-project-02.html';
+            const branch = 'preview-plc-drilling-project-02-outline';
+            const { data } = await github.rest.repos.getContent({ owner, repo, path, ref: branch });
+            if (Array.isArray(data) || !data.content) throw new Error('article file not found');
+            let text = Buffer.from(data.content, 'base64').toString('utf8');
+
+            const roadmapRe = /  <section class="section-card" id="roadmap">[\s\S]*?  <\/section>\n\n/;
+            const roadmapMatch = text.match(roadmapRe);
+            if (!roadmapMatch) throw new Error('roadmap block not found');
+            const roadmap = roadmapMatch[0];
+            text = text.replace(roadmapRe, '');
+
+            const nextAnchor = '    <section class="section-card" id="next">';
+            if (!text.includes(nextAnchor)) throw new Error('next section anchor not found');
+            text = text.replace(nextAnchor, roadmap.replace(/^/gm, '  ') + nextAnchor);
+
+            const summaryRe = /    <section class="section-card" id="summary">[\s\S]*?    <\/section>\n\n/;
+            const summaryNew = `    <section class="section-card" id="summary">\n      <h2>6. 第2回のまとめ</h2>\n      <p>設備仕様からI/Oを起こすときは、番地から考えるのではなく、まず設備側の信号を洗い出します。その後に入力・出力へ分け、機能ごとにまとまりを持たせてX/Yへ配置します。</p>\n      <div class="summary-highlight" aria-label="第2回の重要ポイント">\n        <div class="summary-point"><span>STEP 1</span><strong>設備側の信号を洗い出す</strong><small>センサ・操作・監視信号を先に整理</small></div>\n        <div class="summary-point"><span>STEP 2</span><strong>入力・出力へ分ける</strong><small>役割ごとにI/O一覧へ落とし込む</small></div>\n        <div class="summary-point"><span>STEP 3</span><strong>X/Yへまとまりで割り付ける</strong><small>8進数と予備点も一緒に考える</small></div>\n      </div>\n      <div class="table-wrap"><table><thead><tr><th>設計ステップ</th><th>今回の結果</th></tr></thead><tbody><tr><td>設備仕様を確認</td><td>CV01〜CV04と加工エリアの役割を再確認</td></tr><tr><td>入力を整理</td><td>X0〜X10を中心に搬送・投入信号を仮割付</td></tr><tr><td>出力を整理</td><td>Y0〜Y14へモータ・ストッパ・表示を仮割付</td></tr><tr><td>番地ルール</td><td>FX3UのX/Yは8進数であることを確認</td></tr><tr><td>予備</td><td>操作系・表示系の追加用に空きを残す</td></tr></tbody></table></div>\n    </section>\n\n`;
+            if (!summaryRe.test(text)) throw new Error('summary section not found');
+            text = text.replace(summaryRe, summaryNew);
+
+            if (!text.includes('.summary-highlight{')) {
+              const cssAnchor = '    #roadmap{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#cdddf0}';
+              const css = `    #summary{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#c7daf3}\n    .summary-highlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 20px}\n    .summary-point{padding:16px;border:1px solid #cfe0f5;border-radius:18px;background:#fff;box-shadow:0 6px 16px rgba(37,99,235,.06)}\n    .summary-point span{display:inline-flex;margin-bottom:8px;padding:3px 8px;border-radius:999px;background:#e8f1ff;color:#1d4ed8;font-size:11px;font-weight:900}\n    .summary-point strong{display:block;color:#1d4ed8;font-size:14px;line-height:1.5}\n    .summary-point small{display:block;margin-top:5px;color:#64748b;font-size:12px;line-height:1.6}\n`;
+              if (!text.includes(cssAnchor)) throw new Error('css anchor not found');
+              text = text.replace(cssAnchor, css + cssAnchor);
+            }
+
+            const mediaOld = '.top-summary{grid-template-columns:1fr}.io-flow,.related-grid{grid-template-columns:1fr}.section-card{padding:22px}';
+            const mediaNew = '.top-summary{grid-template-columns:1fr}.io-flow,.related-grid,.summary-highlight{grid-template-columns:1fr}.section-card{padding:22px}';
+            if (!text.includes('.related-grid,.summary-highlight{')) {
+              if (!text.includes(mediaOld)) throw new Error('mobile css anchor not found');
+              text = text.replace(mediaOld, mediaNew);
+            }
+
+            if (text.indexOf('id="roadmap"') < text.indexOf('id="summary"')) throw new Error('roadmap still above summary');
+            if (text.indexOf('id="roadmap"') > text.indexOf('id="next"')) throw new Error('roadmap not before next');
+            if (!text.includes('summary-highlight')) throw new Error('summary highlight missing');
+            if (!text.includes('JY997D16101-AA')) throw new Error('Japanese manual reference lost');
+
+            await github.rest.repos.createOrUpdateFileContents({
+              owner, repo, path, branch,
+              message: '第2回のシリーズ位置とまとめ表示を調整',
+              content: Buffer.from(text, 'utf8').toString('base64'),
+              sha: data.sha
+            });

@@ -26,6 +26,77 @@
         }catch{return null;}
       }
 
+      function injectPlcSelector(d){
+        const current=d.getElementById('plc');
+        if(!current||current.tagName==='SELECT')return;
+
+        const select=d.createElement('select');
+        select.id='plc';
+        select.name='plc';
+        select.setAttribute('aria-label','PLC型式');
+        select.innerHTML=`
+          <option value="">PLC型式を選択してください</option>
+          <optgroup label="FXシリーズ">
+            <option>FX0</option><option>FX0S</option><option>FX0N</option><option>FX1</option><option>FX2</option><option>FX2C</option>
+            <option>FX1S</option><option>FX1N</option><option>FX1NC</option><option>FX2N</option><option>FX2NC</option>
+            <option>FX3S</option><option>FX3G</option><option>FX3GC</option><option>FX3U</option><option>FX3UC</option>
+          </optgroup>
+          <optgroup label="Lシリーズ">
+            <option>L02SCPU</option><option>L02SCPU-P</option><option>L02CPU</option><option>L02CPU-P</option>
+            <option>L06CPU</option><option>L06CPU-P</option><option>L26CPU-BT</option><option>L26CPU-PBT</option><option>L26CPU</option>
+          </optgroup>
+          <optgroup label="Qシリーズ｜ベーシックモデル">
+            <option>Q00JCPU</option><option>Q00CPU</option><option>Q01CPU</option>
+          </optgroup>
+          <optgroup label="Qシリーズ｜ハイパフォーマンスモデル">
+            <option>Q02CPU</option><option>Q02HCPU</option><option>Q06HCPU</option><option>Q12HCPU</option><option>Q25HCPU</option>
+          </optgroup>
+          <optgroup label="Qシリーズ｜ユニバーサルモデル">
+            <option>Q00UJCPU</option><option>Q00UCPU</option><option>Q01UCPU</option><option>Q02UCPU</option>
+            <option>Q03UDCPU</option><option>Q03UDECPU</option><option>Q04UDHCPU</option><option>Q04UDEHCPU</option>
+            <option>Q06UDHCPU</option><option>Q06UDEHCPU</option><option>Q10UDHCPU</option><option>Q10UDEHCPU</option>
+            <option>Q13UDHCPU</option><option>Q13UDEHCPU</option><option>Q20UDHCPU</option><option>Q20UDEHCPU</option>
+            <option>Q26UDHCPU</option><option>Q26UDEHCPU</option><option>Q50UDEHCPU</option><option>Q100UDEHCPU</option>
+            <option>Q03UDVCPU</option><option>Q04UDVCPU</option><option>Q06UDVCPU</option><option>Q13UDVCPU</option><option>Q26UDVCPU</option>
+            <option>Q04UDPVCPU</option><option>Q06UDPVCPU</option><option>Q13UDPVCPU</option><option>Q26UDPVCPU</option>
+          </optgroup>
+          <optgroup label="Qシリーズ｜プロセス・二重化">
+            <option>Q02PHCPU</option><option>Q06PHCPU</option><option>Q12PHCPU</option><option>Q25PHCPU</option>
+            <option>Q12PRHCPU</option><option>Q25PRHCPU</option>
+          </optgroup>
+          <optgroup label="その他">
+            <option value="型式不明・確認中">型式不明・確認中</option>
+            <option value="一覧にないGX Works2対応機種">一覧にないGX Works2対応機種</option>
+          </optgroup>`;
+        current.replaceWith(select);
+
+        const field=select.closest('.form-field');
+        const label=field?.querySelector('label[for="plc"]');
+        if(label)label.innerHTML='PLC型式 <small>分かる範囲で</small>';
+        if(field&&!field.querySelector('.plc-help')){
+          const help=d.createElement('div');
+          help.className='case-help plc-help';
+          help.textContent='GX Works2で扱う主なMELSEC-Q / L / FXシリーズから選択できます。型式が分からない場合は「型式不明・確認中」を選んでください。';
+          select.insertAdjacentElement('afterend',help);
+        }
+
+        if(!d.getElementById('plc-select-mobile-style')){
+          const style=d.createElement('style');
+          style.id='plc-select-mobile-style';
+          style.textContent=`
+            #plc{width:100%;min-height:46px;padding:10px 40px 10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#0f172a;font:inherit;font-size:16px;line-height:1.35}
+            #plc:focus{outline:2px solid #93c5fd;outline-offset:1px;border-color:#2563eb}
+            .plc-help{margin-top:7px;line-height:1.55}
+            @media(max-width:760px){
+              #plc{min-height:50px;font-size:16px;padding-top:12px;padding-bottom:12px}
+              #plc option,#plc optgroup{font-size:16px}
+              .plc-help{font-size:12px}
+            }
+          `;
+          d.head.appendChild(style);
+        }
+      }
+
       function wire(){
         if(wired)return;
         const d=getServiceDocument();
@@ -39,6 +110,8 @@
         const localOnly=d.querySelector('.local-only');
         const notice=d.querySelector('#consultation .preview-notice');
         if(!oldButton||!zipInput||!complete||!caseCode||!caseInput||!status)return;
+
+        injectPlcSelector(d);
 
         wired=true;
         const button=oldButton.cloneNode(true);

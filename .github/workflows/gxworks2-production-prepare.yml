@@ -21,6 +21,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Diagnose public Worker health response
+        run: |
+          python - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
+          url='https://gxworks2-support-api.syasuta0819.workers.dev/'
+          request=Request(url,headers={'Origin':'https://denkicontrol.com','Accept':'application/json'})
+          try:
+              response=urlopen(request,timeout=30)
+          except HTTPError as error:
+              response=error
+          body=response.read()
+          print('Health HTTP:', response.status)
+          print('Content-Type:', response.headers.get('Content-Type'))
+          print('Final URL:', response.geturl())
+          print('Response preview:', body[:600].decode('utf-8',errors='replace'))
+          assert response.status == 200, 'Public health request failed; do not publish'
+          json.loads(body)
+          PY
       - uses: actions/checkout@v4
         with:
           ref: preview-gxworks2-production-20260917

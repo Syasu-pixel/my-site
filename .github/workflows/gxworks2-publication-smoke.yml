@@ -1,0 +1,97 @@
+name: GX Works2 Published Site Verification
+on:
+  push:
+    branches: [verify-gxworks2-publication-20260917]
+    paths: [.github/workflows/gxworks2-publication-smoke.yml]
+permissions:
+  contents: read
+jobs:
+  verify-publication:
+    if: github.repository == 'Syasu-pixel/my-site' && github.ref == 'refs/heads/verify-gxworks2-publication-20260917'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read-only verification of the published website, not the intake API
+        run: |
+          python -u - <<'PY'
+          from pathlib import Path
+          from urllib.request import urlopen
+          from urllib.error import HTTPError
+          from html.parser import HTMLParser
+          import hashlib,json,time,xml.etree.ElementTree as ET
+          from datetime import datetime,timezone
+          BASE='https://denkicontrol.com'
+          REF='e0bfc56a87b9bace5c5b63f5dd607a2d831956b4'
+          SERVICE='/services/gxworks2-online-support.html'
+          RAW='https://raw.githubusercontent.com/Syasu-pixel/my-site/'+REF
+          out=Path('publication-evidence');out.mkdir()
+          report={'release_commit':REF,'live_intake_api_requests':0,'production_form_end_to_end_verified':False,'checks':[],'resources':[]}
+          class Parse(HTMLParser):
+              def __init__(self):super().__init__();self.tags=[]
+              def handle_starttag(self,tag,attrs):self.tags.append((tag,dict(attrs)))
+          def get(url):
+              assert url.startswith(BASE+'/') or url.startswith(RAW+'/'), 'Only static website and exact release source may be read'
+              with urlopen(url,timeout=40) as r:
+                  assert r.status==200
+                  return r.read(),r.headers.get('Content-Type','')
+          def passed(message):report['checks'].append(message);print('PASS:',message,flush=True)
+          # Retry only deployment propagation (404/old page). Never retry access denial.
+          for attempt in range(24):
+              try:
+                  body,ctype=get(BASE+SERVICE)
+                  if b'/assets/js/gxworks2-consultation.js' in body:break
+              except HTTPError as e:
+                  if e.code != 404:raise
+              if attempt==23:raise RuntimeError('New service page did not become available')
+              time.sleep(15)
+          html=body.decode('utf-8');p=Parse();p.feed(html)
+          assert '<iframe' not in html and 'GXW-20260916-001' not in html
+          assert '株式会社ケイディエス' in html and '公開前Preview' not in html
+          meta={a.get('property',a.get('name')):a.get('content') for t,a in p.tags if t=='meta'}
+          assert meta['robots']=='index,follow'
+          assert meta['og:url']==BASE+SERVICE
+          assert meta['og:image']==BASE+'/assets/images/services/gxworks2-online-support-ogp.webp'
+          assert meta['twitter:image']==meta['og:image']
+          assert any(t=='link' and a.get('rel')=='canonical' and a.get('href')==BASE+SERVICE for t,a in p.tags)
+          assert any(t=='script' and a.get('src')=='/assets/js/gxworks2-consultation.js' for t,a in p.tags)
+          assert 'background-size:100% 100%,contain!important' in html
+          (out/'public-service.html').write_bytes(body)
+          passed('Public service HTTP200; standalone page, canonical, static OGP and hero contain')
+          for path in ['/assets/js/gxworks2-consultation.js','/assets/css/gxworks2-service-entry.css']:
+              public,ctype=get(BASE+path);source,_=get(RAW+path)
+              assert public==source,path+': public bytes differ from approved release'
+              report['resources'].append({'path':path,'bytes':len(public),'sha256':hashlib.sha256(public).hexdigest(),'matches_release':True})
+              (out/Path(path).name).write_bytes(public)
+          passed('Published dedicated JavaScript and CSS match the release source byte-for-byte')
+          assets={'hero':('b0c09ad7faf0e77f08aef4524859bace0e5f3bb91de1ba48646855bacad58ccf',1363632),'ogp':('3504b6ade8d8227a1e25a65a1de20875529492f7a92a2972dfeb580954dad855',1412796)}
+          for kind,(sha,size) in assets.items():
+              path='/assets/images/services/gxworks2-online-support-'+kind+'.webp'
+              data,ctype=get(BASE+path)
+              assert data[:4]==b'RIFF' and data[8:12]==b'WEBP'
+              assert len(data)==size and hashlib.sha256(data).hexdigest()==sha,kind+': image was changed'
+              report['resources'].append({'path':path,'bytes':len(data),'sha256':sha,'matches_approved_image':True,'content_type':ctype})
+              (out/Path(path).name).write_bytes(data)
+          passed('Public Hero and OGP are the exact approved full-quality WebP bytes, with no recompression')
+          for path in ['/','/categories/control-basics.html']:
+              data,_=get(BASE+path);q=Parse();q.feed(data.decode('utf-8'))
+              cards=[a for t,a in q.tags if t=='a' and 'gxw-service-entry' in a.get('class','').split()]
+              assert len(cards)==1 and cards[0].get('href')==SERVICE,path+': entry missing'
+          passed('Homepage and control-basics category each have one public service entry')
+          data,_=get(BASE+'/assets/data/search-index.json');entries=json.loads(data)
+          assert sum(e.get('url')==SERVICE for e in entries)==1
+          data,_=get(BASE+'/sitemap.xml');root=ET.fromstring(data)
+          assert sum(e.text==BASE+SERVICE for e in root.iter() if e.tag.endswith('loc'))==1
+          passed('Public search index and sitemap contain the service exactly once')
+          report['static_publication_verified']=True
+          report['verified_at_utc']=datetime.now(timezone.utc).isoformat()
+          (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+      - name: Preserve publication verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gxworks2-publication-evidence
+          path: publication-evidence/
+          retention-days: 7
+          if-no-files-found: warn

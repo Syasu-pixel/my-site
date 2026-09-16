@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PLCで設備を1から設計する｜搬送制御編 第3回</title>
-  <meta name="description" content="穴あけ加工ライン設計プロジェクト第3回。CV01〜CV04の搬送を題材に、搬送開始・搬送中・搬送完了、隣接区間インターロック、待機とタイムアウトの分け方を整理します。">
+  <meta name="description" content="穴あけ加工ライン設計プロジェクト第3回。CV01〜CV04の搬送を題材に、搬送開始条件、通過完了、隣接区間インターロック、タイムアウト、全体状態遷移をラダー実装前に整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-03.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-03.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-03.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="PLCで設備を1から設計する｜搬送制御編 第3回">
-  <meta property="og:description" content="CV01〜CV04の搬送を、開始条件・完了条件・インターロック・タイムアウトへ分解して設計します。">
+  <meta property="og:description" content="CV01〜CV04の搬送を、開始・通過・完了・インターロック・タイムアウトへ分解して設計します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/plc-drilling-line-design-project-03.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f8fbff">
@@ -38,40 +38,192 @@
 
 <main class="container">
   <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><span>実践・設備設計</span><span>›</span><span>搬送制御 第3回</span></nav>
-  <section class="article-hero" aria-labelledby="page-title"><div class="article-hero-copy"><span class="hero-label">実践・設備設計シリーズ #03</span><h1 id="page-title">PLCで設備を1から設計する<br>搬送制御編</h1><p class="hero-lead">第2回で決めたI/Oを使って、CV01〜CV04の搬送を「いつ始めるか・何を見ながら動かすか・何をもって完了とするか」に分解します。</p><div class="hero-actions"><a class="btn btn-primary" href="#one-section">1区間の考え方を見る</a><a class="btn btn-secondary" href="#interlock">インターロックを見る</a></div></div></section>
 
-  <section class="top-summary" aria-label="記事の導入まとめ">
-    <section class="summary-card"><h2>今回決めること</h2><ul><li>3つの区間搬送の開始・完了条件</li><li>隣接区間の搬送インターロック</li><li>待機とタイムアウトの分け方</li></ul></section>
-    <section class="summary-card"><h2>使うI/O</h2><ul><li>X0〜X6：今回使う存在・通過センサ</li><li>X10：投入完了</li><li>Y0〜Y13：CVとストッパ</li></ul></section>
-    <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>GX Works2へのラダー入力</li><li>加工ステーションの動作確定</li><li>実機の安全回路・試運転</li></ul></section>
+  <section class="article-hero" aria-labelledby="page-title">
+    <div class="article-hero-copy">
+      <span class="hero-label">実践・設備設計シリーズ #03</span>
+      <h1 id="page-title">PLCで設備を1から設計する<br>搬送制御編</h1>
+      <p class="hero-lead">第2回で決めたI/Oを使って、CV01〜CV04の搬送を「いつ始めるか・何を見ながら動かすか・何をもって完了とするか」に分解します。</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#one-section">1区間の考え方を見る</a><a class="btn btn-secondary" href="#complete">完了条件を見る</a></div>
+    </div>
   </section>
 
-  <section class="mini-toc-card"><h2>第3回でわかること</h2><div class="mini-toc"><a href="#one-section">1区間の基本</a><a href="#cv01-cv02">CV01→CV02</a><a href="#expand">3区間への展開</a><a href="#interlock">インターロック</a><a href="#timeout">待機とタイムアウト</a><a href="#handoff">加工側への受け渡し</a></div></section>
+  <section class="top-summary" aria-label="記事の導入まとめ">
+    <section class="summary-card"><h2>今回決めること</h2><ul><li>CV01→02、CV02→03、CV03→04の開始・完了条件</li><li>通過センサをON→OFFの変化で見る方法</li><li>隣接区間インターロックとタイムアウト</li></ul></section>
+    <section class="summary-card"><h2>使うI/O</h2><ul><li>X0〜X7：各CVの存在・通過センサ</li><li>X10：投入完了</li><li>Y0〜Y3：CV運転、Y4〜Y13：ストッパ</li></ul></section>
+    <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>GX Works2への完成ラダー入力</li><li>M/Tデバイスの具体番地決定</li><li>加工ステーションの詳細シーケンス</li></ul></section>
+  </section>
+
+  <section class="mini-toc-card">
+    <h2>第3回でわかること</h2>
+    <div class="mini-toc">
+      <a href="#one-section">搬送前提</a><a href="#cv01-cv02">CV01→CV02</a><a href="#cv02-cv03">CV02→CV03</a><a href="#cv03-cv04">CV03→CV04</a><a href="#complete">完了条件</a><a href="#interlock">インターロック</a><a href="#timeout">タイムアウト</a><a href="#whole-flow">全体の流れ</a>
+    </div>
+  </section>
 
   <div class="page-layout"><div class="main-column">
-    <section class="section-card" id="one-section"><h2>1. 搬送制御は「1区間の受け渡し」から考える</h2><p>CV01〜CV04を一度に考えると条件が混ざりやすいので、まず<strong>搬送元 → 搬送先</strong>の1区間だけを設計します。ここでは「開始」「搬送中」「完了」の3状態に分けます。</p><div class="state-flow"><div class="state-card"><strong>開始</strong><span>搬送元にワークがあり、搬送先が受け入れ可能かを確認する。</span></div><div class="state-card"><strong>搬送中</strong><span>必要なCVとストッパを搬送許可状態にし、通過の変化を監視する。</span></div><div class="state-card"><strong>完了</strong><span>通過確認と搬送先の存在確認がそろったら、搬送状態を終了する。</span></div></div><div class="key-box"><h3>最初に「完了条件」を決める</h3><p>モータを動かす条件だけではなく、何を確認したら止めるのかまでセットで決めます。これが曖昧だと、後でラダーを書いたときに搬送状態が終わらない、または早く終わる原因になります。</p></div><div class="talk-thread"><div class="talk-row"><div class="talk-bubble"><span class="talk-name">先輩</span>「動かす条件」だけじゃなくて、「終わったと判断する条件」まで先に決めるのが大事です。</div></div><div class="talk-row right"><div class="talk-bubble"><span class="talk-name">後輩</span>開始と完了を分けると、ラダーにする前でも動きが見えてきますね。</div></div></div></section>
+    <section class="section-card" id="one-section">
+      <h2>1. ラダーを書く前に「1区間の受け渡し」を固定する</h2>
+      <p>CV01〜CV04をいきなり一つのラダーへすると、開始条件・停止条件・異常条件が混ざりやすくなります。そこで第3回では、まず<strong>搬送元 → 搬送先</strong>の1区間を「開始前」「搬送中」「完了」に分け、文章と状態で固定します。</p>
+      <div class="state-flow">
+        <div class="state-card"><strong>開始前</strong><span>搬送元にワークがあり、搬送先が空き、競合する搬送が動いていない。</span></div>
+        <div class="state-card"><strong>搬送中</strong><span>必要なCVとストッパを搬送許可状態にし、通過センサの変化を監視する。</span></div>
+        <div class="state-card"><strong>完了</strong><span>通過センサのON→OFF履歴と、搬送先の存在確認がそろったら搬送状態を終了する。</span></div>
+      </div>
+      <div class="key-box"><h3>現在値だけではなく「変化」を見る</h3><p>通過センサが最初からOFFだっただけでは通過完了にしません。搬送開始後に<strong>一度ONしたことを記憶し、その後OFFへ戻ったこと</strong>を確認します。この「通過確認済み」という内部状態は、最終回でMデバイス等へ落とし込めるよう、今は役割だけ決めます。</p></div>
+      <div class="talk-thread">
+        <div class="talk-row"><div class="talk-bubble"><span class="talk-name">先輩</span>ラダーの接点を考える前に、「何が起きたら開始で、何が起きたら完了か」を文章で言える状態にしておこう。</div></div>
+        <div class="talk-row right"><div class="talk-bubble"><span class="talk-name">後輩</span>通過センサがOFFという現在値だけでは、まだワークが来ていないのか、通過し終わったのか区別できないんですね。</div></div>
+      </div>
+    </section>
 
-    <section class="section-card" id="cv01-cv02"><h2>2. CV01→CV02を最初のひな形にする</h2><p>最初の区間では、CV01にワークがあり、CV02が受け入れ可能で、投入完了が確認できたときに搬送要求を成立させる考え方にします。</p><div class="table-wrap"><table><thead><tr><th>段階</th><th>見る条件</th><th>制御の考え方</th></tr></thead><tbody><tr><td><span class="badge">開始前</span></td><td>X0：CV01存在 / X2：CV02存在 / X10：投入完了</td><td>CV01にワークがあり、CV02が空き、投入完了していることを確認する。</td></tr><tr><td><span class="badge">搬送開始</span></td><td>共通運転許可 + 隣接搬送が動作していない</td><td>CV01→CV02の搬送状態を開始する。</td></tr><tr><td><span class="badge">搬送中</span></td><td>X1：CV01通過 / X2：CV02存在</td><td>必要なCVを運転し、ストッパを搬送許可位置にして受け渡しを監視する。</td></tr><tr><td><span class="badge">完了</span></td><td>X1が一度ON後にOFF + X2がON</td><td>CV01から抜け、CV02に到着したことを確認して搬送状態を終了する。</td></tr></tbody></table></div><div class="note-box"><h3>ストッパ出力のON/OFF極性はまだ決め打ちしない</h3><p>第2回ではY4〜Y13をストッパ用出力として割り付けましたが、電磁弁の方式や機械側の保持方向によって「Y ONで解除」かどうかは変わります。ここでは<strong>保持位置／搬送許可位置</strong>として設計し、実際の出力極性は機器仕様が確定してから決めます。</p></div></section>
+    <section class="section-card" id="cv01-cv02">
+      <h2>2. CV01→CV02を最初のひな形にする</h2>
+      <p>最初の区間は、CV01にあるワークをCV02へ渡します。投入工程に最も近いので、この区間だけは<strong>X10「投入完了」</strong>も開始条件へ加えます。</p>
+      <div class="table-wrap"><table><thead><tr><th>段階</th><th>見る条件</th><th>設計上の意味</th></tr></thead><tbody>
+        <tr><td><span class="badge">開始前</span></td><td>X0=ON / X2=OFF / X10=ON</td><td>CV01にワークがあり、CV02が空き、投入が完了している。</td></tr>
+        <tr><td><span class="badge">搬送許可</span></td><td>共通運転許可 + CV02→CV03が搬送中ではない</td><td>共有するCV02が別の受け渡しに使われていないことを確認する。</td></tr>
+        <tr><td><span class="badge">搬送中</span></td><td>X1の変化を監視</td><td>Y0・Y1を中心に必要な搬送出力を成立させ、CV01末端の通過を確認する。</td></tr>
+        <tr><td><span class="badge">完了</span></td><td>X1が一度ON後にOFF + X2=ON</td><td>CV01を抜けた履歴とCV02への到着を確認して、搬送状態を終了する。</td></tr>
+      </tbody></table></div>
+      <div class="note-box"><h3>ストッパ出力のON/OFF極性はまだ決め打ちしない</h3><p>第2回ではY4〜Y13を入口側・出口側ストッパへ割り付けていますが、電磁弁方式や機械側の保持方向で「出力ON=解除」とは限りません。ここでは<strong>保持位置／搬送許可位置</strong>という機能で整理し、実際の極性は機器仕様確定後に決めます。</p></div>
+    </section>
 
-    <section class="section-card" id="expand"><h2>3. 同じ型をCV02→CV03、CV03→CV04へ展開する</h2><p>CV01→CV02で作った考え方を、そのまま下流へ展開します。区間ごとに違うロジックを作るのではなく、見るセンサと動かすCVを置き換える方が設計を追いやすくできます。</p><div class="transfer-grid"><div class="transfer-card"><h3>CV01 → CV02</h3><p>搬送元 X0 / 通過 X1 / 搬送先 X2。投入完了 X10を開始条件へ追加。</p></div><div class="transfer-card"><h3>CV02 → CV03</h3><p>搬送元 X2 / 通過 X3 / 搬送先 X4。CV03が受け入れ可能なら開始。</p></div><div class="transfer-card"><h3>CV03 → CV04</h3><p>搬送元 X4 / 通過 X5 / 搬送先 X6。CV04が受け入れ可能なら開始。</p></div></div><div class="table-wrap"><table><thead><tr><th>搬送</th><th>搬送元存在</th><th>通過確認</th><th>搬送先存在</th><th>主なCV出力</th></tr></thead><tbody><tr><td>CV01→CV02</td><td>X0</td><td>X1</td><td>X2</td><td>Y0・Y1</td></tr><tr><td>CV02→CV03</td><td>X2</td><td>X3</td><td>X4</td><td>Y1・Y2</td></tr><tr><td>CV03→CV04</td><td>X4</td><td>X5</td><td>X6</td><td>Y2・Y3</td></tr></tbody></table></div><p>上表は搬送の関係を整理するための設計表です。実機でモータやストッパを動かす回路・安全条件・機器定格は別途確認が必要です。</p></section>
+    <section class="section-card" id="cv02-cv03">
+      <h2>3. CV02→CV03は中央区間として考える</h2>
+      <p>CV02→CV03も基本形は同じです。CV02にワークがあり、CV03が空いていて、競合搬送が停止していれば開始できます。ただし中央区間なので、前後の両方とCVを共有する点が重要です。</p>
+      <div class="table-wrap"><table><thead><tr><th>段階</th><th>見る条件</th><th>設計上の意味</th></tr></thead><tbody>
+        <tr><td><span class="badge">開始前</span></td><td>X2=ON / X4=OFF</td><td>CV02にワークがあり、CV03が受け入れ可能。</td></tr>
+        <tr><td><span class="badge">搬送許可</span></td><td>CV01→CV02停止 + CV03→CV04停止</td><td>CV02とCV03を共有する隣接搬送との競合を避ける。</td></tr>
+        <tr><td><span class="badge">搬送中</span></td><td>X3の変化を監視</td><td>Y1・Y2を中心に必要な搬送出力を成立させ、CV02末端の通過を確認する。</td></tr>
+        <tr><td><span class="badge">完了</span></td><td>X3が一度ON後にOFF + X4=ON</td><td>CV02を抜けた履歴とCV03への到着を確認する。</td></tr>
+      </tbody></table></div>
+      <div class="talk-thread">
+        <div class="talk-row right"><div class="talk-bubble"><span class="talk-name">後輩</span>中央の搬送だけ、前後の両方を見ないといけないんですね。</div></div>
+        <div class="talk-row"><div class="talk-bubble"><span class="talk-name">先輩</span>そう。条件の形は同じでも、どの区間と設備を共有しているかでインターロック相手が変わるよ。</div></div>
+      </div>
+    </section>
 
-    <section class="section-card" id="interlock"><h2>4. 隣接区間は同時搬送させない</h2><p>このプロジェクトでは、同じCVを共有する隣接搬送を同時に開始させません。たとえばCV01→CV02とCV02→CV03はCV02を共有するため、どちらか一方だけを動かします。</p><div class="table-wrap"><table><thead><tr><th>組み合わせ</th><th>同時搬送</th><th>理由</th></tr></thead><tbody><tr><td>CV01→CV02 と CV02→CV03</td><td>しない</td><td>CV02を共有する隣接搬送だから。</td></tr><tr><td>CV02→CV03 と CV03→CV04</td><td>しない</td><td>CV03を共有する隣接搬送だから。</td></tr><tr><td>CV01→CV02 と CV03→CV04</td><td>条件がそろえば可能</td><td>搬送区間を直接共有しないため。</td></tr></tbody></table></div><div class="key-box"><h3>「全部直列」にはしない</h3><p>安全に順番を整理するために隣接区間は競合させませんが、離れた区間まで一律に止める必要はありません。将来のサイクルタイム改善を考え、競合しない搬送は並行できる余地を残します。</p></div></section>
+    <section class="section-card" id="cv03-cv04">
+      <h2>4. CV03→CV04で搬送側の終点までつなぐ</h2>
+      <p>CV03→CV04では、CV03にワークがあり、CV04が空いていることを開始条件にします。完了はCV03側の通過センサX5とCV04存在X6の組み合わせで判断します。</p>
+      <div class="table-wrap"><table><thead><tr><th>段階</th><th>見る条件</th><th>設計上の意味</th></tr></thead><tbody>
+        <tr><td><span class="badge">開始前</span></td><td>X4=ON / X6=OFF</td><td>CV03にワークがあり、CV04が受け入れ可能。</td></tr>
+        <tr><td><span class="badge">搬送許可</span></td><td>CV02→CV03が搬送中ではない</td><td>共有するCV03を同時に使わない。</td></tr>
+        <tr><td><span class="badge">搬送中</span></td><td>X5の変化を監視</td><td>Y2・Y3を中心に必要な搬送出力を成立させ、CV03末端の通過を確認する。</td></tr>
+        <tr><td><span class="badge">完了</span></td><td>X5が一度ON後にOFF + X6=ON</td><td>CV03を抜けた履歴とCV04への到着を確認する。</td></tr>
+      </tbody></table></div>
+      <div class="key-box"><h3>X7「CV04通過」はどこで使う？</h3><p>今回のCV03→CV04の完了確認はX5とX6で成立させます。<strong>X7はCV04から先へワークを送り出すときの通過確認候補</strong>として残し、加工ステーションとの受け渡し条件を決める第4回側で扱います。まだ加工側の受入可信号はI/O割付していないため、第3回では新しいX番地を作りません。</p></div>
+    </section>
 
-    <section class="section-card" id="timeout"><h2>5. 「下流待ち」と「搬送タイムアウト」を分ける</h2><p>CV02にワークが残っていてCV01が待っている状態は、まだ搬送指令を出していないので故障ではありません。一方、搬送を開始したのに所定の状態変化が確認できない場合は、タイムアウト候補として扱います。</p><div class="table-wrap"><table><thead><tr><th>状態</th><th>タイマを始めるか</th><th>扱い</th></tr></thead><tbody><tr><td>下流が空くのを待っている</td><td>始めない</td><td>正常な待機状態</td></tr><tr><td>搬送指令を出して受け渡し中</td><td>始める</td><td>搬送監視中</td></tr><tr><td>搬送開始後、必要なセンサ変化が来ない</td><td>監視時間超過で判定</td><td>異常処理の候補</td></tr></tbody></table></div><div class="note-box"><h3>タイムアウト秒数はここでは固定しない</h3><p>実際の監視時間は搬送距離、コンベヤ速度、ワークの挙動、センサ位置などで変わります。第3回では「いつ監視を開始し、何を確認して解除するか」まで決め、具体的な秒数は実機条件に合わせて後工程で設定します。</p></div></section>
+    <section class="section-card" id="complete">
+      <h2>5. 搬送完了は「通過センサON→OFF + 搬送先存在」で決める</h2>
+      <p>第3回で最も重要なのが完了条件です。通過センサの現在値だけを見るのではなく、搬送開始後の履歴を使います。</p>
+      <div class="state-flow">
+        <div class="state-card"><strong>① 搬送開始</strong><span>通過確認済み状態をクリアし、搬送監視を始める。</span></div>
+        <div class="state-card"><strong>② 通過を記憶</strong><span>対象の通過センサが一度ONしたら「ワークが来た」ことを保持する。</span></div>
+        <div class="state-card"><strong>③ 完了判定</strong><span>通過確認済みのままセンサがOFFへ戻り、搬送先存在がONなら完了とする。</span></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>状態</th><th>通過センサ</th><th>搬送先存在</th><th>判定</th></tr></thead><tbody>
+        <tr><td>搬送開始直後</td><td>OFF</td><td>OFF</td><td>未完了。最初からOFFなので完了扱いしない。</td></tr>
+        <tr><td>ワークが通過点へ到達</td><td>ON</td><td>OFFまたはON</td><td>通過確認済みを保持する。</td></tr>
+        <tr><td>ワークが通過点を抜ける</td><td>ON→OFF</td><td>ON</td><td>通過履歴と到着確認がそろえば完了。</td></tr>
+        <tr><td>通過点を抜けたが搬送先未検出</td><td>ON→OFF済み</td><td>OFF</td><td>まだ完了にせず、搬送監視を継続する。</td></tr>
+      </tbody></table></div>
+      <div class="note-box"><h3>搬送先存在ONのタイミングは機械配置で前後し得る</h3><p>搬送先の存在センサが通過センサOFFより先にONになる構造もあります。そのため「X2が最後にONになる」などの順番を固定せず、<strong>通過のON→OFF履歴が成立していること + 搬送先存在がONであること</strong>を最終条件として扱います。</p></div>
+    </section>
 
-    <section class="section-card" id="handoff"><h2>6. CV04から加工エリアへは「受け渡し条件」だけ決める</h2><p>第3回ではCV04までの搬送制御を完成させます。加工エリア側のクランプ、穴あけ、加工完了などの細かなシーケンスは第4回で決めるため、ここではCV04のワークをいつ加工側へ渡してよいかという境界だけを整理します。</p><div class="key-box"><h3>第4回へ渡す条件</h3><p>CV04にワークが到着したら、加工側が受け入れ可能になるまでCV04で保持します。加工側の「受入可」が成立して初めて次の動作へ進む、というインターフェースにしておけば、搬送と加工を別々に設計できます。</p></div><div class="source-box"><h3>メーカー公式資料で確認</h3><p>このシリーズで想定するFX3U系のプログラム実装では、三菱電機「FX3S・FX3G・FX3GC・FX3U・FX3UCシリーズ プログラミングマニュアル［基本・応用命令解説編］」（Ver.V / JY997D11701-V / 2021年4月）を一次資料として確認します。第3回では内部状態を意味で整理し、M・Tなどの具体的なデバイス割付と命令への落とし込みは最終実装時に公式資料と照合して確定します。<a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?category1=%E3%82%B7%E3%83%BC%E3%82%B1%E3%83%B3%E3%82%B5%E6%9C%AC%E4%BD%93%E3%83%BB%E5%A2%97%E8%A8%ADI%2FO&category2=%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0&filter_discontinued=1&kisyu=%2Fplc_fx&lang=1&listView=1&mode=manual&sort=0" target="_blank" rel="noopener noreferrer">三菱電機公式・MELSEC-Fプログラミングマニュアル一覧を見る</a></p></div></section>
+    <section class="section-card" id="interlock">
+      <h2>6. 隣接区間インターロックは「共有するCV」で決める</h2>
+      <p>このプロジェクトでは、同じCVを共有する隣接搬送を同時に成立させません。これはPLC一般の決まりではなく、今回の設備を分かりやすく安全側に設計するための方針です。</p>
+      <div class="table-wrap"><table><thead><tr><th>組み合わせ</th><th>同時搬送</th><th>理由</th></tr></thead><tbody>
+        <tr><td>CV01→CV02 と CV02→CV03</td><td>しない</td><td>CV02を共有するため。</td></tr>
+        <tr><td>CV02→CV03 と CV03→CV04</td><td>しない</td><td>CV03を共有するため。</td></tr>
+        <tr><td>CV01→CV02 と CV03→CV04</td><td>条件がそろえば可能</td><td>搬送区間を直接共有しないため。</td></tr>
+      </tbody></table></div>
+      <div class="key-box"><h3>全部を直列に止める必要はない</h3><p>競合しないCV01→CV02とCV03→CV04まで一律に禁止すると、将来サイクルタイムを詰めたいときに制約が増えます。そこで第3回では、共有設備だけを競合条件として整理し、離れた搬送は他の安全条件が成立すれば並行できる余地を残します。</p></div>
+    </section>
 
-    <section class="section-card" id="summary"><h2>7. 第3回のまとめ</h2><p>搬送制御は、出力を直接ON/OFFするところから始めるのではなく、区間ごとの開始条件・搬送状態・完了条件を先に固定すると整理しやすくなります。</p><div class="summary-highlight"><div class="summary-point"><span>STEP 1</span><strong>1区間の開始と完了を決める</strong><small>搬送元・通過・搬送先の3点で考える</small></div><div class="summary-point"><span>STEP 2</span><strong>同じ型を3区間へ展開する</strong><small>条件の役割をそろえて読みやすくする</small></div><div class="summary-point"><span>STEP 3</span><strong>待機と異常監視を分ける</strong><small>搬送開始後だけタイムアウトを監視する</small></div></div><div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第3回で決めたこと</th></tr></thead><tbody><tr><td>区間搬送</td><td>CV01→02、CV02→03、CV03→04を同じ考え方で構成</td></tr><tr><td>完了条件</td><td>通過センサのON→OFFと搬送先の存在を組み合わせる</td></tr><tr><td>競合防止</td><td>隣接区間の搬送は同時に行わない</td></tr><tr><td>並行動作</td><td>競合しない離れた区間は条件次第で並行可能</td></tr><tr><td>異常監視</td><td>下流待ちは正常待機、搬送開始後の不成立をタイムアウト候補とする</td></tr></tbody></table></div></section>
+    <section class="section-card" id="timeout">
+      <h2>7. 「下流待ち」と「搬送タイムアウト」を分ける</h2>
+      <p>下流CVにすでにワークがあるため上流が待っている状態は、搬送開始条件そのものが成立していません。これは故障ではなく正常な待機です。タイムアウト監視は、<strong>搬送状態が開始した後</strong>に始めます。</p>
+      <div class="table-wrap"><table><thead><tr><th>状態</th><th>監視</th><th>扱い</th></tr></thead><tbody>
+        <tr><td>搬送先が埋まっている</td><td>搬送タイマは開始しない</td><td>正常待機</td></tr>
+        <tr><td>搬送開始後、通過センサON待ち</td><td>監視する</td><td>ワークが通過点へ到達するまでの監視</td></tr>
+        <tr><td>通過確認後、完了条件待ち</td><td>監視する</td><td>通過OFF復帰・搬送先存在を確認するまでの監視</td></tr>
+        <tr><td>所定時間内に必要な変化なし</td><td>時間超過</td><td>異常処理候補。具体的な復旧は第5回で設計する。</td></tr>
+      </tbody></table></div>
+      <div class="note-box"><h3>タイムアウト秒数はまだ固定しない</h3><p>必要時間は搬送距離、コンベヤ速度、ワーク長、滑り、センサ位置などで変わります。ここでは「どの状態から監視を始め、何を確認したら解除するか」までを決め、具体値は実機条件と試運転で確定します。</p></div>
+    </section>
 
-    <section class="section-card" id="roadmap"><h2>この設備を、設計の順番でシリーズ化する</h2><p class="series-roadmap-lead">今読んでいる位置と、次に進む記事がすぐ分かるようにシリーズ全体を並べています。</p><ol class="series-roadmap"><li class="is-done"><span class="series-step">第1回</span><span class="series-title">設備仕様と全体構想</span><span class="series-state">完了</span></li><li class="is-done"><span class="series-step">第2回</span><span class="series-title">PLC・I/O構成を決める</span><span class="series-state">完了</span></li><li class="is-current"><span class="series-step">第3回</span><span class="series-title">CV01〜CV04の搬送制御を考える</span><span class="series-state">今ここ</span></li><li class="is-next"><span class="series-step">第4回</span><span class="series-title">加工ステーションのシーケンスを作る</span><span class="series-state">次ここ</span></li><li><span class="series-step">第5回</span><span class="series-title">手動運転・異常処理・復旧を設計する</span></li><li><span class="series-step">第6回</span><span class="series-title">GOT画面と保守・生産情報を作る</span></li><li><span class="series-step">最終</span><span class="series-title">GX Works2へ実装してシミュレーションする</span></li></ol></section>
+    <section class="section-card" id="whole-flow">
+      <h2>8. CV01〜CV04全体を状態の流れで見る</h2>
+      <p>3区間を同じ型で設計すると、全体も「どの区間が待機中か、搬送中か、通過確認済みか」で追えるようになります。最終回では、この役割を内部リレーMやタイマTへ割り付けてラダーへ落とします。</p>
+      <div class="state-flow">
+        <div class="state-card"><strong>待機</strong><span>搬送元存在、搬送先空き、競合なしを待つ。</span></div>
+        <div class="state-card"><strong>搬送中</strong><span>区間搬送状態を保持し、通過センサと搬送先存在を監視する。</span></div>
+        <div class="state-card"><strong>完了・次判定</strong><span>完了条件成立で区間状態を解除し、次の搬送要求を判定する。</span></div>
+      </div>
+      <div class="transfer-grid">
+        <div class="transfer-card"><h3>CV01 → CV02</h3><p>X0 / X1 / X2を中心に判定。開始時だけX10投入完了を追加。</p></div>
+        <div class="transfer-card"><h3>CV02 → CV03</h3><p>X2 / X3 / X4を中心に判定。前後両区間との競合を確認。</p></div>
+        <div class="transfer-card"><h3>CV03 → CV04</h3><p>X4 / X5 / X6を中心に判定。X7は次工程への送り出し側で使用予定。</p></div>
+      </div>
+      <div class="source-box">
+        <h3>メーカー公式資料で確認</h3>
+        <p>FX3UのX/Y番地やハードウェア仕様は、三菱電機「FX3Uシリーズ ユーザーズマニュアル［ハードウェア編］」（Ver.AA / JY997D16101-AA / 2024年6月）を基準にします。内部リレーM、タイマT、命令への落とし込みは「FX3S・FX3G・FX3GC・FX3U・FX3UCシリーズ プログラミングマニュアル［基本・応用命令解説編］」（Ver.V / JY997D11701-V / 2021年4月）を一次資料として確認します。第3回では具体番地や完成ラダーを決めず、役割の整理までに留めます。 <a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?category1=%E3%82%B7%E3%83%BC%E3%82%B1%E3%83%B3%E3%82%B5%E6%9C%AC%E4%BD%93%E3%83%BB%E5%A2%97%E8%A8%ADI%2FO&category2=%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0&filter_discontinued=1&kisyu=%2Fplc_fx&lang=1&listView=1&mode=manual&sort=0" target="_blank" rel="noopener noreferrer">三菱電機公式・MELSEC-Fマニュアル一覧を見る</a></p>
+      </div>
+    </section>
 
-    <section class="section-card" id="next"><h2>次回｜加工ステーションのシーケンスを作る</h2><p>第4回では、CV04から受け取ったワークを加工位置で保持し、穴あけ開始・加工・完了・排出へ進む条件を整理します。</p><div class="key-box"><h3>搬送側と加工側の境界ができた</h3><p>第3回でCV04までの搬送を区切ったので、第4回では加工ステーションだけに集中してシーケンスを作れます。</p></div></section>
+    <section class="section-card" id="handoff">
+      <h2>9. CV04から加工エリアへは「境界条件」だけ決める</h2>
+      <p>CV04にワークが到着したら、加工側が受け取れる状態になるまでCV04側で保持する、という境界を決めます。加工側の具体的な受入条件やI/Oは第4回で設計するため、第3回では新しい入力番地を勝手に追加しません。</p>
+      <div class="key-box"><h3>搬送と加工を分けて設計する</h3><p>搬送側は「CV04にワークがある」「加工側が受入可能になったら次へ渡す」というインターフェースまで。クランプ、穴あけ、加工完了、排出は第4回で別シーケンスとして組み立てます。</p></div>
+    </section>
+
+    <section class="section-card" id="summary">
+      <h2>10. 第3回のまとめ</h2>
+      <p>搬送制御は、出力を直接ON/OFFするところから始めるのではなく、区間ごとの開始条件・搬送中の状態・完了条件を先に固定すると整理しやすくなります。</p>
+      <div class="summary-highlight">
+        <div class="summary-point"><span>STEP 1</span><strong>開始と完了を文章で固定</strong><small>搬送元・通過・搬送先の役割を分ける</small></div>
+        <div class="summary-point"><span>STEP 2</span><strong>ON→OFFの履歴で通過を見る</strong><small>最初からOFFを完了と誤判定しない</small></div>
+        <div class="summary-point"><span>STEP 3</span><strong>待機・競合・異常監視を分離</strong><small>ラダーへ入る前に状態の意味をそろえる</small></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第3回で決めたこと</th></tr></thead><tbody>
+        <tr><td>CV01→CV02</td><td>X0・X1・X2 + X10を中心に開始・完了条件を整理</td></tr>
+        <tr><td>CV02→CV03</td><td>X2・X3・X4を中心に、前後両区間との競合も確認</td></tr>
+        <tr><td>CV03→CV04</td><td>X4・X5・X6を中心に整理し、X7は次工程送り出し側へ残す</td></tr>
+        <tr><td>搬送完了</td><td>通過センサのON→OFF履歴 + 搬送先存在ON</td></tr>
+        <tr><td>異常監視</td><td>下流待ちは正常待機、搬送開始後だけタイムアウト監視</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="section-card" id="roadmap">
+      <h2>この設備を、設計の順番でシリーズ化する</h2>
+      <p class="series-roadmap-lead">今読んでいる位置と、次に進む記事がすぐ分かるようにシリーズ全体を並べています。</p>
+      <ol class="series-roadmap">
+        <li class="is-done"><span class="series-step">第1回</span><span class="series-title">設備仕様と全体構想</span><span class="series-state">完了</span></li>
+        <li class="is-done"><span class="series-step">第2回</span><span class="series-title">PLC・I/O構成を決める</span><span class="series-state">完了</span></li>
+        <li class="is-current"><span class="series-step">第3回</span><span class="series-title">CV01〜CV04の搬送制御を考える</span><span class="series-state">今ここ</span></li>
+        <li class="is-next"><span class="series-step">第4回</span><span class="series-title">加工ステーションのシーケンスを作る</span><span class="series-state">次ここ</span></li>
+        <li><span class="series-step">第5回</span><span class="series-title">手動運転・異常処理・復旧を設計する</span></li>
+        <li><span class="series-step">第6回</span><span class="series-title">GOT画面と保守・生産情報を作る</span></li>
+        <li><span class="series-step">最終</span><span class="series-title">GX Works2へ実装してシミュレーションする</span></li>
+      </ol>
+    </section>
+
+    <section class="section-card" id="next">
+      <h2>次回｜加工ステーションのシーケンスを作る</h2>
+      <p>第4回では、CV04まで運ばれたワークを加工位置でどう受け取り、保持し、穴あけ加工を開始・完了させるかを、同じようにラダーを書く前の条件から整理します。</p>
+      <div class="key-box"><h3>第3回で搬送側の境界ができた</h3><p>CV04到着までを搬送側の責任範囲として整理したので、第4回では加工ステーションの受入条件、クランプ、加工、完了、排出へ集中できます。</p></div>
+    </section>
 
     <a class="gxw-service-entry" href="/services/gxworks2-online-support.html" aria-label="GX Works2 オンライン相談サービスを見る"><img src="/assets/images/services/gxworks2-online-support-ogp.webp" width="1536" height="1024" alt="GX Works2 オンライン相談サービス" loading="lazy" decoding="async"><div class="gxw-service-entry-copy"><strong>実際のGX Works2変更でお困りなら</strong><p>既設設備のラダー変更・動作変更は、プロジェクトデータを確認してオンラインで対応します。</p><small>会員登録不要｜データ確認後にお見積り</small></div><span class="gxw-service-entry-arrow" aria-hidden="true">→</span></a>
 
     <section class="section-card" id="related"><h2>あわせて読みたい記事</h2><div class="related-grid"><a class="related-card" href="./plc-drilling-line-design-project-02.html"><img src="../assets/images/articles/plc-drilling-line-design-project-02-ogp.webp" alt="PLCで設備を1から設計する 第2回 I/O設計編" loading="lazy" decoding="async"><div class="related-card-body"><h3>第2回｜I/O設計編</h3><p>搬送制御で使うX/Yの役割と割付を確認する。</p></div></a><a class="related-card" href="./plc-drilling-line-design-project-01.html"><img src="../assets/images/articles/plc-drilling-line-design-project-01-ogp.webp" alt="PLCで設備を1から設計する 第1回 設備全体設計" loading="lazy" decoding="async"><div class="related-card-body"><h3>第1回｜設備全体設計</h3><p>設備全体の構成と設計条件から確認する。</p></div></a><a class="related-card" href="./plc-io-unit-basic.html"><img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png" alt="PLC入力ユニット・出力ユニットの基本" loading="lazy" decoding="async"><div class="related-card-body"><h3>PLC I/Oユニットの基本</h3><p>入力・出力と信号の考え方を基礎から確認する。</p></div></a></div></section>
   </div></div>
 </main>
+
 <footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div></footer>
 <script src="../assets/js/site-search.js" defer></script>
 </body>

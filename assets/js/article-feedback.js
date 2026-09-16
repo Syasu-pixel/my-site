@@ -43,6 +43,7 @@
   }
 
   const endpoint = 'https://pavitnsnmoaiospswiys.supabase.co/functions/v1/article-feedback';
+  const publishableKey = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
   const voterKeyStorage = 'denkicontrol-feedback-voter-key';
   const voteStorage = `denkicontrol-feedback:${articleSlug}`;
   const status = section.querySelector('#articleFeedbackStatus');
@@ -61,6 +62,8 @@
     }
   };
 
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
   const makeVoterKey = () => {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
@@ -72,7 +75,7 @@
 
   const getVoterKey = () => {
     let key = storage.get(voterKeyStorage);
-    if (!key) {
+    if (!key || !uuidRe.test(key)) {
       key = makeVoterKey();
       storage.set(voterKeyStorage, key);
     }
@@ -102,16 +105,23 @@
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': publishableKey
+        },
         body: JSON.stringify({ article_slug: articleSlug, vote, voter_key: getVoterKey() })
       });
-      if (!response.ok) throw new Error(`feedback request failed: ${response.status}`);
+      if (!response.ok) {
+        let detail = '';
+        try { detail = await response.text(); } catch {}
+        throw new Error(`feedback request failed: ${response.status}${detail ? ` ${detail}` : ''}`);
+      }
 
       storage.set(voteStorage, vote);
       renderSelection(vote);
       status.textContent = '回答ありがとうございます。記事改善に活用します。';
     } catch (error) {
-      console.error(error);
+      console.error('[article feedback]', error);
       status.textContent = '送信できませんでした。もう一度お試しください。';
     } finally {
       buttons.forEach((button) => { button.disabled = false; });
@@ -119,6 +129,9 @@
   };
 
   buttons.forEach((button) => {
-    button.addEventListener('click', () => submitVote(button.dataset.feedbackVote));
+    button.addEventListener('click', (event) => {
+      event.stopImmediatePropagation();
+      submitVote(button.dataset.feedbackVote);
+    });
   });
 })();

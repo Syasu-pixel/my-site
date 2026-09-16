@@ -63,6 +63,21 @@
         return {res,data};
       }
 
+      async function putZip(file,idempotencyKey){
+        const res=await fetch(`${API}/consultations/zip`,{
+          method:'PUT',
+          headers:{
+            'Content-Type':'application/zip',
+            'X-GXW-Idempotency-Key':idempotencyKey,
+            'X-GXW-File-Size':String(file.size)
+          },
+          body:file
+        });
+        const data=await res.json().catch(()=>({}));
+        if(res.status===413&&!data.error)data.error='ZIPファイルがCloudflareの受信上限を超えています。';
+        return {res,data};
+      }
+
       async function getReceiptStatus(idempotencyKey){
         try{
           const {res,data}=await postJson('/consultations/status',{idempotencyKey});
@@ -74,13 +89,90 @@
         }
       }
 
-      async function waitForCompletion(idempotencyKey,attempts=4){
+      async function waitForCompletion(idempotencyKey,attempts=5){
         for(let i=0;i<attempts;i++){
           const state=await getReceiptStatus(idempotencyKey);
           if(state.found&&state.completed)return state;
           if(i<attempts-1)await sleep(900*(i+1));
         }
         return getReceiptStatus(idempotencyKey);
+      }
+
+      async function resumeAfterZip(payload,idempotencyKey){
+        const retry=await postJson('/consultations',{...payload,idempotencyKey});
+        if(retry.res.ok&&retry.data.ok&&retry.data.completed)return {ok:true,data:retry.data,recovered:true};
+        if(retry.res.ok&&retry.data.ok&&retry.data.processing){
+          const state=await waitForCompletion(idempotencyKey,5);
+          if(state.found&&state.completed)return {ok:true,data:state,recovered:true};
+          return {ok:false,processing:true,data:state.found?state:retry.data};
+        }
+        if(retry.res.ok&&retry.data.ok&&retry.data.uploadRequired){
+          return {ok:false,needsUpload:true,data:retry.data};
+        }
+        const err=new Error(retry.data?.error||`HTTP ${retry.res.status}`);
+        err.httpStatus=retry.res.status;
+        throw err;
+      }
+
+      async function submitAll(payload,file,idempotencyKey,onStage){
+        onStage('受付情報をD1へ保存しています…');
+        const init=await postJson('/consultations',{...payload,idempotencyKey});
+        if(!init.res.ok||!init.data.ok){
+          const err=new Error(init.data?.error||`HTTP ${init.res.status}`);
+          err.httpStatus=init.res.status;
+          throw err;
+        }
+        if(init.data.completed)return {ok:true,data:init.data,recovered:true};
+
+        if(init.data.processing){
+          const state=await waitForCompletion(idempotencyKey,4);
+          if(state.found&&state.completed)return {ok:true,data:state,recovered:true};
+        }
+
+        const beforeUpload=await getReceiptStatus(idempotencyKey);
+        if(beforeUpload.found&&beforeUpload.zipUploaded){
+          onStage('ZIPは保存済みです。メール処理を再開しています…');
+          return resumeAfterZip(payload,idempotencyKey);
+        }
+
+        onStage('ZIPを非公開R2へアップロードしています…');
+        let upload;
+        try{
+          upload=await putZip(file,idempotencyKey);
+        }catch(err){
+          const state=await getReceiptStatus(idempotencyKey);
+          if(state.found&&state.zipUploaded){
+            onStage('ZIP保存済みを確認しました。メール処理を再開しています…');
+            return resumeAfterZip(payload,idempotencyKey);
+          }
+          throw err;
+        }
+
+        if(upload.res.ok&&upload.data.ok&&upload.data.completed){
+          return {ok:true,data:upload.data};
+        }
+        if(upload.res.ok&&upload.data.ok&&upload.data.processing){
+          onStage('ZIP保存完了。受付メールの完了を確認しています…');
+          const state=await waitForCompletion(idempotencyKey,5);
+          if(state.found&&state.completed)return {ok:true,data:state,recovered:true};
+          return resumeAfterZip(payload,idempotencyKey);
+        }
+
+        if(!upload.res.ok||!upload.data.ok){
+          if(upload.data?.recoverable||upload.data?.zipUploaded){
+            const state=await getReceiptStatus(idempotencyKey);
+            if(state.found&&state.zipUploaded){
+              onStage('ZIP保存済みを確認しました。メール処理を再開しています…');
+              return resumeAfterZip(payload,idempotencyKey);
+            }
+          }
+          const err=new Error(upload.data?.error||`HTTP ${upload.res.status}`);
+          err.httpStatus=upload.res.status;
+          throw err;
+        }
+
+        onStage('ZIP保存完了。受付メールを確認しています…');
+        return resumeAfterZip(payload,idempotencyKey);
       }
 
       function injectPlcSelector(d){
@@ -225,13 +317,22 @@
         wired=true;
 
         const button=oldButton.cloneNode(true);
-        button.textContent='相談内容を実送信する';
+        button.textContent='相談内容とZIPを実送信する';
         oldButton.replaceWith(button);
-        status.textContent='Live Preview：D1受付台帳と二重送信防止を使って実送信します。ZIP本体はまだ送信しません。';
-        if(localOnly)localOnly.textContent='Live Preview：現在はZIP本体をアップロードしません。相談内容・相談番号・受付状態のみ実際に保存します。';
-        if(notice)notice.textContent='公開前Live Previewです。相談内容はD1へ保存され、同じ送信の再試行では同じ相談番号を引き継ぎます。ZIP本体とパスワードはまだ保存しません。';
+        status.textContent='Live Preview：相談内容をD1へ保存し、ZIP本体を非公開R2へ実際にアップロードします。';
+        if(localOnly)localOnly.textContent='Live Preview：選択したZIP本体は非公開R2バケットへ実際に保存されます。パスワードはまだ保存しません。';
+        if(notice)notice.textContent='公開前Live Previewです。相談内容はD1、ZIP本体は非公開R2へ保存します。同じ送信の再試行では同じ相談番号を引き継ぎます。ZIPパスワードはSTEP 2で別送します。';
 
-        const fields={name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')};
+        const fields={
+          name:d.getElementById('name'),
+          email:d.getElementById('email'),
+          company:d.getElementById('company'),
+          plc:d.getElementById('plc'),
+          problem:d.getElementById('problem'),
+          desired:d.getElementById('desired'),
+          photo:d.getElementById('photo'),
+          gxdata:d.getElementById('gxdata')
+        };
         let submitted=false;
 
         function showCompleted(data,message='受付が完了しました。'){
@@ -239,7 +340,7 @@
           caseCode.textContent=data.caseNumber;
           caseInput.value=data.caseNumber;
           const p=complete.querySelector('p');
-          if(p)p.innerHTML='相談内容をD1へ保存し、相談番号発行・受付メール送信まで<strong>実際に完了しました</strong>。同じ送信を再試行しても相談番号は増えません。';
+          if(p)p.innerHTML='相談内容をD1へ保存し、ZIP本体を<strong>非公開R2へ保存</strong>、相談番号発行・受付メール送信まで実際に完了しました。同じ送信を再試行しても相談番号は増えません。';
           complete.classList.add('is-visible');
           button.textContent='送信済み';
           button.disabled=true;
@@ -264,93 +365,70 @@
           };
         }
 
-        async function submitWithRecovery(payload,idempotencyKey){
-          let first;
-          try{
-            first=await postJson('/consultations',{...payload,idempotencyKey});
-          }catch(err){
-            const recovered=await waitForCompletion(idempotencyKey,3);
-            if(recovered.found&&recovered.completed)return {ok:true,data:recovered,recovered:true};
-            if(recovered.found){
-              try{
-                const resumed=await postJson('/consultations',{...payload,idempotencyKey});
-                if(resumed.res.ok&&resumed.data.ok&&!resumed.data.processing)return {ok:true,data:resumed.data,recovered:true};
-                if(resumed.res.ok&&resumed.data.processing){
-                  const finalState=await waitForCompletion(idempotencyKey,4);
-                  if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
-                }
-              }catch{}
-            }
-            throw err;
-          }
-
-          if(first.res.ok&&first.data.ok&&!first.data.processing)return {ok:true,data:first.data};
-          if(first.res.ok&&first.data.ok&&first.data.processing){
-            const finalState=await waitForCompletion(idempotencyKey,4);
-            if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
-            return {ok:false,processing:true,data:first.data};
-          }
-
-          if(first.data?.recoverable){
-            await sleep(900);
-            const retry=await postJson('/consultations',{...payload,idempotencyKey});
-            if(retry.res.ok&&retry.data.ok&&!retry.data.processing)return {ok:true,data:retry.data,recovered:true};
-            if(retry.res.ok&&retry.data.processing){
-              const finalState=await waitForCompletion(idempotencyKey,4);
-              if(finalState.found&&finalState.completed)return {ok:true,data:finalState,recovered:true};
-            }
-          }
-
-          const error=new Error(first.data?.error||`HTTP ${first.res.status}`);
-          error.httpStatus=first.res.status;
-          throw error;
-        }
-
         button.addEventListener('click',async()=>{
           if(submitted)return;
           const file=zipInput.files?.[0]||null;
-          const required=[['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]];
+          const required=[
+            ['お名前',fields.name],
+            ['返信用メールアドレス',fields.email],
+            ['現在困っていること',fields.problem],
+            ['どのように変更したいか',fields.desired]
+          ];
           for(const [label,el] of required){
             if(!el?.value?.trim()){
               status.textContent=`${label}を入力してください。`;
-              el?.focus();return;
+              el?.focus();
+              return;
             }
           }
-          if(file&&!file.name.toLowerCase().endsWith('.zip')){
-            status.textContent='ZIPを選択する場合はZIPファイルを指定してください。';return;
+          if(!file){
+            status.textContent='パスワード付きZIPファイルを選択してください。';
+            zipInput.focus();
+            return;
+          }
+          if(!file.name.toLowerCase().endsWith('.zip')){
+            status.textContent='ZIPファイルを指定してください。';
+            return;
           }
 
           const payload=buildPayload();
           const {key:idempotencyKey}=getOrCreateSubmission(payload);
           button.disabled=true;
-          status.textContent='D1へ受付内容を保存して送信中…';
           complete.classList.remove('is-visible');
 
           try{
-            const result=await submitWithRecovery(payload,idempotencyKey);
+            const result=await submitAll(payload,file,idempotencyKey,text=>{status.textContent=text;});
             if(result.ok){
-              showCompleted(result.data,result.recovered?'受付状態を復元して完了を確認しました。':'送信成功。D1保存とメール送信を確認しました。');
+              showCompleted(
+                result.data,
+                result.recovered
+                  ? '受付状態を復元し、D1・R2・メール送信の完了を確認しました。'
+                  : '送信成功。D1保存・R2保存・メール送信を確認しました。'
+              );
               return;
             }
             if(result.processing){
-              status.textContent=`受付処理中です。相談番号 ${result.data.caseNumber} を保持したまま確認します。`;
-              button.disabled=false;
-              return;
+              status.textContent=`受付処理中です。相談番号 ${result.data.caseNumber||''} を保持したまま続行できます。`;
+            }else if(result.needsUpload){
+              status.textContent='受付情報は保存済みです。ZIPを選択したまま、もう一度送信してください。';
             }
+            button.disabled=false;
           }catch(err){
             console.error(err);
             const state=await getReceiptStatus(idempotencyKey);
             if(state.found&&state.completed){
-              showCompleted(state,'画面応答は途切れましたが、受付済みであることを確認しました。');
+              showCompleted(state,'画面応答は途切れましたが、D1・R2・メール送信まで受付済みであることを確認しました。');
               return;
             }
-            if(state.found){
-              status.textContent=`受付番号 ${state.caseNumber} は保存済みですが処理が未完了です。もう一度押しても同じ相談番号で続きから再開します。`;
+            if(state.found&&state.zipUploaded){
+              status.textContent=`ZIPは非公開R2へ保存済みです。相談番号 ${state.caseNumber} を保持したまま、もう一度押すとメール処理から再開します。`;
+            }else if(state.found){
+              status.textContent=`受付情報はD1へ保存済みです。ZIPをもう一度選択して送信すれば、相談番号 ${state.caseNumber} の続きから再開します。`;
             }else if(err.httpStatus===409){
               clearPendingSubmission();
               status.textContent='入力内容が前回送信時から変更されています。もう一度押すと新しい受付として送信します。';
             }else{
-              status.textContent=`送信に失敗しました：${err.message}。もう一度押しても同じ送信キーを使うため、二重受付にはなりません。`;
+              status.textContent=`送信に失敗しました：${err.message}。同じ入力内容なら二重受付にならず、再試行できます。`;
             }
             button.disabled=false;
           }
@@ -360,27 +438,36 @@
           const savedKey=sessionStorage.getItem(STORAGE_KEY)||'';
           const savedPayload=sessionStorage.getItem(STORAGE_PAYLOAD)||'';
           if(!savedKey||!savedPayload)return;
+
           status.textContent='前回の受付状態を確認しています…';
           const state=await getReceiptStatus(savedKey);
+
           if(state.found&&state.completed){
             showCompleted(state,'前回の受付済み状態を復元しました。');
             return;
           }
-          if(state.found){
+
+          if(state.found&&state.zipUploaded){
             try{
               const payload=JSON.parse(savedPayload);
-              const resumed=await submitWithRecovery(payload,savedKey);
+              const resumed=await resumeAfterZip(payload,savedKey);
               if(resumed.ok){
-                showCompleted(resumed.data,'前回途中だった受付を続きから完了しました。');
+                showCompleted(resumed.data,'ZIP保存済みの受付をメール処理から再開して完了しました。');
                 return;
               }
             }catch(err){
               console.error('Receipt restore failed',err);
             }
-            status.textContent=`前回の受付番号 ${state.caseNumber} は保存済みです。必要なら送信ボタンで同じ受付を続きから再開できます。`;
-          }else{
-            status.textContent='Live Preview：D1受付台帳と二重送信防止を使って実送信します。ZIP本体はまだ送信しません。';
+            status.textContent=`ZIPは非公開R2へ保存済みです。相談番号 ${state.caseNumber} のメール処理を送信ボタンから再開できます。`;
+            return;
           }
+
+          if(state.found){
+            status.textContent=`前回の受付情報はD1へ保存済みです。相談番号 ${state.caseNumber} のZIP送信を続けるには、ZIPをもう一度選択して送信ボタンを押してください。`;
+            return;
+          }
+
+          status.textContent='Live Preview：相談内容をD1へ保存し、ZIP本体を非公開R2へ実際にアップロードします。';
         })();
       }
 

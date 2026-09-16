@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>GX Works2 二重送信防止テスト</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f8fc;color:#0f172a}
+    main{max-width:760px;margin:40px auto;padding:24px}
+    .card{background:#fff;border:1px solid #dbe4ef;border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+    h1{font-size:24px;margin-top:0}.muted{color:#64748b;line-height:1.7}.row{margin:16px 0;padding:14px;background:#f8fafc;border-radius:10px;word-break:break-all}
+    button{min-height:48px;border:0;border-radius:10px;padding:0 18px;background:#2563eb;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    button:disabled{opacity:.55;cursor:not-allowed}.ok{color:#047857;font-weight:700}.ng{color:#b91c1c;font-weight:700}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  </style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>二重送信防止テスト</h1>
+    <p class="muted">同じブラウザタブで直前に送信した相談の <code>idempotencyKey</code> と送信内容を再利用して、同じ受付をもう一度POSTします。新しい相談番号が発行されなければ成功です。</p>
+    <div class="row" id="before">受付状態を読み込み中…</div>
+    <button id="retry" disabled>同じ送信をもう一度テスト</button>
+    <div class="row" id="result">まだテストしていません。</div>
+  </div>
+</main>
+<script>
+(()=>{
+  const API='https://gxworks2-support-api.syasuta0819.workers.dev';
+  const KEY='gxw-preview-idempotency-key';
+  const PAYLOAD='gxw-preview-idempotency-payload';
+  const before=document.getElementById('before');
+  const result=document.getElementById('result');
+  const retry=document.getElementById('retry');
+
+  async function post(path,body){
+    const res=await fetch(`${API}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json().catch(()=>({}));
+    return {res,data};
+  }
+
+  const idempotencyKey=sessionStorage.getItem(KEY)||'';
+  const payloadText=sessionStorage.getItem(PAYLOAD)||'';
+  let originalCase='';
+
+  (async()=>{
+    if(!idempotencyKey||!payloadText){
+      before.innerHTML='<span class="ng">直前の送信情報が見つかりません。</span><br>Live Previewで送信した同じタブから、このページへ移動してください。';
+      return;
+    }
+    try{
+      const {res,data}=await post('/consultations/status',{idempotencyKey});
+      if(!res.ok||!data.ok||!data.found)throw new Error(data.error||`HTTP ${res.status}`);
+      originalCase=data.caseNumber;
+      before.innerHTML=`元の相談番号：<strong>${originalCase}</strong><br>状態：${data.state}<br>管理者メール：${data.adminMail} / お客様メール：${data.customerMail}`;
+      retry.disabled=false;
+    }catch(err){
+      before.innerHTML=`<span class="ng">受付状態の取得に失敗しました：${err.message}</span>`;
+    }
+  })();
+
+  retry.addEventListener('click',async()=>{
+    retry.disabled=true;
+    result.textContent='同じidempotencyKeyで再送中…';
+    try{
+      const payload=JSON.parse(payloadText);
+      const {res,data}=await post('/consultations',{...payload,idempotencyKey});
+      if(!res.ok||!data.ok)throw new Error(data.error||`HTTP ${res.status}`);
+      const same=data.caseNumber===originalCase;
+      result.innerHTML=same
+        ? `<span class="ok">成功：新しい相談番号は発行されませんでした。</span><br>元：<strong>${originalCase}</strong><br>再送結果：<strong>${data.caseNumber}</strong>`
+        : `<span class="ng">要確認：相談番号が変わりました。</span><br>元：${originalCase}<br>再送結果：${data.caseNumber}`;
+    }catch(err){
+      result.innerHTML=`<span class="ng">再送テストに失敗しました：${err.message}</span>`;
+    }finally{
+      retry.disabled=false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

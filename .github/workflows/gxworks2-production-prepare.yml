@@ -21,26 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Diagnose public Worker health response
-        run: |
-          python - <<'PY'
-          import json
-          from urllib.request import Request, urlopen
-          from urllib.error import HTTPError
-          url='https://gxworks2-support-api.syasuta0819.workers.dev/'
-          request=Request(url,headers={'Origin':'https://denkicontrol.com','Accept':'application/json'})
-          try:
-              response=urlopen(request,timeout=30)
-          except HTTPError as error:
-              response=error
-          body=response.read()
-          print('Health HTTP:', response.status)
-          print('Content-Type:', response.headers.get('Content-Type'))
-          print('Final URL:', response.geturl())
-          print('Response preview:', body[:600].decode('utf-8',errors='replace'))
-          assert response.status == 200, 'Public health request failed; do not publish'
-          json.loads(body)
-          PY
       - uses: actions/checkout@v4
         with:
           ref: preview-gxworks2-production-20260917
@@ -49,7 +29,25 @@ jobs:
         run: |
           python -m pip install playwright
           python -m playwright install --with-deps chromium
-      - name: Prepare standalone page and test without sending consultations
+      - name: Record blocked live verification and isolate local tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          out=Path('gxw-release-evidence');out.mkdir(exist_ok=True)
+          block={'live_origin_verified':False,'production_release_ready':False,'reason':'Cloudflare rejected the GitHub runner health request with HTTP 403 / Error 1010 (browser_signature_banned). No retries, user-agent spoofing, or security setting changes.','evidence_run_id':35134257333,'evidence_job_id':104922539313,'ray_id':'a3c1e95e1d1c8b02','required_before_publication':'Verify the real intake API from an authorized normal browser on the production origin. Local UI tests do not establish live API availability.'}
+          (out/'live-origin-blocker.json').write_text(json.dumps(block,indent=2),encoding='utf-8')
+          p=Path('scripts/_gxworks2_test_release.py')
+          s=p.read_text(encoding='utf-8')
+          start=s.index('# Read-only checks against the already deployed Worker.')
+          end=s.index("html = (ROOT / SERVICE.lstrip('/'))",start)
+          s=s[:start]+"# Live probes are not retried after the explicit Cloudflare denial.\nreport['live_origin_verified'] = False\nreport['production_release_ready'] = False\nreport['live_origin_blocker'] = 'HTTP 403 / Cloudflare Error 1010; owner-browser verification required'\n\n"+s[end:]
+          s=s.replace("report['all_passed'] = True", "report['all_local_checks_passed'] = True")
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Prepare and test locally without contacting the blocked API
         shell: bash
         run: |
           set -euo pipefail
@@ -62,7 +60,7 @@ jobs:
           python scripts/_gxworks2_prepare_release.py
           node --check assets/js/gxworks2-consultation.js
           python scripts/_gxworks2_test_release.py
-      - name: Upload release evidence
+      - name: Upload release evidence including unresolved live blocker
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +68,7 @@ jobs:
           path: gxw-release-evidence/
           retention-days: 7
           if-no-files-found: warn
-      - name: Commit verified standalone release to review branch
+      - name: Save locally verified candidate to review branch only
         shell: bash
         run: |
           set -euo pipefail
@@ -79,16 +77,18 @@ jobs:
           import json
           from pathlib import Path
           result=json.loads(Path('gxw-release-evidence/report.json').read_text())
-          assert result.get('all_passed') and result.get('live_consultations_created') == 0
+          assert result.get('all_local_checks_passed') and result.get('live_consultations_created') == 0
+          assert result['live_origin_verified'] is False and result['production_release_ready'] is False
+          Path('docs/gxworks2-release-verification-20260917.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           git config user.name denkicontrol-release
           git config user.email actions@users.noreply.github.com
-          git add -- services/gxworks2-online-support.html assets/js/gxworks2-consultation.js assets/css/gxworks2-service-entry.css index.html categories/control-basics.html assets/data/search-index.json sitemap.xml articles/_preview-gxworks2-online-support.html articles/_preview-gxworks2-online-support-live.html
+          git add -- services/gxworks2-online-support.html assets/js/gxworks2-consultation.js assets/css/gxworks2-service-entry.css index.html categories/control-basics.html assets/data/search-index.json sitemap.xml articles/_preview-gxworks2-online-support.html articles/_preview-gxworks2-online-support-live.html docs/gxworks2-release-verification-20260917.json
           python - <<'PY'
           import subprocess
-          allowed={'services/gxworks2-online-support.html','assets/js/gxworks2-consultation.js','assets/css/gxworks2-service-entry.css','index.html','categories/control-basics.html','assets/data/search-index.json','sitemap.xml','articles/_preview-gxworks2-online-support.html','articles/_preview-gxworks2-online-support-live.html'}
+          allowed={'services/gxworks2-online-support.html','assets/js/gxworks2-consultation.js','assets/css/gxworks2-service-entry.css','index.html','categories/control-basics.html','assets/data/search-index.json','sitemap.xml','articles/_preview-gxworks2-online-support.html','articles/_preview-gxworks2-online-support-live.html','docs/gxworks2-release-verification-20260917.json'}
           changed=set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())
           assert changed and changed <= allowed, changed
           PY
-          git commit -m "Prepare approved GX Works2 standalone service, intake and navigation"
+          git commit -m "Prepare GX Works2 standalone candidate; live-origin verification still required"
           git push origin HEAD:preview-gxworks2-production-20260917

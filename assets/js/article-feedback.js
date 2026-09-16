@@ -43,15 +43,25 @@
       <p class="article-feedback-status" id="articleFeedbackStatus" aria-live="polite"></p>
       <p class="article-feedback-note">回答は匿名で集計し、個人情報の入力はありません。</p>`;
 
-    const related = document.getElementById('related')
-      || document.getElementById('related-career')
-      || mainColumn.querySelector('[id^="related"]')
-      || [...mainColumn.querySelectorAll('section')].find((element) => {
-        const heading = element.querySelector('h2');
-        const label = heading?.textContent?.trim() || '';
-        return label.includes('あわせて読みたい記事') || label === '関連記事';
-      });
-    if (related && mainColumn.contains(related) && related.parentElement) related.parentElement.insertBefore(section, related);
+    // Insert before the whole related-articles block, never before its inner heading.
+    // Older articles use div.section-card rather than section for the same block.
+    const relatedBlock = (element) => {
+      const block = element?.closest('section, .section-card, .article-card');
+      return block && block !== mainColumn && mainColumn.contains(block) ? block : null;
+    };
+    const isRelatedHeading = (heading) => {
+      const label = heading.textContent?.normalize('NFKC')
+        .replace(/^\s*\d+[.、:)\s]+/, '').replace(/\s+/g, '').trim() || '';
+      return label.startsWith('あわせて読みたい')
+        || label.startsWith('合わせて読みたい')
+        || label === '関連記事';
+    };
+    const related = relatedBlock(mainColumn.querySelector('#related'))
+      || relatedBlock(mainColumn.querySelector('#related-career'))
+      || [...mainColumn.querySelectorAll('h2')]
+        .filter(isRelatedHeading).map(relatedBlock).find(Boolean)
+      || relatedBlock(mainColumn.querySelector('.related-grid'));
+    if (related && related.parentElement) related.parentElement.insertBefore(section, related);
     else mainColumn.appendChild(section);
   }
 

@@ -1,0 +1,33 @@
+name: DC24V Power Supply Official Sources
+
+on:
+  push:
+    branches:
+      - preview-dc24v-power-supply-text-refresh-20260916
+    paths:
+      - '.github/scripts/dc24v_power_supply_official_sources.py'
+      - '.github/workflows/dc24v-power-supply-official-sources.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply official source box
+        run: python .github/scripts/dc24v_power_supply_official_sources.py
+      - name: Clean temporary automation and commit
+        run: |
+          rm -f .github/scripts/dc24v_power_supply_official_sources.py
+          rm -f .github/workflows/dc24v-power-supply-official-sources.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/dc24v-power-supply-basic.html .github/scripts/dc24v_power_supply_official_sources.py .github/workflows/dc24v-power-supply-official-sources.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Add official manufacturer references to DC24V power supply article"
+          git push

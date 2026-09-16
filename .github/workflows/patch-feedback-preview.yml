@@ -18,7 +18,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          # Shared loader cache version only.
           p = Path('assets/js/site-search.js')
           s = p.read_text(encoding='utf-8')
           old = "script.src = '/assets/js/article-feedback.js?v=20260916-5';"
@@ -27,7 +26,6 @@ jobs:
               raise SystemExit('site-search feedback loader marker not found')
           p.write_text(s.replace(old, new, 1), encoding='utf-8')
 
-          # Existing PLC article: cache key only, no content/layout edits.
           p = Path('articles/plc-drilling-line-design-project-01.html')
           s = p.read_text(encoding='utf-8')
           old = '../assets/js/article-feedback.js?v=20260916-5'
@@ -36,7 +34,6 @@ jobs:
               raise SystemExit('PLC feedback script marker not found')
           p.write_text(s.replace(old, new, 1), encoding='utf-8')
 
-          # One Japanese article does not load site-search.js. Add only the feedback script include.
           p = Path('articles/fa-engineer-skill-map-career.html')
           s = p.read_text(encoding='utf-8')
           marker = '<script src="../assets/js/article-feedback.js?v=20260916-6" defer></script>'
@@ -46,13 +43,12 @@ jobs:
               s = s.replace('</body>', f'{marker}\n</body>', 1)
               p.write_text(s, encoding='utf-8')
 
-          # Self-remove this temporary workflow so it never remains in the PR diff.
           Path('.github/workflows/patch-feedback-preview.yml').unlink()
           PY
       - name: Verify scope
         run: |
           git diff --name-only
-          test "$(git diff --name-only | sort | tr '\n' ' ')" = "articles/fa-engineer-skill-map-career.html articles/plc-drilling-line-design-project-01.html assets/js/site-search.js "
+          test "$(git diff --name-only | sort | tr '\n' ' ')" = ".github/workflows/patch-feedback-preview.yml articles/fa-engineer-skill-map-career.html articles/plc-drilling-line-design-project-01.html assets/js/site-search.js "
       - name: Commit patch
         run: |
           git config user.name 'Syasu-pixel'

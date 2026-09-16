@@ -18,6 +18,7 @@ export default {
         message: 'Worker is running',
         r2: Boolean(env.GXW_FILES),
         db: Boolean(env.DB),
+        passwordStorage: Boolean(env.GXW_PASSWORD_KEY),
       }, 200, origin);
     }
 
@@ -34,6 +35,11 @@ export default {
     if (request.method === 'POST' && url.pathname === '/consultations/status') {
       if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return consultationStatus(request, env, origin);
+    }
+
+    if (request.method === 'POST' && url.pathname === '/consultations/password') {
+      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
+      return submitConsultationPassword(request, env, origin);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, origin);
@@ -298,6 +304,7 @@ async function consultationStatus(request, env, origin) {
   if (!isValidIdempotencyKey(key)) return json({ ok: false, error: 'Invalid idempotency key' }, 400, origin);
   const row = await getConsultationByIdempotency(env.DB, key);
   if (!row) return json({ ok: false, found: false }, 404, origin);
+  const passwordRow = await getPasswordByConsultationId(env.DB, row.id).catch(() => null);
   return json({
     ok: true,
     found: true,
@@ -309,7 +316,160 @@ async function consultationStatus(request, env, origin) {
     adminMail: row.admin_mail_status,
     customerMail: row.customer_mail_status,
     completed: row.state === 'completed',
+    passwordReceived: Boolean(passwordRow),
+    passwordNotification: passwordRow?.notification_status || 'not_received',
   }, 200, origin);
+}
+
+async function submitConsultationPassword(request, env, origin) {
+  if (!env.DB || !env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL || !env.GXW_PASSWORD_KEY) {
+    return json({ ok: false, error: 'Password service configuration is incomplete' }, 500, origin);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, origin);
+  }
+
+  const idempotencyKey = clean(body.idempotencyKey, 80);
+  const caseNumber = clean(body.caseNumber, 40).toUpperCase();
+  const password = typeof body.password === 'string' ? body.password.trim() : '';
+
+  if (!isValidIdempotencyKey(idempotencyKey)) {
+    return json({ ok: false, error: 'A valid receipt key is required' }, 400, origin);
+  }
+  if (!/^GXW-\d{8}-[A-F0-9]{8}$/.test(caseNumber)) {
+    return json({ ok: false, error: 'Invalid case number' }, 400, origin);
+  }
+  if (!password || password.length > 200) {
+    return json({ ok: false, error: 'ZIP password is required' }, 400, origin);
+  }
+
+  const row = await getConsultationByIdempotency(env.DB, idempotencyKey);
+  if (!row || row.case_number !== caseNumber) {
+    return json({ ok: false, error: 'Consultation verification failed' }, 403, origin);
+  }
+  if (!row.zip_object_key || row.zip_storage_mode !== 'r2-private') {
+    return json({ ok: false, error: 'ZIP upload is not complete yet' }, 409, origin);
+  }
+
+  const passwordHash = await sha256Hex(password);
+  const existing = await getPasswordByConsultationId(env.DB, row.id);
+
+  if (existing && existing.password_hash === passwordHash && existing.notification_status === 'sent') {
+    return json({
+      ok: true,
+      duplicate: true,
+      caseNumber: row.case_number,
+      passwordReceived: true,
+      notificationSent: true,
+    }, 200, origin);
+  }
+
+  let encrypted;
+  try {
+    encrypted = await encryptPassword(password, env.GXW_PASSWORD_KEY);
+  } catch (error) {
+    console.error('Password encryption failed', error);
+    return json({ ok: false, error: 'Password encryption failed' }, 500, origin);
+  }
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(`
+    INSERT INTO consultation_passwords (
+      consultation_id, password_hash, ciphertext, iv,
+      submitted_at, updated_at, notification_status, last_error
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?5, 'pending', NULL)
+    ON CONFLICT(consultation_id) DO UPDATE SET
+      password_hash=excluded.password_hash,
+      ciphertext=excluded.ciphertext,
+      iv=excluded.iv,
+      updated_at=excluded.updated_at,
+      notification_status=CASE
+        WHEN consultation_passwords.password_hash=excluded.password_hash
+         AND consultation_passwords.notification_status='sent'
+        THEN 'sent'
+        ELSE 'pending'
+      END,
+      notification_sent_at=CASE
+        WHEN consultation_passwords.password_hash=excluded.password_hash
+         AND consultation_passwords.notification_status='sent'
+        THEN consultation_passwords.notification_sent_at
+        ELSE NULL
+      END,
+      notification_provider_id=CASE
+        WHEN consultation_passwords.password_hash=excluded.password_hash
+         AND consultation_passwords.notification_status='sent'
+        THEN consultation_passwords.notification_provider_id
+        ELSE NULL
+      END,
+      last_error=NULL
+  `).bind(row.id, passwordHash, encrypted.ciphertext, encrypted.iv, now).run();
+
+  await addEvent(env.DB, row.id, 'password_received', 'ZIP password received and encrypted in separate D1 storage');
+
+  let passwordRow = await getPasswordByConsultationId(env.DB, row.id);
+  if (passwordRow?.notification_status !== 'sent') {
+    const result = await sendEmail(env, buildPasswordAdminEmail(row, password));
+    if (!result.ok) {
+      await env.DB.prepare(`
+        UPDATE consultation_passwords
+           SET notification_status='failed', last_error=?2, updated_at=?3
+         WHERE consultation_id=?1
+      `).bind(row.id, safeDetail(result.body), new Date().toISOString()).run();
+      await addEvent(env.DB, row.id, 'password_notification_failed', safeDetail(result.body));
+      return json({
+        ok: false,
+        recoverable: true,
+        caseNumber: row.case_number,
+        passwordReceived: true,
+        notificationSent: false,
+        error: 'Password was saved, but owner notification failed',
+      }, 502, origin);
+    }
+
+    const sentAt = new Date().toISOString();
+    await env.DB.prepare(`
+      UPDATE consultation_passwords
+         SET notification_status='sent', notification_sent_at=?2,
+             notification_provider_id=?3, last_error=NULL, updated_at=?2
+       WHERE consultation_id=?1
+    `).bind(row.id, sentAt, result.body.id || '').run();
+    await addEvent(env.DB, row.id, 'password_notification_sent', result.body.id || '');
+  }
+
+  passwordRow = await getPasswordByConsultationId(env.DB, row.id);
+  return json({
+    ok: true,
+    duplicate: Boolean(existing && existing.password_hash === passwordHash),
+    caseNumber: row.case_number,
+    passwordReceived: true,
+    notificationSent: passwordRow?.notification_status === 'sent',
+  }, 200, origin);
+}
+
+async function encryptPassword(password, secret) {
+  const material = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
+  const key = await crypto.subtle.importKey('raw', material, { name: 'AES-GCM' }, false, ['encrypt']);
+  const iv = new Uint8Array(12);
+  crypto.getRandomValues(iv);
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(password)
+  );
+  return {
+    ciphertext: bytesToBase64(new Uint8Array(encrypted)),
+    iv: bytesToBase64(iv),
+  };
+}
+
+function bytesToBase64(bytes) {
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
 }
 
 async function claimMail(db, id, kind) {
@@ -347,7 +507,7 @@ async function markMailSent(db, id, kind, providerId) {
 async function markMailFailed(db, id, kind, detail) {
   const statusCol = `${kind}_mail_status`;
   const now = new Date().toISOString();
-  await db.prepare(`
+  await env.DB.prepare(`
     UPDATE consultations
        SET ${statusCol}='failed', updated_at=?2, last_error=?3
      WHERE id=?1
@@ -360,6 +520,10 @@ async function getConsultationByIdempotency(db, key) {
 
 async function getConsultationById(db, id) {
   return db.prepare('SELECT * FROM consultations WHERE id=?1 LIMIT 1').bind(id).first();
+}
+
+async function getPasswordByConsultationId(db, consultationId) {
+  return db.prepare('SELECT * FROM consultation_passwords WHERE consultation_id=?1 LIMIT 1').bind(consultationId).first();
 }
 
 async function addEvent(db, consultationId, eventType, detail = '') {
@@ -434,6 +598,27 @@ function buildCustomerEmail(row) {
       '',
       '電気と制御の実務メモ'
     ].join('\n'),
+  };
+}
+
+function buildPasswordAdminEmail(row, password) {
+  return {
+    from: 'GX Works2 オンライン相談 <support@denkicontrol.com>',
+    to: [],
+    subject: `[${row.case_number}] ZIPパスワード受信`,
+    text: [
+      'GX Works2 オンライン相談のZIPパスワードを別送で受け付けました。',
+      '',
+      `相談番号: ${row.case_number}`,
+      `お名前: ${row.name}`,
+      `返信先: ${row.email}`,
+      '',
+      `ZIPパスワード: ${password}`,
+      '',
+      '※ ZIP本体はこのメールには添付されていません。非公開R2に別管理されています。',
+      '※ パスワードはD1内では暗号化して保存しています。'
+    ].join('\n'),
+    reply_to: row.email,
   };
 }
 

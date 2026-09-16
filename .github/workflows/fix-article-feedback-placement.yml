@@ -1,0 +1,57 @@
+name: Fix article feedback placement
+
+on:
+  push:
+    branches:
+      - preview-article-feedback-placement-fix
+    paths:
+      - .github/workflows/fix-article-feedback-placement.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply feedback placement fix via GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = 'preview-article-feedback-placement-fix';
+
+            async function update(path, transform, message) {
+              const { data } = await github.rest.repos.getContent({ owner, repo, path, ref: branch });
+              if (Array.isArray(data) || !data.content) throw new Error(`${path}: file not found`);
+              const current = Buffer.from(data.content, 'base64').toString('utf8');
+              const next = transform(current);
+              if (next === current) {
+                core.info(`${path}: no change needed`);
+                return;
+              }
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo, path, branch, message,
+                content: Buffer.from(next, 'utf8').toString('base64'), sha: data.sha
+              });
+            }
+
+            await update('assets/js/article-feedback.js', (text) => {
+              const oldBlock = `    const related = document.getElementById('related')\n      || document.getElementById('related-career')\n      || mainColumn.querySelector('[id^="related"]')\n      || [...mainColumn.querySelectorAll('section')].find((element) => {\n        const heading = element.querySelector('h2');\n        const label = heading?.textContent?.trim() || '';\n        return label.includes('あわせて読みたい記事') || label === '関連記事';\n      });`;
+              const newBlock = `    const related = document.getElementById('related')\n      || document.getElementById('related-career')\n      || [...mainColumn.querySelectorAll('section')].find((element) => {\n        const heading = element.querySelector('h2');\n        const label = heading?.textContent?.replace(/\\s+/g, ' ').trim() || '';\n        return label === 'あわせて読みたい'\n          || label.includes('あわせて読みたい記事')\n          || label === '関連記事';\n      })\n      || mainColumn.querySelector('.related-grid')?.closest('section');`;
+              if (!text.includes(oldBlock)) throw new Error('article-feedback placement block not found');
+              return text.replace(oldBlock, newBlock);
+            }, '記事評価カードの関連記事検出を意味ベースに修正');
+
+            await update('assets/js/site-search.js', (text) => {
+              if (!text.includes("/assets/js/article-feedback.js?v=20260916-8")) throw new Error('site-search feedback cache key not found');
+              return text.replace("/assets/js/article-feedback.js?v=20260916-8", "/assets/js/article-feedback.js?v=20260917-1");
+            }, '記事評価JSのキャッシュキーを更新');
+
+            for (const path of ['articles/fa-engineer-skill-map-career.html','articles/plc-drilling-line-design-project-01.html']) {
+              await update(path, (text) => {
+                if (!text.includes('article-feedback.js?v=20260916-6')) throw new Error(`${path}: direct feedback cache key not found`);
+                return text.replace('article-feedback.js?v=20260916-6', 'article-feedback.js?v=20260917-1');
+              }, '記事評価JSの直接読込キャッシュキーを更新');
+            }

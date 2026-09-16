@@ -19,7 +19,6 @@
         const d=frame.contentDocument;
         if(!d)return;
 
-        // Preview専用：ご用意いただく資料を拡張。
         const prep=d.getElementById('prepare');
         if(prep){
           const intro=prep.querySelector('p');
@@ -35,7 +34,6 @@
           }
         }
 
-        // Preview専用：相談受付の間口を広げ、安全関連だけを入口で除外しない。
         d.querySelectorAll('.note-box').forEach(box=>{
           const h=box.querySelector('h3');
           if(h&&h.textContent.includes('安全に関わる変更'))box.remove();
@@ -54,14 +52,12 @@
           }
         }
 
-        // 写真がないこと自体を受付不可にしない表現へ。
         d.querySelectorAll('#faq p').forEach(p=>{
           if(p.textContent.includes('写真は任意です。撮影禁止の設備でもご相談いただけます。')){
             p.textContent='写真は任意です。撮影禁止の設備でもご相談いただけます。必要な情報が不足する場合は、確認したい内容をこちらからご案内します。';
           }
         });
 
-        // Preview専用スタイル。
         const style=d.createElement('style');
         style.textContent=`
           .preview-demo-button{cursor:pointer!important;opacity:1!important}
@@ -77,17 +73,42 @@
           .password-eye:hover{background:#f1f5f9}
           .password-eye svg{width:20px;height:20px;display:block}
           .case-help{margin-top:6px;color:#64748b;font-size:11px}
+          .consult-flow{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr;align-items:stretch;gap:8px;margin:0 0 22px}
+          .consult-flow-step{border:1px solid #d7e4f3;border-radius:18px;background:#f8fbff;padding:16px;min-width:0}
+          .consult-flow-step strong{display:block;margin-bottom:4px;font-size:14px;color:#0f172a}
+          .consult-flow-step p{margin:0!important;font-size:12px!important;color:#64748b!important;line-height:1.65}
+          .consult-flow-badge{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 9px;border-radius:999px;background:#2563eb;color:#fff;font-size:11px;font-weight:900;margin-bottom:8px}
+          .consult-flow-step:last-child .consult-flow-badge{background:#16a34a}
+          .consult-flow-arrow{display:grid;place-items:center;color:#94a3b8;font-size:22px;font-weight:900}
+          .consult-flow-note{margin:0 0 16px;padding:12px 14px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:12px;font-weight:800}
+          @media(max-width:760px){.consult-flow{grid-template-columns:1fr}.consult-flow-arrow{transform:rotate(90deg);height:20px}}
         `;
         d.head.appendChild(style);
 
         const consultation=d.getElementById('consultation');
         if(consultation){
+          if(!d.getElementById('consult-flow')){
+            const flow=d.createElement('div');
+            flow.id='consult-flow';
+            flow.innerHTML=`
+              <div class="consult-flow-note">ご相談は2ステップで完了です。送信後は、入力いただいた返信用メールアドレスへご連絡します。</div>
+              <div class="consult-flow">
+                <div class="consult-flow-step"><span class="consult-flow-badge">STEP 1 / 2</span><strong>相談内容とパスワード付きZIPを送信</strong><p>必要事項とGX Works2データ・資料をまとめたZIPを送信します。受付完了後、相談番号を自動発行します。</p></div>
+                <div class="consult-flow-arrow">→</div>
+                <div class="consult-flow-step"><span class="consult-flow-badge">STEP 2 / 2</span><strong>ZIPパスワードを別送</strong><p>相談番号を引き継ぎ、別フォームからZIPパスワードだけを送信します。</p></div>
+                <div class="consult-flow-arrow">→</div>
+                <div class="consult-flow-step"><span class="consult-flow-badge">送信完了</span><strong>内容確認後、メールで返信</strong><p>GX Works2プロジェクトとご相談内容を確認後、返信用メールアドレスへ対応可否・確認事項・お見積りをご連絡します。</p></div>
+              </div>`;
+            const h2=consultation.querySelector('h2');
+            if(h2)h2.insertAdjacentElement('afterend',flow);
+          }
+
           const notice=consultation.querySelector('.preview-notice');
           if(notice)notice.textContent='このページは公開前Previewです。現在は画面確認用のため、実際の送信・ファイルアップロードは行われません。下のボタンでは送信完了後の画面だけ確認できます。';
 
           const fileBox=consultation.querySelector('.file-box');
           if(fileBox){
-            fileBox.innerHTML='<strong>Step 1｜パスワード付きZIPを送信</strong><br><small>GX Works2データ・説明メモ・任意の設備写真に加え、設備仕様書、電気図面、取扱説明書、メーカー資料などお持ちの資料があれば、1つのZIPにまとめてください。ZIP自体にパスワードを設定し、そのパスワードはこのフォームには入力しません。</small>';
+            fileBox.innerHTML='<strong>STEP 1 / 2｜パスワード付きZIPを送信</strong><br><small>GX Works2データ・説明メモ・任意の設備写真に加え、設備仕様書、電気図面、取扱説明書、メーカー資料などお持ちの資料があれば、1つのZIPにまとめてください。ZIP自体にパスワードを設定し、そのパスワードはこのフォームには入力しません。</small>';
           }
 
           const submitRow=consultation.querySelector('.submit-row');
@@ -100,16 +121,7 @@
             complete=d.createElement('div');
             complete.id='preview-complete';
             complete.className='preview-complete';
-            complete.innerHTML=`
-              <h3>相談を受け付けました</h3>
-              <p>本番では、相談内容とZIPの受付完了後に<strong>相談番号をサーバー側で自動発行</strong>し、この画面と受付完了メールの両方に表示する想定です。</p>
-              <div class="preview-case-number">
-                <span>相談番号</span>
-                <code id="preview-case-code">GXW-20260916-001</code>
-                <button id="preview-copy-case" class="preview-copy" type="button">番号をコピー</button>
-              </div>
-              <p><strong>この番号はパスワード送信時に使います。</strong>このまま下の「ZIPパスワードを別送する」へ進んでください。</p>
-            `;
+            complete.innerHTML=`<h3>相談を受け付けました</h3><p>本番では、相談内容とZIPの受付完了後に<strong>相談番号をサーバー側で自動発行</strong>し、この画面と受付完了メールの両方に表示する想定です。</p><div class="preview-case-number"><span>相談番号</span><code id="preview-case-code">GXW-20260916-001</code><button id="preview-copy-case" class="preview-copy" type="button">番号をコピー</button></div><p><strong>この番号はパスワード送信時に使います。</strong>このまま下の「ZIPパスワードを別送する」へ進んでください。</p>`;
             consultation.appendChild(complete);
           }
 
@@ -118,19 +130,15 @@
           passwordSection.id='password-submit';
           passwordSection.innerHTML=`
             <h2>ZIPパスワードを別送する</h2>
-            <div class="preview-notice">Step 2｜ZIP本体とは別の送信系統です。Previewのため現在は送信されません。</div>
-            <div class="key-highlight">
-              <h3>ZIPとパスワードは同時に送信しません</h3>
-              <p>相談フォームでZIPを送信したあと、自動発行された相談番号を使って、この別フォームからZIPパスワードだけを登録する想定です。ファイル本体とパスワードを分離して扱います。</p>
-            </div>
+            <div class="preview-notice">STEP 2 / 2｜ZIP本体とは別の送信系統です。Previewのため現在は送信されません。</div>
+            <div class="key-highlight"><h3>ZIPとパスワードは同時に送信しません</h3><p>相談フォームでZIPを送信したあと、自動発行された相談番号を使って、この別フォームからZIPパスワードだけを登録する想定です。ファイル本体とパスワードを分離して扱います。</p></div>
             <form onsubmit="return false;">
               <div class="form-grid">
                 <div class="form-field"><label for="case-number">相談番号</label><input id="case-number" type="text" placeholder="例：GXW-20260916-001"><div class="case-help">本番ではStep 1完了後、この番号を自動表示・引き継ぎする想定です。</div></div>
-                <div class="form-field"><label for="zip-password">ZIPパスワード</label><div class="password-wrap"><input id="zip-password" type="password" autocomplete="off" placeholder="ZIPに設定したパスワード"><button id="password-eye" class="password-eye" type="button" aria-label="パスワードを表示" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="case-help">通常は伏せ字で表示します。目のマークを押している間ではなく、クリックで表示／非表示を切り替えます。</div></div>
+                <div class="form-field"><label for="zip-password">ZIPパスワード</label><div class="password-wrap"><input id="zip-password" type="password" autocomplete="off" placeholder="ZIPに設定したパスワード"><button id="password-eye" class="password-eye" type="button" aria-label="パスワードを表示" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="case-help">通常は伏せ字で表示します。目のマークをクリックすると表示／非表示を切り替えられます。</div></div>
               </div>
               <div class="submit-row"><button class="btn btn-primary" type="button" disabled>パスワードを別送する</button><small>本番ではZIP保管先とは分離して受け付ける設計にします。</small></div>
-            </form>
-          `;
+            </form>`;
           const existing=d.getElementById('password-submit');
           if(existing)existing.replaceWith(passwordSection); else consultation.insertAdjacentElement('afterend',passwordSection);
 
@@ -147,27 +155,13 @@
               completeBox.scrollIntoView({behavior:'smooth',block:'center'});
             });
           }
-
           const copy=d.getElementById('preview-copy-case');
-          if(copy&&code){
-            copy.addEventListener('click',async()=>{
-              try{await navigator.clipboard.writeText(code.textContent);copy.textContent='コピーしました';setTimeout(()=>copy.textContent='番号をコピー',1400)}catch(e){copy.textContent='番号を選択してコピー';}
-            });
-          }
-
+          if(copy&&code){copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.textContent);copy.textContent='コピーしました';setTimeout(()=>copy.textContent='番号をコピー',1400)}catch(e){copy.textContent='番号を選択してコピー';}})}
           const eye=d.getElementById('password-eye');
           const pass=d.getElementById('zip-password');
-          if(eye&&pass){
-            eye.addEventListener('click',()=>{
-              const show=pass.type==='password';
-              pass.type=show?'text':'password';
-              eye.setAttribute('aria-pressed',show?'true':'false');
-              eye.setAttribute('aria-label',show?'パスワードを隠す':'パスワードを表示');
-            });
-          }
+          if(eye&&pass){eye.addEventListener('click',()=>{const show=pass.type==='password';pass.type=show?'text':'password';eye.setAttribute('aria-pressed',show?'true':'false');eye.setAttribute('aria-label',show?'パスワードを隠す':'パスワードを表示');})}
         }
 
-        // 送受信ルールを利用者に見える形で明示。
         const faq=d.getElementById('faq');
         if(faq&&!d.getElementById('data-transfer-rule')){
           const rule=d.createElement('div');
@@ -177,11 +171,10 @@
           faq.appendChild(rule);
         }
 
-        // サイド導線から2段階受付が分かるようにする。
         d.querySelectorAll('.side-card').forEach(card=>{
           if(card.textContent.includes('相談前に')){
             const p=card.querySelector('p');
-            if(p)p.textContent='相談内容＋パスワード付きZIPを送信後、自動発行された相談番号を使って別フォームからZIPパスワードを送る2段階受付です。';
+            if(p)p.textContent='相談は2ステップです。相談内容＋パスワード付きZIPを送信後、自動発行された相談番号を使って別フォームからZIPパスワードを送信します。';
           }
         });
       });

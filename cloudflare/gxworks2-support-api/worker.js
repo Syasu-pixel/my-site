@@ -22,23 +22,20 @@ export default {
       }, 200, origin);
     }
 
+    if (!isAllowedOrigin(origin)) {
+      return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
+    }
+
     if (request.method === 'POST' && url.pathname === '/consultations') {
-      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return createConsultation(request, env, origin);
     }
-
     if (request.method === 'PUT' && url.pathname === '/consultations/zip') {
-      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return uploadConsultationZip(request, env, origin);
     }
-
     if (request.method === 'POST' && url.pathname === '/consultations/status') {
-      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return consultationStatus(request, env, origin);
     }
-
     if (request.method === 'POST' && url.pathname === '/consultations/password') {
-      if (!isAllowedOrigin(origin)) return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
       return submitConsultationPassword(request, env, origin);
     }
 
@@ -52,11 +49,8 @@ async function createConsultation(request, env, origin) {
   }
 
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ ok: false, error: 'Invalid JSON' }, 400, origin);
-  }
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'Invalid JSON' }, 400, origin); }
 
   const idempotencyKey = clean(body.idempotencyKey, 80);
   if (!isValidIdempotencyKey(idempotencyKey)) {
@@ -82,7 +76,6 @@ async function createConsultation(request, env, origin) {
   if (!row) {
     const now = new Date().toISOString();
     const caseNumber = createCaseNumber();
-
     try {
       await env.DB.prepare(`
         INSERT INTO consultations (
@@ -105,15 +98,11 @@ async function createConsultation(request, env, origin) {
         return json({ ok: false, error: 'This request key was already used for different content' }, 409, origin);
       }
     }
-
     row = row || await getConsultationByIdempotency(env.DB, idempotencyKey);
-    if (!row) return json({ ok: false, error: 'Receipt database read failed' }, 503, origin);
     await addEvent(env.DB, row.id, 'received', 'Consultation metadata accepted into D1; ZIP upload pending');
   }
 
-  if (row.zip_object_key) {
-    return continueConsultation(row, env, origin, existed);
-  }
+  if (row.zip_object_key) return continueConsultation(row, env, origin, existed);
 
   return json({
     ok: true,
@@ -150,9 +139,7 @@ async function uploadConsultationZip(request, env, origin) {
     }
   }
 
-  if (!request.body) {
-    return json({ ok: false, error: 'ZIP request body is required' }, 400, origin);
-  }
+  if (!request.body) return json({ ok: false, error: 'ZIP request body is required' }, 400, origin);
 
   const contentType = (request.headers.get('Content-Type') || '').toLowerCase();
   if (contentType && !contentType.includes('zip') && !contentType.includes('octet-stream')) {
@@ -197,12 +184,8 @@ async function uploadConsultationZip(request, env, origin) {
   const now = new Date().toISOString();
   await env.DB.prepare(`
     UPDATE consultations
-       SET state='zip_uploaded',
-           zip_size=?2,
-           zip_storage_mode='r2-private',
-           zip_object_key=?3,
-           updated_at=?4,
-           last_error=NULL
+       SET state='zip_uploaded', zip_size=?2, zip_storage_mode='r2-private',
+           zip_object_key=?3, updated_at=?4, last_error=NULL
      WHERE id=?1
   `).bind(row.id, stored.size, objectKey, now).run();
   await addEvent(env.DB, row.id, 'zip_uploaded', `Stored privately in R2: ${objectKey} (${stored.size} bytes)`);
@@ -278,33 +261,22 @@ async function continueConsultation(row, env, origin, duplicate = false) {
   return completedResponse(current, origin, duplicate);
 }
 
-function completedResponse(row, origin, duplicate = false) {
-  return json({
-    ok: true,
-    duplicate,
-    uploadRequired: false,
-    caseNumber: row.case_number,
-    acceptedAt: row.accepted_at,
-    state: row.state,
-    zipUploaded: Boolean(row.zip_object_key),
-    zipHandling: row.zip_storage_mode,
-    completed: row.state === 'completed',
-  }, 200, origin);
-}
-
 async function consultationStatus(request, env, origin) {
   if (!env.DB) return json({ ok: false, error: 'Database is not configured' }, 500, origin);
+
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ ok: false, error: 'Invalid JSON' }, 400, origin);
-  }
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'Invalid JSON' }, 400, origin); }
+
   const key = clean(body.idempotencyKey, 80);
   if (!isValidIdempotencyKey(key)) return json({ ok: false, error: 'Invalid idempotency key' }, 400, origin);
+
   const row = await getConsultationByIdempotency(env.DB, key);
   if (!row) return json({ ok: false, found: false }, 404, origin);
-  const passwordRow = await getPasswordByConsultationId(env.DB, row.id).catch(() => null);
+
+  let passwordRow = null;
+  try { passwordRow = await getPasswordByConsultationId(env.DB, row.id); } catch {}
+
   return json({
     ok: true,
     found: true,
@@ -327,11 +299,8 @@ async function submitConsultationPassword(request, env, origin) {
   }
 
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ ok: false, error: 'Invalid JSON' }, 400, origin);
-  }
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'Invalid JSON' }, 400, origin); }
 
   const idempotencyKey = clean(body.idempotencyKey, 80);
   const caseNumber = clean(body.caseNumber, 40).toUpperCase();
@@ -357,21 +326,13 @@ async function submitConsultationPassword(request, env, origin) {
 
   const passwordHash = await sha256Hex(password);
   const existing = await getPasswordByConsultationId(env.DB, row.id);
-
   if (existing && existing.password_hash === passwordHash && existing.notification_status === 'sent') {
-    return json({
-      ok: true,
-      duplicate: true,
-      caseNumber: row.case_number,
-      passwordReceived: true,
-      notificationSent: true,
-    }, 200, origin);
+    return json({ ok: true, duplicate: true, caseNumber, passwordReceived: true, notificationSent: true }, 200, origin);
   }
 
   let encrypted;
-  try {
-    encrypted = await encryptPassword(password, env.GXW_PASSWORD_KEY);
-  } catch (error) {
+  try { encrypted = await encryptPassword(password, env.GXW_PASSWORD_KEY); }
+  catch (error) {
     console.error('Password encryption failed', error);
     return json({ ok: false, error: 'Password encryption failed' }, 500, origin);
   }
@@ -390,40 +351,35 @@ async function submitConsultationPassword(request, env, origin) {
       notification_status=CASE
         WHEN consultation_passwords.password_hash=excluded.password_hash
          AND consultation_passwords.notification_status='sent'
-        THEN 'sent'
-        ELSE 'pending'
-      END,
+        THEN 'sent' ELSE 'pending' END,
       notification_sent_at=CASE
         WHEN consultation_passwords.password_hash=excluded.password_hash
          AND consultation_passwords.notification_status='sent'
-        THEN consultation_passwords.notification_sent_at
-        ELSE NULL
-      END,
+        THEN consultation_passwords.notification_sent_at ELSE NULL END,
       notification_provider_id=CASE
         WHEN consultation_passwords.password_hash=excluded.password_hash
          AND consultation_passwords.notification_status='sent'
-        THEN consultation_passwords.notification_provider_id
-        ELSE NULL
-      END,
+        THEN consultation_passwords.notification_provider_id ELSE NULL END,
       last_error=NULL
   `).bind(row.id, passwordHash, encrypted.ciphertext, encrypted.iv, now).run();
 
   await addEvent(env.DB, row.id, 'password_received', 'ZIP password received and encrypted in separate D1 storage');
 
   let passwordRow = await getPasswordByConsultationId(env.DB, row.id);
-  if (passwordRow?.notification_status !== 'sent') {
+  if (passwordRow.notification_status !== 'sent') {
     const result = await sendEmail(env, buildPasswordAdminEmail(row, password));
     if (!result.ok) {
+      const failedAt = new Date().toISOString();
       await env.DB.prepare(`
         UPDATE consultation_passwords
            SET notification_status='failed', last_error=?2, updated_at=?3
          WHERE consultation_id=?1
-      `).bind(row.id, safeDetail(result.body), new Date().toISOString()).run();
+      `).bind(row.id, safeDetail(result.body), failedAt).run();
       await addEvent(env.DB, row.id, 'password_notification_failed', safeDetail(result.body));
       return json({
         ok: false,
         recoverable: true,
-        caseNumber: row.case_number,
+        caseNumber,
         passwordReceived: true,
         notificationSent: false,
         error: 'Password was saved, but owner notification failed',
@@ -444,7 +400,7 @@ async function submitConsultationPassword(request, env, origin) {
   return json({
     ok: true,
     duplicate: Boolean(existing && existing.password_hash === passwordHash),
-    caseNumber: row.case_number,
+    caseNumber,
     passwordReceived: true,
     notificationSent: passwordRow?.notification_status === 'sent',
   }, 200, origin);
@@ -455,21 +411,28 @@ async function encryptPassword(password, secret) {
   const key = await crypto.subtle.importKey('raw', material, { name: 'AES-GCM' }, false, ['encrypt']);
   const iv = new Uint8Array(12);
   crypto.getRandomValues(iv);
-  const encrypted = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    new TextEncoder().encode(password)
-  );
-  return {
-    ciphertext: bytesToBase64(new Uint8Array(encrypted)),
-    iv: bytesToBase64(iv),
-  };
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(password));
+  return { ciphertext: bytesToBase64(new Uint8Array(encrypted)), iv: bytesToBase64(iv) };
 }
 
 function bytesToBase64(bytes) {
   let binary = '';
   for (const byte of bytes) binary += String.fromCharCode(byte);
   return btoa(binary);
+}
+
+function completedResponse(row, origin, duplicate = false) {
+  return json({
+    ok: true,
+    duplicate,
+    uploadRequired: false,
+    caseNumber: row.case_number,
+    acceptedAt: row.accepted_at,
+    state: row.state,
+    zipUploaded: Boolean(row.zip_object_key),
+    zipHandling: row.zip_storage_mode,
+    completed: row.state === 'completed',
+  }, 200, origin);
 }
 
 async function claimMail(db, id, kind) {
@@ -482,10 +445,7 @@ async function claimMail(db, id, kind) {
     UPDATE consultations
        SET ${statusCol}='sending', ${startedCol}=?2, updated_at=?2
      WHERE id=?1
-       AND (
-         ${statusCol} IN ('pending','failed')
-         OR (${statusCol}='sending' AND (${startedCol} IS NULL OR ${startedCol} < ?3))
-       )
+       AND (${statusCol} IN ('pending','failed') OR (${statusCol}='sending' AND (${startedCol} IS NULL OR ${startedCol} < ?3)))
   `).bind(id, nowIso, staleIso).run();
   if ((result.meta?.changes || 0) > 0) return 'claimed';
   const row = await getConsultationById(db, id);
@@ -507,7 +467,7 @@ async function markMailSent(db, id, kind, providerId) {
 async function markMailFailed(db, id, kind, detail) {
   const statusCol = `${kind}_mail_status`;
   const now = new Date().toISOString();
-  await env.DB.prepare(`
+  await db.prepare(`
     UPDATE consultations
        SET ${statusCol}='failed', updated_at=?2, last_error=?3
      WHERE id=?1
@@ -517,11 +477,9 @@ async function markMailFailed(db, id, kind, detail) {
 async function getConsultationByIdempotency(db, key) {
   return db.prepare('SELECT * FROM consultations WHERE idempotency_key=?1 LIMIT 1').bind(key).first();
 }
-
 async function getConsultationById(db, id) {
   return db.prepare('SELECT * FROM consultations WHERE id=?1 LIMIT 1').bind(id).first();
 }
-
 async function getPasswordByConsultationId(db, consultationId) {
   return db.prepare('SELECT * FROM consultation_passwords WHERE consultation_id=?1 LIMIT 1').bind(consultationId).first();
 }
@@ -555,8 +513,7 @@ function buildAdminEmail(row) {
     to: [],
     subject: `[${row.case_number}] GX Works2 新規相談受付`,
     text: [
-      'GX Works2 オンライン相談を受け付けました。',
-      '',
+      'GX Works2 オンライン相談を受け付けました。', '',
       `相談番号: ${row.case_number}`,
       `受付日時: ${row.accepted_at}`,
       `お名前: ${row.name}`,
@@ -567,14 +524,9 @@ function buildAdminEmail(row) {
       `GX Works2データ: ${row.gxdata || '未入力'}`,
       `ZIPファイル名: ${row.zip_name || '未入力'}`,
       `ZIP容量: ${formatBytes(row.zip_size)}`,
-      `ZIP保存: 非公開R2 (${row.zip_object_key || '未保存'})`,
-      '',
-      '現在困っていること:',
-      row.problem,
-      '',
-      'どのように変更したいか:',
-      row.desired,
-      '',
+      `ZIP保存: 非公開R2 (${row.zip_object_key || '未保存'})`, '',
+      '現在困っていること:', row.problem, '',
+      'どのように変更したいか:', row.desired, '',
       '※ ZIP本体はメール添付ではなく、非公開R2バケットに保存されています。'
     ].join('\n'),
     reply_to: row.email,
@@ -587,15 +539,12 @@ function buildCustomerEmail(row) {
     to: [row.email],
     subject: `[${row.case_number}] GX Works2 オンライン相談を受け付けました`,
     text: [
-      `${row.name} 様`,
-      '',
+      `${row.name} 様`, '',
       'GX Works2 オンライン相談を受け付けました。',
-      `相談番号: ${row.case_number}`,
-      '',
+      `相談番号: ${row.case_number}`, '',
       'パスワード付きZIPファイルの受信が完了しています。',
       '続けて、画面に表示された相談番号を使ってZIPパスワードを別送してください。',
-      '内容を確認後、返信用メールアドレスへご連絡します。',
-      '',
+      '内容を確認後、返信用メールアドレスへご連絡します。', '',
       '電気と制御の実務メモ'
     ].join('\n'),
   };
@@ -607,14 +556,11 @@ function buildPasswordAdminEmail(row, password) {
     to: [],
     subject: `[${row.case_number}] ZIPパスワード受信`,
     text: [
-      'GX Works2 オンライン相談のZIPパスワードを別送で受け付けました。',
-      '',
+      'GX Works2 オンライン相談のZIPパスワードを別送で受け付けました。', '',
       `相談番号: ${row.case_number}`,
       `お名前: ${row.name}`,
-      `返信先: ${row.email}`,
-      '',
-      `ZIPパスワード: ${password}`,
-      '',
+      `返信先: ${row.email}`, '',
+      `ZIPパスワード: ${password}`, '',
       '※ ZIP本体はこのメールには添付されていません。非公開R2に別管理されています。',
       '※ パスワードはD1内では暗号化して保存しています。'
     ].join('\n'),
@@ -656,10 +602,7 @@ function sanitizeConsultation(body) {
 
 function createCaseNumber() {
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
   const bytes = new Uint8Array(4);
@@ -673,29 +616,18 @@ async function sha256Hex(value) {
   return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function isValidIdempotencyKey(value) {
-  return /^[A-Za-z0-9_-]{20,80}$/.test(value);
-}
-
-function isZipName(value) {
-  return typeof value === 'string' && value.toLowerCase().endsWith('.zip');
-}
-
+function isValidIdempotencyKey(value) { return /^[A-Za-z0-9_-]{20,80}$/.test(value); }
+function isZipName(value) { return typeof value === 'string' && value.toLowerCase().endsWith('.zip'); }
 function parsePositiveInteger(value) {
   if (value === null || value === undefined || value === '') return 0;
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 }
-
 function clean(value, max) {
   if (typeof value !== 'string') return '';
   return value.replace(/\u0000/g, '').trim().slice(0, max);
 }
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
-}
-
+function isValidEmail(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254; }
 function formatBytes(value) {
   if (!value || value < 1) return '未入力';
   if (value < 1024) return `${value} B`;
@@ -703,7 +635,6 @@ function formatBytes(value) {
   if (value < 1024 ** 3) return `${(value / 1024 ** 2).toFixed(1)} MB`;
   return `${(value / 1024 ** 3).toFixed(2)} GB`;
 }
-
 function safeDetail(value) {
   let text;
   try { text = typeof value === 'string' ? value : JSON.stringify(value); }
@@ -717,9 +648,7 @@ function isAllowedOrigin(origin) {
   try {
     const u = new URL(origin);
     return u.protocol === 'https:' && u.hostname.endsWith(ALLOWED_ORIGIN_SUFFIX);
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 function corsHeaders(origin) {
@@ -736,9 +665,6 @@ function corsHeaders(origin) {
 function json(data, status = 200, origin = '') {
   return new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      ...corsHeaders(origin),
-    },
+    headers: { 'Content-Type': 'application/json; charset=UTF-8', ...corsHeaders(origin) },
   });
 }

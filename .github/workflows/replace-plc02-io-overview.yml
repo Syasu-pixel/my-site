@@ -1,0 +1,104 @@
+name: Replace PLC02 I/O overview image
+
+on:
+  push:
+    branches:
+      - preview-plc-drilling-project-02-outline
+    paths:
+      - .github/workflows/replace-plc02-io-overview.yml
+
+permissions:
+  contents: write
+
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-plc-drilling-project-02-outline
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser tooling
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Download replacement image
+        env:
+          SHARE_URL: https://firestorage.ai/ja/f/9zgOOxVndZVp
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          source_name = 'plc02-io-overview-new.webp'
+          target = Path('assets/images/articles/plc-drilling-line-design-project-02-io-overview.webp')
+          target.parent.mkdir(parents=True, exist_ok=True)
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              page = browser.new_page(accept_downloads=True)
+              page.goto(os.environ['SHARE_URL'], wait_until='networkidle', timeout=120000)
+              label = page.get_by_text(source_name, exact=True)
+              if label.count() == 0:
+                  label = page.get_by_text(source_name)
+              if label.count() == 0:
+                  raise RuntimeError('replacement file not found')
+              node = label.first
+              node.scroll_into_view_if_needed()
+              patterns = [r'ダウンロード', r'Download', r'保存']
+              containers = [
+                  node.locator('xpath=ancestor-or-self::*[self::tr or @role="row"][1]'),
+                  node.locator('xpath=ancestor-or-self::*[self::li or self::article][1]'),
+                  node.locator('xpath=ancestor-or-self::div[1]'),
+              ]
+              done = False
+              for container in containers:
+                  if done or container.count() == 0:
+                      continue
+                  for pat in patterns:
+                      for role in ('button','link'):
+                          try:
+                              loc = container.get_by_role(role, name=pat)
+                              if loc.count():
+                                  with page.expect_download(timeout=30000) as di:
+                                      loc.first.click()
+                                  di.value.save_as(target)
+                                  done = True
+                                  break
+                          except Exception:
+                              pass
+                      if done:
+                          break
+              if not done:
+                  node.click()
+                  page.wait_for_timeout(1200)
+                  for pat in patterns:
+                      for role in ('button','link'):
+                          try:
+                              loc = page.get_by_role(role, name=pat)
+                              if loc.count():
+                                  with page.expect_download(timeout=30000) as di:
+                                      loc.first.click()
+                                  di.value.save_as(target)
+                                  done = True
+                                  break
+                          except Exception:
+                              pass
+                      if done:
+                          break
+              browser.close()
+              if not done or not target.exists() or target.stat().st_size < 10000:
+                  raise RuntimeError('replacement download failed')
+              print(target, target.stat().st_size)
+          PY
+      - name: Commit replacement image
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/images/articles/plc-drilling-line-design-project-02-io-overview.webp
+          git diff --cached --quiet && exit 0
+          git commit -m '第2回I/O設計の全体像画像を差し替え'
+          git push origin HEAD:preview-plc-drilling-project-02-outline

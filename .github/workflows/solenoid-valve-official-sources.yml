@@ -1,0 +1,24 @@
+name: Solenoid Valve Official Sources
+on:
+  push:
+    paths:
+      - '.github/workflows/solenoid-valve-official-sources.yml'
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-solenoid-valve-troubleshooting-text-refresh-20260916
+      - name: Apply official source box
+        run: python scripts/solenoid-valve-official-sources.py
+      - name: Clean temporary automation and commit
+        run: |
+          rm -f scripts/solenoid-valve-official-sources.py .github/workflows/solenoid-valve-official-sources.yml
+          git config user.name "Syasu-pixel"
+          git config user.email "syasuta0819@gmail.com"
+          git add -A
+          git commit -m "Add manufacturer sources to solenoid valve troubleshooting article"
+          git push

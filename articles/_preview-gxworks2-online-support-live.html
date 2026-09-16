@@ -97,6 +97,76 @@
         }
       }
 
+      function injectPasswordPasteUx(d){
+        const input=d.getElementById('zip-password');
+        if(!input||input.dataset.pasteUx==='1')return;
+        input.dataset.pasteUx='1';
+
+        input.type='text';
+        input.name='zip_secret';
+        input.autocomplete='off';
+        input.setAttribute('autocapitalize','none');
+        input.setAttribute('autocorrect','off');
+        input.setAttribute('spellcheck','false');
+        input.classList.add('zip-password-masked');
+
+        const wrap=input.parentElement;
+        const eye=wrap?.querySelector('button');
+        if(eye){
+          eye.setAttribute('aria-label','パスワードの表示切替');
+          eye.addEventListener('click',()=>{
+            input.classList.toggle('zip-password-masked');
+          });
+        }
+
+        if(wrap&&!wrap.querySelector('.zip-paste-btn')){
+          const btn=d.createElement('button');
+          btn.type='button';
+          btn.className='zip-paste-btn';
+          btn.textContent='クリップボードから貼り付け';
+          btn.addEventListener('click',async()=>{
+            try{
+              const text=await navigator.clipboard.readText();
+              input.value=text.trim();
+              input.dispatchEvent(new Event('input',{bubbles:true}));
+              input.focus();
+              btn.textContent='貼り付けました';
+              setTimeout(()=>{btn.textContent='クリップボードから貼り付け';},1400);
+            }catch{
+              input.focus();
+              btn.textContent='Ctrl+Vで貼り付け';
+              setTimeout(()=>{btn.textContent='クリップボードから貼り付け';},1800);
+            }
+          });
+          wrap.insertAdjacentElement('afterend',btn);
+        }
+
+        const field=input.closest('.form-field');
+        if(field&&!field.querySelector('.zip-paste-help')){
+          const help=d.createElement('div');
+          help.className='case-help zip-paste-help';
+          help.textContent='ZIP作成時に設定したパスワードをコピーして、上のボタンから貼り付けできます。';
+          const btn=field.querySelector('.zip-paste-btn');
+          if(btn)btn.insertAdjacentElement('afterend',help);
+        }
+
+        if(!d.getElementById('zip-password-paste-style')){
+          const style=d.createElement('style');
+          style.id='zip-password-paste-style';
+          style.textContent=`
+            #zip-password.zip-password-masked{-webkit-text-security:disc}
+            .zip-paste-btn{margin-top:9px;min-height:44px;padding:10px 14px;border:1px solid #93c5fd;border-radius:10px;background:#eff6ff;color:#1d4ed8;font:inherit;font-weight:700;cursor:pointer}
+            .zip-paste-btn:hover{background:#dbeafe}
+            .zip-paste-help{margin-top:7px;line-height:1.55}
+            @media(max-width:760px){
+              .zip-paste-btn{width:100%;min-height:48px;font-size:16px}
+              .zip-paste-help{font-size:12px}
+            }
+          `;
+          d.head.appendChild(style);
+        }
+      }
+
       function wire(){
         if(wired)return;
         const d=getServiceDocument();
@@ -112,6 +182,7 @@
         if(!oldButton||!zipInput||!complete||!caseCode||!caseInput||!status)return;
 
         injectPlcSelector(d);
+        injectPasswordPasteUx(d);
 
         wired=true;
         const button=oldButton.cloneNode(true);

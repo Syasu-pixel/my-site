@@ -1,0 +1,36 @@
+name: GX Works2 Hero Fit Fix
+on:
+  push:
+    branches: [preview-gxworks2-online-support-v3]
+    paths: [.github/workflows/gxworks2-hero-fit-fix.yml]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-gxworks2-online-support-v3
+          fetch-depth: 0
+      - name: Restore wrapper and remove cover crop
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show 06bb3f8a90246b0076374fdcf12dc1ec502aa7ba:articles/_preview-gxworks2-online-support.html > articles/_preview-gxworks2-online-support.html
+          python3 - <<'PY'
+          p='articles/_preview-gxworks2-online-support.html'
+          s=open(p,encoding='utf-8').read()
+          old="background-size:cover!important;background-position:center right!important;background-repeat:no-repeat!important"
+          new="background-size:100% 100%,contain!important;background-position:center center,right center!important;background-repeat:no-repeat,no-repeat!important"
+          if old not in s: raise SystemExit('desktop hero CSS target not found')
+          s=s.replace(old,new,1)
+          s=s.replace("@media(max-width:900px){.article-hero{background-position:62% center!important}","@media(max-width:900px){.article-hero{background-position:center center,right center!important}",1)
+          s=s.replace(".article-hero{background-position:68% center!important}",".article-hero{background-position:center center,right center!important}",1)
+          open(p,'w',encoding='utf-8').write(s)
+          PY
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/_preview-gxworks2-online-support.html
+          git commit -m "Show full GX Works2 hero without cover cropping"
+          git push origin HEAD:preview-gxworks2-online-support-v3

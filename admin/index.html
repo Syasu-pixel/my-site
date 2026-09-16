@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>運営ダッシュボード｜電気と制御の実務メモ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;color:#172033;background:#eef3f8;--line:#d8e3f0;--blue:#2563eb;--muted:#64748b}
+    *{box-sizing:border-box}body{margin:0;background:#eef3f8;color:#172033}button{font:inherit}
+    .shell{min-height:100vh;display:grid;grid-template-columns:220px minmax(0,1fr)}
+    .side{background:#172033;color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh}.brand{display:flex;gap:10px;align-items:center;color:#fff;text-decoration:none}.brand img{width:42px}.brand strong{font-size:14px}.brand small{display:block;font-size:10px;opacity:.72;margin-top:2px}
+    .nav{display:grid;gap:7px;margin-top:28px}.nav a,.nav span{display:block;padding:10px 12px;border-radius:11px;color:#dbe5f1;text-decoration:none;font-size:12px;font-weight:800}.nav .active{background:#2b3a55;color:#fff}.nav .disabled{opacity:.45}.side-note{position:absolute;left:16px;right:16px;bottom:20px;font-size:10px;line-height:1.6;color:#9fb0c5}
+    .main{min-width:0}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 22px;position:sticky;top:0;z-index:10}.topbar h1{font-size:17px;margin:0}.topbar .spacer{flex:1}.topbar button{border:1px solid #cfd9e5;background:#fff;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer}.topbar button:hover{background:#f8fafc}.user{font-size:11px;color:#64748b;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .content{padding:24px;width:min(1180px,100%);margin:0 auto}.intro{display:flex;align-items:flex-end;gap:14px;justify-content:space-between;margin-bottom:18px}.intro h2{margin:0 0 5px;font-size:25px}.intro p{margin:0;color:var(--muted);font-size:13px}.updated{font-size:11px;color:#64748b}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.04)}.stat .label{font-size:11px;color:#64748b;font-weight:800}.stat .value{margin-top:6px;font-size:28px;font-weight:900}.stat .sub{margin-top:5px;font-size:11px;color:#94a3b8}.stat.good .value{color:#16794f}.stat.bad .value{color:#b42318}.stat.rate .value{color:#1d4ed8}
+    .grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr);gap:16px;margin-top:16px}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 22px rgba(15,23,42,.04)}.panel h3{margin:0;font-size:16px}.panel-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.panel-head p{margin:3px 0 0;color:#64748b;font-size:11px}
+    .table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:14px}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;padding:12px 13px;border-bottom:1px solid #edf2f7;font-size:12px}th{background:#f8fafc;color:#64748b;font-size:10px;letter-spacing:.02em}.article-title{font-weight:800;color:#25324a}.slug{display:block;color:#94a3b8;font-size:10px;margin-top:2px}.rate-pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#1d4ed8;font-weight:900}.empty{padding:24px;text-align:center;color:#94a3b8;font-size:12px}
+    .recent{display:grid;gap:8px}.recent-item{border:1px solid #e6edf5;border-radius:13px;padding:11px 12px;background:#fbfdff}.recent-main{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:800}.vote-good{color:#16794f}.vote-bad{color:#b42318}.recent-time{margin-top:4px;color:#94a3b8;font-size:10px}.hint{margin-top:16px;padding:13px 14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:14px;color:#475569;font-size:11px;line-height:1.7}
+    .loading{position:fixed;inset:0;background:#eef3f8;z-index:30;display:grid;place-items:center;font-size:13px;font-weight:800;color:#64748b}.loading.hidden{display:none}
+    @media(max-width:900px){.shell{grid-template-columns:1fr}.side{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.topbar{padding:0 14px}.content{padding:18px 14px}.user{display:none}}
+    @media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.stat{padding:14px}.stat .value{font-size:23px}.intro{align-items:flex-start;flex-direction:column}.topbar h1{font-size:15px}}
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">管理者権限を確認しています…</div>
+  <div class="shell">
+    <aside class="side">
+      <a class="brand" href="./">
+        <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ">
+        <span><strong>運営ダッシュボード</strong><small>denkicontrol.com</small></span>
+      </a>
+      <nav class="nav" aria-label="管理メニュー">
+        <a class="active" href="./">概要・記事評価</a>
+        <span class="disabled">GSC分析（今後追加）</span>
+        <span class="disabled">記事管理（今後追加）</span>
+        <span class="disabled">サイト異常（今後追加）</span>
+        <span class="disabled">運営タスク（今後追加）</span>
+      </nav>
+      <p class="side-note">検索対象外・管理者認証必須。<br>AI編集部とは別の「運営状況を見る場所」です。</p>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <h1>運営ダッシュボード</h1>
+        <div class="spacer"></div>
+        <span id="userEmail" class="user"></span>
+        <button id="refreshButton" type="button">更新</button>
+        <button id="logoutButton" type="button">ログアウト</button>
+      </header>
+
+      <main class="content">
+        <div class="intro">
+          <div><h2>記事評価</h2><p>読者の「役に立った / 役に立たなかった」を記事ごとに確認します。</p></div>
+          <div id="updatedAt" class="updated">—</div>
+        </div>
+
+        <section class="stats" aria-label="記事評価サマリー">
+          <div class="stat"><div class="label">総投票数</div><div class="value" id="totalVotes">0</div><div class="sub">全記事合計</div></div>
+          <div class="stat good"><div class="label">👍 役に立った</div><div class="value" id="helpfulVotes">0</div><div class="sub">肯定評価</div></div>
+          <div class="stat bad"><div class="label">👎 役に立たなかった</div><div class="value" id="notHelpfulVotes">0</div><div class="sub">改善候補</div></div>
+          <div class="stat rate"><div class="label">好評価率</div><div class="value" id="helpfulRate">0%</div><div class="sub" id="periodVotes">直近7日 0件 / 30日 0件</div></div>
+        </section>
+
+        <div class="grid">
+          <section class="panel">
+            <div class="panel-head"><div><h3>記事別の評価</h3><p>投票数と評価率を比較できます。</p></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>記事</th><th>投票</th><th>👍</th><th>👎</th><th>好評価率</th><th>最終投票</th></tr></thead>
+                <tbody id="articleRows"><tr><td colspan="6" class="empty">読み込み中…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="panel">
+            <div class="panel-head"><div><h3>最近の投票</h3><p>最新20件。匿名キーは表示しません。</p></div></div>
+            <div id="recentVotes" class="recent"><div class="empty">読み込み中…</div></div>
+            <div class="hint">今後ここに「低評価が増えた記事」「一定数の投票がたまった記事」などの要確認カードを追加できます。</div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL='https://pavitnsnmoaiospswiys.supabase.co';
+    const SUPABASE_KEY='sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+    const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    const articleNames={
+      'plc-drilling-line-design-project-01':'PLCで設備を1から設計する｜穴あけ加工ライン 第1回'
+    };
+
+    const fmtDate=(value)=>value?new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value)):'—';
+    const esc=(value)=>String(value??'').replace(/[&<>'"]/g,(char)=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+
+    async function loadDashboard(){
+      const {data:userData,error:userError}=await sb.auth.getUser();
+      if(userError||!userData?.user){location.replace('./login.html');return;}
+      document.getElementById('userEmail').textContent=userData.user.email||'管理者';
+
+      const {data,error}=await sb.rpc('admin_article_feedback_dashboard');
+      if(error){
+        console.error('[admin dashboard]',error);
+        await sb.auth.signOut();
+        location.replace('./login.html?unauthorized=1');
+        return;
+      }
+
+      render(data||{});
+      document.getElementById('loading').classList.add('hidden');
+    }
+
+    function render(data){
+      const s=data.summary||{};
+      document.getElementById('totalVotes').textContent=s.total_votes??0;
+      document.getElementById('helpfulVotes').textContent=s.helpful??0;
+      document.getElementById('notHelpfulVotes').textContent=s.not_helpful??0;
+      document.getElementById('helpfulRate').textContent=`${Number(s.helpful_rate||0).toFixed(1).replace('.0','')}%`;
+      document.getElementById('periodVotes').textContent=`直近7日 ${s.last_7_days??0}件 / 30日 ${s.last_30_days??0}件`;
+      document.getElementById('updatedAt').textContent=`更新：${fmtDate(new Date())}`;
+
+      const rows=document.getElementById('articleRows');
+      const articles=Array.isArray(data.articles)?data.articles:[];
+      if(!articles.length){rows.innerHTML='<tr><td colspan="6" class="empty">まだ投票はありません。</td></tr>';}
+      else{
+        rows.innerHTML=articles.map((a)=>`<tr><td><span class="article-title">${esc(articleNames[a.article_slug]||a.article_slug)}</span><span class="slug">${esc(a.article_slug)}</span></td><td>${a.total_votes??0}</td><td>${a.helpful??0}</td><td>${a.not_helpful??0}</td><td><span class="rate-pill">${Number(a.helpful_rate||0).toFixed(1).replace('.0','')}%</span></td><td>${esc(fmtDate(a.last_vote_at))}</td></tr>`).join('');
+      }
+
+      const recent=document.getElementById('recentVotes');
+      const votes=Array.isArray(data.recent)?data.recent:[];
+      if(!votes.length){recent.innerHTML='<div class="empty">まだ投票はありません。</div>';}
+      else{
+        recent.innerHTML=votes.map((v)=>`<div class="recent-item"><div class="recent-main"><span>${esc(articleNames[v.article_slug]||v.article_slug)}</span><span class="${v.vote==='helpful'?'vote-good':'vote-bad'}">${v.vote==='helpful'?'👍 役に立った':'👎 役に立たなかった'}</span></div><div class="recent-time">${esc(fmtDate(v.updated_at))}</div></div>`).join('');
+      }
+    }
+
+    document.getElementById('refreshButton').addEventListener('click',()=>{document.getElementById('loading').classList.remove('hidden');loadDashboard();});
+    document.getElementById('logoutButton').addEventListener('click',async()=>{await sb.auth.signOut();location.replace('./login.html');});
+    loadDashboard();
+  </script>
+</body>
+</html>

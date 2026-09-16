@@ -1,11 +1,10 @@
 (() => {
-  const articleSlug = 'plc-drilling-line-design-project-01';
-  const path = location.pathname.replace(/\/+$/, '');
-  if (!path.endsWith(`/articles/${articleSlug}.html`)) return;
   if (document.getElementById('articleFeedbackCard')) return;
 
   const mainColumn = document.querySelector('.main-column');
   if (!mainColumn) return;
+
+  const articleSlug = 'plc-drilling-line-design-project-01';
 
   const style = document.createElement('style');
   style.id = 'article-feedback-style';

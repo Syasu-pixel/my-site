@@ -1,0 +1,28 @@
+name: Emergency Stop Official Sources
+on:
+  push:
+    branches:
+      - preview-emergency-stop-switch-text-refresh-20260916
+    paths:
+      - scripts/emergency-stop-official-sources.py
+      - .github/workflows/emergency-stop-official-sources.yml
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-emergency-stop-switch-text-refresh-20260916
+      - name: Apply official source box
+        run: python scripts/emergency-stop-official-sources.py
+      - name: Clean temporary automation and commit
+        run: |
+          rm -f scripts/emergency-stop-official-sources.py .github/workflows/emergency-stop-official-sources.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/emergency-stop-switch-basic.html scripts/emergency-stop-official-sources.py .github/workflows/emergency-stop-official-sources.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add official sources to emergency stop article"
+          git push

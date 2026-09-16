@@ -2,11 +2,100 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta http-equiv="refresh" content="0; url=../services/gxworks2-online-support.html">
   <title>GX Works2 オンライン相談 Preview</title>
+  <style>
+    html,body{margin:0;min-height:100%;background:#f5f8fc}
+    #previewFrame{display:block;width:100%;height:100vh;border:0;background:#fff}
+  </style>
 </head>
 <body>
-  <p><a href="../services/gxworks2-online-support.html">GX Works2 オンライン相談 Previewを開く</a></p>
+  <iframe id="previewFrame" title="GX Works2 オンライン相談 Preview" src="../services/gxworks2-online-support.html"></iframe>
+  <script>
+    (()=>{
+      const frame=document.getElementById('previewFrame');
+      frame.addEventListener('load',()=>{
+        const d=frame.contentDocument;
+        if(!d)return;
+
+        // Preview専用：相談受付の間口を広げ、安全関連だけを入口で除外しない。
+        d.querySelectorAll('.note-box').forEach(box=>{
+          const h=box.querySelector('h3');
+          if(h&&h.textContent.includes('安全に関わる変更'))box.remove();
+        });
+        const ns=d.getElementById('not-supported');
+        if(ns){
+          ns.querySelectorAll('li').forEach(li=>{
+            if(li.textContent.includes('現地確認をしないと安全に変更内容を判断できない'))li.remove();
+          });
+          const open=document.createElement('div');
+          open.className='key-highlight';
+          open.innerHTML='<h3>回路変更・動作変更は、内容を問わずまずご相談いただけます</h3><p>GX Works2プロジェクトデータとご要望を確認したうえで、対応可否とお見積りをご案内します。変更後データの実機書込み・動作確認・設備としての最終確認はお客様側で実施してください。</p>';
+          ns.parentNode.insertBefore(open,ns);
+        }
+
+        // 写真がないこと自体を受付不可にしない表現へ。
+        d.querySelectorAll('#faq p').forEach(p=>{
+          if(p.textContent.includes('写真は任意です。撮影禁止の設備でもご相談いただけます。')){
+            p.textContent='写真は任意です。撮影禁止の設備でもご相談いただけます。必要な情報が不足する場合は、確認したい内容をこちらからご案内します。';
+          }
+        });
+
+        const consultation=d.getElementById('consultation');
+        if(consultation){
+          const notice=consultation.querySelector('.preview-notice');
+          if(notice)notice.textContent='このページは公開前Previewです。現在は画面確認用のため、送信・ファイルアップロードは行われません。';
+
+          const fileBox=consultation.querySelector('.file-box');
+          if(fileBox){
+            fileBox.innerHTML='<strong>Step 1｜パスワード付きZIPを送信</strong><br><small>GX Works2データ・説明メモ・任意の設備写真を1つのZIPにまとめ、ZIP自体にパスワードを設定して送信します。ZIPのパスワードは、このフォームには入力しません。</small>';
+          }
+
+          const submitRow=consultation.querySelector('.submit-row');
+          if(submitRow){
+            submitRow.innerHTML='<button class="btn btn-primary" type="button" disabled>相談内容とZIPを送信する</button><small>送信完了時に相談番号を発行し、続けて別のパスワード送信フォームへ進む想定です。</small>';
+          }
+
+          const passwordSection=d.createElement('section');
+          passwordSection.className='section-card';
+          passwordSection.id='password-submit';
+          passwordSection.innerHTML=`
+            <h2>ZIPパスワードを別送する</h2>
+            <div class="preview-notice">Step 2｜ZIP本体とは別の送信系統です。Previewのため現在は送信されません。</div>
+            <div class="key-highlight">
+              <h3>ZIPとパスワードは同時に送信しません</h3>
+              <p>相談フォームでZIPを送信したあと、発行された相談番号を使って、この別フォームからZIPパスワードだけを登録する想定です。ファイル本体とパスワードを分離して扱います。</p>
+            </div>
+            <form onsubmit="return false;">
+              <div class="form-grid">
+                <div class="form-field"><label for="case-number">相談番号</label><input id="case-number" type="text" placeholder="例：GXW-20260916-001"></div>
+                <div class="form-field"><label for="zip-password">ZIPパスワード</label><input id="zip-password" type="password" placeholder="ZIPに設定したパスワード"></div>
+              </div>
+              <div class="submit-row"><button class="btn btn-primary" type="button" disabled>パスワードを別送する</button><small>本番ではZIP保管先とは分離して受け付ける設計にします。</small></div>
+            </form>
+          `;
+          consultation.insertAdjacentElement('afterend',passwordSection);
+        }
+
+        // 送受信ルールを利用者に見える形で明示。
+        const faq=d.getElementById('faq');
+        if(faq){
+          const rule=document.createElement('div');
+          rule.className='field-highlight';
+          rule.innerHTML='<h3>データの送受信ルール</h3><p>お客様からの送信時も、変更済みデータの返却時も、パスワード付きZIPとパスワードを同じ送信にまとめません。返却時はZIP本体とパスワードを別々にご案内します。</p>';
+          faq.appendChild(rule);
+        }
+
+        // サイド導線から2段階受付が分かるようにする。
+        d.querySelectorAll('.side-card').forEach(card=>{
+          if(card.textContent.includes('相談前に')){
+            const p=card.querySelector('p');
+            if(p)p.textContent='相談内容＋パスワード付きZIPを送信後、別フォームからZIPパスワードを送る2段階受付です。';
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

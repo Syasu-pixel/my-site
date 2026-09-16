@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>GX Works2 オンライン相談 Live Preview</title>
+  <style>
+    html,body{margin:0;min-height:100%;background:#f5f8fc}
+    #previewShell{display:block;width:100%;height:100vh;border:0;background:#fff}
+  </style>
+</head>
+<body>
+  <iframe id="previewShell" title="GX Works2 オンライン相談 Live Preview" src="./_preview-gxworks2-online-support.html"></iframe>
+  <script>
+    (()=>{
+      const API='https://gxworks2-support-api.syasuta0819.workers.dev';
+      const shell=document.getElementById('previewShell');
+      let wired=false;
+
+      function getServiceDocument(){
+        try{
+          const outer=shell.contentDocument;
+          const inner=outer?.getElementById('previewFrame');
+          return inner?.contentDocument || null;
+        }catch{return null;}
+      }
+
+      function wire(){
+        if(wired)return;
+        const d=getServiceDocument();
+        if(!d)return;
+        const oldButton=d.getElementById('preview-submit-demo');
+        const zipInput=d.getElementById('zip-input');
+        const complete=d.getElementById('preview-complete');
+        const caseCode=d.getElementById('preview-case-code');
+        const caseInput=d.getElementById('case-number');
+        const status=d.getElementById('send-status');
+        const localOnly=d.querySelector('.local-only');
+        const notice=d.querySelector('#consultation .preview-notice');
+        if(!oldButton||!zipInput||!complete||!caseCode||!caseInput||!status)return;
+
+        wired=true;
+        const button=oldButton.cloneNode(true);
+        button.textContent='相談内容を実送信する（ZIP本体は次段階）';
+        oldButton.replaceWith(button);
+        status.textContent='Live Preview：相談内容・ZIP情報をWorkerへ実送信します。ZIP本体はまだ送信しません。';
+        if(localOnly)localOnly.textContent='Live Preview：ZIPのファイル名・容量だけ送信します。ZIP本体のアップロードはR2接続後に有効化します。';
+        if(notice)notice.textContent='公開前Live Previewです。相談内容は実際に受付APIへ送信され、相談番号の発行と受付メール送信まで確認できます。ZIP本体とパスワードはまだ保存しません。';
+
+        const fields={
+          name:d.getElementById('name'),email:d.getElementById('email'),company:d.getElementById('company'),plc:d.getElementById('plc'),problem:d.getElementById('problem'),desired:d.getElementById('desired'),photo:d.getElementById('photo'),gxdata:d.getElementById('gxdata')
+        };
+
+        button.addEventListener('click',async()=>{
+          const file=zipInput.files?.[0];
+          const required=[['お名前',fields.name],['返信用メールアドレス',fields.email],['現在困っていること',fields.problem],['どのように変更したいか',fields.desired]];
+          for(const [label,el] of required){
+            if(!el?.value?.trim()){
+              status.textContent=`${label}を入力してください。`;
+              el?.focus();return;
+            }
+          }
+          if(!file){
+            status.textContent='パスワード付きZIPファイルを選択してください。';
+            d.getElementById('zip-drop')?.scrollIntoView({behavior:'smooth',block:'center'});return;
+          }
+          if(!file.name.toLowerCase().endsWith('.zip')){
+            status.textContent='ZIPファイルを選択してください。';return;
+          }
+
+          button.disabled=true;
+          status.textContent='相談内容を送信中…';
+          complete.classList.remove('is-visible');
+          try{
+            const res=await fetch(`${API}/consultations`,{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                name:fields.name.value,
+                email:fields.email.value,
+                company:fields.company?.value||'',
+                plc:fields.plc?.value||'',
+                problem:fields.problem.value,
+                desired:fields.desired.value,
+                photo:fields.photo?.value||'',
+                gxdata:fields.gxdata?.value||'',
+                zipName:file.name,
+                zipSize:file.size
+              })
+            });
+            const data=await res.json().catch(()=>({}));
+            if(!res.ok||!data.ok)throw new Error(data.error||`HTTP ${res.status}`);
+            caseCode.textContent=data.caseNumber;
+            caseInput.value=data.caseNumber;
+            const p=complete.querySelector('p');
+            if(p)p.innerHTML='相談内容の受付・相談番号発行・受付メール送信まで<strong>実際に完了しました</strong>。ZIP本体のアップロードは次の実装段階で接続します。';
+            complete.classList.add('is-visible');
+            status.textContent='送信成功。受付メールと相談番号を確認してください。';
+            complete.scrollIntoView({behavior:'smooth',block:'center'});
+          }catch(err){
+            console.error(err);
+            status.textContent=`送信に失敗しました：${err.message}`;
+          }finally{
+            button.disabled=false;
+          }
+        });
+      }
+
+      shell.addEventListener('load',()=>{
+        let tries=0;
+        const timer=setInterval(()=>{
+          tries++;
+          wire();
+          if(wired||tries>80)clearInterval(timer);
+        },250);
+      });
+    })();
+  </script>
+</body>
+</html>

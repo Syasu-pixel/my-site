@@ -1,5 +1,5 @@
 (() => {
-  const pathMatch = location.pathname.match(/^\/articles\/([a-z0-9][a-z0-9-]*)\.html$/i);
+  const pathMatch = location.pathname.replace(/\/+$/, '').match(/^\/articles\/([a-z0-9][a-z0-9-]*)(?:\.html)?$/i);
   if (!pathMatch) return;
 
   const articleSlug = (document.body?.dataset?.articleSlug || pathMatch[1]).trim();
@@ -43,7 +43,14 @@
       <p class="article-feedback-status" id="articleFeedbackStatus" aria-live="polite"></p>
       <p class="article-feedback-note">回答は匿名で集計し、個人情報の入力はありません。</p>`;
 
-    const related = document.getElementById('related') || document.getElementById('related-career') || mainColumn.querySelector('[id^="related"]');
+    const related = document.getElementById('related')
+      || document.getElementById('related-career')
+      || mainColumn.querySelector('[id^="related"]')
+      || [...mainColumn.children].find((element) => {
+        const heading = element.querySelector?.('h2');
+        const label = heading?.textContent?.trim() || '';
+        return label.includes('あわせて読みたい記事') || label === '関連記事';
+      });
     if (related && related.parentElement === mainColumn) mainColumn.insertBefore(section, related);
     else mainColumn.appendChild(section);
   }

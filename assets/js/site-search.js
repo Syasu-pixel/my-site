@@ -550,11 +550,11 @@
 
 (() => {
   const path = location.pathname.replace(/\/+$/, '');
-  if (!/^\/articles\/[a-z0-9][a-z0-9-]*\.html$/i.test(path)) return;
+  if (!/^\/articles\/[a-z0-9][a-z0-9-]*(?:\.html)?$/i.test(path)) return;
   if (document.querySelector('script[src*="/assets/js/article-feedback.js"]')) return;
 
   const script = document.createElement('script');
-  script.src = '/assets/js/article-feedback.js?v=20260916-6';
+  script.src = '/assets/js/article-feedback.js?v=20260916-8';
   script.async = false;
   script.dataset.articleFeedbackLoader = 'true';
   document.head.appendChild(script);

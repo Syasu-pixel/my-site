@@ -1,0 +1,23 @@
+name: Electromagnetic Contactor Official Sources
+on:
+  push:
+    branches: [preview-electromagnetic-contactor-official-sources-20260916]
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-electromagnetic-contactor-official-sources-20260916
+      - name: Apply official source box
+        run: python scripts/electromagnetic-contactor-official-sources.py
+      - name: Clean temporary automation and commit
+        run: |
+          rm -f .github/workflows/electromagnetic-contactor-official-sources.yml scripts/electromagnetic-contactor-official-sources.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add official sources to contactor article"
+          git push origin HEAD:preview-electromagnetic-contactor-official-sources-20260916

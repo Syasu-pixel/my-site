@@ -46,12 +46,12 @@
     const related = document.getElementById('related')
       || document.getElementById('related-career')
       || mainColumn.querySelector('[id^="related"]')
-      || [...mainColumn.children].find((element) => {
-        const heading = element.querySelector?.('h2');
+      || [...mainColumn.querySelectorAll('section')].find((element) => {
+        const heading = element.querySelector('h2');
         const label = heading?.textContent?.trim() || '';
         return label.includes('あわせて読みたい記事') || label === '関連記事';
       });
-    if (related && related.parentElement === mainColumn) mainColumn.insertBefore(section, related);
+    if (related && mainColumn.contains(related) && related.parentElement) related.parentElement.insertBefore(section, related);
     else mainColumn.appendChild(section);
   }
 

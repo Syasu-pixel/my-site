@@ -1,0 +1,64 @@
+name: GX Works2 production preparation
+on:
+  push:
+    branches: [preview-gxworks2-production-navigation]
+    paths:
+      - .github/workflows/gxworks2-production-prepare.yml
+      - .github/gxworks2-release-prep.py
+permissions:
+  contents: write
+concurrency:
+  group: gxworks2-production-preparation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/preview-gxworks2-production-navigation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-gxworks2-production-navigation
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test dependency
+        run: |
+          python -m pip install 'playwright==1.55.0'
+          python -m playwright install --with-deps chromium
+      - name: Build approved page, add navigation, and test without live writes
+        run: python .github/gxworks2-release-prep.py
+      - name: Keep readiness report and review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gxworks2-production-readiness
+          path: tmp/gxworks2-release-check/
+          retention-days: 14
+      - name: Commit reviewed-branch output only and remove temporary preparation files
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/preview-gxworks2-production-navigation
+          git fetch --depth=1 origin 8c52675b6e6597ad68a1cb750b319f27c569132a
+          test "$(git hash-object docs/adopted-image-github-placement-rule.md)" = c7a2ed7cdc792d33598901da0d856af5c897f02f
+          git show 8c52675b6e6597ad68a1cb750b319f27c569132a:docs/adopted-image-github-placement-rule.md > docs/adopted-image-github-placement-rule.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('tmp/gxworks2-release-check/report.json').read_text())
+          text='# GX Works2 production release preparation\n\n'
+          text+='Prepared from main `22bf383db28a06f8d05a555f45721d7ac41037bd` and approved Preview `8c52675b6e6597ad68a1cb750b319f27c569132a`.\n\n'
+          text+='## Scope\n- Static service page at `/services/gxworks2-online-support.html`; no iframe wrapper.\n- Static production OGP/Twitter metadata.\n- Adopted full-resolution WebP blobs unchanged; contain display retained.\n- Static service cards on the homepage, two categories, and two related articles.\n- Existing headers, learning routes, donations, English pages, affiliate links and backend configuration remain unchanged.\n\n'
+          text+='## Verification\n- Desktop/tablet/mobile layout checks passed.\n- ZIP selection, two-step submission and recovery passed against intercepted mock endpoints only.\n- No real consultation, ZIP, password or email was submitted by these tests.\n- Live GET/OPTIONS readiness results: `'+json.dumps(r['readiness'],ensure_ascii=False)+'`.\n\n'
+          text+='## Publication gate\nThis report is not a production-deployment confirmation. Review final diff and readiness before merging. Real production email delivery and stored-file retrieval are separate operational checks.\n'
+          Path('docs/gxworks2-production-release.md').write_text(text,encoding='utf-8')
+          PY
+          rm .github/gxworks2-release-prep.py .github/workflows/gxworks2-production-prepare.yml
+          git add -u
+          git add services/gxworks2-online-support.html assets/js/gxworks2-online-support.js assets/css/gxworks2-service-entry.css docs/gxworks2-production-release.md
+          git diff --cached --check
+          git config user.name denkicontrol-release-preparer
+          git config user.email actions@users.noreply.github.com
+          git commit -m "Prepare production GX Works2 service with static navigation and OGP"
+          git push origin HEAD:preview-gxworks2-production-navigation

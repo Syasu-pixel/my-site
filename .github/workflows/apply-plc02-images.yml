@@ -1,0 +1,85 @@
+name: Apply PLC02 approved images
+
+on:
+  push:
+    branches:
+      - preview-plc-drilling-project-02-outline
+    paths:
+      - .github/workflows/apply-plc02-images.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-plc-drilling-project-02-outline
+      - name: Apply only approved image changes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('articles/plc-drilling-line-design-project-02.html')
+          s = p.read_text(encoding='utf-8')
+
+          replacements = [
+            (
+              '<meta property="og:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-project-01-io.webp">',
+              '<meta property="og:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-design-project-02-ogp.webp">'
+            ),
+            (
+              '<meta name="twitter:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-project-01-io.webp">',
+              '<meta name="twitter:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-design-project-02-ogp.webp">'
+            ),
+            (
+              '.article-hero{position:relative;overflow:hidden;min-height:410px;border:1px solid var(--line);border-radius:30px;background:radial-gradient(circle at 82% 35%,rgba(59,130,246,.18),transparent 22%),linear-gradient(135deg,#fff 0%,#f4f8ff 48%,#eaf2ff 100%);box-shadow:var(--shadow)}.article-hero:after{content:"I/O DESIGN";position:absolute;right:40px;bottom:22px;font-size:84px;font-weight:900;letter-spacing:.04em;color:rgba(37,99,235,.08);line-height:1}',
+              '.article-hero{position:relative;overflow:hidden;min-height:410px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 35%,rgba(255,255,255,.56) 58%,rgba(255,255,255,.08) 100%),url(\'../assets/images/articles/plc-drilling-line-design-project-02-hero.webp\') center/cover no-repeat;box-shadow:var(--shadow)}.article-hero:after{display:none}'
+            ),
+            (
+              '.article-hero{min-height:360px}.article-hero-copy{width:100%;min-height:360px;padding:34px 24px}.article-hero h1{font-size:32px}.article-hero:after{font-size:52px;right:18px}',
+              '.article-hero{min-height:360px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 52%,rgba(255,255,255,.65) 76%,rgba(255,255,255,.36) 100%),url(\'../assets/images/articles/plc-drilling-line-design-project-02-hero.webp\') 62% center/cover no-repeat}.article-hero-copy{width:100%;min-height:360px;padding:34px 24px}.article-hero h1{font-size:32px}'
+            ),
+            (
+              '<figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-project-01-io.webp" alt="穴あけ加工ラインのPLCとI/O構成イメージ" loading="lazy" decoding="async"><figcaption>第1回で決めたPLC・I/O構成を、第2回では実際の信号と番地へ落とし込みます。</figcaption></figure>',
+              '<figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-io-overview.webp" alt="入力機器からPLC、出力機器へつながるI/O設計の全体像" loading="lazy" decoding="async"><figcaption>入力・PLC・出力の関係と、I/O設計を進める流れを1枚で整理します。</figcaption></figure>'
+            ),
+            (
+              '      <div class="key-box"><h3>FX3UのX/Y番地は8進数</h3><p>FX3U系の入出力番号は8進数で、<strong>X0〜X7の次はX10</strong>です。X8・X9は使いません。Yも同じ考え方でY0〜Y7、Y10〜Y17と進みます。</p></div>\n      <div class="table-wrap">',
+              '      <div class="key-box"><h3>FX3UのX/Y番地は8進数</h3><p>FX3U系の入出力番号は8進数で、<strong>X0〜X7の次はX10</strong>です。X8・X9は使いません。Yも同じ考え方でY0〜Y7、Y10〜Y17と進みます。</p></div>\n      <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-xy-addressing.webp" alt="FX3U系PLCのXとYの8進数番地でX7の次がX10、Y7の次がY10になることを示す図" loading="lazy" decoding="async"><figcaption>FX3U系のX/Y番地は8進数で進みます。X0〜X7の次はX10、Y0〜Y7の次はY10です。</figcaption></figure>\n      <div class="table-wrap">'
+            ),
+            (
+              '      <p>I/Oをぎりぎりまで詰めると、後からセンサや表示灯を1点追加しただけで割付全体を崩すことがあります。そこで、搬送・操作・加工などのまとまりごとに少し空きを残します。</p>\n      <div class="key-box"><h3>「使っていない点」も設計の一部</h3>',
+              '      <p>I/Oをぎりぎりまで詰めると、後からセンサや表示灯を1点追加しただけで割付全体を崩すことがあります。そこで、搬送・操作・加工などのまとまりごとに少し空きを残します。</p>\n      <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-spare-io.webp" alt="使用中のI/O、予備点、将来増設用のI/Oを分けて確保する考え方" loading="lazy" decoding="async"><figcaption>現在使う点だけで埋めず、予備点と将来増設用の余白を意識してI/Oを割り付けます。</figcaption></figure>\n      <div class="key-box"><h3>「使っていない点」も設計の一部</h3>'
+            ),
+          ]
+
+          for i, (old, new) in enumerate(replacements, 1):
+              n = s.count(old)
+              if n != 1:
+                  raise SystemExit(f'replacement {i}: expected 1 match, got {n}')
+              s = s.replace(old, new, 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Validate image references
+        run: |
+          test -f assets/images/articles/plc-drilling-line-design-project-02-ogp.webp
+          test -f assets/images/articles/plc-drilling-line-design-project-02-hero.webp
+          test -f assets/images/articles/plc-drilling-line-design-project-02-io-overview.webp
+          test -f assets/images/articles/plc-drilling-line-design-project-02-xy-addressing.webp
+          test -f assets/images/articles/plc-drilling-line-design-project-02-spare-io.webp
+          grep -q 'plc-drilling-line-design-project-02-ogp.webp' articles/plc-drilling-line-design-project-02.html
+          grep -q 'plc-drilling-line-design-project-02-hero.webp' articles/plc-drilling-line-design-project-02.html
+          grep -q 'plc-drilling-line-design-project-02-io-overview.webp' articles/plc-drilling-line-design-project-02.html
+          grep -q 'plc-drilling-line-design-project-02-xy-addressing.webp' articles/plc-drilling-line-design-project-02.html
+          grep -q 'plc-drilling-line-design-project-02-spare-io.webp' articles/plc-drilling-line-design-project-02.html
+      - name: Commit article update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/plc-drilling-line-design-project-02.html
+          git diff --cached --quiet && exit 0
+          git commit -m '第2回I/O設計編に採用画像を反映'
+          git push origin HEAD:preview-plc-drilling-project-02-outline

@@ -1,4 +1,4 @@
-name: Search data one-day write test
+name: Search data Bing write test
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: search-data-one-day-write
+  group: search-data-bing-write
   cancel-in-progress: false
 
 jobs:
@@ -36,18 +36,18 @@ jobs:
           PYTHONPATH=scripts python scripts/test_search_data_sync.py
           PYTHONPATH=scripts python scripts/test_search_data_entrypoint.py
 
-  write_google_one_day:
-    name: Write Google 2026-09-14 only
+  write_bing:
+    name: Write Bing rolling window
     needs: test
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       SEARCH_DATA_SUPABASE_URL: ${{ vars.SEARCH_DATA_SUPABASE_URL }}
       SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY }}
-      GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
-      GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
-      GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
-      GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+      BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+      BING_WEBMASTER_SITE_URL: ${{ vars.BING_WEBMASTER_SITE_URL }}
+      BING_DATA_LAG_DAYS: "1"
+      BING_DATA_LOOKBACK_DAYS: "14"
       SEARCH_ENABLE_FINE_GRAIN: "false"
       SEARCH_FINE_GRAIN_RETENTION_DAYS: "90"
     steps:
@@ -56,7 +56,7 @@ jobs:
           sparse-checkout: |
             scripts
           sparse-checkout-cone-mode: true
-      - name: Write exactly one verified Google day
+      - name: Write verified Bing rolling window
         run: |
           set -euo pipefail
-          python scripts/search_data_entrypoint.py --provider google --date 2026-09-14
+          python scripts/search_data_entrypoint.py --provider bing

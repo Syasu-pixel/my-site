@@ -10,11 +10,11 @@
 
 1. Google Search Console は Google 公式 Search Console API から取得する。
 2. Bing は Microsoft 公式 Bing Webmaster API の現行 REST / JSON API から取得する。
-3. 定期取得は GitHub Actions の標準 GitHub-hosted runner で1日1回を基本とする。
+3. 定期取得は GitHub Actions の標準 GitHub-hosted runnerで毎日06:25 JSTに実行する。
 4. 取得データは必要な粒度へ整形して Supabase に保存する。
 5. ChatGPT は Supabase に蓄積された検索データを読み、週次・月次・記事改善・人気記事集計などに利用する。
 
-想定フロー:
+標準フロー:
 
 `Google Search Console API / Bing Webmaster API -> GitHub Actions -> Supabase -> ChatGPT`
 
@@ -28,32 +28,29 @@
 
 ## 3. 実装状況の扱い
 
-2026-09-17時点で、主基盤のコードとDBスキーマは実装済みである。
+2026-09-17時点で、公式APIルートは**実環境でE2E確認済み・稼働状態**である。
 
-実装済み:
+確認済み:
 
-- Supabase の `search_performance_daily` / `search_collection_runs` / `search_collection_health`
-- Google Search Console Search Analytics API 取得クライアント
-- Bing Webmaster JSON API 取得クライアント
-- Bingは公式APIキー方式を優先し、OAuth Bearerを予備ルートとして保持
-- GitHub Actions 日次同期Workflow
-- idempotent upsert、有限リトライ、provider独立失敗、細粒度保持制御
-- 28 / 60 / 90日のbounded backfill
-- モック/正規化ユニットテスト
+- Google OAuth client / refresh token 発行
+- Bing Webmaster API Key 発行
+- GitHub Secrets / Variables 設定
+- Google実API dry-run
+- Bing実API dry-run
+- Google / Bing のSupabase実保存
+- Google / Bing 60日backfill
+- ChatGPTからSupabase実データを使った「直近28日 vs 前28日」集計
+- 日次06:25 JSTのGitHub Actions schedule設定
 
-未完了:
+初回60日backfill後の実測:
 
-- Google OAuth client と refresh token の発行
-- Bing Webmaster API Key の発行
-- GitHub Secrets / Variables の設定
-- 実API dry-run
-- 初回実データ保存、60日backfill、ChatGPTからのE2E集計確認
+- Google: 48,953行、2026-07-17〜2026-09-14
+- Bing: 1,662行、2026-07-19〜2026-09-15
+- `search_performance_daily`: 約27MB
 
-したがって、新しいチャットは「公式APIルートの主基盤は実装済み」と判断してよいが、`search_collection_health` と実データを確認するまでは「自動取得が稼働中」と断定しない。
-
-詳細な実装状態・必要なSecret名・有効化順序は `docs/search-data-implementation-status.md` と `docs/search-data-oauth-setup.md` を確認する。
-
-未完了部分がある場合もGSC Wizardへ自動的に戻らず、公式APIルートの有効化を優先する。
+したがって、新しいチャットは**公式APIルートが標準で稼働中**と判断する。
+検索分析依頼では、まずSupabaseの蓄積データを確認する。
+詳細な実装状態は `docs/search-data-implementation-status.md` を確認する。
 
 ## 4. コスト方針
 
@@ -61,12 +58,13 @@
 - Google Search Console API は公式の無料API枠を利用する。
 - GitHub Actions は本リポジトリが public の間、標準 GitHub-hosted runner の無料利用を前提とする。
 - Supabase は Free プランの範囲を優先する。
-- Bing Webmaster API の料金・利用条件、各サービスの無料枠は変更される可能性があるため、実装時および大きな仕様変更時に公式情報を再確認する。
+- Bing Webmaster API の料金・利用条件、各サービスの無料枠は変更される可能性があるため、大きな仕様変更時に公式情報を再確認する。
 - 無料枠を超える可能性がある変更、従量課金の有効化、有料プランへの変更は管理者の明示承認なしに行わない。
 
 ## 5. データ取得方針
 
 ### Google Search Console
+
 最低限、次を取得対象とする。
 
 - 日付
@@ -83,6 +81,7 @@ Search Console の確定遅延や後日補正を吸収するため、日次処�
 Google認証は `https://www.googleapis.com/auth/webmasters.readonly` の読み取り専用OAuthを使用する。
 
 ### Bing Webmaster Tools
+
 取得可能な現行APIの範囲で最低限、次を対象とする。
 
 - 検索クエリ
@@ -112,11 +111,12 @@ GoogleとBingで指標定義や取得粒度が異なる場合は、無理に同�
 - 高粒度データは原則90日程度を初期目安とし、週次・月次集計へロールアップ後に削除できる設計にする
 - 容量実測後に保持期間を調整する
 
-Supabase Free のDB容量を無制限とみなさず、保存量を定期確認する。
+初回60日backfill後の `search_performance_daily` は約27MBで、Supabase Freeの500MB DB枠に対して余裕がある。
+容量は継続監視し、増加時は取得件数上限・保持期間・月次ロールアップを先に調整する。
 
 ## 7. ChatGPTでの標準利用
 
-公式APIルートの稼働後は、検索分析依頼でまずSupabaseの蓄積データを確認する。
+検索分析依頼ではまずSupabaseの蓄積データを確認する。
 
 例:
 
@@ -147,6 +147,7 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 - Supabaseのservice-role/secret keyを公開クライアントへ露出しない。
 - workflowログへトークン・APIキー・認証レスポンスを出力しない。
 - PRやPreviewで秘密情報を確認するために値そのものを表示しない。
+- 2026-09-17時点では既存legacy `service_role` をバックエンドで使用している。Supabaseの新 `sb_secret_...` Secret Keyへ順次移行し、公開クライアントには絶対に露出しない。
 
 ## 10. 失敗時のルール
 
@@ -167,7 +168,7 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 
 ## 12. 公式確認先
 
-実装時は必ず最新の公式情報を確認する。
+実装・仕様変更時は最新の公式情報を確認する。
 
 - Google Search Console API: https://developers.google.com/webmaster-tools/
 - Google Search Console API pricing: https://developers.google.com/webmaster-tools/pricing
@@ -175,6 +176,7 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 - Bing API access: https://learn.microsoft.com/en-us/bingwebmaster/getting-access
 - Bing API protocols: https://learn.microsoft.com/en-us/bingwebmaster/api-protocols
 - GitHub Actions billing: https://docs.github.com/en/actions/concepts/billing-and-usage
+- Supabase API keys: https://supabase.com/docs/guides/getting-started/api-keys
 - Supabase pricing: https://supabase.com/pricing
 
-2026-09-17時点の確認では、Google Search Console APIは無料、public repositoryの標準GitHub-hosted runnerは無料、Supabase Freeは500MB databaseを含む。これらを永続保証とみなさず、実装・仕様変更時に再確認する。
+2026-09-17時点の確認では、Google Search Console APIは無料、public repositoryの標準GitHub-hosted runnerは無料、Supabase Freeは500MB databaseを含む。これらを永続保証とみなさず、仕様変更時に再確認する。

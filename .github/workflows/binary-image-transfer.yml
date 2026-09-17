@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - .github/binary-transfer-request.json
-      - .github/workflows/binary-image-transfer.yml
 
 permissions:
   contents: write
@@ -15,7 +14,7 @@ concurrency:
 
 jobs:
   transfer:
-    if: ${{ !contains(github.event.head_commit.message, '[binary-transfer-complete]') }}
+    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, '[binary-transfer-complete]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +38,9 @@ jobs:
           if branch == 'main' or not branch.startswith(('preview-', 'ai-', 'pilot-')):
               raise SystemExit('target branch must be preview-/ai-/pilot- and never main')
 
-          req = json.loads(request_path.read_text(encoding='utf-8'))
+          request_bytes = request_path.read_bytes()
+          request_sha = hashlib.sha256(request_bytes).hexdigest()
+          req = json.loads(request_bytes.decode('utf-8'))
           required = ['share_id','file_id','file_name','sha256','size_bytes','target_path']
           missing = [k for k in required if k not in req]
           if missing:
@@ -109,21 +110,50 @@ jobs:
           if suffix in {'.jpg','.jpeg'} and not is_jpeg:
               raise SystemExit('JPEG signature mismatch')
 
-          out = pathlib.Path(*posix.parts)
-          out.parent.mkdir(parents=True, exist_ok=True)
-          out.write_bytes(data)
+          pathlib.Path('/tmp/binary-transfer-artifact').write_bytes(data)
           pathlib.Path('/tmp/binary-transfer-target').write_text(target_path, encoding='utf-8')
+          pathlib.Path('/tmp/binary-transfer-request-sha').write_text(request_sha, encoding='ascii')
+          pathlib.Path('/tmp/binary-transfer-artifact-sha').write_text(actual_sha, encoding='ascii')
           print(f'validated {len(data)} bytes sha256={actual_sha} -> {target_path}')
           PY
 
-      - name: Commit verified binary and clear request
+      - name: Commit on latest branch safely
         shell: bash
+        env:
+          REQUEST_PATH: .github/binary-transfer-request.json
         run: |
           set -euo pipefail
           target_path="$(cat /tmp/binary-transfer-target)"
+          expected_request_sha="$(cat /tmp/binary-transfer-request-sha)"
+          expected_artifact_sha="$(cat /tmp/binary-transfer-artifact-sha)"
           git config user.name 'denkicontrol-binary-transfer'
           git config user.email 'actions@users.noreply.github.com'
-          git add -- "$target_path"
-          git rm -- .github/binary-transfer-request.json
-          git commit -m 'chore: transfer verified binary [binary-transfer-complete]'
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+          for attempt in 1 2 3; do
+            git fetch origin "+refs/heads/${GITHUB_REF_NAME}:refs/remotes/origin/${GITHUB_REF_NAME}"
+            git reset --hard "origin/${GITHUB_REF_NAME}"
+
+            if [ ! -f "$REQUEST_PATH" ]; then
+              echo 'transfer request disappeared; refusing to overwrite a newer branch state' >&2
+              exit 1
+            fi
+            current_request_sha="$(sha256sum "$REQUEST_PATH" | awk '{print $1}')"
+            if [ "$current_request_sha" != "$expected_request_sha" ]; then
+              echo 'transfer request changed while processing; refusing stale transfer' >&2
+              exit 1
+            fi
+
+            mkdir -p "$(dirname "$target_path")"
+            cp /tmp/binary-transfer-artifact "$target_path"
+            printf '%s  %s\n' "$expected_artifact_sha" "$target_path" | sha256sum -c -
+
+            git add -- "$target_path"
+            git rm -- "$REQUEST_PATH"
+            git commit -m 'chore: transfer verified binary [binary-transfer-complete]'
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "push raced with another commit; retrying on latest branch (attempt ${attempt})" >&2
+          done
+          echo 'could not push verified binary after 3 safe retries' >&2
+          exit 1

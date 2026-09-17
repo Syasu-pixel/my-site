@@ -3,18 +3,22 @@ name: Search data sync
 on:
   push:
     branches:
-      - preview-search-data-foundation-20260917
+      - preview-search-data-foundation-clean-20260917
     paths:
       - ".github/workflows/search-data-sync.yml"
       - "scripts/search_data_sync.py"
+      - "scripts/search_data_entrypoint.py"
       - "scripts/test_search_data_sync.py"
+      - "scripts/test_search_data_entrypoint.py"
       - "supabase/migrations/20260917025740_create_search_data_foundation.sql"
       - "docs/search-data-*.md"
   pull_request:
     paths:
       - ".github/workflows/search-data-sync.yml"
       - "scripts/search_data_sync.py"
+      - "scripts/search_data_entrypoint.py"
       - "scripts/test_search_data_sync.py"
+      - "scripts/test_search_data_entrypoint.py"
       - "supabase/migrations/20260917025740_create_search_data_foundation.sql"
       - "docs/search-data-*.md"
   workflow_dispatch:
@@ -72,8 +76,13 @@ jobs:
       - name: Compile and test
         run: |
           set -euo pipefail
-          python -m py_compile scripts/search_data_sync.py scripts/test_search_data_sync.py
+          python -m py_compile \
+            scripts/search_data_sync.py \
+            scripts/search_data_entrypoint.py \
+            scripts/test_search_data_sync.py \
+            scripts/test_search_data_entrypoint.py
           PYTHONPATH=scripts python scripts/test_search_data_sync.py
+          PYTHONPATH=scripts python scripts/test_search_data_entrypoint.py
 
   sync:
     name: Collect search data
@@ -90,6 +99,9 @@ jobs:
       GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
       GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
 
+      # Preferred Bing auth: one API key generated in Bing Webmaster Tools.
+      BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+      # OAuth remains optional fallback compatibility.
       BING_WEBMASTER_CLIENT_ID: ${{ secrets.BING_WEBMASTER_CLIENT_ID }}
       BING_WEBMASTER_CLIENT_SECRET: ${{ secrets.BING_WEBMASTER_CLIENT_SECRET }}
       BING_WEBMASTER_REFRESH_TOKEN: ${{ secrets.BING_WEBMASTER_REFRESH_TOKEN }}
@@ -151,4 +163,4 @@ jobs:
             export BING_DATA_LOOKBACK_DAYS="$backfill_days"
           fi
 
-          python scripts/search_data_sync.py "${args[@]}"
+          python scripts/search_data_entrypoint.py "${args[@]}"

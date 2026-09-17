@@ -28,13 +28,29 @@
 
 ## 3. 実装状況の扱い
 
-この文書の追加時点では、上記は**採用済みの目標構成・運用ルール**であり、公式API取得・GitHub Actions・検索データ用Supabaseテーブルの実装完了を意味しない。
+2026-09-17時点で、主基盤のコードとDBスキーマは実装済みである。
 
-実装完了までは以下を守る。
+実装済み:
 
-- 新しいチャットは「公式APIルートがすでに稼働中」と推測しない。
-- 実装済みかどうかは GitHub の workflow、Supabase のテーブル、実行履歴を確認して判断する。
-- 未実装部分がある場合は、GSC Wizardへ自動的に戻らず、公式APIルートの実装を優先する。
+- Supabase の `search_performance_daily` / `search_collection_runs` / `search_collection_health`
+- Google Search Console Search Analytics API 取得クライアント
+- Bing Webmaster JSON API + OAuth Bearer 取得クライアント
+- GitHub Actions 日次同期Workflow
+- idempotent upsert、有限リトライ、provider独立失敗、細粒度保持制御
+- モック/正規化ユニットテスト
+
+未完了:
+
+- Google / Bing OAuth client と refresh token の発行
+- GitHub Secrets / Variables の設定
+- 実API dry-run
+- 初回実データ保存とChatGPTからのE2E集計確認
+
+したがって、新しいチャットは「公式APIルートの主基盤は実装済み」と判断してよいが、`search_collection_health` と実データを確認するまでは「自動取得が稼働中」と断定しない。
+
+詳細な実装状態・必要なSecret名・有効化順序は `docs/search-data-implementation-status.md` を正本の実装補助資料として確認する。
+
+未完了部分がある場合もGSC Wizardへ自動的に戻らず、公式APIルートの有効化を優先する。
 
 ## 4. コスト方針
 
@@ -78,7 +94,7 @@ GoogleとBingで指標定義や取得粒度が異なる場合は、無理に同�
 
 検索データは、既存のAI編集部系データと混同しない構造を優先する。
 
-検索データ専用Supabaseプロジェクトを新設できる場合は、`denkicontrol-search-data` 相当の独立プロジェクトを第一候補とする。ただし、プロジェクト作成は実際のFree枠・既存プロジェクト数を確認してから行う。
+2026-09-17の主基盤実装では、追加コストを発生させず、既存の接続済みSupabaseプロジェクト内に検索専用テーブルを論理分離して実装した。検索専用Supabaseプロジェクトを将来新設する場合も、同期クライアントは接続先を環境変数で切り替えられる構造を維持する。
 
 保存方針:
 

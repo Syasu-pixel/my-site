@@ -1,75 +1,229 @@
 # 採用済み画像のGitHub配置ルール
 
+更新日: 2026-09-17
+状態: **現行・正本**
+
 ## 目的
-ChatGPTで生成・採用済みになった画像を、記事Previewブランチへ最短・安全に配置するための標準手順を定める。
+ChatGPTで生成・採用済みになった画像を、記事のPreviewブランチへ安全かつ再現可能に配置するための**唯一の現行ルート**を定める。
 
-## 原則
-- 採用済み画像は再生成しない。
-- 画像をGitHubへ入れるためだけに、外部ストレージ、共有URL、ブラウザスクレイピング、GitHub Actions経由の転送を使わない。
-- ChatGPTからGitHubのGit Data API相当機能が使える場合は、必ず直接配置する。
-- `main` には直接入れず、記事作業中は対象の `preview-*` ブランチへ配置する。
-- 画像差し替え後は、記事HTMLと画像資産だけが意図した差分になっているか確認する。
+この文書に書かれた「検証付きバイナリ転送」以外の画像転送経路を、通常のサイト記事制作では使用しない。
 
-## 採用確定後の扱い
-- ユーザーが「採用」と明示した画像は固定扱いとし、明示的な再生成指示がない限り作り直さない。
+## 現行ルートは1本だけ
+採用済み画像のGitHub配置は、必ず次を使用する。
+
+- 恒久Workflow: `.github/workflows/binary-image-transfer.yml`
+- 一時依頼ファイル: `.github/binary-transfer-request.json`
+- 配置先: `preview-*` / `ai-*` / `pilot-*` ブランチの `assets/images/` 配下
+- `main` へ画像を直接転送しない
+
+**大容量Base64をGitHubツール入力へ載せる方法、`create_blob` を使った画像転送、AI Artifact Broker / AI Artifact Writer、記事ごとの専用転送Workflowは、現行のサイト画像配置ルートではない。**
+
+現行ルートが利用できない場合は別経路を即席で作らず、作業を停止してルート自体を見直す。
+
+## 基本原則
+- 採用済み画像は、配置の都合だけで再生成しない。
 - Hero / OGP / 本文図の採用対象を取り違えない。
-- 同じ記事で複数候補を生成した場合は、最後に採用された画像だけを配置する。
-- 採用済み画像の見た目を、配置時の都合でトリミング・合成・文字追加・再生成しない。
-- Web最適化は、縦横比や内容を変えない範囲のリサイズ・形式変換・圧縮に限定する。
+- 同じ用途で複数候補がある場合は、最終採用された原本だけを使う。
+- 原本を保全してからWeb用ファイルを作る。
+- WebP化は可。ただし元解像度・縦横比・内容を維持し、見て分かる強圧縮はしない。
+- 形式変換後の掲載対象ファイルについて、**byte size と SHA-256** を必ず記録する。
+- 画像バイナリや巨大Base64を、会話本文・作業ログ・Markdown・依頼JSONへ貼らない。
+- 画像配置だけのために一時Workflowを毎回作らない。
+- `force push` は使わない。
 
-## 標準ルート
-1. 採用済み画像を会話内または作業コンテナから取得する。
-2. 必要ならWeb用に最適化する。
-   - Hero / OGP は必要に応じて WebP 化する。
-   - 画質を落としすぎない。
-   - スマホ表示を前提にサイズを調整する。
-3. 画像バイナリを base64 として GitHub blob に直接登録する。
-4. 対象 `preview-*` ブランチの現在HEADとtreeを確認する。
-5. 画像blobを目的のパスへ追加した新treeを作る。
-6. 必要なら同じcommitでHTMLの画像参照も更新する。
-7. 現在のPreviewブランチHEADをparentにしてcommitを作る。
-8. `update_ref` で対象Previewブランチをそのcommitへfast-forwardする。
-9. `main...preview-*` の差分を確認し、対象記事＋採用画像以外の一時ファイルが残っていないことを確認する。
-10. Cloudflare Previewで管理者確認を行う。
+## 対象範囲
+このルートを使用できるのは、**最終的に公開サイトへ掲載する非機密画像**だけ。
 
-## Previewブランチの鮮度と本番反映
-- 作業中に `main` が進んだ場合は、Previewブランチが `behind` になっていないか必ず確認する。
-- Previewブランチが古い `main` から分岐していても、確認済みPreviewをそのまま雑に `main` へ丸ごとマージしない。
-- 本番反映時は最新 `main` を基準にし、ユーザーが承認した記事差分と採用画像だけを取り込む。
-- 関係ない並行作業、古い一時コミット、別記事の差分を本番へ持ち込まない。
-- `force` を使ったref更新は原則禁止。通常のfast-forwardで進められない場合は原因を確認してから対応する。
-- 本番反映直前にも `main...preview-*` または最終取り込み対象の差分を確認する。
+使用してよい例:
+- Hero
+- OGP
+- 本文説明図
+- 関連記事カード画像
+- 公開予定のサイト用イラスト
 
-## 使用するGitHub操作の基準
-直接配置ルートでは、利用可能な場合は次を使う。
+使用してはいけない例:
+- 顧客データを含む画像
+- 設備の非公開写真・図面
+- パスワードや認証情報を含むファイル
+- 秘密鍵
+- 社内限定資料
+- 公開予定のない個人情報・機密情報
 
-- `create_blob`
-- `create_tree`
-- `create_commit`
-- `update_ref`
+機密・非公開ファイルはこのルートへ載せない。適切な非公開転送経路が明示的に整備されていない場合は転送を停止する。
 
-テキストファイルだけを追加・更新する場合は `create_file` / `update_file` を使ってよい。
+## 正式手順
+### 1. 原本を固定する
+採用画像の原本を保全する。必要ならWebPへ変換するが、構図変更・トリミング・文字追加・再生成は行わない。
 
-## 禁止する迂回ルート
-画像配置だけの目的で以下を行わない。
+掲載対象ファイルについて次を取得する。
+- ファイル名
+- byte size
+- SHA-256
+- 拡張子
+- GitHubでの `target_path`
 
-- firestorage等の外部共有サービスへ一度アップロードして取り直す
-- 一時的なGitHub Actions workflowを作って画像を回収する
-- 共有ページをPuppeteer等で開いて画像を抜き出す
-- Previewブランチに `.github/.preview-trigger-*` や画像転送専用workflowを恒久的に残す
-- 画像取得のためにmainへ一時ファイルを入れる
+### 2. 一時保管へ置く
+公開予定の非機密画像だけを、承認済みの一時保管先へ短期保存する。
 
-## 例外
-GitHub接続側に `create_blob / create_tree / create_commit / update_ref` が存在しない場合は、勝手に迂回経路を発明しない。
-その時点で「直接配置ルートが使えない」と明示し、別手段を使う前に運用を見直す。
+現行実装は Firestorage の短期ファイル共有を使用する。保存期間は必要最小限とし、長期保管場所として扱わない。
 
-## 最終確認
-- 採用画像そのものを使っている
-- 再生成していない
-- HeroとOGPの参照先が正しい
-- 既存本文画像を消していない
-- 英語版を触っていない
-- affiliate URLを触っていない
-- mainを触っていない
-- 一時workflow / triggerファイルが残っていない
-- Preview URLで最終確認できる状態になっている
+一時保管から取得する値:
+- `share_id`
+- `file_id`
+- 正確な `file_name`
+- `size_bytes`
+
+共有URLそのものを記事、PR本文、公開ログへ記載しない。
+
+### 3. 一時依頼JSONを作る
+対象Previewブランチに `.github/binary-transfer-request.json` を作成する。
+
+画像本体やBase64は入れず、次の6項目だけを書く。
+
+```json
+{
+  "share_id": "12-character-id",
+  "file_id": "32-character-id",
+  "file_name": "exact-file-name.webp",
+  "sha256": "64-lowercase-hex",
+  "size_bytes": 1234567,
+  "target_path": "assets/images/example/example.webp"
+}
+```
+
+### 4. 恒久Workflowへ任せる
+`.github/workflows/binary-image-transfer.yml` が依頼JSONのpushを検知して実行する。
+
+Workflowは以下を検証する。
+- 実行ブランチが `preview-*` / `ai-*` / `pilot-*`
+- `main` ではない
+- `target_path` が `assets/images/` 配下
+- 対応拡張子が `.webp` / `.png` / `.jpg` / `.jpeg`
+- 一時保管側の file ID が一致
+- file name が完全一致
+- metadata上のbyte sizeが一致
+- HTTPSで取得している
+- Firestorageの短期download URLのhostが許可済みhostと一致
+- 実取得byte sizeが完全一致
+- SHA-256が完全一致
+- WebP / PNG / JPEGの実ファイル署名と拡張子が一致
+- 最大5 MiB以内
+
+どれか1つでも不一致ならcommitしない。
+
+### 5. 最新HEADへ追従してcommitする
+画像検証後、Workflowはcommit直前に対象ブランチの最新HEADを再取得する。
+
+さらに、処理開始時と現在の `.github/binary-transfer-request.json` のSHA-256を比較する。
+
+- 同じ依頼なら処理を継続
+- 依頼が変更されていれば古い転送を中止
+- 依頼が削除されていれば転送を中止
+
+検証済み画像を最新HEADへ配置し、画像SHA-256を再確認してからcommitする。
+
+成功commitでは一時依頼JSONを同時に削除する。
+
+### 6. 並行更新があってもforceしない
+push直前に別作業が同じブランチを更新した場合、非fast-forwardをforceで上書きしない。
+
+Workflowは最新HEADを再取得して安全に再試行する。現行実装では最大3回まで。
+
+依頼JSONが途中で変わっていた場合は再試行せず停止する。
+
+### 7. GitHub保存後を確認する
+最低限、GitHub側で次を確認する。
+- ファイルが目的の `target_path` に存在する
+- byte sizeが元ファイルと一致する
+- 記事ブランチの関係ない変更を消していない
+
+可能な場合はGit blob SHAも照合する。
+
+Git blob SHAは通常のSHA-256とは別で、次で計算する。
+
+`SHA-1("blob <byte-size>\0" + raw-bytes)`
+
+GitHub contents APIの `sha` と一致すれば、Gitへ保存されたbyte列が元ファイルと同一であることを追加確認できる。
+
+### 8. Previewで目視確認する
+GitHubへ保存できたことと、記事上で正しく見えることは別確認とする。
+
+配置後はPreviewで確認する。
+- PC
+- スマホ
+- Hero / OGP の見切れ
+- 本文図の文字・細線の可読性
+- 関連カード画像
+- 画像パス切れ
+- レイアウト崩れ
+
+## Hero / OGP の表示ルール
+- 採用画像は原則として画像全体を見せる。
+- Heroで全体表示が必要な画像に、勝手に `background-size: cover` を使わない。
+- 全体表示が要件なら `background-size: contain` または `<img>` + `object-fit: contain` を優先する。
+- 画像を枠へ合わせる目的だけで再トリミング・再生成しない。
+- OGPの `og:image` / `twitter:image` は最終HTMLの `<head>` に静的metaとして記述する。
+- SNSクロップ対策が必要でも、採用済み原本を無断変更しない。
+
+## 使用禁止・旧経路
+他チャットは以下を画像配置ルートとして使用しない。
+
+- 大容量Base64文字列をGitHubツールへ渡す方法
+- `create_blob` / `create_tree` / `create_commit` / `update_ref` を画像本体転送のために組み合わせる方法
+- `.github/workflows/ai-artifact-writer.yml` を通常の記事画像配置へ使う方法
+- `docs/ai-artifact-broker.md` の旧Broker経路
+- Supabase Artifact Brokerを通常の記事画像配置へ使う方法
+- 記事ごとの専用画像転送Workflowを新規作成する方法
+- Firestorage共有ページをブラウザやスクレイピングで開いて画像を回収する方法
+- Puppeteer等で共有ページから画像を抜き出す方法
+- `main` に一時画像や転送用ファイルを置く方法
+- `.github/.preview-trigger-*` のような一時トリガーファイルを恒久運用する方法
+- `force push` で並行作業を上書きする方法
+
+旧AI編集部関連のBroker / Writerコードは履歴・停止中システム保全のため残る場合があるが、**それは現行のサイト画像配置手順ではない**。
+
+## 2026-09-17 実証済み事項
+正式ルートは実ファイルで検証済み。
+
+検証ファイル:
+- WebP
+- 1,167,170 bytes
+- SHA-256: `d4a609346181ff3e8c8a757de20b10ce4142b19a80d637c6bc7bcf4fecd8640c`
+- Git blob SHA: `78d45cb3da2d0e12abd05e7550cf6195d7e6ccaf`
+
+確認結果:
+- Base64を使わずGitHubへ転送成功
+- GitHub保存後のbyte size一致
+- SHA-256一致
+- WebP署名一致
+- 元ファイルから計算したGit blob SHAとGitHub contents APIのsha一致
+- 意図的に同一ブランチへ別commitを挿入した競合試験でも、最新HEADを保持して転送成功
+- 最新mainから作成した別Previewブランチでも再試験成功
+- 検証用画像と依頼JSONは最終ルールPR差分から削除済み
+
+## 最終チェック
+- 採用済み原本を使っている
+- 不要な再生成をしていない
+- Web用変換後のbyte size / SHA-256を記録した
+- 正式Workflowだけを使った
+- 一時依頼JSONだけをトリガーにした
+- `main` へ直接書いていない
+- `force push`していない
+- GitHub保存後のbyte sizeを確認した
+- PreviewでPC / スマホを確認した
+- Hero / OGP / 本文図を取り違えていない
+- 英語版・affiliate URLなど関係ない箇所を触っていない
+- 一時依頼JSONが成功後に消えている
+- 旧転送ルートを追加していない
+
+## ルート変更時のルール
+この正式ルートを変更する必要が出た場合は、作業中に別経路へ勝手に切り替えない。
+
+1. 現行ルートの問題を切り分ける。
+2. 隔離ブランチで新ルートを実ファイル検証する。
+3. byte size / SHA-256 / GitHub保存後の同一性を確認する。
+4. 並行更新テストを行う。
+5. この正本文書と恒久Workflowを同じPRで更新する。
+6. 旧ルートの記述を残さず、次の正本を1本にする。
+
+他チャットは常にこの文書を最優先で参照する。

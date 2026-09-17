@@ -19,6 +19,8 @@ GSC Wizard、Windsor.ai 等の第三者アプリへ戻すための手順では�
 - Bingは**公式APIキー方式を優先**し、OAuthは互換用の予備ルートとする。
 - 実API確認が終わるまで実装PRを本番マージしない。
 
+2026-09-17: Bing APIキー優先経路を追加後、PR上のUnit Testは成功済み。実API疎通はAPIキー発行後に行う。
+
 ## 1. GitHub Repository Variables
 
 次の3つを設定する。

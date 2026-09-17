@@ -1,49 +1,27 @@
 # Decision: Supabase temporary artifact broker
 
 Date: 2026-09-06
-Status: proposed in v0.1 implementation
+Superseded: 2026-09-17
+Status: **historical decision only / current image-placement routeではない**
 
-## Decision
+## Historical decision
+2026-09-06時点では、AI生成画像をGitHubへ安全に渡すため、Supabaseのprivate `ai-artifacts` bucketとArtifact Brokerを一時転送層として使う案を採用・試験した。
 
-Use the existing Supabase Free project and private `ai-artifacts` bucket as a temporary transport layer between AI artifact producers and the constrained GitHub artifact writer.
+この判断は、当時の接続制約とAI編集部の構成を前提にしたもの。
 
-Use a Supabase Edge Function as a narrow broker that creates signed upload URLs, validates stored artifacts before download, creates short-lived signed download URLs, and deletes temporary objects after confirmed transfer.
+## Superseded decision
+2026-09-17に、通常の記事画像配置についてBase64を使わず、byte size・SHA-256・画像署名・最新HEAD・並行更新を検証できる恒久Workflow経路を実ファイルで確認した。
 
-## Rationale
+そのため、**通常の記事制作における採用済み画像のGitHub配置は新しい正本へ一本化する。**
 
-- Keeps GitHub as the durable source of truth.
-- Avoids giving producer AIs the Supabase service-role key or S3 credentials.
-- Keeps the Storage bucket private.
-- Reuses the provider-neutral GitHub writer already merged in PR #1295.
-- Supports model/provider replacement without changing the repository write boundary.
-- Can remain within the Supabase Free tier for the intended low-volume temporary image-transfer workload, subject to Free-plan quotas.
+現行の正本:
+- `docs/adopted-image-github-placement-rule.md`
+- `.github/workflows/binary-image-transfer.yml`
 
-## Evidence
+## 現在の運用
+- Supabase Artifact Brokerを通常の記事画像配置には使わない。
+- `AI Artifact Writer`を通常の記事画像配置には使わない。
+- このdecision文書を転送手順として使わない。
+- 旧Broker関連コードはAI編集部の履歴・停止中資産として保全する。
 
-Supabase Storage supports private buckets, signed upload URLs, time-limited signed download URLs, and API-based object deletion. Signed upload URLs are currently documented as valid for two hours. The broker adds its own validation before a download URL is handed to GitHub Writer.
-
-## Counterarguments considered
-
-1. **Direct S3 credentials per AI** — rejected because credentials are broad and difficult to rotate safely across many providers.
-2. **Public temporary bucket** — rejected because public access is unnecessary and widens exposure.
-3. **Direct GitHub binary writes from every AI** — rejected because it duplicates repository credentials/permissions and weakens the single constrained writer boundary.
-4. **Cloudflare R2** — technically viable, but the current setup path introduced a billing-enabled subscription step; Supabase Free was preferred for the initial pilot.
-5. **Permanent storage in Supabase** — rejected because GitHub should remain the final asset store and temporary storage should be cleaned up.
-
-## Risks / open items
-
-- A broker credential still exists and must be scoped/rotated as an operational secret.
-- A deployed endpoint can be abused if its broker token leaks; request rate limits and replay/nonce controls may be added after the pilot.
-- Automatic deletion should happen only after confirmed GitHub transfer; stale-object cleanup needs a safe age threshold.
-- Current ChatGPT sessions do not inherently have a generic authenticated binary-upload transport to arbitrary endpoints. A provider-neutral connector/plugin/orchestrator adapter is still needed to invoke the broker from each AI environment.
-- Free-tier quotas can change; monitor usage and reassess before scale.
-
-## Reconsideration triggers
-
-Reconsider this choice if any of the following occurs:
-
-- Supabase Free quotas/pricing materially change.
-- Signed URL behavior or Edge Function limitations no longer fit the workflow.
-- A safer provider-neutral file-ingress mechanism becomes natively available.
-- Transfer volume or operational reliability requires a dedicated object-store/broker service.
-- Internal benchmark data shows material latency, failure-rate, or maintenance problems.
+将来AI編集部を正式再開する場合は、必要に応じてBroker方式を別途再評価する。ただし、その評価は現在のサイト画像配置ルートを自動的に変更しない。

@@ -60,6 +60,22 @@ jobs:
           sparse-checkout: |
             scripts
           sparse-checkout-cone-mode: true
+      - name: Validate Google credential shapes without printing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          cid = os.getenv("GSC_CLIENT_ID", "")
+          secret = os.getenv("GSC_CLIENT_SECRET", "")
+          refresh = os.getenv("GSC_REFRESH_TOKEN", "")
+          print("gsc_client_id_present=", bool(cid))
+          print("gsc_client_id_suffix_ok=", cid.endswith(".apps.googleusercontent.com"))
+          print("gsc_client_secret_present=", bool(secret))
+          print("gsc_client_secret_prefix_ok=", secret.startswith("GOCSPX-"))
+          print("gsc_refresh_token_present=", bool(refresh))
+          print("gsc_refresh_token_shape_ok=", len(refresh) > 20)
+          PY
       - name: Read provider APIs without writing Supabase
         run: |
           set -euo pipefail

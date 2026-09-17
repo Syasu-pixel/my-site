@@ -3,7 +3,7 @@ name: Search data sync
 on:
   push:
     branches:
-      - preview-search-data-foundation-clean-20260917
+      - preview-search-data-go-live-20260917
     paths:
       - ".github/workflows/search-data-sync.yml"
       - "scripts/search_data_sync.py"
@@ -51,6 +51,9 @@ on:
           - "28"
           - "60"
           - "90"
+  schedule:
+    # Every day at 06:25 JST (21:25 UTC previous day).
+    - cron: "25 21 * * *"
 
 permissions:
   contents: read
@@ -84,7 +87,7 @@ jobs:
   sync:
     name: Collect search data
     needs: test
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -128,7 +131,8 @@ jobs:
           provider="${INPUT_PROVIDER:-all}"
           args=(--provider "$provider")
 
-          if [[ "${INPUT_DRY_RUN:-true}" == "true" ]]; then
+          # Manual runs are safe-by-default dry-runs. Scheduled runs always write.
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "${INPUT_DRY_RUN:-true}" == "true" ]]; then
             args+=(--dry-run)
           fi
 

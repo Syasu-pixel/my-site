@@ -35,7 +35,7 @@ on:
       dry_run:
         description: "Call provider APIs but do not write Supabase"
         required: true
-        default: false
+        default: true
         type: boolean
       date:
         description: "Optional YYYY-MM-DD single-day backfill"
@@ -51,9 +51,6 @@ on:
           - "28"
           - "60"
           - "90"
-  schedule:
-    # 06:25 JST every day. Scheduled workflows run from the default branch only.
-    - cron: "25 21 * * *"
 
 permissions:
   contents: read
@@ -87,7 +84,7 @@ jobs:
   sync:
     name: Collect search data
     needs: test
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -99,9 +96,7 @@ jobs:
       GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
       GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
 
-      # Preferred Bing auth: one API key generated in Bing Webmaster Tools.
       BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
-      # OAuth remains optional fallback compatibility.
       BING_WEBMASTER_CLIENT_ID: ${{ secrets.BING_WEBMASTER_CLIENT_ID }}
       BING_WEBMASTER_CLIENT_SECRET: ${{ secrets.BING_WEBMASTER_CLIENT_SECRET }}
       BING_WEBMASTER_REFRESH_TOKEN: ${{ secrets.BING_WEBMASTER_REFRESH_TOKEN }}
@@ -133,7 +128,7 @@ jobs:
           provider="${INPUT_PROVIDER:-all}"
           args=(--provider "$provider")
 
-          if [[ "${INPUT_DRY_RUN:-false}" == "true" ]]; then
+          if [[ "${INPUT_DRY_RUN:-true}" == "true" ]]; then
             args+=(--dry-run)
           fi
 
@@ -156,9 +151,6 @@ jobs:
           esac
 
           if [[ "$backfill_days" != "0" ]]; then
-            # Reuse the normal collector with a wider overlap window. Google queries
-            # each day; Bing fetches each stats endpoint once and filters the returned
-            # historical rows, so this does not multiply Bing API calls by N days.
             export SEARCH_DATA_LOOKBACK_DAYS="$backfill_days"
             export BING_DATA_LOOKBACK_DAYS="$backfill_days"
           fi

@@ -34,9 +34,19 @@ on:
         default: false
         type: boolean
       date:
-        description: "Optional YYYY-MM-DD backfill date"
+        description: "Optional YYYY-MM-DD single-day backfill"
         required: false
         type: string
+      backfill_days:
+        description: "Optional rolling backfill days (0 = normal window, max 90)"
+        required: true
+        default: "0"
+        type: choice
+        options:
+          - "0"
+          - "28"
+          - "60"
+          - "90"
   schedule:
     # 06:25 JST every day. Scheduled workflows run from the default branch only.
     - cron: "25 21 * * *"
@@ -96,6 +106,7 @@ jobs:
           INPUT_PROVIDER: ${{ inputs.provider }}
           INPUT_DRY_RUN: ${{ inputs.dry_run }}
           INPUT_DATE: ${{ inputs.date }}
+          INPUT_BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: |
           set -euo pipefail
 
@@ -111,7 +122,25 @@ jobs:
               echo "date input must be YYYY-MM-DD" >&2
               exit 2
             fi
+            if [[ "${INPUT_BACKFILL_DAYS:-0}" != "0" ]]; then
+              echo "date and backfill_days cannot be used together" >&2
+              exit 2
+            fi
             args+=(--date "${INPUT_DATE}")
+          fi
+
+          backfill_days="${INPUT_BACKFILL_DAYS:-0}"
+          case "$backfill_days" in
+            0|28|60|90) ;;
+            *) echo "backfill_days must be one of 0, 28, 60, 90" >&2; exit 2 ;;
+          esac
+
+          if [[ "$backfill_days" != "0" ]]; then
+            # Reuse the normal collector with a wider overlap window. Google queries
+            # each day; Bing fetches each stats endpoint once and filters the returned
+            # historical rows, so this does not multiply Bing API calls by N days.
+            export SEARCH_DATA_LOOKBACK_DAYS="$backfill_days"
+            export BING_DATA_LOOKBACK_DAYS="$backfill_days"
           fi
 
           python scripts/search_data_sync.py "${args[@]}"

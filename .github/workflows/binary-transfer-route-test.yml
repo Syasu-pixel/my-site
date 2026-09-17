@@ -1,0 +1,79 @@
+name: Binary transfer route test
+
+on:
+  push:
+    branches:
+      - preview-air-cylinder-transfer-test-20260917
+    paths:
+      - .github/workflows/binary-transfer-route-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  transfer:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-air-cylinder-transfer-test-20260917
+          fetch-depth: 1
+
+      - name: Download exact Firestorage file without Base64
+        shell: bash
+        env:
+          SHARE_ID: _mFM-S-jC4Uo
+          FILE_ID: 01a0acc462a3714ea2accbf80de4f6af
+          EXPECTED_NAME: エア圧の確認ポイント-lossless.webp
+          EXPECTED_SHA256: d4a609346181ff3e8c8a757de20b10ce4142b19a80d637c6bc7bcf4fecd8640c
+          EXPECTED_BYTES: '1167170'
+          TARGET_PATH: assets/images/air-cylinder-troubleshooting-basic/_transfer-route-test-air-pressure-full.webp
+        run: |
+          set -euo pipefail
+          meta="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error \
+            "https://api.firestorage.ai/dev/file/shares/${SHARE_ID}/files?maxResults=1000")"
+          printf '%s' "$meta" > /tmp/meta.json
+          python3 - <<'PY'
+          import json, os
+          d=json.load(open('/tmp/meta.json'))
+          files=d.get('files') or []
+          f=next((x for x in files if x.get('fileId')==os.environ['FILE_ID']), None)
+          if not f: raise SystemExit('file id not found')
+          if f.get('fileName') != os.environ['EXPECTED_NAME']: raise SystemExit('filename mismatch')
+          if int(f.get('sizeBytes',-1)) != int(os.environ['EXPECTED_BYTES']): raise SystemExit('size metadata mismatch')
+          PY
+          dl="$(curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error -X POST \
+            "https://api.firestorage.ai/dev/file/shares/${SHARE_ID}/files/${FILE_ID}/download")"
+          printf '%s' "$dl" > /tmp/dl.json
+          url="$(python3 - <<'PY'
+          import json
+          print(json.load(open('/tmp/dl.json'))['downloadUrl'])
+          PY
+          )"
+          case "$url" in
+            https://s3.ap-northeast-1.wasabisys.com/*) ;;
+            *) echo 'unexpected download host' >&2; exit 1 ;;
+          esac
+          mkdir -p "$(dirname "$TARGET_PATH")"
+          curl --proto '=https' --tlsv1.2 --fail-with-body --silent --show-error "$url" -o "$TARGET_PATH"
+          test "$(wc -c < "$TARGET_PATH" | tr -d ' ')" = "$EXPECTED_BYTES"
+          printf '%s  %s\n' "$EXPECTED_SHA256" "$TARGET_PATH" | sha256sum -c -
+          python3 - <<'PY'
+          import os
+          p=os.environ['TARGET_PATH']
+          b=open(p,'rb').read(12)
+          assert b[:4]==b'RIFF' and b[8:12]==b'WEBP', 'not a WebP signature'
+          PY
+
+      - name: Commit verified binary
+        shell: bash
+        env:
+          TARGET_PATH: assets/images/air-cylinder-troubleshooting-basic/_transfer-route-test-air-pressure-full.webp
+        run: |
+          set -euo pipefail
+          git config user.name 'binary-transfer-route-test'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -- "$TARGET_PATH"
+          git commit -m 'test: transfer full binary without Base64'
+          git push origin HEAD:preview-air-cylinder-transfer-test-20260917

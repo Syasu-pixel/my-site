@@ -8,10 +8,12 @@
 1. `docs/ai-governance.md` と `docs/ai-editorial-master-rules.md` を確認する。
 2. `docs/article-workflow.md` を確認する。
 3. `docs/new-article-checklist.md` を確認する。
-4. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
-5. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。
-6. 画像がある場合は `docs/image-generation-rules.md` を確認する。
-7. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
+4. **既存記事の更新・改善候補選定では、本文・meta・見出しを触る前に `docs/article-update-date-guard.md` を確認する。完成・凍結状態、最終内容更新日、メーカー公式資料確認日、GitHub/PR履歴を確認し、直近28日以内に実質改善した記事を原則として再改善候補から除外する。**
+5. **新規記事・既存記事で検索意図、title、meta description、H2/H3、本文補強、関連記事を検討する場合は `docs/article-search-data-precheck-override.md` と `docs/search-data-acquisition-rules.md` を確認する。既存記事では必ず前項の日付ガードを先に通す。**
+6. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
+7. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。
+8. 画像がある場合は `docs/image-generation-rules.md` を確認する。
+9. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
 
 ## 制作担当の正本
 - ChatGPT / AI編集部が完成記事HTMLと記事画像を作成する。
@@ -41,6 +43,8 @@
 
 ## 記事更新時の要点
 - まず更新理由と公式参照元を確認する。
+- **既存記事は `docs/article-update-date-guard.md` を先に確認し、最近実質更新した記事を検索データだけで再編集しない。**
+- **メーカー公式資料を参照する記事では、`docs/reference-notes/{slug}.md` の公式URL・資料名・確認日を確認し、再確認していない資料の確認日を現在日に更新しない。**
 - 既存記事の影響範囲を特定し、必要箇所のみ差分更新する。
 - 更新PRで、変更理由・更新範囲・未更新範囲・参照元を報告する。
 - `safe to merge: YES / NO` を明記する。

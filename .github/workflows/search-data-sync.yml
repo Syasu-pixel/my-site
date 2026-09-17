@@ -1,0 +1,158 @@
+name: Search data sync
+
+on:
+  push:
+    branches:
+      - preview-search-data-foundation-clean-20260917
+    paths:
+      - ".github/workflows/search-data-sync.yml"
+      - "scripts/search_data_sync.py"
+      - "scripts/search_data_entrypoint.py"
+      - "scripts/test_search_data_sync.py"
+      - "scripts/test_search_data_entrypoint.py"
+      - "supabase/migrations/20260917025740_create_search_data_foundation.sql"
+      - "docs/search-data-*.md"
+  pull_request:
+    paths:
+      - ".github/workflows/search-data-sync.yml"
+      - "scripts/search_data_sync.py"
+      - "scripts/search_data_entrypoint.py"
+      - "scripts/test_search_data_sync.py"
+      - "scripts/test_search_data_entrypoint.py"
+      - "supabase/migrations/20260917025740_create_search_data_foundation.sql"
+      - "docs/search-data-*.md"
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "Provider to sync"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - google
+          - bing
+      dry_run:
+        description: "Call provider APIs but do not write Supabase"
+        required: true
+        default: true
+        type: boolean
+      date:
+        description: "Optional YYYY-MM-DD single-day backfill"
+        required: false
+        type: string
+      backfill_days:
+        description: "Optional rolling backfill days (0 = normal window, max 90)"
+        required: true
+        default: "0"
+        type: choice
+        options:
+          - "0"
+          - "28"
+          - "60"
+          - "90"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: search-data-sync
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+          sparse-checkout-cone-mode: true
+      - name: Compile and test
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/search_data_sync.py \
+            scripts/search_data_entrypoint.py \
+            scripts/test_search_data_sync.py \
+            scripts/test_search_data_entrypoint.py
+          PYTHONPATH=scripts python scripts/test_search_data_sync.py
+          PYTHONPATH=scripts python scripts/test_search_data_entrypoint.py
+
+  sync:
+    name: Collect search data
+    needs: test
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SEARCH_DATA_SUPABASE_URL: ${{ vars.SEARCH_DATA_SUPABASE_URL }}
+      SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY }}
+
+      GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
+      GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
+      GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+      GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+
+      BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+      BING_WEBMASTER_CLIENT_ID: ${{ secrets.BING_WEBMASTER_CLIENT_ID }}
+      BING_WEBMASTER_CLIENT_SECRET: ${{ secrets.BING_WEBMASTER_CLIENT_SECRET }}
+      BING_WEBMASTER_REFRESH_TOKEN: ${{ secrets.BING_WEBMASTER_REFRESH_TOKEN }}
+      BING_WEBMASTER_SITE_URL: ${{ vars.BING_WEBMASTER_SITE_URL }}
+
+      SEARCH_DATA_LAG_DAYS: "3"
+      SEARCH_DATA_LOOKBACK_DAYS: "4"
+      BING_DATA_LAG_DAYS: "1"
+      BING_DATA_LOOKBACK_DAYS: "14"
+      SEARCH_ENABLE_FINE_GRAIN: "false"
+      SEARCH_FINE_GRAIN_RETENTION_DAYS: "90"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+          sparse-checkout-cone-mode: true
+      - name: Run collector
+        shell: bash
+        env:
+          INPUT_PROVIDER: ${{ inputs.provider }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_BACKFILL_DAYS: ${{ inputs.backfill_days }}
+        run: |
+          set -euo pipefail
+
+          provider="${INPUT_PROVIDER:-all}"
+          args=(--provider "$provider")
+
+          if [[ "${INPUT_DRY_RUN:-true}" == "true" ]]; then
+            args+=(--dry-run)
+          fi
+
+          if [[ -n "${INPUT_DATE:-}" ]]; then
+            if [[ ! "${INPUT_DATE}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+              echo "date input must be YYYY-MM-DD" >&2
+              exit 2
+            fi
+            if [[ "${INPUT_BACKFILL_DAYS:-0}" != "0" ]]; then
+              echo "date and backfill_days cannot be used together" >&2
+              exit 2
+            fi
+            args+=(--date "${INPUT_DATE}")
+          fi
+
+          backfill_days="${INPUT_BACKFILL_DAYS:-0}"
+          case "$backfill_days" in
+            0|28|60|90) ;;
+            *) echo "backfill_days must be one of 0, 28, 60, 90" >&2; exit 2 ;;
+          esac
+
+          if [[ "$backfill_days" != "0" ]]; then
+            export SEARCH_DATA_LOOKBACK_DAYS="$backfill_days"
+            export BING_DATA_LOOKBACK_DAYS="$backfill_days"
+          fi
+
+          python scripts/search_data_entrypoint.py "${args[@]}"

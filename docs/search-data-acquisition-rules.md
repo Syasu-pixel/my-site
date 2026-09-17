@@ -9,7 +9,7 @@
 今後の標準構成は次の通りとする。
 
 1. Google Search Console は Google 公式 Search Console API から取得する。
-2. Bing は Microsoft 公式 Bing Webmaster API の現行 REST 系 API から取得する。
+2. Bing は Microsoft 公式 Bing Webmaster API の現行 REST / JSON API から取得する。
 3. 定期取得は GitHub Actions の標準 GitHub-hosted runner で1日1回を基本とする。
 4. 取得データは必要な粒度へ整形して Supabase に保存する。
 5. ChatGPT は Supabase に蓄積された検索データを読み、週次・月次・記事改善・人気記事集計などに利用する。
@@ -28,13 +28,32 @@
 
 ## 3. 実装状況の扱い
 
-この文書の追加時点では、上記は**採用済みの目標構成・運用ルール**であり、公式API取得・GitHub Actions・検索データ用Supabaseテーブルの実装完了を意味しない。
+2026-09-17時点で、主基盤のコードとDBスキーマは実装済みである。
 
-実装完了までは以下を守る。
+実装済み:
 
-- 新しいチャットは「公式APIルートがすでに稼働中」と推測しない。
-- 実装済みかどうかは GitHub の workflow、Supabase のテーブル、実行履歴を確認して判断する。
-- 未実装部分がある場合は、GSC Wizardへ自動的に戻らず、公式APIルートの実装を優先する。
+- Supabase の `search_performance_daily` / `search_collection_runs` / `search_collection_health`
+- Google Search Console Search Analytics API 取得クライアント
+- Bing Webmaster JSON API 取得クライアント
+- Bingは公式APIキー方式を優先し、OAuth Bearerを予備ルートとして保持
+- GitHub Actions 日次同期Workflow
+- idempotent upsert、有限リトライ、provider独立失敗、細粒度保持制御
+- 28 / 60 / 90日のbounded backfill
+- モック/正規化ユニットテスト
+
+未完了:
+
+- Google OAuth client と refresh token の発行
+- Bing Webmaster API Key の発行
+- GitHub Secrets / Variables の設定
+- 実API dry-run
+- 初回実データ保存、60日backfill、ChatGPTからのE2E集計確認
+
+したがって、新しいチャットは「公式APIルートの主基盤は実装済み」と判断してよいが、`search_collection_health` と実データを確認するまでは「自動取得が稼働中」と断定しない。
+
+詳細な実装状態・必要なSecret名・有効化順序は `docs/search-data-implementation-status.md` と `docs/search-data-oauth-setup.md` を確認する。
+
+未完了部分がある場合もGSC Wizardへ自動的に戻らず、公式APIルートの有効化を優先する。
 
 ## 4. コスト方針
 
@@ -59,7 +78,9 @@
 - 平均掲載順位
 - 必要に応じて device / country / search appearance 等
 
-Search Console の確定遅延や後日補正を吸収するため、日次処理では直近日だけを固定的に1回取得するのではなく、直近数日を再取得して upsert できる設計を優先する。
+Search Console の確定遅延や後日補正を吸収するため、日次処理では直近日だけを固定的に1回取得するのではなく、直近数日を再取得して upsert する。
+
+Google認証は `https://www.googleapis.com/auth/webmasters.readonly` の読み取り専用OAuthを使用する。
 
 ### Bing Webmaster Tools
 取得可能な現行APIの範囲で最低限、次を対象とする。
@@ -72,13 +93,15 @@ Search Console の確定遅延や後日補正を吸収するため、日次処�
 - 日付推移
 - その他、公式APIから安定して取得できる検索パフォーマンス指標
 
+認証は Microsoft 公式のAPI Keyを標準とし、OAuth 2.0 `Webmaster.read` は予備ルートとする。APIキーが設定されている場合はAPIキーを優先する。
+
 GoogleとBingで指標定義や取得粒度が異なる場合は、無理に同一値として扱わず、元サービスと定義を保持した上で横断比較する。
 
 ## 6. Supabase保存方針
 
-検索データは、既存のAI編集部系データと混同しない構造を優先する。
+検索データは既存のAI編集部系データと混同しない構造を優先する。
 
-検索データ専用Supabaseプロジェクトを新設できる場合は、`denkicontrol-search-data` 相当の独立プロジェクトを第一候補とする。ただし、プロジェクト作成は実際のFree枠・既存プロジェクト数を確認してから行う。
+2026-09-17の主基盤実装では、追加コストを発生させず、既存の接続済みSupabaseプロジェクト内に検索専用テーブルを論理分離して実装した。検索専用Supabaseプロジェクトを将来新設する場合も、同期クライアントは接続先を環境変数で切り替えられる構造を維持する。
 
 保存方針:
 
@@ -119,8 +142,8 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 
 ## 9. 認証情報とセキュリティ
 
-- OAuth client secret、refresh token、API key、Supabase secret/service-role key 等を公開GitHub、記事、PR本文、ログへ保存しない。
-- GitHub Actions で必要な秘密情報は GitHub Secrets 等の非公開の適切な保管先を使う。
+- OAuth client secret、refresh token、Bing API key、Supabase secret/service-role key 等を公開GitHub、記事、PR本文、ログへ保存しない。
+- GitHub Actions で必要な秘密情報は GitHub Repository Secrets に置く。
 - Supabaseのservice-role/secret keyを公開クライアントへ露出しない。
 - workflowログへトークン・APIキー・認証レスポンスを出力しない。
 - PRやPreviewで秘密情報を確認するために値そのものを表示しない。
@@ -128,7 +151,8 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 ## 10. 失敗時のルール
 
 - 取得失敗時に短時間の連打や無限リトライをしない。
-- 公式APIの認証エラー、quota、仕様変更、サービス障害を切り分ける。
+- GoogleはOAuth認証、quota、仕様変更、サービス障害を切り分ける。
+- BingはAPIキー失効/権限、quota、仕様変更、サービス障害を切り分ける。
 - Googleだけ取得できた場合にBing分を推測しない。逆も同様。
 - 一時障害を理由に第三者無料アプリを恒久標準へ戻さない。
 - 有料化が必要になりそうな場合は、先に無料範囲での縮小案（取得頻度、保存粒度、保持期間）を検討する。
@@ -148,6 +172,8 @@ Supabase Free のDB容量を無制限とみなさず、保存量を定期確認�
 - Google Search Console API: https://developers.google.com/webmaster-tools/
 - Google Search Console API pricing: https://developers.google.com/webmaster-tools/pricing
 - Bing Webmaster API: https://learn.microsoft.com/en-us/bingwebmaster/
+- Bing API access: https://learn.microsoft.com/en-us/bingwebmaster/getting-access
+- Bing API protocols: https://learn.microsoft.com/en-us/bingwebmaster/api-protocols
 - GitHub Actions billing: https://docs.github.com/en/actions/concepts/billing-and-usage
 - Supabase pricing: https://supabase.com/pricing
 

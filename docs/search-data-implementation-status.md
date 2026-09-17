@@ -31,6 +31,7 @@
 - 高粒度データを有効化した場合の90日削除処理を実装
 - 初回用の28 / 60 / 90日bounded backfillを実装
 - Actionsは `scripts/` のsparse checkoutで実行時間を抑える
+- Bing APIキー優先経路追加後のUnit Test成功を確認
 
 ### 未完了
 

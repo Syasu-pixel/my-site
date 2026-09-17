@@ -2,6 +2,8 @@
 
 この文書は、denkicontrol.com の新規記事作成・既存記事改善・検索分析で、通常のSEOに加えて Bing / AI検索から引用されやすく、かつ人間にも読みやすい記事を作るための共通ルールを定義する。
 
+検索実績データの取得経路は `docs/search-data-acquisition-rules.md` を正本とする。取得経路について本書と正本が矛盾する場合は `docs/search-data-acquisition-rules.md` を優先する。
+
 ## 基本方針
 
 - AI向けだけの不自然な文章にはしない。人間の読者にとって分かりやすいことを最優先する。
@@ -24,7 +26,7 @@
 
 ## 月曜日の調査・企画への反映
 
-月曜調査では、利用可能な範囲で Google Search Console と Bing Webmaster Tools の両方を確認する。
+月曜調査では、`docs/search-data-acquisition-rules.md` に従って取得・保存された Google Search Console と Bing Webmaster Tools の実データを確認する。公式APIルートが未実装または一時障害中の場合は、取得済みデータの範囲を明示し、欠損を推測で補わない。
 
 Bing Webmaster Tools では、少なくとも以下を優先して確認する。
 
@@ -63,6 +65,10 @@ Bingの実データが一時的に取得できない場合は、推測値で埋�
 
 ## 外部データ接続の注意
 
-- Bing Webmaster Tools の取得経路として Windsor.ai 等の外部連携を利用する場合、APIキーやAPIキー入りURLを記事、GitHub、公開ログ、PR本文へ保存しない。
-- `ThrottleIP` など取得制限が発生した場合、短時間に再読込やキャッシュ更新を連打しない。
-- データ取得エラー時は、設定ミスと断定せず、エラーコード・取得期間・選択フィールドを確認して切り分ける。
+- 検索実績の標準取得経路は `Google Search Console API / Bing Webmaster API -> GitHub Actions -> Supabase -> ChatGPT` とし、詳細は `docs/search-data-acquisition-rules.md` に従う。
+- **GSC Wizard は定例集計・検索確認の標準ルートとして使用しない。** 以前GSC Wizardを使っていた運用へ、新しいチャットが自動的に戻らないようにする。
+- Windsor.ai 等の第三者連携も恒久標準とはせず、管理者が明示した一時的な補助用途に限る。
+- 第三者サービスの無料枠を使い切るたびに別サービスへ乗り換える運用を採用しない。
+- APIキー、OAuth secret、refresh token、APIキー入りURL等を記事、GitHub、公開ログ、PR本文へ保存しない。
+- `ThrottleIP`、quota、認証エラー等が発生した場合、短時間に再読込や再実行を連打しない。
+- データ取得エラー時は設定ミスと断定せず、公式APIの状態、認証、取得期間、選択フィールド、quota、仕様変更を確認して切り分ける。

@@ -1,4 +1,4 @@
-name: Search data API dry-run
+name: Search data one-day write test
 
 on:
   push:
@@ -6,13 +6,12 @@ on:
       - test-search-data-api-dry-run-20260917
     paths:
       - ".github/workflows/search-data-sync.yml"
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: search-data-api-dry-run
+  group: search-data-one-day-write
   cancel-in-progress: false
 
 jobs:
@@ -37,46 +36,27 @@ jobs:
           PYTHONPATH=scripts python scripts/test_search_data_sync.py
           PYTHONPATH=scripts python scripts/test_search_data_entrypoint.py
 
-  dry_run:
-    name: Google + Bing API dry-run
+  write_google_one_day:
+    name: Write Google 2026-09-14 only
     needs: test
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
+      SEARCH_DATA_SUPABASE_URL: ${{ vars.SEARCH_DATA_SUPABASE_URL }}
+      SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY }}
       GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
       GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
       GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
       GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
-      BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
-      BING_WEBMASTER_SITE_URL: ${{ vars.BING_WEBMASTER_SITE_URL }}
-      SEARCH_DATA_LAG_DAYS: "3"
-      SEARCH_DATA_LOOKBACK_DAYS: "4"
-      BING_DATA_LAG_DAYS: "1"
-      BING_DATA_LOOKBACK_DAYS: "14"
       SEARCH_ENABLE_FINE_GRAIN: "false"
+      SEARCH_FINE_GRAIN_RETENTION_DAYS: "90"
     steps:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
             scripts
           sparse-checkout-cone-mode: true
-      - name: Validate Google credential shapes without printing secrets
-        shell: bash
+      - name: Write exactly one verified Google day
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import os
-          cid = os.getenv("GSC_CLIENT_ID", "")
-          secret = os.getenv("GSC_CLIENT_SECRET", "")
-          refresh = os.getenv("GSC_REFRESH_TOKEN", "")
-          print("gsc_client_id_present=", bool(cid))
-          print("gsc_client_id_suffix_ok=", cid.endswith(".apps.googleusercontent.com"))
-          print("gsc_client_secret_present=", bool(secret))
-          print("gsc_client_secret_prefix_ok=", secret.startswith("GOCSPX-"))
-          print("gsc_refresh_token_present=", bool(refresh))
-          print("gsc_refresh_token_shape_ok=", len(refresh) > 20)
-          PY
-      - name: Read provider APIs without writing Supabase
-        run: |
-          set -euo pipefail
-          python scripts/search_data_entrypoint.py --provider all --dry-run
+          python scripts/search_data_entrypoint.py --provider google --date 2026-09-14

@@ -8,7 +8,8 @@ const out=resolve(process.argv[2]||'../integration-build'),pkg=resolve(root,'.gi
 if(out===root||out.startsWith(root+sep)||root.startsWith(out+sep))throw Error('Use a separate review output tree');
 await mkdir(out,{recursive:true});
 const config=JSON.parse(await readFile(resolve(pkg,'integration.json'),'utf8'));
-if(new Set(config.representatives).size!==config.representatives.length)throw Error('Duplicate representative URL');
+const targets=config.targets||config.representatives;
+if(new Set(targets).size!==targets.length)throw Error('Duplicate target URL');
 const run=(program,args)=>{const result=spawnSync(program,args,{cwd:root,encoding:'utf8',env:{...process.env,PYTHONUTF8:'1'}});if(result.stdout)process.stdout.write(result.stdout);if(result.status!==0)throw Error(result.stderr||'Build failed');};
 await buildShells({check:true,verifyBaseline:true});
 run(process.execPath,['scripts/preview-site-shell-ui.mjs',resolve(out,'headers'),resolve(pkg,'integration.json')]);
@@ -18,8 +19,11 @@ const eleventy=new Eleventy(resolve(pkg,'end/page.njk'),resolve(out,'.render'),{
 const rendered=await eleventy.toJSON();if(rendered.length!==pages.length)throw Error('Incomplete integrated render');
 const candidate=resolve(out,'candidate'),review=resolve(out,'review'),pending=[];
 for(const result of rendered){
-  const path=result.url.replace(/^\//,'');if(!config.representatives.includes(path))throw Error('Unexpected output: '+path);
+  const path=result.url.replace(/^\//,'');if(!targets.includes(path))throw Error('Unexpected output: '+path);
   let html=result.content;
+  // One source career page lacks the shared search loader. The common header
+  // requires it; the original feedback loader has its own duplicate guard.
+  if(!/<script\b[^>]*src=["'][^"']*site-search\.js/i.test(html))html=html.replace('</body>','<script src="/assets/js/site-search.js" defer data-integration-added="search"></script></body>');
   html=html.replace('</head>','<link rel="stylesheet" href="/assets/css/article-end-related.css">'+(!path.startsWith('en/')?'<link rel="stylesheet" href="/assets/css/article-end-feedback.css">':'')+'<link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>').replace('</body>','<script src="/assets/js/article-integration-compat.js" defer></script></body>');
   if(!path.startsWith('en/')&&(html.match(/id="articleFeedbackCard"/g)||[]).length!==1)throw Error('Japanese feedback count invalid');
   if(path.startsWith('en/')&&html.includes('id="articleFeedbackCard"'))throw Error('English feedback forbidden');
@@ -43,8 +47,8 @@ for(const [path,html]of pending){
 const generatedAssets=[['sidebar/toc.css','assets/css/article-toc-v2.css'],['sidebar/toc.js','assets/js/article-toc-v2.js'],['end/related.css','assets/css/article-end-related.css'],['end/feedback.css','assets/css/article-end-feedback.css'],['integration-compat.css','assets/css/article-integration-compat.css'],['integration-compat.js','assets/js/article-integration-compat.js']];
 for(const [from,to]of generatedAssets)for(const folder of [candidate,review]){await mkdir(dirname(resolve(folder,to)),{recursive:true});await copyFile(resolve(pkg,from),resolve(folder,to));assets.delete(to);}
 const missing=[];
-for(const path of assets){try{await access(resolve(root,path));for(const folder of [candidate,review]){await mkdir(dirname(resolve(folder,path)),{recursive:true});await copyFile(resolve(root,path),resolve(folder,path));}}catch{missing.push(path);}}
+for(const path of assets){try{await access(resolve(root,path));if(process.env.REVIEW_COPY_ASSETS!=='0')for(const folder of [candidate,review]){await mkdir(dirname(resolve(folder,path)),{recursive:true});await copyFile(resolve(root,path),resolve(folder,path));}}catch{missing.push(path);}}
 await writeFile(resolve(out,'required-assets.json'),JSON.stringify([...assets].sort(),null,2));
 await writeFile(resolve(out,'missing-assets.json'),JSON.stringify(missing,null,2));
-await writeFile(resolve(out,'build.json'),JSON.stringify({version:config.version,sourceCommit:config.sourceCommit,mainCommit:config.mainCommit,representatives:config.representatives,sourceModified:false,productionPublished:false,missingAssets:missing},null,2));
+await writeFile(resolve(out,'build.json'),JSON.stringify({version:config.version,sourceCommit:config.sourceCommit,mainCommit:config.mainCommit,representatives:config.representatives,targets,assetMode:process.env.REVIEW_COPY_ASSETS==='0'?'source-fallback':'copied',sourceModified:false,productionPublished:false,missingAssets:missing},null,2));
 console.log(JSON.stringify({pages:pending.length,candidate,review,missingAssets:missing.length}));

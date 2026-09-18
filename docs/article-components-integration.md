@@ -1,81 +1,75 @@
-# 採用済み記事部品の統合レビュー
+# 採用済み記事部品の全記事統合レビュー
 
-状態: REVIEW_ONLY / 本番未反映。管理者の依頼により、採用済みヘッダー配置・sidebar-toc-v2・related-cards-compact-v1と、既存仕様の評価部品を順に統合する。同じ採用済み表示の再承認は求めない。最終組合せ確認・本番公開の承認とは区別する。
+状態: REVIEW_ONLY / 本番未反映。管理者が統合プレビューを確認して継続を依頼した範囲で、全288記事を作業用データへ統合する。採用済みの見た目の再承認は求めない。本番へのマージ・公開は別の権限であり、この検査では行わない。
 
 ## 基準と編集元
 
 - main: `394203274a5bd4d1eff4dd51fe64e07127c65275`
-- ヘッダーPR #1509の基準: `71de9c96021ef3e725af6ffda88e46076161575f`
-- 独立ブランチ: `review/article-components-integration-20260918`
-- 共通部品: `.github/article-components/`。採用パッケージはadoption.jsonのSHA-256を照合する。
-- 記事固有内容: 既存の `articles/*.html` / `en/articles/*.html`。過去のプレビューHTMLや旧fixturesを入力にしない。
-- 処理順: ヘッダー → 目次/右欄 → 評価/関連記事。各段階のhash・原文保持結果を出力する。元記事と本番パイプラインを変更しない。
-- HTMLはEleventy/Nunjucksで生成。Pythonの準備アダプタは最新HTMLの部品境界・見出し・既存カードの抽出/照合だけを担い、独自テンプレート言語は追加しない。
+- 先行ヘッダーPR #1509: `71de9c96021ef3e725af6ffda88e46076161575f`
+- 作業ブランチ: `review/article-components-integration-20260918`
+- 編集元は最新の未変換 `articles/*.html` / `en/articles/*.html`。旧プレビューHTMLは入力にしない。
+- 処理順はヘッダー → 目次/右欄 → 評価/関連記事。Eleventy/Nunjucksへ現在の固有内容を渡し、元記事は変更しない。
+- 採用CSS/JSはadoption.jsonのSHAで照合。全記事の右欄・目次仕様は `.github/article-components/sidebar/all-pages.json`。元の代表17件もこの全配列へ含まれる。
+- 本番パイプラインは変更しない。出力は編集元と別ディレクトリに限定する。
 
-## 全件台帳と例外
+## 全309 HTMLの対応
 
-GitHubの基準treeから309 HTMLを列挙し、ローカル入力のgit blob hashと照合。記事288件、その他21件を件数照合する。台帳の未確認を、共通ひな形があるという理由で適用済みにしない。
+通常記事251件と専用構成37件、計288記事を統合対象にする。非記事20件は対象外、GX Works2相談サービス1件は専用構造を保持する例外として検査する。元HTMLのGit blobを全309件で照合する。台帳は生成直後を「画面検査待ち」とし、全分割検査の照合が通過した記事だけを「画面検査済み」へ更新する。本番反映済みにはしない。
 
-|状態|件数|
-|---|---:|
-|通常のレビュー適用|10|
-|専用構成を保った例外レビュー適用|7|
-|記事の統合・画面未検証|271|
-|対象外の固定/カテゴリ/管理等|20|
-|GX Works2相談サービス例外・原文保持|1|
+- 設備設計#1/#2/#3: 右欄を付けず、前後回・次回・相談案内を保持。
+- 目次の切替境界: 1100px 240記事、900px 44記事、768px 3記事、1180px 1記事。crimping-toolsだけは採用済み代表の1180pxを維持（元本文レイアウトの1列化は900px）。他の工具へ1180pxを一般化しない。
+- 工具・キャリア・ハブ: 元カード・商品リンク・比較/分岐構造を保持。
+- 英語111記事: 評価欄と相談導線を追加しない。検索・お問い合わせ・実在する対応記事への言語切替を確認。
+- 日本語177記事: 固有slug、共通の既存投票ロジック、関連記事直前の配置を維持。
+- 相談サービス: 元HTML全体をbyte一致で別出力に保持。料金・同意/注意事項・フォーム・入力検証・送信処理を書き換えない。空欄/メール形式/受付番号の読み取り専用を試し、本番送信は行わない。
+- その他20件: トップ、カテゴリ、法務、お問い合わせ、管理認証、停止中ダッシュボード、別Preview、参照断片ごとに対象外理由を台帳へ記録する。
 
-17代表は日本語11・英語6。通常、工具2、キャリア、トラブル対応ハブ、設備設計#1/#2/#3、英語を含む。
+## 全件化で必要な互換処理
 
-- PLC設備設計シリーズ: 右欄を新設しない。前後回・次回案内、既存の相談案内、本文専用構造を保持。
-- 工具: 商品リンクと説明を保持。anchor-fixingは900px、crimping-toolsは1180pxの元レイアウト境界を使用。
-- キャリア/ハブ: 専用の比較・分岐構造を保持。
-- GX Works2相談窓口 `services/gxworks2-online-support.html`: 記事部品の対象外。料金/説明/同意/フォーム/入力検証/送信処理を含む元HTMLを完全一致で別出力へ保持。PC/スマホの表示とフロント側入力検証だけ確認し、本番送信はしない。
-- 英語: 評価を追加しない。ヘッダーの相談導線を掲載しない。通常のお問い合わせ・検索・実在する対応記事への言語切替は維持。
+狭い画面の検索結果と固定目次の重なりは統合用compat CSS/JSで解消し、採用済み部品は変更しない。検索の再表示は既存検索側の外側click処理と競合しないよう、ヘッダーの入力focusを次の処理タイミングに移す。テストはfocusが実際に移ることを待って判定する。
 
-## 組合せに必要だった修正
+18記事112カードの旧div.related-card-thumbは画像だけの枠であることを確認し、画像と一緒に置換する。タグ、本文、リンク、順序を捨てない。img自身に同classが付いた5件は通常の画像として置換する。
 
-320×568pxで検索結果が右下の目次ボタンを覆った。採用済みtoc.css/jsや関連記事CSSは変更せず、統合専用 `integration-compat.css/js` で狭い表示の検索結果を目次ボタン上12pxまでの高さに制限し、一覧内スクロールにした。検索項目や目次の配置・動作を削除して回避しない。
+fa-engineer-skill-map-careerは元から検索用共通JSが欠けていたため、data-integration-added=search付きの既存共通scriptを1件だけ補う。既存feedback.jsとその重複防止を維持し、別の投票ロジックは作らない。保全検証器もこの1件だけを明示した例外にする。
 
-検索を再び開くとき、既存検索の「フォーム外クリックで閉じる」処理が再表示した結果を消す組合せも検出。ヘッダー側の入力フォーカスをクリック処理完了後へ移し、既存site-search.jsを変更せず再表示を保持する。
+## 検査と再生成
 
-## 既知のリンク不整合（変更しない）
+静的検査は本文の部品外、SEO、元スクリプト、フッター、href順、残した右欄カードを比較する。関連記事担当の独立オラクルで記事カード1361件・案内9件、画像/属性/文面順、グリッド外リンク、評価JA177/EN0を照合する。別途全記事のローカルリンク・アンカー・画像/スクリプト等の参照を変更前後で比較し、新規不具合と既存問題を分ける。
 
-|英語記事|既存カードタイトル|既存href|
-|---|---|---|
-|air-breaker-basic|Surge Protection Basics|./air-breaker-basic.html|
-|control-panel-cooling-fan-basic|DC Motor Control Basics|./control-panel-cooling-fan-basic.html|
-|surge-protection-basic|Control Panel Cooling Fan Basics|./surge-protection-basic.html|
+ブラウザは6分割し、全288記事を390/768/1440px、既存代表17記事は320/1024pxも確認する。相談サービス3幅を合わせ901表示条件。日本語全177記事の投票成功/再読込と409/503/保存不可の3条件を本番へ送らない模擬応答で検査する。全分割の対象集合、幅、投票、画像を集約し、抜け・重複・失敗があれば完了にしない。
 
-いずれも自己リンク。今回採用された表示とは別問題として原文を保持する。推測によるリンク修正を混ぜない。
+境界/向き/検索再開等28条件に加え、別担当が抽出した長い目次、生成ID、固定操作、英語900px境界等74条件を確認する。関連する実装変更後は対応する検査を再実施する。外部の広告/分析等は隔離しており、全外部リンクの到達性は保証しない。
 
-## 再生成と検査
+共通部品の編集→再生成テストは作業用コピーだけを変更する。ヘッダー/関連記事は各288件、評価は日本語177件だけへ反映し英語111件は不変。フッターは登録variantを変更し、対象120件だけに反映・非対象168件不変を確認する。マーカー除去後は元内容と一致し、ソースを汚さない。
+
+実行の入口:
 
 ```sh
 pnpm install --frozen-lockfile --ignore-scripts
+python -m pip install lxml==6.1.1
 node scripts/build-integrated-review.mjs ../integration-build
 python scripts/verify-integrated-source.py ../integration-build
-node scripts/make-integration-gallery.mjs ../integration-build
+python scripts/audit-integrated-links.py ../integration-build
+python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate ../integration-build/candidate --assets-source . --output ../integration-build/end-independent-checks.json
+node scripts/check-component-regeneration.mjs ../integration-build
 node scripts/serve-integrated-review.mjs ../integration-build
-# 別の端末で
-node scripts/check-integrated-review.mjs ../integration-build
-node scripts/check-integration-boundaries.mjs ../integration-build
-node scripts/package-integrated-review.mjs ../integration-build
 ```
 
-Python3.12、Node22以上。WindowsでPython実行ファイルを指定する場合はPYTHON_EXECUTABLEを使用する。依存は既存の固定版Eleventy3.1.6、Playwright1.55.0、pixelmatch/pngjs。出力はソースと独立したディレクトリに限定する。
+別ターミナルでcheck-integrated-review.mjsをREVIEW_SHARD_COUNT=6/REVIEW_SHARD_INDEX=0〜5で実行し、境界・riskケースを実行する。その後merge-integration-checks.mjs、package-integrated-review.mjs、make-integration-gallery.mjsで台帳・証拠・操作画面を生成する。正式な一式はarticle-components-integration.ymlに定義する。Python実行ファイルはPYTHON_EXECUTABLE、ローカルのポートはREVIEW_PORT/REVIEW_BEFORE_PORTで指定可能。
 
-検査対象: 17記事×320/390/768/1024/1440px=85条件、相談窓口3幅、日英の検索/言語/お問い合わせ、目次の開閉/ジャンプ/フォーカス/重なり、OGP読込/contain/長いタイトル、評価位置/slug/一票制/再読込/409/503/保存不可。別に境界幅・回転・固定操作干渉・検索結果選択・カード実クリック28条件を確認する。
+## 既存の残課題
 
-本文の部品外、SEO、元スクリプト、残した右欄カード、フッター、本文/フッターのhref順序を保持検査する。全309 HTMLの基準照合も行う。本文の技術的正確さを保証する監査ではない。
+今回の部品変更へ混ぜて修正しない。
 
-## Preview隔離と証拠
+- 英語自己リンク/タイトル不一致3件: air-breaker-basic、control-panel-cooling-fan-basic、surge-protection-basic。hrefの実際の行き先のOGPを表示する。
+- 英語8記事のfooterに、存在しないen/contact.htmlとen/privacy-policy.htmlを指す計16リンク。control-panel-grounding-basic、control-panel-label-basic、control-panel-outlet-basic、control-panel-wire-color-basic、din-rail-basic、terminal-block-basic、terminal-block-jumper-basic、wire-number-marker-basic。変更前後で同じ問題として記録する。
+- 実機iOS/Safari、実機ソフトキーボード、スクリーンリーダーは未検証。実際の投票集計/相談送信は試験していない。
+- 技術本文の正しさを再監査する作業ではない。
 
-`candidate/` は統合候補。`review/` だけにnoindex・CSP・模擬投票を加える。本番の評価JS/API・loaderは変更しない。外部script/通信とフォーム送信は遮断し、同一originの検索JSONだけ取得可能にする。投票はブラウザ内の模擬応答で、本番の集計へ送らない。サービスフォームの実送信E2Eは行わない。
+## 隔離・証拠・復旧
 
-GitHub Actionsの `Integrated article component review` が再生成と検査を実施。`integrated-preview-*` と `integrated-evidence-*` を別artifactで30日保存。証拠には309件台帳、保全結果、Before/After/意図したDiff、操作結果を含める。旧ヘッダー/フッター共通化の視覚差分0検査とは区別する。
+candidateは生成候補、reviewだけにnoindex/CSP/模擬投票を追加する。フォーム送信、外部通信、Workerを遮断。元投票JSは変更しない。
 
-実機iOS/Safari、実機ソフトキーボード、スクリーンリーダーは未検証。271記事の統合・画面検査は未実施。本番マージ/公開は未承認。後続の全面適用は台帳の未確認を解消してから判断する。
+CIでは画像の重複転送を避けREVIEW_COPY_ASSETS=0で生成し、元のassetsを同じcheckoutから参照する。したがってCIのreview成果物は単独配布用サイトではない。ローカル操作画面は同じ版のassetsを備える。証拠は6分割の画像artifactと最終index/reportsに分け、全件台帳で追跡する。意図したUI変更の比較画像を、共通化だけの差分0検証と混同しない。
 
-## ロールバック
-
-元記事とmainを変更していないため、このレビュー出力を本番へコピーしない。統合ブランチの追加部品・アダプタ・workflowを同じ単位でrevertできる。先行PR1509や他担当の独立パッケージを上書きしない。
+このレビュー出力を本番へコピーしない。元HTMLは未変更で、統合用の追加部品・アダプタ・workflowを同じ単位でrevert可能。ルール一覧PR #1511とは分離し、将来の合流時に本PRの追加文書・検査をcatalogへ登録する。

@@ -1,27 +1,29 @@
 name: Integrated article component review
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
     paths:
       - '.github/article-components/**'
+      - '.github/site-shells/**'
       - '.github/workflows/article-components-integration.yml'
       - 'scripts/*integrat*'
-      - 'scripts/prepare-article-components.py'
-      - 'scripts/preview-site-shell-ui.mjs'
+      - 'scripts/*article*preservation*'
+      - 'scripts/*article-components*'
+      - 'scripts/*component-regeneration*'
+      - 'scripts/*site-shell*'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: article-integration-${{ github.event.pull_request.number }}
+  group: article-integration-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
-  review:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+  prepare:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      REVIEW_COPY_ASSETS: '0'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -30,43 +32,111 @@ jobs:
           python-version: '3.12.14'
       - uses: pnpm/action-setup@v4
         with:
-          version: '11.19.0'
+          version: 11.19.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: python -m pip install lxml==6.1.1
       - run: pnpm exec playwright install --with-deps chromium
-      - name: Build from current source in the agreed order
+      - name: Build all current articles and verify preservation
         run: |
           node scripts/build-integrated-review.mjs ${{ runner.temp }}/integration-build
           python scripts/verify-integrated-source.py ${{ runner.temp }}/integration-build
+          python scripts/audit-integrated-links.py ${{ runner.temp }}/integration-build
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate ${{ runner.temp }}/integration-build/candidate --assets-source . --output ${{ runner.temp }}/integration-build/end-independent-checks.json
+          node scripts/check-component-regeneration.mjs ${{ runner.temp }}/integration-build
           node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build
-      - name: Combined behavior and isolated vote checks
+      - name: Boundary, long TOC and fixed-control checks
+        run: |
+          node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
+          REVIEW_PID=$!
+          trap 'kill "$REVIEW_PID" || true' EXIT
+          node scripts/check-integration-boundaries.mjs ${{ runner.temp }}/integration-build
+          node scripts/check-integration-risk-cases.mjs ${{ runner.temp }}/integration-build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-prepared-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/integration-build/review/
+            ${{ runner.temp }}/integration-build/candidate/
+            ${{ runner.temp }}/integration-build/evidence/
+            ${{ runner.temp }}/integration-build/risk-evidence/
+            ${{ runner.temp }}/integration-build/*.json
+            ${{ runner.temp }}/integration-build/*.csv
+          retention-days: 30
+          if-no-files-found: error
+  browser:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    env:
+      REVIEW_SHARD_COUNT: '6'
+      REVIEW_SHARD_INDEX: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: integration-prepared-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-build
+      - name: All-article viewport and isolated-vote checks
         run: |
           node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
           REVIEW_PID=$!
           trap 'kill "$REVIEW_PID" || true' EXIT
           node scripts/check-integrated-review.mjs ${{ runner.temp }}/integration-build
-          node scripts/check-integration-boundaries.mjs ${{ runner.temp }}/integration-build
-          node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
-      - name: Upload interactive review copy
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: integrated-preview-${{ github.run_id }}
-          path: ${{ runner.temp }}/integration-build/review/
+          name: integrated-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/integration-build/evidence-shard-${{ matrix.shard }}/
+            ${{ runner.temp }}/integration-build/browser-checks-shard-${{ matrix.shard }}.json
           retention-days: 30
           if-no-files-found: error
-      - name: Upload screenshots and full scope ledger
-        if: always()
-        uses: actions/upload-artifact@v4
+  reconcile:
+    needs: [prepare, browser]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          name: integrated-evidence-${{ github.run_id }}
+          node-version: '22.16.0'
+      - uses: actions/download-artifact@v4
+        with:
+          name: integration-prepared-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-build
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: integrated-shard-*-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-build
+          merge-multiple: true
+      - name: Reject missing coverage and generate complete review index
+        run: |
+          node scripts/merge-integration-checks.mjs ${{ runner.temp }}/integration-build 6
+          node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
+          node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integrated-final-index-reports-${{ github.run_id }}
           path: |
-            ${{ runner.temp }}/integration-build/evidence/
-            ${{ runner.temp }}/integration-build/coverage-ledger.json
-            ${{ runner.temp }}/integration-build/coverage-ledger.csv
-            ${{ runner.temp }}/integration-build/preservation.json
-            ${{ runner.temp }}/integration-build/browser-checks.json
-            ${{ runner.temp }}/integration-build/boundary-checks.json
-            ${{ runner.temp }}/integration-build/provenance.json
-            ${{ runner.temp }}/integration-build/build.json
+            ${{ runner.temp }}/integration-build/evidence/index.html
+            ${{ runner.temp }}/integration-build/evidence/*.json
+            ${{ runner.temp }}/integration-build/evidence/*.csv
+            ${{ runner.temp }}/integration-build/review/
+            ${{ runner.temp }}/integration-build/*.json
+            ${{ runner.temp }}/integration-build/*.csv
           retention-days: 30
           if-no-files-found: error

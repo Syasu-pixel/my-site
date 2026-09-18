@@ -12,7 +12,7 @@ def outer_content(s):
  for n in nodes:
   if n.tag=='header' or n.tag=='aside' or end_grid(n) or n.attrs.get('id')=='articleFeedbackCard':ranges.append((n.start,n.end))
   elif n.tag=='style' and n.attrs.get('data-ui-proposal')=='header':ranges.append((n.start,n.end))
-  elif n.tag=='script' and (n.attrs.get('data-ui-proposal')=='header' or n.attrs.get('id')=='dc-toc-data' or n.attrs.get('src') in ['/assets/js/article-toc-v2.js','/assets/js/article-integration-compat.js']):ranges.append((n.start,n.end))
+  elif n.tag=='script' and (n.attrs.get('data-ui-proposal')=='header' or n.attrs.get('id')=='dc-toc-data' or n.attrs.get('data-integration-added')=='search' or n.attrs.get('src') in ['/assets/js/article-toc-v2.js','/assets/js/article-integration-compat.js']):ranges.append((n.start,n.end))
   elif n.tag=='link' and n.attrs.get('href') in ['/assets/css/article-toc-v2.css','/assets/css/article-end-related.css','/assets/css/article-end-feedback.css','/assets/css/article-integration-compat.css']:ranges.append((n.start,n.end))
  ranges=[r for r in ranges if not any(q[0]<=r[0] and q[1]>=r[1] and q!=r for q in ranges)]
  for a,b in sorted(ranges,reverse=True):s=s[:a]+s[b:]
@@ -30,8 +30,9 @@ def scripts(s):return [raw(s,n) for n in Parser(s).nodes if n.tag=='script']
 def body_links(s):
  return [n.attrs.get('href') for n in Parser(s).nodes if n.tag=='a' and not n.ancestor(lambda a:a.tag in ['header','aside'])]
 build=Path(sys.argv[1] if len(sys.argv)>1 else '../integration-build').resolve();config=json.loads(read(PKG/'integration.json'));rows=[]
-specs={p['path']:p for f in ['pages.json','additional-pages.json'] for p in json.loads(read(PKG/'sidebar'/f))['pages']}
-for page in config['representatives']:
+specs={p['path']:p for f in ['pages.json','additional-pages.json','all-pages.json'] if (PKG/'sidebar'/f).exists() for p in json.loads(read(PKG/'sidebar'/f))['pages']}
+targets=config.get('targets',config['representatives'])
+for page in targets:
  old=read(ROOT/page);new=read(build/'candidate'/page);a=Parser(old).nodes;b=Parser(new).nodes;spec=specs[page]
  oldscripts=scripts(old);newscripts=scripts(new)
  asideold=[n for n in a if n.tag=='aside'];asidenew=[n for n in b if n.tag=='aside']
@@ -56,18 +57,29 @@ for item in inventory:
  git_blob=hashlib.sha1(b'blob '+str(len(source_bytes)).encode()+b'\0'+source_bytes).hexdigest()
  if git_blob!=item['gitBlob']:raise ValueError('Latest baseline/source mismatch: '+page)
  if page==service:state='対象外（専用サービス例外・原文保持検査済み）';kind='GX Works2オンライン相談・受付フォーム';strategy='専用構成を保持。記事部品は適用しない'
- elif not article:state='対象外';kind='固定・カテゴリ・管理等';strategy='記事統合の対象外、変更なし'
- elif page not in config['representatives']:state='未確認（統合・画面未検証）';kind='構造監査のみ・タイプ別適用未確定';strategy='部品を自動適用しない'
+ elif not article:
+  state='対象外'
+  if page.startswith('admin/'):kind='管理画面・認証';strategy='記事ではなく管理/ログイン用の専用UIを保持'
+  elif page.startswith('ai-editorial-dashboard/'):kind='停止中のAI編集部ダッシュボード';strategy='記事部品を適用せず停止中システムの状態を維持'
+  elif '/categories/' in '/'+page:kind='カテゴリ一覧';strategy='一覧のナビゲーション/カードは記事本文用の統合対象外'
+  elif 'privacy-policy/' in page:kind='プライバシーポリシー';strategy='法務ページの構造と本文を保持'
+  elif 'contact/' in page:kind='お問い合わせ';strategy='専用フォーム/連絡導線を保持'
+  elif page in ['index.html','en/index.html']:kind='トップページ';strategy='記事とは異なるトップの情報構成を保持'
+  elif page.startswith('preview/'):kind='既存の別Preview';strategy='公開記事でない別案を今回の統合対象にしない'
+  else:kind='共通ヘッダー参照用HTML';strategy='独立した記事ではなく参照断片のため変換しない'
+ elif page not in targets:state='未確認（統合・画面未検証）';kind='構造監査のみ・タイプ別適用未確定';strategy='部品を自動適用しない'
  else:
   kind=config.get('typeOverrides',{}).get(page,spec['kind']);exception=any(x in kind for x in ['工具','キャリア','ハブ','設計','右欄なし','トラブル'])
-  state='例外として別実装（レビュー適用）' if exception else '適用済み（レビューのみ）'
+  state='例外として別実装（レビュー適用・画面検査待ち）' if exception else '適用済み（レビューのみ・画面検査待ち）'
   strategy='元の専用構成を保持して部品を適用' if exception else '採用済み共通部品を適用'
- entry={'path':page,'article':article,'state':state,'kind':kind,'strategy':strategy,'productionApplied':False,'gitBlob':item['gitBlob']}
+ page_nodes=Parser(source_bytes.decode('utf-8')).nodes;heading=next((n for n in page_nodes if n.tag=='h1'),None)
+ title=text(inner(source_bytes.decode('utf-8'),heading)) if heading else page
+ entry={'path':page,'title':title,'article':article,'state':state,'kind':kind,'strategy':strategy,'productionApplied':False,'gitBlob':item['gitBlob']}
  if article:entry.update(asideCount=coverage[page]['asideCount'],endAdapter=coverage[page]['endAdapter'],knownSelfLinks=coverage[page].get('knownSelfLinks',[]))
  ledger.append(entry)
 counts=dict(collections.Counter(r['state'] for r in ledger))
 if len(ledger)!=309 or sum(r['article'] for r in ledger)!=288 or sum(counts.values())!=309:raise ValueError('Inventory reconciliation failed')
-(build/'coverage-ledger.json').write_text(json.dumps({'sourceCommit':config['mainCommit'],'totalHtml':309,'articles':288,'nonArticles':21,'representatives':17,'counts':counts,'pages':ledger},ensure_ascii=False,indent=2),encoding='utf-8')
+(build/'coverage-ledger.json').write_text(json.dumps({'sourceCommit':config['mainCommit'],'totalHtml':309,'articles':288,'nonArticles':21,'representatives':len(config['representatives']),'integratedTargets':len(targets),'counts':counts,'pages':ledger},ensure_ascii=False,indent=2),encoding='utf-8')
 with (build/'coverage-ledger.csv').open('w',encoding='utf-8-sig',newline='') as f:
  fields=['path','article','state','kind','strategy','productionApplied'];writer=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore');writer.writeheader();writer.writerows(ledger)
 print(json.dumps({'preservedArticles':len(rows),'serviceByteIdentical':True,'ledgerCounts':counts},ensure_ascii=False))

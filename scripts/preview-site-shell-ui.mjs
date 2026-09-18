@@ -8,7 +8,7 @@ if(out===root||out.startsWith(resolve(root,'articles'))||out.startsWith(resolve(
 const input=resolve(root,'.github/site-shells/ui-proposal');
 const config=JSON.parse(await readFile(process.argv[3]?resolve(process.argv[3]):resolve(root,'.github/site-shell-visual.json'),'utf8'));
 const proposals=[];
-for(const output of config.representatives){
+for(const output of (config.targets||config.representatives)){
   const en=output.startsWith('en/'),name=output.split('/').at(-1),other=en?`articles/${name}`:`en/articles/${name}`;
   let counterpart=null;try{await access(resolve(root,other));counterpart='/'+other;}catch{}
   proposals.push({output,counterpart,lang:en?'en':'ja',otherLang:en?'ja':'en',home:en?'/en/':'/',assetRoot:'/assets/',homeLabel:en?'English home':'トップページへ',title:en?'Denki Control Lab':'電気と制御の実務メモ',subtitle:en?'Practical electrical control notes':'現場で使える考え方と制御の基礎をわかりやすく解説',consult:en?'':'オンライン相談',search:en?'Search this site':'サイト内検索',searchShort:en?'Search':'検索',menu:en?'Menu':'メニュー',placeholder:en?'Search by keyword':'キーワードで検索',noResults:en?'No matching articles found.':'該当する記事がありません',contactUrl:en?'/en/contact/index.html':'/contact/index.html',contact:en?'Contact':'お問い合わせ',languageLabel:en?'ARTICLE LANGUAGE':'記事の言語',currentLanguage:en?'English':'日本語',currentLabel:en?'Current':'現在の言語',otherLanguage:en?'日本語':'English'});

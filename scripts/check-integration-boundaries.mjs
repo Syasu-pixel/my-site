@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';import {writeFile,mkdir} from 'node:fs/promises';import {resolve} from 'node:path';
 const out=resolve(process.argv[2]||'../integration-build');await mkdir(resolve(out,'evidence'),{recursive:true});
-const browser=await chromium.launch(),checks=[],failures=[],blocked=[];const origin='http://127.0.0.1:8768';
+const browser=await chromium.launch(),checks=[],failures=[],blocked=[];const origin='http://127.0.0.1:'+(process.env.REVIEW_PORT||8768);
 const assert=(v,m)=>{if(!v)throw Error(m);};const overlap=(a,b)=>a&&b&&a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
 async function newPage(width,height=1000){const c=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'});await c.route('**/*',r=>{if(r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:'))return r.continue();blocked.push({url:r.request().url(),method:r.request().method()});return r.abort();});return {c,page:await c.newPage()};}
 try{

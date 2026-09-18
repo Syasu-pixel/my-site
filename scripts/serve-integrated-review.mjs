@@ -19,6 +19,7 @@ export function server(before=false){return createServer(async(req,res)=>{
  }catch{res.writeHead(404).end('Review file not found');}
 });}
 if(process.argv[1]&&resolve(process.argv[1])===new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1').replaceAll('/',sep)){
- server().listen(8768,'127.0.0.1',()=>console.log('Integrated review: http://127.0.0.1:8768/'));
- server(true).listen(8769,'127.0.0.1',()=>console.log('Isolated source comparison: http://127.0.0.1:8769/'));
+ const port=Number(process.env.REVIEW_PORT||8768),beforePort=Number(process.env.REVIEW_BEFORE_PORT||8769);
+ server().listen(port,'127.0.0.1',()=>console.log('Integrated review: http://127.0.0.1:'+port+'/'));
+ server(true).listen(beforePort,'127.0.0.1',()=>console.log('Isolated source comparison: http://127.0.0.1:'+beforePort+'/'));
 }

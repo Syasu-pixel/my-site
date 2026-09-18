@@ -36,7 +36,7 @@ def end_data(page,s):
   if not title:raise ValueError('Missing card title')
   body=next((n for n in descendants if n.has('related-card-body')),a)
   content=inner(s,body);offset=body.open_end
-  remove=[n for n in descendants if n.start>=offset and n.end<=offset+len(content) and (n.tag=='img' or n.has('related-card-media'))]
+  remove=[n for n in descendants if n.start>=offset and n.end<=offset+len(content) and (n.tag=='img' or n.has('related-card-media') or n.has('related-card-thumb'))]
   remove=[n for n in remove if not any(x.start<=n.start and x.end>=n.end and x is not n for x in remove)]
   for n in sorted(remove,key=lambda n:n.start,reverse=True):content=content[:n.start-offset]+content[n.end-offset:]
   cards.append({'kind':'article','href':href,'attributes':{k:v for k,v in a.attrs.items() if k not in ['class','href']},'target':target,'image':'/'+local_path(target,og[0]),'alt':titles[0] if titles else text(inner(s,title)),'contentHtml':content,'ogpSource':og[0],'label':text(inner(s,title)),'originalImages':[n.attrs.get('src') for n in descendants if n.tag=='img']})
@@ -54,10 +54,10 @@ def end_data(page,s):
  segments.append({'type':'raw','html':s[cursor:]})
  return {'path':page,'language':'en' if page.startswith('en/') else 'ja','sourceSha256':sha(s),'segments':segments}
 def audit(config):
- selected=set(config['representatives']);rows=[]
+ selected=set(config.get('targets',config['representatives']));rows=[]
  for path in sorted([p for d in ['articles','en/articles'] for p in (ROOT/d).glob('*.html')]):
   page=path.relative_to(ROOT).as_posix();s=read(path);nodes=Parser(s).nodes
-  row={'path':page,'language':'en' if page.startswith('en/') else 'ja','integrationRepresentative':page in selected,'asideCount':sum(n.tag=='aside' for n in nodes),'bodySha256':sha(s),'visualIntegrationStatus':'planned-representative' if page in selected else 'not-integrated-not-visually-verified'}
+  row={'path':page,'language':'en' if page.startswith('en/') else 'ja','integrationRepresentative':page in selected,'asideCount':sum(n.tag=='aside' for n in nodes),'bodySha256':sha(s),'visualIntegrationStatus':'planned-integration' if page in selected else 'not-integrated-not-visually-verified'}
   try:
    data=end_data(page,s);cards=[c for seg in data['segments'] if seg['type']=='related' for c in seg['cards'] if c['kind']=='article'];row.update(endAdapter='supported-structure',articleCards=len(cards),knownSelfLinks=[{'title':c['label'],'href':c['href'],'target':c['target']} for c in cards if c['target']==page])
   except Exception as e:row.update(endAdapter='exception',reason=str(e))
@@ -73,11 +73,12 @@ def main():
   for name,digest in adoption['filesSha256'].items():
    if hashlib.sha256((PACKAGE/folder/name).read_bytes()).hexdigest()!=digest:raise ValueError('Approved component modified: '+folder+'/'+name)
  specs=json.loads(read(PACKAGE/'sidebar/pages.json'))['pages'];specs={p['path']:p for p in specs}
- additions=PACKAGE/'sidebar/additional-pages.json'
+ additions=PACKAGE/'sidebar/all-pages.json'
+ if not additions.exists():additions=PACKAGE/'sidebar/additional-pages.json'
  if additions.exists():specs.update({p['path']:p for p in json.loads(read(additions))['pages']})
  baseline=json.loads(read(ROOT/'.github/site-shells/manifest.json'));hashes={p['output']:p['baselineSha256'] for p in baseline['pages']}
  pages=[];provenance=[]
- for page in config['representatives']:
+ for page in config.get('targets',config['representatives']):
   original=read(ROOT/page)
   if sha(original)!=hashes[page]:raise ValueError('Current source changed; review/rebase registration: '+page)
   if page not in specs:raise ValueError('No reviewed sidebar role decisions: '+page)

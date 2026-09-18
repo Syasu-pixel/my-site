@@ -477,7 +477,7 @@
         <span class="project-series-entry__kicker">実践・設備設計</span>
         <strong class="project-series-entry__title">PLCで設備を1から設計する</strong>
         <span class="project-series-entry__sub">穴あけ加工ライン設計プロジェクト</span>
-        <span class="project-series-entry__cta">第1回：設備全体の構想から始めよう →</span>
+        <span class="project-series-entry__cta">第1回からスタート｜第3回：搬送制御編まで公開中 →</span>
       </span>
     </a>`;
   featured.insertAdjacentElement('afterend', section);

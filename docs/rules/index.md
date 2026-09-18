@@ -47,6 +47,7 @@
 | [docs/article-audit-entrypoint.md](../article-audit-entrypoint.md) — 日本語記事監査の入口・必須参照ルール | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/article-backlog.md](../article-backlog.md) — 日本語記事バックログ（中級・実務フェーズ） | 新規記事候補や英語展開、既存候補との重複・公開済み状態を確認する。 |
 | [docs/article-components-integration.md](../article-components-integration.md) — 採用済み記事部品の全記事統合レビュー | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
+| [docs/article-editing-playbook.md](../article-editing-playbook.md) — 新規記事・既存記事更新の実作業手順 | 新規記事・既存記事の内容更新・共通部品編集・公開導線追加。登録先、検査基準、生成と公開の実行順を確認する。 |
 | [docs/article-feedback-rules.md](../article-feedback-rules.md) — 記事評価カード運用ルール（article feedback rules） | 評価カード・投票処理・記事slug・集計・評価の配置を扱う。 |
 | [docs/article-hero-templates.md](../article-hero-templates.md) — 全288記事のヒーローひな形 | 記事ヒーローの共通枠・固有内容抽出・CSS・生成・比較検査・対象登録を扱う。プレビュー段階と公開承認を区別する。 |
 | [docs/article-refresh-log.md](../article-refresh-log.md) — 記事リフレッシュ記録 | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |

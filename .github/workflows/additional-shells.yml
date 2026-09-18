@@ -1,0 +1,49 @@
+name: Additional page shared shells
+on:
+  pull_request:
+    paths:
+      - '.github/site-shells/**'
+      - '.github/workflows/additional-shells.yml'
+      - '.github/workflows/pages.yml'
+      - 'scripts/*additional-shell*'
+      - 'scripts/*publication*'
+      - 'index.html'
+      - 'en/index.html'
+      - 'categories/career.html'
+      - 'services/gxworks2-online-support.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      REVIEW_PORT: '8790'
+      REVIEW_BEFORE_PORT: '8791'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Generate accepted preview and verify shared regeneration
+        run: |
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/additional-shells"
+          node scripts/check-additional-shell-regeneration.mjs "${RUNNER_TEMP}/additional-shells"
+      - name: Compare four pages at four widths without sending
+        run: |
+          node scripts/serve-integrated-review.mjs "${RUNNER_TEMP}/additional-shells" > "${RUNNER_TEMP}/additional-shells/server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          node scripts/check-additional-shell-browser.mjs "${RUNNER_TEMP}/additional-shells"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: additional-shells-${{ github.run_id }}
+          path: ${{ runner.temp }}/additional-shells/
+          retention-days: 30

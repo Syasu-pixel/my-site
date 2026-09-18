@@ -49,11 +49,11 @@ const server=createServer(async(req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch({headless:true});
-const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:2};
+const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:3,parallelContexts:4};
 if(baseline && JSON.stringify(environment)!==JSON.stringify(baseline.environment)) throw Error('Baseline/candidate environments differ');
 const images=[];const results=[];const htmlHashes={};const probes=[];
 try {
-  for(const target of targets) {
+  async function captureTarget(target) {
     const body=await readFile(resolve(base,target));htmlHashes[target]=hash(body);
     for(const [device,viewport] of Object.entries(config.viewports)) {
       const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:target.startsWith('en/')?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce'});
@@ -120,9 +120,14 @@ try {
       probes.push({target,device,languageOpened:language,links});
       await context.close();
     }
-    if(images.length%40===0) console.log(`${phase}: ${target} (${images.length} images)`);
+    console.log(`${phase}: ${target} (${images.length} images)`);
   }
+  const queue=[...targets];
+  await Promise.all(Array.from({length:environment.parallelContexts},async()=>{
+    while(queue.length)await captureTarget(queue.shift());
+  }));
 }finally {await browser.close();await new Promise(r=>server.close(r));}
+probes.sort((a,b)=>(a.target+a.device).localeCompare(b.target+b.device));
 const common={baseSha,headSha:process.env.HEAD_SHA||'local',scope,targets,environment,images,htmlHashes,probes,errors,externalRequestsBlocked:[...external].sort()};
 if(phase==='baseline') {
   await writeFile(manifestFile,JSON.stringify(common,null,2),{flag:'wx'});

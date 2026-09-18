@@ -22,6 +22,7 @@
 |---|---|
 | [.github/article-components/end/INTEGRATION.md](../../.github/article-components/end/INTEGRATION.md) — 関連記事カード・コンパクト版の採用記録 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [.github/article-components/sidebar/INTEGRATION.md](../../.github/article-components/sidebar/INTEGRATION.md) — sidebar-toc-v2 — 採用済み部品の統合手順 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
+| [docs/additional-page-shells.md](../additional-page-shells.md) — トップ・相談・キャリア入口の共通枠 | トップ・相談・キャリア入口の共通枠、生成・比較・公開・採用基準を扱う。 |
 | [docs/adopted-image-github-placement-rule.md](../adopted-image-github-placement-rule.md) — 採用済み画像のGitHub配置ルール | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/agents/article-candidate-agent.md](../agents/article-candidate-agent.md) — 記事候補提案エージェント手順 | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/agents/article-image-generator-agent.md](../agents/article-image-generator-agent.md) — 記事画像ジェネレーター手順 | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
@@ -123,7 +124,12 @@
 | [.github/article-components/end/adoption.json](../../.github/article-components/end/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/integration.json](../../.github/article-components/integration.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/sidebar/adoption.json](../../.github/article-components/sidebar/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/site-shells/additional/footer.njk](../../.github/site-shells/additional/footer.njk) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
+| [.github/site-shells/additional/frame.css](../../.github/site-shells/additional/frame.css) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
+| [.github/site-shells/additional/manifest.json](../../.github/site-shells/additional/manifest.json) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
+| [.github/site-shells/additional/offset.js](../../.github/site-shells/additional/offset.js) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/manifest.json](../../.github/site-shells/manifest.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/workflows/additional-shells.yml](../../.github/workflows/additional-shells.yml) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/ai-editorial-preview-capture.yml](../../.github/workflows/ai-editorial-preview-capture.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/article-components-integration.yml](../../.github/workflows/article-components-integration.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
@@ -144,7 +150,10 @@
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/audit-integrated-links.py](../../scripts/audit-integrated-links.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/build-additional-shells.mjs](../../scripts/build-additional-shells.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
+| [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

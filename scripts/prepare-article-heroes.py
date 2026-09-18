@@ -70,25 +70,37 @@ def rules(s):
    start=i;continue
   i+=1
 
-def css_slots(s):
+def css_slots(s,exception=None):
  result=[]
+ used_exception=False
  for style in [n for n in Parser(s).nodes if n.tag=='style']:
   raw=s[style.start:style.end];content=s[style.open_end:closing(s,style)];slots=[]
+  if exception and sha(raw)==exception['styleSha256']:
+   marker=exception['preserveTailFrom']
+   if content.count(marker)!=1:raise ValueError('Ambiguous preserved CSS tail')
+   content=content[:content.index(marker)];used_exception=True
   for a,b,sel in rules(content):
    # Own only selectors entirely within the hero. Mixed/global declarations stay in place.
    if all('hero' in selector for selector in sel.split(',')):
     slots.append({'start':a+style.open_end-style.start,'end':b+style.open_end-style.start,'raw':content[a:b]})
   if slots:result.append({'raw':raw,'slots':slots})
+ if exception and not used_exception:raise ValueError('Preserved CSS exception source changed')
  return result
 
 def plan(initialize=False):
  config=json.loads(read(PKG/'manifest.json'));paths=config['targets']
  if not paths or len(paths)!=len(set(paths)):raise ValueError('Empty or duplicate targets')
+ if set(config.get('pageVariants',{}))!=set(paths):raise ValueError('Hero variant coverage differs')
+ if not set(config.get('cssExceptions',{})).issubset(paths):raise ValueError('Unregistered CSS exception')
  bindings={} if initialize else json.loads(read(PKG/'css-bindings.json'))
  pages=[]
  for path in paths:
-  if not re.fullmatch(r'(en/)?articles/[a-z0-9-]+\.html',path) or 'plc-drilling-line-design-project-' in path:raise ValueError('Out-of-scope target')
-  s=read(ROOT/path);hero=extract(s);styles=css_slots(s);expected=[]
+  if not re.fullmatch(r'(en/)?articles/[a-z0-9-]+\.html',path):raise ValueError('Out-of-scope target')
+  variant=config.get('pageVariants',{}).get(path)
+  if config.get('pageVariants') and variant not in config['variants']:raise ValueError('Unknown hero variant')
+  s=read(ROOT/path);hero=extract(s);styles=css_slots(s,config.get('cssExceptions',{}).get(path));expected=[]
+  actual='design-series' if 'plc-drilling-line-design-project-' in path else 'en-points' if path.startswith('en/') else 'ja-disclosure' if hero['data']['disclosure'] else 'ja-no-cta' if not hero['data']['actions'] else 'ja-standard'
+  if variant!=actual or (variant=='en-points' and not hero['data']['points']):raise ValueError('Hero variant differs from authored structure: '+path)
   for style in styles:
    for slot in style['slots']:
     raw=slot['raw'];urls=[]
@@ -102,7 +114,7 @@ def plan(initialize=False):
     slot.update(item);del slot['raw']
   if initialize:bindings[path]=expected
   elif bindings.get(path)!=expected:raise ValueError('Hero CSS source changed; explicitly review/re-import bindings: '+path)
-  pages.append({'path':path,'sourceSha256':sha(s),'hero':hero,'styles':styles})
+  pages.append({'path':path,'variant':variant,'sourceSha256':sha(s),'hero':hero,'styles':styles})
  if set(bindings)!=set(paths):raise ValueError('CSS binding targets differ')
  if initialize:dump(PKG/'css-bindings.json',bindings)
  return {'version':config['version'],'targets':paths,'pages':pages}

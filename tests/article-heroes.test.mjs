@@ -25,7 +25,7 @@ test('lossless extraction/render, shared propagation and fail-closed boundaries'
   await writeFile(template,oldTemplate.replace('{{ h.open | safe }}','{{ h.open | safe }}<!--hero-propagation-probe-->'));
   const changed=await loadHeroRenderer(f.plan,f.base);
   for(const [path,old]of originals){const result=changed.apply(old,path);assert.equal((result.match(/hero-propagation-probe/g)||[]).length,1);assert.equal(result.replace('<!--hero-propagation-probe-->',''),old);}
-  assert.equal(changed.apply('outside','articles/plc-drilling-line-design-project-03.html'),'outside');
+  assert.equal(changed.apply('outside','categories/career.html'),'outside');
   await writeFile(template,oldTemplate);
   const data=JSON.parse(await readFile(f.plan,'utf8'));
   const users=new Map();for(const p of data.pages)for(const s of p.styles)for(const slot of s.slots){if(!users.has(slot.template))users.set(slot.template,new Set());users.get(slot.template).add(p.path);}
@@ -39,7 +39,10 @@ test('lossless extraction/render, shared propagation and fail-closed boundaries'
   await writeFile(source,old.replace('.article-hero{','.article-hero{outline:0;'));assert.notEqual(f.extract().status,0);
   await writeFile(source,old+'\n');await assert.rejects(()=>loadHeroRenderer(f.plan,f.base),/Source changed/);
   await writeFile(source,old);assert.equal(f.extract().status,0);
+  const exceptionPath=Object.keys(f.manifest.cssExceptions)[0],exceptionFile=resolve(f.base,exceptionPath),exceptionSource=await readFile(exceptionFile,'utf8');
+  await writeFile(exceptionFile,exceptionSource.replace('@media (max-width:1100px)','@media (max-width:1101px)'));assert.notEqual(f.extract().status,0);await writeFile(exceptionFile,exceptionSource);
+  const wrongVariant=structuredClone(f.manifest);wrongVariant.pageVariants[first]='unknown';await writeFile(resolve(f.base,pkg,'manifest.json'),JSON.stringify(wrongVariant));assert.notEqual(f.extract().status,0);
   const duplicate={...f.manifest,targets:[...f.manifest.targets,first]};await writeFile(resolve(f.base,pkg,'manifest.json'),JSON.stringify(duplicate));assert.notEqual(f.extract().status,0);
-  console.log(JSON.stringify({pages:originals.size,htmlExact:true,sharedTemplatePropagation:originals.size,sharedCssAffected:[...affected],outsideScopeUnchanged:true,negativeChecks:['unknown-field','stale-css','stale-source','duplicate-target']}));
+  console.log(JSON.stringify({pages:originals.size,htmlExact:true,sharedTemplatePropagation:originals.size,sharedCssAffected:affected.size,outsideScopeUnchanged:true,negativeChecks:['unknown-field','stale-css','stale-source','duplicate-target','stale-css-exception','unknown-variant']}));
  }finally{assert.ok(resolve(f.dir).startsWith(resolve(tmpdir())+sep+'dc-hero-'));await rm(f.dir,{recursive:true,force:true});}
 });

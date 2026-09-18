@@ -48,7 +48,7 @@
 | [docs/article-backlog.md](../article-backlog.md) — 日本語記事バックログ（中級・実務フェーズ） | 新規記事候補や英語展開、既存候補との重複・公開済み状態を確認する。 |
 | [docs/article-components-integration.md](../article-components-integration.md) — 採用済み記事部品の全記事統合レビュー | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [docs/article-feedback-rules.md](../article-feedback-rules.md) — 記事評価カード運用ルール（article feedback rules） | 評価カード・投票処理・記事slug・集計・評価の配置を扱う。 |
-| [docs/article-hero-templates.md](../article-hero-templates.md) — 記事ヒーローひな形パイロット | 記事ヒーローの共通枠・固有内容抽出・CSS・生成・比較検査・対象登録を扱う。プレビュー段階と公開承認を区別する。 |
+| [docs/article-hero-templates.md](../article-hero-templates.md) — 全288記事のヒーローひな形 | 記事ヒーローの共通枠・固有内容抽出・CSS・生成・比較検査・対象登録を扱う。プレビュー段階と公開承認を区別する。 |
 | [docs/article-refresh-log.md](../article-refresh-log.md) — 記事リフレッシュ記録 | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/article-search-data-precheck-override.md](../article-search-data-precheck-override.md) — 記事制作・記事更新の検索データ事前確認オーバーライド | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/article-type-templates.md](../article-type-templates.md) — 記事タイプ別テンプレート（article type templates） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
@@ -123,9 +123,9 @@
 | ファイル | 適用条件・扱い |
 |---|---|
 | [.github/article-components/end/adoption.json](../../.github/article-components/end/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [.github/article-components/hero/css-bindings.json](../../.github/article-components/hero/css-bindings.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
-| [.github/article-components/hero/hero.njk](../../.github/article-components/hero/hero.njk) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
-| [.github/article-components/hero/manifest.json](../../.github/article-components/hero/manifest.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/article-components/hero/css-bindings.json](../../.github/article-components/hero/css-bindings.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/article-components/hero/hero.njk](../../.github/article-components/hero/hero.njk) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/article-components/hero/manifest.json](../../.github/article-components/hero/manifest.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/article-components/integration.json](../../.github/article-components/integration.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/sidebar/adoption.json](../../.github/article-components/sidebar/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/site-shells/additional/footer.njk](../../.github/site-shells/additional/footer.njk) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
@@ -138,7 +138,7 @@
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/ai-editorial-preview-capture.yml](../../.github/workflows/ai-editorial-preview-capture.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/article-components-integration.yml](../../.github/workflows/article-components-integration.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [.github/workflows/article-heroes.yml](../../.github/workflows/article-heroes.yml) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/workflows/article-heroes.yml](../../.github/workflows/article-heroes.yml) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/workflows/binary-image-transfer.yml](../../.github/workflows/binary-image-transfer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-auto.yml](../../.github/workflows/editorial-discussion-auto.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -157,29 +157,31 @@
 | [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/audit-integrated-links.py](../../scripts/audit-integrated-links.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/build-additional-shells.mjs](../../scripts/build-additional-shells.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
-| [scripts/build-article-heroes.mjs](../../scripts/build-article-heroes.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/build-article-heroes.mjs](../../scripts/build-article-heroes.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加4ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
-| [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/check-article-hero-browser.mjs](../../scripts/check-article-hero-browser.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
+| [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-boundaries.mjs](../../scripts/check-integration-boundaries.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-risk-cases.mjs](../../scripts/check-integration-risk-cases.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-rule-catalog.py](../../scripts/check-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
+| [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
 | [scripts/merge-integration-checks.mjs](../../scripts/merge-integration-checks.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/prepare-article-components.py](../../scripts/prepare-article-components.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [scripts/prepare-article-heroes.py](../../scripts/prepare-article-heroes.py) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/prepare-article-heroes.py](../../scripts/prepare-article-heroes.py) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/prepare-integrated-publication.mjs](../../scripts/prepare-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [scripts/serve-article-hero-review.mjs](../../scripts/serve-article-hero-review.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/serve-article-hero-review.mjs](../../scripts/serve-article-hero-review.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/test-publication-artifact.py](../../scripts/test-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/test-rule-catalog.py](../../scripts/test-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [scripts/verify-publication-artifact.py](../../scripts/verify-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [supabase/functions/ai-editorial-preview-visual-audit/index.ts](../../supabase/functions/ai-editorial-preview-visual-audit/index.ts) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
-| [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示8件のパイロット制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 
 ## 省略表記の参照先
 

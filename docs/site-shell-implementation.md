@@ -70,3 +70,7 @@ PR #1509の初期コミットは比較環境のみ。次に代表6ページ、�
 `node scripts/capture-site-shell-ui.mjs .ui-proposal .ui-evidence .visual-evidence` で同環境の変更前と比較し、通常/検索/メニュー/Before/Diffを保存する。CIでは共通化の比較が成功した後にだけ実行し、別の `shell-ui-proposal-*` artifactへ保存する。これは意図したUI差分で、共通化の差分ゼロ判定へ混ぜない。比較画像の自動承認やbaseline更新は行わない。
 
 後続のサイドバー/目次・評価/関連記事の変更は最新の正本へ統合し、shellを再生成して再検査する。古い生成HTML同士を上書きマージしない。統合順はheader/footer、sidebar/目次、評価/関連記事。本番マージの追加承認は得ていない。
+
+## 大きなartifactの取得
+
+全記事のBefore/After/Diff ZIPは約850MBとなる。GitHub上から取得できるが、connectorの512MiB上限を超える場合は `Downloadable shell evidence package` を利用する。成功した比較runのartifactを取得し、全記事JSONレポートと代表6記事の108画像を別ZIPへまとめるだけで、撮影やbaseline更新はしない。`workflow_dispatch` の比較run IDを指定する。初回PRの自動実行は共通化のみの成功run `35325768247` に固定する。追加UIは別の小さい `shell-ui-proposal-*` を取得する。

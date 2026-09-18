@@ -35,23 +35,23 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - name: Build from current source in the agreed order
         run: |
-          node scripts/build-integrated-review.mjs ../integration-build
-          python scripts/verify-integrated-source.py ../integration-build
-          node scripts/make-integration-gallery.mjs ../integration-build
+          node scripts/build-integrated-review.mjs ${{ runner.temp }}/integration-build
+          python scripts/verify-integrated-source.py ${{ runner.temp }}/integration-build
+          node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build
       - name: Combined behavior and isolated vote checks
         run: |
-          node scripts/serve-integrated-review.mjs ../integration-build > ../integration-build/server.log 2>&1 &
+          node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
           REVIEW_PID=$!
           trap 'kill "$REVIEW_PID" || true' EXIT
-          node scripts/check-integrated-review.mjs ../integration-build
-          node scripts/check-integration-boundaries.mjs ../integration-build
-          node scripts/package-integrated-review.mjs ../integration-build
+          node scripts/check-integrated-review.mjs ${{ runner.temp }}/integration-build
+          node scripts/check-integration-boundaries.mjs ${{ runner.temp }}/integration-build
+          node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
       - name: Upload interactive review copy
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integrated-preview-${{ github.run_id }}
-          path: ../integration-build/review/
+          path: ${{ runner.temp }}/integration-build/review/
           retention-days: 30
           if-no-files-found: error
       - name: Upload screenshots and full scope ledger
@@ -60,13 +60,13 @@ jobs:
         with:
           name: integrated-evidence-${{ github.run_id }}
           path: |
-            ../integration-build/evidence/
-            ../integration-build/coverage-ledger.json
-            ../integration-build/coverage-ledger.csv
-            ../integration-build/preservation.json
-            ../integration-build/browser-checks.json
-            ../integration-build/boundary-checks.json
-            ../integration-build/provenance.json
-            ../integration-build/build.json
+            ${{ runner.temp }}/integration-build/evidence/
+            ${{ runner.temp }}/integration-build/coverage-ledger.json
+            ${{ runner.temp }}/integration-build/coverage-ledger.csv
+            ${{ runner.temp }}/integration-build/preservation.json
+            ${{ runner.temp }}/integration-build/browser-checks.json
+            ${{ runner.temp }}/integration-build/boundary-checks.json
+            ${{ runner.temp }}/integration-build/provenance.json
+            ${{ runner.temp }}/integration-build/build.json
           retention-days: 30
           if-no-files-found: error

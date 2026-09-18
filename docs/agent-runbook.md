@@ -1,5 +1,20 @@
 # agent runbook
 
+## 新規記事・更新の実作業入口
+
+共通ひな形導入後の登録先・本文更新時の検査基準・生成・公開導線は [実作業手順](article-editing-playbook.md) を先に確認する。新規記事は第3節、既存記事は第4節、Step 2は第6節に従う。旧コピー指定や固定件数だけで処理を終えない。
+
+## 全ルール確認の共通入口
+
+新しいチャット・引き継ぎ・「ルールを確認して」の依頼では、[ルール確認手順](rules/README.md)と正式一覧を先に開く。開始時必須を読み、条件付き全件の適用性を判定し、必要な参照先まで確認する。未読・取得不可・適用性未判定を残して「全ルール確認済み」と言わない。個別業務の実行順は本書の該当節に従う。
+
+## 共通ひな形移行との関係（2026-09-18）
+- サイト構造・共通部品・記事制作に関係する作業では、[site-template-policy.md](site-template-policy.md) と [site-template-migration-status.md](site-template-migration-status.md) を先に確認する。
+- 現在段階・採用判断・対象ごとの移行状態は、上記の移行状況文書だけを正本とする。本書の既存要件は、同方針に明示した限定例外以外は維持する。
+- 方針採用後、既存の移行済みページ、または利用可能なひな形・正本を台帳で確認して新規登録するページでは、完成記事HTMLのコピーをレイアウト・共通部品と固有内容の組み合わせへ読み替える。未移行・未登録は従来方式。初回移行の扱いは同方針第6節を参照する。
+- 構造移行を本文改善・公開導線追加・本番承認の省略と混同しない。相談窓口・法務・設計シリーズ等の意図した構造差を保持する。
+- 段階変更は移行状況文書へ記録し、各入口に段階・件数を重複管理しない。
+
 ## 目的
 - 記事制作時に ChatGPT / Codex が迷わないよう、実行順と判断基準をまとめる。
 - 上位正本は `docs/ai-editorial-master-rules.md`。下位文書と矛盾する場合はマスタールールを優先する。
@@ -8,17 +23,26 @@
 1. `docs/ai-governance.md` と `docs/ai-editorial-master-rules.md` を確認する。
 2. `docs/article-workflow.md` を確認する。
 3. `docs/new-article-checklist.md` を確認する。
-4. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
-5. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。
-6. 画像がある場合は `docs/image-generation-rules.md` を確認する。
-7. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
+4. **記事監査・全記事監査・修正前監査を行う場合は、最初に `docs/article-audit-entrypoint.md` を確認し、そこから必要な正本へ進む。記事タイプ差をそのまま欠落判定せず、broken / 構造差 / 意図した例外を分離する。**
+5. **既存記事の更新・改善候補選定では、本文・meta・見出しを触る前に `docs/article-update-date-guard.md` を確認する。完成・凍結状態、最終内容更新日、メーカー公式資料確認日、GitHub/PR履歴を確認し、直近28日以内に実質改善した記事を原則として再改善候補から除外する。**
+6. **新規記事・既存記事で検索意図、title、meta description、H2/H3、本文補強、関連記事を検討する場合は `docs/article-search-data-precheck-override.md` と `docs/search-data-acquisition-rules.md` を確認する。既存記事では必ず前項の日付ガードを先に通す。**
+7. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
+8. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。
+9. 画像がある場合は `docs/image-generation-rules.md` を確認する。
+10. 必要なら `docs/reference-notes/{slug}.md` と `docs/terminology/` を確認・更新する。
+
+## 記事監査の入口
+- 日本語記事の監査では `docs/article-audit-entrypoint.md` を案内板として最初に読む。
+- 本書は監査項目そのものを重複管理せず、`article-audit-entrypoint.md` から各正本へ辿る。
+- language-menu のbroken判定では、相対URLを文字列だけで判定せず `docs/language-menu-audit-method-review.md` の base解決 → `index.html` 補完 → 実在確認を使う。
+- 監査結果から修正へ進む前に、記事タイプ例外、日付ガード、完成・凍結状態、保守か実質改稿かを再判定する。
 
 ## 制作担当の正本
 - ChatGPT / AI編集部が完成記事HTMLと記事画像を作成する。
 - Codexは記事本文をゼロから執筆する主担当にしない。
 - Codexは配置、静的チェック、リンク・画像存在確認、限定的な細修正、Step 2導線整備を担当する。
-- 日本語記事Step 1はAI編集部が確認用GitHub反映とNetlify Deploy Preview作成まで自動進行できる。
-- MEDIUM/HIGH記事は管理者がNetlify Deploy Previewを目視確認してから公開工程へ進む。
+- 日本語記事Step 1はAI編集部が確認用GitHub反映と現行の公開生成と一致するPreview作成まで自動進行できる。
+- MEDIUM/HIGH記事は管理者が現行の公開生成と一致するPreviewを目視確認してから公開工程へ進む。
 - LOW自動公開の範囲は `docs/ai-editorial-master-rules.md` の定義に限定する。
 
 ## キャラクター運用の要点
@@ -41,12 +65,14 @@
 
 ## 記事更新時の要点
 - まず更新理由と公式参照元を確認する。
+- **既存記事は `docs/article-update-date-guard.md` を先に確認し、最近実質更新した記事を検索データだけで再編集しない。**
+- **メーカー公式資料を参照する記事では、`docs/reference-notes/{slug}.md` の公式URL・資料名・確認日を確認し、再確認していない資料の確認日を現在日に更新しない。**
 - 既存記事の影響範囲を特定し、必要箇所のみ差分更新する。
 - 更新PRで、変更理由・更新範囲・未更新範囲・参照元を報告する。
 - `safe to merge: YES / NO` を明記する。
 
 ## Step 1 / Step 2
-- Step 1は記事本体、記事画像、技術/SEO/画像監査、確認用GitHub反映、Netlify Deploy Previewまでを扱う。
+- Step 1は記事本体、記事画像、技術/SEO/画像監査、確認用GitHub反映、現行の公開生成と一致するPreviewまでを扱う。
 - Step 1ではトップ、カテゴリ、search-index、sitemap、backlog等のStep 2公開導線を変更しない。
 - Step 2は管理者がPreviewを明示OKした後に開始する。
 - 英語記事について既存の手動アップロード方式が必要な環境では従来手順を使用できるが、AI編集部から安全にGitHub反映できる場合はマスタールールを優先する。

@@ -1,5 +1,16 @@
 # 新規記事作成チェックリスト
 
+## 新規記事・更新の実作業入口
+
+共通ひな形導入後の登録先・本文更新時の検査基準・生成・公開導線は [実作業手順](article-editing-playbook.md) を先に確認する。新規記事は第3節、既存記事は第4節、Step 2は第6節に従う。旧コピー指定や固定件数だけで処理を終えない。
+
+## 共通ひな形移行との関係（2026-09-18）
+- サイト構造・共通部品・記事制作に関係する作業では、[site-template-policy.md](site-template-policy.md) と [site-template-migration-status.md](site-template-migration-status.md) を先に確認する。
+- 現在段階・採用判断・対象ごとの移行状態は、上記の移行状況文書だけを正本とする。本書の既存要件は、同方針に明示した限定例外以外は維持する。
+- 方針採用後、既存の移行済みページ、または利用可能なひな形・正本を台帳で確認して新規登録するページでは、完成記事HTMLのコピーをレイアウト・共通部品と固有内容の組み合わせへ読み替える。未移行・未登録は従来方式。初回移行の扱いは同方針第6節を参照する。
+- 構造移行を本文改善・公開導線追加・本番承認の省略と混同しない。相談窓口・法務・設計シリーズ等の意図した構造差を保持する。
+- 段階変更は移行状況文書へ記録し、各入口に段階・件数を重複管理しない。
+
 ## 0. 正式ドメイン固定ルール（最重要）
 - このサイトの正式ドメインは `https://denkicontrol.com` とする
 - `https://denki-control.com` は使用しない
@@ -67,7 +78,7 @@ PR確認時:
 - Step 1担当固定: ChatGPTが英語記事HTML作成と画像生成、ユーザーがHTML/画像ZIPのGitHubアップロードを行っているか（CodexがStep 1を勝手に進めていないか）を確認する。
 - Step 2担当固定: Step 1完了・ユーザー確認後にのみCodexが導線追加を実施しているかを確認する。
 - Step 1とStep 2が混在しているPRは `safe to merge: NO` または `safe to close: NO` とする。
-- Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着6・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
+- Step 2では language-menu 相互リンク、英語カテゴリ導線、トップ件数固定（新着7・Popular 10・トップ棚4）、search-index JSON、sitemap、backlog更新を確認する。
 - Step 2の language-menu 相互リンク確認では、日本語記事側 `articles/{slug}.html` と英語記事側 `en/articles/{slug}.html` の双方を確認する。
 - PR本文に変更理由と確認結果、`safe to merge: YES/NO` または `safe to close: YES/NO` を明記する。
 - 本文に重要語の軽い強調が入っているかを確認する。

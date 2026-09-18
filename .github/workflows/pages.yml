@@ -4,29 +4,70 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    paths:
+      - '.github/article-components/**'
+      - '.github/site-shells/**'
+      - '.github/workflows/pages.yml'
+      - 'scripts/*publication*'
+      - 'scripts/*integrat*'
+      - 'scripts/*article*'
+      - 'scripts/*site-shell*'
+      - 'scripts/*additional-shell*'
+      - 'articles/*.html'
+      - 'en/articles/*.html'
+      - 'services/gxworks2-online-support.html'
+      - 'contact/index.html'
+      - 'assets/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event.pull_request.number || 'production' }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Setup Node for shared shell verification
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Refuse stale generated headers and footers
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+
+      - name: Verify online consultation mail flow
+        run: node scripts/test-general-consultation-worker.mjs
+
+      - name: Generate and verify approved article components
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
 
       - name: Prepare Pages artifact
         run: |
@@ -34,6 +75,7 @@ jobs:
             --exclude '_site/' \
             --exclude '.git/' \
             --exclude '.github/' \
+            --exclude '/docs/rules/catalog.json' \
             --exclude 'node_modules/' \
             --exclude '.netlify/' \
             --exclude '.wrangler/' \
@@ -47,6 +89,9 @@ jobs:
             --exclude '*.psd' \
             --exclude '*.ai'
 
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
+          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
+
           echo 'Before image optimization:'
           du -sh _site _site/assets/images
 
@@ -54,12 +99,14 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
 
           # Convert PNG/JPEG assets in the publish copy only. The repository originals
           # remain untouched until the optimized deployment has been verified.
           find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
             | xargs -0 -r -P 4 -I{} bash -c '
                 src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
                 dst="${src%.*}.webp"
                 [ -e "$dst" ] && exit 0
                 cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
@@ -67,19 +114,24 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
-          import re
+          import re, json, os
 
           root = Path('_site')
           image_root = root / 'assets' / 'images'
           mapping = {}
+          build = Path(os.environ['RUNNER_TEMP']) / 'integration-build'
+          keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
           for src in image_root.rglob('*'):
               if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
+                  continue
+              if src.relative_to(root).as_posix() in keep_originals:
                   continue
               dst = src.with_suffix('.webp')
               if dst.exists() and dst.stat().st_size > 0:
                   rel_src = src.relative_to(root).as_posix()
                   rel_dst = dst.relative_to(root).as_posix()
                   mapping[rel_src] = rel_dst
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')
 
           # Only rewrite files that can affect the published site. Internal Markdown/TXT
           # docs contain example placeholders such as {slug} and must not be treated as
@@ -147,11 +199,42 @@ jobs:
             exit 1
           fi
 
+      - name: Verify final standalone publication
+        run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Save publication verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: publication-verification-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/integration-build/publication-checks.json
+            ${{ runner.temp }}/integration-build/publication-final-checks.json
+            ${{ runner.temp }}/integration-build/published-image-mapping.json
+            ${{ runner.temp }}/integration-build/image-collision-plan.json
+            ${{ runner.temp }}/integration-build/additional-shells/preservation.json
+          retention-days: 30
+
       - name: Upload artifact
+        # The deploy step is unreachable unless the standalone artifact passes.
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,0 +1,116 @@
+name: Article hero template preservation
+on:
+  pull_request:
+    paths:
+      - '.github/article-components/hero/**'
+      - '.github/workflows/article-heroes.yml'
+      - 'scripts/*article-hero*'
+      - 'scripts/build-integrated-review.mjs'
+      - 'tests/article-heroes.test.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: article-heroes-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: python -m pip install lxml==6.1.1
+      - run: node --test tests/article-heroes.test.mjs
+      - run: node scripts/build-integrated-review.mjs ${{ runner.temp }}/hero-build
+      - run: node scripts/check-article-hero-preservation.mjs ${{ runner.temp }}/hero-build
+      - run: python scripts/verify-integrated-source.py ${{ runner.temp }}/hero-build
+      - run: python scripts/audit-integrated-links.py ${{ runner.temp }}/hero-build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hero-preservation
+          path: |
+            ${{ runner.temp }}/hero-build/hero-preservation.json
+            ${{ runner.temp }}/hero-build/preservation.json
+            ${{ runner.temp }}/hero-build/link-resource-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hero-browser-input
+          path: |
+            ${{ runner.temp }}/hero-build/before/
+            ${{ runner.temp }}/hero-build/review/
+          retention-days: 14
+  browser:
+    needs: preserve
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    env:
+      HERO_SHARD_COUNT: '6'
+      HERO_SHARD_INDEX: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: hero-browser-input
+          path: ${{ runner.temp }}/hero-build
+      - name: Compare every hero and exercise every CTA
+        run: |
+          node scripts/serve-article-hero-review.mjs ${{ runner.temp }}/hero-build > ${{ runner.temp }}/hero-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          if [ "$HERO_SHARD_INDEX" = "0" ]; then node scripts/probe-article-hero-raster.mjs ${{ runner.temp }}/hero-build; fi
+          node scripts/check-article-hero-browser.mjs ${{ runner.temp }}/hero-build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hero-browser-shard-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/hero-build/hero-browser-${{ matrix.shard }}/
+            ${{ runner.temp }}/hero-build/hero-browser-shard-${{ matrix.shard }}.json
+            ${{ runner.temp }}/hero-build/hero-raster-control.json
+          retention-days: 14
+  reconcile:
+    needs: browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hero-browser-shard-*
+          path: ${{ runner.temp }}/hero-build
+          merge-multiple: true
+      - run: node scripts/merge-article-hero-checks.mjs ${{ runner.temp }}/hero-build 6
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hero-all-articles-report
+          path: ${{ runner.temp }}/hero-build/hero-browser-complete.json
+          retention-days: 30

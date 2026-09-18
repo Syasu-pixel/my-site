@@ -200,4 +200,7 @@
 
 ## 公開反映メモ
 
+- [x] PLC設備設計シリーズ 第3回: `articles/plc-drilling-line-design-project-03.html` — 搬送制御編の本文完成・本番公開・主要導線追加まで完了。
+
+
 - [x] キャリア・転職 STEP 4: `articles/fa-engineer-career-service-comparison.html` — 転職サービス比較（メーカーズジョブ掲載）を公開。

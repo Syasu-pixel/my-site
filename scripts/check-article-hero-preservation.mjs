@@ -10,7 +10,9 @@ for(const page of plan.pages){
  if(original!==rendered)throw Error('Hero/CSS migration changed bytes: '+page.path);
  const candidate=await readFile(resolve(out,'candidate',page.path),'utf8');
  if(!candidate.includes(page.hero.raw)||page.styles.some(s=>!candidate.includes(s.raw)))throw Error('Integrated hero/CSS differs: '+page.path);
- rows.push({path:page.path,sourceSha256:hash(original),reconstructedSha256:hash(rendered),htmlByteIdentical:true,integratedHeroAndStylesExact:true,cssSlots:page.styles.reduce((n,s)=>n+s.slots.length,0)});
+ const before=await readFile(resolve(out,'before',page.path)),after=await readFile(resolve(out,'review',page.path));
+ if(!before.equals(after))throw Error('Isolated before/after document bytes differ: '+page.path);
+ rows.push({isolatedDocumentBytesExact:true,beforeSha256:hash(before),afterSha256:hash(after),path:page.path,sourceSha256:hash(original),reconstructedSha256:hash(rendered),htmlByteIdentical:true,integratedHeroAndStylesExact:true,cssSlots:page.styles.reduce((n,s)=>n+s.slots.length,0)});
 }
 await writeFile(resolve(out,'hero-preservation.json'),JSON.stringify({state:'PREVIEW_ONLY',pages:rows,productionPublished:false},null,2));
 console.log(JSON.stringify({heroes:rows.length,byteIdentical:true}));

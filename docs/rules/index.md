@@ -20,6 +20,8 @@
 
 | 文書 | 適用条件・扱い |
 |---|---|
+| [.github/article-components/end/INTEGRATION.md](../../.github/article-components/end/INTEGRATION.md) — 関連記事カード・コンパクト版の採用記録 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
+| [.github/article-components/sidebar/INTEGRATION.md](../../.github/article-components/sidebar/INTEGRATION.md) — sidebar-toc-v2 — 採用済み部品の統合手順 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [docs/adopted-image-github-placement-rule.md](../adopted-image-github-placement-rule.md) — 採用済み画像のGitHub配置ルール | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/agents/article-candidate-agent.md](../agents/article-candidate-agent.md) — 記事候補提案エージェント手順 | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/agents/article-image-generator-agent.md](../agents/article-image-generator-agent.md) — 記事画像ジェネレーター手順 | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
@@ -43,6 +45,7 @@
 | [docs/ai-weekly-operation.md](../ai-weekly-operation.md) — Denkicontrol AI Weekly Operation | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/article-audit-entrypoint.md](../article-audit-entrypoint.md) — 日本語記事監査の入口・必須参照ルール | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/article-backlog.md](../article-backlog.md) — 日本語記事バックログ（中級・実務フェーズ） | 新規記事候補や英語展開、既存候補との重複・公開済み状態を確認する。 |
+| [docs/article-components-integration.md](../article-components-integration.md) — 採用済み記事部品の全記事統合レビュー | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [docs/article-feedback-rules.md](../article-feedback-rules.md) — 記事評価カード運用ルール（article feedback rules） | 評価カード・投票処理・記事slug・集計・評価の配置を扱う。 |
 | [docs/article-refresh-log.md](../article-refresh-log.md) — 記事リフレッシュ記録 | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/article-search-data-precheck-override.md](../article-search-data-precheck-override.md) — 記事制作・記事更新の検索データ事前確認オーバーライド | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
@@ -86,6 +89,7 @@
 | [docs/search-data-acquisition-rules.md](../search-data-acquisition-rules.md) — 検索データ取得・保存ルール（正本） | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |
 | [docs/search-data-implementation-status.md](../search-data-implementation-status.md) — 検索データ基盤 実装状況 | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |
 | [docs/search-data-oauth-setup.md](../search-data-oauth-setup.md) — 検索データ基盤 API 初期設定手順 | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |
+| [docs/site-shell-implementation.md](../site-shell-implementation.md) — ヘッダー・フッター共通化の実装と画面確認 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [docs/site-template-migration-status.md](../site-template-migration-status.md) — 共通ひな形移行の状態・引き継ぎ | サイト構造・レイアウト・共通部品・記事制作・生成方式・移行状況を扱う。 |
 | [docs/site-template-policy.md](../site-template-policy.md) — サイト共通ひな形・構造分離方針 v1（採用済み） | サイト構造・レイアウト・共通部品・記事制作・生成方式・移行状況を扱う。 |
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
@@ -116,8 +120,13 @@
 
 | ファイル | 適用条件・扱い |
 |---|---|
+| [.github/article-components/end/adoption.json](../../.github/article-components/end/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/article-components/integration.json](../../.github/article-components/integration.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/article-components/sidebar/adoption.json](../../.github/article-components/sidebar/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/site-shells/manifest.json](../../.github/site-shells/manifest.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/ai-editorial-preview-capture.yml](../../.github/workflows/ai-editorial-preview-capture.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/article-components-integration.yml](../../.github/workflows/article-components-integration.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/binary-image-transfer.yml](../../.github/workflows/binary-image-transfer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-auto.yml](../../.github/workflows/editorial-discussion-auto.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -128,11 +137,26 @@
 | [.github/workflows/pages.yml](../../.github/workflows/pages.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/rule-catalog.yml](../../.github/workflows/rule-catalog.yml) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [.github/workflows/search-data-sync.yml](../../.github/workflows/search-data-sync.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/audit-integrated-links.py](../../scripts/audit-integrated-links.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-integration-boundaries.mjs](../../scripts/check-integration-boundaries.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-integration-risk-cases.mjs](../../scripts/check-integration-risk-cases.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-rule-catalog.py](../../scripts/check-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
+| [scripts/merge-integration-checks.mjs](../../scripts/merge-integration-checks.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/prepare-article-components.py](../../scripts/prepare-article-components.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/prepare-integrated-publication.mjs](../../scripts/prepare-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/test-publication-artifact.py](../../scripts/test-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/test-rule-catalog.py](../../scripts/test-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
+| [scripts/verify-publication-artifact.py](../../scripts/verify-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [supabase/functions/ai-editorial-preview-visual-audit/index.ts](../../supabase/functions/ai-editorial-preview-visual-audit/index.ts) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -290,3 +314,5 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/new-article-checklist.md` → `plc-basics.html`：未確認・禁止パスまたはslug/xxxの例示として本文に記載。実在先として利用してよいという記述ではない。
 - `docs/new-article-checklist.md` → `plc.html`：未確認・禁止パスまたはslug/xxxの例示として本文に記載。実在先として利用してよいという記述ではない。
 - `docs/new-article-checklist.md` → `slug-ogp.png`：未確認・禁止パスまたはslug/xxxの例示として本文に記載。実在先として利用してよいという記述ではない。
+- `.github/article-components/sidebar/INTEGRATION.md` → `/assets/js/article-toc-v2.js`：統合生成時の公開先パス。Git正本は同ディレクトリのtoc.jsで、生成と最終配信検査で存在を確認する。
+- `docs/site-shell-implementation.md` → `report.json`：画面比較runがartifact内へ生成する検証報告。固定Gitファイルではない。

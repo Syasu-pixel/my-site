@@ -80,3 +80,17 @@ jobs:
         run: |
           echo 'Download shell-comparison from this run, extract, and open index.html. Each entry links Before / After / Diff PNGs and report.json preserves provenance.' >> "$GITHUB_STEP_SUMMARY"
           echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Render separate header UI proposal
+        if: success() && hashFiles('scripts/preview-site-shell-ui.mjs') != ''
+        run: |
+          node scripts/preview-site-shell-ui.mjs .ui-proposal
+          node scripts/capture-site-shell-ui.mjs .ui-proposal .ui-evidence .visual-evidence
+      - name: Upload intentional UI proposal separately
+        if: always() && hashFiles('.ui-evidence/report.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-ui-proposal-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .ui-evidence/
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error

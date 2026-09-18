@@ -62,7 +62,7 @@ PR #1509の初期コミットは比較環境のみ。次に代表6ページ、�
 
 `node scripts/preview-site-shell-ui.mjs .ui-proposal` で代表6記事だけを別フォルダーへ出力する。元の `articles/` / `en/articles/` は書き換えない。生成部品は `.github/site-shells/ui-proposal/`。新UIの全記事適用は、この見た目の確認後の段階とする。
 
-- 相談リンクは常時表示。英語ページは日本語相談であることを表示。
+- 日本語は相談→検索→メニュー。英語は検索→メニューとし、相談リンクを掲載しない。2026-09-18のプレビュー確認後に管理者が確定した配置。相談受付ページそのものは削除しない。
 - 検索ボタンから横幅の広い検索欄を開き、既存site-search.jsと同じIDで検索処理を使う。
 - メニューへ通常のお問い合わせと記事の言語を配置。現在言語は非リンクのラベル。実ファイルがある対応記事だけを切替先とし、ホームへ代替しない。
 - Escape・外側クリックで閉じる。検索展開時は入力へ、Escape時は起点ボタンへフォーカスする。
@@ -71,6 +71,5 @@ PR #1509の初期コミットは比較環境のみ。次に代表6ページ、�
 
 後続のサイドバー/目次・評価/関連記事の変更は最新の正本へ統合し、shellを再生成して再検査する。古い生成HTML同士を上書きマージしない。統合順はheader/footer、sidebar/目次、評価/関連記事。本番マージの追加承認は得ていない。
 
-## 大きなartifactの取得
-
-全記事のBefore/After/Diff ZIPは約850MBとなる。GitHub上から取得できるが、connectorの512MiB上限を超える場合は `Downloadable shell evidence package` を利用する。成功した比較runのartifactを取得し、全記事JSONレポートと代表6記事の108画像を別ZIPへまとめるだけで、撮影やbaseline更新はしない。`workflow_dispatch` の比較run IDを指定する。初回PRの自動実行は共通化のみの成功run `35325768247` に固定する。追加UIは別の小さい `shell-ui-proposal-*` を取得する。
+## 取得用パッケージ
+全画像のZIPは約850MBでconnectorの512MiB上限を超えるため、Downloadable shell evidence package workflowで全記事JSONと代表6記事108画像をまとめる。元画像の再撮影やbaseline更新は行わない。初回は成功run 35325768247に固定し、以後はworkflow_dispatchで成功した比較run IDを指定する。

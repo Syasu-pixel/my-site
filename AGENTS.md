@@ -9,9 +9,9 @@
 ## 新しいチャット・引き継ぎ時
 1. 現在のユーザー依頼、対象ブランチ、mainとの差分、既存PR・未完了作業を確認する。過去チャットの記憶だけで更新しない。
 2. `docs/ai-governance.md` と `docs/ai-editorial-master-rules.md` を読む。
-3. サイト構造、ヘッダー、カード、CSS、記事作成、テンプレート、生成・公開方式に関係する場合、`docs/site-template-policy.md` と `docs/site-template-migration-status.md` を読む。
-4. 続いて `docs/agent-runbook.md` と、その作業に関係する正本を読む。監査は `docs/article-audit-entrypoint.md`、既存記事の内容変更は日付ガード・検索データ事前確認へ進む。
-5. 実装前に「ルール案／採用済み方針／実装済み／本番反映済み」を区別する。共通化の文書があるだけで移行済みと判断しない。
+4. サイト構造、ヘッダー、カード、CSS、記事作成、テンプレート、生成・公開方式に関係する場合、`docs/site-template-policy.md` と `docs/site-template-migration-status.md` を読む。
+5. 続いて `docs/agent-runbook.md` と、その作業に関係する正本を読む。監査は `docs/article-audit-entrypoint.md`、既存記事の内容変更は日付ガード・検索データ事前確認へ進む。
+6. 実装前に「ルール案／採用済み方針／実装済み／本番反映済み」を区別する。共通化の文書があるだけで移行済みと判断しない。
 
 ## 共通ひな形移行の境界
 - 状態の正本は `docs/site-template-migration-status.md`。管理者のルール採用判断と実装依頼の範囲を確認してから、別の実装PRへ進む。既に明示された依頼・承認は引き継ぎ、同じ確認を繰り返さない。

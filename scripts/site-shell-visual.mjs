@@ -99,7 +99,13 @@ try {
       // Exercise existing controls without submitting forms or recording votes.
       const button=page.locator('.language-menu-button');
       let language=null;
-      if(await button.count()===1){await button.click();language=await button.getAttribute('aria-expanded');await page.keyboard.press('Escape');}
+      if(await button.count()===1){
+        await page.evaluate(()=>window.scrollTo(0,0));
+        if(await button.isVisible()){
+          try{await button.click({timeout:3000});language=await button.getAttribute('aria-expanded');await page.keyboard.press('Escape');}
+          catch(error){language='not-actionable';errors.push({target,device,error:'Existing language button is not actionable'});}
+        }else language='hidden';
+      }
       const links=await page.locator('header a,footer a').evaluateAll(es=>es.map(e=>({href:e.getAttribute('href'),text:e.textContent.trim()})));
       probes.push({target,device,languageOpened:language,links});
       await context.close();

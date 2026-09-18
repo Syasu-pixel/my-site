@@ -10,6 +10,15 @@ on:
       - '.github/site-shells/**'
       - '.github/workflows/pages.yml'
       - 'scripts/*publication*'
+      - 'scripts/*integrat*'
+      - 'scripts/*article*'
+      - 'scripts/*site-shell*'
+      - 'articles/*.html'
+      - 'en/articles/*.html'
+      - 'services/gxworks2-online-support.html'
+      - 'assets/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
   workflow_dispatch:
 
 permissions:
@@ -200,13 +209,13 @@ jobs:
 
       - name: Upload artifact
         # The deploy step is unreachable unless the standalone artifact passes.
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     permissions:

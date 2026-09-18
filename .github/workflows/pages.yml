@@ -34,10 +34,24 @@ jobs:
         with:
           version: 11.19.0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
       - name: Refuse stale generated headers and footers
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
           pnpm check:shells
+
+      - name: Generate and verify approved article components
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -60,6 +74,8 @@ jobs:
             --exclude '*.7z' \
             --exclude '*.psd' \
             --exclude '*.ai'
+
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
 
           echo 'Before image optimization:'
           du -sh _site _site/assets/images
@@ -169,4 +185,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

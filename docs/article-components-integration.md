@@ -1,6 +1,6 @@
 # 採用済み記事部品の全記事統合レビュー
 
-状態: REVIEW_ONLY / 本番未反映。管理者が統合プレビューを確認して継続を依頼した範囲で、全288記事を作業用データへ統合する。採用済みの見た目の再承認は求めない。本番へのマージ・公開は別の権限であり、この検査では行わない。
+生成・検査・配信手順。現在の承認・公開状態の正本は [site-template-migration-status.md](site-template-migration-status.md)。採用済みの見た目の再承認は求めない。本番マージ・公開は管理者の公開承認後に行う。
 
 ## 基準と編集元
 
@@ -10,7 +10,7 @@
 - 編集元は最新の未変換 `articles/*.html` / `en/articles/*.html`。旧プレビューHTMLは入力にしない。
 - 処理順はヘッダー → 目次/右欄 → 評価/関連記事。Eleventy/Nunjucksへ現在の固有内容を渡し、元記事は変更しない。
 - 採用CSS/JSはadoption.jsonのSHAで照合。全記事の右欄・目次仕様は `.github/article-components/sidebar/all-pages.json`。元の代表17件もこの全配列へ含まれる。
-- 本番パイプラインは変更しない。出力は編集元と別ディレクトリに限定する。
+- 出力は編集元と別ディレクトリに限定する。本番は同じ生成処理のcandidateだけをPages用コピーへ重ね、従来のWebP最適化後に公開する。
 
 ## 全309 HTMLの対応
 
@@ -72,4 +72,14 @@ candidateは生成候補、reviewだけにnoindex/CSP/模擬投票を追加す�
 
 CIでは画像の重複転送を避けREVIEW_COPY_ASSETS=0で生成し、元のassetsを同じcheckoutから参照する。したがってCIのreview成果物は単独配布用サイトではない。ローカル操作画面は同じ版のassetsを備える。証拠は6分割の画像artifactと最終index/reportsに分け、全件台帳で追跡する。意図したUI変更の比較画像を、共通化だけの差分0検証と混同しない。
 
-このレビュー出力を本番へコピーしない。元HTMLは未変更で、統合用の追加部品・アダプタ・workflowを同じ単位でrevert可能。ルール一覧PR #1511とは分離し、将来の合流時に本PRの追加文書・検査をcatalogへ登録する。
+review出力を本番へコピーしない。元HTMLは未変更で、統合用の追加部品・アダプタ・workflowを同じ単位でrevert可能。ルール一覧PR #1511へ追加文書・制御ファイルを登録してから合流する。
+
+## 本番生成の接続
+
+Pages workflowは共有shell整合性を検査し、同じbuild-integrated-review処理で候補を再生成、原本保全・リンク・独立オラクル検査を通す。scripts/prepare-integrated-publication.mjsがcandidateの288記事・専用サービス1件・生成CSS/JS6件だけを公開用コピーへ転記する。非記事21件の原文一致、評価JS不変、レビュー隔離/noindex/CSP混入拒否を検査する。scripts/check-integrated-publication.mjsは候補との全記事byte一致と、隔離版の誤入力・編集元上書きの拒否を確認する。
+
+その後の画像WebP変換・参照置換・900MiB上限・Pages配信は既存工程を維持する。site-build-manifest.jsonは生成元commitと画像最適化前のハッシュを示す。画像最適化後のHTMLハッシュと誤認しない。公開後は代表日英・設計シリーズ・工具・相談サービスと画像、検索、目次を確認し、本番投票やフォーム送信は試さない。
+
+記事URL、本文、更新日、search-index、sitemapは今回の構造移行では更新しない。現在のIndexNow workflowはルートHTML差分を対象にするため、この部品だけの変更は通知対象0件となる。既存URLの構造保守としてsitemap・内部リンク・自然クロールを使用し、Googleへの一括手動リクエストを行わない。通知済み・インデックス済みとは報告しない。
+
+後日の本文・部品改訂では現在の承認基準ハッシュ、右欄役割台帳、独立オラクルの影響を確認し、差分を審査して必要な登録を更新する。既存の保全検査を外して変更を通さない。新規記事はmanifestとintegration.targets/右欄仕様へ明示登録し、追加URLの公開導線・通知を別途確認する。

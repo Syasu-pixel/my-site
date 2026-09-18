@@ -1,0 +1,41 @@
+// Overlay only the approved candidate pages and generated assets onto the Pages copy.
+import {readFile,writeFile,copyFile,mkdir,realpath} from 'node:fs/promises';
+import {resolve,dirname,sep} from 'node:path';
+import {createHash} from 'node:crypto';
+import {root} from './build-site-shells.mjs';
+const build=resolve(process.argv[2]||'../integration-build'),site=resolve(process.argv[3]||'_site');
+if(site===root||root.startsWith(site+sep)||build===root||site===build||build.startsWith(site+sep)||site.startsWith(build+sep))throw Error('Publication and build must be separate from the source and each other');
+assertSafeSite: { const actual=await realpath(site); if(actual!==site||actual===root)throw Error('Publication destination must not be a symlink or the source'); }
+const config=JSON.parse(await readFile(resolve(root,'.github/article-components/integration.json'),'utf8'));
+const targets=config.targets||config.representatives;
+const assets=['assets/css/article-toc-v2.css','assets/js/article-toc-v2.js','assets/css/article-end-related.css','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js'];
+const service='services/gxworks2-online-support.html',candidate=resolve(build,'candidate');
+const assert=(ok,message)=>{if(!ok)throw Error(message)};
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const pending=[];
+for(const path of [...targets,service,...assets]){
+  assert(/^(?:(?:en\/)?articles\/[a-z0-9-]+\.html|services\/gxworks2-online-support\.html|assets\/(?:css|js)\/[a-z0-9.-]+)$/.test(path),'Unexpected publication path');
+  const source=resolve(candidate,path);assert((await realpath(source)).startsWith(await realpath(candidate)+sep),'Candidate path escapes build');
+  const bytes=await readFile(source),html=bytes.toString('utf8');
+  assert(!/data-review-only|__reviewVotes|__reviewMode|review-isolation\.js/.test(html),'Review isolation leaked into candidate: '+path);
+  if(path.endsWith('.html')){
+    assert(!/<meta\b[^>]*\bnoindex\b/i.test(html),'Review noindex leaked into candidate: '+path);
+    assert(!/<meta\b[^>]*http-equiv=["']Content-Security-Policy/i.test(html),'Review CSP leaked into candidate: '+path);
+    if(path===service)assert(bytes.equals(await readFile(resolve(root,path))),'Service must remain byte-identical');
+    else{
+      assert((html.match(/<header\b[^>]*class="[^"]*\bdc-shell\b[^"]*"/g)||[]).length===1,'Missing/duplicate approved header: '+path);
+      assert((html.match(/id="articleFeedbackCard"/g)||[]).length===(path.startsWith('en/')?0:1),'Feedback language mismatch: '+path);
+    }
+  }
+  pending.push({path,bytes});
+}
+// Preflight all target data before altering the publish copy. Root sources remain untouched.
+const inventory=JSON.parse(await readFile(resolve(build,'coverage-ledger.json'),'utf8')).pages;
+assert(inventory.length===309&&targets.length===288&&new Set(targets).size===288,'Incomplete approved inventory');
+for(const p of inventory.filter(p=>!targets.includes(p.path)))assert((await readFile(resolve(site,p.path))).equals(await readFile(resolve(root,p.path))),'Non-article page changed before overlay: '+p.path);
+for(const {path,bytes} of pending){await mkdir(dirname(resolve(site,path)),{recursive:true});await writeFile(resolve(site,path),bytes);assert((await readFile(resolve(site,path))).equals(bytes),'Publication copy differs from candidate');}
+assert((await readFile(resolve(site,'assets/js/article-feedback.js'))).equals(await readFile(resolve(root,'assets/js/article-feedback.js'))),'Original vote script changed');
+const report={sourceCommit:process.env.GITHUB_SHA||null,articles:targets.length,serviceByteIdentical:true,nonArticlePagesPreserved:inventory.length-targets.length,reviewIsolationPublished:false,stage:'before-existing-image-optimization',pages:pending.filter(p=>p.path.endsWith('.html')).map(p=>({path:p.path,sha256:sha(p.bytes)})),assets:assets.map(path=>({path,sha256:sha(pending.find(p=>p.path===path).bytes)}))};
+await writeFile(resolve(build,'publication-checks.json'),JSON.stringify(report,null,2));
+await copyFile(resolve(build,'publication-checks.json'),resolve(site,'site-build-manifest.json'));
+console.log(JSON.stringify({articles:report.articles,serviceByteIdentical:true,nonArticlePagesPreserved:report.nonArticlePagesPreserved,reviewIsolationPublished:false}));

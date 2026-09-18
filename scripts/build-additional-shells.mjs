@@ -13,6 +13,7 @@ const allowed=['index.html','en/index.html','services/gxworks2-online-support.ht
 if(paths.length!==4||new Set(paths).size!==4||paths.some(p=>!allowed.includes(p)))throw Error('Unexpected additional scope');
 const headerTemplate=await readFile(resolve(shared,'header.njk'),'utf8'),headerCss=await readFile(resolve(shared,'header.css'),'utf8'),headerJs=await readFile(resolve(shared,'header.js'),'utf8');
 const footerTemplate=await readFile(resolve(pkg,'footer.njk'),'utf8');
+const disclosureTemplate=await readFile(resolve(root,'.github/site-shells/components/affiliate-disclosure.njk'),'utf8');
 const frameCss=await readFile(resolve(pkg,'frame.css'),'utf8');
 const offsetJs=await readFile(resolve(pkg,'offset.js'),'utf8');
 const isolation=`<meta name="robots" content="noindex,nofollow"><meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'none'; object-src 'none'; base-uri 'none'; worker-src 'none'"><script data-preview-isolation>(()=>{const f=window.fetch.bind(window);window.fetch=(input,init={})=>{const u=new URL(typeof input==='string'?input:input.url,location.href);if(u.origin!==location.origin||!['GET','HEAD'].includes((init.method||input.method||'GET').toUpperCase()))return Promise.reject(Error('Preview blocks sending'));return f(input,init)};navigator.sendBeacon=()=>false;document.addEventListener('submit',e=>{if(e.target.id!=='siteSearch'){e.preventDefault();e.stopImmediatePropagation()}},true)})();</script>`;
@@ -24,7 +25,8 @@ for(const path of paths){
  let header=njk.renderString(headerTemplate,data).trim().replace('class="site-header dc-shell"',`class="site-header dc-shell" data-lang="${data.lang}"`);
  if(service)header=header.replace(/<a class="dc-consult"[^>]*>([\s\S]*?)<\/a>/,'<span class="dc-consult" aria-current="page">$1</span>');
  const oldFooter=footers[0][0],footerInner=oldFooter.replace(/^<footer\b[^>]*>/,'').replace(/<\/footer>$/,''),footerClass=(oldFooter.match(/^<footer[^>]*class="([^"]*)"/)||[])[1]||'site-footer';
- const footer=njk.renderString(footerTemplate,{footerClass,footerInner});
+ const disclosure=njk.renderString(disclosureTemplate,{disclosureLang:data.lang});
+ const footer=njk.renderString(footerTemplate,{footerClass,footerInner}).replace('</footer>',disclosure+'</footer>');
  let candidate=original.replace(headers[0][0],header).replace(oldFooter,footer);
  const addedStyle=`<style data-shell-extension="header">${headerCss}</style><style data-shell-extension="frame">${frameCss}</style>`;
  const addSearch=!/src=["'][^"']*site-search\.js/.test(original),addedScript=`<script data-shell-extension="header">${headerJs}</script><script data-shell-extension="offset">${offsetJs}</script>`+(addSearch?'<script src="/assets/js/site-search.js" defer data-shell-extension="search"></script>':'');

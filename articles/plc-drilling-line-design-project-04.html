@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PLCで設備を1から設計する｜加工ステーション制御編 第4回</title>
-  <meta name="description" content="穴あけ加工ライン設計プロジェクト第4回。CV04から加工ステーションへ受け入れ、位置確認、クランプ、主軸確認、穴あけ、原点復帰、クランプ解除、排出までをラダー実装前の状態遷移として整理します。">
+  <meta name="description" content="穴あけ加工ライン設計プロジェクト第4回。CV04からワークを横移載テーブルで1ピッチ奥の加工治具へ移し、位置決め、クランプ、穴あけ、原点復帰、ライン復帰、排出までをラダー実装前の状態遷移として整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="PLCで設備を1から設計する｜加工ステーション制御編 第4回">
-  <meta property="og:description" content="加工ステーションを、受入・位置確認・クランプ・加工・復帰・排出へ分解して設計します。">
+  <meta property="og:description" content="加工ステーションを、CV04受渡・横移載・クランプ・加工・ライン復帰・排出へ分解して設計します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">\n  <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -44,14 +44,14 @@
     <div class="article-hero-copy">
       <span class="hero-label">実践・設備設計シリーズ #04</span>
       <h1 id="page-title">PLCで設備を1から設計する<br>加工ステーション制御編</h1>
-      <p class="hero-lead">第3回でCV04までの搬送条件を固定したので、第4回では加工側を「受け入れる・保持する・加工する・元へ戻す・排出する」に分けて、ラダーを書く前の条件を整理します。</p>
+      <p class="hero-lead">第3回でCV04までの搬送条件を固定したので、第4回ではワークをCV04から横へ1ピッチ移載して加工し、加工後に同じ位置へ戻して搬送を再開する流れを、ラダーを書く前の条件に分解します。</p>
       <div class="hero-actions"><a class="btn btn-primary" href="#sequence">加工の流れを見る</a><a class="btn btn-secondary" href="#interlock">インターロックを見る</a></div>
     </div>
   </section>
 
   <section class="top-summary" aria-label="記事の導入まとめ">
-    <section class="summary-card"><h2>今回決めること</h2><ul><li>CV04から加工位置へ受け入れる条件</li><li>クランプから穴あけ、原点復帰までの順番</li><li>加工完了後のクランプ解除と排出条件</li></ul></section>
-    <section class="summary-card"><h2>追加する仮I/O</h2><ul><li>X11〜X17：加工位置・シリンダ端・主軸・排出確認</li><li>Y15〜Y17：クランプ・主軸・ドリル送り</li><li>Y20：排出動作の仮出力</li></ul></section>
+    <section class="summary-card"><h2>今回決めること</h2><ul><li>CV04から横移載を開始する条件</li><li>1ピッチ奥の加工治具で固定・穴あけする順番</li><li>加工後にラインへ戻し、搬送を再開する条件</li></ul></section>
+    <section class="summary-card"><h2>追加する仮I/O</h2><ul><li>X11/X12：横移載の原点端・加工端</li><li>X13〜X20：クランプ・ドリル・主軸・加工位置確認</li><li>Y15〜Y21：横移載・クランプ・主軸・ドリル</li></ul></section>
     <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>GX Works2への完成ラダー入力</li><li>手動運転と復旧操作の詳細</li><li>実機の加工条件・速度・圧力の決定</li></ul></section>
   </section>
 
@@ -64,99 +64,107 @@
 
   <div class="page-layout"><div class="main-column">
     <section class="section-card" id="handoff">
-      <h2>1. 第3回の終点を、そのまま第4回の開始条件にする</h2>
-      <p>第3回では、CV04にワークが到着したあと、加工側が受け取れるまでCV04側で保持するところまでを搬送側の責任範囲にしました。第4回では、この境界から先だけを扱います。</p>
+      <h2>1. 第3回の終点を「横移載の受渡位置」にする</h2>
+      <p>第3回では、CV04にワークが到着し、加工側が受け取れるまでCV04側で保持するところまでを搬送側の責任範囲にしました。第4回では、CV04の受渡位置から<strong>横移載テーブルでワークを1ピッチ奥の加工治具へ運び、加工後に同じ受渡位置へ戻す</strong>構成にします。</p>
       <div class="state-flow">
-        <div class="state-card"><strong>加工側が空き</strong><span>加工位置にワークがなく、クランプが戻り、ドリルが上昇原点にいる。</span></div>
-        <div class="state-card"><strong>受入許可</strong><span>加工側が安全な待機状態なら、CV04からの送り出しを許可する。</span></div>
-        <div class="state-card"><strong>位置確認</strong><span>加工位置センサがONになったら搬送を止め、加工シーケンスへ渡す。</span></div>
+        <div class="state-card"><strong>ライン側待機</strong><span>横移載テーブルが原点にあり、CV04のワークを受け取れる。</span></div>
+        <div class="state-card"><strong>横移載</strong><span>CV04を停止したまま、ワークをライン外の加工治具へ1ピッチ移す。</span></div>
+        <div class="state-card"><strong>加工後復帰</strong><span>加工完了後は横移載テーブルを原点へ戻し、ワークを再び搬送ラインへ返す。</span></div>
       </div>
-      <div class="key-box"><h3>搬送と加工の責任範囲を分ける</h3><p>CV04の搬送完了と、加工位置でワークを保持できたことは別の状態として扱います。これにより、搬送の条件と加工機の条件が一つの長いロジックへ混ざりにくくなります。</p></div>
+      <div class="key-box"><h3>きりこを搬送ラインへ落とさない</h3><p>穴あけはCV04上では行わず、ラインから横へ逃がした専用加工位置で行います。加工位置の下に切りくず受けを置けば、MCナイロンの切りくずがコンベアや搬送センサ周辺へ溜まりにくくなります。</p></div>
     </section>
 
     <section class="section-card" id="io">
-      <h2>2. 加工ステーションで必要なI/Oをここで確定する</h2>
-      <p>第2回では加工部の細かなI/Oを保留していました。ここでは、仮想ラインの加工シーケンスを説明できる最小構成として次の信号を追加します。</p>
+      <h2>2. 横移載を含めて加工ステーションのI/Oを確定する</h2>
+      <p>第2回で保留した加工部I/Oへ、横移載テーブルの両端確認を追加します。ここでは「ライン側原点」と「加工側到達」を別々に確認し、位置が確認できない状態では次動作へ進ませません。</p>
       <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>入力</th><th>役割</th></tr></thead><tbody>
-        <tr><td><span class="badge">X11</span></td><td>加工位置ワーク</td><td>ワークが加工位置まで入ったことを確認</td></tr>
-        <tr><td><span class="badge">X12</span></td><td>クランプ前進端</td><td>ワーク保持完了の確認</td></tr>
-        <tr><td><span class="badge">X13</span></td><td>クランプ後退端</td><td>クランプ退避完了の確認</td></tr>
-        <tr><td><span class="badge">X14</span></td><td>ドリル上昇端</td><td>加工ヘッドが原点側へ戻ったことを確認</td></tr>
-        <tr><td><span class="badge">X15</span></td><td>ドリル下降端</td><td>仮想ライン上の加工終点を確認</td></tr>
-        <tr><td><span class="badge">X16</span></td><td>主軸運転確認</td><td>主軸が運転状態になったことを確認</td></tr>
-        <tr><td><span class="badge">X17</span></td><td>排出完了</td><td>加工済みワークが加工位置を離れたことを確認</td></tr>
+        <tr><td><span class="badge">X11</span></td><td>横移載 原点端</td><td>テーブルがCV04側の受渡位置に戻っていることを確認</td></tr>
+        <tr><td><span class="badge">X12</span></td><td>横移載 加工端</td><td>テーブルが1ピッチ奥の加工位置へ到達したことを確認</td></tr>
+        <tr><td><span class="badge">X13</span></td><td>クランプ前進端</td><td>加工治具でワークを保持したことを確認</td></tr>
+        <tr><td><span class="badge">X14</span></td><td>クランプ後退端</td><td>ワーク解放完了を確認</td></tr>
+        <tr><td><span class="badge">X15</span></td><td>ドリル上昇端</td><td>加工ヘッドが原点側へ戻ったことを確認</td></tr>
+        <tr><td><span class="badge">X16</span></td><td>ドリル下降端</td><td>仮想ライン上の加工終点を確認</td></tr>
+        <tr><td><span class="badge">X17</span></td><td>主軸運転確認</td><td>主軸が運転状態になったことを確認</td></tr>
+        <tr><td><span class="badge">X20</span></td><td>加工位置ワーク</td><td>横移載後、ワークが加工治具位置にあることを確認</td></tr>
       </tbody></table></div>
       <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>出力</th><th>役割</th></tr></thead><tbody>
-        <tr><td><span class="badge">Y15</span></td><td>クランプ</td><td>加工中にワークを保持する仮出力</td></tr>
-        <tr><td><span class="badge">Y16</span></td><td>主軸運転</td><td>穴あけ用の主軸を運転する仮出力</td></tr>
-        <tr><td><span class="badge">Y17</span></td><td>ドリル下降</td><td>加工ヘッドを下降させる仮出力</td></tr>
-        <tr><td><span class="badge">Y20</span></td><td>排出動作</td><td>加工後のワークをシュート側へ送る仮出力</td></tr>
+        <tr><td><span class="badge">Y15</span></td><td>横移載 前進</td><td>横移載テーブルをCV04側から加工側へ送る</td></tr>
+        <tr><td><span class="badge">Y16</span></td><td>横移載 復帰</td><td>加工後のテーブルをCV04側へ戻す</td></tr>
+        <tr><td><span class="badge">Y17</span></td><td>クランプ</td><td>加工中にワークを保持する</td></tr>
+        <tr><td><span class="badge">Y20</span></td><td>主軸運転</td><td>穴あけ用の主軸を運転する</td></tr>
+        <tr><td><span class="badge">Y21</span></td><td>ドリル下降</td><td>加工ヘッドを下降させる</td></tr>
       </tbody></table></div>
-      <div class="note-box"><h3>番地は教材用の仮割付</h3><p>FX3UのX/Yは8進数で扱うため、Y17の次を仮にY20としています。実際の点数・増設構成・配線は選定したCPUやI/O構成に合わせて最終確定します。</p></div>
-      <div class="source-box"><h3>メーカー公式資料で確認</h3><p>FX3Uのハードウェア仕様は三菱電機「FX3Uシリーズ ユーザーズマニュアル［ハードウェア編］」（Ver.AA / JY997D16101-AA / 2024年6月）、内部リレーやタイマ、基本命令への落とし込みは「FX3S・FX3G・FX3GC・FX3U・FX3UCシリーズ プログラミングマニュアル［基本・応用命令解説編］」（Ver.V / JY997D11701-V / 2021年4月）を一次資料として確認します。第4回では完成ラダーにはまだ落とし込みません。 <a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?kisyu=%2Fplc_fx&mode=manual" target="_blank" rel="noopener noreferrer">三菱電機公式・MELSEC-Fマニュアル一覧を見る</a></p></div>
+      <div class="note-box"><h3>横移載の弁方式はまだ固定しない</h3><p>ここでは前進・復帰を別出力として整理しますが、実機では電磁弁やアクチュエータ構成によって1出力方式・2出力方式のどちらもあり得ます。記事では動作の責任を分けるため2出力で仮置きし、最終I/Oは機器選定後に確定します。</p></div>
+      <div class="source-box"><h3>メーカー公式資料で確認</h3><p>FX3Uのハードウェア仕様は三菱電機「FX3Uシリーズ ユーザーズマニュアル［ハードウェア編］」（Ver.AA / JY997D16101-AA / 2024年6月）、内部リレーやタイマ、基本命令への落とし込みは「FX3S・FX3G・FX3GC・FX3U・FX3UCシリーズ プログラミングマニュアル［基本・応用命令解説編］」（Ver.V / JY997D11701-V / 2021年4月）を一次資料として確認します。X/Yは8進数で扱うため、X17の次をX20、Y17の次をY20として仮割付します。 <a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?kisyu=%2Fplc_fx&mode=manual" target="_blank" rel="noopener noreferrer">三菱電機公式・MELSEC-Fマニュアル一覧を見る</a></p></div>
     </section>
 
     <section class="section-card" id="sequence">
-      <h2>3. 加工を8つの状態へ分ける</h2>
-      <p>加工ステーション全体を一つの条件式で動かすのではなく、今どこまで進んだかが分かるように状態を分けます。後で内部リレーMやステップへ割り付けやすい形にしておくのが狙いです。</p>
+      <h2>3. 横移載からライン復帰までを11の状態へ分ける</h2>
+      <p>加工ステーション全体を「加工する」だけでまとめず、横移載・保持・加工・復帰を別状態に分けます。加工位置は搬送ラインから1ピッチ奥にあるため、加工中はCV04と切り離して考えられます。</p>
       <div class="transfer-grid">
-        <div class="transfer-card"><h3>① 受入待ち</h3><p>加工位置が空き、クランプ後退、ドリル上昇を確認してCV04へ受入許可を出す。</p></div>
-        <div class="transfer-card"><h3>② 位置確認</h3><p>X11でワーク到着を確認し、搬送側から加工側へ制御の主役を渡す。</p></div>
-        <div class="transfer-card"><h3>③ クランプ</h3><p>Y15を動かし、X12の前進端確認後だけ次へ進む。</p></div>
-        <div class="transfer-card"><h3>④ 主軸確認</h3><p>Y16で主軸運転を要求し、X16の運転確認を待つ。</p></div>
-        <div class="transfer-card"><h3>⑤ 加工下降</h3><p>保持と主軸確認がそろっている間だけY17で下降を許可し、X15で仮想加工終点を確認する。</p></div>
-        <div class="transfer-card"><h3>⑥ 原点復帰</h3><p>下降出力を解除し、X14の上昇端確認まで加工完了扱いにしない。</p></div>
-        <div class="transfer-card"><h3>⑦ クランプ解除</h3><p>主軸停止と上昇端確認後にクランプを解除し、X13で後退完了を確認する。</p></div>
-        <div class="transfer-card"><h3>⑧ 排出</h3><p>加工ヘッド退避・主軸停止・クランプ解除がそろったらY20で排出し、X17で1サイクル完了とする。</p></div>
+        <div class="transfer-card"><h3>① 受入待ち</h3><p>X11原点端を確認し、CV04へワーク受入を許可する。</p></div>
+        <div class="transfer-card"><h3>② CV04位置決め</h3><p>CV04上でワークを受渡位置に停止させ、搬送を止める。</p></div>
+        <div class="transfer-card"><h3>③ 横移載</h3><p>Y15でテーブルを加工側へ送り、X12加工端を待つ。</p></div>
+        <div class="transfer-card"><h3>④ 加工位置確認</h3><p>X12とX20がそろったら、加工治具にワークが入ったと判断する。</p></div>
+        <div class="transfer-card"><h3>⑤ クランプ</h3><p>Y17を動かし、X13クランプ前進端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑥ 主軸確認</h3><p>Y20で主軸を運転し、X17の運転確認を待つ。</p></div>
+        <div class="transfer-card"><h3>⑦ 穴あけ</h3><p>Y21でドリル下降。X16加工終点まで進める。</p></div>
+        <div class="transfer-card"><h3>⑧ 原点復帰</h3><p>Y21を解除し、X15ドリル上昇端まで戻す。</p></div>
+        <div class="transfer-card"><h3>⑨ クランプ解除</h3><p>主軸停止後にY17を解除し、X14後退端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑩ ラインへ復帰</h3><p>Y16で横移載テーブルを戻し、X11原点端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑪ 搬送再開</h3><p>横移載が完全に原点へ戻った後だけCV04から排出側への搬送を再開する。</p></div>
       </div>
     </section>
 
     <section class="section-card" id="complete">
-      <h2>4. 「穴が開いた」ではなく、制御で確認できる完了条件を決める</h2>
-      <p>PLCは加工結果そのものを目で見るわけではありません。そこでこの仮想ラインでは、加工工程を<strong>加工終点を確認 → 加工ヘッドが原点へ戻る → 主軸を止める → クランプを解除する</strong>という状態の連続として扱います。</p>
-      <div class="key-box"><h3>第4回の加工完了</h3><p>X15の加工終点だけでは完了にせず、X14の上昇端まで戻ったところを加工動作の完了境界にします。これで「加工ヘッドが下がったまま排出へ進む」状態を避けやすくなります。</p></div>
-      <div class="note-box"><h3>実加工品質とは別</h3><p>φ8・深さ15 mmという加工品質を実機で保証するには、機械側の剛性、工具、送り、回転、位置決めなど別の設計が必要です。この記事ではPLCのシーケンス設計だけを扱い、実機の加工条件は決めません。</p></div>
+      <h2>4. 加工完了と「ラインへ戻った」を分けて考える</h2>
+      <p>穴あけが終わっても、ワークはまだライン外の加工治具にあります。そこで第4回では、<strong>加工完了</strong>と<strong>搬送復帰完了</strong>を別の境界にします。</p>
+      <div class="key-box"><h3>加工完了</h3><p>X16で加工終点を確認したあと、X15ドリル上昇端まで戻り、主軸停止・クランプ解除が完了したところまでを加工完了とします。</p></div>
+      <div class="key-box"><h3>搬送復帰完了</h3><p>加工完了後に横移載テーブルをライン側へ戻し、X11原点端を確認して初めてCV04搬送を再開します。これにより、横移載途中でコンベアを動かす競合を防ぎます。</p></div>
+      <div class="note-box"><h3>実加工品質とは別</h3><p>φ8・深さ15 mmという加工品質を実機で保証するには、機械剛性、工具、送り、回転、位置決めなど別の設計が必要です。ここではPLCの通常シーケンスだけを扱います。</p></div>
     </section>
 
     <section class="section-card" id="interlock">
-      <h2>5. 次工程へ進ませない条件を先に決める</h2>
-      <p>加工ステーションでは「動かす条件」と同じくらい、「条件がそろわなければ動かさない」設計が重要です。第4回では次の関係をシーケンス上のインターロックとして固定します。</p>
+      <h2>5. 横移載とCV04を同時に動かさない</h2>
+      <p>今回の構造では、加工中だけでなく横移載中の競合防止が重要です。特にCV04搬送と横移載テーブルが同時に動くと、ワークの受渡位置が崩れるため明確に排他します。</p>
       <div class="table-wrap"><table><thead><tr><th>動作</th><th>最低限そろえる状態</th><th>狙い</th></tr></thead><tbody>
-        <tr><td>クランプ</td><td>加工位置ワークあり・ドリル上昇</td><td>加工位置にワークがない状態で加工へ進まない</td></tr>
-        <tr><td>ドリル下降</td><td>クランプ前進端・主軸運転確認・ワークあり</td><td>保持と加工準備がそろう前に下降させない</td></tr>
-        <tr><td>クランプ解除</td><td>ドリル上昇端・主軸停止</td><td>加工ヘッドが退避する前にワークを解放しない</td></tr>
-        <tr><td>排出</td><td>ドリル上昇端・主軸停止・クランプ後退端</td><td>加工部が待機姿勢へ戻ってから排出する</td></tr>
-        <tr><td>次ワーク受入</td><td>加工位置空き・排出完了</td><td>加工中のワークへ次ワークを重ねない</td></tr>
+        <tr><td>横移載 前進</td><td>CV04停止・X11原点端・ドリル上昇・クランプ後退</td><td>搬送中や加工機未退避で移載しない</td></tr>
+        <tr><td>CV04搬送</td><td>X11原点端・横移載出力OFF</td><td>テーブルがライン外にいる間はコンベアを動かさない</td></tr>
+        <tr><td>クランプ</td><td>X12加工端・X20ワークあり・ドリル上昇</td><td>加工位置へ到達する前に保持しない</td></tr>
+        <tr><td>ドリル下降</td><td>X13クランプ前進端・X17主軸運転・X20ワークあり</td><td>保持と主軸確認がそろう前に下降させない</td></tr>
+        <tr><td>横移載 復帰</td><td>X15ドリル上昇・主軸停止・X14クランプ後退</td><td>加工機が退避する前にワークを動かさない</td></tr>
+        <tr><td>次ワーク受入</td><td>X11原点端・前ワークがCV04から排出済み</td><td>加工済みワークが残った状態で次ワークを入れない</td></tr>
       </tbody></table></div>
-      <div class="note-box"><h3>安全機能は通常シーケンスと分けて考える</h3><p>非常停止やガードなど、人の安全に関わる機能は通常の加工シーケンスだけに依存させず、実機では適切な安全回路・安全機器・リスクアセスメントを別途設計します。ここでは仮想ラインの通常動作条件だけを整理します。</p></div>
+      <div class="note-box"><h3>安全機能は通常シーケンスと別</h3><p>非常停止やガードなど、人の安全に関わる機能は通常PLCシーケンスだけに依存させません。実機では安全回路・安全機器・リスクアセスメントを別途設計します。</p></div>
     </section>
 
     <section class="section-card" id="timeout">
-      <h2>6. 各動作に「待ち続けない」監視点を置く</h2>
-      <p>クランプ、主軸確認、下降、上昇、排出のどこかで確認信号が来なければ、次の状態へ進ませません。第3回と同じく、動作開始後だけタイムアウト監視を持たせる考え方にします。</p>
+      <h2>6. 横移載の往復もタイムアウト監視する</h2>
+      <p>加工動作だけでなく、ライン側から加工側への移載と加工側からライン側への復帰も監視対象にします。確認信号が来なければ次状態へ進めません。</p>
       <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>開始</th><th>完了</th><th>異常判定の考え方</th></tr></thead><tbody>
-        <tr><td>クランプ</td><td>Y15要求</td><td>X12前進端</td><td>所定時間内に前進端が来なければ停止対象</td></tr>
-        <tr><td>主軸</td><td>Y16要求</td><td>X16運転確認</td><td>運転確認が来なければ下降へ進まない</td></tr>
-        <tr><td>加工下降</td><td>Y17要求</td><td>X15下降端</td><td>加工終点が来なければ次へ進まない</td></tr>
-        <tr><td>原点復帰</td><td>Y17解除</td><td>X14上昇端</td><td>上昇端が来なければクランプ解除しない</td></tr>
-        <tr><td>排出</td><td>Y20要求</td><td>X17排出完了</td><td>排出完了が来なければ次ワークを受けない</td></tr>
+        <tr><td>横移載 前進</td><td>Y15要求</td><td>X12加工端</td><td>加工位置まで届かなければ停止対象</td></tr>
+        <tr><td>クランプ</td><td>Y17要求</td><td>X13前進端</td><td>保持確認が来なければ主軸へ進まない</td></tr>
+        <tr><td>主軸</td><td>Y20要求</td><td>X17運転確認</td><td>運転確認が来なければドリル下降しない</td></tr>
+        <tr><td>加工下降</td><td>Y21要求</td><td>X16下降端</td><td>加工終点が来なければ次へ進まない</td></tr>
+        <tr><td>原点復帰</td><td>Y21解除</td><td>X15上昇端</td><td>上昇端が来なければクランプ解除しない</td></tr>
+        <tr><td>横移載 復帰</td><td>Y16要求</td><td>X11原点端</td><td>ライン側へ戻らなければCV04を再始動しない</td></tr>
       </tbody></table></div>
-      <p>具体的なタイマ値や異常復旧の操作は、第5回「手動運転・異常処理・復旧」で整理します。第4回では、どの区間に監視が必要かまでを固定します。</p>
+      <p>具体的なタイマ値、異常表示、手動復旧は第5回で決めます。第4回では監視区間と正常完了信号を固定します。</p>
     </section>
 
     <section class="section-card" id="summary">
       <h2>7. 第4回のまとめ</h2>
       <div class="summary-highlight">
-        <div class="summary-point"><span>POINT 1</span><strong>搬送と加工の境界を明確にする</strong><small>CV04到着と加工位置確認を別状態にする。</small></div>
-        <div class="summary-point"><span>POINT 2</span><strong>加工を状態遷移で組み立てる</strong><small>受入→保持→加工→復帰→解放→排出へ分ける。</small></div>
-        <div class="summary-point"><span>POINT 3</span><strong>完了確認を次動作の条件にする</strong><small>端検出・運転確認・排出完了を見てから進める。</small></div>
+        <div class="summary-point"><span>POINT 1</span><strong>加工を搬送ラインから1ピッチ逃がす</strong><small>横移載テーブルで専用加工位置へ運び、切りくずをラインから分離する。</small></div>
+        <div class="summary-point"><span>POINT 2</span><strong>加工後は同じ経路でラインへ戻す</strong><small>加工完了と搬送復帰完了を別々に確認する。</small></div>
+        <div class="summary-point"><span>POINT 3</span><strong>横移載とCV04を排他する</strong><small>移載テーブルが原点でない限りCV04を動かさない。</small></div>
       </div>
       <div class="table-wrap"><table><thead><tr><th>設計ステップ</th><th>第4回で決めたこと</th></tr></thead><tbody>
-        <tr><td>加工受入</td><td>加工側の待機姿勢がそろった時だけCV04から受け入れる</td></tr>
-        <tr><td>I/O</td><td>X11〜X17、Y15〜Y20の仮割付を追加</td></tr>
-        <tr><td>シーケンス</td><td>受入から排出までを8状態に分割</td></tr>
-        <tr><td>インターロック</td><td>保持・主軸・原点・クランプ解除の順序関係を固定</td></tr>
-        <tr><td>異常監視</td><td>各動作にタイムアウト監視点を置く</td></tr>
+        <tr><td>設備構造</td><td>CV04横に1ピッチ奥の加工治具を置き、横移載テーブルで往復する</td></tr>
+        <tr><td>I/O</td><td>X11〜X20、Y15〜Y21へ横移載・加工確認を仮割付</td></tr>
+        <tr><td>シーケンス</td><td>CV04受渡から加工、ライン復帰、搬送再開まで11状態に分割</td></tr>
+        <tr><td>インターロック</td><td>横移載中はCV04停止、加工機退避後だけラインへ復帰</td></tr>
+        <tr><td>異常監視</td><td>横移載の前進・復帰を含む各動作にタイムアウト監視点を置く</td></tr>
       </tbody></table></div>
     </section>
 

@@ -13,9 +13,12 @@
   const successCode=d.getElementById('consultation-success-code');
 
   function newKey(){
-    if(globalThis.crypto?.randomUUID)return `web_${crypto.randomUUID()}`;
+    const now=new Date();
+    const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0'),day=String(now.getDate()).padStart(2,'0');
+    const date=`${y}${m}${day}`;
+    if(globalThis.crypto?.randomUUID)return `web_${date}_${crypto.randomUUID()}`;
     const b=new Uint8Array(24);crypto.getRandomValues(b);
-    return `web_${Array.from(b,x=>x.toString(16).padStart(2,'0')).join('')}`;
+    return `web_${date}_${Array.from(b,x=>x.toString(16).padStart(2,'0')).join('')}`;
   }
 
   function payload(){

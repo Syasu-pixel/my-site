@@ -25,6 +25,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node for shared shell verification
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - name: Refuse stale generated headers and footers
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
@@ -155,3 +169,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+

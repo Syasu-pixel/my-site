@@ -40,6 +40,9 @@ export default {
     if (request.method === 'POST' && url.pathname === '/consultations/password') {
       return submitConsultationPassword(request, env, origin);
     }
+    if (request.method === 'POST' && url.pathname === '/general-consultations') {
+      return submitGeneralConsultation(request, env, origin);
+    }
 
     return json({ ok: false, error: 'Not found' }, 404, origin);
   },
@@ -448,6 +451,102 @@ async function submitConsultationPassword(request, env, origin) {
   }, 200, origin);
 }
 
+
+async function submitGeneralConsultation(request, env, origin) {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL) {
+    return json({ ok: false, error: 'Mail service configuration is incomplete' }, 500, origin);
+  }
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'Invalid JSON' }, 400, origin); }
+
+  const requestKey = clean(body.requestKey, 80);
+  const data = {
+    name: clean(body.name, 100),
+    email: clean(body.email, 254),
+    company: clean(body.company, 160),
+    category: clean(body.category, 80),
+    relatedUrl: clean(body.relatedUrl, 500),
+    message: clean(body.message, 8000),
+    replyWanted: body.replyWanted !== false,
+    privacyAccepted: body.privacyAccepted === true,
+  };
+
+  if (!isValidIdempotencyKey(requestKey)) {
+    return json({ ok: false, error: 'A valid request key is required' }, 400, origin);
+  }
+  if (!data.name || !isValidEmail(data.email) || !data.category || !data.message || !data.privacyAccepted) {
+    return json({ ok: false, error: 'Required fields are missing or invalid' }, 400, origin);
+  }
+
+  const caseNumber = createGeneralCaseNumber();
+  const acceptedAt = new Date().toISOString();
+
+  const adminPayload = {
+    from: '電気と制御の実務メモ オンライン相談 <support@denkicontrol.com>',
+    to: [],
+    subject: `[${caseNumber}] オンライン相談｜${data.category}｜${data.name}様`,
+    text: [
+      'denkicontrol.com からオンライン相談を受け付けました。', '',
+      `相談番号: ${caseNumber}`,
+      `受付日時: ${acceptedAt}`,
+      `お名前: ${data.name}`,
+      `会社名: ${data.company || '未入力'}`,
+      `返信先: ${data.email}`,
+      `相談の種類: ${data.category}`,
+      `返信希望: ${data.replyWanted ? '希望する' : '返信不要'}`,
+      `対象URL: ${data.relatedUrl || '未入力'}`, '',
+      '相談内容:', data.message
+    ].join('\n'),
+    reply_to: data.email,
+  };
+
+  const adminResult = await sendEmail(env, adminPayload, `${requestKey}-admin`);
+  if (!adminResult.ok) {
+    return json({ ok: false, recoverable: true, ownerSent: false, error: 'Owner notification email failed' }, 502, origin);
+  }
+
+  const customerPayload = {
+    from: '電気と制御の実務メモ <support@denkicontrol.com>',
+    to: [data.email],
+    subject: `[${caseNumber}] オンライン相談を受け付けました`,
+    text: [
+      `${data.name} 様`, '',
+      '電気と制御の実務メモへのオンライン相談を受け付けました。',
+      `相談番号: ${caseNumber}`,
+      `相談の種類: ${data.category}`, '',
+      data.replyWanted
+        ? '内容を確認し、必要に応じて返信用メールアドレスへご連絡します。'
+        : '「返信不要」で受け付けています。いただいた内容はサイト改善等の参考にします。',
+      '',
+      '※ 電気制御・回路・PLC等の技術相談は、設備仕様や現場状況を確認できないため、施工・安全・機器選定を個別に保証するものではありません。',
+      '',
+      '電気と制御の実務メモ'
+    ].join('\n'),
+  };
+
+  const customerResult = await sendEmail(env, customerPayload, `${requestKey}-customer`);
+  return json({
+    ok: true,
+    caseNumber,
+    acceptedAt,
+    ownerSent: true,
+    confirmationSent: customerResult.ok,
+  }, 200, origin);
+}
+
+function createGeneralCaseNumber() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  return `WEB-${values.year}${values.month}${values.day}-${suffix}`;
+}
+
 async function encryptPassword(password, secret) {
   const material = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
   const key = await crypto.subtle.importKey('raw', material, { name: 'AES-GCM' }, false, ['encrypt']);
@@ -667,15 +766,17 @@ function buildPasswordCustomerEmail(row) {
   };
 }
 
-async function sendEmail(env, payload) {
+async function sendEmail(env, payload, idempotencyKey = '') {
   if ((!payload.to || payload.to.length === 0) && env.NOTIFY_TO_EMAIL) payload.to = [env.NOTIFY_TO_EMAIL];
+  const headers = {
+    Authorization: `Bearer ${env.RESEND_API_KEY}`,
+    'Content-Type': 'application/json',
+    'User-Agent': 'denkicontrol-gxworks2-support',
+  };
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'denkicontrol-gxworks2-support',
-    },
+    headers,
     body: JSON.stringify(payload),
   });
   let body = {};

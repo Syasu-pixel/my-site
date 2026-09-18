@@ -51,7 +51,7 @@
 
   <section class="top-summary" aria-label="記事の導入まとめ">
     <section class="summary-card"><h2>今回決めること</h2><ul><li>CV04からCV05へ受け入れて停止する条件</li><li>フリーローラー上昇→横移載→位置決め→穴あけの順番</li><li>加工後にCV05へ戻し、ローラー下降→排出まで確認する条件</li></ul></section>
-    <section class="summary-card"><h2>追加する加工部I/O</h2><ul><li>入力16点：CV05在荷、排出、ローラー端、プッシャ端、加工確認</li><li>出力8点：CV05、ローラー、2本のプッシャ、位置決め、クランプ、主軸、ドリル</li><li>設備合計：入力25点・出力21点</li></ul></section>
+    <section class="summary-card"><h2>第4回で固めるI/O</h2><ul><li>加工STで扱う入力：16点</li><li>加工STで扱う出力：14点（ダブルソレノイド前提）</li><li>設備全体：約58DI / 32DO</li></ul></section>
     <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>GX Works2への完成ラダー入力</li><li>手動運転と復旧操作の詳細</li><li>実機の加工条件・速度・圧力の決定</li></ul></section>
   </section>
 
@@ -76,37 +76,30 @@
 
     <section class="section-card" id="io">
       <h2>2. CV05と横移載機構を含めてI/Oを確定する</h2>
-      <p>第2回では加工部の細かなI/Oを保留していました。第4回では、CV05の在荷・排出確認、昇降フリーローラー、往復2本のプッシャ、位置決め、クランプ、ドリルまで含めて加工部を具体化します。</p>
-      <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>入力</th><th>役割</th></tr></thead><tbody>
-        <tr><td><span class="badge">X11</span></td><td>CV05 在荷</td><td>加工ステーションコンベアの受渡位置にワークがある</td></tr>
-        <tr><td><span class="badge">X12</span></td><td>排出確認</td><td>メカ式シュート側へワークが排出されたことを確認</td></tr>
-        <tr><td><span class="badge">X13</span></td><td>横移載ローラー 上昇端</td><td>フリーローラーが横移載高さまで上昇</td></tr>
-        <tr><td><span class="badge">X14</span></td><td>横移載ローラー 下降端</td><td>フリーローラーが縦搬送位置まで下降</td></tr>
-        <tr><td><span class="badge">X15</span></td><td>搬入プッシャ 前進端</td><td>CV05側から加工位置への押込み完了</td></tr>
-        <tr><td><span class="badge">X16</span></td><td>搬入プッシャ 後退端</td><td>搬入プッシャの退避完了</td></tr>
-        <tr><td><span class="badge">X17</span></td><td>戻しプッシャ 前進端</td><td>加工位置からCV05への戻し押込み完了</td></tr>
-        <tr><td><span class="badge">X20</span></td><td>戻しプッシャ 後退端</td><td>戻しプッシャの退避完了</td></tr>
-        <tr><td><span class="badge">X21</span></td><td>位置決め 前進端</td><td>加工位置決め機構のセット完了</td></tr>
-        <tr><td><span class="badge">X22</span></td><td>位置決め 後退端</td><td>位置決め機構の解除・退避完了</td></tr>
-        <tr><td><span class="badge">X23</span></td><td>クランプ 前進端</td><td>ワークのクランプ完了</td></tr>
-        <tr><td><span class="badge">X24</span></td><td>クランプ 後退端</td><td>クランプ解除完了</td></tr>
-        <tr><td><span class="badge">X25</span></td><td>ドリル 上昇端</td><td>加工ヘッド原点</td></tr>
-        <tr><td><span class="badge">X26</span></td><td>ドリル 下降端</td><td>加工終点</td></tr>
-        <tr><td><span class="badge">X27</span></td><td>主軸運転確認</td><td>主軸が加工可能な運転状態</td></tr>
-        <tr><td><span class="badge">X30</span></td><td>加工位置ワーク</td><td>横移載後、加工治具内にワークがある</td></tr>
+      <p>第2回では加工部の細かなI/Oを保留していました。第4回では、CV05の在荷・排出確認、昇降フリーローラー、搬入/戻しの2本のプッシャ、位置決め、クランプ、ドリルまで含めて加工部を具体化します。</p>
+      <div class="table-wrap"><table><thead><tr><th>区分</th><th>信号</th><th>点数</th></tr></thead><tbody>
+        <tr><td>ワーク確認</td><td>CV05在荷、加工治具在荷、排出通過</td><td>3</td></tr>
+        <tr><td>フリーローラー</td><td>上昇端、下降端</td><td>2</td></tr>
+        <tr><td>搬入プッシャ</td><td>前進端、後退端</td><td>2</td></tr>
+        <tr><td>戻しプッシャ</td><td>前進端、後退端</td><td>2</td></tr>
+        <tr><td>位置決め</td><td>位置決め端、解除端</td><td>2</td></tr>
+        <tr><td>クランプ</td><td>クランプ端、解除端</td><td>2</td></tr>
+        <tr><td>ドリル</td><td>上昇端、下降端</td><td>2</td></tr>
+        <tr><td>主軸</td><td>運転確認</td><td>1</td></tr>
       </tbody></table></div>
-      <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>出力</th><th>役割</th></tr></thead><tbody>
-        <tr><td><span class="badge">Y15</span></td><td>CV05 運転</td><td>加工ステーションコンベアの縦搬送</td></tr>
-        <tr><td><span class="badge">Y16</span></td><td>横移載ローラー 上昇</td><td>フリーローラーを持ち上げ、ワークを縦ベルトから離す</td></tr>
-        <tr><td><span class="badge">Y17</span></td><td>搬入プッシャ</td><td>CV05から加工位置へワークを横押し</td></tr>
-        <tr><td><span class="badge">Y20</span></td><td>戻しプッシャ</td><td>加工位置からCV05へワークを横押しで戻す</td></tr>
-        <tr><td><span class="badge">Y21</span></td><td>位置決め</td><td>加工治具の位置決め機構を作動</td></tr>
-        <tr><td><span class="badge">Y22</span></td><td>クランプ</td><td>加工中のワークを固定</td></tr>
-        <tr><td><span class="badge">Y23</span></td><td>主軸運転</td><td>穴あけ主軸を運転</td></tr>
-        <tr><td><span class="badge">Y24</span></td><td>ドリル下降</td><td>加工ヘッドを下降</td></tr>
+      <p>第4回で直接扱う加工ST入力は合計16点です。これとは別に、設備全体では操作盤、安全監視、CV01〜CV04、ストッパ、駆動異常などの入力もあります。</p>
+      <div class="table-wrap"><table><thead><tr><th>出力グループ</th><th>考え方</th><th>点数</th></tr></thead><tbody>
+        <tr><td>CV05</td><td>縦搬送RUN</td><td>1</td></tr>
+        <tr><td>フリーローラー</td><td>上昇 / 下降</td><td>2</td></tr>
+        <tr><td>搬入プッシャ</td><td>前進 / 後退</td><td>2</td></tr>
+        <tr><td>戻しプッシャ</td><td>前進 / 後退</td><td>2</td></tr>
+        <tr><td>位置決め</td><td>位置決め / 解除</td><td>2</td></tr>
+        <tr><td>クランプ</td><td>クランプ / 解除</td><td>2</td></tr>
+        <tr><td>ドリル</td><td>下降 / 上昇</td><td>2</td></tr>
+        <tr><td>主軸</td><td>RUN</td><td>1</td></tr>
       </tbody></table></div>
-      <div class="key-box"><h3>加工部を足してもPLC容量には収まる</h3><p>既存搬送部は入力9点・出力13点。加工部を入力16点・出力8点追加すると、現時点の合計は<strong>入力25点・出力21点</strong>です。第2回で採用したFX3U-80MT/DS + FX2N-16EXの設計容量（入力56点・出力40点）内に収まります。</p></div>
-      <div class="note-box"><h3>電磁弁方式は実機選定時に再確認</h3><p>この記事では各エアシリンダを機能単位の1出力として仮置きしています。ダブルソレノイド方式を採用する場合は出力点数が増えるため、最終I/O表を再計算します。</p></div>
+      <div class="key-box"><h3>元の設備正本で全体点数を再計算</h3><p>記事だけの簡略I/Oではなく、操作・安全監視・ストッパ・駆動状態まで含む元のサンプルライン正本で数え直すと、今回仕様反映後は<strong>約58DI / 32DO</strong>です。加工STで扱う出力はダブルソレノイド前提で14点になります。</p></div>
+      <div class="note-box"><h3>GX Works2版は入力増設を1段追加</h3><p>従来のFX3U-80MT/DS + 16点入力増設では56DIまでだったため、今回の58DIには足りません。GX Works2教材版は8点入力増設も加えてDI64点を確保する構成へ更新します。物理X/Y番地はGX Works2プロジェクト上の割付確認後に最終確定します。</p></div>
     </section>
 
     <section class="section-card" id="sequence">
@@ -131,9 +124,9 @@
     <section class="section-card" id="complete">
       <h2>4. 「加工完了」「CV05復帰」「排出完了」を分ける</h2>
       <p>穴あけが終わってもワークはまだライン外の加工位置にあります。そこで第4回では、加工機が安全位置へ戻ったこと、ワークがCV05へ戻ったこと、最後にライン外へ排出されたことを別々に確認します。</p>
-      <div class="key-box"><h3>加工完了</h3><p>X26で加工終点を確認したあと、ドリルをX25上昇端まで戻し、主軸停止、X24クランプ後退、X22位置決め後退までそろったところを加工完了とします。</p></div>
-      <div class="key-box"><h3>CV05復帰完了</h3><p>戻しプッシャでワークをCV05へ戻し、X11在荷と両プッシャ退避を確認します。その後フリーローラーを下降させ、X14下降端が成立して初めて縦搬送へ戻せる状態とします。</p></div>
-      <div class="key-box"><h3>1サイクル完了</h3><p>Y15でCV05を再始動し、メカ式シュート側のX12排出確認が成立して初めて1サイクル完了とします。</p></div>
+      <div class="key-box"><h3>加工完了</h3><p>加工終点を確認したあと、ドリル上昇端まで戻し、主軸停止、クランプ解除、位置決め解除までそろったところを加工完了とします。</p></div>
+      <div class="key-box"><h3>CV05復帰完了</h3><p>戻しプッシャでワークをCV05へ戻し、CV05在荷と両プッシャ退避を確認します。その後フリーローラー下降端が成立して初めて縦搬送へ戻せる状態とします。</p></div>
+      <div class="key-box"><h3>1サイクル完了</h3><p>CV05を再始動し、メカ式シュート側の排出通過確認が成立して初めて1サイクル完了とします。</p></div>
       <div class="note-box"><h3>実加工品質とは別</h3><p>φ8・深さ15 mmという加工品質を実機で保証するには、機械剛性、工具、送り、回転、位置決めなど別の設計が必要です。ここではPLCの通常シーケンスだけを扱います。</p></div>
     </section>
 
@@ -141,33 +134,32 @@
       <h2>5. 縦搬送と横移載を同時に動かさない</h2>
       <p>加工部で最も重要なのは、CV05の縦搬送と横移載機構を競合させないことです。フリーローラーが上がっている間はCV05を停止し、加工機が完全に退避するまでワークを戻しません。</p>
       <div class="table-wrap"><table><thead><tr><th>動作</th><th>最低限そろえる状態</th><th>狙い</th></tr></thead><tbody>
-        <tr><td>ローラー上昇</td><td>CV05停止・X11在荷・両プッシャ後退</td><td>搬送中にワーク支持高さを変えない</td></tr>
-        <tr><td>搬入プッシャ</td><td>X13ローラー上昇端・加工側受入可</td><td>ベルトから完全に浮いてから横押しする</td></tr>
-        <tr><td>位置決め・クランプ</td><td>X30加工位置ワーク・搬入プッシャ後退</td><td>移載途中で治具を動かさない</td></tr>
-        <tr><td>ドリル下降</td><td>X21位置決め・X23クランプ・X27主軸確認・X25上昇原点</td><td>保持と加工準備を確認してから下降する</td></tr>
-        <tr><td>戻しプッシャ</td><td>X25上昇・主軸停止・X24クランプ後退・X22位置決め後退</td><td>加工機退避前にワークを動かさない</td></tr>
-        <tr><td>ローラー下降</td><td>X11在荷・両プッシャ後退</td><td>ワークがCV05上へ戻る前に下降させない</td></tr>
-        <tr><td>CV05再始動</td><td>X14ローラー下降端・X11在荷</td><td>横移載機構が完全に退避してから縦搬送する</td></tr>
+        <tr><td>ローラー上昇</td><td>CV05停止・CV05在荷・両プッシャ後退</td><td>搬送中にワーク支持高さを変えない</td></tr>
+        <tr><td>搬入プッシャ</td><td>ローラー上昇端・加工側受入可</td><td>ベルトから完全に浮いてから横押しする</td></tr>
+        <tr><td>位置決め・クランプ</td><td>加工治具在荷・搬入プッシャ後退</td><td>移載途中で治具を動かさない</td></tr>
+        <tr><td>ドリル下降</td><td>位置決め完了・クランプ完了・主軸運転確認・ドリル上昇原点</td><td>保持と加工準備を確認してから下降する</td></tr>
+        <tr><td>戻しプッシャ</td><td>ドリル上昇・主軸停止・クランプ解除・位置決め解除</td><td>加工機退避前にワークを動かさない</td></tr>
+        <tr><td>ローラー下降</td><td>CV05在荷・両プッシャ後退</td><td>ワークがCV05上へ戻る前に下降させない</td></tr>
+        <tr><td>CV05再始動</td><td>ローラー下降端・CV05在荷</td><td>横移載機構が完全に退避してから縦搬送する</td></tr>
       </tbody></table></div>
       <div class="note-box"><h3>安全機能は通常シーケンスと別</h3><p>非常停止やガードなど、人の安全に関わる機能は通常PLCシーケンスだけに依存させません。実機では安全回路・安全機器・リスクアセスメントを別途設計します。</p></div>
     </section>
 
     <section class="section-card" id="timeout">
       <h2>6. 昇降・横移載・加工・排出をそれぞれ監視する</h2>
-      <p>今回の機構では、横移載そのものだけでなくフリーローラー昇降、2本のプッシャ、位置決め、クランプ、穴あけ、CV05排出まで監視点があります。動作開始後に正常完了信号が来なければ、次状態へ進ませません。</p>
-      <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>開始</th><th>完了</th><th>異常判定の考え方</th></tr></thead><tbody>
-        <tr><td>ローラー上昇</td><td>Y16 ON</td><td>X13 上昇端</td><td>横移載高さまで上がらなければ搬入プッシャを動かさない</td></tr>
-        <tr><td>搬入プッシャ</td><td>Y17 ON</td><td>X15 前進端＋X30 加工位置ワーク</td><td>加工位置へ入らなければ位置決めへ進まない</td></tr>
-        <tr><td>位置決め</td><td>Y21 ON</td><td>X21 前進端</td><td>位置決め完了がなければクランプしない</td></tr>
-        <tr><td>クランプ</td><td>Y22 ON</td><td>X23 前進端</td><td>保持確認がなければ主軸・ドリルを許可しない</td></tr>
-        <tr><td>主軸</td><td>Y23 ON</td><td>X27 運転確認</td><td>主軸確認が来なければドリル下降しない</td></tr>
-        <tr><td>加工下降</td><td>Y24 ON</td><td>X26 下降端</td><td>加工終点が来なければ復帰へ進まない</td></tr>
-        <tr><td>ドリル復帰</td><td>Y24 OFF</td><td>X25 上昇端</td><td>上昇原点が来なければクランプ解除しない</td></tr>
-        <tr><td>戻しプッシャ</td><td>Y20 ON</td><td>X17 前進端＋X11 CV05在荷</td><td>CV05へ戻らなければローラーを下げない</td></tr>
-        <tr><td>ローラー下降</td><td>Y16 OFF</td><td>X14 下降端</td><td>縦搬送位置へ戻らなければCV05を運転しない</td></tr>
-        <tr><td>最終排出</td><td>Y15 CV05運転</td><td>X12 排出確認</td><td>排出確認が来なければ1サイクル完了にしない</td></tr>
+      <p>フリーローラー昇降、2本のプッシャ、位置決め、クランプ、穴あけ、CV05排出まで、それぞれ「動かしたあとに何を確認したら次へ進めるか」を決めます。確認信号が来なければ次状態へ進ませません。</p>
+      <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>正常完了の確認</th><th>次へ進ませない例</th></tr></thead><tbody>
+        <tr><td>ローラー上昇</td><td>上昇端</td><td>移載高さまで上がっていない</td></tr>
+        <tr><td>加工側へ移載</td><td>搬入プッシャ前進端 + 加工治具在荷</td><td>ワークが加工位置へ入っていない</td></tr>
+        <tr><td>位置決め</td><td>位置決め端</td><td>基準位置が成立していない</td></tr>
+        <tr><td>クランプ</td><td>クランプ端</td><td>保持完了を確認できない</td></tr>
+        <tr><td>主軸</td><td>運転確認</td><td>主軸確認前にドリル下降しない</td></tr>
+        <tr><td>穴あけ</td><td>加工終点→ドリル上昇端</td><td>ドリルが原点へ戻っていない</td></tr>
+        <tr><td>CV05へ復帰</td><td>戻しプッシャ前進端 + CV05在荷</td><td>ワークがCV05へ戻っていない</td></tr>
+        <tr><td>ローラー下降</td><td>下降端</td><td>縦搬送位置へ戻っていない</td></tr>
+        <tr><td>最終排出</td><td>排出通過確認</td><td>ライン外へ出たことを確認できない</td></tr>
       </tbody></table></div>
-      <p>具体的なタイマ値、異常表示、手動復旧は第5回で決めます。第4回では、各動作の開始条件と正常完了信号までを固定します。</p>
+      <p>具体的なタイマ値、異常表示、手動復旧は第5回で決めます。第4回では、監視区間と正常完了条件までを固定します。</p>
     </section>
 
     <section class="section-card" id="summary">
@@ -179,7 +171,7 @@
       </div>
       <div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第4回で確定したこと</th></tr></thead><tbody>
         <tr><td>加工ステーション</td><td>CV05＋昇降フリーローラー＋往復2本のプッシャ＋加工治具</td></tr>
-        <tr><td>I/O</td><td>加工部入力16点・出力8点、設備合計入力25点・出力21点</td></tr>
+        <tr><td>I/O</td><td>加工STで扱う入力16点・出力14点、設備全体は約58DI・32DO</td></tr>
         <tr><td>シーケンス</td><td>CV05受入から横移載・加工・復帰・排出まで12状態に分割</td></tr>
         <tr><td>インターロック</td><td>縦搬送・ローラー昇降・プッシャ・加工機の競合を防止</td></tr>
         <tr><td>完了境界</td><td>メカ式シュート側の排出確認までを1サイクルとする</td></tr>

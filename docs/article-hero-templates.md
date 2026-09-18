@@ -78,3 +78,5 @@ scripts/merge-article-hero-checks.mjsは対象・幅・CTAの抜け、重複、�
 
 
 初回の全件CIでは別タブ間に最大3/255の微小な色差を確認したため、旧新を同じページへ順に読み込む比較へ変更した。許容画素数・色差の閾値は広げず、生ピクセル差分0を合格条件とする。全computed CSSも照合する。失敗時には同じ版を2回読み込むA/A・B/B比較を追加保存し、描画揺れと実装差の診断材料にするが、これを理由に旧新不一致を自動合格にはしない。
+
+同一文書の繰返しでも色差が再現する場合に備え、CIのChromiumはSkia実行時CPU最適化・部分ラスタを無効化し、描画前にcompositorの全段を実行する。商品CSSは変更しない。根拠は[Chrome公式の描画フラグ説明](https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md#rendering--gpu)。scripts/probe-article-hero-raster.mjsで標準/固定条件それぞれ同じ3記事×2幅×6読込を比較し、固定条件に画素差が残れば失敗する。通常の旧新比較は[Playwrightの安定化方針](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)と同様に連続2画像の一致を待つが、旧新比較の許容差は0。対照実験・安定化はしきい値緩和や領域除外の代わりにはしない。

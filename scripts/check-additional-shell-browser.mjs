@@ -3,7 +3,7 @@ const require=createRequire(import.meta.url),{chromium}=require('playwright');
 const out=resolve(process.argv[2]||'../additional-shell-build'),pages=['index.html','en/index.html','services/gxworks2-online-support.html','categories/career.html'],results=[],failures=[];await mkdir(resolve(out,'screenshots'),{recursive:true});
 const browser=await chromium.launch({headless:true});let blockedWrites=0;
 const assert=(v,msg)=>{if(!v)throw Error(msg)};
-const footerData=page=>page.locator('footer').evaluate(e=>({text:e.textContent.replace(/\s+/g,' ').trim(),links:[...e.querySelectorAll('a')].map(a=>({text:a.textContent.trim(),href:new URL(a.getAttribute('href'),'https://denkicontrol.com'+location.pathname).href}))}));
+const footerData=page=>page.locator('footer').evaluate(e=>({text:[...e.childNodes].filter(n=>!(n.nodeType===1&&n.classList.contains('dc-affiliate-disclosure'))).map(n=>n.textContent).join('').replace(/\s+/g,' ').trim(),links:[...e.querySelectorAll('a')].map(a=>({text:a.textContent.trim(),href:new URL(a.getAttribute('href'),'https://denkicontrol.com'+location.pathname).href}))}));
 for(const path of pages)for(const width of [320,390,768,1440]){
  const context=await browser.newContext({viewport:{width,height:width<768?844:1000},serviceWorkers:'block',reducedMotion:'reduce'});await context.route('**/*',r=>{if(!['GET','HEAD'].includes(r.request().method())){blockedWrites++;return r.abort()}const u=new URL(r.request().url());return ['127.0.0.1','localhost'].includes(u.hostname)||u.protocol==='data:'?r.continue():r.abort()});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -13,7 +13,9 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   await page.goto('http://127.0.0.1:'+(process.env.REVIEW_PORT||8790)+'/'+path,{waitUntil:'networkidle'});await page.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading='eager';await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})))});
   const afterWidth=await page.evaluate(()=>document.documentElement.scrollWidth);assert(afterWidth<=Math.max(width,beforeWidth),'New horizontal overflow '+afterWidth+'/'+beforeWidth);
   assert(await page.locator('.dc-shell').count()===1,'Header count');assert(await page.locator('.dc-shared-footer').count()===1,'Shared footer');assert(await page.locator('.dc-toc-button,#articleFeedbackCard').count()===0,'Article-only controls');
-  const footer=await footerData(page);assert(JSON.stringify(footer)===JSON.stringify(beforeFooter),'Footer text/links changed');
+  assert(await page.locator('footer .dc-affiliate-disclosure').count()===1,'Affiliate disclosure count');
+   assert((await page.locator('footer .dc-affiliate-disclosure').innerText())===(path.startsWith('en/')?'This site uses affiliate links and may earn a commission from purchases.':'当サイトはアフィリエイト広告を利用しています。'),'Affiliate disclosure language');
+   const footer=await footerData(page);assert(JSON.stringify(footer)===JSON.stringify(beforeFooter),'Footer text/links changed');
   assert(JSON.stringify(await page.locator('form:not(#siteSearch)').evaluateAll(es=>es.map(e=>e.outerHTML)))===JSON.stringify(beforeForms),'Service/body forms changed');
   const en=path.startsWith('en/'),service=path.startsWith('services/'),home=path.endsWith('index.html');assert(await page.locator('.dc-consult').count()===(en?0:1),'Consult language');if(service)assert(await page.locator('a.dc-consult').count()===0,'Self consultation link');
   for(const selector of ['#dc-search-toggle','#dc-menu-toggle']){const r=await page.locator(selector).boundingBox();assert(r.x>=0&&r.x+r.width<=width,'Header button clipped')}

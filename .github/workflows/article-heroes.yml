@@ -10,6 +10,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: article-heroes-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   preserve:
     runs-on: ubuntu-24.04
@@ -80,6 +83,7 @@ jobs:
           node scripts/serve-article-hero-review.mjs ${{ runner.temp }}/hero-build > ${{ runner.temp }}/hero-server.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" || true' EXIT
+          if [ "$HERO_SHARD_INDEX" = "0" ]; then node scripts/probe-article-hero-raster.mjs ${{ runner.temp }}/hero-build; fi
           node scripts/check-article-hero-browser.mjs ${{ runner.temp }}/hero-build
       - uses: actions/upload-artifact@v4
         if: always()
@@ -88,6 +92,7 @@ jobs:
           path: |
             ${{ runner.temp }}/hero-build/hero-browser-${{ matrix.shard }}/
             ${{ runner.temp }}/hero-build/hero-browser-shard-${{ matrix.shard }}.json
+            ${{ runner.temp }}/hero-build/hero-raster-control.json
           retention-days: 14
   reconcile:
     needs: browser

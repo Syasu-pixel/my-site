@@ -58,26 +58,45 @@
   <section class="mini-toc-card">
     <h2>第4回でわかること</h2>
     <div class="mini-toc">
-      <a href="#handoff">搬送からの受入</a><a href="#io">加工I/O</a><a href="#sequence">加工シーケンス</a><a href="#complete">完了条件</a><a href="#interlock">インターロック</a><a href="#timeout">タイムアウト</a><a href="#summary">まとめ</a>
+      <a href="#handoff">CV04からの受入</a><a href="#mechanism">加工STの構造</a><a href="#io">加工I/O</a><a href="#sequence">加工シーケンス</a><a href="#complete">完了条件</a><a href="#interlock">インターロック</a><a href="#timeout">監視ポイント</a><a href="#summary">まとめ</a>
     </div>
   </section>
 
   <div class="page-layout"><div class="main-column">
     <section class="section-card" id="handoff">
-      <h2>1. 第3回の終点からCV05へ受け渡す</h2>
-      <p>第3回はCV04までの搬送を設計しました。第4回では、その先に<strong>CV05（加工ステーションコンベア）</strong>を置き、CV04から受け取ったワークをCV05上でいったん停止させます。そこから横移載機構を使って、搬送ラインから1ピッチ奥の加工位置へワークを逃がします。</p>
+      <h2>1. 第3回の「CV04まで」を、そのまま加工STへつなぐ</h2>
+      <p>第3回では、CV01〜CV04を独立した搬送区間として扱い、CV04までワークを送る条件を整理しました。第4回はその続きです。CV04の先に<strong>CV05（加工ステーションコンベア）</strong>を置き、CV04から送り出したワークをCV05で受け取ります。</p>
+      <p>ここで大切なのは、<strong>「CV04から出た」と「CV05へ着いた」を別々に確認する</strong>ことです。送り出したつもりでも、加工STへ届いていなければ次の動作へ進めません。搬送側の完了確認と、加工側の受入確認を分けることで、制御の境界がはっきりします。</p>
       <div class="state-flow">
-        <div class="state-card"><strong>CV05受入</strong><span>縦搬送ベルトでCV04から受け取り、CV05在荷X11で停止位置を確認する。</span></div>
-        <div class="state-card"><strong>横移載</strong><span>フリーローラーを上げ、搬入プッシャで加工位置へ横押しする。</span></div>
-        <div class="state-card"><strong>加工後復帰</strong><span>戻しプッシャでCV05へ戻し、ローラーを下げて縦搬送へ復帰する。</span></div>
+        <div class="state-card"><strong>CV04から送り出す</strong><span>加工STが受入可能なときだけ、CV04から次工程へ搬送する。</span></div>
+        <div class="state-card"><strong>CV05で受け取る</strong><span>CV05在荷でワーク到着を確認し、縦搬送を停止する。</span></div>
+        <div class="state-card"><strong>加工シーケンスへ渡す</strong><span>ワークがCV05にいることを確認してから横移載へ進む。</span></div>
       </div>
-      <div class="key-box"><h3>きりこを搬送ラインへ落とさない</h3><p>穴あけはCV05上では行わず、ラインから横へ逃がした専用加工位置で行います。加工位置直下に切りくず受けを置き、MCナイロンの切りくずがコンベアや搬送センサ周辺へ溜まるのを避けます。</p></div>
+      <div class="talk-thread">
+        <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="" loading="lazy" decoding="async"></div><div class="talk-bubble"><span class="talk-name">先輩</span>搬送側は「CV04から送り出した」まで。加工側は「CV05で受け取った」から始める、と分けるとラダーも追いやすいよ。</div></div>
+        <div class="talk-row right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="" loading="lazy" decoding="async"></div><div class="talk-bubble"><span class="talk-name">後輩</span>同じワークでも、工程の境目で責任を分けて考えるんですね。</div></div>
+      </div>
     </section>
 
-    <section class="section-card" id="io">
-      <h2>2. CV05と横移載機構を含めてI/Oを確定する</h2>
-      <p>第2回では加工部の細かなI/Oを保留していました。第4回では、CV05の在荷・排出確認、昇降フリーローラー、搬入/戻しの2本のプッシャ、位置決め、クランプ、ドリルまで含めて加工部を具体化します。</p>
-      <div class="table-wrap"><table><thead><tr><th>区分</th><th>信号</th><th>点数</th></tr></thead><tbody>
+    <section class="section-card" id="mechanism">
+      <h2>2. ラダーより先に、加工ステーションの機械の動きを決める</h2>
+      <p>今回の加工STは、CV05の上でそのまま穴あけする構造にはしません。MCナイロンを穴あけすると切りくずが出るため、コンベア上で加工するとベルトやローラー、センサ周辺へ切りくずが溜まりやすくなります。そこで、<strong>搬送と加工を物理的に少し離す</strong>構造にします。</p>
+      <div class="key-box"><h3>採用する横移載の考え方</h3><p>CV05は通常、縦方向の搬送ベルトでワークを流します。加工するときだけ、ベルト間にあるフリーローラーを少し上昇させてワークをベルトから浮かせます。その状態で搬入側プッシャがワークを横へ押し、フリーローラー上を滑らせて1ピッチ奥の加工治具へ送ります。</p></div>
+      <div class="table-wrap"><table><thead><tr><th>機構</th><th>役割</th><th>待機時の状態</th></tr></thead><tbody>
+        <tr><td>CV05</td><td>CV04から受け取り、加工後に排出側へ送る縦搬送</td><td>横移載ローラー下降</td></tr>
+        <tr><td>フリーローラー昇降</td><td>横移載するときだけワークを縦ベルトから浮かせる</td><td>下降</td></tr>
+        <tr><td>搬入プッシャ</td><td>CV05から加工治具へワークを押す</td><td>後退</td></tr>
+        <tr><td>位置決め</td><td>ワークを治具の基準面へ押し当てる</td><td>解除</td></tr>
+        <tr><td>クランプ</td><td>穴あけ中にワークを保持する</td><td>解除</td></tr>
+        <tr><td>ドリルユニット</td><td>上面中央へ穴あけする</td><td>上昇原点</td></tr>
+        <tr><td>戻しプッシャ</td><td>加工後のワークを加工治具からCV05へ戻す</td><td>後退</td></tr>
+      </tbody></table></div>
+      <p>加工位置の下には切りくず受けを置き、MCナイロンの切りくずを搬送ラインから分離します。加工が終わったら、戻しプッシャでワークをCV05へ戻し、フリーローラーを下降させて再び縦搬送ベルトへ載せます。</p>
+      <div class="note-box"><h3>「横移載する装置」そのものを動かすわけではない</h3><p>今回の構造では、移載テーブル全体を往復させません。CV05のフリーローラーは上下だけを行い、ワークの横方向の移動は左右のプッシャで行います。この機械構造を先に決めてからI/Oへ落とすことで、必要なセンサと出力が見えてきます。</p></div>
+    </section><section class="section-card" id="io">
+      <h2>3. 機械の動きから、必要なI/Oを洗い出す</h2>
+      <p>第2回では加工部の細かなI/Oを保留していました。機械構造が固まったので、ここで「何を動かすか」と「何を確認するか」を対応させます。第4回本文では信号名を中心に整理し、物理X/Y番地はGX Works2実装段階で最終確認します。</p>
+      <div class="table-wrap"><table><thead><tr><th>入力グループ</th><th>確認するもの</th><th>点数</th></tr></thead><tbody>
         <tr><td>ワーク確認</td><td>CV05在荷、加工治具在荷、排出通過</td><td>3</td></tr>
         <tr><td>フリーローラー</td><td>上昇端、下降端</td><td>2</td></tr>
         <tr><td>搬入プッシャ</td><td>前進端、後退端</td><td>2</td></tr>
@@ -87,8 +106,8 @@
         <tr><td>ドリル</td><td>上昇端、下降端</td><td>2</td></tr>
         <tr><td>主軸</td><td>運転確認</td><td>1</td></tr>
       </tbody></table></div>
-      <p>第4回で直接扱う加工ST入力は合計16点です。これとは別に、設備全体では操作盤、安全監視、CV01〜CV04、ストッパ、駆動異常などの入力もあります。</p>
-      <div class="table-wrap"><table><thead><tr><th>出力グループ</th><th>考え方</th><th>点数</th></tr></thead><tbody>
+      <p>第4回で加工シーケンスに直接使う入力は16点です。設備全体では、これに操作盤、安全監視、CV01〜CV04、ストッパ、インバータ異常などが加わります。</p>
+      <div class="table-wrap"><table><thead><tr><th>出力グループ</th><th>動かすもの</th><th>点数</th></tr></thead><tbody>
         <tr><td>CV05</td><td>縦搬送RUN</td><td>1</td></tr>
         <tr><td>フリーローラー</td><td>上昇 / 下降</td><td>2</td></tr>
         <tr><td>搬入プッシャ</td><td>前進 / 後退</td><td>2</td></tr>
@@ -98,84 +117,89 @@
         <tr><td>ドリル</td><td>下降 / 上昇</td><td>2</td></tr>
         <tr><td>主軸</td><td>RUN</td><td>1</td></tr>
       </tbody></table></div>
-      <div class="key-box"><h3>元の設備正本で全体点数を再計算</h3><p>記事だけの簡略I/Oではなく、操作・安全監視・ストッパ・駆動状態まで含む元のサンプルライン正本で数え直すと、今回仕様反映後は<strong>約58DI / 32DO</strong>です。加工STで扱う出力はダブルソレノイド前提で14点になります。</p></div>
-      <div class="note-box"><h3>GX Works2版は入力増設を1段追加</h3><p>従来のFX3U-80MT/DS + 16点入力増設では56DIまでだったため、今回の58DIには足りません。GX Works2教材版は8点入力増設も加えてDI64点を確保する構成へ更新します。物理X/Y番地はGX Works2プロジェクト上の割付確認後に最終確定します。</p></div>
+      <div class="key-box"><h3>加工STだけでなく、設備全体で点数を見る</h3><p>元のサンプルライン正本には、操作盤、安全監視、ストッパ、駆動状態なども含まれています。今回のCV05と戻しプッシャを反映すると、設備全体は<strong>約58DI / 32DO</strong>です。加工STで直接扱う出力は、ダブルソレノイド前提で14点になります。</p></div>
+      <div class="note-box"><h3>第2回のPLC構成も更新が必要になった</h3><p>従来のGX Works2教材版は56DIまでの構成でしたが、今回の仕様では約58DIとなるため入力が不足します。そこで8点入力増設も追加してDI64点を確保する構成へ更新します。物理番地はGX Works2プロジェクト上で実際の割付を確認してから確定します。</p></div>
     </section>
 
     <section class="section-card" id="sequence">
-      <h2>3. CV05受入から排出までを順番に分ける</h2>
-      <p>今回の加工ステーションは、CV05上でそのまま穴あけする設備ではありません。いったんワークを横方向へ逃がして加工し、同じ経路でCV05へ戻してから縦搬送へ復帰させます。</p>
+      <h2>4. 加工シーケンスを「受入・移載・加工・復帰・排出」に分ける</h2>
+      <p>加工ST全体を1本の長い条件式で考えると、途中で何を待っているのか分からなくなります。そこで、第4回では動作を状態ごとに分けます。細かいラダー番地ではなく、まずは<strong>「何が終わったら次へ進むか」</strong>を決めます。</p>
       <div class="transfer-grid">
-        <div class="transfer-card"><h3>① CV05受入</h3><p>CV04からCV05へ搬送し、X11在荷を確認して停止する。</p></div>
-        <div class="transfer-card"><h3>② ローラー上昇</h3><p>Y16でフリーローラーを上げ、X13上昇端を確認する。</p></div>
-        <div class="transfer-card"><h3>③ 加工側へ横移載</h3><p>Y17で搬入プッシャを前進させ、ワークをフリーローラー上で加工側へ押す。</p></div>
-        <div class="transfer-card"><h3>④ 加工位置確認</h3><p>X30でワークを確認し、搬入プッシャを退避する。</p></div>
-        <div class="transfer-card"><h3>⑤ 位置決め</h3><p>Y21を作動し、X21で位置決め完了を確認する。</p></div>
-        <div class="transfer-card"><h3>⑥ クランプ</h3><p>Y22を作動し、X23で保持完了を確認する。</p></div>
-        <div class="transfer-card"><h3>⑦ 穴あけ</h3><p>Y23主軸運転とX27確認後、Y24で下降しX26加工終点を確認する。</p></div>
-        <div class="transfer-card"><h3>⑧ 加工機復帰</h3><p>ドリルを上昇原点X25へ戻し、主軸停止、クランプ・位置決めを解除する。</p></div>
-        <div class="transfer-card"><h3>⑨ CV05へ戻す</h3><p>Y20で戻しプッシャを前進させ、ワークをフリーローラー上へ戻す。</p></div>
-        <div class="transfer-card"><h3>⑩ ローラー下降</h3><p>X11在荷を確認後、プッシャ退避、フリーローラーを下降させX14を確認する。</p></div>
-        <div class="transfer-card"><h3>⑪ 縦搬送再開</h3><p>Y15でCV05を運転し、ワークを終端のメカ式シュートへ送る。</p></div>
-        <div class="transfer-card"><h3>⑫ 排出完了</h3><p>X12でライン外への排出を確認し、1サイクル完了とする。</p></div>
+        <div class="transfer-card"><h3>① CV05受入</h3><p>CV04からワークを受け取り、CV05在荷を確認して縦搬送を停止する。</p></div>
+        <div class="transfer-card"><h3>② ローラー上昇</h3><p>フリーローラーを上げ、上昇端を確認してワークを縦ベルトから浮かせる。</p></div>
+        <div class="transfer-card"><h3>③ 加工側へ移載</h3><p>搬入プッシャを前進し、加工治具在荷まで確認する。</p></div>
+        <div class="transfer-card"><h3>④ 搬入側を退避</h3><p>加工治具へ入ったことを確認して、搬入プッシャを後退させる。</p></div>
+        <div class="transfer-card"><h3>⑤ 位置決め</h3><p>ワークを基準面へ押し当て、位置決め端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑥ クランプ</h3><p>ワークを保持し、クランプ端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑦ 主軸準備</h3><p>主軸を運転し、運転確認が成立するまでドリルを下げない。</p></div>
+        <div class="transfer-card"><h3>⑧ 穴あけ</h3><p>ドリルを下降し、加工終点を確認する。</p></div>
+        <div class="transfer-card"><h3>⑨ 加工機復帰</h3><p>ドリルを上昇原点へ戻し、主軸を止め、クランプと位置決めを解除する。</p></div>
+        <div class="transfer-card"><h3>⑩ CV05へ戻す</h3><p>戻しプッシャでワークをCV05へ押し戻し、CV05在荷を確認する。</p></div>
+        <div class="transfer-card"><h3>⑪ 縦搬送へ復帰</h3><p>両プッシャの退避後、フリーローラーを下降し、下降端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑫ 排出</h3><p>CV05を再始動し、排出通過を確認して1サイクルを完了する。</p></div>
       </div>
+      <div class="key-box"><h3>「指令を出した」ではなく「完了を確認した」で次へ進む</h3><p>シリンダへ出力を出しただけでは、実際に動作が完了したとは限りません。各ステップは端確認や在荷確認が成立したことを条件に次へ進めます。この考え方が、後でM500〜M517の加工ステップへ落とす土台になります。</p></div>
     </section>
 
     <section class="section-card" id="complete">
-      <h2>4. 「加工完了」「CV05復帰」「排出完了」を分ける</h2>
-      <p>穴あけが終わってもワークはまだライン外の加工位置にあります。そこで第4回では、加工機が安全位置へ戻ったこと、ワークがCV05へ戻ったこと、最後にライン外へ排出されたことを別々に確認します。</p>
-      <div class="key-box"><h3>加工完了</h3><p>加工終点を確認したあと、ドリル上昇端まで戻し、主軸停止、クランプ解除、位置決め解除までそろったところを加工完了とします。</p></div>
-      <div class="key-box"><h3>CV05復帰完了</h3><p>戻しプッシャでワークをCV05へ戻し、CV05在荷と両プッシャ退避を確認します。その後フリーローラー下降端が成立して初めて縦搬送へ戻せる状態とします。</p></div>
-      <div class="key-box"><h3>1サイクル完了</h3><p>CV05を再始動し、メカ式シュート側の排出通過確認が成立して初めて1サイクル完了とします。</p></div>
-      <div class="note-box"><h3>実加工品質とは別</h3><p>φ8・深さ15 mmという加工品質を実機で保証するには、機械剛性、工具、送り、回転、位置決めなど別の設計が必要です。ここではPLCの通常シーケンスだけを扱います。</p></div>
+      <h2>5. 「穴あけが終わった」と「1サイクルが終わった」は別</h2>
+      <p>加工終点へ到達した瞬間にサイクル完了とすると、ドリルが下がったまま、ワークが加工治具に残ったままでも「完了」になってしまいます。そこで完了境界を3段階に分けます。</p>
+      <div class="key-box"><h3>加工動作完了</h3><p>ドリルが上昇原点へ戻り、主軸が停止し、クランプと位置決めが解除された状態。</p></div>
+      <div class="key-box"><h3>CV05復帰完了</h3><p>ワークがCV05へ戻り、搬入/戻しプッシャが退避し、フリーローラーが下降端へ戻った状態。</p></div>
+      <div class="key-box"><h3>1サイクル完了</h3><p>CV05の縦搬送を再開し、ワークがメカ式シュート側へ通過したことまで確認した状態。</p></div>
+      <div class="note-box"><h3>加工品質の保証とは別</h3><p>PLCが確認しているのは、主に機構の位置や動作状態です。φ8・深さ15 mmという加工結果を実機で保証するには、工具、主軸、送り、治具剛性、クランプ力など別の機械設計・加工条件確認が必要です。</p></div>
     </section>
 
     <section class="section-card" id="interlock">
-      <h2>5. 縦搬送と横移載を同時に動かさない</h2>
-      <p>加工部で最も重要なのは、CV05の縦搬送と横移載機構を競合させないことです。フリーローラーが上がっている間はCV05を停止し、加工機が完全に退避するまでワークを戻しません。</p>
-      <div class="table-wrap"><table><thead><tr><th>動作</th><th>最低限そろえる状態</th><th>狙い</th></tr></thead><tbody>
-        <tr><td>ローラー上昇</td><td>CV05停止・CV05在荷・両プッシャ後退</td><td>搬送中にワーク支持高さを変えない</td></tr>
-        <tr><td>搬入プッシャ</td><td>ローラー上昇端・加工側受入可</td><td>ベルトから完全に浮いてから横押しする</td></tr>
-        <tr><td>位置決め・クランプ</td><td>加工治具在荷・搬入プッシャ後退</td><td>移載途中で治具を動かさない</td></tr>
-        <tr><td>ドリル下降</td><td>位置決め完了・クランプ完了・主軸運転確認・ドリル上昇原点</td><td>保持と加工準備を確認してから下降する</td></tr>
-        <tr><td>戻しプッシャ</td><td>ドリル上昇・主軸停止・クランプ解除・位置決め解除</td><td>加工機退避前にワークを動かさない</td></tr>
-        <tr><td>ローラー下降</td><td>CV05在荷・両プッシャ後退</td><td>ワークがCV05上へ戻る前に下降させない</td></tr>
-        <tr><td>CV05再始動</td><td>ローラー下降端・CV05在荷</td><td>横移載機構が完全に退避してから縦搬送する</td></tr>
+      <h2>6. 動かす条件より先に、「動かしてはいけない組み合わせ」を決める</h2>
+      <p>加工STでは複数のシリンダとCV05が近い場所で動きます。正常シーケンスだけを書いても、途中停止や手動復旧時に機構同士がぶつからないとは限りません。そこで、次のような機械インターロックを先に固定します。</p>
+      <div class="table-wrap"><table><thead><tr><th>動作</th><th>許可に必要な状態</th><th>防ぎたいこと</th></tr></thead><tbody>
+        <tr><td>フリーローラー上昇</td><td>CV05停止・CV05在荷・両プッシャ後退</td><td>搬送中にワーク支持高さを変える</td></tr>
+        <tr><td>搬入プッシャ前進</td><td>ローラー上昇端・加工治具空き</td><td>ベルトへ引っ掛けたまま横押しする</td></tr>
+        <tr><td>位置決め</td><td>加工治具在荷・搬入プッシャ後退</td><td>移載途中のワークを押さえる</td></tr>
+        <tr><td>クランプ</td><td>位置決め完了・加工治具在荷</td><td>位置が決まる前に固定する</td></tr>
+        <tr><td>ドリル下降</td><td>位置決め・クランプ・主軸運転・ドリル上昇原点</td><td>加工準備が揃う前に下降する</td></tr>
+        <tr><td>戻しプッシャ前進</td><td>ドリル上昇・主軸停止・クランプ解除・位置決め解除</td><td>加工機が退避する前にワークを動かす</td></tr>
+        <tr><td>フリーローラー下降</td><td>CV05在荷・両プッシャ後退</td><td>ワークが戻る前に縦搬送へ切り替える</td></tr>
+        <tr><td>CV05再始動</td><td>ローラー下降端・CV05在荷</td><td>横移載機構が残ったまま搬送する</td></tr>
       </tbody></table></div>
-      <div class="note-box"><h3>安全機能は通常シーケンスと別</h3><p>非常停止やガードなど、人の安全に関わる機能は通常PLCシーケンスだけに依存させません。実機では安全回路・安全機器・リスクアセスメントを別途設計します。</p></div>
+      <div class="note-box"><h3>非常停止やガードは別の安全設計</h3><p>ここで整理しているのは通常制御の機械インターロックです。非常停止、安全扉、ライトカーテンなど人の安全に関わる機能は、通常PLCのシーケンスだけで成立させず、実機では適切な安全回路・安全機器・リスクアセスメントを別途設計します。</p></div>
     </section>
 
     <section class="section-card" id="timeout">
-      <h2>6. 昇降・横移載・加工・排出をそれぞれ監視する</h2>
-      <p>フリーローラー昇降、2本のプッシャ、位置決め、クランプ、穴あけ、CV05排出まで、それぞれ「動かしたあとに何を確認したら次へ進めるか」を決めます。確認信号が来なければ次状態へ進ませません。</p>
-      <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>正常完了の確認</th><th>次へ進ませない例</th></tr></thead><tbody>
-        <tr><td>ローラー上昇</td><td>上昇端</td><td>移載高さまで上がっていない</td></tr>
-        <tr><td>加工側へ移載</td><td>搬入プッシャ前進端 + 加工治具在荷</td><td>ワークが加工位置へ入っていない</td></tr>
-        <tr><td>位置決め</td><td>位置決め端</td><td>基準位置が成立していない</td></tr>
-        <tr><td>クランプ</td><td>クランプ端</td><td>保持完了を確認できない</td></tr>
-        <tr><td>主軸</td><td>運転確認</td><td>主軸確認前にドリル下降しない</td></tr>
-        <tr><td>穴あけ</td><td>加工終点→ドリル上昇端</td><td>ドリルが原点へ戻っていない</td></tr>
-        <tr><td>CV05へ復帰</td><td>戻しプッシャ前進端 + CV05在荷</td><td>ワークがCV05へ戻っていない</td></tr>
-        <tr><td>ローラー下降</td><td>下降端</td><td>縦搬送位置へ戻っていない</td></tr>
-        <tr><td>最終排出</td><td>排出通過確認</td><td>ライン外へ出たことを確認できない</td></tr>
+      <h2>7. 各ステップに「待ち続けない」監視点を置く</h2>
+      <p>センサが故障したり、ワークが引っ掛かったりすると、正常完了信号がいつまでも来ないことがあります。そのため、各動作は開始した後に完了信号を待ち、一定時間を超えたら次へ進ませない設計にします。</p>
+      <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>正常完了</th><th>タイムアウト時の扱い</th></tr></thead><tbody>
+        <tr><td>ローラー上昇</td><td>上昇端</td><td>横移載へ進まない</td></tr>
+        <tr><td>加工側へ移載</td><td>搬入プッシャ前進端 + 加工治具在荷</td><td>位置決めへ進まない</td></tr>
+        <tr><td>位置決め</td><td>位置決め端</td><td>クランプへ進まない</td></tr>
+        <tr><td>クランプ</td><td>クランプ端</td><td>主軸・ドリルを許可しない</td></tr>
+        <tr><td>主軸立上り</td><td>主軸運転確認</td><td>ドリル下降を許可しない</td></tr>
+        <tr><td>穴あけ</td><td>加工終点</td><td>復帰処理へ自動遷移しない</td></tr>
+        <tr><td>ドリル復帰</td><td>上昇端</td><td>クランプ解除以降へ進まない</td></tr>
+        <tr><td>CV05へ復帰</td><td>戻しプッシャ前進端 + CV05在荷</td><td>ローラー下降へ進まない</td></tr>
+        <tr><td>ローラー下降</td><td>下降端</td><td>CV05を再始動しない</td></tr>
+        <tr><td>最終排出</td><td>排出通過</td><td>1サイクル完了にしない</td></tr>
       </tbody></table></div>
-      <p>具体的なタイマ値、異常表示、手動復旧は第5回で決めます。第4回では、監視区間と正常完了条件までを固定します。</p>
+      <p>具体的な監視時間、異常コード、リセット条件、途中停止からの復旧操作は第5回で整理します。第4回では「どの動作に、どの完了確認が必要か」までを決めます。</p>
     </section>
 
     <section class="section-card" id="summary">
-      <h2>7. 第4回のまとめ</h2>
+      <h2>8. 第4回のまとめ</h2>
       <div class="summary-highlight">
-        <div class="summary-point"><span>POINT 1</span><strong>CV05で縦搬送から横移載へ切り替える</strong><small>フリーローラーを上昇させ、ワークを縦ベルトから離して横押しする。</small></div>
-        <div class="summary-point"><span>POINT 2</span><strong>加工後は同じCV05へ戻す</strong><small>加工機退避後に戻しプッシャでワークをフリーローラー上へ戻す。</small></div>
-        <div class="summary-point"><span>POINT 3</span><strong>排出確認で1サイクルを閉じる</strong><small>ローラー下降→縦搬送→シュート排出まで確認して完了にする。</small></div>
+        <div class="summary-point"><span>POINT 1</span><strong>機械の動きを決めてからI/Oを考える</strong><small>CV05・フリーローラー・2本のプッシャの役割を先に固定する。</small></div>
+        <div class="summary-point"><span>POINT 2</span><strong>指令ではなく完了確認で次へ進む</strong><small>在荷・端確認・主軸確認を使って状態遷移を組み立てる。</small></div>
+        <div class="summary-point"><span>POINT 3</span><strong>加工完了とサイクル完了を分ける</strong><small>CV05復帰と排出確認まで終えて1サイクルを閉じる。</small></div>
       </div>
-      <div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第4回で確定したこと</th></tr></thead><tbody>
-        <tr><td>加工ステーション</td><td>CV05＋昇降フリーローラー＋往復2本のプッシャ＋加工治具</td></tr>
-        <tr><td>I/O</td><td>加工STで扱う入力16点・出力14点、設備全体は約58DI・32DO</td></tr>
+      <div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第4回で決めたこと</th></tr></thead><tbody>
+        <tr><td>機械構造</td><td>CV05＋昇降フリーローラー＋搬入/戻しプッシャ＋加工治具</td></tr>
+        <tr><td>加工位置</td><td>搬送ラインから横へ1ピッチ逃がし、切りくずを搬送部から分離</td></tr>
+        <tr><td>I/O</td><td>加工シーケンスで直接扱う入力16点・出力14点、設備全体は約58DI・32DO</td></tr>
         <tr><td>シーケンス</td><td>CV05受入から横移載・加工・復帰・排出まで12状態に分割</td></tr>
-        <tr><td>インターロック</td><td>縦搬送・ローラー昇降・プッシャ・加工機の競合を防止</td></tr>
-        <tr><td>完了境界</td><td>メカ式シュート側の排出確認までを1サイクルとする</td></tr>
+        <tr><td>インターロック</td><td>縦搬送、ローラー昇降、2本のプッシャ、加工機の競合を防止</td></tr>
+        <tr><td>異常監視</td><td>各動作の開始後に完了信号を監視し、未完了なら次へ進めない</td></tr>
       </tbody></table></div>
+      <div class="key-box"><h3>次回は「正常に動く」から「異常時に戻せる」へ</h3><p>第5回では、手動運転、途中停止、タイムアウト、ワーク中間位置、異常解除後の復旧などを整理します。正常シーケンスだけでなく、止まった設備をどう安全に戻すかまで設計していきます。</p></div>
     </section>
 
     <section class="section-card" id="roadmap">

@@ -1,5 +1,7 @@
 # 01 Drilling Line — 加工ST 外部配線表
 
+> **2026-09-19 第4回仕様更新:** CV05（加工ST搬送コンベヤ）とCY06（戻しプッシャ）が追加された。I/O点数・設備構造は `master-spec.md`、`io-device-list.md`、`physical-io-map.md` を優先する。本ファイル内のCV01〜04のみ／CY01〜05のみ／旧点数の記述は、該当箇所を更新するまで旧前提として扱う。
+
 Status: Draft / 教材用外部配線対応表
 
 ## 1. 目的

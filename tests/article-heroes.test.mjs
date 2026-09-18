@@ -30,9 +30,9 @@ test('lossless extraction/render, shared propagation and fail-closed boundaries'
   const data=JSON.parse(await readFile(f.plan,'utf8'));
   const users=new Map();for(const p of data.pages)for(const s of p.styles)for(const slot of s.slots){if(!users.has(slot.template))users.set(slot.template,new Set());users.get(slot.template).add(p.path);}
   const [profile,affected]=[...users].find(([,paths])=>paths.size>1);assert.ok(profile);
-  const cssFile=resolve(f.base,pkg,profile),css=await readFile(cssFile,'utf8');await writeFile(cssFile,css+'/*shared-css-probe*/');
+  const cssFile=resolve(f.base,pkg,profile),css=await readFile(cssFile,'utf8'),cssProbe=';outline:3px solid rgb(255,0,0);';await writeFile(cssFile,css.replace(/}(\s*)$/,cssProbe+'}$1'));
   const cssRenderer=await loadHeroRenderer(f.plan,f.base);
-  for(const [path,old]of originals){const result=cssRenderer.apply(old,path);assert.equal(result.includes('shared-css-probe'),affected.has(path));assert.equal(result.replaceAll('/*shared-css-probe*/',''),old);}
+  for(const [path,old]of originals){const result=cssRenderer.apply(old,path);assert.equal(result.includes(cssProbe),affected.has(path));assert.equal(result.replaceAll(cssProbe,''),old);}
   await writeFile(cssFile,css);
   const first=f.manifest.targets[0],source=resolve(f.base,first),old=originals.get(first);
   await writeFile(source,old.replace('class="hero-lead"','class="unsupported-lead"'));assert.notEqual(f.extract().status,0);

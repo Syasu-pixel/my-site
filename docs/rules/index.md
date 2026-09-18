@@ -79,6 +79,7 @@
 | [docs/new-article-checklist-v2-migration.md](../new-article-checklist-v2-migration.md) — 新規記事チェックリスト v2 移行オーバーライド | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/new-article-checklist.md](../new-article-checklist.md) — 新規記事作成チェックリスト | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-projects/drilling-line/master-spec.md](../plc-projects/drilling-line/master-spec.md) — 穴あけ加工ライン設計プロジェクト — 設備構想・I/O正本 | PLC設備設計シリーズの穴あけ加工ラインについて、設備構想、I/O、シーケンス、記事間整合を確認・更新する。 |
 | [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
@@ -87,6 +88,7 @@
 | [docs/post-approval-publish-pipeline.md](../post-approval-publish-pipeline.md) — 管理者Preview承認後の公開・インデックス工程 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
+| [docs/reference-notes/plc-drilling-line-design-project-04.md](../reference-notes/plc-drilling-line-design-project-04.md) — PLC設備設計シリーズ 第4回 参照メモ | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/rule-alignment-v1.md](../rule-alignment-v1.md) — AI編集部ルール整合メモ v1 | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/search-console-content-improvement-log.md](../search-console-content-improvement-log.md) — Search Console Content Improvement Log | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/search-data-acquisition-rules.md](../search-data-acquisition-rules.md) — 検索データ取得・保存ルール（正本） | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |

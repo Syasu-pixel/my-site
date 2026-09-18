@@ -1,5 +1,9 @@
 # 記事制作ワークフロー（article workflow）
 
+## 新規記事・更新の実作業入口
+
+共通ひな形導入後の登録先・本文更新時の検査基準・生成・公開導線は [実作業手順](article-editing-playbook.md) を先に確認する。新規記事は第3節、既存記事は第4節、Step 2は第6節に従う。旧コピー指定や固定件数だけで処理を終えない。
+
 ## 共通ひな形移行との関係（2026-09-18）
 - サイト構造・共通部品・記事制作に関係する作業では、[site-template-policy.md](site-template-policy.md) と [site-template-migration-status.md](site-template-migration-status.md) を先に確認する。
 - 現在段階・採用判断・対象ごとの移行状態は、上記の移行状況文書だけを正本とする。本書の既存要件は、同方針に明示した限定例外以外は維持する。

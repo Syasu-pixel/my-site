@@ -1,5 +1,9 @@
 # CODEX反映ルール（codex update rules）
 
+## 新規記事・更新の実作業入口
+
+共通ひな形導入後の登録先・本文更新時の検査基準・生成・公開導線は [実作業手順](article-editing-playbook.md) を先に確認する。新規記事は第3節、既存記事は第4節、Step 2は第6節に従う。旧コピー指定や固定件数だけで処理を終えない。
+
 ## 共通ひな形移行との関係（2026-09-18）
 - サイト構造・共通部品・記事制作に関係する作業では、[site-template-policy.md](site-template-policy.md) と [site-template-migration-status.md](site-template-migration-status.md) を先に確認する。
 - 現在段階・採用判断・対象ごとの移行状態は、上記の移行状況文書だけを正本とする。本書の既存要件は、同方針に明示した限定例外以外は維持する。
@@ -43,7 +47,8 @@ Step 2は、原則として Step 2-A と Step 2-B に分ける。
 
 新規記事の確認用URLをユーザーが確認済みの場合、まず以下のみを更新する。
 
-- categories/*.html
+- 対象言語のトップ新着（index.html / en/index.html、7件固定）
+- 対象言語のカテゴリ（categories/*.html / en/categories/*.html）
 - assets/data/search-index.json
 - sitemap.xml
 - docs/article-backlog.md
@@ -52,12 +57,11 @@ Step 2-Aでは、以下を触らない。
 
 - articles/**
 - assets/images/**
-- en/**
-- index.html
+- 対象外言語・対象外ページ（en/**の一律禁止ではない）
 - seo/sitemap.xml
 
 Step 2-Aでは、既存記事への関連記事カード追加は行わない。
-カテゴリページ、検索インデックス、サイトマップ、バックログに反映できていれば、基本導線は確保済みと判断する。
+トップ新着、対象言語のカテゴリ、検索インデックス、サイトマップ、バックログを確認して基本導線完了とする。日英相互リンクは実作業手順第6節の限定差分として扱う。
 
 ### Step 2-B: 既存記事への関連記事追加
 

@@ -44,6 +44,8 @@ if args.mode=='snapshot':
  (build/'image-collision-skip.txt').write_text(''.join((args.site/ p).as_posix()+'\n' for p in keep),encoding='utf-8')
  print(json.dumps({'snapshotFiles':len(files),'existingMissingResources':len(data['existingMissingResources']),'preservedImageCollisions':collisions}));sys.exit(0)
 before=json.loads(state.read_text(encoding='utf-8'));mapping=json.loads((build/'published-image-mapping.json').read_text(encoding='utf-8'));errors=[]
+current_paths={p.relative_to(site).as_posix() for p in site.rglob('*') if p.is_file() and p.suffix.lower() in extensions}
+if current_paths!=set(before['files']):errors.append('Published text inventory changed: '+str(sorted(current_paths^set(before['files']))))
 def rewrite(text):
  for old,new in mapping.items():text=text.replace('/'+old,'/'+new).replace(old,new)
  return text

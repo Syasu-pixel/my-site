@@ -18,5 +18,6 @@ with tempfile.TemporaryDirectory(prefix='publication-contract-') as tmp:
  good=p.read_text();p.write_text(good.replace('<body>','<body>unexpected text'));assert run('verify').returncode!=0;p.write_text(good)
  image=site/'assets/images/a.webp';image.unlink();assert run('verify').returncode!=0;image.write_bytes(b'fixture-webp')
  vote=site/'assets/js/article-feedback.js';vote.write_text('changed');assert run('verify').returncode!=0;vote.write_text('original feedback')
+ extra=site/'extra-review.html';extra.write_text('<html>unexpected</html>');assert run('verify').returncode!=0;extra.unlink()
  (site/'assets/images/collision.png').write_bytes(b'changed');assert run('verify').returncode!=0
-print('Publication artifact contracts: 6 passed (mapping, collision preservation, content mutation, missing optimized image, vote mutation, collision mutation)')
+print('Publication artifact contracts: 7 passed (mapping, collision preservation, content mutation, missing optimized image, vote mutation, added review HTML, collision mutation)')

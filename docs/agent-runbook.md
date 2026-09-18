@@ -19,6 +19,15 @@
 - 記事制作時に ChatGPT / Codex が迷わないよう、実行順と判断基準をまとめる。
 - 上位正本は `docs/ai-editorial-master-rules.md`。下位文書と矛盾する場合はマスタールールを優先する。
 
+## 案件・連載の引き継ぎ時に追加で行うこと
+
+- 継続案件では、共通ルール確認とは別に案件固有の正本を探す。GitHub `main` だけでなく、関連するOpen/Draft PR、作業ブランチ、過去PRの変更ファイルも確認する。
+- 案件名、記事slug、設備名、シリーズ名、`master-spec`、decision log、I/O表、仕様書等を検索語に使う。
+- `docs/sample-lines/**`、`docs/plc-projects/**`、`docs/reference-notes/**` は候補例であり、場所を決め打ちしない。
+- 既存の案件正本が見つかったら、その状態・採用判断・更新履歴を確認してから作業を再開する。同じ目的の新しい正本を先に作らない。
+- 未マージPR/ブランチ上の資料は、採用済みmainルールとは区別する。ただし案件の継続資料として無視せず、後続作業との整合を取る。
+- 新規記事が既存シリーズや設備設計案件の続編である場合、本文設計の前に案件正本と直前回の記事・決定ログを照合する。
+
 ## 実行順（新規記事・更新共通）
 1. `docs/ai-governance.md` と `docs/ai-editorial-master-rules.md` を確認する。
 2. `docs/article-workflow.md` を確認する。

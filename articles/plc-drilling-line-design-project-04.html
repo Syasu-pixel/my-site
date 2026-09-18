@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCで設備を1から設計する｜加工ステーション制御編 第4回</title>
+  <meta name="description" content="穴あけ加工ライン設計プロジェクト第4回。CV05でワークを停止し、昇降フリーローラーとエアシリンダで横移載して加工、元のコンベアへ戻し、排出確認までをラダー実装前の状態遷移として整理します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCで設備を1から設計する｜加工ステーション制御編 第4回">
+  <meta property="og:description" content="加工ステーションを、CV05受入・ローラー上昇・横移載・位置決め・加工・復帰・排出へ分解して設計します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-drilling-line-design-project-04.html">\n  <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+  <link rel="stylesheet" href="../assets/css/gxworks2-service-entry.css">
+  <style>
+    :root{--bg:#f5f8fc;--card:#fff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--blue-soft:#eef4ff;--shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);line-height:1.8;padding-top:var(--header-h)}button,input{font:inherit}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}img{max-width:100%;display:block}.container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff;border-bottom:1px solid #dbe7f3;box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{height:46px}.brand-title{margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{margin:2px 0 0;font-size:11px;color:#475569;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#64748b;box-shadow:0 8px 20px rgba(15,23,42,.05);margin-left:auto}.search-box{display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-input::placeholder{color:#94a3b8}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}.search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff}.search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}.search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}.search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}.article-hero{position:relative;overflow:hidden;min-height:410px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 35%,rgba(255,255,255,.56) 58%,rgba(255,255,255,.08) 100%),url('../assets/images/articles/plc-drilling-line-design-project-04-hero.webp') right center / auto 100% no-repeat;box-shadow:var(--shadow)}.article-hero:before{display:none}.article-hero-copy{position:relative;z-index:2;width:min(64%,720px);min-height:410px;padding:48px 42px;display:flex;flex-direction:column;justify-content:center}.hero-label{display:inline-flex;align-self:flex-start;padding:6px 11px;border-radius:999px;background:#eaf2ff;border:1px solid #bfd5ff;color:#1d4ed8;font-size:12px;font-weight:900}.article-hero h1{margin:16px 0 14px;font-size:40px;line-height:1.28}.hero-lead{margin:0;color:#475569;font-size:15px;font-weight:700;max-width:48ch}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}.btn-secondary{background:#fff;border:1px solid #d3dfec;color:var(--text)}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card,.mini-toc-card,.section-card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}.summary-card{border-radius:24px;padding:22px 20px}.summary-card h2{margin:0 0 10px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px}.mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border-radius:24px}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:#1d4ed8;font-size:13px;font-weight:900}
+    .page-layout{display:block;margin-bottom:48px}.main-column{width:100%;min-width:0}.section-card{width:100%;padding:30px 34px;border-radius:28px;margin-bottom:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.key-box,.note-box,.source-box{border-radius:20px;padding:18px;margin:18px 0}.key-box{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#f8fbff)}.note-box{border:1px solid #f4d79d;background:#fff8ea}.source-box{border:1px solid #cbd5e1;background:#f8fafc}.key-box h3,.note-box h3,.source-box h3{margin:0 0 8px}.state-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.state-card{position:relative;padding:18px;border:1px solid #d7e4f3;border-radius:20px;background:#f8fbff}.state-card strong{display:block;color:#1d4ed8;font-size:15px}.state-card span{display:block;margin-top:6px;color:#64748b;font-size:13px}.transfer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.transfer-card{padding:18px;border:1px solid #d7e4f3;border-radius:20px;background:#fff}.transfer-card h3{margin:0 0 8px!important;color:#1d4ed8;font-size:16px}.transfer-card p{margin:0!important;color:#475569;font-size:13px!important}.table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}.table-wrap table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}.table-wrap th,.table-wrap td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}.table-wrap th{background:#f8fbff;font-weight:900;white-space:nowrap}.badge{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#1d4ed8;font-size:11px;font-weight:900}.talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row.right{justify-content:flex-end;flex-direction:row-reverse}.talk-avatar{flex:0 0 80px;width:80px;display:flex;align-items:flex-end;justify-content:center}.talk-avatar img{width:100%;height:auto;object-fit:contain}.talk-bubble{min-width:0;max-width:760px;background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row.right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;padding:2px 8px;margin-right:8px;border-radius:999px;background:#eaf2ff;color:#1d4ed8;font-size:12px;font-weight:900}.talk-row.right .talk-name{background:#f3ebff;color:#7c3aed}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.05)}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:10px 14px;color:#64748b;font-size:12px;font-weight:700;background:#f8fbff}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;overflow:hidden;border:1px solid #d7e4f3;border-radius:20px;background:#fff;color:var(--text);box-shadow:0 8px 20px rgba(15,23,42,.05);transition:transform .18s ease,box-shadow .18s ease}.related-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.09);text-decoration:none}.related-card img{width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid #e2e8f0}.related-card-body{padding:15px 16px 17px}.related-card h3{margin:0 0 8px;font-size:16px;line-height:1.45;color:#1d4ed8}.related-card p{margin:0;font-size:13px;color:#64748b}
+    #summary{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#c7daf3}.summary-highlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 20px}.summary-point{padding:16px;border:1px solid #cfe0f5;border-radius:18px;background:#fff;box-shadow:0 6px 16px rgba(37,99,235,.06)}.summary-point span{display:inline-flex;margin-bottom:8px;padding:3px 8px;border-radius:999px;background:#e8f1ff;color:#1d4ed8;font-size:11px;font-weight:900}.summary-point strong{display:block;color:#1d4ed8;font-size:14px;line-height:1.5}.summary-point small{display:block;margin-top:5px;color:#64748b;font-size:12px;line-height:1.6}
+    #roadmap{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#cdddf0}.series-roadmap-lead{margin:0 0 18px!important;color:#64748b}.series-roadmap{list-style:none;margin:0;padding:0;display:grid;gap:10px}.series-roadmap li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:62px;padding:12px 14px;border:1px solid #dce6f2;border-radius:18px;background:#fff;box-shadow:0 5px 14px rgba(15,23,42,.035)}.series-step{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:4px 10px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:900;white-space:nowrap}.series-title{font-size:14px;font-weight:800;color:#334155}.series-state{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}.series-roadmap li.is-done .series-step{background:#e2e8f0;color:#475569}.series-roadmap li.is-done .series-state{background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1}.series-roadmap li.is-current{border-color:#93c5fd;background:linear-gradient(135deg,#eff6ff 0%,#f8fbff 100%);box-shadow:0 9px 22px rgba(37,99,235,.10)}.series-roadmap li.is-current .series-step{background:#2563eb;color:#fff}.series-roadmap li.is-current .series-title{color:#1d4ed8}.series-roadmap li.is-current .series-state{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd}.series-roadmap li.is-next{border-color:#f6c66f;background:linear-gradient(135deg,#fff8e8 0%,#fffdf7 100%);box-shadow:0 9px 22px rgba(245,158,11,.09)}.series-roadmap li.is-next .series-step{background:#f59e0b;color:#fff}.series-roadmap li.is-next .series-title{color:#92400e}.series-roadmap li.is-next .series-state{background:#fff1c7;color:#92400e;border:1px solid #f6c66f}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:#64748b;text-align:center;font-size:12px;font-weight:700}
+    @media(max-width:980px){.brand-sub{display:none}.header-search{flex-basis:180px}.article-hero-copy{width:min(80%,700px)}}@media(max-width:768px){.site-header{padding:8px 10px}.brand-logo{height:40px}.brand-title{font-size:15px}.header-search{flex:0 0 132px}.article-hero{min-height:350px}.article-hero-copy{width:100%;min-height:350px;padding:34px 24px}.article-hero h1{font-size:32px}.talk-avatar{flex-basis:68px;width:68px}.top-summary,.state-flow,.transfer-grid,.related-grid,.summary-highlight{grid-template-columns:1fr}.section-card{padding:22px}}@media(max-width:520px){:root{--header-h:66px}.brand-title{font-size:13px}.header-search{flex-basis:120px}.article-hero h1{font-size:28px}.series-roadmap li{grid-template-columns:64px minmax(0,1fr);gap:8px 10px;padding:12px}.series-roadmap .series-state{grid-column:2;justify-self:start}.series-title{font-size:13px}}
+  
+    .article-hero{background:linear-gradient(135deg,#f8fbff 0%,#eef4ff 100%)}
+  </style>
+  <link rel="stylesheet" href="/assets/css/gxworks2-service-entry.css">
+</head>
+<body>
+<header class="site-header"><div class="site-header-inner"><a href="../" class="brand" aria-label="トップページへ移動"><img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo"><div><p class="brand-title">電気と制御の実務メモ</p><p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p></div></a><form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search"><label class="sr-only" for="site-search-input">サイト内検索</label><input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search"><button class="search-box-button" type="submit" aria-label="検索"><span class="header-search-icon" aria-hidden="true"></span></button><div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p></div></form></div></header>
+
+<main class="container">
+  <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><span>実践・設備設計</span><span>›</span><span>加工ステーション 第4回</span></nav>
+
+  <section class="article-hero" aria-labelledby="page-title">
+    <div class="article-hero-copy">
+      <span class="hero-label">実践・設備設計シリーズ #04</span>
+      <h1 id="page-title">PLCで設備を1から設計する<br>加工ステーション制御編</h1>
+      <p class="hero-lead">第3回でCV04までの搬送条件を固定したので、第4回ではその先のCV05でワークを止め、フリーローラーを持ち上げて加工位置へ横移載し、加工後にCV05へ戻して排出する流れを設計します。</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#sequence">加工の流れを見る</a><a class="btn btn-secondary" href="#interlock">インターロックを見る</a></div>
+    </div>
+  </section>
+
+  <section class="top-summary" aria-label="記事の導入まとめ">
+    <section class="summary-card"><h2>今回決めること</h2><ul><li>CV04からCV05へ受け入れて停止する条件</li><li>フリーローラー上昇→横移載→位置決め→穴あけの順番</li><li>加工後にCV05へ戻し、ローラー下降→排出まで確認する条件</li></ul></section>
+    <section class="summary-card"><h2>第4回で固めるI/O</h2><ul><li>加工STで扱う入力：16点</li><li>加工STで扱う出力：14点（ダブルソレノイド前提）</li><li>設備全体：約58DI / 32DO</li></ul></section>
+    <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>GX Works2への完成ラダー入力</li><li>手動運転と復旧操作の詳細</li><li>実機の加工条件・速度・圧力の決定</li></ul></section>
+  </section>
+
+  <section class="mini-toc-card">
+    <h2>第4回でわかること</h2>
+    <div class="mini-toc">
+      <a href="#handoff">CV04からの受入</a><a href="#mechanism">加工STの構造</a><a href="#io">加工I/O</a><a href="#sequence">加工シーケンス</a><a href="#complete">完了条件</a><a href="#interlock">インターロック</a><a href="#timeout">監視ポイント</a><a href="#summary">まとめ</a>
+    </div>
+  </section>
+
+  <div class="page-layout"><div class="main-column">
+    <section class="section-card" id="handoff">
+      <h2>1. 第3回の「CV04まで」を、そのまま加工STへつなぐ</h2>
+      <p>第3回では、CV01〜CV04を独立した搬送区間として扱い、CV04までワークを送る条件を整理しました。第4回はその続きです。CV04の先に<strong>CV05（加工ステーションコンベア）</strong>を置き、CV04から送り出したワークをCV05で受け取ります。</p>
+      <p>ここで大切なのは、<strong>「CV04から出た」と「CV05へ着いた」を別々に確認する</strong>ことです。送り出したつもりでも、加工STへ届いていなければ次の動作へ進めません。搬送側の完了確認と、加工側の受入確認を分けることで、制御の境界がはっきりします。</p>
+      <div class="state-flow">
+        <div class="state-card"><strong>CV04から送り出す</strong><span>加工STが受入可能なときだけ、CV04から次工程へ搬送する。</span></div>
+        <div class="state-card"><strong>CV05で受け取る</strong><span>CV05在荷でワーク到着を確認し、縦搬送を停止する。</span></div>
+        <div class="state-card"><strong>加工シーケンスへ渡す</strong><span>ワークがCV05にいることを確認してから横移載へ進む。</span></div>
+      </div>
+      <div class="talk-thread">
+        <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="" loading="lazy" decoding="async"></div><div class="talk-bubble"><span class="talk-name">先輩</span>搬送側は「CV04から送り出した」まで。加工側は「CV05で受け取った」から始める、と分けるとラダーも追いやすいよ。</div></div>
+        <div class="talk-row right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="" loading="lazy" decoding="async"></div><div class="talk-bubble"><span class="talk-name">後輩</span>同じワークでも、工程の境目で責任を分けて考えるんですね。</div></div>
+      </div>
+    </section>
+
+    <section class="section-card" id="mechanism">
+      <h2>2. ラダーより先に、加工ステーションの機械の動きを決める</h2>
+      <p>今回の加工STは、CV05の上でそのまま穴あけする構造にはしません。MCナイロンを穴あけすると切りくずが出るため、コンベア上で加工するとベルトやローラー、センサ周辺へ切りくずが溜まりやすくなります。そこで、<strong>搬送と加工を物理的に少し離す</strong>構造にします。</p>
+      <div class="key-box"><h3>採用する横移載の考え方</h3><p>CV05は通常、縦方向の搬送ベルトでワークを流します。加工するときだけ、ベルト間にあるフリーローラーを少し上昇させてワークをベルトから浮かせます。その状態で搬入側プッシャがワークを横へ押し、フリーローラー上を滑らせて1ピッチ奥の加工治具へ送ります。</p></div>
+      <div class="table-wrap"><table><thead><tr><th>機構</th><th>役割</th><th>待機時の状態</th></tr></thead><tbody>
+        <tr><td>CV05</td><td>CV04から受け取り、加工後に排出側へ送る縦搬送</td><td>横移載ローラー下降</td></tr>
+        <tr><td>フリーローラー昇降</td><td>横移載するときだけワークを縦ベルトから浮かせる</td><td>下降</td></tr>
+        <tr><td>搬入プッシャ</td><td>CV05から加工治具へワークを押す</td><td>後退</td></tr>
+        <tr><td>位置決め</td><td>ワークを治具の基準面へ押し当てる</td><td>解除</td></tr>
+        <tr><td>クランプ</td><td>穴あけ中にワークを保持する</td><td>解除</td></tr>
+        <tr><td>ドリルユニット</td><td>上面中央へ穴あけする</td><td>上昇原点</td></tr>
+        <tr><td>戻しプッシャ</td><td>加工後のワークを加工治具からCV05へ戻す</td><td>後退</td></tr>
+      </tbody></table></div>
+      <p>加工位置の下には切りくず受けを置き、MCナイロンの切りくずを搬送ラインから分離します。加工が終わったら、戻しプッシャでワークをCV05へ戻し、フリーローラーを下降させて再び縦搬送ベルトへ載せます。</p>
+      <div class="note-box"><h3>「横移載する装置」そのものを動かすわけではない</h3><p>今回の構造では、移載テーブル全体を往復させません。CV05のフリーローラーは上下だけを行い、ワークの横方向の移動は左右のプッシャで行います。この機械構造を先に決めてからI/Oへ落とすことで、必要なセンサと出力が見えてきます。</p></div>
+    </section><section class="section-card" id="io">
+      <h2>3. 機械の動きから、必要なI/Oを洗い出す</h2>
+      <p>第2回では加工部の細かなI/Oを保留していました。機械構造が固まったので、ここで「何を動かすか」と「何を確認するか」を対応させます。第4回本文では信号名を中心に整理し、物理X/Y番地はGX Works2実装段階で最終確認します。</p>
+      <div class="table-wrap"><table><thead><tr><th>入力グループ</th><th>確認するもの</th><th>点数</th></tr></thead><tbody>
+        <tr><td>ワーク確認</td><td>CV05在荷、加工治具在荷、排出通過</td><td>3</td></tr>
+        <tr><td>フリーローラー</td><td>上昇端、下降端</td><td>2</td></tr>
+        <tr><td>搬入プッシャ</td><td>前進端、後退端</td><td>2</td></tr>
+        <tr><td>戻しプッシャ</td><td>前進端、後退端</td><td>2</td></tr>
+        <tr><td>位置決め</td><td>位置決め端、解除端</td><td>2</td></tr>
+        <tr><td>クランプ</td><td>クランプ端、解除端</td><td>2</td></tr>
+        <tr><td>ドリル</td><td>上昇端、下降端</td><td>2</td></tr>
+        <tr><td>主軸</td><td>運転確認</td><td>1</td></tr>
+      </tbody></table></div>
+      <p>第4回で加工シーケンスに直接使う入力は16点です。設備全体では、これに操作盤、安全監視、CV01〜CV04、ストッパ、インバータ異常などが加わります。</p>
+      <div class="table-wrap"><table><thead><tr><th>出力グループ</th><th>動かすもの</th><th>点数</th></tr></thead><tbody>
+        <tr><td>CV05</td><td>縦搬送RUN</td><td>1</td></tr>
+        <tr><td>フリーローラー</td><td>上昇 / 下降</td><td>2</td></tr>
+        <tr><td>搬入プッシャ</td><td>前進 / 後退</td><td>2</td></tr>
+        <tr><td>戻しプッシャ</td><td>前進 / 後退</td><td>2</td></tr>
+        <tr><td>位置決め</td><td>位置決め / 解除</td><td>2</td></tr>
+        <tr><td>クランプ</td><td>クランプ / 解除</td><td>2</td></tr>
+        <tr><td>ドリル</td><td>下降 / 上昇</td><td>2</td></tr>
+        <tr><td>主軸</td><td>RUN</td><td>1</td></tr>
+      </tbody></table></div>
+      <div class="key-box"><h3>加工STだけでなく、設備全体で点数を見る</h3><p>元のサンプルライン正本には、操作盤、安全監視、ストッパ、駆動状態なども含まれています。今回のCV05と戻しプッシャを反映すると、設備全体は<strong>約58DI / 32DO</strong>です。加工STで直接扱う出力は、ダブルソレノイド前提で14点になります。</p></div>
+      <div class="note-box"><h3>第2回のPLC構成も更新が必要になった</h3><p>従来のGX Works2教材版は56DIまでの構成でしたが、今回の仕様では約58DIとなるため入力が不足します。そこで8点入力増設も追加してDI64点を確保する構成へ更新します。物理番地はGX Works2プロジェクト上で実際の割付を確認してから確定します。</p></div>
+    </section>
+
+    <section class="section-card" id="sequence">
+      <h2>4. 加工シーケンスを「受入・移載・加工・復帰・排出」に分ける</h2>
+      <p>加工ST全体を1本の長い条件式で考えると、途中で何を待っているのか分からなくなります。そこで、第4回では動作を状態ごとに分けます。細かいラダー番地ではなく、まずは<strong>「何が終わったら次へ進むか」</strong>を決めます。</p>
+      <div class="transfer-grid">
+        <div class="transfer-card"><h3>① CV05受入</h3><p>CV04からワークを受け取り、CV05在荷を確認して縦搬送を停止する。</p></div>
+        <div class="transfer-card"><h3>② ローラー上昇</h3><p>フリーローラーを上げ、上昇端を確認してワークを縦ベルトから浮かせる。</p></div>
+        <div class="transfer-card"><h3>③ 加工側へ移載</h3><p>搬入プッシャを前進し、加工治具在荷まで確認する。</p></div>
+        <div class="transfer-card"><h3>④ 搬入側を退避</h3><p>加工治具へ入ったことを確認して、搬入プッシャを後退させる。</p></div>
+        <div class="transfer-card"><h3>⑤ 位置決め</h3><p>ワークを基準面へ押し当て、位置決め端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑥ クランプ</h3><p>ワークを保持し、クランプ端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑦ 主軸準備</h3><p>主軸を運転し、運転確認が成立するまでドリルを下げない。</p></div>
+        <div class="transfer-card"><h3>⑧ 穴あけ</h3><p>ドリルを下降し、加工終点を確認する。</p></div>
+        <div class="transfer-card"><h3>⑨ 加工機復帰</h3><p>ドリルを上昇原点へ戻し、主軸を止め、クランプと位置決めを解除する。</p></div>
+        <div class="transfer-card"><h3>⑩ CV05へ戻す</h3><p>戻しプッシャでワークをCV05へ押し戻し、CV05在荷を確認する。</p></div>
+        <div class="transfer-card"><h3>⑪ 縦搬送へ復帰</h3><p>両プッシャの退避後、フリーローラーを下降し、下降端を確認する。</p></div>
+        <div class="transfer-card"><h3>⑫ 排出</h3><p>CV05を再始動し、排出通過を確認して1サイクルを完了する。</p></div>
+      </div>
+      <div class="key-box"><h3>「指令を出した」ではなく「完了を確認した」で次へ進む</h3><p>シリンダへ出力を出しただけでは、実際に動作が完了したとは限りません。各ステップは端確認や在荷確認が成立したことを条件に次へ進めます。この考え方が、後でM500〜M517の加工ステップへ落とす土台になります。</p></div>
+    </section>
+
+    <section class="section-card" id="complete">
+      <h2>5. 「穴あけが終わった」と「1サイクルが終わった」は別</h2>
+      <p>加工終点へ到達した瞬間にサイクル完了とすると、ドリルが下がったまま、ワークが加工治具に残ったままでも「完了」になってしまいます。そこで完了境界を3段階に分けます。</p>
+      <div class="key-box"><h3>加工動作完了</h3><p>ドリルが上昇原点へ戻り、主軸が停止し、クランプと位置決めが解除された状態。</p></div>
+      <div class="key-box"><h3>CV05復帰完了</h3><p>ワークがCV05へ戻り、搬入/戻しプッシャが退避し、フリーローラーが下降端へ戻った状態。</p></div>
+      <div class="key-box"><h3>1サイクル完了</h3><p>CV05の縦搬送を再開し、ワークがメカ式シュート側へ通過したことまで確認した状態。</p></div>
+      <div class="note-box"><h3>加工品質の保証とは別</h3><p>PLCが確認しているのは、主に機構の位置や動作状態です。φ8・深さ15 mmという加工結果を実機で保証するには、工具、主軸、送り、治具剛性、クランプ力など別の機械設計・加工条件確認が必要です。</p></div>
+    </section>
+
+    <section class="section-card" id="interlock">
+      <h2>6. 動かす条件より先に、「動かしてはいけない組み合わせ」を決める</h2>
+      <p>加工STでは複数のシリンダとCV05が近い場所で動きます。正常シーケンスだけを書いても、途中停止や手動復旧時に機構同士がぶつからないとは限りません。そこで、次のような機械インターロックを先に固定します。</p>
+      <div class="table-wrap"><table><thead><tr><th>動作</th><th>許可に必要な状態</th><th>防ぎたいこと</th></tr></thead><tbody>
+        <tr><td>フリーローラー上昇</td><td>CV05停止・CV05在荷・両プッシャ後退</td><td>搬送中にワーク支持高さを変える</td></tr>
+        <tr><td>搬入プッシャ前進</td><td>ローラー上昇端・加工治具空き</td><td>ベルトへ引っ掛けたまま横押しする</td></tr>
+        <tr><td>位置決め</td><td>加工治具在荷・搬入プッシャ後退</td><td>移載途中のワークを押さえる</td></tr>
+        <tr><td>クランプ</td><td>位置決め完了・加工治具在荷</td><td>位置が決まる前に固定する</td></tr>
+        <tr><td>ドリル下降</td><td>位置決め・クランプ・主軸運転・ドリル上昇原点</td><td>加工準備が揃う前に下降する</td></tr>
+        <tr><td>戻しプッシャ前進</td><td>ドリル上昇・主軸停止・クランプ解除・位置決め解除</td><td>加工機が退避する前にワークを動かす</td></tr>
+        <tr><td>フリーローラー下降</td><td>CV05在荷・両プッシャ後退</td><td>ワークが戻る前に縦搬送へ切り替える</td></tr>
+        <tr><td>CV05再始動</td><td>ローラー下降端・CV05在荷</td><td>横移載機構が残ったまま搬送する</td></tr>
+      </tbody></table></div>
+      <div class="note-box"><h3>非常停止やガードは別の安全設計</h3><p>ここで整理しているのは通常制御の機械インターロックです。非常停止、安全扉、ライトカーテンなど人の安全に関わる機能は、通常PLCのシーケンスだけで成立させず、実機では適切な安全回路・安全機器・リスクアセスメントを別途設計します。</p></div>
+    </section>
+
+    <section class="section-card" id="timeout">
+      <h2>7. 各ステップに「待ち続けない」監視点を置く</h2>
+      <p>センサが故障したり、ワークが引っ掛かったりすると、正常完了信号がいつまでも来ないことがあります。そのため、各動作は開始した後に完了信号を待ち、一定時間を超えたら次へ進ませない設計にします。</p>
+      <div class="table-wrap"><table><thead><tr><th>監視区間</th><th>正常完了</th><th>タイムアウト時の扱い</th></tr></thead><tbody>
+        <tr><td>ローラー上昇</td><td>上昇端</td><td>横移載へ進まない</td></tr>
+        <tr><td>加工側へ移載</td><td>搬入プッシャ前進端 + 加工治具在荷</td><td>位置決めへ進まない</td></tr>
+        <tr><td>位置決め</td><td>位置決め端</td><td>クランプへ進まない</td></tr>
+        <tr><td>クランプ</td><td>クランプ端</td><td>主軸・ドリルを許可しない</td></tr>
+        <tr><td>主軸立上り</td><td>主軸運転確認</td><td>ドリル下降を許可しない</td></tr>
+        <tr><td>穴あけ</td><td>加工終点</td><td>復帰処理へ自動遷移しない</td></tr>
+        <tr><td>ドリル復帰</td><td>上昇端</td><td>クランプ解除以降へ進まない</td></tr>
+        <tr><td>CV05へ復帰</td><td>戻しプッシャ前進端 + CV05在荷</td><td>ローラー下降へ進まない</td></tr>
+        <tr><td>ローラー下降</td><td>下降端</td><td>CV05を再始動しない</td></tr>
+        <tr><td>最終排出</td><td>排出通過</td><td>1サイクル完了にしない</td></tr>
+      </tbody></table></div>
+      <p>具体的な監視時間、異常コード、リセット条件、途中停止からの復旧操作は第5回で整理します。第4回では「どの動作に、どの完了確認が必要か」までを決めます。</p>
+    </section>
+
+    <section class="section-card" id="summary">
+      <h2>8. 第4回のまとめ</h2>
+      <div class="summary-highlight">
+        <div class="summary-point"><span>POINT 1</span><strong>機械の動きを決めてからI/Oを考える</strong><small>CV05・フリーローラー・2本のプッシャの役割を先に固定する。</small></div>
+        <div class="summary-point"><span>POINT 2</span><strong>指令ではなく完了確認で次へ進む</strong><small>在荷・端確認・主軸確認を使って状態遷移を組み立てる。</small></div>
+        <div class="summary-point"><span>POINT 3</span><strong>加工完了とサイクル完了を分ける</strong><small>CV05復帰と排出確認まで終えて1サイクルを閉じる。</small></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>設計項目</th><th>第4回で決めたこと</th></tr></thead><tbody>
+        <tr><td>機械構造</td><td>CV05＋昇降フリーローラー＋搬入/戻しプッシャ＋加工治具</td></tr>
+        <tr><td>加工位置</td><td>搬送ラインから横へ1ピッチ逃がし、切りくずを搬送部から分離</td></tr>
+        <tr><td>I/O</td><td>加工シーケンスで直接扱う入力16点・出力14点、設備全体は約58DI・32DO</td></tr>
+        <tr><td>シーケンス</td><td>CV05受入から横移載・加工・復帰・排出まで12状態に分割</td></tr>
+        <tr><td>インターロック</td><td>縦搬送、ローラー昇降、2本のプッシャ、加工機の競合を防止</td></tr>
+        <tr><td>異常監視</td><td>各動作の開始後に完了信号を監視し、未完了なら次へ進めない</td></tr>
+      </tbody></table></div>
+      <div class="key-box"><h3>次回は「正常に動く」から「異常時に戻せる」へ</h3><p>第5回では、手動運転、途中停止、タイムアウト、ワーク中間位置、異常解除後の復旧などを整理します。正常シーケンスだけでなく、止まった設備をどう安全に戻すかまで設計していきます。</p></div>
+    </section>
+
+    <section class="section-card" id="roadmap">
+      <h2>この設備を、設計の順番でシリーズ化する</h2>
+      <p class="series-roadmap-lead">今読んでいる位置と、次に進む記事がすぐ分かるようにシリーズ全体を並べています。</p>
+      <ol class="series-roadmap">
+        <li class="is-done"><span class="series-step">第1回</span><span class="series-title">設備仕様と全体構想</span><span class="series-state">完了</span></li>
+        <li class="is-done"><span class="series-step">第2回</span><span class="series-title">PLC・I/O構成を決める</span><span class="series-state">完了</span></li>
+        <li class="is-done"><span class="series-step">第3回</span><span class="series-title">CV01〜CV04の搬送制御を考える</span><span class="series-state">完了</span></li>
+        <li class="is-current"><span class="series-step">第4回</span><span class="series-title">加工ステーションのシーケンスを作る</span><span class="series-state">今ここ</span></li>
+        <li class="is-next"><span class="series-step">第5回</span><span class="series-title">手動運転・異常処理・復旧を設計する</span><span class="series-state">次ここ</span></li>
+        <li><span class="series-step">第6回</span><span class="series-title">GOT画面と保守・生産情報を作る</span></li>
+        <li><span class="series-step">最終</span><span class="series-title">GX Works2へ実装してシミュレーションする</span></li>
+      </ol>
+    </section>
+
+    <section class="section-card" id="next">
+      <h2>次回｜手動運転・異常処理・復旧を設計する</h2>
+      <p>第5回では、第3回の搬送タイムアウトと第4回の加工タイムアウトをつなぎ、どの異常を表示するか、どこまで手動で動かせるか、リセット後にどの状態へ戻すかを整理します。</p>
+      <div class="key-box"><h3>第4回で自動運転の骨格ができた</h3><p>搬送と加工の通常シーケンスがつながったので、次は「途中で止まったときにどう安全に復旧するか」を設計できます。</p></div>
+    </section>
+
+    <a class="gxw-service-entry" href="/services/gxworks2-online-support.html" aria-label="GX Works2 オンライン相談サービスを見る"><img src="/assets/images/services/gxworks2-online-support-ogp.webp" width="1536" height="1024" alt="GX Works2 オンライン相談サービス" loading="lazy" decoding="async"><div class="gxw-service-entry-copy"><strong>実際のGX Works2変更でお困りなら</strong><p>既設設備のラダー変更・動作変更は、プロジェクトデータを確認してオンラインで対応します。</p><small>会員登録不要｜データ確認後にお見積り</small></div><span class="gxw-service-entry-arrow" aria-hidden="true">→</span></a>
+
+    <section class="section-card" id="related"><h2>あわせて読みたい記事</h2><div class="related-grid"><a class="related-card" href="./plc-drilling-line-design-project-03.html"><img src="../assets/images/articles/plc-drilling-line-design-project-03-ogp.webp" alt="PLCで設備を1から設計する 第3回 搬送制御編" loading="lazy" decoding="async"><div class="related-card-body"><h3>第3回｜搬送制御編</h3><p>CV01〜CV04の搬送条件と加工側への受け渡し境界を確認する。</p></div></a><a class="related-card" href="./plc-drilling-line-design-project-02.html"><img src="../assets/images/articles/plc-drilling-line-design-project-02-ogp.webp" alt="PLCで設備を1から設計する 第2回 I/O設計編" loading="lazy" decoding="async"><div class="related-card-body"><h3>第2回｜I/O設計編</h3><p>加工部を追加する前の搬送I/OとFX3Uの番地ルールを確認する。</p></div></a><a class="related-card" href="./air-cylinder-basic.html"><img src="../assets/images/air-cylinder-basic/air-cylinder-basic-ogp.png" alt="エアシリンダの基本" loading="lazy" decoding="async"><div class="related-card-body"><h3>エアシリンダの基本</h3><p>クランプや送り機構で使うシリンダの基本構造を確認する。</p></div></a></div></section>
+  </div></div>
+</main>
+
+<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
+<script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

@@ -14,6 +14,18 @@
 
 ---
 
+## 2026-09-19 — 既存記事のリンク・表示不備修正（確認用、未公開）
+
+- PR: [#1514](https://github.com/Syasu-pixel/my-site/pull/1514)。追加4ページを含むmain `c86a6e7` を保持した独立ブランチ。マージ・本番公開は本依頼の対象外。
+- 英語関連記事: `air-breaker-basic` のSurge Protection → `surge-protection-basic`、`control-panel-cooling-fan-basic` のDC Motor Control → `dc-motor-control-basic`、`surge-protection-basic` のCooling Fan → `control-panel-cooling-fan-basic`。表示名・説明・順序は維持し、リンク先に対応する既存OGPを生成時に取得する。画像の新規作成・差し替えはない。
+- 英語フッター: `control-panel-grounding-basic`、`control-panel-label-basic`、`control-panel-outlet-basic`、`control-panel-wire-color-basic`、`din-rail-basic`、`terminal-block-basic`、`terminal-block-jumper-basic`、`wire-number-marker-basic` のcontact/privacy-policy計16リンクを、共通footer `en-footer-0a54aa29e78c.njk` から実在ディレクトリへ再生成。
+- 日本語 `pressure-switch-vs-gauge-basic`: `.term` の幅制限と折り返しだけを修正。390px画面でscrollWidth 424px → 375px（縦スクロールバー15pxを除く本文幅）。比較表の内部スクロールを保持。
+- 本文、記事URL、更新日、SEO情報、画像ファイル、フォーム、投票処理、`sitemap.xml`、`assets/data/search-index.json`、`/seo/sitemap.xml` は変更なし。通常記事のヒーロー分離や技術内容改善は別作業。
+- 12記事の正本ハッシュと3カードの検証値を明示修正に同期。shell比較基準は修正ソースcommit `f6cf5e30dbb7d5dd46590b6f348cdcc41efc23be` へ別commitで固定し、判定・対象範囲は保持。
+- ローカルで12記事×4幅、修正先5URLの200、288記事本文等保持、関連記事1361/案内9、リンク監査不備0、追加4ページを含む公開境界を確認。GitHub全件検査の最終結果はPRに記録する。実機Safari・実投票・実フォーム送信は未検証。
+
+---
+
 ## 2026-05-22
 
 - 2026-06-01: Bing / IndexNow 運用と meta description 作成方針を今後のCodex作業で維持できるよう、テンプレート・運用ルール系docsへ追記。IndexNowキー確認ファイルとworkflowは削除・変更しない方針、meta descriptionは新規記事作成時から短すぎない自然な説明文にする方針を明文化。

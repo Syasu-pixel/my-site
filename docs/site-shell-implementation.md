@@ -32,7 +32,7 @@ pnpm build:shells
 
 ## 配信とPreview
 
-完成HTMLを従来のURLへコミットするので、ブラウザで部品を追加取得しない。GitHub Pagesは公開前に `check:shells` を実行し、不一致のまま公開しない。既存の画像WebP処理はその後に行い、手順を変えない。テンプレート正本は既存のPages除外対象 `.github/` 配下に置き、生テンプレートを公開成果物へ入れない。
+共通化だけの段階は完成HTMLを従来のURLへコミットする。採用済みの統合UIは公開時に同じ編集元から生成し、公開用コピーの同じURLへ配置する。ブラウザで部品を追加取得しない。GitHub Pagesは公開前に `check:shells` と統合候補の保全検査を実行し、不一致のまま公開しない。既存の画像WebP処理はその後に行う。テンプレート正本は既存のPages除外対象 `.github/` 配下に置き、生テンプレートを公開成果物へ入れない。統合ヘッダーの正本は `.github/site-shells/ui-proposal/`、目次・関連記事・評価は `.github/article-components/`。本文と既存フッターの編集元は前記のまま。詳細は [article-components-integration.md](article-components-integration.md)、現在状態は [site-template-migration-status.md](site-template-migration-status.md) を参照する。
 
 このPRの `refactor/` ブランチは既存Cloudflare自動Preview対象の `preview-*` / `pilot-*` / `ai-editorial/*` に含めない。外部サービス設定を変更せず、Actionsで同じ生成HTMLをローカル配信して画像を残す。Cloudflareへの独立配置やrawソースを含むルート公開を、このPRの完成条件として扱わない。
 
@@ -56,20 +56,4 @@ pnpm build:shells
 
 PR #1509の初期コミットは比較環境のみ。次に代表6ページ、全288記事の共通化のみを検証する。言語切替条件や相談・お問い合わせ・スマホ検索の追加UIは、その後の別コミット・比較結果で識別する。
 
-本番マージは未承認。戻す場合は該当PRのコミットをrevertし、共通部品・manifest・生成HTML・検査導入を同じ単位で戻す。部分的にHTMLだけ戻して検査を迂回しない。新着・人気記事同期、IndexNow、本番ドメインには変更を加えない。
-
-## 追加UIのレビュー専用出力
-
-`node scripts/preview-site-shell-ui.mjs .ui-proposal` で代表6記事だけを別フォルダーへ出力する。元の `articles/` / `en/articles/` は書き換えない。生成部品は `.github/site-shells/ui-proposal/`。新UIの全記事適用は、この見た目の確認後の段階とする。
-
-- 日本語は相談→検索→メニュー。英語は検索→メニューとし、相談リンクを掲載しない。2026-09-18のプレビュー確認後に管理者が確定した配置。相談受付ページそのものは削除しない。
-- 検索ボタンから横幅の広い検索欄を開き、既存site-search.jsと同じIDで検索処理を使う。
-- メニューへ通常のお問い合わせと記事の言語を配置。現在言語は非リンクのラベル。実ファイルがある対応記事だけを切替先とし、ホームへ代替しない。
-- Escape・外側クリックで閉じる。検索展開時は入力へ、Escape時は起点ボタンへフォーカスする。
-
-`node scripts/capture-site-shell-ui.mjs .ui-proposal .ui-evidence .visual-evidence` で同環境の変更前と比較し、通常/検索/メニュー/Before/Diffを保存する。CIでは共通化の比較が成功した後にだけ実行し、別の `shell-ui-proposal-*` artifactへ保存する。これは意図したUI差分で、共通化の差分ゼロ判定へ混ぜない。比較画像の自動承認やbaseline更新は行わない。
-
-後続のサイドバー/目次・評価/関連記事の変更は最新の正本へ統合し、shellを再生成して再検査する。古い生成HTML同士を上書きマージしない。統合順はheader/footer、sidebar/目次、評価/関連記事。本番マージの追加承認は得ていない。
-
-## 取得用パッケージ
-全画像のZIPは約850MBでconnectorの512MiB上限を超えるため、Downloadable shell evidence package workflowで全記事JSONと代表6記事108画像をまとめる。元画像の再撮影やbaseline更新は行わない。初回は成功run 35325768247に固定し、以後はworkflow_dispatchで成功した比較run IDを指定する。
+本番マージは移行状況文書に記録した管理者の公開承認に従う。戻す場合は該当PRのコミットをrevertし、共通部品・manifest・生成・検査・Pages接続を同じ単位で戻す。部分的にHTMLだけ戻して検査を迂回しない。新着・人気記事同期、IndexNow、本番ドメインには変更を加えない。

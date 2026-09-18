@@ -34,7 +34,7 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  if(p.lang==='ja'&&!await page.locator('.dc-consult').isVisible())throw Error('Japanese consultation hidden');
  if(p.lang==='en'&&await page.locator('header a[href*="gxworks2-online-support"]').count())throw Error('English consultation link must be absent');
  await page.locator('#dc-search-toggle').click();await page.locator('#site-search-input').waitFor({state:'visible'});
- if(await page.locator('#site-search-input').evaluate(e=>e!==document.activeElement))throw Error('Search not focused');
+ await page.waitForFunction(()=>document.getElementById('site-search-input')===document.activeElement,{},{timeout:1000});
  const search=await page.locator('#dc-search-drawer').boundingBox();if(viewport.width<700&&search.width<viewport.width*.9)throw Error('Mobile search not wide');
  await shoot('search');await page.keyboard.press('Escape');if(await page.locator('#dc-search-toggle').getAttribute('aria-expanded')!=='false')throw Error('Search Escape failed');
  await page.locator('#dc-menu-toggle').click();await shoot('menu');

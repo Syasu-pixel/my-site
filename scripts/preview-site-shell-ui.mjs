@@ -6,7 +6,7 @@ import { root, replaceShells } from './build-site-shells.mjs';
 const out=resolve(process.argv[2]||'.ui-proposal');
 if(out===root||out.startsWith(resolve(root,'articles'))||out.startsWith(resolve(root,'en')))throw Error('Preview must use a separate output directory');
 const input=resolve(root,'.github/site-shells/ui-proposal');
-const config=JSON.parse(await readFile(resolve(root,'.github/site-shell-visual.json'),'utf8'));
+const config=JSON.parse(await readFile(process.argv[3]?resolve(process.argv[3]):resolve(root,'.github/site-shell-visual.json'),'utf8'));
 const proposals=[];
 for(const output of config.representatives){
   const en=output.startsWith('en/'),name=output.split('/').at(-1),other=en?`articles/${name}`:`en/articles/${name}`;

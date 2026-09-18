@@ -1,0 +1,72 @@
+name: Integrated article component review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/article-components/**'
+      - '.github/workflows/article-components-integration.yml'
+      - 'scripts/*integrat*'
+      - 'scripts/prepare-article-components.py'
+      - 'scripts/preview-site-shell-ui.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: article-integration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.19.0'
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build from current source in the agreed order
+        run: |
+          node scripts/build-integrated-review.mjs ../integration-build
+          python scripts/verify-integrated-source.py ../integration-build
+          node scripts/make-integration-gallery.mjs ../integration-build
+      - name: Combined behavior and isolated vote checks
+        run: |
+          node scripts/serve-integrated-review.mjs ../integration-build > ../integration-build/server.log 2>&1 &
+          REVIEW_PID=$!
+          trap 'kill "$REVIEW_PID" || true' EXIT
+          node scripts/check-integrated-review.mjs ../integration-build
+          node scripts/check-integration-boundaries.mjs ../integration-build
+          node scripts/package-integrated-review.mjs ../integration-build
+      - name: Upload interactive review copy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-preview-${{ github.run_id }}
+          path: ../integration-build/review/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Upload screenshots and full scope ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-evidence-${{ github.run_id }}
+          path: |
+            ../integration-build/evidence/
+            ../integration-build/coverage-ledger.json
+            ../integration-build/coverage-ledger.csv
+            ../integration-build/preservation.json
+            ../integration-build/browser-checks.json
+            ../integration-build/boundary-checks.json
+            ../integration-build/provenance.json
+            ../integration-build/build.json
+          retention-days: 30
+          if-no-files-found: error

@@ -4,22 +4,23 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    paths:
+      - '.github/article-components/**'
+      - '.github/site-shells/**'
+      - '.github/workflows/pages.yml'
+      - 'scripts/*publication*'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event.pull_request.number || 'production' }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,9 +53,6 @@ jobs:
           python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
           python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
           python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
 
       - name: Prepare Pages artifact
         run: |
@@ -202,10 +200,24 @@ jobs:
 
       - name: Upload artifact
         # The deploy step is unreachable unless the standalone artifact passes.
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

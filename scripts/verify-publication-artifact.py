@@ -67,8 +67,10 @@ feedback_unchanged=sha((site/'assets/js/article-feedback.js').read_bytes())==bef
 if not feedback_unchanged:errors.append('Published feedback script changed')
 for folder in ['.github','candidate','review','headers','regeneration-fixture-v2','publication-fixture']:
  if (site/folder).exists():errors.append('Internal build directory published: '+folder)
-report={'status':'failed' if errors else 'passed','textFilesCompared':len(before['files']),'allowedChanges':'existing image URL mapping only','mappedImages':len(mapping),'preservedImageCollisions':before['collisions'],'newMissingResources':len(new_missing),'existingMissingResources':before['existingMissingResources'],'servicePreservation':'byte-identical before optimization; image URL mapping only after optimization','feedbackScriptUnchanged':feedback_unchanged,'errors':errors,'sourceFallbackUsed':False}
+manifest_path=site/'site-build-manifest.json';manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
+service_preservation='approved header/footer applied; all other source bytes preserved before optimization; image URL mapping only after optimization' if 'services/gxworks2-online-support.html' in manifest.get('additionalShellPages',[]) else 'byte-identical before optimization; image URL mapping only after optimization'
+report={'status':'failed' if errors else 'passed','textFilesCompared':len(before['files']),'allowedChanges':'existing image URL mapping only','mappedImages':len(mapping),'preservedImageCollisions':before['collisions'],'newMissingResources':len(new_missing),'existingMissingResources':before['existingMissingResources'],'servicePreservation':service_preservation,'feedbackScriptUnchanged':feedback_unchanged,'errors':errors,'sourceFallbackUsed':False}
 (build/'publication-final-checks.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False));
 if errors:sys.exit(1)
-manifest_path=site/'site-build-manifest.json';manifest=json.loads(manifest_path.read_text(encoding='utf-8'));manifest['finalArtifactChecks']={k:v for k,v in report.items() if k not in ('existingMissingResources','errors')};manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+manifest['finalArtifactChecks']={k:v for k,v in report.items() if k not in ('existingMissingResources','errors')};manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')

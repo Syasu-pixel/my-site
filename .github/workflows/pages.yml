@@ -13,6 +13,7 @@ on:
       - 'scripts/*integrat*'
       - 'scripts/*article*'
       - 'scripts/*site-shell*'
+      - 'scripts/*additional-shell*'
       - 'articles/*.html'
       - 'en/articles/*.html'
       - 'services/gxworks2-online-support.html'
@@ -59,6 +60,7 @@ jobs:
         run: |
           python -m pip install lxml==6.1.1
           node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
           python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
           python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
           python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
@@ -206,6 +208,7 @@ jobs:
             ${{ runner.temp }}/integration-build/publication-final-checks.json
             ${{ runner.temp }}/integration-build/published-image-mapping.json
             ${{ runner.temp }}/integration-build/image-collision-plan.json
+            ${{ runner.temp }}/integration-build/additional-shells/preservation.json
           retention-days: 30
 
       - name: Upload artifact

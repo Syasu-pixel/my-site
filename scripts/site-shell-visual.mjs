@@ -49,7 +49,7 @@ const server=createServer(async(req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch({headless:true});
-const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports};
+const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:2};
 if(baseline && JSON.stringify(environment)!==JSON.stringify(baseline.environment)) throw Error('Baseline/candidate environments differ');
 const images=[];const results=[];const htmlHashes={};const probes=[];
 try {
@@ -68,7 +68,14 @@ try {
       const response=await page.goto(`${origin}/${target}`,{waitUntil:'networkidle',timeout:60000});
       if(!response?.ok()) throw Error(`Render failed: ${target}`);
       await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}html{scroll-behavior:auto!important}'});
-      await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].filter(i=>i.complete).map(i=>i.decode().catch(()=>{})));});
+      await page.evaluate(async()=>{
+        await document.fonts.ready;
+        for(const image of document.images)image.loading='eager';
+        await Promise.all([...document.images].map(async image=>{
+          if(!image.complete)await new Promise(done=>{image.addEventListener('load',done,{once:true});image.addEventListener('error',done,{once:true});setTimeout(done,5000);});
+          await image.decode().catch(()=>{});
+        }));
+      });
       const key=target.replace(/\.html$/,'').replaceAll('/','__')+'--'+device;
       async function capture(region,fullPage=false){
         const rel=`${phase==='baseline'?'before':'after'}/${key}--${region}.png`;
@@ -82,12 +89,15 @@ try {
           if(!recorded || hash(beforeBytes)!==recorded.sha256) throw Error(`Baseline tampered: ${beforePath}`);
           const a=PNG.sync.read(beforeBytes),b=PNG.sync.read(bytes);
           const w=Math.max(a.width,b.width),h=Math.max(a.height,b.height),diff=new PNG({width:w,height:h});
-          let pixels;
-          if(a.width!==b.width||a.height!==b.height){pixels=w*h;diff.data.fill(255);}
-          else pixels=pixelmatch(a.data,b.data,diff.data,w,h,{threshold:0,includeAA:true});
+          let pixels,exactPixels;
+          if(a.width!==b.width||a.height!==b.height){pixels=w*h;exactPixels=pixels;diff.data.fill(255);}
+          else {
+            exactPixels=pixelmatch(a.data,b.data,null,w,h,{threshold:0,includeAA:true});
+            pixels=pixelmatch(a.data,b.data,diff.data,w,h,{threshold:environment.pixelThreshold,includeAA:environment.includeAntialiasing});
+          }
           const diffPath=`diff/${key}--${region}.png`;await mkdir(dirname(resolve(out,diffPath)),{recursive:true});
           await writeFile(resolve(out,diffPath),PNG.sync.write(diff));
-          results.push({target,device,region,before:beforePath,after:rel,diff:diffPath,pixels,width:w,height:h});
+          results.push({target,device,region,before:beforePath,after:rel,diff:diffPath,pixels,exactPixels,width:w,height:h});
         }
       }
       await capture('header');

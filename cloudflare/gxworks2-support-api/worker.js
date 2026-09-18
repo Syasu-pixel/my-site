@@ -480,7 +480,7 @@ async function submitGeneralConsultation(request, env, origin) {
     return json({ ok: false, error: 'Required fields are missing or invalid' }, 400, origin);
   }
 
-  const caseNumber = createGeneralCaseNumber();
+  const caseNumber = await createGeneralCaseNumber(requestKey);
   const acceptedAt = new Date().toISOString();
 
   const adminPayload = {
@@ -490,7 +490,6 @@ async function submitGeneralConsultation(request, env, origin) {
     text: [
       'denkicontrol.com からオンライン相談を受け付けました。', '',
       `相談番号: ${caseNumber}`,
-      `受付日時: ${acceptedAt}`,
       `お名前: ${data.name}`,
       `会社名: ${data.company || '未入力'}`,
       `返信先: ${data.email}`,
@@ -536,15 +535,18 @@ async function submitGeneralConsultation(request, env, origin) {
   }, 200, origin);
 }
 
-function createGeneralCaseNumber() {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-  const bytes = new Uint8Array(4);
-  crypto.getRandomValues(bytes);
-  const suffix = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-  return `WEB-${values.year}${values.month}${values.day}-${suffix}`;
+async function createGeneralCaseNumber(requestKey) {
+  const keyDate = /^web_(\d{8})_/.exec(requestKey)?.[1] || '';
+  let date = keyDate;
+  if (!date) {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    date = `${values.year}${values.month}${values.day}`;
+  }
+  const suffix = (await sha256Hex(requestKey)).slice(0, 8).toUpperCase();
+  return `WEB-${date}-${suffix}`;
 }
 
 async function encryptPassword(password, secret) {

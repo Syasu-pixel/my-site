@@ -1,6 +1,6 @@
 // Mutate isolated copies only. Prove exactly which pages a shared edit reaches.
 import {readFile,writeFile,mkdir,cp} from 'node:fs/promises';
-import {resolve,dirname} from 'node:path';
+import {resolve,dirname,basename} from 'node:path';
 import Eleventy from '@11ty/eleventy';
 import {root,renderShells} from './build-site-shells.mjs';
 const out=resolve(process.argv[2]||'../integration-build'),fixture=resolve(out,'regeneration-fixture-v2');
@@ -22,7 +22,7 @@ checks.push({component:'registered-footer-variant',template,expected:counts.get(
 const headerOriginal=resolve(root,'.github/site-shells/ui-proposal'),headerFixture=resolve(fixture,'header');await cp(headerOriginal,headerFixture,{recursive:true});
 const hp=resolve(headerFixture,'header.njk');await writeFile(hp,(await readFile(hp,'utf8')).replace('<header','<header'+marker));
 const proposals=JSON.parse(await readFile(resolve(out,'headers/proposal.json'),'utf8')).pages;
-async function render(input,dataName,data){const e=new Eleventy(input,resolve(fixture,'.unused-render'),{configPath:false,quietMode:true,config:c=>{c.addGlobalData(dataName,data);c.setNunjucksEnvironmentOptions({throwOnUndefined:true,autoescape:true});}});return e.toJSON();}
+async function render(input,dataName,data){const previous=process.cwd();try{process.chdir(dirname(input));const e=new Eleventy(basename(input),resolve(fixture,'.unused-render'),{configPath:false,quietMode:true,config:c=>{c.addGlobalData(dataName,data);c.setNunjucksEnvironmentOptions({throwOnUndefined:true,autoescape:true});}});return await e.toJSON();}finally{process.chdir(previous);}}
 const headerBase=await render(resolve(headerOriginal,'preview.njk'),'proposals',proposals),headerChanged=await render(resolve(headerFixture,'preview.njk'),'proposals',proposals);const hb=new Map(headerBase.map(x=>{const p=JSON.parse(x.content);return[p.output,p.header]}));
 for(const x of headerChanged){const p=JSON.parse(x.content);assert(p.header.includes(marker)&&p.header.replace(marker,'')===hb.get(p.output),'Header propagation changed wrong content');}
 assert(headerChanged.length===targets.length,'Header target count');checks.push({component:'shared-header',expected:targets.length,changed:headerChanged.length});

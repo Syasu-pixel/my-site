@@ -79,7 +79,6 @@
 | [docs/new-article-checklist-v2-migration.md](../new-article-checklist-v2-migration.md) — 新規記事チェックリスト v2 移行オーバーライド | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/new-article-checklist.md](../new-article-checklist.md) — 新規記事作成チェックリスト | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-projects/drilling-line/master-spec.md](../plc-projects/drilling-line/master-spec.md) — 穴あけ加工ライン設計プロジェクト — 設備構想・I/O正本 | PLC設備設計シリーズの穴あけ加工ラインについて、設備構想、I/O、シーケンス、記事間整合を確認・更新する。 |
 | [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |

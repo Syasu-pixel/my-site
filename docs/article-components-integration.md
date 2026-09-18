@@ -78,7 +78,9 @@ review出力を本番へコピーしない。元HTMLは未変更で、統合用�
 
 Pages workflowは共有shell整合性を検査し、同じbuild-integrated-review処理で候補を再生成、原本保全・リンク・独立オラクル検査を通す。scripts/prepare-integrated-publication.mjsがcandidateの288記事・専用サービス1件・生成CSS/JS6件だけを公開用コピーへ転記する。非記事21件の原文一致、評価JS不変、レビュー隔離/noindex/CSP混入拒否を検査する。scripts/check-integrated-publication.mjsは候補との全記事byte一致と、隔離版の誤入力・編集元上書きの拒否を確認する。
 
-その後の画像WebP変換・参照置換・900MiB上限・Pages配信は既存工程を維持する。site-build-manifest.jsonは生成元commitと画像最適化前のハッシュを示す。画像最適化後のHTMLハッシュと誤認しない。公開後は代表日英・設計シリーズ・工具・相談サービスと画像、検索、目次を確認し、本番投票やフォーム送信は試さない。
+その後の画像WebP変換・参照置換・900MiB上限・Pages配信は既存工程を維持する。ただし同名PNG/JPEGが同一WebPへ潰れる場合は双方の原画像を保持し、変換・置換・削除から除く。現在はcharging-tools/charging-mainのPNG/JPG一組。最適化前の全公開HTML/CSS/JS/JSON/XMLを記録し、最適化後は実際の画像マッピング以外の差分がないこと、公開コピー単独で新規資源欠落がないこと、原feedback.js不変を検査する。相談サービスも最適化前はbyte一致、最適化後は画像URL置換だけという保証範囲を明示する。
+
+site-build-manifest.jsonは生成元commit、画像最適化前のハッシュ、最終配信物の検査結果を示す。前段ハッシュを最適化後のHTMLハッシュと誤認しない。公開後は代表日英・設計シリーズ・工具・相談サービスと画像、検索、目次を確認し、本番投票やフォーム送信は試さない。
 
 記事URL、本文、更新日、search-index、sitemapは今回の構造移行では更新しない。現在のIndexNow workflowはルートHTML差分を対象にするため、この部品だけの変更は通知対象0件となる。既存URLの構造保守としてsitemap・内部リンク・自然クロールを使用し、Googleへの一括手動リクエストを行わない。通知済み・インデックス済みとは報告しない。
 

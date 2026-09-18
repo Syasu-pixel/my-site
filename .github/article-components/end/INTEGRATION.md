@@ -1,5 +1,7 @@
 # 関連記事カード・コンパクト版の採用記録
 
+以下は初版パッケージの採用・単独検査記録。現在の全記事統合と公開状態は [移行状態](../../../docs/site-template-migration-status.md)、組合せ検査は [統合手順](../../../docs/article-components-integration.md) を参照する。
+
 - 版: `related-cards-compact-v1`
 - 判断日: 2026-09-18
 - 状態: **採用済み／統合用部品準備済み／未統合・本番未反映**

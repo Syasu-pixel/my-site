@@ -9,7 +9,7 @@ await mkdir(fixture,{recursive:true});
 const marker=' data-regeneration-probe="review-only"';
 const assert=(ok,msg)=>{if(!ok)throw Error(msg)};const checks=[];
 // The existing footer variants deliberately reach only their registered pages.
-await cp(resolve(root,'.github/site-shells'),resolve(fixture,'.github/site-shells'),{recursive:true,filter:source=>!source.startsWith(resolve(root,'.github/site-shells/ui-proposal'))});
+await cp(resolve(root,'.github/site-shells'),resolve(fixture,'.github/site-shells'),{recursive:true,filter:source=>!['ui-proposal','additional'].some(dir=>source.startsWith(resolve(root,'.github/site-shells',dir)))});
 for(const path of targets){await mkdir(dirname(resolve(fixture,path)),{recursive:true});await cp(resolve(root,path),resolve(fixture,path));}
 const manifest=JSON.parse(await readFile(resolve(fixture,'.github/site-shells/manifest.json'),'utf8'));
 const counts=new Map();for(const p of manifest.pages)counts.set(p.footerTemplate,(counts.get(p.footerTemplate)||0)+1);

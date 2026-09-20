@@ -139,3 +139,13 @@
 - 非記事のヒーローは対象外。設計シリーズは専用本文を保持。英語relay-socket-basicの未閉鎖CSS、実機Safari・スクリーンリーダー・実送信の未検証は解消済みとはしない。
 - hero manifestのIMPLEMENTATION_PREVIEW_ONLY等は初期実装時の記録。現在の公開状態は本節と配信記録を参照する。前の未公開・未承認節は履歴。
 - 新規記事・内容更新は [実作業手順](article-editing-playbook.md) に従う。固定された初回件数・ソース指紋は、後日の正当な記事追加や更新時に差分を確認して更新する。
+
+
+## サイト共通ダークモードの採用（2026-09-20、公開承認済み）
+
+- 管理者から、サイト全体の記事背景の白さを軽減するダークモードと、共通メニュー内の分かりやすい切替を依頼。GitHubルール確認後、Draft PR #1532（`preview-dark-mode-sitewide-20260920`）で共通ヘッダー正本 `.github/site-shells/ui-proposal/` を編集し、記事HTML本文を個別修正しない方式で実装。
+- 初期表示は従来どおりライト。メニュー内に「ダークモード / Dark mode」スイッチを追加し、`localStorage` へ選択を保存。再読込・ページ遷移後も選択状態を保持する。記事画像は元の色を維持し、本文、カード、サイドバー、会話、表、コード、注意枠、関連記事、検索、連載カード等を共通暗色テーマで調整。
+- 追加4ページ共通枠の元ページ `sourceSha256` は既存採用値と一致し、今回変化したのは意図した共通ヘッダー/CSS/JSを重ねたcandidateのみ。candidateSha256を今回のPreview版へ更新し、追加4ページ×4幅の共有枠検査はPASS。
+- 最終Preview head `143370107a055b2ecc831b49629029d88ab2c845`。Rule catalog、AI Editorial Preview、Additional page shared shells、Header footer visual comparison は成功。統合記事レビューではprepareと6分割browser検査がすべて成功し、代表6記事×desktop/mobileではメニュー表示、ダーク切替、ARIA状態、再読込後の保持、ライト復帰、横はみ出しを確認。
+- 管理者へPC版ダーク表示とスマホ版メニュー内スイッチの画像を提示し、本人が「いいねさいよう」と明示。これはPR #1532のダークモードUIをmainへマージし、本番Pages反映まで進める公開承認として扱う。
+- 本文、SEO、記事画像、技術内容、更新日は変更対象外。本番公開完了はPRマージcommit、Pages成功、公開サイト反映確認後に追記する。

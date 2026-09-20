@@ -81,6 +81,7 @@
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/operation-spec-template.md](../plc-templates/operation-spec-template.md) — 設備運転仕様書（案）テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/popular-articles-maintenance.md](../popular-articles-maintenance.md) — 人気記事 週次更新ルール | 人気記事のランキング・週次更新を扱う。 |

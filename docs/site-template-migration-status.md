@@ -149,3 +149,12 @@
 - 最終Preview head `143370107a055b2ecc831b49629029d88ab2c845`。Rule catalog、AI Editorial Preview、Additional page shared shells、Header footer visual comparison は成功。統合記事レビューではprepareと6分割browser検査がすべて成功し、代表6記事×desktop/mobileではメニュー表示、ダーク切替、ARIA状態、再読込後の保持、ライト復帰、横はみ出しを確認。
 - 管理者へPC版ダーク表示とスマホ版メニュー内スイッチの画像を提示し、本人が「いいねさいよう」と明示。これはPR #1532のダークモードUIをmainへマージし、本番Pages反映まで進める公開承認として扱う。
 - 本文、SEO、記事画像、技術内容、更新日は変更対象外。本番公開完了はPRマージcommit、Pages成功、公開サイト反映確認後に追記する。
+
+
+## ダークモード採用後のコントラスト補修（2026-09-20）
+
+- PR #1532 の採用・main反映後、ready-for-review時のCodexレビューで、一部の既存白背景パネル（トップの `.feature-main`、記事の `.icon-point` 等）が共通の白見出し指定に対して暗色化されず、白文字／薄い補助文が白背景に残る可能性をP1として検出。
+- 採用済みダークモードを取り消さず、hotfix PR #1534（`hotfix-dark-mode-contrast-20260920`）で共通CSSだけを補修。トップのfeature系、icon-point / point-boxと同系統の保持パネルを暗色化し、orange / greenアクセントを暗色テーマ向けに保持する。本文・SEO・記事画像・技術内容は変更しない。
+- 再発防止として、追加4ページのブラウザ検査にトップのfeature系パネルが暗色であることを追加し、記事側は `control-panel-wire-color-basic.html` を代表画面比較へ追加。ダーク時にicon-point等の対象パネルが明るい背景を保持していないことを自動検査する。
+- 追加4ページは元のsourceSha256が既存採用値と一致し、hotfixで変化したのは共通CSSを重ねたcandidateのみ。候補ハッシュをhotfix版へ更新して正式CIで再検証する。
+- この補修は2026-09-20に管理者が「いいねさいよう」としたダークモードの意図（眩しさ軽減・読みやすさ）を満たすための不具合修正であり、機能・配置・公開範囲を拡張しない。

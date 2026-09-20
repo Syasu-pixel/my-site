@@ -46,6 +46,8 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  if(await theme.getAttribute('role')!=='switch'||await theme.getAttribute('aria-checked')!=='false')throw Error('Theme switch initial state');
  await theme.click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
  if(await theme.getAttribute('aria-checked')!=='true')throw Error('Dark theme state not announced');
+ const lightPanelFailures=await page.locator('.icon-point,.point-box,.flow-card,.article-row,.recent-item,.ladder-box,.topic-block,.topic-links,.hint,.info,.notice,.caution,.skill,.gate,.stat,.store,.policy-side,.internal-link,.shelf-row,.bubble').evaluateAll(es=>es.filter(e=>{const c=getComputedStyle(e).backgroundColor.match(/\\d+/g);return c&&c.length>=3&&((+c[0])+(+c[1])+(+c[2]))/3>150}).map(e=>e.className));
+ if(lightPanelFailures.length)throw Error('Dark theme retained light panels: '+lightPanelFailures.join(', '));
  await shoot('dark-menu');await page.keyboard.press('Escape');await shoot('dark-page');
  await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
  await page.locator('#dc-menu-toggle').click();if(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')!=='true')throw Error('Dark theme not persisted');

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>案件管理｜電気と制御の実務メモ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;color:#172033;background:#eef3f8;--line:#d9e3ef;--muted:#64748b;--blue:#2563eb;--navy:#172033}
+    *{box-sizing:border-box}body{margin:0;background:#eef3f8}button,input,select,textarea{font:inherit}.shell{min-height:100vh;display:grid;grid-template-columns:230px minmax(0,1fr)}
+    .side{background:#fff;border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;padding:8px}.brand img{width:42px}.brand strong{font-size:14px}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+    .nav{display:grid;gap:6px;margin-top:22px}.nav a,.nav span{padding:10px 12px;border-radius:10px;font-size:12px;font-weight:800;text-decoration:none;color:#475569}.nav a:hover{background:#f1f5f9}.nav a.active{background:#e8f0ff;color:#1d4ed8}.nav .disabled{color:#a8b2c0}.side-note{position:absolute;left:18px;right:18px;bottom:20px;font-size:10px;color:#94a3b8;line-height:1.6}
+    .main{min-width:0}.topbar{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;z-index:10}.topbar h1{font-size:17px;margin:0}.spacer{flex:1}.topbar button{border:1px solid #d8e1ec;background:#fff;border-radius:10px;padding:8px 11px;font-weight:800;font-size:11px;cursor:pointer}.topbar button:hover{background:#f8fafc}.user{font-size:11px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .content{width:min(1450px,100%);margin:0 auto;padding:24px}.intro{display:flex;justify-content:space-between;gap:16px;align-items:flex-end}.intro h2{margin:0 0 4px;font-size:25px}.intro p{margin:0;color:var(--muted);font-size:12px}.preview{display:none;margin:14px 0 0;border:1px solid #f6d485;background:#fff8e6;color:#8a5a00;padding:10px 12px;border-radius:12px;font-size:11px;font-weight:800}.preview.show{display:block}
+    .stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,.035)}.stat .label{font-size:10px;color:var(--muted);font-weight:900}.stat .value{font-size:26px;font-weight:950;margin-top:5px}.stat.received .value{color:#475569}.stat.estimating .value{color:#7c3aed}.stat.deposit .value{color:#c26a00}.stat.working .value{color:#0f7a5a}.stat.delivered .value{color:#0369a1}.stat.completed .value{color:#334155}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px}.toolbar input,.toolbar select{border:1px solid #d5deea;border-radius:10px;padding:9px 10px;background:#fff;font-size:12px}.toolbar input{min-width:260px;flex:1}.toolbar button{border:1px solid #cfd9e5;background:#fff;border-radius:10px;padding:9px 12px;font-weight:900;font-size:11px;cursor:pointer}.toolbar .primary{border-color:#2563eb;background:#2563eb;color:#fff}
+    .tabs{display:flex;gap:6px;margin-top:16px}.tab{border:0;background:transparent;padding:8px 12px;border-radius:999px;font-weight:900;font-size:11px;color:#64748b;cursor:pointer}.tab.active{background:#dfeaff;color:#1d4ed8}
+    .panel{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:1120px}th,td{padding:12px 13px;border-bottom:1px solid #edf1f6;text-align:left;font-size:11px;vertical-align:top}th{background:#f8fafc;color:#64748b;font-size:10px;position:sticky;top:0}.case-link{border:0;background:none;padding:0;color:#1d4ed8;font-weight:900;cursor:pointer;text-align:left}.sub{display:block;color:#94a3b8;font-size:10px;margin-top:2px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:900;background:#eef2f7;color:#475569}.status.estimating{background:#f3e8ff;color:#7e22ce}.status.estimate_sent{background:#e0f2fe;color:#0369a1}.status.deposit_wait{background:#fff1d6;color:#a65d00}.status.working{background:#dcfce7;color:#166534}.status.delivered{background:#dbeafe;color:#1d4ed8}.status.completed{background:#e2e8f0;color:#334155}.status.on_hold{background:#fef3c7;color:#92400e}.status.cancelled{background:#fee2e2;color:#991b1b}.empty{padding:32px;text-align:center;color:#94a3b8;font-size:12px}
+    .customers{display:none;padding:16px}.customers.active{display:block}.customer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.customer{border:1px solid #e2e8f0;border-radius:13px;padding:13px;background:#fbfdff}.customer strong{display:block;font-size:12px}.customer small{display:block;color:#64748b;margin-top:4px}.customer button{margin-top:9px;border:0;background:#e8f0ff;color:#1d4ed8;border-radius:9px;padding:7px 9px;font-weight:900;font-size:10px;cursor:pointer}
+    .drawer-bg{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:50;display:none}.drawer-bg.show{display:block}.drawer{position:fixed;top:0;right:0;width:min(760px,94vw);height:100vh;background:#f7f9fc;z-index:60;transform:translateX(100%);transition:transform .2s ease;overflow:auto;box-shadow:-16px 0 44px rgba(15,23,42,.18)}.drawer.show{transform:none}.drawer-head{position:sticky;top:0;z-index:2;background:#fff;border-bottom:1px solid var(--line);padding:16px 20px;display:flex;gap:12px;align-items:center}.drawer-head h2{margin:0;font-size:18px}.drawer-head .spacer{flex:1}.drawer-head button{border:1px solid #d5deea;background:#fff;border-radius:9px;padding:7px 10px;font-weight:900;cursor:pointer}.drawer-body{padding:18px;display:grid;gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}.card h3{margin:0 0 12px;font-size:13px}.meta-grid,.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.meta{font-size:11px}.meta label,.field label{display:block;font-size:9px;color:#64748b;font-weight:900;margin-bottom:4px}.meta strong{display:block;word-break:break-word}.field input,.field select,.field textarea{width:100%;border:1px solid #d5deea;border-radius:9px;padding:9px 10px;background:#fff;font-size:11px}.field textarea{min-height:88px;resize:vertical}.field.full{grid-column:1/-1}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{border:0;border-radius:10px;padding:10px 13px;font-weight:900;font-size:11px;cursor:pointer}.actions .save{background:#2563eb;color:#fff}.actions .deposit{background:#0f7a5a;color:#fff}.actions .ghost{background:#e2e8f0;color:#334155}.source-text{white-space:pre-wrap;font-size:11px;line-height:1.7;color:#334155}.events{display:grid;gap:7px}.event{border-left:3px solid #cbd5e1;padding:5px 8px;font-size:10px}.event strong{display:block}.event small{color:#64748b}
+    .toast{position:fixed;right:20px;bottom:20px;z-index:80;background:#172033;color:#fff;border-radius:12px;padding:11px 14px;font-size:11px;font-weight:800;display:none}.toast.show{display:block}
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}.customer-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.shell{grid-template-columns:1fr}.side{display:none}.content{padding:16px 10px}.topbar{padding:0 12px}.stats{grid-template-columns:repeat(2,1fr)}.customer-grid{grid-template-columns:1fr}.meta-grid,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.user{display:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <a class="brand" href="./"><img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ"><span><strong>運営ダッシュボード</strong><small>denkicontrol.com</small></span></a>
+      <nav class="nav" aria-label="管理メニュー">
+        <a href="./">概要・記事評価</a>
+        <a class="active" href="./cases.html">案件管理</a>
+        <span class="disabled">GSC分析（今後追加）</span>
+        <span class="disabled">記事管理（今後追加）</span>
+        <span class="disabled">サイト異常（今後追加）</span>
+        <span class="disabled">運営タスク（今後追加）</span>
+      </nav>
+      <p class="side-note">D1の案件記録を管理します。ZIP本体はここへ保存しません。</p>
+    </aside>
+    <div class="main">
+      <header class="topbar"><h1>案件管理</h1><div class="spacer"></div><span id="userEmail" class="user"></span><button id="refreshButton">更新</button><button id="logoutButton">ログアウト</button></header>
+      <main class="content">
+        <div class="intro"><div><h2>案件管理</h2><p>相談受付から見積・着手金・作業・納品・アフターフォローまでを引き継げる状態にします。</p></div><div id="updatedAt" class="sub">—</div></div>
+        <div id="previewNotice" class="preview">Preview用サンプルデータを表示しています。D1の管理APIはまだ本番へ反映していません。</div>
+        <section class="stats">
+          <div class="stat received"><div class="label">受付・対応待ち</div><div id="countReceived" class="value">0</div></div>
+          <div class="stat estimating"><div class="label">見積作成中</div><div id="countEstimating" class="value">0</div></div>
+          <div class="stat deposit"><div class="label">着手金待ち</div><div id="countDeposit" class="value">0</div></div>
+          <div class="stat working"><div class="label">作業中</div><div id="countWorking" class="value">0</div></div>
+          <div class="stat delivered"><div class="label">納品・フォロー</div><div id="countDelivered" class="value">0</div></div>
+          <div class="stat completed"><div class="label">完了</div><div id="countCompleted" class="value">0</div></div>
+        </section>
+        <div class="toolbar">
+          <input id="searchInput" type="search" placeholder="相談番号・会社名・担当者・案件内容を検索">
+          <select id="statusFilter">
+            <option value="">すべての状態</option><option value="received">受付済み</option><option value="estimating">見積作成中</option><option value="estimate_sent">見積提出済み</option><option value="deposit_wait">着手金待ち</option><option value="working">作業中</option><option value="delivered">納品済み</option><option value="completed">完了</option><option value="on_hold">保留</option><option value="cancelled">キャンセル</option>
+          </select>
+          <button id="csvButton">CSV出力</button>
+        </div>
+        <div class="tabs"><button class="tab active" data-tab="cases">案件一覧</button><button class="tab" data-tab="customers">顧客一覧</button></div>
+        <section id="casesPanel" class="panel"><div class="table-wrap"><table><thead><tr><th>相談番号</th><th>会社 / お名前</th><th>案件</th><th>状態</th><th>担当者</th><th>期限</th><th>次の対応</th><th>最終更新</th></tr></thead><tbody id="caseRows"></tbody></table></div></section>
+        <section id="customersPanel" class="panel customers"><div id="customerGrid" class="customer-grid"></div></section>
+      </main>
+    </div>
+  </div>
+
+  <div id="drawerBg" class="drawer-bg"></div>
+  <aside id="drawer" class="drawer" aria-label="案件詳細">
+    <div class="drawer-head"><div><div id="drawerCaseNumber" class="sub">—</div><h2 id="drawerTitle">案件詳細</h2></div><div class="spacer"></div><button id="closeDrawer">閉じる</button></div>
+    <div class="drawer-body">
+      <section class="card"><h3>基本情報</h3><div id="caseMeta" class="meta-grid"></div><div id="sourceText" class="source-text"></div></section>
+      <section class="card"><h3>進行・引き継ぎ</h3><div class="form-grid">
+        <div class="field"><label>状態</label><select id="editStatus"><option value="received">受付済み</option><option value="estimating">見積作成中</option><option value="estimate_sent">見積提出済み</option><option value="deposit_wait">着手金待ち</option><option value="working">作業中</option><option value="delivered">納品済み</option><option value="completed">完了</option><option value="on_hold">保留</option><option value="cancelled">キャンセル</option></select></div>
+        <div class="field"><label>担当者</label><input id="editAssignee" placeholder="担当者名"></div>
+        <div class="field"><label>期限</label><input id="editDueDate" type="date"></div>
+        <div class="field full"><label>次の対応</label><textarea id="editNextAction" placeholder="例：見積書を作成して9/25までに送付"></textarea></div>
+        <div class="field full"><label>引き継ぎメモ</label><textarea id="editHandoff" placeholder="他の担当者が見ても継続できる情報を残します"></textarea></div>
+      </div></section>
+      <section class="card"><h3>見積・支払い</h3><div class="form-grid">
+        <div class="field"><label>見積総額（税込）</label><input id="editTotal" type="number" min="0" step="1"></div>
+        <div class="field"><label>着手金（税込）</label><input id="editDeposit" type="number" min="0" step="1"></div>
+        <div class="field"><label>残金（税込）</label><input id="editBalance" type="number" min="0" step="1"></div>
+        <div class="field"><label>入金確認</label><input id="depositConfirmed" readonly></div>
+      </div><div class="actions" style="margin-top:12px"><button id="depositButton" class="deposit">着手金入金確認</button></div></section>
+      <section class="card"><h3>納品・アフターフォロー</h3><div class="form-grid">
+        <div class="field"><label>納品日</label><input id="editDelivered" type="date"></div>
+        <div class="field"><label>フォロー予定日</label><input id="followupDue" readonly></div>
+        <div class="field"><label>フォロー状態</label><select id="editFollowupStatus"><option value="not_scheduled">未設定</option><option value="scheduled">予定</option><option value="sent">送信済み</option><option value="replied">返信あり</option><option value="closed">完了</option><option value="cancelled">取消</option></select></div>
+        <div class="field"><label>送信日</label><input id="editFollowupSent" type="date"></div>
+        <div class="field full"><label>結果・お客様の反応</label><textarea id="editFollowupResult"></textarea></div>
+        <div class="field full"><label>追加要望</label><textarea id="editRequests"></textarea></div>
+      </div></section>
+      <div class="actions"><button id="saveButton" class="save">変更を保存</button><button id="reloadDetail" class="ghost">再読み込み</button></div>
+      <section class="card"><h3>更新履歴</h3><div id="eventList" class="events"></div></section>
+    </div>
+  </aside>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const SUPABASE_URL='https://pavitnsnmoaiospswiys.supabase.co';
+    const SUPABASE_KEY='sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+    const API='https://gxworks2-support-api.syasuta0819.workers.dev';
+    const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    const statusNames={received:'受付済み',estimating:'見積作成中',estimate_sent:'見積提出済み',deposit_wait:'着手金待ち',working:'作業中',delivered:'納品済み',completed:'完了',on_hold:'保留',cancelled:'キャンセル'};
+    let cases=[], current=null, session=null, usingDemo=false;
+    const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    const fmt=v=>v?new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(v)):'—';
+    const yen=v=>v===null||v===undefined||v===''?'—':new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(Number(v));
+    const dateValue=v=>v?String(v).slice(0,10):'';
+
+    function toast(message){const t=document.getElementById('toast');t.textContent=message;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+    async function api(path,options={}){
+      if(!session?.access_token) throw new Error('NO_SESSION');
+      const res=await fetch(API+path,{...options,headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,...(options.headers||{})}});
+      const data=await res.json().catch(()=>({}));
+      if(res.status===401){await sb.auth.signOut();location.replace('./login.html?unauthorized=1');throw new Error('UNAUTHORIZED')}
+      if(!res.ok||!data.ok){const err=new Error(data.error||('HTTP '+res.status));err.status=res.status;throw err}
+      return data;
+    }
+    function demoCases(){
+      const now=new Date().toISOString();
+      return [
+        {case_number:'WEB-20260920-DEMO0001',source:'general',accepted_at:now,customer_name:'山田 太郎',customer_email:'yamada@example.jp',company:'山田製作所',category:'技術相談',subject:'制御盤改造の相談',summary:'既設設備の改造について相談したい。',status:'estimating',assignee:'中村',due_date:'2026-09-25',next_action:'見積書を作成して送付',estimate_total:88000,deposit_amount:30000,balance_amount:58000,followup_status:'not_scheduled',created_at:now,updated_at:now,updated_by:'preview'},
+        {case_number:'GXW-20260920-DEMO0002',source:'gxworks2',accepted_at:now,customer_name:'佐藤 花子',customer_email:'sato@example.jp',company:'佐藤工業',category:'GX Works2',subject:'GX Works2 / FX3U',summary:'ラダー変更相談',status:'deposit_wait',assignee:'中村',due_date:'2026-09-27',next_action:'着手金の入金確認',estimate_total:132000,deposit_amount:50000,balance_amount:82000,followup_status:'not_scheduled',created_at:now,updated_at:now,updated_by:'preview'},
+        {case_number:'WEB-20260918-DEMO0003',source:'general',accepted_at:now,customer_name:'鈴木 一郎',customer_email:'suzuki@example.jp',company:'鈴木電機',category:'技術相談',subject:'PLC更新相談',summary:'PLC更新の相談',status:'working',assignee:'中村',due_date:'2026-09-29',next_action:'変更データ作成',estimate_total:110000,deposit_amount:40000,balance_amount:70000,deposit_confirmed_at:now,followup_status:'not_scheduled',created_at:now,updated_at:now,updated_by:'preview'}
+      ];
+    }
+    async function loadCases(){
+      const {data}=await sb.auth.getSession();session=data?.session;
+      if(!session){location.replace('./login.html');return}
+      document.getElementById('userEmail').textContent=session.user?.email||'管理者';
+      usingDemo=false;
+      try{cases=(await api('/admin/cases')).cases||[]}
+      catch(error){
+        if(location.hostname.endsWith('.denkicontrol-preview.pages.dev')&&(error.status===404||error.status>=500||!error.status)){cases=demoCases();usingDemo=true;document.getElementById('previewNotice').classList.add('show')}
+        else throw error;
+      }
+      renderAll();
+    }
+    function filtered(){
+      const q=document.getElementById('searchInput').value.trim().toLowerCase(),st=document.getElementById('statusFilter').value;
+      return cases.filter(c=>(!st||c.status===st)&&(!q||[c.case_number,c.company,c.customer_name,c.customer_email,c.subject,c.summary,c.assignee,c.next_action].some(v=>String(v||'').toLowerCase().includes(q))));
+    }
+    function renderAll(){renderStats();renderRows();renderCustomers();document.getElementById('updatedAt').textContent='更新：'+fmt(new Date())}
+    function renderStats(){
+      const count=s=>cases.filter(c=>s.includes(c.status)).length;
+      document.getElementById('countReceived').textContent=count(['received']);
+      document.getElementById('countEstimating').textContent=count(['estimating','estimate_sent']);
+      document.getElementById('countDeposit').textContent=count(['deposit_wait']);
+      document.getElementById('countWorking').textContent=count(['working']);
+      document.getElementById('countDelivered').textContent=count(['delivered']);
+      document.getElementById('countCompleted').textContent=count(['completed']);
+    }
+    function renderRows(){
+      const rows=document.getElementById('caseRows'),list=filtered();
+      if(!list.length){rows.innerHTML='<tr><td colspan="8" class="empty">該当する案件はありません。</td></tr>';return}
+      rows.innerHTML=list.map(c=>'<tr><td><button class="case-link" data-case="'+esc(c.case_number)+'">'+esc(c.case_number)+'</button><span class="sub">'+esc(c.source==='gxworks2'?'GX Works2':'オンライン相談')+'</span></td><td><strong>'+esc(c.company||c.customer_name||'—')+'</strong><span class="sub">'+esc(c.customer_name||'')+'</span></td><td>'+esc(c.category||'')+'<span class="sub">'+esc(c.subject||c.summary||'')+'</span></td><td><span class="status '+esc(c.status)+'">'+esc(statusNames[c.status]||c.status)+'</span></td><td>'+esc(c.assignee||'未割当')+'</td><td>'+esc(c.due_date||'—')+'</td><td>'+esc(c.next_action||'—')+'</td><td>'+esc(fmt(c.updated_at))+'</td></tr>').join('');
+      rows.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',()=>openCase(b.dataset.case)));
+    }
+    function renderCustomers(){
+      const map=new Map();
+      cases.forEach(c=>{const key=(c.company||c.customer_email||c.customer_name||'未登録').trim();const v=map.get(key)||{name:key,count:0,last:null,cases:[]};v.count++;v.cases.push(c);if(!v.last||new Date(c.updated_at)>new Date(v.last))v.last=c.updated_at;map.set(key,v)});
+      const list=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'ja',{numeric:true,sensitivity:'base'}));
+      document.getElementById('customerGrid').innerHTML=list.length?list.map(v=>'<div class="customer"><strong>'+esc(v.name)+'</strong><small>案件 '+v.count+'件 / 最終更新 '+esc(fmt(v.last))+'</small><button data-customer="'+esc(v.name)+'">この顧客の案件を見る</button></div>').join(''):'<div class="empty">顧客履歴はまだありません。</div>';
+      document.querySelectorAll('[data-customer]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('searchInput').value=b.dataset.customer;switchTab('cases');renderRows()}));
+    }
+    async function openCase(caseNumber){
+      let detail;
+      if(usingDemo){const c=cases.find(x=>x.case_number===caseNumber);detail={case:c,source:null,events:[{event_type:'preview',detail:'Preview用サンプル',actor:'system',created_at:new Date().toISOString()}]}}
+      else detail=await api('/admin/cases/'+encodeURIComponent(caseNumber));
+      current=detail.case;
+      document.getElementById('drawerCaseNumber').textContent=current.case_number;
+      document.getElementById('drawerTitle').textContent=current.company||current.customer_name||'案件詳細';
+      document.getElementById('caseMeta').innerHTML='<div class="meta"><label>お名前</label><strong>'+esc(current.customer_name||'—')+'</strong></div><div class="meta"><label>会社</label><strong>'+esc(current.company||'—')+'</strong></div><div class="meta"><label>メール</label><strong>'+esc(current.customer_email||'—')+'</strong></div><div class="meta"><label>種別</label><strong>'+esc(current.category||'—')+'</strong></div><div class="meta"><label>受付日時</label><strong>'+esc(fmt(current.accepted_at))+'</strong></div><div class="meta"><label>最終更新者</label><strong>'+esc(current.updated_by||'—')+'</strong></div>';
+      const source=detail.source;document.getElementById('sourceText').textContent=source?(source.problem||'')+(source.desired?'\n\n希望：'+source.desired:''):(current.summary||'');
+      document.getElementById('editStatus').value=current.status||'received';document.getElementById('editAssignee').value=current.assignee||'';document.getElementById('editDueDate').value=dateValue(current.due_date);document.getElementById('editNextAction').value=current.next_action||'';document.getElementById('editHandoff').value=current.handoff_note||'';document.getElementById('editTotal').value=current.estimate_total??'';document.getElementById('editDeposit').value=current.deposit_amount??'';document.getElementById('editBalance').value=current.balance_amount??'';document.getElementById('depositConfirmed').value=current.deposit_confirmed_at?fmt(current.deposit_confirmed_at):'未確認';document.getElementById('editDelivered').value=dateValue(current.delivered_at);document.getElementById('followupDue').value=current.followup_due_at||'';document.getElementById('editFollowupStatus').value=current.followup_status||'not_scheduled';document.getElementById('editFollowupSent').value=dateValue(current.followup_sent_at);document.getElementById('editFollowupResult').value=current.followup_result||'';document.getElementById('editRequests').value=current.customer_requests||'';
+      const ev=detail.events||[];document.getElementById('eventList').innerHTML=ev.length?ev.map(e=>'<div class="event"><strong>'+esc(e.event_type)+' '+(e.from_status||e.to_status?'('+esc(statusNames[e.from_status]||e.from_status||'')+' → '+esc(statusNames[e.to_status]||e.to_status||'')+')':'')+'</strong><div>'+esc(e.detail||'')+'</div><small>'+esc(fmt(e.created_at))+' / '+esc(e.actor||'system')+'</small></div>').join(''):'<div class="empty">履歴はまだありません。</div>';
+      document.getElementById('drawer').classList.add('show');document.getElementById('drawerBg').classList.add('show');
+    }
+    function closeDrawer(){document.getElementById('drawer').classList.remove('show');document.getElementById('drawerBg').classList.remove('show')}
+    function switchTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.getElementById('casesPanel').style.display=name==='cases'?'block':'none';document.getElementById('customersPanel').classList.toggle('active',name==='customers')}
+    async function saveCase(){
+      if(!current)return;
+      const payload={status:document.getElementById('editStatus').value,assignee:document.getElementById('editAssignee').value,due_date:document.getElementById('editDueDate').value,next_action:document.getElementById('editNextAction').value,handoff_note:document.getElementById('editHandoff').value,estimate_total:document.getElementById('editTotal').value,deposit_amount:document.getElementById('editDeposit').value,balance_amount:document.getElementById('editBalance').value,delivered_at:document.getElementById('editDelivered').value,followup_status:document.getElementById('editFollowupStatus').value,followup_sent_at:document.getElementById('editFollowupSent').value,followup_result:document.getElementById('editFollowupResult').value,customer_requests:document.getElementById('editRequests').value};
+      if(usingDemo){Object.assign(current,payload,{updated_at:new Date().toISOString(),updated_by:'preview'});toast('Previewサンプルを更新しました');renderAll();return}
+      await api('/admin/cases/'+encodeURIComponent(current.case_number),{method:'PATCH',body:JSON.stringify(payload)});toast('保存しました');await loadCases();await openCase(current.case_number);
+    }
+    async function confirmDeposit(){
+      if(!current||current.deposit_confirmed_at)return;
+      if(!confirm('銀行口座で着手金の入金を確認しましたか？'))return;
+      if(usingDemo){current.deposit_confirmed_at=new Date().toISOString();if(current.status==='deposit_wait')current.status='working';toast('Previewサンプル：入金確認');renderAll();await openCase(current.case_number);return}
+      await api('/admin/cases/'+encodeURIComponent(current.case_number)+'/deposit-confirm',{method:'POST',body:'{}'});toast('着手金の入金確認を記録しました');await loadCases();await openCase(current.case_number);
+    }
+    function exportCsv(){
+      const cols=['case_number','company','customer_name','category','status','assignee','due_date','next_action','estimate_total','deposit_amount','balance_amount','deposit_confirmed_at','delivered_at','followup_due_at','followup_status','updated_at'];
+      const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const csv=[cols.join(',')].concat(filtered().map(c=>cols.map(k=>quote(c[k])).join(','))).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='denkicontrol-cases-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+    }
+    document.getElementById('searchInput').addEventListener('input',renderRows);document.getElementById('statusFilter').addEventListener('change',renderRows);document.getElementById('csvButton').addEventListener('click',exportCsv);document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));document.getElementById('closeDrawer').addEventListener('click',closeDrawer);document.getElementById('drawerBg').addEventListener('click',closeDrawer);document.getElementById('saveButton').addEventListener('click',()=>saveCase().catch(e=>{console.error(e);toast('保存できませんでした')}));document.getElementById('depositButton').addEventListener('click',()=>confirmDeposit().catch(e=>{console.error(e);toast('入金確認を記録できませんでした')}));document.getElementById('reloadDetail').addEventListener('click',()=>current&&openCase(current.case_number));document.getElementById('refreshButton').addEventListener('click',()=>loadCases().catch(e=>{console.error(e);toast('読み込みに失敗しました')}));document.getElementById('logoutButton').addEventListener('click',async()=>{await sb.auth.signOut();location.replace('./login.html')});
+    loadCases().catch(error=>{console.error('[case management]',error);document.getElementById('caseRows').innerHTML='<tr><td colspan="8" class="empty">案件データを取得できませんでした。</td></tr>'});
+  </script>
+</body>
+</html>

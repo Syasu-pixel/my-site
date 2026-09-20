@@ -16,7 +16,8 @@ const additionalProof=JSON.parse(await readFile(resolve(additionalBuild,'preserv
 const assert=(ok,message)=>{if(!ok)throw Error(message)};
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const pending=[];
-assert(additionalPaths.length===4&&new Set(additionalPaths).size===4&&additionalPaths.every(p=>['index.html','en/index.html',service,'categories/career.html'].includes(p)),'Unexpected additional shell scope');
+const allowedAdditional=['index.html','en/index.html',service,'categories/career.html','categories/air-pneumatic.html','categories/circuit-basics.html','categories/comparison-guide.html','categories/control-basics.html','categories/tools-guide.html','en/categories/circuit-basics.html','en/categories/control-basics.html'];
+assert(additionalPaths.length===allowedAdditional.length&&new Set(additionalPaths).size===allowedAdditional.length&&additionalPaths.every(p=>allowedAdditional.includes(p)),'Unexpected additional shell scope');
 for(const path of [...targets,...additionalPaths,...assets]){
   assert(additionalPaths.includes(path)||/^(?:(?:en\/)?articles\/[a-z0-9-]+\.html|assets\/(?:css|js)\/[a-z0-9.-]+)$/.test(path),'Unexpected publication path');
   const sourceFolder=additionalPaths.includes(path)?resolve(additionalBuild,'candidate'):candidate;

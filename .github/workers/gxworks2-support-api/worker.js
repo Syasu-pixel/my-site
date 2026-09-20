@@ -28,6 +28,11 @@ export default {
       return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
     }
 
+    if (request.method === 'GET' && url.pathname === '/general-consultations/config') {
+      if (!env.TURNSTILE_SITE_KEY) return json({ ok: false, error: 'Turnstile is not configured' }, 503, origin);
+      return json({ ok: true, turnstileSiteKey: env.TURNSTILE_SITE_KEY }, 200, origin);
+    }
+
     if (request.method === 'POST' && url.pathname === '/consultations') {
       return createConsultation(request, env, origin);
     }
@@ -453,8 +458,8 @@ async function submitConsultationPassword(request, env, origin) {
 
 
 async function submitGeneralConsultation(request, env, origin) {
-  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL) {
-    return json({ ok: false, error: 'Mail service configuration is incomplete' }, 500, origin);
+  if (!env.RESEND_API_KEY || !env.NOTIFY_TO_EMAIL || !env.TURNSTILE_SECRET_KEY || !env.DB) {
+    return json({ ok: false, error: 'General consultation configuration is incomplete' }, 500, origin);
   }
 
   let body;
@@ -462,13 +467,15 @@ async function submitGeneralConsultation(request, env, origin) {
   catch { return json({ ok: false, error: 'Invalid JSON' }, 400, origin); }
 
   const requestKey = clean(body.requestKey, 80);
+  const rawMessage = typeof body.message === 'string' ? body.message.trim() : '';
+  const turnstileToken = typeof body.turnstileToken === 'string' ? body.turnstileToken.trim() : '';
   const data = {
     name: clean(body.name, 100),
     email: clean(body.email, 254),
     company: clean(body.company, 160),
     category: clean(body.category, 80),
     relatedUrl: clean(body.relatedUrl, 500),
-    message: clean(body.message, 8000),
+    message: rawMessage,
     replyWanted: body.replyWanted !== false,
     privacyAccepted: body.privacyAccepted === true,
   };
@@ -478,6 +485,26 @@ async function submitGeneralConsultation(request, env, origin) {
   }
   if (!data.name || !isValidEmail(data.email) || !data.category || !data.message || !data.privacyAccepted) {
     return json({ ok: false, error: 'Required fields are missing or invalid' }, 400, origin);
+  }
+  if (data.message.length > 8000) {
+    return json({ ok: false, error: 'Message is too long' }, 400, origin);
+  }
+  if (!turnstileToken || turnstileToken.length > 2048) {
+    return json({ ok: false, error: 'Human verification is required' }, 403, origin);
+  }
+
+  const remoteIp = clean(request.headers.get('CF-Connecting-IP') || '', 80);
+  const verification = await verifyTurnstile(turnstileToken, remoteIp, env.TURNSTILE_SECRET_KEY);
+  if (!verification.success || verification.action !== 'general_consultation' || !isAllowedTurnstileHostname(verification.hostname || '')) {
+    return json({ ok: false, error: 'Human verification failed' }, 403, origin);
+  }
+
+  try {
+    const allowed = await consumeGeneralConsultationRateLimit(env.DB, remoteIp, data.email);
+    if (!allowed) return json({ ok: false, error: 'Too many consultation requests. Please try again later.' }, 429, origin);
+  } catch (error) {
+    console.error('General consultation rate limit failed', error);
+    return json({ ok: false, error: 'Rate limit service unavailable' }, 503, origin);
   }
 
   const caseNumber = await createGeneralCaseNumber(requestKey);
@@ -526,13 +553,82 @@ async function submitGeneralConsultation(request, env, origin) {
   };
 
   const customerResult = await sendEmail(env, customerPayload, `${requestKey}-customer`);
+  if (!customerResult.ok) {
+    return json({
+      ok: false,
+      recoverable: true,
+      caseNumber,
+      acceptedAt,
+      ownerSent: true,
+      confirmationSent: false,
+      error: 'Consultation was received, but confirmation email failed',
+    }, 502, origin);
+  }
+
   return json({
     ok: true,
     caseNumber,
     acceptedAt,
     ownerSent: true,
-    confirmationSent: customerResult.ok,
+    confirmationSent: true,
   }, 200, origin);
+}
+
+async function verifyTurnstile(token, remoteIp, secret) {
+  try {
+    const body = { secret, response: token };
+    if (remoteIp) body.remoteip = remoteIp;
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) return { success: false };
+    return await response.json();
+  } catch (error) {
+    console.error('Turnstile verification failed', error);
+    return { success: false };
+  }
+}
+
+function isAllowedTurnstileHostname(hostname) {
+  if (hostname === 'denkicontrol.com' || hostname === 'www.denkicontrol.com') return true;
+  return hostname === 'denkicontrol-preview.pages.dev' || hostname.endsWith('.denkicontrol-preview.pages.dev');
+}
+
+async function consumeGeneralConsultationRateLimit(db, remoteIp, email) {
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS general_consultation_rate_limits (
+      bucket TEXT PRIMARY KEY,
+      window_start INTEGER NOT NULL,
+      count INTEGER NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `).run();
+
+  const buckets = [];
+  if (remoteIp) buckets.push({ key: 'ip:' + await sha256Hex(remoteIp), limit: 6 });
+  buckets.push({ key: 'email:' + await sha256Hex(email.toLowerCase()), limit: 3 });
+
+  for (const bucket of buckets) {
+    await db.prepare(`
+      INSERT INTO general_consultation_rate_limits (bucket, window_start, count, updated_at)
+      VALUES (?1, ?2, 1, ?3)
+      ON CONFLICT(bucket) DO UPDATE SET
+        count=CASE WHEN ?2 - window_start >= ?4 THEN 1 ELSE count + 1 END,
+        window_start=CASE WHEN ?2 - window_start >= ?4 THEN ?2 ELSE window_start END,
+        updated_at=?3
+    `).bind(bucket.key, now, new Date(now).toISOString(), windowMs).run();
+    const row = await db.prepare('SELECT window_start, count FROM general_consultation_rate_limits WHERE bucket=?1 LIMIT 1').bind(bucket.key).first();
+    if (!row || row.count > bucket.limit) return false;
+  }
+
+  try {
+    await db.prepare('DELETE FROM general_consultation_rate_limits WHERE window_start < ?1').bind(now - 24 * 60 * 60 * 1000).run();
+  } catch {}
+  return true;
 }
 
 async function createGeneralCaseNumber(requestKey) {
@@ -855,7 +951,7 @@ function isAllowedOrigin(origin) {
 
 function corsHeaders(origin) {
   const headers = {
-    'Access-Control-Allow-Methods': 'POST, PUT, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-GXW-Idempotency-Key, X-GXW-File-Size',
     'Access-Control-Max-Age': '86400',
     'Cache-Control': 'no-store',

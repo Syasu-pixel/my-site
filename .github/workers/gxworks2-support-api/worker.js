@@ -965,7 +965,7 @@ async function handleAdminRequest(request, env, origin, url) {
     return json({ ok:true, cases:result.results || [] }, 200, origin);
   }
 
-  const detailMatch = /^\\/admin\\/cases\\/([^/]+)$/.exec(url.pathname);
+  const detailMatch = /^\/admin\/cases\/([^/]+)$/.exec(url.pathname);
   if (detailMatch && request.method === 'GET') {
     const caseNumber = decodeURIComponent(detailMatch[1]);
     const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
@@ -982,7 +982,7 @@ async function handleAdminRequest(request, env, origin, url) {
     return updateAdminCase(request, env.DB, decodeURIComponent(detailMatch[1]), admin, origin);
   }
 
-  const depositMatch = /^\\/admin\\/cases\\/([^/]+)\\/deposit-confirm$/.exec(url.pathname);
+  const depositMatch = /^\/admin\/cases\/([^/]+)\/deposit-confirm$/.exec(url.pathname);
   if (depositMatch && request.method === 'POST') {
     return confirmAdminCaseDeposit(env.DB, decodeURIComponent(depositMatch[1]), admin, origin);
   }
@@ -1142,7 +1142,7 @@ function isAllowedOrigin(origin) {
 
 function corsHeaders(origin) {
   const headers = {
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-GXW-Idempotency-Key, X-GXW-File-Size',
     'Access-Control-Max-Age': '86400',
     'Cache-Control': 'no-store',

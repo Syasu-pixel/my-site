@@ -17,7 +17,7 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.
 if(browser.version()!==base.environment.browser||process.platform!==base.environment.platform||process.version!==base.environment.node)throw Error('Proposal and baseline must share browser/OS/Node');
 const records=[];
 try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.environment.viewports)){
- const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:p.lang==='en'?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce'});
+ const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:p.lang==='en'?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',colorScheme:'light'});
  await context.route('**/*',r=>r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:')?r.continue():r.abort());
  const page=await context.newPage();await page.addInitScript(()=>{const Original=Date;globalThis.Date=class extends Original{constructor(...a){super(...(a.length?a:['2026-09-18T00:00:00Z']));}static now(){return 1789689600000;}};});
  await page.goto(`${origin}/${p.output}`,{waitUntil:'networkidle'});
@@ -44,13 +44,27 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  if(await page.locator('.dc-contact').getAttribute('href')!==p.contactUrl)throw Error('Incorrect contact');
  const theme=page.locator('#dc-theme-toggle');if(!await theme.isVisible())throw Error('Theme switch hidden');
  if(await theme.getAttribute('role')!=='switch'||await theme.getAttribute('aria-checked')!=='false')throw Error('Theme switch initial state');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme'))!==null)throw Error('Unexpected saved theme before manual choice');
  await theme.click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
- if(await theme.getAttribute('aria-checked')!=='true')throw Error('Dark theme state not announced');
+ if(await theme.getAttribute('aria-checked')!=='true'||await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='dark')throw Error('Manual dark theme not saved');
  await shoot('dark-menu');await page.keyboard.press('Escape');await shoot('dark-page');
  await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
  await page.locator('#dc-menu-toggle').click();if(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')!=='true')throw Error('Dark theme not persisted');
  await page.locator('#dc-theme-toggle').click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='light')throw Error('Manual light theme not saved');
  await page.keyboard.press('Escape');
+ await page.evaluate(()=>localStorage.removeItem('dc-theme'));
+ await page.emulateMedia({colorScheme:'dark'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ await page.locator('#dc-menu-toggle').click();if(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')!=='true')throw Error('System dark theme not reflected');
+ await page.keyboard.press('Escape');
+ await page.emulateMedia({colorScheme:'light'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ await page.emulateMedia({colorScheme:'dark'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ await page.locator('#dc-menu-toggle').click();await page.locator('#dc-theme-toggle').click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='light')throw Error('Manual override after system theme not saved');
+ await page.keyboard.press('Escape');
+ await page.emulateMedia({colorScheme:'light'});await page.emulateMedia({colorScheme:'dark'});await page.waitForTimeout(50);
+ if(await page.evaluate(()=>document.documentElement.dataset.dcTheme)!=='light')throw Error('System theme overrode manual choice');
+ await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
  const overflow=await page.locator('.dc-shell').evaluate(e=>[...e.querySelectorAll('.dc-bar *')].some(n=>{const r=n.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1);}));if(overflow)throw Error(`Header overflow: ${p.output} ${device}`);
  if(await page.locator('#dc-menu-toggle').getAttribute('aria-expanded')!=='false')throw Error('Menu Escape failed');
  r.checks='passed';records.push(r);await context.close();

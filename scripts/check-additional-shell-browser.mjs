@@ -40,7 +40,7 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   assert(darkAudit.body!==null&&darkAudit.body<100,'Dark body background missing');
   assert(darkAudit.lightSurfaces.length===0,'Light surfaces remain in dark mode: '+darkAudit.lightSurfaces.join(', '));
   assert(darkAudit.darkTexts.length===0,'Dark text remains in dark mode: '+darkAudit.darkTexts.join(', '));
-  if(path==='index.html'&&width>=1101){const bg=await page.locator('.hero-grid').evaluate(e=>getComputedStyle(e).backgroundImage);assert(bg.includes('hero-top.png'),'Desktop top hero image missing in dark mode');}
+  if(path==='index.html'){const bg=await page.locator('.hero-grid').evaluate(e=>getComputedStyle(e).backgroundImage);assert(bg.includes('hero-top.png'),'Top hero image missing in dark mode');assert(!bg.includes('248, 251, 255'),'Light top hero overlay remains in dark mode');}
   if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
   await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--dark.png'),animations:'disabled',fullPage:true});
   assert(errors.every(e=>beforeErrors.includes(e)),'New script errors: '+errors.join('; '));

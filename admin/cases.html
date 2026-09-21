@@ -178,16 +178,20 @@
       return {email,name};
     }
     function fallbackPermissions(row){
-      const viewer=sessionViewer(),owner=String(row?.assignee_email||'').trim().toLowerCase(),email=viewer.email.toLowerCase();
+      const viewer=sessionViewer(),owner=String(row?.assignee_email||'').trim().toLowerCase(),email=viewer.email.toLowerCase(),legacyAssigned=Boolean(!owner&&String(row?.assignee||'').trim());
       const isAssignee=Boolean(owner&&email&&owner===email);
-      return {assigned:Boolean(owner),isAssignee,canEdit:!owner||isAssignee,canReassign:Boolean(email)};
+      return {assigned:Boolean(owner||legacyAssigned),legacyAssigned,isAssignee,canEdit:!owner||isAssignee,canReassign:Boolean(email)};
     }
     function applyCasePermissions(){
       if(!current)return;
       const permissions=currentPermissions||fallbackPermissions(current),viewer=currentViewer||sessionViewer(),canEdit=permissions.canEdit!==false;
       const notice=document.getElementById('ownershipNotice'),actions=document.getElementById('ownershipActions'),reassign=document.getElementById('reassignButton');
       notice.className='ownership-note';
-      if(!permissions.assigned){
+      if(permissions.legacyAssigned){
+        notice.classList.add('unassigned');
+        notice.textContent='旧形式の担当者：'+(current.assignee||'未設定')+'。担当者ロックはまだ有効ではありません。正式に引き継ぐ場合は下のボタンを使用してください。';
+        actions.hidden=!permissions.canReassign;
+      }else if(!permissions.assigned){
         notice.classList.add('unassigned');
         notice.textContent='未割当です。最初に進行操作を行った管理者が自動で担当者になります。';
         actions.hidden=true;

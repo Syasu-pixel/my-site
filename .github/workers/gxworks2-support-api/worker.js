@@ -4,6 +4,18 @@ const MAIL_LOCK_MS = 120000;
 const ADMIN_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024;
 const ADMIN_CASE_STATUSES = new Set(['received','estimating','estimate_sent','deposit_wait','working','delivered','completed','on_hold','cancelled']);
 const ADMIN_FOLLOWUP_STATUSES = new Set(['not_scheduled','scheduled','sent','replied','closed','cancelled']);
+const ADMIN_NEXT_ACTION_DEFAULTS = Object.freeze({
+  received:'相談内容と必要資料を確認する',
+  estimating:'作業範囲・金額・納期を確認して見積を作成する',
+  estimate_sent:'見積内容への回答を確認する',
+  deposit_wait:'銀行で着手金の入金を確認する',
+  working:'合意した作業範囲に沿って作業を進める',
+  delivered:'フォロー予定日に納品後の状況を確認する',
+  completed:'',
+  on_hold:'保留理由と再開条件を確認する',
+  cancelled:'',
+});
+const ADMIN_FOLLOWUP_NEXT_ACTION = 'フォローへの返信・追加要望を確認する';
 const ADMIN_SUPABASE_URL = 'https://pavitnsnmoaiospswiys.supabase.co';
 const ADMIN_SUPABASE_KEY = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
 let adminSchemaReady = false;
@@ -986,6 +998,11 @@ async function handleAdminRequest(request, env, origin, url) {
   if (depositMatch && request.method === 'POST') {
     return confirmAdminCaseDeposit(env.DB, decodeURIComponent(depositMatch[1]), admin, origin);
   }
+
+  const actionMatch = /^\/admin\/cases\/([^/]+)\/action$/.exec(url.pathname);
+  if (actionMatch && request.method === 'POST') {
+    return runAdminCaseAction(request, env.DB, decodeURIComponent(actionMatch[1]), admin, origin);
+  }
   return json({ ok:false, error:'Admin endpoint not found' }, 404, origin);
 }
 
@@ -1075,56 +1092,160 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   const textFields = {assignee:120,due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
   for (const field of Object.keys(textFields)) if (Object.prototype.hasOwnProperty.call(body,field)) values[field] = clean(body[field],textFields[field]);
 
-  for (const field of ['estimate_total','deposit_amount','balance_amount']) {
-    if (Object.prototype.hasOwnProperty.call(body,field)) {
-      if (body[field] === '' || body[field] === null) values[field] = null;
-      else {
-        const amount = Number(body[field]);
-        if (!Number.isFinite(amount) || amount < 0 || amount > 999999999) return json({ ok:false, error:'Invalid amount: ' + field }, 400, origin);
-        values[field] = Math.round(amount);
-      }
+  for (const field of ['estimate_total','deposit_amount']) {
+    if (!Object.prototype.hasOwnProperty.call(body,field)) continue;
+    if (body[field] === '' || body[field] === null) values[field] = null;
+    else {
+      const amount = Number(body[field]);
+      if (!Number.isSafeInteger(amount) || amount < 0 || amount > 999999999) return json({ ok:false, error:'Invalid amount: ' + field }, 400, origin);
+      values[field] = amount;
     }
   }
 
-  if (Object.prototype.hasOwnProperty.call(values,'delivered_at')) {
-    if (values.delivered_at) {
-      const delivered = new Date(values.delivered_at);
-      if (!Number.isNaN(delivered.getTime())) {
-        values.followup_due_at = new Date(delivered.getTime() + 7 * 86400000).toISOString().slice(0,10);
-        if (!Object.prototype.hasOwnProperty.call(values,'followup_status')) values.followup_status = 'scheduled';
-      }
-    } else {
-      values.followup_due_at = null;
-      if (!Object.prototype.hasOwnProperty.call(values,'followup_status')) values.followup_status = 'not_scheduled';
-    }
+  const total = Object.prototype.hasOwnProperty.call(values,'estimate_total') ? values.estimate_total : before.estimate_total;
+  const deposit = Object.prototype.hasOwnProperty.call(values,'deposit_amount') ? values.deposit_amount : before.deposit_amount;
+  if (total !== null && total !== undefined && deposit !== null && deposit !== undefined) {
+    if (deposit > total) return json({ ok:false, error:'Deposit exceeds estimate total' }, 400, origin);
+    values.balance_amount = total - deposit;
+  } else if (Object.prototype.hasOwnProperty.call(values,'estimate_total') || Object.prototype.hasOwnProperty.call(values,'deposit_amount')) {
+    values.balance_amount = null;
   }
 
-  const keys = Object.keys(values);
+  const deliveredChanged = Object.prototype.hasOwnProperty.call(values,'delivered_at') && clean(before.delivered_at || '',40) !== values.delivered_at;
+  if (deliveredChanged && values.delivered_at) {
+    if (before.status !== 'working' && before.status !== 'delivered') return json({ ok:false, error:'Delivery can only be recorded for working cases' }, 409, origin);
+    if (!isAdminCalendarDate(values.delivered_at) || values.delivered_at > adminTodayJst()) return json({ ok:false, error:'Invalid delivery date' }, 400, origin);
+    values.status = 'delivered';
+    values.followup_due_at = addAdminCalendarDays(values.delivered_at, 7);
+    if (!['sent','replied','closed','cancelled'].includes(values.followup_status || before.followup_status)) values.followup_status = 'scheduled';
+    if (!body.next_action || body.next_action === before.next_action) values.next_action = ADMIN_NEXT_ACTION_DEFAULTS.delivered;
+  } else if (deliveredChanged && !values.delivered_at && before.status === 'delivered') {
+    return json({ ok:false, error:'Delivery date correction requires manual review' }, 409, origin);
+  }
+
+  const followupChanged = Object.prototype.hasOwnProperty.call(values,'followup_sent_at') && clean(before.followup_sent_at || '',40) !== values.followup_sent_at;
+  if (followupChanged && values.followup_sent_at) {
+    if (before.status !== 'delivered' || !before.delivered_at) return json({ ok:false, error:'Follow-up can only be recorded after delivery' }, 409, origin);
+    if (!isAdminCalendarDate(values.followup_sent_at) || values.followup_sent_at > adminTodayJst() || values.followup_sent_at < before.delivered_at) return json({ ok:false, error:'Invalid follow-up date' }, 400, origin);
+    values.followup_status = 'sent';
+    if (!body.next_action || body.next_action === before.next_action) values.next_action = ADMIN_FOLLOWUP_NEXT_ACTION;
+  }
+
+  if (values.status === 'working' && before.status !== 'working' && !before.deposit_confirmed_at) {
+    return json({ ok:false, error:'Deposit confirmation is required before work starts' }, 409, origin);
+  }
+  if (values.status === 'delivered' && before.status !== 'delivered' && !deliveredChanged) {
+    return json({ ok:false, error:'Record a delivery date to move this case to delivered' }, 409, origin);
+  }
+
+  const changedValues = {};
+  for (const [key,value] of Object.entries(values)) {
+    const beforeValue = before[key] ?? null;
+    const normalizedValue = value === '' ? null : value;
+    const normalizedBefore = beforeValue === '' ? null : beforeValue;
+    if (normalizedValue !== normalizedBefore) changedValues[key] = value;
+  }
+  const keys = Object.keys(changedValues);
   if (!keys.length) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+
   const now = new Date().toISOString();
   const actor = admin.email || 'admin';
   const set = keys.map((key,index)=>key+'=?'+(index+2));
   set.push('updated_at=?'+(keys.length+2));
   set.push('updated_by=?'+(keys.length+3));
-  const params = [caseNumber].concat(keys.map(key=>values[key]),[now,actor]);
+  const params = [caseNumber].concat(keys.map(key=>changedValues[key]),[now,actor]);
   await db.prepare('UPDATE admin_cases SET ' + set.join(', ') + ' WHERE case_number=?1').bind(...params).run();
-  if (values.status && values.status !== before.status) await addAdminCaseEvent(db,caseNumber,'status_changed',before.status,values.status,'',actor);
+  if (changedValues.status && changedValues.status !== before.status) await addAdminCaseEvent(db,caseNumber,'status_changed',before.status,changedValues.status,'',actor);
   const changed = keys.filter(key=>key!=='status').join(', ');
   if (changed) await addAdminCaseEvent(db,caseNumber,'updated','','','更新: '+changed,actor);
   const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
-  return json({ ok:true, case:after }, 200, origin);
+  return json({ ok:true, case:after, changedFields:keys }, 200, origin);
 }
 
 async function confirmAdminCaseDeposit(db, caseNumber, admin, origin) {
   const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (before.deposit_confirmed_at) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+  if (before.status !== 'deposit_wait') return json({ ok:false, error:'Case is not waiting for deposit' }, 409, origin);
   const now = new Date().toISOString();
   const actor = admin.email || 'admin';
-  const nextStatus = before.status === 'deposit_wait' ? 'working' : before.status;
-  await db.prepare('UPDATE admin_cases SET deposit_confirmed_at=?2,deposit_confirmed_by=?3,status=?4,updated_at=?2,updated_by=?3 WHERE case_number=?1').bind(caseNumber,now,actor,nextStatus).run();
-  await addAdminCaseEvent(db,caseNumber,'deposit_confirmed',before.status,nextStatus,'着手金の入金を手動確認',actor);
+  await db.prepare('UPDATE admin_cases SET deposit_confirmed_at=?2,deposit_confirmed_by=?3,status=\'working\',next_action=?4,updated_at=?2,updated_by=?3 WHERE case_number=?1')
+    .bind(caseNumber,now,actor,ADMIN_NEXT_ACTION_DEFAULTS.working).run();
+  await addAdminCaseEvent(db,caseNumber,'deposit_confirmed',before.status,'working','着手金の入金を手動確認し、作業中へ自動移行',actor);
   const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   return json({ ok:true, case:after }, 200, origin);
+}
+
+async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
+  let body;
+  try { body = await request.json(); } catch { body = {}; }
+  const action = clean(body.action || '', 80);
+  const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+
+  const transitions = {
+    start_estimate:{from:['received','estimating'],to:'estimating',event:'estimate_started',detail:'見積作成を開始'},
+    record_estimate_sent:{from:['estimating','estimate_sent'],to:'estimate_sent',event:'estimate_sent',detail:'見積送付を記録'},
+    record_acceptance:{from:['estimate_sent','deposit_wait'],to:'deposit_wait',event:'estimate_accepted',detail:'見積了承を記録'},
+    record_delivery:{from:['working','delivered'],to:'delivered',event:'delivered',detail:'納品を記録'},
+    record_followup_sent:{from:['delivered'],to:'delivered',event:'followup_sent',detail:'フォロー送信を記録'},
+  };
+  const spec = transitions[action];
+  if (!spec) return json({ ok:false, error:'Unsupported case action' }, 400, origin);
+  if (!spec.from.includes(before.status)) return json({ ok:false, error:'Action is not valid for the current status' }, 409, origin);
+
+  if (action === 'record_estimate_sent' && (before.estimate_total === null || before.estimate_total === undefined)) {
+    return json({ ok:false, error:'Estimate total is required before recording estimate sending' }, 409, origin);
+  }
+  if (action === 'record_acceptance' && !(Number(before.deposit_amount) > 0)) {
+    return json({ ok:false, error:'Deposit amount is required before recording acceptance' }, 409, origin);
+  }
+
+  const actor = admin.email || 'admin';
+  const now = new Date().toISOString();
+  const updates = {status:spec.to,next_action:ADMIN_NEXT_ACTION_DEFAULTS[spec.to] || ''};
+
+  if (action === 'record_delivery') {
+    const delivered = clean(body.delivered_at || '', 10) || adminTodayJst();
+    if (!isAdminCalendarDate(delivered) || delivered > adminTodayJst()) return json({ ok:false, error:'Invalid delivery date' }, 400, origin);
+    updates.delivered_at = delivered;
+    updates.followup_due_at = addAdminCalendarDays(delivered,7);
+    updates.followup_status = ['sent','replied','closed','cancelled'].includes(before.followup_status) ? before.followup_status : 'scheduled';
+  }
+  if (action === 'record_followup_sent') {
+    if (!before.delivered_at) return json({ ok:false, error:'Delivery must be recorded first' }, 409, origin);
+    const sent = clean(body.followup_sent_at || '',10) || adminTodayJst();
+    if (!isAdminCalendarDate(sent) || sent > adminTodayJst() || sent < before.delivered_at) return json({ ok:false, error:'Invalid follow-up date' }, 400, origin);
+    updates.followup_sent_at = sent;
+    updates.followup_status = 'sent';
+    updates.next_action = ADMIN_FOLLOWUP_NEXT_ACTION;
+  }
+
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  if (!changed.length) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+  const set = changed.map(([key],index)=>key+'=?'+(index+2));
+  set.push('updated_at=?'+(changed.length+2));
+  set.push('updated_by=?'+(changed.length+3));
+  const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+  await db.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  await addAdminCaseEvent(db,caseNumber,spec.event,before.status,updates.status,spec.detail,actor);
+  const after=await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({ok:true,case:after,changedFields:changed.map(([key])=>key)},200,origin);
+}
+
+function isAdminCalendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(value+'T00:00:00.000Z');
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === value;
+}
+function addAdminCalendarDays(value, days) {
+  if (!isAdminCalendarDate(value)) return '';
+  const d = new Date(value+'T00:00:00.000Z');
+  d.setUTCDate(d.getUTCDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function adminTodayJst() {
+  return new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
 }
 
 async function addAdminCaseEvent(db, caseNumber, eventType, fromStatus, toStatus, detail, actor) {

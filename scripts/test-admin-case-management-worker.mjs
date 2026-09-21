@@ -56,9 +56,9 @@ class FakeDB {
           return {meta:{changes:1}};
         }
         if(sql.startsWith('UPDATE admin_cases SET deposit_confirmed_at=')){
-          const [caseNumber,at,by,status]=this.args;
+          const [caseNumber,at,by,nextAction]=this.args;
           assert.equal(caseNumber,db.case.case_number);
-          Object.assign(db.case,{deposit_confirmed_at:at,deposit_confirmed_by:by,status,updated_at:at,updated_by:by});
+          Object.assign(db.case,{deposit_confirmed_at:at,deposit_confirmed_by:by,status:'working',next_action:nextAction,updated_at:at,updated_by:by});
           return {meta:{changes:1}};
         }
         if(sql.startsWith('UPDATE admin_cases SET ')){
@@ -176,8 +176,59 @@ try{
   assert.equal(depositJson.case.deposit_confirmed_by,'admin@example.com');
   assert.ok(depositJson.case.deposit_confirmed_at);
   assert.ok(env.DB.events.some(e=>e.event_type==='deposit_confirmed'));
+  assert.equal(depositJson.case.next_action,'合意した作業範囲に沿って作業を進める');
 
-  assert.ok(supabaseCalls>=5);
+  env.DB.case={...env.DB.case,status:'received',next_action:'',estimate_total:null,deposit_amount:null,balance_amount:null,deposit_confirmed_at:null,deposit_confirmed_by:null,delivered_at:null,followup_due_at:null,followup_status:'not_scheduled',followup_sent_at:null};
+  const startEstimate=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'start_estimate'}),
+  }),env);
+  assert.equal(startEstimate.status,200);
+  assert.equal((await startEstimate.clone().json()).case.status,'estimating');
+  assert.equal(env.DB.case.next_action,'作業範囲・金額・納期を確認して見積を作成する');
+
+  env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
+  const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_estimate_sent'}),
+  }),env);
+  assert.equal(estimateSent.status,200);
+  assert.equal((await estimateSent.clone().json()).case.status,'estimate_sent');
+
+  const accepted=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_acceptance'}),
+  }),env);
+  assert.equal(accepted.status,200);
+  assert.equal((await accepted.clone().json()).case.status,'deposit_wait');
+
+  const deposit2=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/deposit-confirm',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(deposit2.status,200);
+  assert.equal((await deposit2.clone().json()).case.status,'working');
+
+  const delivered=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_delivery',delivered_at:'2026-09-20'}),
+  }),env);
+  assert.equal(delivered.status,200);
+  const deliveredJson=await delivered.json();
+  assert.equal(deliveredJson.case.status,'delivered');
+  assert.equal(deliveredJson.case.delivered_at,'2026-09-20');
+  assert.equal(deliveredJson.case.followup_due_at,'2026-09-27');
+  assert.equal(deliveredJson.case.followup_status,'scheduled');
+
+  const followup=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_followup_sent',followup_sent_at:'2026-09-20'}),
+  }),env);
+  assert.equal(followup.status,200);
+  const followupJson=await followup.json();
+  assert.equal(followupJson.case.followup_status,'sent');
+  assert.equal(followupJson.case.next_action,'フォローへの返信・追加要望を確認する');
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_started'));
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_sent'));
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_accepted'));
+  assert.ok(env.DB.events.some(e=>e.event_type==='delivered'));
+  assert.ok(env.DB.events.some(e=>e.event_type==='followup_sent'));
+
+  assert.ok(supabaseCalls>=10);
 
   console.log(JSON.stringify({
     ok:true,
@@ -189,7 +240,12 @@ try{
       'case detail route',
       'invalid status rejection',
       'case patch and audit event',
-      'deposit confirmation transition'
+      'deposit confirmation transition',
+      'start estimate action',
+      'estimate sent action',
+      'estimate acceptance action',
+      'delivery action and follow-up schedule',
+      'follow-up sent action'
     ]
   }));
 } finally {

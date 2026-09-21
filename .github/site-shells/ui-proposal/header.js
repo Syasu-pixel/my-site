@@ -5,7 +5,8 @@
   const systemQuery=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
   const hasExplicitTheme=()=>{try{return localStorage.getItem(explicitKey)==='1';}catch{return false;}};
   const readSavedTheme=()=>{try{if(!hasExplicitTheme())return null;const value=localStorage.getItem(themeKey);return value==='dark'||value==='light'?value:null;}catch{return null;}};
-  const readSystemTheme=()=>systemQuery?.matches?'dark':'light';
+  const preferenceObject=()=>{try{return navigator.preferences?.colorScheme||null;}catch{return null;}};
+  const readSystemTheme=()=>{try{const value=preferenceObject()?.value;if(value==='dark'||value==='light')return value;}catch{}return systemQuery?.matches?'dark':'light';};
   const resolveTheme=()=>readSavedTheme()??readSystemTheme();
   const applyTheme=(theme,persist=false)=>{
     const dark=theme==='dark';root.dataset.dcTheme=dark?'dark':'light';
@@ -17,6 +18,7 @@
   themeButton?.addEventListener('click',()=>applyTheme(root.dataset.dcTheme==='dark'?'light':'dark',true));
   const followSystem=()=>{if(!readSavedTheme())applyTheme(readSystemTheme(),false);};
   if(systemQuery?.addEventListener)systemQuery.addEventListener('change',followSystem);else systemQuery?.addListener?.(followSystem);
+  try{preferenceObject()?.addEventListener?.('change',followSystem);}catch{}
   window.addEventListener('storage',event=>{if(event.key===themeKey||event.key===explicitKey)applyTheme(resolveTheme(),false);});
   const pairs=['search','menu'].map(name=>({button:document.getElementById(`dc-${name}-toggle`),panel:document.getElementById(`dc-${name}-drawer`),name}));
   function close(pair,focus=false){pair.button.setAttribute('aria-expanded','false');pair.panel.hidden=true;if(focus)pair.button.focus();}

@@ -1038,7 +1038,9 @@ function decodeJwtPayload(token) {
     const normalized = part.replace(/-/g,'+').replace(/_/g,'/');
     const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
     if (typeof atob !== 'function') return {};
-    return JSON.parse(atob(padded));
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch { return {}; }
 }
 

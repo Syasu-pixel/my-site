@@ -2,6 +2,23 @@ const ALLOWED_ORIGIN_SUFFIX = '.denkicontrol-preview.pages.dev';
 const PROD_ORIGIN = 'https://denkicontrol.com';
 const MAIL_LOCK_MS = 120000;
 const ADMIN_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024;
+const ADMIN_CASE_STATUSES = new Set(['received','estimating','estimate_sent','deposit_wait','working','delivered','completed','on_hold','cancelled']);
+const ADMIN_FOLLOWUP_STATUSES = new Set(['not_scheduled','scheduled','sent','replied','closed','cancelled']);
+const ADMIN_NEXT_ACTION_DEFAULTS = Object.freeze({
+  received:'相談内容と必要資料を確認する',
+  estimating:'作業範囲・金額・納期を確認して見積を作成する',
+  estimate_sent:'見積内容への回答を確認する',
+  deposit_wait:'銀行で着手金の入金を確認する',
+  working:'合意した作業範囲に沿って作業を進める',
+  delivered:'フォロー予定日に納品後の状況を確認する',
+  completed:'',
+  on_hold:'保留理由と再開条件を確認する',
+  cancelled:'',
+});
+const ADMIN_FOLLOWUP_NEXT_ACTION = 'フォローへの返信・追加要望を確認する';
+const ADMIN_SUPABASE_URL = 'https://pavitnsnmoaiospswiys.supabase.co';
+const ADMIN_SUPABASE_KEY = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+let adminSchemaReady = false;
 
 export default {
   async fetch(request, env) {
@@ -26,6 +43,10 @@ export default {
 
     if (!isAllowedOrigin(origin)) {
       return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
+    }
+
+    if (url.pathname.startsWith('/admin/')) {
+      return handleAdminRequest(request, env, origin, url);
     }
 
     if (request.method === 'GET' && url.pathname === '/general-consultations/config') {
@@ -110,6 +131,7 @@ async function createConsultation(request, env, origin) {
     }
     row = row || await getConsultationByIdempotency(env.DB, idempotencyKey);
     await addEvent(env.DB, row.id, 'received', 'Consultation metadata accepted into D1; ZIP upload pending');
+    try { await upsertAdminCaseFromGxw(env.DB, row); } catch (error) { console.error('Admin case sync failed', error); }
   }
 
   if (row.zip_object_key) return continueConsultation(row, env, origin, existed);
@@ -509,6 +531,8 @@ async function submitGeneralConsultation(request, env, origin) {
 
   const caseNumber = await createGeneralCaseNumber(requestKey);
   const acceptedAt = new Date().toISOString();
+
+  try { await upsertAdminCaseFromGeneral(env.DB, caseNumber, acceptedAt, data); } catch (error) { console.error('General consultation admin case sync failed', error); }
 
   const adminPayload = {
     from: '電気と制御の実務メモ オンライン相談 <support@denkicontrol.com>',
@@ -940,6 +964,294 @@ function safeDetail(value) {
   return clean(text, 1000);
 }
 
+
+async function handleAdminRequest(request, env, origin, url) {
+  if (!env.DB) return json({ ok:false, error:'Database is not configured' }, 503, origin);
+  const admin = await verifyAdminAuthorization(request);
+  if (!admin) return json({ ok:false, error:'Administrator access required' }, 401, origin);
+  await ensureAdminCaseSchema(env.DB);
+  await syncGxwCasesToAdmin(env.DB);
+
+  if (request.method === 'GET' && url.pathname === '/admin/cases') {
+    const result = await env.DB.prepare('SELECT * FROM admin_cases ORDER BY CASE status WHEN \'deposit_wait\' THEN 0 WHEN \'estimating\' THEN 1 WHEN \'estimate_sent\' THEN 2 WHEN \'working\' THEN 3 WHEN \'received\' THEN 4 WHEN \'delivered\' THEN 5 WHEN \'on_hold\' THEN 6 ELSE 7 END, COALESCE(due_date, \'9999-12-31\') ASC, updated_at DESC LIMIT 300').all();
+    return json({ ok:true, cases:result.results || [] }, 200, origin);
+  }
+
+  const detailMatch = /^\/admin\/cases\/([^/]+)$/.exec(url.pathname);
+  if (detailMatch && request.method === 'GET') {
+    const caseNumber = decodeURIComponent(detailMatch[1]);
+    const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+    if (!row) return json({ ok:false, error:'Case not found' }, 404, origin);
+    const events = await env.DB.prepare('SELECT event_type, from_status, to_status, detail, actor, created_at FROM admin_case_events WHERE case_number=?1 ORDER BY id DESC LIMIT 100').bind(caseNumber).all();
+    let source = null;
+    if (row.source === 'gxworks2') {
+      try { source = await env.DB.prepare('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations WHERE case_number=?1 LIMIT 1').bind(caseNumber).first(); } catch {}
+    }
+    return json({ ok:true, case:row, source, events:events.results || [] }, 200, origin);
+  }
+
+  if (detailMatch && request.method === 'PATCH') {
+    return updateAdminCase(request, env.DB, decodeURIComponent(detailMatch[1]), admin, origin);
+  }
+
+  const depositMatch = /^\/admin\/cases\/([^/]+)\/deposit-confirm$/.exec(url.pathname);
+  if (depositMatch && request.method === 'POST') {
+    return confirmAdminCaseDeposit(env.DB, decodeURIComponent(depositMatch[1]), admin, origin);
+  }
+
+  const actionMatch = /^\/admin\/cases\/([^/]+)\/action$/.exec(url.pathname);
+  if (actionMatch && request.method === 'POST') {
+    return runAdminCaseAction(request, env.DB, decodeURIComponent(actionMatch[1]), admin, origin);
+  }
+  return json({ ok:false, error:'Admin endpoint not found' }, 404, origin);
+}
+
+async function verifyAdminAuthorization(request) {
+  const authorization = request.headers.get('Authorization') || '';
+  if (!authorization.startsWith('Bearer ')) return null;
+  const token = authorization.slice(7).trim();
+  if (!token || token.length > 8192) return null;
+  try {
+    const response = await fetch(ADMIN_SUPABASE_URL + '/rest/v1/rpc/admin_article_feedback_dashboard', {
+      method:'POST',
+      headers:{ apikey:ADMIN_SUPABASE_KEY, Authorization:'Bearer ' + token, 'Content-Type':'application/json' },
+      body:'{}'
+    });
+    if (!response.ok) return null;
+    const payload = decodeJwtPayload(token);
+    return { email:clean((payload && payload.email) || 'admin', 254) || 'admin' };
+  } catch (error) {
+    console.error('Admin authorization check failed', error);
+    return null;
+  }
+}
+
+function decodeJwtPayload(token) {
+  try {
+    const part = token.split('.')[1] || '';
+    const normalized = part.replace(/-/g,'+').replace(/_/g,'/');
+    const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+    if (typeof atob !== 'function') return {};
+    return JSON.parse(atob(padded));
+  } catch { return {}; }
+}
+
+async function ensureAdminCaseSchema(db) {
+  if (adminSchemaReady) return;
+  const statements = [
+    "CREATE TABLE IF NOT EXISTS admin_cases (case_number TEXT PRIMARY KEY, source TEXT NOT NULL, source_id INTEGER, accepted_at TEXT NOT NULL, customer_name TEXT NOT NULL DEFAULT '', customer_email TEXT NOT NULL DEFAULT '', company TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT '', subject TEXT NOT NULL DEFAULT '', summary TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'received', assignee TEXT NOT NULL DEFAULT '', due_date TEXT, next_action TEXT NOT NULL DEFAULT '', estimate_total INTEGER, deposit_amount INTEGER, balance_amount INTEGER, deposit_confirmed_at TEXT, deposit_confirmed_by TEXT, delivered_at TEXT, followup_due_at TEXT, followup_status TEXT NOT NULL DEFAULT 'not_scheduled', followup_sent_at TEXT, followup_result TEXT NOT NULL DEFAULT '', customer_requests TEXT NOT NULL DEFAULT '', handoff_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL DEFAULT '')",
+    "CREATE INDEX IF NOT EXISTS idx_admin_cases_status ON admin_cases(status, updated_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_admin_cases_company ON admin_cases(company, customer_name)",
+    "CREATE TABLE IF NOT EXISTS admin_case_events (id INTEGER PRIMARY KEY AUTOINCREMENT, case_number TEXT NOT NULL, event_type TEXT NOT NULL, from_status TEXT, to_status TEXT, detail TEXT NOT NULL DEFAULT '', actor TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS idx_admin_case_events_case ON admin_case_events(case_number, id DESC)"
+  ];
+  for (const sql of statements) await db.prepare(sql).run();
+  adminSchemaReady = true;
+}
+
+async function syncGxwCasesToAdmin(db) {
+  try {
+    await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,source_id,accepted_at,customer_name,customer_email,company,category,subject,summary,status,created_at,updated_at) SELECT case_number,'gxworks2',id,accepted_at,name,email,COALESCE(company,''),'GX Works2',CASE WHEN COALESCE(plc,'')='' THEN 'GX Works2 オンライン相談' ELSE 'GX Works2 / ' || plc END,COALESCE(problem,'') || CASE WHEN COALESCE(desired,'')='' THEN '' ELSE char(10) || '希望: ' || desired END,'received',accepted_at,updated_at FROM consultations WHERE case_number IS NOT NULL").run();
+  } catch (error) { console.error('GX Works2 admin backfill failed', error); }
+}
+
+async function upsertAdminCaseFromGxw(db, row) {
+  if (!row || !row.case_number) return;
+  await ensureAdminCaseSchema(db);
+  const subject = row.plc ? 'GX Works2 / ' + row.plc : 'GX Works2 オンライン相談';
+  const summary = (row.problem || '') + (row.desired ? '\n希望: ' + row.desired : '');
+  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,source_id,accepted_at,customer_name,customer_email,company,category,subject,summary,status,created_at,updated_at) VALUES (?1,'gxworks2',?2,?3,?4,?5,?6,'GX Works2',?7,?8,'received',?3,?9)").bind(row.case_number,row.id,row.accepted_at,row.name||'',row.email||'',row.company||'',subject,summary,row.updated_at||row.accepted_at).run();
+  if ((result.meta && result.meta.changes || 0) > 0) await addAdminCaseEvent(db,row.case_number,'received','','received','GX Works2相談を案件管理へ登録','system');
+}
+
+async function upsertAdminCaseFromGeneral(db, caseNumber, acceptedAt, data) {
+  await ensureAdminCaseSchema(db);
+  const subject = data.relatedUrl ? (data.category || 'オンライン相談') + ' / ' + data.relatedUrl : (data.category || 'オンライン相談');
+  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,accepted_at,customer_name,customer_email,company,category,subject,summary,status,created_at,updated_at) VALUES (?1,'general',?2,?3,?4,?5,?6,?7,?8,'received',?2,?2)").bind(caseNumber,acceptedAt,data.name||'',data.email||'',data.company||'',data.category||'オンライン相談',subject,data.message||'').run();
+  if ((result.meta && result.meta.changes || 0) > 0) await addAdminCaseEvent(db,caseNumber,'received','','received','オンライン相談を案件管理へ登録','system');
+}
+
+async function updateAdminCase(request, db, caseNumber, admin, origin) {
+  let body;
+  try { body = await request.json(); } catch { return json({ ok:false, error:'Invalid JSON' }, 400, origin); }
+  const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  const values = {};
+
+  if (Object.prototype.hasOwnProperty.call(body,'status')) {
+    const status = clean(body.status,40);
+    if (!ADMIN_CASE_STATUSES.has(status)) return json({ ok:false, error:'Invalid status' }, 400, origin);
+    values.status = status;
+  }
+  if (Object.prototype.hasOwnProperty.call(body,'followup_status')) {
+    const follow = clean(body.followup_status,40);
+    if (!ADMIN_FOLLOWUP_STATUSES.has(follow)) return json({ ok:false, error:'Invalid follow-up status' }, 400, origin);
+    values.followup_status = follow;
+  }
+
+  const textFields = {assignee:120,due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
+  for (const field of Object.keys(textFields)) if (Object.prototype.hasOwnProperty.call(body,field)) values[field] = clean(body[field],textFields[field]);
+
+  for (const field of ['estimate_total','deposit_amount']) {
+    if (!Object.prototype.hasOwnProperty.call(body,field)) continue;
+    if (body[field] === '' || body[field] === null) values[field] = null;
+    else {
+      const amount = Number(body[field]);
+      if (!Number.isSafeInteger(amount) || amount < 0 || amount > 999999999) return json({ ok:false, error:'Invalid amount: ' + field }, 400, origin);
+      values[field] = amount;
+    }
+  }
+
+  const total = Object.prototype.hasOwnProperty.call(values,'estimate_total') ? values.estimate_total : before.estimate_total;
+  const deposit = Object.prototype.hasOwnProperty.call(values,'deposit_amount') ? values.deposit_amount : before.deposit_amount;
+  if (total !== null && total !== undefined && deposit !== null && deposit !== undefined) {
+    if (deposit > total) return json({ ok:false, error:'Deposit exceeds estimate total' }, 400, origin);
+    values.balance_amount = total - deposit;
+  } else if (Object.prototype.hasOwnProperty.call(values,'estimate_total') || Object.prototype.hasOwnProperty.call(values,'deposit_amount')) {
+    values.balance_amount = null;
+  }
+
+  const deliveredChanged = Object.prototype.hasOwnProperty.call(values,'delivered_at') && clean(before.delivered_at || '',40) !== values.delivered_at;
+  if (deliveredChanged && values.delivered_at) {
+    if (before.status !== 'working' && before.status !== 'delivered') return json({ ok:false, error:'Delivery can only be recorded for working cases' }, 409, origin);
+    if (!isAdminCalendarDate(values.delivered_at) || values.delivered_at > adminTodayJst()) return json({ ok:false, error:'Invalid delivery date' }, 400, origin);
+    values.status = 'delivered';
+    values.followup_due_at = addAdminCalendarDays(values.delivered_at, 7);
+    if (!['sent','replied','closed','cancelled'].includes(values.followup_status || before.followup_status)) values.followup_status = 'scheduled';
+    if (!body.next_action || body.next_action === before.next_action) values.next_action = ADMIN_NEXT_ACTION_DEFAULTS.delivered;
+  } else if (deliveredChanged && !values.delivered_at && before.status === 'delivered') {
+    return json({ ok:false, error:'Delivery date correction requires manual review' }, 409, origin);
+  }
+
+  const followupChanged = Object.prototype.hasOwnProperty.call(values,'followup_sent_at') && clean(before.followup_sent_at || '',40) !== values.followup_sent_at;
+  if (followupChanged && values.followup_sent_at) {
+    if (before.status !== 'delivered' || !before.delivered_at) return json({ ok:false, error:'Follow-up can only be recorded after delivery' }, 409, origin);
+    if (!isAdminCalendarDate(values.followup_sent_at) || values.followup_sent_at > adminTodayJst() || values.followup_sent_at < before.delivered_at) return json({ ok:false, error:'Invalid follow-up date' }, 400, origin);
+    values.followup_status = 'sent';
+    if (!body.next_action || body.next_action === before.next_action) values.next_action = ADMIN_FOLLOWUP_NEXT_ACTION;
+  }
+
+  if (values.status === 'working' && before.status !== 'working' && !before.deposit_confirmed_at) {
+    return json({ ok:false, error:'Deposit confirmation is required before work starts' }, 409, origin);
+  }
+  if (values.status === 'delivered' && before.status !== 'delivered' && !deliveredChanged) {
+    return json({ ok:false, error:'Record a delivery date to move this case to delivered' }, 409, origin);
+  }
+
+  const changedValues = {};
+  for (const [key,value] of Object.entries(values)) {
+    const beforeValue = before[key] ?? null;
+    const normalizedValue = value === '' ? null : value;
+    const normalizedBefore = beforeValue === '' ? null : beforeValue;
+    if (normalizedValue !== normalizedBefore) changedValues[key] = value;
+  }
+  const keys = Object.keys(changedValues);
+  if (!keys.length) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+
+  const now = new Date().toISOString();
+  const actor = admin.email || 'admin';
+  const set = keys.map((key,index)=>key+'=?'+(index+2));
+  set.push('updated_at=?'+(keys.length+2));
+  set.push('updated_by=?'+(keys.length+3));
+  const params = [caseNumber].concat(keys.map(key=>changedValues[key]),[now,actor]);
+  await db.prepare('UPDATE admin_cases SET ' + set.join(', ') + ' WHERE case_number=?1').bind(...params).run();
+  if (changedValues.status && changedValues.status !== before.status) await addAdminCaseEvent(db,caseNumber,'status_changed',before.status,changedValues.status,'',actor);
+  const changed = keys.filter(key=>key!=='status').join(', ');
+  if (changed) await addAdminCaseEvent(db,caseNumber,'updated','','','更新: '+changed,actor);
+  const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({ ok:true, case:after, changedFields:keys }, 200, origin);
+}
+
+async function confirmAdminCaseDeposit(db, caseNumber, admin, origin) {
+  const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (before.deposit_confirmed_at) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+  if (before.status !== 'deposit_wait') return json({ ok:false, error:'Case is not waiting for deposit' }, 409, origin);
+  const now = new Date().toISOString();
+  const actor = admin.email || 'admin';
+  await db.prepare('UPDATE admin_cases SET deposit_confirmed_at=?2,deposit_confirmed_by=?3,status=\'working\',next_action=?4,updated_at=?2,updated_by=?3 WHERE case_number=?1')
+    .bind(caseNumber,now,actor,ADMIN_NEXT_ACTION_DEFAULTS.working).run();
+  await addAdminCaseEvent(db,caseNumber,'deposit_confirmed',before.status,'working','着手金の入金を手動確認し、作業中へ自動移行',actor);
+  const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({ ok:true, case:after }, 200, origin);
+}
+
+async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
+  let body;
+  try { body = await request.json(); } catch { body = {}; }
+  const action = clean(body.action || '', 80);
+  const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+
+  const transitions = {
+    start_estimate:{from:['received','estimating'],to:'estimating',event:'estimate_started',detail:'見積作成を開始'},
+    record_estimate_sent:{from:['estimating','estimate_sent'],to:'estimate_sent',event:'estimate_sent',detail:'見積送付を記録'},
+    record_acceptance:{from:['estimate_sent','deposit_wait'],to:'deposit_wait',event:'estimate_accepted',detail:'見積了承を記録'},
+    record_delivery:{from:['working','delivered'],to:'delivered',event:'delivered',detail:'納品を記録'},
+    record_followup_sent:{from:['delivered'],to:'delivered',event:'followup_sent',detail:'フォロー送信を記録'},
+  };
+  const spec = transitions[action];
+  if (!spec) return json({ ok:false, error:'Unsupported case action' }, 400, origin);
+  if (!spec.from.includes(before.status)) return json({ ok:false, error:'Action is not valid for the current status' }, 409, origin);
+
+  if (action === 'record_estimate_sent' && (before.estimate_total === null || before.estimate_total === undefined)) {
+    return json({ ok:false, error:'Estimate total is required before recording estimate sending' }, 409, origin);
+  }
+  if (action === 'record_acceptance' && !(Number(before.deposit_amount) > 0)) {
+    return json({ ok:false, error:'Deposit amount is required before recording acceptance' }, 409, origin);
+  }
+
+  const actor = admin.email || 'admin';
+  const now = new Date().toISOString();
+  const updates = {status:spec.to,next_action:ADMIN_NEXT_ACTION_DEFAULTS[spec.to] || ''};
+
+  if (action === 'record_delivery') {
+    const delivered = clean(body.delivered_at || '', 10) || adminTodayJst();
+    if (!isAdminCalendarDate(delivered) || delivered > adminTodayJst()) return json({ ok:false, error:'Invalid delivery date' }, 400, origin);
+    updates.delivered_at = delivered;
+    updates.followup_due_at = addAdminCalendarDays(delivered,7);
+    updates.followup_status = ['sent','replied','closed','cancelled'].includes(before.followup_status) ? before.followup_status : 'scheduled';
+  }
+  if (action === 'record_followup_sent') {
+    if (!before.delivered_at) return json({ ok:false, error:'Delivery must be recorded first' }, 409, origin);
+    const sent = clean(body.followup_sent_at || '',10) || adminTodayJst();
+    if (!isAdminCalendarDate(sent) || sent > adminTodayJst() || sent < before.delivered_at) return json({ ok:false, error:'Invalid follow-up date' }, 400, origin);
+    updates.followup_sent_at = sent;
+    updates.followup_status = 'sent';
+    updates.next_action = ADMIN_FOLLOWUP_NEXT_ACTION;
+  }
+
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  if (!changed.length) return json({ ok:true, case:before, unchanged:true }, 200, origin);
+  const set = changed.map(([key],index)=>key+'=?'+(index+2));
+  set.push('updated_at=?'+(changed.length+2));
+  set.push('updated_by=?'+(changed.length+3));
+  const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+  await db.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  await addAdminCaseEvent(db,caseNumber,spec.event,before.status,updates.status,spec.detail,actor);
+  const after=await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({ok:true,case:after,changedFields:changed.map(([key])=>key)},200,origin);
+}
+
+function isAdminCalendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(value+'T00:00:00.000Z');
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === value;
+}
+function addAdminCalendarDays(value, days) {
+  if (!isAdminCalendarDate(value)) return '';
+  const d = new Date(value+'T00:00:00.000Z');
+  d.setUTCDate(d.getUTCDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function adminTodayJst() {
+  return new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
+}
+
+async function addAdminCaseEvent(db, caseNumber, eventType, fromStatus, toStatus, detail, actor) {
+  await db.prepare('INSERT INTO admin_case_events (case_number,event_type,from_status,to_status,detail,actor,created_at) VALUES (?1,?2,?3,?4,?5,?6,?7)').bind(clean(caseNumber,80),clean(eventType,80),clean(fromStatus||'',40),clean(toStatus||'',40),clean(detail||'',4000),clean(actor||'',254),new Date().toISOString()).run();
+}
+
 function isAllowedOrigin(origin) {
   if (!origin) return false;
   if (origin === PROD_ORIGIN || origin === 'https://www.denkicontrol.com') return true;
@@ -951,8 +1263,8 @@ function isAllowedOrigin(origin) {
 
 function corsHeaders(origin) {
   const headers = {
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-GXW-Idempotency-Key, X-GXW-File-Size',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-GXW-Idempotency-Key, X-GXW-File-Size',
     'Access-Control-Max-Age': '86400',
     'Cache-Control': 'no-store',
   };

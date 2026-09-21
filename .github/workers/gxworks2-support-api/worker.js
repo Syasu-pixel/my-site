@@ -987,7 +987,7 @@ async function handleAdminRequest(request, env, origin, url) {
     if (row.source === 'gxworks2') {
       try { source = await env.DB.prepare('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations WHERE case_number=?1 LIMIT 1').bind(caseNumber).first(); } catch {}
     }
-    return json({ ok:true, case:row, source, events:events.results || [] }, 200, origin);
+    return json({ ok:true, case:row, source, events:events.results || [], permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
   }
 
   if (detailMatch && request.method === 'PATCH') {
@@ -1002,6 +1002,11 @@ async function handleAdminRequest(request, env, origin, url) {
   const actionMatch = /^\/admin\/cases\/([^/]+)\/action$/.exec(url.pathname);
   if (actionMatch && request.method === 'POST') {
     return runAdminCaseAction(request, env.DB, decodeURIComponent(actionMatch[1]), admin, origin);
+  }
+
+  const reassignMatch = /^\/admin\/cases\/([^/]+)\/reassign$/.exec(url.pathname);
+  if (reassignMatch && request.method === 'POST') {
+    return reassignAdminCase(env.DB, decodeURIComponent(reassignMatch[1]), admin, origin);
   }
   return json({ ok:false, error:'Admin endpoint not found' }, 404, origin);
 }
@@ -1019,7 +1024,8 @@ async function verifyAdminAuthorization(request) {
     });
     if (!response.ok) return null;
     const payload = decodeJwtPayload(token);
-    return { email:clean((payload && payload.email) || 'admin', 254) || 'admin' };
+    const email = clean((payload && payload.email) || 'admin', 254) || 'admin';
+    return { email, name:adminDisplayName(payload, email) };
   } catch (error) {
     console.error('Admin authorization check failed', error);
     return null;
@@ -1039,13 +1045,20 @@ function decodeJwtPayload(token) {
 async function ensureAdminCaseSchema(db) {
   if (adminSchemaReady) return;
   const statements = [
-    "CREATE TABLE IF NOT EXISTS admin_cases (case_number TEXT PRIMARY KEY, source TEXT NOT NULL, source_id INTEGER, accepted_at TEXT NOT NULL, customer_name TEXT NOT NULL DEFAULT '', customer_email TEXT NOT NULL DEFAULT '', company TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT '', subject TEXT NOT NULL DEFAULT '', summary TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'received', assignee TEXT NOT NULL DEFAULT '', due_date TEXT, next_action TEXT NOT NULL DEFAULT '', estimate_total INTEGER, deposit_amount INTEGER, balance_amount INTEGER, deposit_confirmed_at TEXT, deposit_confirmed_by TEXT, delivered_at TEXT, followup_due_at TEXT, followup_status TEXT NOT NULL DEFAULT 'not_scheduled', followup_sent_at TEXT, followup_result TEXT NOT NULL DEFAULT '', customer_requests TEXT NOT NULL DEFAULT '', handoff_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL DEFAULT '')",
+    "CREATE TABLE IF NOT EXISTS admin_cases (case_number TEXT PRIMARY KEY, source TEXT NOT NULL, source_id INTEGER, accepted_at TEXT NOT NULL, customer_name TEXT NOT NULL DEFAULT '', customer_email TEXT NOT NULL DEFAULT '', company TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT '', subject TEXT NOT NULL DEFAULT '', summary TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'received', assignee TEXT NOT NULL DEFAULT '', assignee_email TEXT NOT NULL DEFAULT '', due_date TEXT, next_action TEXT NOT NULL DEFAULT '', estimate_total INTEGER, deposit_amount INTEGER, balance_amount INTEGER, deposit_confirmed_at TEXT, deposit_confirmed_by TEXT, delivered_at TEXT, followup_due_at TEXT, followup_status TEXT NOT NULL DEFAULT 'not_scheduled', followup_sent_at TEXT, followup_result TEXT NOT NULL DEFAULT '', customer_requests TEXT NOT NULL DEFAULT '', handoff_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL DEFAULT '')",
     "CREATE INDEX IF NOT EXISTS idx_admin_cases_status ON admin_cases(status, updated_at DESC)",
     "CREATE INDEX IF NOT EXISTS idx_admin_cases_company ON admin_cases(company, customer_name)",
     "CREATE TABLE IF NOT EXISTS admin_case_events (id INTEGER PRIMARY KEY AUTOINCREMENT, case_number TEXT NOT NULL, event_type TEXT NOT NULL, from_status TEXT, to_status TEXT, detail TEXT NOT NULL DEFAULT '', actor TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL)",
     "CREATE INDEX IF NOT EXISTS idx_admin_case_events_case ON admin_case_events(case_number, id DESC)"
   ];
   for (const sql of statements) await db.prepare(sql).run();
+  try {
+    await db.prepare("ALTER TABLE admin_cases ADD COLUMN assignee_email TEXT NOT NULL DEFAULT ''").run();
+  } catch (error) {
+    const message = String((error && error.message) || error || '').toLowerCase();
+    if (!message.includes('duplicate column')) throw error;
+  }
+  await db.prepare("CREATE INDEX IF NOT EXISTS idx_admin_cases_assignee_email ON admin_cases(assignee_email, status, updated_at DESC)").run();
   adminSchemaReady = true;
 }
 
@@ -1076,6 +1089,10 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   try { body = await request.json(); } catch { return json({ ok:false, error:'Invalid JSON' }, 400, origin); }
   const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
+  if (Object.prototype.hasOwnProperty.call(body,'assignee') || Object.prototype.hasOwnProperty.call(body,'assignee_email')) {
+    return json({ ok:false, error:'Use the reassignment action to change the assignee' }, 400, origin);
+  }
   const values = {};
 
   if (Object.prototype.hasOwnProperty.call(body,'status')) {
@@ -1089,7 +1106,7 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
     values.followup_status = follow;
   }
 
-  const textFields = {assignee:120,due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
+  const textFields = {due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
   for (const field of Object.keys(textFields)) if (Object.prototype.hasOwnProperty.call(body,field)) values[field] = clean(body[field],textFields[field]);
 
   for (const field of ['estimate_total','deposit_amount']) {
@@ -1165,12 +1182,20 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
 async function confirmAdminCaseDeposit(db, caseNumber, admin, origin) {
   const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
   if (before.deposit_confirmed_at) return json({ ok:true, case:before, unchanged:true }, 200, origin);
   if (before.status !== 'deposit_wait') return json({ ok:false, error:'Case is not waiting for deposit' }, 409, origin);
   const now = new Date().toISOString();
   const actor = admin.email || 'admin';
-  await db.prepare('UPDATE admin_cases SET deposit_confirmed_at=?2,deposit_confirmed_by=?3,status=\'working\',next_action=?4,updated_at=?2,updated_by=?3 WHERE case_number=?1')
-    .bind(caseNumber,now,actor,ADMIN_NEXT_ACTION_DEFAULTS.working).run();
+  const assignment = autoAdminAssignment(before, admin);
+  const updates = {deposit_confirmed_at:now,deposit_confirmed_by:actor,status:'working',next_action:ADMIN_NEXT_ACTION_DEFAULTS.working,...assignment};
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  const set = changed.map(([key],index)=>key+'=?'+(index+2));
+  set.push('updated_at=?'+(changed.length+2));
+  set.push('updated_by=?'+(changed.length+3));
+  const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+  await db.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  if (assignment.assignee_email) await addAdminCaseEvent(db,caseNumber,'assignee_assigned','','','最初の進行操作で '+assignment.assignee+' を担当者に設定',actor);
   await addAdminCaseEvent(db,caseNumber,'deposit_confirmed',before.status,'working','着手金の入金を手動確認し、作業中へ自動移行',actor);
   const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   return json({ ok:true, case:after }, 200, origin);
@@ -1182,6 +1207,7 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
   const action = clean(body.action || '', 80);
   const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
 
   const transitions = {
     start_estimate:{from:['received','estimating'],to:'estimating',event:'estimate_started',detail:'見積作成を開始'},
@@ -1203,7 +1229,8 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
 
   const actor = admin.email || 'admin';
   const now = new Date().toISOString();
-  const updates = {status:spec.to,next_action:ADMIN_NEXT_ACTION_DEFAULTS[spec.to] || ''};
+  const assignment = autoAdminAssignment(before, admin);
+  const updates = {status:spec.to,next_action:ADMIN_NEXT_ACTION_DEFAULTS[spec.to] || '',...assignment};
 
   if (action === 'record_delivery') {
     const delivered = clean(body.delivered_at || '', 10) || adminTodayJst();
@@ -1228,9 +1255,57 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
   set.push('updated_by=?'+(changed.length+3));
   const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
   await db.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  if (assignment.assignee_email) await addAdminCaseEvent(db,caseNumber,'assignee_assigned','','','最初の進行操作で '+assignment.assignee+' を担当者に設定',actor);
   await addAdminCaseEvent(db,caseNumber,spec.event,before.status,updates.status,spec.detail,actor);
   const after=await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   return json({ok:true,case:after,changedFields:changed.map(([key])=>key)},200,origin);
+}
+
+async function reassignAdminCase(db, caseNumber, admin, origin) {
+  const before = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  const actor = normalizeAdminEmail(admin && admin.email);
+  if (!actor) return json({ ok:false, error:'Administrator email is required' }, 400, origin);
+  const name = clean((admin && admin.name) || actor, 120) || actor;
+  if (normalizeAdminEmail(before.assignee_email) === actor && clean(before.assignee || '',120) === name) {
+    return json({ ok:true, case:before, unchanged:true, permissions:adminCasePermissions(before, admin) }, 200, origin);
+  }
+  const now = new Date().toISOString();
+  await db.prepare('UPDATE admin_cases SET assignee=?2,assignee_email=?3,updated_at=?4,updated_by=?3 WHERE case_number=?1')
+    .bind(caseNumber,name,actor,now).run();
+  const from = clean(before.assignee || '',120) || '未割当';
+  await addAdminCaseEvent(db,caseNumber,'assignee_changed','','',from+' → '+name,actor);
+  const after = await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({ ok:true, case:after, permissions:adminCasePermissions(after, admin) }, 200, origin);
+}
+
+function normalizeAdminEmail(value) {
+  return clean(typeof value === 'string' ? value : '',254).toLowerCase();
+}
+function adminDisplayName(payload, email) {
+  const meta = payload && payload.user_metadata && typeof payload.user_metadata === 'object' ? payload.user_metadata : {};
+  for (const value of [meta.full_name, meta.name, meta.display_name, payload && payload.name]) {
+    const name = clean(typeof value === 'string' ? value : '',120);
+    if (name) return name;
+  }
+  const local = normalizeAdminEmail(email).split('@')[0];
+  return clean(local || '管理者',120) || '管理者';
+}
+function adminCasePermissions(row, admin) {
+  const owner = normalizeAdminEmail(row && row.assignee_email);
+  const viewer = normalizeAdminEmail(admin && admin.email);
+  const isAssignee = Boolean(owner && viewer && owner === viewer);
+  return { assigned:Boolean(owner), isAssignee, canEdit:!owner || isAssignee, canReassign:Boolean(viewer) };
+}
+function canAdminEditCase(row, admin) {
+  return adminCasePermissions(row, admin).canEdit;
+}
+function autoAdminAssignment(before, admin) {
+  if (normalizeAdminEmail(before && before.assignee_email) || clean((before && before.assignee) || '',120)) return {};
+  const email = normalizeAdminEmail(admin && admin.email);
+  if (!email) return {};
+  const name = clean((admin && admin.name) || email,120) || email;
+  return {assignee:name,assignee_email:email};
 }
 
 function isAdminCalendarDate(value) {

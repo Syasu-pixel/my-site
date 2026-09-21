@@ -1294,8 +1294,9 @@ function adminDisplayName(payload, email) {
 function adminCasePermissions(row, admin) {
   const owner = normalizeAdminEmail(row && row.assignee_email);
   const viewer = normalizeAdminEmail(admin && admin.email);
+  const legacyAssigned = Boolean(!owner && clean((row && row.assignee) || '',120));
   const isAssignee = Boolean(owner && viewer && owner === viewer);
-  return { assigned:Boolean(owner), isAssignee, canEdit:!owner || isAssignee, canReassign:Boolean(viewer) };
+  return { assigned:Boolean(owner || legacyAssigned), legacyAssigned, isAssignee, canEdit:!owner || isAssignee, canReassign:Boolean(viewer) };
 }
 function canAdminEditCase(row, admin) {
   return adminCasePermissions(row, admin).canEdit;

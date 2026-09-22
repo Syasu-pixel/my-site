@@ -5,12 +5,14 @@ PLC・制御盤改造案件で再利用する提出資料の雛形です。
 ## 収録テンプレート
 
 - `estimate-template.md` — 見積書の構成・項目・備考テンプレート
+- `online-consultation-estimate-template.md` — GX Works2オンライン相談などWeb経由の初回取引用見積書テンプレート
 - `operation-spec-template.md` — 設備運転仕様書（案）の構成テンプレート
 - `io-removal-checklist-template.md` — 現地配線撤去・I/O確認表テンプレート
 
 ## 基本方針
 
 - 見積段階では「見積書＋設備運転仕様書（案）」を基本セットとする。
+- Web経由の初回取引では、標準見積を上書きせず `online-consultation-estimate-template.md` を使用し、見積総額・着手金・残金を分けて記載する。
 - 現地配線整理がある案件では、I/O配線撤去確認一覧を追加する。
 - 運転仕様書はPLCデバイス説明よりも、操作する人が理解できる「ボタン操作 → 設備の動き → 停止・復帰」を優先する。
 - 未確定事項は推測せず「現地確認」「現地確認後確定」と明記する。

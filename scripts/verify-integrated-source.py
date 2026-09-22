@@ -78,8 +78,8 @@ for item in inventory:
  if article:entry.update(asideCount=coverage[page]['asideCount'],endAdapter=coverage[page]['endAdapter'],knownSelfLinks=coverage[page].get('knownSelfLinks',[]))
  ledger.append(entry)
 counts=dict(collections.Counter(r['state'] for r in ledger))
-if len(ledger)!=309 or sum(r['article'] for r in ledger)!=288 or sum(counts.values())!=309:raise ValueError('Inventory reconciliation failed')
-(build/'coverage-ledger.json').write_text(json.dumps({'sourceCommit':config['mainCommit'],'totalHtml':309,'articles':288,'nonArticles':21,'representatives':len(config['representatives']),'integratedTargets':len(targets),'counts':counts,'pages':ledger},ensure_ascii=False,indent=2),encoding='utf-8')
+if len(ledger)!=310 or sum(r['article'] for r in ledger)!=288 or sum(counts.values())!=310:raise ValueError('Inventory reconciliation failed')
+(build/'coverage-ledger.json').write_text(json.dumps({'sourceCommit':config['mainCommit'],'totalHtml':310,'articles':288,'nonArticles':22,'representatives':len(config['representatives']),'integratedTargets':len(targets),'counts':counts,'pages':ledger},ensure_ascii=False,indent=2),encoding='utf-8')
 with (build/'coverage-ledger.csv').open('w',encoding='utf-8-sig',newline='') as f:
  fields=['path','article','state','kind','strategy','productionApplied'];writer=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore');writer.writeheader();writer.writerows(ledger)
 print(json.dumps({'preservedArticles':len(rows),'serviceByteIdentical':True,'ledgerCounts':counts},ensure_ascii=False))

@@ -17,7 +17,7 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.
 if(browser.version()!==base.environment.browser||process.platform!==base.environment.platform||process.version!==base.environment.node)throw Error('Proposal and baseline must share browser/OS/Node');
 const records=[];
 try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.environment.viewports)){
- const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:p.lang==='en'?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce'});
+ const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:p.lang==='en'?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',colorScheme:'light'});
  await context.route('**/*',r=>r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:')?r.continue():r.abort());
  const page=await context.newPage();await page.addInitScript(()=>{const Original=Date;globalThis.Date=class extends Original{constructor(...a){super(...(a.length?a:['2026-09-18T00:00:00Z']));}static now(){return 1789689600000;}};});
  await page.goto(`${origin}/${p.output}`,{waitUntil:'networkidle'});
@@ -42,10 +42,33 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  const alternate=await page.locator('.dc-alternative').count();if(alternate!==(p.counterpart?1:0))throw Error('Counterpart condition failed');
  if(p.counterpart&&await page.locator('.dc-alternative').getAttribute('href')!==p.counterpart)throw Error('Incorrect counterpart');
  if(await page.locator('.dc-contact').getAttribute('href')!==p.contactUrl)throw Error('Incorrect contact');
+ const theme=page.locator('#dc-theme-toggle');if(!await theme.isVisible())throw Error('Theme switch hidden');
+ if(await theme.getAttribute('role')!=='switch'||await theme.getAttribute('aria-checked')!=='false')throw Error('Theme switch initial state');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme-explicit-v2'))!==null)throw Error('Unexpected explicit theme before manual choice');
+ await theme.click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ if(await theme.getAttribute('aria-checked')!=='true'||await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='dark'||await page.evaluate(()=>localStorage.getItem('dc-theme-explicit-v2'))!=='1')throw Error('Manual dark theme not saved');
+ await shoot('dark-menu');await page.keyboard.press('Escape');await shoot('dark-page');
+ await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ await page.locator('#dc-menu-toggle').click();if(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')!=='true')throw Error('Dark theme not persisted');
+ await page.locator('#dc-theme-toggle').click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='light')throw Error('Manual light theme not saved');
+ await page.keyboard.press('Escape');
+ await page.evaluate(()=>{localStorage.setItem('dc-theme','light');localStorage.removeItem('dc-theme-explicit-v2')});
+ await page.emulateMedia({colorScheme:'dark'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ await page.locator('#dc-menu-toggle').click();if(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')!=='true')throw Error('System dark theme not reflected');
+ await page.keyboard.press('Escape');
+ await page.emulateMedia({colorScheme:'light'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ await page.emulateMedia({colorScheme:'dark'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+ await page.locator('#dc-menu-toggle').click();await page.locator('#dc-theme-toggle').click();await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
+ if(await page.evaluate(()=>localStorage.getItem('dc-theme'))!=='light'||await page.evaluate(()=>localStorage.getItem('dc-theme-explicit-v2'))!=='1')throw Error('Manual override after system theme not saved');
+ await page.keyboard.press('Escape');
+ await page.emulateMedia({colorScheme:'light'});await page.emulateMedia({colorScheme:'dark'});await page.waitForTimeout(50);
+ if(await page.evaluate(()=>document.documentElement.dataset.dcTheme)!=='light')throw Error('System theme overrode manual choice');
+ await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='light');
  const overflow=await page.locator('.dc-shell').evaluate(e=>[...e.querySelectorAll('.dc-bar *')].some(n=>{const r=n.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1);}));if(overflow)throw Error(`Header overflow: ${p.output} ${device}`);
- await page.keyboard.press('Escape');if(await page.locator('#dc-menu-toggle').getAttribute('aria-expanded')!=='false')throw Error('Menu Escape failed');
+ if(await page.locator('#dc-menu-toggle').getAttribute('aria-expanded')!=='false')throw Error('Menu Escape failed');
  r.checks='passed';records.push(r);await context.close();
 }}finally{await browser.close();await new Promise(r=>server.close(r));}
 await writeFile(resolve(out,'report.json'),JSON.stringify({stage:'intentional-header-ui-proposal',status:'review-only',baselineCommit:base.baseSha,environment:base.environment,records},null,2));
-await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header proposal</title><style>body{font:16px sans-serif;margin:24px;color:#17304b}section{border-top:1px solid #ccc;padding:20px 0}.row{display:flex;gap:16px;flex-wrap:wrap}figure{margin:0;width:300px}img{width:100%;border:1px solid #ddd}figcaption{padding:8px}</style><h1>Header proposal — review only</h1><p>Intentional UI changes, separate from byte-identical common-template migration. Original article sources remain unchanged. Japanese: consultation, search, menu. English: search, menu; no consultation link. Contact and available article languages are in the menu.</p>${records.map(r=>`<section><h2>${r.target} / ${r.device}</h2><p>Counterpart: ${r.counterpart||'none — no alternative link'}; checks ${r.checks}</p><div class="row">${['before','closed','search','menu','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r.images[k]}"><img src="${r.images[k]}" loading="lazy"></a></figure>`).join('')}</div></section>`).join('')}`);
-console.log(`UI proposal: ${records.length} page/device combinations passed; ${records.length*5} images.`);
+await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header proposal</title><style>body{font:16px sans-serif;margin:24px;color:#17304b}section{border-top:1px solid #ccc;padding:20px 0}.row{display:flex;gap:16px;flex-wrap:wrap}figure{margin:0;width:300px}img{width:100%;border:1px solid #ddd}figcaption{padding:8px}</style><h1>Header proposal — review only</h1><p>Intentional UI changes, separate from byte-identical common-template migration. Original article sources remain unchanged. Japanese: consultation, search, menu. English: search, menu; no consultation link. Contact and available article languages are in the menu.</p>${records.map(r=>`<section><h2>${r.target} / ${r.device}</h2><p>Counterpart: ${r.counterpart||'none — no alternative link'}; checks ${r.checks}</p><div class="row">${['before','closed','search','menu','dark-menu','dark-page','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r.images[k]}"><img src="${r.images[k]}" loading="lazy"></a></figure>`).join('')}</div></section>`).join('')}`);
+console.log(`UI proposal: ${records.length} page/device combinations passed; ${records.length*7} images.`);

@@ -110,6 +110,8 @@ const authHeaders3={Origin:'https://denkicontrol.com',Authorization:'Bearer '+to
 const validTokens=new Set([token,token2,token3]);
 
 let supabaseCalls=0;
+let estimateSheetCalls=0;
+let lastEstimatePayload=null;
 globalThis.fetch=async (url,init={})=>{
   const href=String(url);
   if(href==='https://pavitnsnmoaiospswiys.supabase.co/rest/v1/rpc/admin_article_feedback_dashboard'){
@@ -118,11 +120,27 @@ globalThis.fetch=async (url,init={})=>{
     assert.ok(validTokens.has(String(headers.get('Authorization')||'').replace(/^Bearer\s+/,'')));
     return new Response(JSON.stringify({summary:{}}),{status:200,headers:{'Content-Type':'application/json'}});
   }
+  if(href==='https://script.google.com/macros/s/test-estimate/exec'){
+    estimateSheetCalls++;
+    lastEstimatePayload=JSON.parse(String(init.body||'{}'));
+    assert.equal(lastEstimatePayload.secret,'estimate-secret');
+    assert.equal(init.method,'POST');
+    return new Response(JSON.stringify({
+      ok:true,
+      created:estimateSheetCalls===1,
+      url:'https://docs.google.com/spreadsheets/d/test-estimate-sheet/edit',
+      title:'見積書_'+lastEstimatePayload.case_number
+    }),{status:200,headers:{'Content-Type':'application/json'}});
+  }
   throw new Error('Unexpected fetch URL: '+href);
 };
 
 try{
-  const env={DB:new FakeDB()};
+  const env={
+    DB:new FakeDB(),
+    ESTIMATE_SHEET_WEBAPP_URL:'https://script.google.com/macros/s/test-estimate/exec',
+    ESTIMATE_SHEET_WEBHOOK_SECRET:'estimate-secret'
+  };
 
   const preflight=await worker.fetch(new Request('https://worker.example/admin/cases',{
     method:'OPTIONS',
@@ -222,6 +240,29 @@ try{
   assert.equal(env.DB.case.assignee,'中村 宏樹');
 
   env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
+
+  const estimateSheet=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sheet',{
+    method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(estimateSheet.status,200);
+  const estimateSheetJson=await estimateSheet.json();
+  assert.equal(estimateSheetJson.created,true);
+  assert.equal(estimateSheetJson.url,'https://docs.google.com/spreadsheets/d/test-estimate-sheet/edit');
+  assert.equal(lastEstimatePayload.case_number,env.DB.case.case_number);
+  assert.equal(lastEstimatePayload.company,env.DB.case.company);
+  assert.equal(lastEstimatePayload.customer_name,env.DB.case.customer_name);
+  assert.equal(lastEstimatePayload.estimate_total,110000);
+  assert.equal(lastEstimatePayload.deposit_amount,40000);
+  assert.equal(lastEstimatePayload.assignee,'中村 宏樹');
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_sheet_opened'));
+
+  const estimateSheetAgain=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sheet',{
+    method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(estimateSheetAgain.status,200);
+  assert.equal((await estimateSheetAgain.json()).created,false);
+  assert.equal(estimateSheetCalls,2);
+
   const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
     method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_estimate_sent'}),
   }),env);
@@ -271,6 +312,11 @@ try{
   assert.equal(otherDetailJson.permissions.canEdit,false);
   assert.equal(otherDetailJson.permissions.isAssignee,false);
 
+  const blockedEstimateSheet=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sheet',{
+    method:'POST',headers:{...authHeaders2,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(blockedEstimateSheet.status,403);
+
   const blockedPatch=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
     method:'PATCH',headers:{...authHeaders2,'Content-Type':'application/json'},body:JSON.stringify({handoff_note:'勝手に変更'}),
   }),env);
@@ -317,11 +363,12 @@ try{
       'deposit confirmation transition and auto assignment',
       'start estimate action',
       'assignee display-name profile sync',
+      'estimate sheet creation and reuse',
       'estimate sent action',
       'estimate acceptance action',
       'delivery action and follow-up schedule',
       'follow-up sent action',
-      'assigned case read-only enforcement',
+      'assigned case read-only enforcement including estimate sheet',
       'explicit assignee takeover and audit'
     ]
   }));

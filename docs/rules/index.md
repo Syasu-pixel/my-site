@@ -12,9 +12,9 @@
 | [docs/ai-editorial-project-status.md](../ai-editorial-project-status.md) — AI編集部 プロジェクト状態 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/ai-governance.md](../ai-governance.md) — Denkicontrol AI Governance v0.1 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/editorial-department-status.md](../editorial-department-status.md) — AI編集部プロジェクト運用ステータス | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
-| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/conflicts.md](conflicts.md) — 既存不整合と今回の整理 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/index.md](index.md) — ルール・参照対象の正式一覧 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
+| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 
 ## 条件付き
 
@@ -71,6 +71,7 @@
 | [docs/image-generation-rules-v2-migration.md](../image-generation-rules-v2-migration.md) — 画像生成ルール v2 移行オーバーライド | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/image-generation-rules.md](../image-generation-rules.md) — 画像生成ルール（image generation rules） | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/image-quality-gate.md](../image-quality-gate.md) — Denkicontrol Image Quality Gate v0.1 | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
+| [docs/integrations/online-estimate-sheet-setup.md](../integrations/online-estimate-sheet-setup.md) — オンライン相談 見積書Google Sheets連携 | 管理画面から案件別の見積Google Sheetを作成・更新する連携、Apps Script、Cloudflare Worker設定を扱う。 |
 | [docs/internal-reachability-audit-method-review.md](../internal-reachability-audit-method-review.md) — Internal Reachability Audit Method Review | 内部リンク到達性・言語切替の監査方法を使う。旧監査の件数は現在値として流用しない。 |
 | [docs/language-menu-audit-method-review.md](../language-menu-audit-method-review.md) — Language Menu Audit Method Review | 内部リンク到達性・言語切替の監査方法を使う。旧監査の件数は現在値として流用しない。 |
 | [docs/legacy-article-refresh-template.md](../legacy-article-refresh-template.md) — 古い記事リフレッシュ運用テンプレート（現在スタイル統一） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
@@ -79,11 +80,11 @@
 | [docs/new-article-checklist-v2-migration.md](../new-article-checklist-v2-migration.md) — 新規記事チェックリスト v2 移行オーバーライド | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/new-article-checklist.md](../new-article-checklist.md) — 新規記事作成チェックリスト | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/operation-spec-template.md](../plc-templates/operation-spec-template.md) — 設備運転仕様書（案）テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/popular-articles-maintenance.md](../popular-articles-maintenance.md) — 人気記事 週次更新ルール | 人気記事のランキング・週次更新を扱う。 |
 | [docs/post-approval-publish-pipeline.md](../post-approval-publish-pipeline.md) — 管理者Preview承認後の公開・インデックス工程 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
@@ -116,8 +117,8 @@
 | [docs/search-top-content-audit-2026-09-10.md](../search-top-content-audit-2026-09-10.md) — 検索流入上位記事 技術・テンプレート品質監査（2026-09-10） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 
 ## 実装・設定の参照先
 

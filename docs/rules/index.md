@@ -71,6 +71,7 @@
 | [docs/image-generation-rules-v2-migration.md](../image-generation-rules-v2-migration.md) — 画像生成ルール v2 移行オーバーライド | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/image-generation-rules.md](../image-generation-rules.md) — 画像生成ルール（image generation rules） | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/image-quality-gate.md](../image-quality-gate.md) — Denkicontrol Image Quality Gate v0.1 | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
+| [docs/integrations/online-estimate-sheet-setup.md](../integrations/online-estimate-sheet-setup.md) — オンライン相談 見積書Google Sheets連携 | 管理画面から案件別の見積Google Sheetを作成・更新する連携、Apps Script、Cloudflare Worker設定を扱う。 |
 | [docs/internal-reachability-audit-method-review.md](../internal-reachability-audit-method-review.md) — Internal Reachability Audit Method Review | 内部リンク到達性・言語切替の監査方法を使う。旧監査の件数は現在値として流用しない。 |
 | [docs/language-menu-audit-method-review.md](../language-menu-audit-method-review.md) — Language Menu Audit Method Review | 内部リンク到達性・言語切替の監査方法を使う。旧監査の件数は現在値として流用しない。 |
 | [docs/legacy-article-refresh-template.md](../legacy-article-refresh-template.md) — 古い記事リフレッシュ運用テンプレート（現在スタイル統一） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |

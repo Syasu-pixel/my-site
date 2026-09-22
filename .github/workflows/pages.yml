@@ -27,11 +27,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: pages-preview-${{ github.sha }}
-  cancel-in-progress: true
+  group: pages-${{ github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -207,26 +207,6 @@ jobs:
 
       - name: Verify final standalone publication
         run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
-
-      - name: Publish integrated Cloudflare Preview branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.number == 1488
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PREVIEW_BRANCH: preview-aircyl-integrated-1488
-        run: |
-          set -euo pipefail
-          preview_dir="$(mktemp -d)"
-          rsync -a _site/ "$preview_dir/"
-          cd "$preview_dir"
-          git init
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$PREVIEW_BRANCH"
-          git add -A
-          git commit -m "Integrated preview for PR #${{ github.event.pull_request.number }}"
-          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin "HEAD:refs/heads/${PREVIEW_BRANCH}"
-          echo "Integrated Preview: https://${PREVIEW_BRANCH}.denkicontrol-preview.pages.dev/articles/air-cylinder-troubleshooting-basic.html" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save publication verification
         if: always()

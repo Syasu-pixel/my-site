@@ -22,6 +22,7 @@ class FakeDB {
       summary:'テスト相談',
       status:'deposit_wait',
       assignee:'',
+      assignee_email:'',
       due_date:null,
       next_action:'',
       estimate_total:100000,
@@ -48,21 +49,15 @@ class FakeDB {
       args:[],
       bind(...args){this.args=args;return this;},
       async run(){
-        if(sql.startsWith('CREATE TABLE')||sql.startsWith('CREATE INDEX')) return {meta:{changes:0}};
+        if(sql.startsWith('CREATE TABLE')||sql.startsWith('CREATE INDEX')||sql.startsWith('ALTER TABLE')) return {meta:{changes:0}};
         if(sql.startsWith('INSERT OR IGNORE INTO admin_cases')) return {meta:{changes:0}};
         if(sql.startsWith('INSERT INTO admin_case_events')){
           const [caseNumber,eventType,fromStatus,toStatus,detail,actor,createdAt]=this.args;
           db.events.push({case_number:caseNumber,event_type:eventType,from_status:fromStatus,to_status:toStatus,detail,actor,created_at:createdAt});
           return {meta:{changes:1}};
         }
-        if(sql.startsWith('UPDATE admin_cases SET deposit_confirmed_at=')){
-          const [caseNumber,at,by,nextAction]=this.args;
-          assert.equal(caseNumber,db.case.case_number);
-          Object.assign(db.case,{deposit_confirmed_at:at,deposit_confirmed_by:by,status:'working',next_action:nextAction,updated_at:at,updated_by:by});
-          return {meta:{changes:1}};
-        }
         if(sql.startsWith('UPDATE admin_cases SET ')){
-          const assignments=sql.slice('UPDATE admin_cases SET '.length,sql.indexOf(' WHERE case_number=?1')).split(', ');
+          const assignments=sql.slice('UPDATE admin_cases SET '.length,sql.indexOf(' WHERE case_number=?1')).split(/,\s*/);
           const [caseNumber,...rest]=this.args;
           assert.equal(caseNumber,db.case.case_number);
           for(const assignment of assignments){
@@ -94,9 +89,13 @@ class FakeDB {
   }
 }
 
-const payload=Buffer.from(JSON.stringify({email:'admin@example.com'})).toString('base64url');
+const payload=Buffer.from(JSON.stringify({email:'admin@example.com',user_metadata:{full_name:'担当A'}})).toString('base64url');
 const token='eyJhbGciOiJub25lIn0.'+payload+'.x';
+const payload2=Buffer.from(JSON.stringify({email:'admin2@example.com',user_metadata:{full_name:'担当B'}})).toString('base64url');
+const token2='eyJhbGciOiJub25lIn0.'+payload2+'.x';
 const authHeaders={Origin:'https://denkicontrol.com',Authorization:'Bearer '+token};
+const authHeaders2={Origin:'https://denkicontrol.com',Authorization:'Bearer '+token2};
+const validTokens=new Set([token,token2]);
 
 let supabaseCalls=0;
 globalThis.fetch=async (url,init={})=>{
@@ -104,7 +103,7 @@ globalThis.fetch=async (url,init={})=>{
   if(href==='https://pavitnsnmoaiospswiys.supabase.co/rest/v1/rpc/admin_article_feedback_dashboard'){
     supabaseCalls++;
     const headers=new Headers(init.headers||{});
-    assert.equal(headers.get('Authorization'),'Bearer '+token);
+    assert.ok(validTokens.has(String(headers.get('Authorization')||'').replace(/^Bearer\s+/,'')));
     return new Response(JSON.stringify({summary:{}}),{status:200,headers:{'Content-Type':'application/json'}});
   }
   throw new Error('Unexpected fetch URL: '+href);
@@ -143,6 +142,9 @@ try{
   assert.equal(detail.status,200);
   const detailJson=await detail.json();
   assert.equal(detailJson.case.status,'deposit_wait');
+  assert.equal(detailJson.permissions.canEdit,true);
+  assert.equal(detailJson.permissions.assigned,false);
+  assert.equal(detailJson.viewer.name,'担当A');
 
   const invalid=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
     method:'PATCH',
@@ -151,18 +153,23 @@ try{
   }),env);
   assert.equal(invalid.status,400);
 
+  const manualAssignee=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'PATCH',
+    headers:{...authHeaders,'Content-Type':'application/json'},
+    body:JSON.stringify({assignee:'中村'}),
+  }),env);
+  assert.equal(manualAssignee.status,400);
+
   const patched=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
     method:'PATCH',
     headers:{...authHeaders,'Content-Type':'application/json'},
-    body:JSON.stringify({status:'estimating',assignee:'中村',next_action:'見積書を作成'}),
+    body:JSON.stringify({due_date:'2026-09-24',next_action:'見積書を作成'}),
   }),env);
   assert.equal(patched.status,200);
   const patchedJson=await patched.json();
-  assert.equal(patchedJson.case.status,'estimating');
-  assert.equal(patchedJson.case.assignee,'中村');
+  assert.equal(patchedJson.case.due_date,'2026-09-24');
   assert.equal(patchedJson.case.next_action,'見積書を作成');
   assert.equal(patchedJson.case.updated_by,'admin@example.com');
-  assert.ok(env.DB.events.some(e=>e.event_type==='status_changed'));
 
   env.DB.case.status='deposit_wait';
   const deposit=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/deposit-confirm',{
@@ -174,17 +181,23 @@ try{
   const depositJson=await deposit.json();
   assert.equal(depositJson.case.status,'working');
   assert.equal(depositJson.case.deposit_confirmed_by,'admin@example.com');
+  assert.equal(depositJson.case.assignee,'担当A');
+  assert.equal(depositJson.case.assignee_email,'admin@example.com');
   assert.ok(depositJson.case.deposit_confirmed_at);
   assert.ok(env.DB.events.some(e=>e.event_type==='deposit_confirmed'));
   assert.equal(depositJson.case.next_action,'合意した作業範囲に沿って作業を進める');
 
-  env.DB.case={...env.DB.case,status:'received',next_action:'',estimate_total:null,deposit_amount:null,balance_amount:null,deposit_confirmed_at:null,deposit_confirmed_by:null,delivered_at:null,followup_due_at:null,followup_status:'not_scheduled',followup_sent_at:null};
+  env.DB.case={...env.DB.case,status:'received',assignee:'',assignee_email:'',next_action:'',estimate_total:null,deposit_amount:null,balance_amount:null,deposit_confirmed_at:null,deposit_confirmed_by:null,delivered_at:null,followup_due_at:null,followup_status:'not_scheduled',followup_sent_at:null};
   const startEstimate=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
     method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'start_estimate'}),
   }),env);
   assert.equal(startEstimate.status,200);
-  assert.equal((await startEstimate.clone().json()).case.status,'estimating');
+  const startEstimateJson=await startEstimate.clone().json();
+  assert.equal(startEstimateJson.case.status,'estimating');
+  assert.equal(startEstimateJson.case.assignee,'担当A');
+  assert.equal(startEstimateJson.case.assignee_email,'admin@example.com');
   assert.equal(env.DB.case.next_action,'作業範囲・金額・納期を確認して見積を作成する');
+  assert.ok(env.DB.events.some(e=>e.event_type==='assignee_assigned'));
 
   env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
   const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
@@ -228,7 +241,46 @@ try{
   assert.ok(env.DB.events.some(e=>e.event_type==='delivered'));
   assert.ok(env.DB.events.some(e=>e.event_type==='followup_sent'));
 
-  assert.ok(supabaseCalls>=10);
+  const otherDetail=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'GET',headers:authHeaders2,
+  }),env);
+  assert.equal(otherDetail.status,200);
+  const otherDetailJson=await otherDetail.json();
+  assert.equal(otherDetailJson.permissions.canEdit,false);
+  assert.equal(otherDetailJson.permissions.isAssignee,false);
+
+  const blockedPatch=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'PATCH',headers:{...authHeaders2,'Content-Type':'application/json'},body:JSON.stringify({handoff_note:'勝手に変更'}),
+  }),env);
+  assert.equal(blockedPatch.status,403);
+
+  const blockedAction=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders2,'Content-Type':'application/json'},body:JSON.stringify({action:'record_followup_sent'}),
+  }),env);
+  assert.equal(blockedAction.status,403);
+
+  const reassigned=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/reassign',{
+    method:'POST',headers:{...authHeaders2,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(reassigned.status,200);
+  const reassignedJson=await reassigned.json();
+  assert.equal(reassignedJson.case.assignee,'担当B');
+  assert.equal(reassignedJson.case.assignee_email,'admin2@example.com');
+  assert.equal(reassignedJson.permissions.canEdit,true);
+  assert.ok(env.DB.events.some(e=>e.event_type==='assignee_changed'));
+
+  const oldOwnerBlocked=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'PATCH',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({handoff_note:'旧担当'}),
+  }),env);
+  assert.equal(oldOwnerBlocked.status,403);
+
+  const newOwnerPatch=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'PATCH',headers:{...authHeaders2,'Content-Type':'application/json'},body:JSON.stringify({handoff_note:'新担当へ引き継ぎ'}),
+  }),env);
+  assert.equal(newOwnerPatch.status,200);
+  assert.equal((await newOwnerPatch.json()).case.handoff_note,'新担当へ引き継ぎ');
+
+  assert.ok(supabaseCalls>=15);
 
   console.log(JSON.stringify({
     ok:true,
@@ -239,13 +291,15 @@ try{
       'case list',
       'case detail route',
       'invalid status rejection',
-      'case patch and audit event',
-      'deposit confirmation transition',
+      'case patch and manual assignee rejection',
+      'deposit confirmation transition and auto assignment',
       'start estimate action',
       'estimate sent action',
       'estimate acceptance action',
       'delivery action and follow-up schedule',
-      'follow-up sent action'
+      'follow-up sent action',
+      'assigned case read-only enforcement',
+      'explicit assignee takeover and audit'
     ]
   }));
 } finally {

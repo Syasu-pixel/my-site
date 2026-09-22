@@ -117,6 +117,7 @@
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 
 ## 実装・設定の参照先
 
@@ -342,3 +343,7 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/new-article-checklist.md` → `slug-ogp.png`：未確認・禁止パスまたはslug/xxxの例示として本文に記載。実在先として利用してよいという記述ではない。
 - `.github/article-components/sidebar/INTEGRATION.md` → `/assets/js/article-toc-v2.js`：統合生成時の公開先パス。Git正本は同ディレクトリのtoc.jsで、生成と最終配信検査で存在を確認する。
 - `docs/site-shell-implementation.md` → `report.json`：画面比較runがartifact内へ生成する検証報告。固定Gitファイルではない。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `-candidate-lossless.webp`：過去のローカル回収時に使った候補ファイル名の接尾辞。GitHub常設成果物ではなく、必要時は当時の回収物・作業記録を別途確認する。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。

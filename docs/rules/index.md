@@ -343,3 +343,7 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/new-article-checklist.md` → `slug-ogp.png`：未確認・禁止パスまたはslug/xxxの例示として本文に記載。実在先として利用してよいという記述ではない。
 - `.github/article-components/sidebar/INTEGRATION.md` → `/assets/js/article-toc-v2.js`：統合生成時の公開先パス。Git正本は同ディレクトリのtoc.jsで、生成と最終配信検査で存在を確認する。
 - `docs/site-shell-implementation.md` → `report.json`：画面比較runがartifact内へ生成する検証報告。固定Gitファイルではない。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `-candidate-lossless.webp`：過去のローカル回収時に使った候補ファイル名の接尾辞。GitHub常設成果物ではなく、必要時は当時の回収物・作業記録を別途確認する。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
+- `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。

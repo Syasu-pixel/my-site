@@ -18,6 +18,7 @@ const ADMIN_NEXT_ACTION_DEFAULTS = Object.freeze({
 const ADMIN_FOLLOWUP_NEXT_ACTION = 'フォローへの返信・追加要望を確認する';
 const ADMIN_SUPABASE_URL = 'https://pavitnsnmoaiospswiys.supabase.co';
 const ADMIN_SUPABASE_KEY = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+const ESTIMATE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec';
 let adminSchemaReady = false;
 const adminJapanHolidayCache = new Map();
 
@@ -39,6 +40,7 @@ export default {
         db: Boolean(env.DB),
         passwordStorage: Boolean(env.GXW_PASSWORD_KEY),
         adminZipAttachmentMaxBytes: ADMIN_ATTACHMENT_MAX_BYTES,
+        estimateSheetConfigured: Boolean((env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL) && env.ESTIMATE_SHEET_WEBHOOK_SECRET),
       }, 200, origin);
     }
 
@@ -1011,6 +1013,11 @@ async function handleAdminRequest(request, env, origin, url) {
   if (reassignMatch && request.method === 'POST') {
     return reassignAdminCase(env.DB, decodeURIComponent(reassignMatch[1]), admin, origin);
   }
+
+  const estimateSheetMatch = /^\/admin\/cases\/([^/]+)\/estimate-sheet$/.exec(url.pathname);
+  if (estimateSheetMatch && request.method === 'POST') {
+    return openAdminEstimateSheet(env, decodeURIComponent(estimateSheetMatch[1]), admin, origin);
+  }
   return json({ ok:false, error:'Admin endpoint not found' }, 404, origin);
 }
 
@@ -1307,6 +1314,70 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
   await addAdminCaseEvent(db,caseNumber,spec.event,before.status,updates.status,spec.detail,actor);
   const after=await db.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
   return json({ok:true,case:after,changedFields:changed.map(([key])=>key)},200,origin);
+}
+
+async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
+  const webAppUrl = clean(env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL,1000);
+  if (!webAppUrl || !env.ESTIMATE_SHEET_WEBHOOK_SECRET) {
+    return json({ ok:false, error:'Estimate sheet integration is not configured' }, 503, origin);
+  }
+  const before = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
+  if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot create estimate sheets' }, 409, origin);
+
+  const payload = {
+    secret: env.ESTIMATE_SHEET_WEBHOOK_SECRET,
+    case_number: clean(before.case_number || '',80),
+    company: clean(before.company || '',120),
+    customer_name: clean(before.customer_name || '',120),
+    customer_email: clean(before.customer_email || '',254),
+    subject: clean(before.subject || '',300),
+    status: clean(before.status || '',40),
+    estimate_total: before.estimate_total === null || before.estimate_total === undefined ? null : Number(before.estimate_total),
+    deposit_amount: before.deposit_amount === null || before.deposit_amount === undefined ? null : Number(before.deposit_amount),
+    assignee: clean(before.assignee || '',120),
+    requested_by: clean(admin.email || 'admin',254),
+  };
+
+  let response;
+  try {
+    response = await fetch(webAppUrl, {
+      method:'POST',
+      redirect:'follow',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error('Estimate sheet request failed', error);
+    return json({ ok:false, error:'Estimate sheet service is unavailable' }, 502, origin);
+  }
+
+  const raw = await response.text();
+  let body = {};
+  try { body = raw ? JSON.parse(raw) : {}; } catch {}
+  if (!response.ok || !body.ok || !body.url) {
+    console.error('Estimate sheet service error', response.status, raw.slice(0,1000));
+    return json({ ok:false, error:'Estimate sheet could not be prepared' }, 502, origin);
+  }
+
+  const actor = admin.email || 'admin';
+  await addAdminCaseEvent(
+    env.DB,
+    caseNumber,
+    'estimate_sheet_opened',
+    before.status,
+    before.status,
+    body.created ? '見積シートを新規作成' : '既存の見積シートを更新して開く',
+    actor
+  );
+
+  return json({
+    ok:true,
+    url:clean(body.url,1000),
+    created:Boolean(body.created),
+    title:clean(body.title || '',300),
+  }, 200, origin);
 }
 
 async function reassignAdminCase(db, caseNumber, admin, origin) {

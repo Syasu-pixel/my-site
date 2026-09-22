@@ -120,7 +120,7 @@ globalThis.fetch=async (url,init={})=>{
     assert.ok(validTokens.has(String(headers.get('Authorization')||'').replace(/^Bearer\s+/,'')));
     return new Response(JSON.stringify({summary:{}}),{status:200,headers:{'Content-Type':'application/json'}});
   }
-  if(href==='https://script.google.com/macros/s/test-estimate/exec'){
+  if(href==='https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec'){
     estimateSheetCalls++;
     lastEstimatePayload=JSON.parse(String(init.body||'{}'));
     assert.equal(lastEstimatePayload.secret,'estimate-secret');
@@ -138,7 +138,6 @@ globalThis.fetch=async (url,init={})=>{
 try{
   const env={
     DB:new FakeDB(),
-    ESTIMATE_SHEET_WEBAPP_URL:'https://script.google.com/macros/s/test-estimate/exec',
     ESTIMATE_SHEET_WEBHOOK_SECRET:'estimate-secret'
   };
 

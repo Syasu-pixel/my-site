@@ -56,6 +56,12 @@ class FakeDB {
           db.events.push({case_number:caseNumber,event_type:eventType,from_status:fromStatus,to_status:toStatus,detail,actor,created_at:createdAt});
           return {meta:{changes:1}};
         }
+        if(sql.startsWith('UPDATE admin_cases SET assignee=?2 WHERE LOWER(TRIM(assignee_email))=?1')){
+          const [email,name]=this.args;
+          const current=String(db.case.assignee_email||'').trim().toLowerCase();
+          if(current===email&&db.case.assignee!==name){db.case.assignee=name;return {meta:{changes:1}}}
+          return {meta:{changes:0}};
+        }
         if(sql.startsWith('UPDATE admin_cases SET ')){
           const assignments=sql.slice('UPDATE admin_cases SET '.length,sql.indexOf(' WHERE case_number=?1')).split(/,\s*/);
           const [caseNumber,...rest]=this.args;
@@ -96,9 +102,12 @@ const payload=Buffer.from(JSON.stringify({email:'admin@example.com',user_metadat
 const token='eyJhbGciOiJub25lIn0.'+payload+'.x';
 const payload2=Buffer.from(JSON.stringify({email:'admin2@example.com',user_metadata:{full_name:'担当B'}})).toString('base64url');
 const token2='eyJhbGciOiJub25lIn0.'+payload2+'.x';
+const payload3=Buffer.from(JSON.stringify({email:'admin@example.com',user_metadata:{full_name:'中村 宏樹'}})).toString('base64url');
+const token3='eyJhbGciOiJub25lIn0.'+payload3+'.x';
 const authHeaders={Origin:'https://denkicontrol.com',Authorization:'Bearer '+token};
 const authHeaders2={Origin:'https://denkicontrol.com',Authorization:'Bearer '+token2};
-const validTokens=new Set([token,token2]);
+const authHeaders3={Origin:'https://denkicontrol.com',Authorization:'Bearer '+token3};
+const validTokens=new Set([token,token2,token3]);
 
 let supabaseCalls=0;
 globalThis.fetch=async (url,init={})=>{
@@ -204,6 +213,14 @@ try{
   assert.equal(env.DB.case.next_action,'作業範囲・金額・納期を確認して見積を作成する');
   assert.ok(env.DB.events.some(e=>e.event_type==='assignee_assigned'));
 
+  const renamedList=await worker.fetch(new Request('https://worker.example/admin/cases',{
+    method:'GET',headers:authHeaders3,
+  }),env);
+  assert.equal(renamedList.status,200);
+  const renamedListJson=await renamedList.json();
+  assert.equal(renamedListJson.cases[0].assignee,'中村 宏樹');
+  assert.equal(env.DB.case.assignee,'中村 宏樹');
+
   env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
   const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
     method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_estimate_sent'}),
@@ -285,7 +302,7 @@ try{
   assert.equal(newOwnerPatch.status,200);
   assert.equal((await newOwnerPatch.json()).case.handoff_note,'新担当へ引き継ぎ');
 
-  assert.ok(supabaseCalls>=15);
+  assert.ok(supabaseCalls>=16);
 
   console.log(JSON.stringify({
     ok:true,
@@ -299,6 +316,7 @@ try{
       'case patch and manual assignee rejection',
       'deposit confirmation transition and auto assignment',
       'start estimate action',
+      'assignee display-name profile sync',
       'estimate sent action',
       'estimate acceptance action',
       'delivery action and follow-up schedule',

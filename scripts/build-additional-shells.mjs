@@ -14,7 +14,7 @@ if(paths.length!==allowed.length||new Set(paths).size!==allowed.length||paths.so
 const headerTemplate=await readFile(resolve(shared,'header.njk'),'utf8'),headerCss=await readFile(resolve(shared,'header.css'),'utf8'),headerJs=await readFile(resolve(shared,'header.js'),'utf8');
 const footerTemplate=await readFile(resolve(pkg,'footer.njk'),'utf8');
 const disclosureTemplate=await readFile(resolve(root,'.github/site-shells/components/affiliate-disclosure.njk'),'utf8');
-const frameCss=await readFile(resolve(pkg,'frame.css'),'utf8');
+const frameCss=await readFile(resolve(pkg,'frame.css'),'utf8'),contactCss=await readFile(resolve(pkg,'contact.css'),'utf8');
 const offsetJs=await readFile(resolve(pkg,'offset.js'),'utf8');
 const isolation=`<meta name="robots" content="noindex,nofollow"><meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'none'; object-src 'none'; base-uri 'none'; worker-src 'none'"><script data-preview-isolation>(()=>{const f=window.fetch.bind(window);window.fetch=(input,init={})=>{const u=new URL(typeof input==='string'?input:input.url,location.href);if(u.origin!==location.origin||!['GET','HEAD'].includes((init.method||input.method||'GET').toUpperCase()))return Promise.reject(Error('Preview blocks sending'));return f(input,init)};navigator.sendBeacon=()=>false;document.addEventListener('submit',e=>{if(e.target.id!=='siteSearch'){e.preventDefault();e.stopImmediatePropagation()}},true)})();</script>`;
 const rows=[];
@@ -28,7 +28,7 @@ for(const path of paths){
  const disclosure=njk.renderString(disclosureTemplate,{disclosureLang:data.lang});
  const footer=njk.renderString(footerTemplate,{footerClass,footerInner}).replace('</footer>',disclosure+'</footer>');
  let candidate=original.replace(headers[0][0],header).replace(oldFooter,footer);
- const addedStyle=`<style data-shell-extension="header">${headerCss}</style><style data-shell-extension="frame">${frameCss}</style>`;
+ const addedStyle=`<style data-shell-extension="header">${headerCss}</style><style data-shell-extension="frame">${frameCss}</style>`+(contactPage?`<style data-shell-extension="contact">${contactCss}</style>`:'');
  const addSearch=!/src=["'][^"']*site-search\.js/.test(original),addedScript=`<script data-shell-extension="header">${headerJs}</script><script data-shell-extension="offset">${offsetJs}</script>`+(addSearch?'<script src="/assets/js/site-search.js" defer data-shell-extension="search"></script>':'');
  candidate=candidate.replace('</head>',addedStyle+'</head>').replace('</body>',addedScript+'</body>');
  const restored=candidate.replace(addedStyle,'').replace(addedScript,'').replace(header,headers[0][0]).replace(footer,oldFooter);

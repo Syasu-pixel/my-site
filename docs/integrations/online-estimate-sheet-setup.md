@@ -39,7 +39,11 @@ Cloudflare Worker と Apps Script の間では共通Secret `ESTIMATE_WEBHOOK_SEC
 - SecretはGitHubへ保存しない。
 - Apps Script: Script Properties に保存する。
 - Cloudflare Worker: Secretとして保存する。
-- WebアプリURLはCloudflare Worker環境変数 `ESTIMATE_SHEET_WEBAPP_URL` に保存する。
+- WebアプリURLは公開情報のためWorker正本に固定する。
+- Cloudflare Worker側で追加が必要なのは `ESTIMATE_WEBHOOK_SECRET` のみ。
+
+現在のWebアプリURL:
+`https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec`
 
 ## Apps Scriptデプロイ
 
@@ -49,7 +53,7 @@ Cloudflare Worker と Apps Script の間では共通Secret `ESTIMATE_WEBHOOK_SEC
 4. デプロイ -> 新しいデプロイ -> ウェブアプリ。
 5. 実行ユーザーは自分。
 6. Cloudflare WorkerからPOSTできるアクセス設定にする。
-7. 発行された `.../exec` URLをCloudflare Workerの `ESTIMATE_SHEET_WEBAPP_URL` に設定する。
+7. 発行された `.../exec` URLをWorker正本の `ESTIMATE_SHEET_WEBAPP_URL` と一致させる。
 8. 同じSecretをCloudflare Workerの `ESTIMATE_WEBHOOK_SECRET` に設定する。
 
 ## セキュリティ

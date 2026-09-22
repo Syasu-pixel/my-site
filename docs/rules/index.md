@@ -12,9 +12,9 @@
 | [docs/ai-editorial-project-status.md](../ai-editorial-project-status.md) — AI編集部 プロジェクト状態 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/ai-governance.md](../ai-governance.md) — Denkicontrol AI Governance v0.1 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/editorial-department-status.md](../editorial-department-status.md) — AI編集部プロジェクト運用ステータス | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
-| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/conflicts.md](conflicts.md) — 既存不整合と今回の整理 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/index.md](index.md) — ルール・参照対象の正式一覧 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
+| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 
 ## 条件付き
 
@@ -80,11 +80,11 @@
 | [docs/new-article-checklist-v2-migration.md](../new-article-checklist-v2-migration.md) — 新規記事チェックリスト v2 移行オーバーライド | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/new-article-checklist.md](../new-article-checklist.md) — 新規記事作成チェックリスト | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/operation-spec-template.md](../plc-templates/operation-spec-template.md) — 設備運転仕様書（案）テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/popular-articles-maintenance.md](../popular-articles-maintenance.md) — 人気記事 週次更新ルール | 人気記事のランキング・週次更新を扱う。 |
 | [docs/post-approval-publish-pipeline.md](../post-approval-publish-pipeline.md) — 管理者Preview承認後の公開・インデックス工程 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |

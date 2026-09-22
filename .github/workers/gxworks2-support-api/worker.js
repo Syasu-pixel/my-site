@@ -18,6 +18,7 @@ const ADMIN_NEXT_ACTION_DEFAULTS = Object.freeze({
 const ADMIN_FOLLOWUP_NEXT_ACTION = 'フォローへの返信・追加要望を確認する';
 const ADMIN_SUPABASE_URL = 'https://pavitnsnmoaiospswiys.supabase.co';
 const ADMIN_SUPABASE_KEY = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+const ESTIMATE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec';
 let adminSchemaReady = false;
 const adminJapanHolidayCache = new Map();
 
@@ -39,7 +40,7 @@ export default {
         db: Boolean(env.DB),
         passwordStorage: Boolean(env.GXW_PASSWORD_KEY),
         adminZipAttachmentMaxBytes: ADMIN_ATTACHMENT_MAX_BYTES,
-        estimateSheetConfigured: Boolean(env.ESTIMATE_SHEET_WEBAPP_URL && env.ESTIMATE_SHEET_WEBHOOK_SECRET),
+        estimateSheetConfigured: Boolean((env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL) && env.ESTIMATE_SHEET_WEBHOOK_SECRET),
       }, 200, origin);
     }
 
@@ -1316,7 +1317,8 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
 }
 
 async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
-  if (!env.ESTIMATE_SHEET_WEBAPP_URL || !env.ESTIMATE_SHEET_WEBHOOK_SECRET) {
+  const webAppUrl = clean(env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL,1000);
+  if (!webAppUrl || !env.ESTIMATE_SHEET_WEBHOOK_SECRET) {
     return json({ ok:false, error:'Estimate sheet integration is not configured' }, 503, origin);
   }
   const before = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
@@ -1340,7 +1342,7 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
 
   let response;
   try {
-    response = await fetch(env.ESTIMATE_SHEET_WEBAPP_URL, {
+    response = await fetch(webAppUrl, {
       method:'POST',
       redirect:'follow',
       headers:{'Content-Type':'application/json'},

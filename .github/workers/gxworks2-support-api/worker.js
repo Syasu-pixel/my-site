@@ -19,6 +19,7 @@ const ADMIN_FOLLOWUP_NEXT_ACTION = 'フォローへの返信・追加要望を�
 const ADMIN_SUPABASE_URL = 'https://pavitnsnmoaiospswiys.supabase.co';
 const ADMIN_SUPABASE_KEY = 'sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
 let adminSchemaReady = false;
+const adminJapanHolidayCache = new Map();
 
 export default {
   async fetch(request, env) {
@@ -971,6 +972,7 @@ async function handleAdminRequest(request, env, origin, url) {
   if (!admin) return json({ ok:false, error:'Administrator access required' }, 401, origin);
   await ensureAdminCaseSchema(env.DB);
   await syncGxwCasesToAdmin(env.DB);
+  await backfillAdminCaseDueDates(env.DB);
 
   if (request.method === 'GET' && url.pathname === '/admin/cases') {
     const result = await env.DB.prepare('SELECT * FROM admin_cases ORDER BY CASE status WHEN \'deposit_wait\' THEN 0 WHEN \'estimating\' THEN 1 WHEN \'estimate_sent\' THEN 2 WHEN \'working\' THEN 3 WHEN \'received\' THEN 4 WHEN \'delivered\' THEN 5 WHEN \'on_hold\' THEN 6 ELSE 7 END, COALESCE(due_date, \'9999-12-31\') ASC, updated_at DESC LIMIT 300').all();
@@ -1075,15 +1077,46 @@ async function upsertAdminCaseFromGxw(db, row) {
   await ensureAdminCaseSchema(db);
   const subject = row.plc ? 'GX Works2 / ' + row.plc : 'GX Works2 オンライン相談';
   const summary = (row.problem || '') + (row.desired ? '\n希望: ' + row.desired : '');
-  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,source_id,accepted_at,customer_name,customer_email,company,category,subject,summary,status,created_at,updated_at) VALUES (?1,'gxworks2',?2,?3,?4,?5,?6,'GX Works2',?7,?8,'received',?3,?9)").bind(row.case_number,row.id,row.accepted_at,row.name||'',row.email||'',row.company||'',subject,summary,row.updated_at||row.accepted_at).run();
-  if ((result.meta && result.meta.changes || 0) > 0) await addAdminCaseEvent(db,row.case_number,'received','','received','GX Works2相談を案件管理へ登録','system');
+  const dueDate = adminDueDateFromAcceptedAt(row.accepted_at);
+  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,source_id,accepted_at,customer_name,customer_email,company,category,subject,summary,status,due_date,created_at,updated_at) VALUES (?1,'gxworks2',?2,?3,?4,?5,?6,'GX Works2',?7,?8,'received',?9,?3,?10)").bind(row.case_number,row.id,row.accepted_at,row.name||'',row.email||'',row.company||'',subject,summary,dueDate||null,row.updated_at||row.accepted_at).run();
+  if ((result.meta && result.meta.changes || 0) > 0) {
+    await addAdminCaseEvent(db,row.case_number,'received','','received','GX Works2相談を案件管理へ登録','system');
+    if (dueDate) await addAdminCaseEvent(db,row.case_number,'due_date_auto_set','','','受付から2営業日後（日本の土日祝を除外）: '+dueDate,'system');
+  }
 }
 
 async function upsertAdminCaseFromGeneral(db, caseNumber, acceptedAt, data) {
   await ensureAdminCaseSchema(db);
   const subject = data.relatedUrl ? (data.category || 'オンライン相談') + ' / ' + data.relatedUrl : (data.category || 'オンライン相談');
-  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,accepted_at,customer_name,customer_email,company,category,subject,summary,status,created_at,updated_at) VALUES (?1,'general',?2,?3,?4,?5,?6,?7,?8,'received',?2,?2)").bind(caseNumber,acceptedAt,data.name||'',data.email||'',data.company||'',data.category||'オンライン相談',subject,data.message||'').run();
-  if ((result.meta && result.meta.changes || 0) > 0) await addAdminCaseEvent(db,caseNumber,'received','','received','オンライン相談を案件管理へ登録','system');
+  const dueDate = adminDueDateFromAcceptedAt(acceptedAt);
+  const result = await db.prepare("INSERT OR IGNORE INTO admin_cases (case_number,source,accepted_at,customer_name,customer_email,company,category,subject,summary,status,due_date,created_at,updated_at) VALUES (?1,'general',?2,?3,?4,?5,?6,?7,?8,'received',?9,?2,?2)").bind(caseNumber,acceptedAt,data.name||'',data.email||'',data.company||'',data.category||'オンライン相談',subject,data.message||'',dueDate||null).run();
+  if ((result.meta && result.meta.changes || 0) > 0) {
+    await addAdminCaseEvent(db,caseNumber,'received','','received','オンライン相談を案件管理へ登録','system');
+    if (dueDate) await addAdminCaseEvent(db,caseNumber,'due_date_auto_set','','','受付から2営業日後（日本の土日祝を除外）: '+dueDate,'system');
+  }
+}
+
+async function backfillAdminCaseDueDates(db) {
+  let rows = [];
+  try {
+    const result = await db.prepare("SELECT case_number,accepted_at,due_date FROM admin_cases WHERE due_date IS NULL OR TRIM(due_date)='' LIMIT 300").all();
+    rows = result.results || [];
+  } catch (error) {
+    console.error('Admin due-date backfill read failed', error);
+    return;
+  }
+  for (const row of rows) {
+    const dueDate = adminDueDateFromAcceptedAt(row.accepted_at);
+    if (!dueDate) continue;
+    try {
+      const result = await db.prepare("UPDATE admin_cases SET due_date=?2 WHERE case_number=?1 AND (due_date IS NULL OR TRIM(due_date)='')").bind(row.case_number,dueDate).run();
+      if ((result.meta && result.meta.changes || 0) > 0) {
+        await addAdminCaseEvent(db,row.case_number,'due_date_auto_set','','','受付から2営業日後（日本の土日祝を除外）: '+dueDate,'system');
+      }
+    } catch (error) {
+      console.error('Admin due-date backfill failed', row.case_number, error);
+    }
+  }
 }
 
 async function updateAdminCase(request, db, caseNumber, admin, origin) {
@@ -1324,6 +1357,91 @@ function addAdminCalendarDays(value, days) {
 }
 function adminTodayJst() {
   return new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
+}
+function adminDateJstFromInstant(value) {
+  const ms = Date.parse(value || '');
+  if (!Number.isFinite(ms)) return '';
+  return new Date(ms + 9*60*60*1000).toISOString().slice(0,10);
+}
+function adminPad2(value) { return String(value).padStart(2,'0'); }
+function adminYmd(year,month,day) { return year+'-'+adminPad2(month)+'-'+adminPad2(day); }
+function adminNthWeekday(year,month,weekday,nth) {
+  const first = new Date(Date.UTC(year,month-1,1));
+  return 1 + ((weekday-first.getUTCDay()+7)%7) + (nth-1)*7;
+}
+function adminVernalEquinoxDay(year) {
+  if (year < 1980 || year > 2099) return 20;
+  return Math.floor(20.8431 + 0.242194*(year-1980) - Math.floor((year-1980)/4));
+}
+function adminAutumnEquinoxDay(year) {
+  if (year < 1980 || year > 2099) return 23;
+  return Math.floor(23.2488 + 0.242194*(year-1980) - Math.floor((year-1980)/4));
+}
+function adminJapanHolidaySet(year) {
+  if (adminJapanHolidayCache.has(year)) return adminJapanHolidayCache.get(year);
+  const national = new Set([
+    adminYmd(year,1,1),
+    adminYmd(year,1,adminNthWeekday(year,1,1,2)),
+    adminYmd(year,2,11),
+    ...(year>=2020?[adminYmd(year,2,23)]:[]),
+    adminYmd(year,3,adminVernalEquinoxDay(year)),
+    adminYmd(year,4,29),
+    adminYmd(year,5,3),adminYmd(year,5,4),adminYmd(year,5,5),
+    adminYmd(year,7,adminNthWeekday(year,7,1,3)),
+    ...(year>=2016?[adminYmd(year,8,11)]:[]),
+    adminYmd(year,9,adminNthWeekday(year,9,1,3)),
+    adminYmd(year,9,adminAutumnEquinoxDay(year)),
+    adminYmd(year,10,adminNthWeekday(year,10,1,2)),
+    adminYmd(year,11,3),adminYmd(year,11,23),
+  ]);
+  if (year===2020) {
+    national.delete(adminYmd(year,7,adminNthWeekday(year,7,1,3)));national.add('2020-07-23');
+    national.delete(adminYmd(year,8,11));national.add('2020-08-10');
+    national.delete(adminYmd(year,10,adminNthWeekday(year,10,1,2)));national.add('2020-07-24');
+  }
+  if (year===2021) {
+    national.delete(adminYmd(year,7,adminNthWeekday(year,7,1,3)));national.add('2021-07-22');
+    national.delete(adminYmd(year,8,11));national.add('2021-08-08');
+    national.delete(adminYmd(year,10,adminNthWeekday(year,10,1,2)));national.add('2021-07-23');
+  }
+  const holidays = new Set(national);
+  for (let day=2;day<=366;day++) {
+    const d=new Date(Date.UTC(year,0,day));
+    if (d.getUTCFullYear()!==year) break;
+    const current=d.toISOString().slice(0,10);
+    if (national.has(current)) continue;
+    const prev=new Date(d);prev.setUTCDate(prev.getUTCDate()-1);
+    const next=new Date(d);next.setUTCDate(next.getUTCDate()+1);
+    if (national.has(prev.toISOString().slice(0,10)) && national.has(next.toISOString().slice(0,10))) holidays.add(current);
+  }
+  for (const value of [...national].sort()) {
+    const d=new Date(value+'T00:00:00.000Z');
+    if (d.getUTCDay()!==0) continue;
+    do { d.setUTCDate(d.getUTCDate()+1); } while (national.has(d.toISOString().slice(0,10)));
+    holidays.add(d.toISOString().slice(0,10));
+  }
+  adminJapanHolidayCache.set(year,holidays);
+  return holidays;
+}
+function isAdminBusinessDay(value) {
+  if (!isAdminCalendarDate(value)) return false;
+  const d=new Date(value+'T00:00:00.000Z');
+  const weekday=d.getUTCDay();
+  if (weekday===0 || weekday===6) return false;
+  return !adminJapanHolidaySet(d.getUTCFullYear()).has(value);
+}
+function addAdminBusinessDays(value,days) {
+  if (!isAdminCalendarDate(value) || !Number.isSafeInteger(days) || days<0 || days>366) return '';
+  let result=value,count=0;
+  while (count<days) {
+    result=addAdminCalendarDays(result,1);
+    if (isAdminBusinessDay(result)) count++;
+  }
+  return result;
+}
+function adminDueDateFromAcceptedAt(acceptedAt) {
+  const receivedDate=adminDateJstFromInstant(acceptedAt);
+  return receivedDate ? addAdminBusinessDays(receivedDate,2) : '';
 }
 
 async function addAdminCaseEvent(db, caseNumber, eventType, fromStatus, toStatus, detail, actor) {

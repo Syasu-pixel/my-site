@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {planCaseAutomation, NEXT_ACTION_DEFAULTS, addCalendarDays, isCalendarDate, tokyoDate} from '../admin/case-automation.mjs';
+import {planCaseAutomation, NEXT_ACTION_DEFAULTS, addCalendarDays, isCalendarDate, tokyoDate, isJapanBusinessDay, addJapanBusinessDays} from '../admin/case-automation.mjs';
 
 const source=await readFile(new URL('../.github/workers/gxworks2-support-api/worker.js',import.meta.url),'utf8');
 const mod=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
@@ -80,6 +80,9 @@ class FakeDB {
       },
       async all(){
         if(sql.startsWith('SELECT * FROM admin_cases ORDER BY')) return {results:[{...db.case}]};
+        if(sql.startsWith('SELECT case_number,accepted_at,due_date FROM admin_cases WHERE')){
+          return {results:db.case.due_date?[]:[{case_number:db.case.case_number,accepted_at:db.case.accepted_at,due_date:db.case.due_date}]};
+        }
         if(sql.startsWith('SELECT event_type, from_status, to_status, detail, actor, created_at FROM admin_case_events')){
           return {results:[...db.events].reverse()};
         }
@@ -134,6 +137,8 @@ try{
   assert.equal(listJson.ok,true);
   assert.equal(listJson.cases.length,1);
   assert.equal(listJson.cases[0].case_number,env.DB.case.case_number);
+  assert.equal(listJson.cases[0].due_date,'2026-09-25');
+  assert.ok(env.DB.events.some(e=>e.event_type==='due_date_auto_set'));
 
   const detail=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
     method:'GET',
@@ -288,7 +293,7 @@ try{
       'PATCH preflight',
       'unauthorized rejection',
       'admin authorization',
-      'case list',
+      'case list and due-date backfill',
       'case detail route',
       'invalid status rejection',
       'case patch and manual assignee rejection',
@@ -414,6 +419,19 @@ check('invalid dates and leap days are validated',()=>{
 });
 check('Japan day boundaries are deterministic',()=>{
   assert.equal(tokyoDate(new Date('2026-09-20T15:01:00Z')),'2026-09-21');
+});
+check('Japan business days exclude weekends and official holiday clusters',()=>{
+  assert.equal(isJapanBusinessDay('2026-09-21'),false);
+  assert.equal(isJapanBusinessDay('2026-09-22'),false);
+  assert.equal(isJapanBusinessDay('2026-09-23'),false);
+  assert.equal(isJapanBusinessDay('2026-09-24'),true);
+  assert.equal(addJapanBusinessDays('2026-09-18',2),'2026-09-25');
+  assert.equal(addJapanBusinessDays('2026-05-01',2),'2026-05-08');
+  assert.equal(addJapanBusinessDays('2027-03-19',2),'2027-03-24');
+});
+check('two business-day deadline counts from the day after receipt',()=>{
+  assert.equal(addJapanBusinessDays('2026-09-14',2),'2026-09-16');
+  assert.equal(addJapanBusinessDays('2026-09-25',2),'2026-09-29');
 });
 check('sending a follow-up requires actual sending to be recorded',()=>{
   const before={...fixtures(),status:'delivered',delivered_at:'2026-09-20',followup_status:'scheduled'};

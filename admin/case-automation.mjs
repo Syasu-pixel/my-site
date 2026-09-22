@@ -59,6 +59,90 @@ export function addCalendarDays(value, days) {
   if (!isCalendarDate(result)) fail('INVALID_DATE', '日付が入力範囲外です。');
   return result;
 }
+
+const JAPAN_HOLIDAY_CACHE = new Map();
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = (year, month, day) => `${year}-${pad2(month)}-${pad2(day)}`;
+function nthWeekday(year, month, weekday, nth) {
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  return 1 + ((weekday - first.getUTCDay() + 7) % 7) + (nth - 1) * 7;
+}
+function vernalEquinoxDay(year) {
+  if (year < 1980 || year > 2099) return 20;
+  return Math.floor(20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+}
+function autumnEquinoxDay(year) {
+  if (year < 1980 || year > 2099) return 23;
+  return Math.floor(23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+}
+function japanNationalHolidaySet(year) {
+  if (!Number.isSafeInteger(year) || year < 1980 || year > 2099) fail('INVALID_DATE', '祝日計算の対象年を確認してください。');
+  if (JAPAN_HOLIDAY_CACHE.has(year)) return JAPAN_HOLIDAY_CACHE.get(year);
+  const national = new Set([
+    ymd(year,1,1),
+    ymd(year,1,nthWeekday(year,1,1,2)),
+    ymd(year,2,11),
+    ...(year >= 2020 ? [ymd(year,2,23)] : []),
+    ymd(year,3,vernalEquinoxDay(year)),
+    ymd(year,4,29),
+    ymd(year,5,3), ymd(year,5,4), ymd(year,5,5),
+    ymd(year,7,nthWeekday(year,7,1,3)),
+    ...(year >= 2016 ? [ymd(year,8,11)] : []),
+    ymd(year,9,nthWeekday(year,9,1,3)),
+    ymd(year,9,autumnEquinoxDay(year)),
+    ymd(year,10,nthWeekday(year,10,1,2)),
+    ymd(year,11,3), ymd(year,11,23),
+  ]);
+
+  // 2020/2021 Olympic one-off holiday moves; kept for deterministic historical tests.
+  if (year === 2020) {
+    national.delete(ymd(year,7,nthWeekday(year,7,1,3))); national.add('2020-07-23');
+    national.delete(ymd(year,8,11)); national.add('2020-08-10');
+    national.delete(ymd(year,10,nthWeekday(year,10,1,2))); national.add('2020-07-24');
+  }
+  if (year === 2021) {
+    national.delete(ymd(year,7,nthWeekday(year,7,1,3))); national.add('2021-07-22');
+    national.delete(ymd(year,8,11)); national.add('2021-08-08');
+    national.delete(ymd(year,10,nthWeekday(year,10,1,2))); national.add('2021-07-23');
+  }
+
+  const holidays = new Set(national);
+  // A non-national-holiday day sandwiched between two national holidays is a holiday.
+  for (let day = 2; day <= 365; day++) {
+    const d = new Date(Date.UTC(year, 0, day));
+    if (d.getUTCFullYear() !== year) break;
+    const cur = d.toISOString().slice(0,10);
+    if (national.has(cur)) continue;
+    const prev = new Date(d); prev.setUTCDate(prev.getUTCDate() - 1);
+    const next = new Date(d); next.setUTCDate(next.getUTCDate() + 1);
+    if (national.has(prev.toISOString().slice(0,10)) && national.has(next.toISOString().slice(0,10))) holidays.add(cur);
+  }
+  // Sunday national holidays create a substitute holiday on the nearest following non-national-holiday date.
+  for (const value of [...national].sort()) {
+    const d = new Date(value + 'T00:00:00.000Z');
+    if (d.getUTCDay() !== 0) continue;
+    do { d.setUTCDate(d.getUTCDate() + 1); } while (national.has(d.toISOString().slice(0,10)));
+    holidays.add(d.toISOString().slice(0,10));
+  }
+  JAPAN_HOLIDAY_CACHE.set(year, holidays);
+  return holidays;
+}
+export function isJapanBusinessDay(value) {
+  if (!isCalendarDate(value)) fail('INVALID_DATE', '日付を確認してください。');
+  const d = new Date(value + 'T00:00:00.000Z');
+  const day = d.getUTCDay();
+  if (day === 0 || day === 6) return false;
+  return !japanNationalHolidaySet(d.getUTCFullYear()).has(value);
+}
+export function addJapanBusinessDays(value, days) {
+  if (!isCalendarDate(value) || !Number.isSafeInteger(days) || days < 0 || days > 366) fail('INVALID_DATE', '営業日計算を確認してください。');
+  let result = value, count = 0;
+  while (count < days) {
+    result = addCalendarDays(result, 1);
+    if (isJapanBusinessDay(result)) count++;
+  }
+  return result;
+}
 export function tokyoDate(instant = new Date()) {
   const parts = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',

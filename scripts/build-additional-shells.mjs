@@ -9,7 +9,7 @@ const root=resolve(process.argv[3]||resolve(dirname(fileURLToPath(import.meta.ur
 if(out===root||out.startsWith(root+sep)||root.startsWith(out+sep))throw Error('Use separate additional-shell output');
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const manifest=JSON.parse(await readFile(resolve(pkg,'manifest.json'),'utf8')),paths=manifest.pages.map(p=>p.path);
-const allowed=['index.html','en/index.html','services/gxworks2-online-support.html','categories/career.html','categories/air-pneumatic.html','categories/circuit-basics.html','categories/comparison-guide.html','categories/control-basics.html','categories/tools-guide.html','en/categories/circuit-basics.html','en/categories/control-basics.html'];
+const allowed=['index.html','en/index.html','services/gxworks2-online-support.html','contact/index.html','categories/career.html','categories/air-pneumatic.html','categories/circuit-basics.html','categories/comparison-guide.html','categories/control-basics.html','categories/tools-guide.html','en/categories/circuit-basics.html','en/categories/control-basics.html'];
 if(paths.length!==allowed.length||new Set(paths).size!==allowed.length||paths.some(p=>!allowed.includes(p)))throw Error('Unexpected additional scope');
 const headerTemplate=await readFile(resolve(shared,'header.njk'),'utf8'),headerCss=await readFile(resolve(shared,'header.css'),'utf8'),headerJs=await readFile(resolve(shared,'header.js'),'utf8');
 const footerTemplate=await readFile(resolve(pkg,'footer.njk'),'utf8');
@@ -19,11 +19,11 @@ const offsetJs=await readFile(resolve(pkg,'offset.js'),'utf8');
 const isolation=`<meta name="robots" content="noindex,nofollow"><meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'none'; object-src 'none'; base-uri 'none'; worker-src 'none'"><script data-preview-isolation>(()=>{const f=window.fetch.bind(window);window.fetch=(input,init={})=>{const u=new URL(typeof input==='string'?input:input.url,location.href);if(u.origin!==location.origin||!['GET','HEAD'].includes((init.method||input.method||'GET').toUpperCase()))return Promise.reject(Error('Preview blocks sending'));return f(input,init)};navigator.sendBeacon=()=>false;document.addEventListener('submit',e=>{if(e.target.id!=='siteSearch'){e.preventDefault();e.stopImmediatePropagation()}},true)})();</script>`;
 const rows=[];
 for(const path of paths){
- const original=await readFile(resolve(root,path),'utf8'),en=path.startsWith('en/'),service=path.startsWith('services/'),home=path==='index.html'||path==='en/index.html';
+ const original=await readFile(resolve(root,path),'utf8'),en=path.startsWith('en/'),service=path.startsWith('services/'),contactPage=path==='contact/index.html',home=path==='index.html'||path==='en/index.html';
  const headers=[...original.matchAll(/<header\b[^>]*>[\s\S]*?<\/header>/g)],footers=[...original.matchAll(/<footer\b[^>]*>[\s\S]*?<\/footer>/g)];if(headers.length!==1||footers.length!==1)throw Error('Shell count '+path);
  const data={lang:en?'en':'ja',otherLang:en?'ja':'en',home:en?'/en/':'/',assetRoot:'/assets/',homeLabel:en?'English home':'トップページへ',title:en?'Denki Control Lab':'電気と制御の実務メモ',subtitle:en?'Practical electrical control notes':'現場で使える考え方と制御の基礎をわかりやすく解説',consult:'オンライン相談',search:en?'Search this site':'サイト内検索',searchShort:en?'Search':'検索',menu:en?'Menu':'メニュー',placeholder:en?'Search by keyword':'キーワードで検索',noResults:en?'No matching articles found.':'該当する記事がありません',contactUrl:en?'/en/contact/index.html':'/contact/index.html',contact:en?'Contact':'お問い合わせ',languageLabel:en?'PAGE LANGUAGE':'ページの言語',currentLanguage:en?'English':'日本語',currentLabel:en?'Current':'現在の言語',otherLanguage:en?'日本語':'English',counterpart:manifest.pages.find(p=>p.path===path).realCounterpart};
  let header=njk.renderString(headerTemplate,data).trim().replace('class="site-header dc-shell"',`class="site-header dc-shell" data-lang="${data.lang}"`);
- if(service)header=header.replace(/<a class="dc-consult"[^>]*>([\s\S]*?)<\/a>/,'<span class="dc-consult" aria-current="page">$1</span>');
+ if(service)header=header.replace(/<a class="dc-consult"[^>]*>([\s\S]*?)<\/a>/,'<span class="dc-consult" aria-current="page">$1</span>');if(contactPage)header=header.replace(/<a class="dc-contact"[^>]*>([\s\S]*?)<\/a>/,'<span class="dc-contact" aria-current="page">$1</span>');
  const oldFooter=footers[0][0],footerInner=oldFooter.replace(/^<footer\b[^>]*>/,'').replace(/<\/footer>$/,''),footerClass=(oldFooter.match(/^<footer[^>]*class="([^"]*)"/)||[])[1]||'site-footer';
  const disclosure=njk.renderString(disclosureTemplate,{disclosureLang:data.lang});
  const footer=njk.renderString(footerTemplate,{footerClass,footerInner}).replace('</footer>',disclosure+'</footer>');
@@ -35,7 +35,7 @@ for(const path of paths){
  if(restored!==original)throw Error('Non-shell bytes changed '+path);
  for(const folder of ['candidate','review','before'])await mkdir(dirname(resolve(out,folder,path)),{recursive:true});
  await writeFile(resolve(out,'candidate',path),candidate);await writeFile(resolve(out,'review',path),candidate.replace(/<head\b[^>]*>/,m=>m+isolation));await writeFile(resolve(out,'before',path),original.replace(/<head\b[^>]*>/,m=>m+isolation));
- rows.push({path,sourceSha256:sha(original),candidateSha256:sha(candidate),nonShellBytesPreserved:true,footerInnerBytesPreserved:true,originalScriptsPreserved:true,searchLoaderAdded:addSearch,realCounterpart:data.counterpart,consultSelfLink:service?'current-page text':null});
+ rows.push({path,sourceSha256:sha(original),candidateSha256:sha(candidate),nonShellBytesPreserved:true,footerInnerBytesPreserved:true,originalScriptsPreserved:true,searchLoaderAdded:addSearch,realCounterpart:data.counterpart,consultSelfLink:service?'current-page text':contactPage?'contact current-page text':null});
 }
 await writeFile(resolve(out,'preservation.json'),JSON.stringify({status:'generated-not-published',sourceCommit:process.env.GITHUB_SHA||manifest.baselineCommit,published:false,sharedHeaderSources:['.github/site-shells/ui-proposal/header.njk','.github/site-shells/ui-proposal/header.css','.github/site-shells/ui-proposal/header.js'],pages:rows},null,2));
 console.log(JSON.stringify({pages:rows.length,nonShellBytesPreserved:true,published:false,out}));

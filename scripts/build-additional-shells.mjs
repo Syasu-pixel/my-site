@@ -9,8 +9,8 @@ const root=resolve(process.argv[3]||resolve(dirname(fileURLToPath(import.meta.ur
 if(out===root||out.startsWith(root+sep)||root.startsWith(out+sep))throw Error('Use separate additional-shell output');
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const manifest=JSON.parse(await readFile(resolve(pkg,'manifest.json'),'utf8')),paths=manifest.pages.map(p=>p.path);
-const allowed=['index.html','en/index.html','services/gxworks2-online-support.html','categories/career.html'];
-if(paths.length!==4||new Set(paths).size!==4||paths.some(p=>!allowed.includes(p)))throw Error('Unexpected additional scope');
+const allowed=['index.html','en/index.html','services/gxworks2-online-support.html','categories/career.html','categories/air-pneumatic.html','categories/circuit-basics.html','categories/comparison-guide.html','categories/control-basics.html','categories/tools-guide.html','en/categories/circuit-basics.html','en/categories/control-basics.html'];
+if(paths.length!==allowed.length||new Set(paths).size!==allowed.length||paths.some(p=>!allowed.includes(p)))throw Error('Unexpected additional scope');
 const headerTemplate=await readFile(resolve(shared,'header.njk'),'utf8'),headerCss=await readFile(resolve(shared,'header.css'),'utf8'),headerJs=await readFile(resolve(shared,'header.js'),'utf8');
 const footerTemplate=await readFile(resolve(pkg,'footer.njk'),'utf8');
 const disclosureTemplate=await readFile(resolve(root,'.github/site-shells/components/affiliate-disclosure.njk'),'utf8');

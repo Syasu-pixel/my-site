@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GX Works3 ADD and SUB Instruction Basics: Adding and Subtracting Values | Denki Control Lab</title>
+  <meta name="description" content="Learn the basic idea of ADD and SUB instructions in GX Works3 and MELSEC PLC programming. This beginner-friendly guide explains source values, destination devices, scan execution, ADDP/SUBP, and practical field checks.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/en/articles/gxw3-add-sub-instruction-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/gxw3-add-sub-instruction-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/gxw3-add-sub-instruction-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/gxw3-add-sub-instruction-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GX Works3 ADD and SUB Instruction Basics: Adding and Subtracting Values">
+  <meta property="og:description" content="A beginner-friendly guide to ADD and SUB instructions: source values, destination devices, scan execution, ADDP/SUBP, and field checks.">
+  <meta property="og:url" content="https://denkicontrol.com/en/articles/gxw3-add-sub-instruction-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-ogp-en.webp">
+  <meta property="og:site_name" content="Denki Control Lab">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GX Works3 ADD and SUB Instruction Basics: Adding and Subtracting Values">
+  <meta name="twitter:description" content="Understand how ADD and SUB calculate values and store the result in a destination device.">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-ogp-en.webp">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/common/site-logo-dcl-16.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/common/site-logo-dcl-32.webp">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/common/site-logo-dcl-48.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/common/site-logo-dcl-180.webp">
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--line:#d8e3f0;--line-header:#dbe7f3;--text:#1e293b;--muted:#5f7288;--blue:#1d4ed8;--blue-deep:#1e3a8a;--green:#16a34a;--orange:#ea580c;--red:#dc2626;--red-soft:#fff1f2;--shadow:0 12px 30px rgba(15,23,42,.06);--shadow-soft:0 8px 20px rgba(15,23,42,.05);--container:1180px;--header-h:76px}*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:104px}body{margin:0;min-width:320px;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);line-height:1.8;overflow-wrap:break-word;word-break:break-word;padding-top:var(--header-h)}img{max-width:100%;display:block}a{color:var(--blue);text-decoration:none;transition:.2s ease}a:hover{text-decoration:underline}button,input{font:inherit}.container{width:min(var(--container),calc(100% - 28px));margin:0 auto}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff!important;border-bottom:1px solid rgba(203,219,235,.9);box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;gap:10px}.brand{min-width:0;display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;color:inherit;text-decoration:none;margin-right:auto}.brand:hover{text-decoration:none}.brand-logo{width:auto;height:46px;flex:0 0 auto}.brand-title{display:block;margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{display:block;margin:2px 0 0;font-size:11px;line-height:1.4;color:#475569;font-weight:700}.language-menu{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;margin-left:8px;margin-right:8px}.language-menu-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 11px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#334155;font-size:12px;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 6px 14px rgba(15,23,42,.05);white-space:nowrap}.language-menu-icon{font-size:15px;line-height:1}.language-menu-current{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.language-menu-panel{position:absolute;top:calc(100% + 8px);right:0;width:220px;padding:8px;border:1px solid #dbe7f3;border-radius:16px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,.12);z-index:1300}.language-menu-panel[hidden]{display:none}.language-menu-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 10px;border-radius:12px;color:#334155;text-decoration:none}.language-menu-item:hover{background:#eff6ff;color:#1d4ed8;text-decoration:none}.language-menu-item.is-active{background:#e6f0ff;color:#1d4ed8}.language-menu-flag{font-size:18px}.language-menu-item strong{display:block;font-size:12px;line-height:1.25;font-weight:900}.language-menu-item small{display:block;margin-top:2px;font-size:10px;line-height:1.3;color:#64748b;font-weight:700}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid var(--line-header);background:#fff;color:#64748b;box-shadow:var(--shadow-soft)}.search-box{position:relative;display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}.breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}.article-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 36%,rgba(255,255,255,.82) 54%,rgba(255,255,255,.45) 72%,rgba(255,255,255,.12) 100%),#f8fbff;box-shadow:var(--shadow);min-height:410px;isolation:isolate}.article-hero::before{content:"";position:absolute;inset:0;background:url("../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-hero-en.webp") right center / auto 100% no-repeat;opacity:.34;pointer-events:none;z-index:0}.article-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.56) 38%,rgba(255,255,255,.20) 70%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}.article-hero-copy{width:min(100%,700px);min-height:410px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:46px 40px;position:relative;z-index:2}.hero-label{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:16px}h1{margin:0 0 14px;font-size:40px;line-height:1.22;color:#0f172a}.hero-lead{margin:0;max-width:46ch;font-size:15px;color:#334155}.hero-points{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}.hero-points li{display:flex;gap:10px;font-size:14px;color:#334155;font-weight:700}.hero-points li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:12px;flex:0 0 auto;margin-top:2px}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900;line-height:1.4;text-decoration:none;border:1px solid transparent}.btn:hover{text-decoration:none}.btn-primary{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff}.btn-secondary{background:#fff;color:var(--text);border-color:#d3dfec}.top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card,.mini-toc-card,.section-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}.summary-card{padding:22px 20px}.summary-card h2{margin:0 0 12px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7}.summary-card--fit h2{color:#0f766e}.summary-card--notyet h2{color:#b45309}.summary-card--conclusion h2{color:var(--blue-deep)}.mini-toc-card{margin:0 0 22px;padding:22px 20px 16px}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;font-size:13px;font-weight:900;text-decoration:none}.page-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:24px;align-items:start;margin-bottom:48px}.main-column{min-width:0}.side-rail{position:sticky;top:98px;display:grid;gap:16px}.section-card{padding:28px;margin-bottom:20px;border-radius:28px}.side-card{padding:20px}.section-card h2{margin:0 0 10px;font-size:23px;line-height:1.4;color:#0f172a}.section-intro-line{margin:0 0 18px;padding-left:14px;border-left:5px solid #bfdbfe;font-size:14px;color:#476178;font-weight:700}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.section-card ul,.section-card ol{margin:12px 0 0;padding-left:22px}.section-card li{margin:8px 0;color:var(--muted);font-size:14px;line-height:1.75}.marker-blue{background:linear-gradient(transparent 58%,rgba(96,165,250,.24) 58%);font-weight:900}.term{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 2px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:900;white-space:nowrap}.point-strip,.key-highlight,.field-highlight,.note-box,.danger-box{border-radius:20px;padding:16px;margin:18px 0}.point-strip{border:1px solid #d7e4f3;background:#f8fbff;font-weight:800}.key-highlight{border:1px solid #bfdbfe;background:#eff6ff}.field-highlight{border:1px solid #bbf7d0;background:#ecfdf3}.note-box{background:#fff8ea;border:1px solid #f7dba2}.danger-box{background:var(--red-soft);border:1px solid #fecaca}.key-highlight h3,.field-highlight h3,.note-box h3,.danger-box h3{margin:0 0 10px;font-size:16px;line-height:1.5}.key-highlight p,.field-highlight p,.note-box p,.danger-box p{margin:0;font-size:14px;color:#334155}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#f8fbff}.article-figure-inner{background:#fff;padding:18px}.article-figure-inner img{width:100%;height:auto;border-radius:16px}.article-figure figcaption{padding:12px 16px 14px;border-top:1px solid #dbe6f1;color:var(--muted);font-size:13px;line-height:1.65;background:#fff}.flow-grid,.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}.flow-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.flow-card,.check-item{background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px}.flow-card h3,.check-item h3{margin:0 0 8px;font-size:16px}.flow-card p,.check-item p{margin:0;font-size:14px;color:var(--muted)}.flow-card{position:relative}.flow-card::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900}.flow-card:last-child::after{display:none}.check-item--important{background:#eff6ff;border-color:#bfdbfe}.check-item--field{background:#ecfdf3;border-color:#bbf7d0}.check-item--warning{background:#fff7e8;border-color:#f7dba2}.check-item--danger{background:#fff1f2;border-color:#fecaca}.table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}th,td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px;line-height:1.7}th{background:#f8fbff;color:#0f172a;font-weight:900}tr:last-child td{border-bottom:none}td.cell-blue{background:#eff6ff;font-weight:800;color:#1e3a8a}td.cell-green{background:#ecfdf3;font-weight:800;color:#166534}td.cell-orange{background:#fff7e8;font-weight:800;color:#92400e}.side-card h3{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #dbe6f1;font-size:16px;line-height:1.5;color:#0f172a}.side-card ul,.side-card ol{margin:0;padding-left:18px}.side-card li{margin:9px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}.side-link-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}.side-link-list a{display:block;color:#334155;font-size:12px;line-height:1.5;font-weight:700;padding-left:12px;position:relative;text-decoration:none}.side-link-list a::before{content:"";position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:#1d4ed8}.support-card{border:1px solid #dbeafe;background:#fff}.support-card .support-card-title{margin:0 0 6px;padding-bottom:5px;font-size:14px;font-weight:700;color:#1e3a8a;border-bottom:1px solid #dbeafe}.support-card .support-card-text{margin:0;font-size:12px;line-height:1.62;color:#334155}.support-card .support-card-actions{margin-top:9px;display:grid;gap:7px}.support-link{display:flex;align-items:center;justify-content:center;min-height:36px;padding:8px 10px;border-radius:10px;border:1px solid #cbdcf2;font-size:12px;font-weight:700;text-align:center;color:#1e3a8a;background:#f8fbff;text-decoration:none}.support-link:hover{text-decoration:none}.support-link--coffee{border-color:#facc15;color:#854d0e;background:#fff3bf}.support-link--paypal{border-color:#93c5fd;color:#0b5cad;background:#eaf3ff}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;background:#f8fbff;border:1px solid #d7e4f3;border-radius:20px;padding:16px;color:var(--text);text-decoration:none}.related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}.related-card h3{margin:0 0 8px;font-size:16px;color:var(--blue)}.related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}.article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}@media (max-width:1100px){.page-layout{grid-template-columns:minmax(0,1fr)}.side-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.language-menu-current{display:none}.language-menu-button{width:38px;min-width:38px;padding:0}.language-menu-panel{right:0;width:210px}}@media (min-width:744px) and (max-width:1100px){.article-hero{min-height:390px}.article-hero::before{background:url("../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-hero-en.webp") right center / auto 92% no-repeat;opacity:.28}.article-hero::after{background:linear-gradient(90deg,rgba(255,255,255,.86) 0%,rgba(255,255,255,.62) 46%,rgba(255,255,255,.22) 78%,rgba(255,255,255,0) 100%)}.article-hero-copy{width:min(100%,650px);min-height:390px}.top-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.side-rail{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:900px){:root{--header-h:74px}html{scroll-padding-top:92px}.site-header{padding:8px 10px}.brand-logo{height:42px}.brand-title{font-size:15px}.brand-sub{display:none}.header-search{flex:1 1 auto;min-width:0}.article-hero{min-height:auto;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.95) 52%,rgba(255,255,255,.72) 100%),#f8fbff}.article-hero::before{background:url("../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-hero-en.webp") right -34px bottom -14px / 162% auto no-repeat;opacity:.2}.article-hero-copy{min-height:360px;padding:34px 22px;justify-content:flex-start}h1{font-size:30px}.top-summary,.side-rail,.related-grid,.check-grid,.flow-grid{grid-template-columns:1fr}.flow-card::after{display:none}}@media (max-width:768px){body{line-height:1.85}.section-card p{font-size:15px}.article-figure-inner{padding:12px}}@media (max-width:640px){:root{--header-h:66px}html{scroll-padding-top:82px}.site-header{padding:7px 8px}.site-header-inner{gap:6px}.brand{gap:7px}.brand-logo{height:36px}.brand-title{font-size:13px;letter-spacing:0}.brand-sub{display:none}.language-menu-button{width:34px;min-width:34px;min-height:34px}.header-search{flex:0 1 138px;min-height:36px}.search-box{padding:0 9px;gap:6px}.search-box-input{font-size:11px}.header-search-icon{width:14px;height:14px}.search-box-panel{right:-48px;width:min(340px,94vw)}.container{width:min(100% - 20px,var(--container))}.article-hero-copy{min-height:350px;padding:30px 18px}h1{font-size:28px}.btn{width:100%}.section-card{padding:20px 16px}}
+  </style>
+<style data-ui-proposal="header">.dc-shell.site-header{padding:10px 20px;background:#fff!important;color:#14263d;border-bottom:1px solid #d9e3ed;box-shadow:0 3px 16px #102b4310;position:fixed;inset:0 0 auto;width:100%;z-index:999;box-sizing:border-box}
+.dc-shell *{box-sizing:border-box}.dc-shell [hidden]{display:none!important}
+.dc-bar{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.dc-brand{display:flex;align-items:center;gap:10px;min-width:0;color:#14263d;text-decoration:none!important}.dc-brand img{width:auto;height:46px;object-fit:contain}.dc-brand strong{display:block;font-size:17px;line-height:1.4;white-space:nowrap;letter-spacing:0}.dc-brand small{display:block;font-size:11px;color:#63758a;line-height:1.5;margin-top:2px}
+.dc-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}.dc-consult{display:flex;align-items:center;gap:10px;background:#165cb9;color:white!important;border-radius:8px;padding:10px 16px;text-decoration:none!important;min-height:44px;line-height:1.2;box-shadow:0 2px 4px #145abc16}.dc-consult span{font-size:12px;letter-spacing:.02em}.dc-consult strong{font-size:13px}.dc-consult:hover{background:#104c9a}.dc-icon-button{border:0;background:transparent;color:#263e59;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:5px 7px;cursor:pointer;font:inherit}.dc-icon-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.dc-icon-button span{font-size:12px;font-weight:700}.dc-icon-button[aria-expanded=true]{background:#eaf2fc;border-radius:7px;color:#165cb9}.dc-shell a:focus-visible,.dc-shell button:focus-visible,.dc-shell input:focus-visible{outline:3px solid #65a6ee;outline-offset:3px}
+.dc-drawer{position:absolute;top:100%;right:max(20px,calc((100% - 1180px)/2));background:white;border:1px solid #d9e3ed;box-shadow:0 12px 28px #14263d21;border-radius:0 0 12px 12px;padding:20px}.dc-search-drawer{width:min(560px,calc(100% - 40px))}.dc-search-form{position:relative;width:100%;margin:0;background:none;border:0;padding:0;display:block}.dc-search-label{display:block;color:#435972;font-size:12px;font-weight:700;margin-bottom:9px}.dc-search-row{display:flex;gap:8px}.dc-search-form .search-box-input{width:100%;min-width:0;height:46px;border:1px solid #c4d3e4;background:#f6f9fc;border-radius:7px;padding:10px 12px;font-size:16px;color:#14263d}.dc-search-form .dc-submit{width:auto;height:46px;position:static;border:0;border-radius:7px;background:#165cb9;color:white;padding:0 17px;font-size:13px;flex-shrink:0}.dc-search-form .search-box-panel{top:100%;left:0;right:0;width:100%}
+.dc-menu-drawer{width:300px}.dc-contact,.dc-alternative{display:flex;align-items:center;justify-content:space-between;text-decoration:none!important;color:#165cb9;font-weight:700;font-size:14px;padding:12px 10px;border-radius:6px}.dc-contact:hover,.dc-alternative:hover{background:#eff5fc}.dc-contact{padding-top:4px;padding-bottom:18px}.dc-language{border-top:1px solid #e3eaf2;padding-top:16px}.dc-language p{margin:0 10px 10px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}.dc-current{display:flex;align-items:center;justify-content:space-between;padding:10px;color:#354b64}.dc-current strong{font-size:14px}.dc-current>span{font-size:10px;color:#65798f;background:#eef2f6;padding:3px 7px;border-radius:4px}.dc-alternative{border:1px solid #dce7f5;margin-top:5px}
+@media(max-width:700px){.dc-shell.site-header{padding:8px 10px}.dc-bar{gap:6px}.dc-brand{gap:6px;flex:1}.dc-brand img{height:30px;max-width:34px}.dc-brand strong{font-size:12px;line-height:1.35;white-space:normal;max-width:126px}.dc-brand small{display:none}.dc-actions{gap:2px}.dc-consult{flex-direction:column;gap:3px;padding:7px 9px;min-height:44px;border-radius:6px}.dc-consult span{font-size:10px}.dc-consult strong{font-size:11px;white-space:nowrap}.dc-icon-button{flex-direction:column;gap:2px;padding:3px 4px;min-width:40px;min-height:44px}.dc-icon-button svg{height:19px;width:19px}.dc-icon-button span{font-size:9px;line-height:1.2}.dc-drawer{right:10px;padding:17px}.dc-search-drawer{width:calc(100% - 20px)}.dc-menu-drawer{width:min(300px,calc(100% - 20px))}.dc-shell[data-lang=en] .dc-brand strong{font-size:12px;max-width:none}.dc-shell[data-lang=en] .dc-consult strong{font-size:9px}}
+@media(max-width:350px){.dc-shell.site-header{padding-left:7px;padding-right:7px}.dc-brand img{height:24px;max-width:26px}.dc-brand strong{font-size:11px}.dc-consult{padding-left:6px;padding-right:6px}.dc-icon-button{min-width:36px}}
+
+
+/* Shared display-theme control */
+.dc-theme{border-top:1px solid #e3eaf2;padding:16px 0;margin-top:2px}
+.dc-theme-caption{margin:0 10px 9px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}
+.dc-theme-toggle{width:100%;min-height:48px;border:1px solid #dce7f5;border-radius:8px;background:#f8fbff;color:#263e59;display:grid;grid-template-columns:28px minmax(0,1fr) 40px;align-items:center;gap:9px;padding:8px 10px;cursor:pointer;font:inherit;text-align:left}
+.dc-theme-toggle:hover{background:#eff5fc;border-color:#bfd4ec}
+.dc-theme-symbol{font-size:18px;line-height:1;text-align:center}.dc-theme-name{font-size:14px;font-weight:800}
+.dc-theme-switch{position:relative;width:38px;height:22px;border-radius:999px;background:#c8d4e1;box-shadow:inset 0 0 0 1px #afbdcc;transition:background .18s ease}
+.dc-theme-switch::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;left:3px;top:3px;box-shadow:0 1px 4px #14263d38;transition:transform .18s ease}
+.dc-theme-toggle[aria-checked=true] .dc-theme-switch{background:#2563eb;box-shadow:inset 0 0 0 1px #1d4ed8}.dc-theme-toggle[aria-checked=true] .dc-theme-switch::after{transform:translateX(16px)}
+.dc-lang-en{display:none}.dc-shell[data-lang=en] .dc-lang-ja{display:none}.dc-shell[data-lang=en] .dc-lang-en{display:inline}
+
+/* Site-wide article dark theme. Images keep their original colors. */
+html[data-dc-theme=dark]{color-scheme:dark;--bg:#0d1621!important;--card:#172433!important;--panel:#172433!important;--text:#e7edf4!important;--muted:#a8b5c4!important;--muted-2:#94a4b7!important;--line:#34475d!important;--line-soft:#2b3b4e!important;--line-strong:#40566f!important;--blue:#7eb6ff!important;--blue-deep:#9dc8ff!important;--shadow:0 12px 30px rgba(0,0,0,.24)!important;--shadow-soft:0 8px 20px rgba(0,0,0,.18)!important}
+html[data-dc-theme=dark] body{background:#0d1621!important;color:#e7edf4!important}
+html[data-dc-theme=dark] main,html[data-dc-theme=dark] article,html[data-dc-theme=dark] aside{color:#e7edf4}
+html[data-dc-theme=dark] h1,html[data-dc-theme=dark] h2,html[data-dc-theme=dark] h3,html[data-dc-theme=dark] h4,html[data-dc-theme=dark] h5,html[data-dc-theme=dark] h6{color:#f3f7fb!important}
+html[data-dc-theme=dark] main a:not(.btn):not(.button):not([class*="button"]){color:#91bdff}
+html[data-dc-theme=dark] .breadcrumb,html[data-dc-theme=dark] figcaption,html[data-dc-theme=dark] .section-card li,html[data-dc-theme=dark] .summary-card li,html[data-dc-theme=dark] .side-card li,html[data-dc-theme=dark] .related-card p,html[data-dc-theme=dark] .article-card p{color:#a8b5c4!important}
+
+html[data-dc-theme=dark] .section-card,
+html[data-dc-theme=dark] .side-card,
+html[data-dc-theme=dark] .summary-card,
+html[data-dc-theme=dark] .mini-toc-card,
+html[data-dc-theme=dark] .related-card,
+html[data-dc-theme=dark] .article-card,
+html[data-dc-theme=dark] .policy-card,
+html[data-dc-theme=dark] .support-card,
+html[data-dc-theme=dark] .content-card,
+html[data-dc-theme=dark] .summary-point,
+html[data-dc-theme=dark] .state-card,
+html[data-dc-theme=dark] .transfer-card,
+html[data-dc-theme=dark] .check-item{background:#172433!important;color:#e7edf4!important;border-color:#34475d!important;box-shadow:0 10px 26px rgba(0,0,0,.20)!important}
+html[data-dc-theme=dark] #summary,html[data-dc-theme=dark] #roadmap{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .mini-toc a,html[data-dc-theme=dark] .keyword-pills li,html[data-dc-theme=dark] .io-step{background:#1d2c3d!important;border-color:#40566f!important;color:#9dc8ff!important}
+html[data-dc-theme=dark] .talk-bubble,html[data-dc-theme=dark] .talk-row--right .talk-bubble,html[data-dc-theme=dark] .talk-row.right .talk-bubble{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .talk-bubble p{color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box,html[data-dc-theme=dark] .key-highlight,html[data-dc-theme=dark] .field-highlight,html[data-dc-theme=dark] .point-strip,html[data-dc-theme=dark] .source-box{background:#1b2b3c!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box p,html[data-dc-theme=dark] .key-highlight p,html[data-dc-theme=dark] .field-highlight p,html[data-dc-theme=dark] .source-box p,html[data-dc-theme=dark] .point-strip{color:#d6e0ea!important}
+html[data-dc-theme=dark] .note-box{background:#302817!important;border-color:#70582a!important;color:#f4e6c7!important}
+html[data-dc-theme=dark] .danger-box{background:#321c22!important;border-color:#75404b!important;color:#ffdbe2!important}
+html[data-dc-theme=dark] .note-box p,html[data-dc-theme=dark] .danger-box p{color:inherit!important}
+
+html[data-dc-theme=dark] .article-figure{background:#111c28!important;border-color:#34475d!important;box-shadow:none!important}
+html[data-dc-theme=dark] .article-figure-inner{background:#111c28!important}
+html[data-dc-theme=dark] .article-figure figcaption{background:#172433!important;color:#a8b5c4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .table-wrap{border-color:#34475d!important}
+html[data-dc-theme=dark] table{background:#172433!important;color:#e7edf4!important}
+html[data-dc-theme=dark] th{background:#223247!important;color:#f3f7fb!important}
+html[data-dc-theme=dark] td,html[data-dc-theme=dark] th{border-color:#34475d!important}
+html[data-dc-theme=dark] pre{background:#09111a!important;color:#e7edf4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] code{background:#111e2c!important;color:#d9eaff!important}
+html[data-dc-theme=dark] pre code{background:transparent!important}
+html[data-dc-theme=dark] input,html[data-dc-theme=dark] textarea,html[data-dc-theme=dark] select{background:#101c29!important;color:#eef4fa!important;border-color:#40566f!important}
+
+html[data-dc-theme=dark] .article-hero,html[data-dc-theme=dark] .category-hero,html[data-dc-theme=dark] .page-hero{border-color:#34475d!important;box-shadow:inset 0 0 0 9999px rgba(6,13,21,.58),0 12px 30px rgba(0,0,0,.24)!important}
+html[data-dc-theme=dark] .article-hero::after{background:linear-gradient(90deg,rgba(10,18,28,.82) 0%,rgba(10,18,28,.62) 42%,rgba(10,18,28,.18) 75%,rgba(10,18,28,0) 100%)!important}
+html[data-dc-theme=dark] .hero-lead,html[data-dc-theme=dark] .hero-points li{color:#d6e0ea!important}
+html[data-dc-theme=dark] .hero-label{background:#183052!important;border-color:#365f93!important;color:#a9ccff!important}
+html[data-dc-theme=dark] .btn-secondary{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+
+html[data-dc-theme=dark] .dc-shell.site-header{background:#101b27!important;color:#e7edf4;border-bottom-color:#2f4155;box-shadow:0 3px 18px rgba(0,0,0,.34)}
+html[data-dc-theme=dark] .dc-brand{color:#eef4fa}html[data-dc-theme=dark] .dc-brand small{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-icon-button{color:#d8e3ee}html[data-dc-theme=dark] .dc-icon-button[aria-expanded=true]{background:#203248;color:#9dc8ff}
+html[data-dc-theme=dark] .dc-drawer{background:#142231;border-color:#34475d;box-shadow:0 14px 32px rgba(0,0,0,.42)}
+html[data-dc-theme=dark] .dc-search-label,html[data-dc-theme=dark] .dc-language p,html[data-dc-theme=dark] .dc-theme-caption{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-search-form .search-box-input{background:#0f1b28;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-contact,html[data-dc-theme=dark] .dc-alternative{color:#9dc8ff}
+html[data-dc-theme=dark] .dc-contact:hover,html[data-dc-theme=dark] .dc-alternative:hover{background:#1c3046}
+html[data-dc-theme=dark] .dc-language,html[data-dc-theme=dark] .dc-theme{border-color:#34475d}
+html[data-dc-theme=dark] .dc-current{color:#d8e3ee}html[data-dc-theme=dark] .dc-current>span{background:#243649;color:#bac8d6}
+html[data-dc-theme=dark] .dc-alternative{border-color:#40566f}
+html[data-dc-theme=dark] .dc-theme-toggle{background:#1a2a3b;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-theme-toggle:hover{background:#203349}
+html[data-dc-theme=dark] .dc-shared-footer,html[data-dc-theme=dark] .site-footer{border-color:#34475d!important;color:#a8b5c4!important}
+
+@media(max-width:700px){.dc-theme{padding-top:14px}.dc-theme-toggle{min-height:46px}}
+
+
+/* Compatibility for article-specific card names and search/series widgets. */
+html[data-dc-theme=dark] [class$="-card"],
+html[data-dc-theme=dark] [class*="-card "]{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .series-roadmap li{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important;box-shadow:none!important}
+html[data-dc-theme=dark] .series-roadmap li.is-current{background:#182d49!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .series-roadmap li.is-next{background:#302817!important;border-color:#70582a!important}
+html[data-dc-theme=dark] .series-title,html[data-dc-theme=dark] .series-roadmap-lead{color:#d6e0ea!important}
+html[data-dc-theme=dark] .search-box-panel{background:#142231!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .search-result-item a{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .search-result-item a:hover,html[data-dc-theme=dark] .search-result-item a:focus,html[data-dc-theme=dark] .search-result-item.is-active a{background:#1d3045!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .search-result-title{color:#f3f7fb!important}
+html[data-dc-theme=dark] .search-result-description,html[data-dc-theme=dark] .search-box-empty{color:#a8b5c4!important}
+html[data-dc-theme=dark] td.cell-blue{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] td.cell-green{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] td.cell-purple{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] td.cell-orange{background:#332817!important;color:#f4d7a0!important}
+
+/* end shared display-theme layer */
+
+
+/* Home and category hub dark-theme coverage */
+html[data-dc-theme=dark] :is(
+  .feature-main,
+  .featured-card--main,
+  .info-box,
+  .bookmark-help-panel,
+  .shelf-row,
+  .shelf-links,
+  .support-category-card,
+  .category-modal__panel,
+  .side-box,
+  .intro-box,
+  .featured-article,
+  .article-row,
+  .air-feature-card,
+  .tool-task-card,
+  .tool-article-card,
+  .featured-tool-card,
+  .tool-group,
+  .category-block,
+  .compare-group,
+  .topic-block,
+  .bottom-nav a,
+  .feature,
+  .side-pill-list li
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(.notice-box,.hub-note){
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .troubleshooting-hub{
+  background:#172b47!important;
+  color:#e7edf4!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.20)!important;
+}
+html[data-dc-theme=dark] :is(.roadmap-card-media,.troubleshooting-hub-media,.mini-card-thumb,.shelf-thumb){
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .shelf-row:hover,
+html[data-dc-theme=dark] .shelf-row:focus-within,
+html[data-dc-theme=dark] .article-row:hover,
+html[data-dc-theme=dark] .article-row:focus-within,
+html[data-dc-theme=dark] .featured-article:hover,
+html[data-dc-theme=dark] .featured-article:focus-within,
+html[data-dc-theme=dark] .featured-tool-card:hover,
+html[data-dc-theme=dark] .featured-tool-card:focus-within,
+html[data-dc-theme=dark] .tool-article-card:hover,
+html[data-dc-theme=dark] .tool-article-card:focus-within{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .shelf-links .shelf-list a,
+html[data-dc-theme=dark] .shelf-links .link-list a,
+html[data-dc-theme=dark] .category-modal__list a,
+html[data-dc-theme=dark] .side-category-card,
+html[data-dc-theme=dark] .side-list a,
+html[data-dc-theme=dark] .tool-task-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .shelf-links .more-link,
+html[data-dc-theme=dark] .shelf-more.more-link,
+html[data-dc-theme=dark] .support-link{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .support-link--coffee,
+html[data-dc-theme=dark] .support-link--coffee:hover{
+  background:#302817!important;
+  color:#f4d7a0!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .shelf-row.control .shelf-label{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] .shelf-row.circuit .shelf-label{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] .shelf-row.tools .shelf-label{background:#332817!important;color:#f4d7a0!important}
+html[data-dc-theme=dark] .shelf-row.compare .shelf-label{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] .article-filter select{
+  background:#101c29!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close:hover{background:#203349!important}
+html[data-dc-theme=dark] :is(
+  .hero-text,
+  .category-lead,
+  .section-lead,
+  .support-card-text,
+  .mobile-shortcut span,
+  .shelf-summary p,
+  .support-category-card__description,
+  .storefront-guide-card__note,
+  .category-modal__description,
+  .intro-box p,
+  .featured-article p,
+  .article-row-body p,
+  .troubleshooting-hub p,
+  .hub-note,
+  .tool-task-card p,
+  .tool-group ul,
+  .side-category-card span,
+  .side-note,
+  .category-block p,
+  .compare-group p,
+  .topic-block p,
+  .bottom-nav p,
+  .feature p,
+  .side-pill-list li
+){
+  color:#a8b5c4!important;
+}
+html[data-dc-theme=dark] .notice-box,
+html[data-dc-theme=dark] .notice-box p,
+html[data-dc-theme=dark] .hub-note{color:#f4e6c7!important}
+html[data-dc-theme=dark] .top-right-rail .info-box h3{color:#a9ccff!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .info-box :is(p,li,small){color:#a8b5c4!important}
+html[data-dc-theme=dark] .storefront-guide-card{
+  background:#2d2518!important;
+  color:#f3e4ca!important;
+  border-color:#6f5427!important;
+}
+html[data-dc-theme=dark] .storefront-guide-card__arrow{background:#4a301c!important;color:#ffd09a!important}
+
+
+/* Home/category bright-surface fixes */
+html[data-dc-theme=dark] .hero-grid{
+  background:linear-gradient(90deg,#172433 0%,#182637 56%,#152231 100%)!important;
+  border-color:#40566f!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .hero-visual::before{
+  background:linear-gradient(90deg,rgba(23,36,51,.92) 0%,rgba(23,36,51,.48) 34%,rgba(23,36,51,0) 72%)!important;
+}
+html[data-dc-theme=dark] .hero-visual img{
+  opacity:.82!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry:hover,
+html[data-dc-theme=dark] .gxw-service-entry:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy strong{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy p,
+html[data-dc-theme=dark] .gxw-service-entry-copy small{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-arrow{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .category-hero{
+  box-shadow:inset 0 0 0 9999px rgba(6,13,21,.70),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .category-label{
+  background:#183052!important;
+  color:#b9d6ff!important;
+  border-color:#365f93!important;
+}
+html[data-dc-theme=dark] :is(.lead-em,.lead-mark,.mark,.mark-orange){
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] :is(.lead-mark,.mark,.mark-orange){
+  background:rgba(53,95,147,.34)!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .feature-main-body p,
+html[data-dc-theme=dark] .mini-card p,
+html[data-dc-theme=dark] .ranked-list a,
+html[data-dc-theme=dark] .link-list a{
+  color:#c2ceda!important;
+}
+
+
+/* Residual dark-mode coverage found in home/category browser review */
+@media (min-width:1101px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.98) 0%,
+        rgba(23,36,51,.94) 34%,
+        rgba(23,36,51,.74) 48%,
+        rgba(23,36,51,.26) 62%,
+        rgba(23,36,51,.05) 76%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+  }
+}
+html[data-dc-theme=dark] .container > .hero{
+  border-color:#34475d!important;
+  box-shadow:inset 0 0 0 9999px rgba(7,14,22,.34),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .container > .hero::after{
+  background:linear-gradient(90deg,rgba(8,16,25,.90) 0%,rgba(8,16,25,.72) 42%,rgba(8,16,25,.34) 66%,rgba(8,16,25,.16) 100%)!important;
+}
+html[data-dc-theme=dark] .container > .hero p{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .label{
+  background:#2b2240!important;
+  color:#dbcaff!important;
+  border-color:#66528f!important;
+}
+html[data-dc-theme=dark] .step{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-no{
+  background:#20324a!important;
+  color:#b8d5ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step h3{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .step p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .step-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-links a::after{
+  background:#294362!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .step-links span{
+  background:#182534!important;
+  color:#a8b5c4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step-links span::after{
+  background:#2a394b!important;
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .feature{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .feature p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .note{
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .finder-pill{
+  background:#1b2a3a!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .finder-pill.active,
+html[data-dc-theme=dark] .finder-pill[aria-pressed="true"]{
+  background:#2563eb!important;
+  color:#fff!important;
+  border-color:#3b82f6!important;
+}
+html[data-dc-theme=dark] :is(.eyebrow,.finder-heading,.support-category-card__title){
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a:hover,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a:hover{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+) :is(p,small,span){
+  color:#c2ceda!important;
+}
+
+
+/* Remaining dynamic/home controls */
+html[data-dc-theme=dark] .bookmark-help-button{
+  background:#172433!important;
+  color:#9dc8ff!important;
+  border-color:#40566f!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-button:hover,
+html[data-dc-theme=dark] .bookmark-help-button:focus-visible{
+  background:#1d3045!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel{
+  background:#172433!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel p,
+html[data-dc-theme=dark] .bookmark-help-panel strong{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link{
+  background:linear-gradient(135deg,#172433 0%,#1b2a3a 62%)!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link:hover,
+html[data-dc-theme=dark] .project-series-entry__link:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 12px 26px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__media{
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .project-series-entry__kicker{
+  background:#183052!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .project-series-entry__title{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .project-series-entry__sub{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .project-series-entry__cta{
+  color:#9dc8ff!important;
+}
+
+
+/* Keep the top hero image visible with a dark overlay on tablet/mobile */
+@media (min-width:481px) and (max-width:1100px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 46%,
+        rgba(23,36,51,.58) 68%,
+        rgba(23,36,51,.20) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+    border-color:#40566f!important;
+  }
+}
+@media (max-width:480px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        180deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 44%,
+        rgba(23,36,51,.68) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right -10px bottom 4px / 112% auto no-repeat !important;
+    border-color:#40566f!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-copy{
+    background:transparent!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-title{
+    color:#f3f7fb!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-text{
+    color:#c2ceda!important;
+  }
+}
+</style><link rel="stylesheet" href="/assets/css/article-toc-v2.css"><link rel="stylesheet" href="/assets/css/article-end-related.css"><link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>
+<body>
+  <header class="site-header dc-shell" data-lang="en">
+  <script data-dc-theme-init>(()=>{let saved=null,explicit=false;try{explicit=localStorage.getItem('dc-theme-explicit-v2')==='1';if(explicit)saved=localStorage.getItem('dc-theme')}catch{}let systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;try{const v=navigator.preferences?.colorScheme?.value;if(v==='dark')systemDark=true;else if(v==='light')systemDark=false}catch{}document.documentElement.dataset.dcTheme=explicit?(saved==='dark'?'dark':'light'):(systemDark?'dark':'light')})()</script>
+  <div class="dc-bar">
+    <a class="dc-brand" href="/en/" aria-label="English home">
+      <img src="/assets/images/common/site-logo-dcl.webp" alt="" width="46" height="46">
+      <span><strong>Denki Control Lab</strong><small>Practical electrical control notes</small></span>
+    </a>
+    <div class="dc-actions">
+      
+      <button class="dc-icon-button" id="dc-search-toggle" aria-label="Search this site" aria-expanded="false" aria-controls="dc-search-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><span>Search</span></button>
+      <button class="dc-icon-button" id="dc-menu-toggle" aria-label="Menu" aria-expanded="false" aria-controls="dc-menu-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg><span>Menu</span></button>
+    </div>
+  </div>
+  <div class="dc-drawer dc-search-drawer" id="dc-search-drawer" hidden>
+    <form class="search-box dc-search-form" id="siteSearch" aria-label="Search this site" role="search">
+      <label class="dc-search-label" for="site-search-input">Search this site</label>
+      <div class="dc-search-row"><input id="site-search-input" class="search-box-input" type="search" placeholder="Search by keyword" autocomplete="off" enterkeyhint="search"><button class="search-box-button dc-submit" type="submit">Search</button></div>
+      <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>No matching articles found.</p></div>
+    </form>
+  </div>
+  <nav class="dc-drawer dc-menu-drawer" id="dc-menu-drawer" aria-label="Menu" hidden>
+    <a class="dc-contact" href="/en/contact/index.html"><span>Contact</span><span aria-hidden="true">↗</span></a>
+    <div class="dc-theme">
+      <p class="dc-theme-caption"><span class="dc-lang-ja">表示テーマ</span><span class="dc-lang-en">DISPLAY THEME</span></p>
+      <button class="dc-theme-toggle" id="dc-theme-toggle" type="button" role="switch" aria-checked="false">
+        <span class="dc-theme-symbol" aria-hidden="true">🌙</span>
+        <span class="dc-theme-name"><span class="dc-lang-ja">ダークモード</span><span class="dc-lang-en">Dark mode</span></span>
+        <span class="dc-theme-switch" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="dc-language"><p>ARTICLE LANGUAGE</p><div class="dc-current"><strong lang="en">English</strong><span>Current</span></div>
+    <a class="dc-alternative" href="/articles/gxw3-add-sub-instruction-basic.html" lang="ja" hreflang="ja"><span>日本語</span><span aria-hidden="true">→</span></a></div>
+  </nav>
+</header>
+  <main><div class="container"><nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">English Home</a><span>/</span><span>GX Works3 ADD and SUB Instruction Basics</span></nav><section class="article-hero"><div class="article-hero-copy"><span class="hero-label">PLC / GX Works3</span><h1>GX Works3 ADD and SUB Instruction Basics: Adding and Subtracting Values</h1><p class="hero-lead">ADD and SUB are basic arithmetic instructions used to calculate values and store the result in a destination device. The key is to separate the source values, destination device, and execution condition.</p><ul class="hero-points"><li>Understand ADD and SUB as calculation instructions.</li><li>Read source values and destination devices without mixing them up.</li><li>Check scan-by-scan execution, overwriting, ADDP, SUBP, and field behavior carefully.</li></ul><div class="hero-actions"><a class="btn btn-primary" href="#basic">Start with ADD / SUB</a><a class="btn btn-secondary" href="#field-check">Field check points</a></div></div></section>
+<section class="top-summary" aria-label="Article summary"><div class="summary-card summary-card--fit"><h2>Good for</h2><ul><li>Beginners learning arithmetic instructions in GX Works3 ladder programs.</li><li>People who see ADD, SUB, ADDP, or SUBP and want to read the intent.</li><li>Field engineers checking why a register value increases, decreases, or changes unexpectedly.</li></ul></div><div class="summary-card summary-card--notyet"><h2>Not the main focus</h2><ul><li>CPU-specific instruction tables, flags, or device range details.</li><li>Advanced 32-bit arithmetic, signed/unsigned variants, or overflow handling.</li><li>Replacing Mitsubishi Electric manuals or project-specific documentation.</li></ul></div><div class="summary-card summary-card--conclusion"><h2>Quick conclusion</h2><ul><li>ADD calculates a sum and stores the result.</li><li>SUB calculates a difference and stores the result.</li><li>The destination may be overwritten whenever the instruction executes.</li></ul></div></section>
+<section class="mini-toc-card" aria-label="Mini table of contents"><h2>What you will learn</h2><div class="mini-toc"><a href="#basic">Basic idea</a><a href="#add">ADD example</a><a href="#sub">SUB example</a><a href="#source-destination">Source / destination</a><a href="#scan">Scan execution</a><a href="#addp-subp">ADDP / SUBP</a><a href="#field-check">Field checks</a><a href="#summary">Summary</a></div></section>
+<div class="page-layout"><article class="main-column">
+<section class="section-card" id="basic"><h2>1. What are ADD and SUB instructions?</h2><p class="section-intro-line">Think of ADD and SUB as “calculate these values, then write the result here.”</p><p>In GX Works3 and MELSEC-style ladder programming, <span class="term">ADD</span> and <span class="term">SUB</span> are basic arithmetic instructions. They use source values, calculate a result, and write that result to a destination device.</p><p>The important beginner point is this: <span class="marker-blue">the destination device receives the calculated result</span>. If the instruction executes again, the destination may be updated again.</p><div class="point-strip"><strong>Simple image:</strong> execution condition is true → ADD or SUB executes → result is written to destination.</div><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-overview-en.webp" alt="Overview of ADD and SUB instructions calculating values and storing the result"></div><figcaption>For beginners, ADD and SUB are easiest to read as calculation instructions with a destination device.</figcaption></figure></section>
+<section class="section-card" id="conclusion"><h2>2. Quick conclusion: calculate a value and store the result</h2><p class="section-intro-line">The core idea is not complicated, but the destination and scan behavior are easy to miss.</p><p>For field reading, understand ADD and SUB as instructions that <strong>calculate a value and store the result</strong>. The source side provides the values, and the destination side receives the result.</p><div class="flow-grid" aria-label="Basic calculation flow"><div class="flow-card"><h3>Execution condition</h3><p>The rung condition allows the instruction to execute.</p></div><div class="flow-card"><h3>Source values</h3><p>Constants or device values are used for the calculation.</p></div><div class="flow-card"><h3>Destination device</h3><p>The calculated result is written to the destination.</p></div></div><div class="note-box"><h3>Check official manuals for exact details</h3><p>Instruction details can depend on CPU series, instruction format, device type, and project settings. Use this article as a beginner guide, and check the official Mitsubishi Electric manual or GX Works3 help for actual design work.</p></div></section>
+<section class="section-card" id="add"><h2>3. How to read ADD D10 K1 D10</h2><p class="section-intro-line">A common beginner example is adding 1 to a data register and writing the result back.</p><p><span class="marker-blue">ADD D10 K1 D10</span> can be read as “add the value in D10 and the constant 1, then store the result in D10.” In a simple counter-like idea, this looks like increasing the value by 1.</p><div class="field-highlight"><h3>Field reading point</h3><p>If the source and destination are the same device, the value can keep changing while the instruction continues to execute. Always check the execution condition and scan behavior.</p></div></section>
+<section class="section-card" id="sub"><h2>4. How to read SUB D20 K1 D20</h2><p class="section-intro-line">SUB is the subtraction side of the same basic idea.</p><p><span class="marker-blue">SUB D20 K1 D20</span> can be read as “subtract the constant 1 from the value in D20, then store the result in D20.” This is often easier to understand if you separate the source values and destination before thinking about the machine behavior.</p><div class="key-highlight"><h3>Do not skip the destination</h3><p>Beginners often read only “D20 minus 1” and forget to ask where the result goes. The destination device is just as important as the calculation itself.</p></div></section>
+<section class="section-card" id="source-destination"><h2>5. Source values and destination devices</h2><p class="section-intro-line">Most arithmetic instruction mistakes come from mixing up the calculation side and the storage side.</p><p>An ADD or SUB instruction uses source values and writes the result to a destination device. The source side may be a constant or a device value depending on the instruction and PLC series. The destination is the device that receives the calculated result.</p><p>For troubleshooting, read the instruction as a sentence: <strong>when this condition is true, calculate these values and write the result here.</strong></p><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-comparison-en.webp" alt="Comparison of ADD, SUB, ADDP, and SUBP beginner reading points"></div><figcaption>Separate source values, destination device, and execution condition before judging whether the program is correct.</figcaption></figure></section>
+<section class="section-card" id="use-cases"><h2>6. Common field use cases</h2><p class="section-intro-line">ADD and SUB often appear around values that need to increase, decrease, or be adjusted.</p><ul><li>Increasing an internal count by 1 when a certain event occurs.</li><li>Decreasing a remaining quantity or step value.</li><li>Adding an offset before comparing a value.</li><li>Correcting a displayed value or internal calculation value.</li><li>Preparing a value before it is used by comparison, display, or control logic.</li></ul><div class="note-box"><h3>Related instruction flow</h3><p>MOV copies a value, ADD/SUB calculate a value, and comparison instructions judge a value. Reading those roles separately makes ladder programs easier to understand.</p></div></section>
+<section class="section-card" id="scan"><h2>7. Watch out for scan-by-scan execution</h2><p class="section-intro-line">If the condition stays true, the instruction may execute repeatedly during PLC scans.</p><p>One of the most common beginner mistakes is expecting a calculation to happen only once. If the execution condition stays true, the ADD or SUB instruction may keep executing according to the program scan.</p><p>This can make a value increase or decrease much faster than expected. When the result looks wrong, do not immediately blame the instruction. First check <span class="term">execution condition</span>, <span class="term">scan</span>, and <span class="term">destination overwrite</span>.</p><div class="danger-box"><h3>Common failure pattern</h3><p>A button is intended to add 1 once, but the value continues to increase while the button condition remains true. This is where one-scan logic or pulse execution may need to be considered.</p></div></section>
+<section class="section-card" id="addp-subp"><h2>8. Difference between ADD/SUB and ADDP/SUBP</h2><p class="section-intro-line">ADDP and SUBP are often discussed when you want one-shot style execution.</p><p>In beginner terms, ADD and SUB are the basic arithmetic forms. ADDP and SUBP are often treated as pulse execution forms, used when the calculation should occur at a transition rather than continuously while the condition remains true.</p><p>However, the exact instruction behavior and notation should be confirmed in the official manual or GX Works3 help for the target PLC series. Avoid designing real equipment from memory or screenshots alone.</p></section>
+<section class="section-card" id="field-check"><h2>9. Field check points when ADD/SUB does not work</h2><p class="section-intro-line">Check the condition, source values, destination, and overwriting before changing the program.</p><ol><li>Confirm that the execution condition is actually true.</li><li>Check the current source values before the instruction executes.</li><li>Check the destination value immediately after execution.</li><li>Search for other instructions that write to the same destination device.</li><li>Check whether the instruction is executing every scan.</li><li>Confirm whether one-shot or pulse execution is required.</li><li>Review the official manual or GX Works3 help before changing instruction variants.</li></ol><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-check-flow-en.webp" alt="Field check flow for ADD and SUB instruction troubleshooting"></div><figcaption>A practical check flow helps separate condition problems, source value problems, destination overwrites, and scan execution issues.</figcaption></figure></section>
+<section class="section-card" id="monitoring"><h2>10. GX Works3 monitoring points</h2><p class="section-intro-line">Do not monitor only one point. Watch the condition, sources, and destination together.</p><p>When monitoring an ADD or SUB instruction in GX Works3, it is safer to watch the execution condition, source values, and destination device at the same time. If you only look at the destination, you may miss the reason it changed.</p><div class="field-highlight"><h3>Three-point monitoring</h3><p>Watch <strong>execution condition</strong>, <strong>source values</strong>, and <strong>destination device</strong> together. If the destination changes and then changes back, look for another rung that writes to the same device.</p></div></section>
+<section class="section-card" id="mistakes"><h2>11. Common beginner mistakes</h2><p class="section-intro-line">Most mistakes are not about arithmetic itself. They are about timing and storage.</p><ul><li><strong>Assuming it runs only once:</strong> ADD or SUB may execute repeatedly while the condition remains true.</li><li><strong>Mixing up source and destination:</strong> The result is stored in the destination device, not necessarily kept separately.</li><li><strong>Missing overwrites:</strong> Another rung may write a different value after the calculation.</li><li><strong>Jumping into advanced variants too early:</strong> Confirm the basic data flow before studying 32-bit variants or flags.</li><li><strong>Skipping official references:</strong> Always check official manuals for target CPU and instruction details.</li></ul></section>
+<section class="section-card" id="summary"><h2>12. Summary</h2><p>ADD and SUB are basic instructions for calculating values and storing the result in a destination device. For beginners, the safest reading method is to follow the <span class="term">execution condition</span>, <span class="term">source values</span>, <span class="term">destination device</span>, <span class="term">scan</span>, and <span class="term">overwrite</span> as one chain.</p><p>If you understand this flow, ADD/SUB becomes much easier to connect with MOV, comparison instructions, counters, HMI displays, and field troubleshooting.</p><figure class="article-figure"><div class="article-figure-inner"><img src="../../assets/images/gxw3-add-sub-instruction-basic-en/gxw3-add-sub-instruction-basic-ogp-en.webp" alt="Summary image for GX Works3 ADD and SUB instruction basics"></div><figcaption>ADD/SUB is not only about arithmetic. In field work, the important part is where the result is written and when it executes.</figcaption></figure></section>
+<section class="section-card" aria-labelledby="related-title"><h2 id="related-title">Related articles</h2><p>These articles connect naturally with ADD and SUB instruction basics.</p><div class="related-grid article-end-related-grid">
+<a class="related-card article-end-related-card" href="./gxw3-mov-instruction-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/gxw3-mov-instruction-basic-en/gxw3-mov-instruction-basic-ogp-en.webp" alt="GX Works3 MOV Instruction Basics: Moving Values Between Devices" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>GX Works3 MOV Instruction Basics</h3><p>Learn how MOV copies values from a source to a destination device.</p></span>
+</a>
+<a class="related-card article-end-related-card" href="./ladder-reading.html">
+  <span class="article-end-related-media"><img src="/assets/images/ladder-reading-en/ladder-reading-ogp-en.webp" alt="How to Read Ladder Diagrams: Contacts, Coils, Inputs, and Outputs" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>How to Read Ladder Diagrams</h3><p>Review the basic way to read contacts, coils, and execution flow.</p></span>
+</a>
+<a class="related-card article-end-related-card" href="./counter-circuit-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/counter-circuit-basic-en/counter-circuit-basic-ogp-en.webp" alt="Counter Circuit Basics: How PLC Counting Works in Control Panels" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>Counter Circuit Basics</h3><p>Connect ADD/SUB ideas with counting, current values, and reset behavior.</p></span>
+</a>
+<a class="related-card article-end-related-card" href="./timer-relay-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/timer-relay-basic-en/timer-relay-basic-ogp-en.webp" alt="Timer Relay Basics: ON Delay, OFF Delay, and Field Checks" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>Timer Relay Basics</h3><p>Review timing concepts that often appear near calculation and control logic.</p></span>
+</a>
+</div>
+</section><div class="article-footer-nav"><a class="btn btn-primary" href="../">Back to English Home</a></div></article><aside class="side-rail" aria-label="Article sidebar">
+<section class="side-card"><h3>Key idea</h3><ul><li>ADD calculates a sum.</li><li>SUB calculates a difference.</li><li>The result is written to the destination device.</li><li>Repeated execution and overwriting are common field issues.</li></ul></section>
+<section class="side-card support-card"><h3 class="support-card-title">Support this site</h3><p class="support-card-text">If this guide helped you, a small support helps keep Denki Control Lab growing.</p><div class="support-card-actions"><a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">Buy me a coffee</a><a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">Support with PayPal</a></div></section>
+</aside></div></div></main><footer class="site-footer"><div class="container"><p>Practical notes for electrical control, PLC basics, and field troubleshooting.<br><a href="../privacy-policy/">Privacy Policy</a> | <a href="../contact/">Contact</a></p></div><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">This site uses affiliate links and may earn a commission from purchases.</p></footer><script>(function(){const button=document.getElementById("languageMenuButton");const panel=document.getElementById("languageMenuPanel");if(!button||!panel){return;}button.addEventListener("click",function(){const isOpen=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!isOpen));panel.hidden=isOpen;});document.addEventListener("click",function(event){if(!button.contains(event.target)&&!panel.contains(event.target)){button.setAttribute("aria-expanded","false");panel.hidden=true;}});document.addEventListener("keydown",function(event){if(event.key==="Escape"){button.setAttribute("aria-expanded","false");panel.hidden=true;button.focus();}});})();</script><script src="../../assets/js/site-search.js" defer></script><script data-ui-proposal="header">(() => {
+  const header=document.querySelector('.dc-shell');if(!header)return;
+  const root=document.documentElement,themeButton=document.getElementById('dc-theme-toggle'),themeKey='dc-theme',explicitKey='dc-theme-explicit-v2';
+  const themeMeta=document.querySelector('meta[name="theme-color"]'),lightThemeColor=themeMeta?.getAttribute('content')||null;
+  const systemQuery=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  const hasExplicitTheme=()=>{try{return localStorage.getItem(explicitKey)==='1';}catch{return false;}};
+  const readSavedTheme=()=>{try{if(!hasExplicitTheme())return null;const value=localStorage.getItem(themeKey);return value==='dark'||value==='light'?value:null;}catch{return null;}};
+  const preferenceObject=()=>{try{return navigator.preferences?.colorScheme||null;}catch{return null;}};
+  const readSystemTheme=()=>{try{const value=preferenceObject()?.value;if(value==='dark'||value==='light')return value;}catch{}return systemQuery?.matches?'dark':'light';};
+  const resolveTheme=()=>readSavedTheme()??readSystemTheme();
+  const applyTheme=(theme,persist=false)=>{
+    const dark=theme==='dark';root.dataset.dcTheme=dark?'dark':'light';
+    if(themeButton)themeButton.setAttribute('aria-checked',String(dark));
+    if(themeMeta){if(dark)themeMeta.setAttribute('content','#0d1621');else if(lightThemeColor)themeMeta.setAttribute('content',lightThemeColor);else themeMeta.removeAttribute('content');}
+    if(persist)try{localStorage.setItem(themeKey,dark?'dark':'light');localStorage.setItem(explicitKey,'1');}catch{}
+  };
+  applyTheme(resolveTheme(),false);
+  themeButton?.addEventListener('click',()=>applyTheme(root.dataset.dcTheme==='dark'?'light':'dark',true));
+  const followSystem=()=>{if(!readSavedTheme())applyTheme(readSystemTheme(),false);};
+  if(systemQuery?.addEventListener)systemQuery.addEventListener('change',followSystem);else systemQuery?.addListener?.(followSystem);
+  try{preferenceObject()?.addEventListener?.('change',followSystem);}catch{}
+  window.addEventListener('storage',event=>{if(event.key===themeKey||event.key===explicitKey)applyTheme(resolveTheme(),false);});
+  const pairs=['search','menu'].map(name=>({button:document.getElementById(`dc-${name}-toggle`),panel:document.getElementById(`dc-${name}-drawer`),name}));
+  function close(pair,focus=false){pair.button.setAttribute('aria-expanded','false');pair.panel.hidden=true;if(focus)pair.button.focus();}
+  for(const pair of pairs)pair.button.addEventListener('click',()=>{const open=pair.panel.hidden;pairs.forEach(p=>close(p));if(open){pair.panel.hidden=false;pair.button.setAttribute('aria-expanded','true');if(pair.name==='search')setTimeout(()=>{if(!pair.panel.hidden)document.getElementById('site-search-input').focus();},0);}});
+  document.addEventListener('click',event=>{if(!header.contains(event.target))pairs.forEach(p=>close(p));});
+  header.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=pairs.find(p=>!p.panel.hidden);if(open){event.preventDefault();close(open,true);}}});
+})();</script><script type="application/json" id="dc-toc-data">{"lang": "en", "toc": [{"id": "basic", "label": "1. What are ADD and SUB instructions?"}, {"id": "conclusion", "label": "2. Quick conclusion: calculate a value and store the result"}, {"id": "add", "label": "3. How to read ADD D10 K1 D10"}, {"id": "sub", "label": "4. How to read SUB D20 K1 D20"}, {"id": "source-destination", "label": "5. Source values and destination devices"}, {"id": "use-cases", "label": "6. Common field use cases"}, {"id": "scan", "label": "7. Watch out for scan-by-scan execution"}, {"id": "addp-subp", "label": "8. Difference between ADD/SUB and ADDP/SUBP"}, {"id": "field-check", "label": "9. Field check points when ADD/SUB does not work"}, {"id": "monitoring", "label": "10. GX Works3 monitoring points"}, {"id": "mistakes", "label": "11. Common beginner mistakes"}, {"id": "summary", "label": "12. Summary"}], "compactMaxWidth": 1100, "kind": "English"}</script><script src="/assets/js/article-toc-v2.js" defer></script><script src="/assets/js/article-integration-compat.js" defer></script></body></html>

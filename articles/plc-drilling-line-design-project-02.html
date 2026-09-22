@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLCで設備を1から設計する｜I/O設計編 第2回</title>
+  <meta name="description" content="穴あけ加工ライン設計プロジェクト第2回。第1回で決めた設備仕様をもとに、入力・出力の役割、I/O一覧、X/Y割付、FX3Uの8進数番地、将来拡張を考えた予備点の持たせ方まで整理します。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-02.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-02.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-02.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PLCで設備を1から設計する｜I/O設計編 第2回">
+  <meta property="og:description" content="設備仕様をPLCの入力・出力へ落とし込む。穴あけ加工ラインを題材にI/O設計を実践的に整理します。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/plc-drilling-line-design-project-02.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-design-project-02-ogp.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/articles/plc-drilling-line-design-project-02-ogp.webp">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.webp">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.webp">
+  <style>
+    :root{--bg:#f5f8fc;--card:#fff;--line:#d8e3f0;--text:#1e293b;--muted:#5f7288;--blue:#2563eb;--blue-deep:#1d4ed8;--blue-soft:#eef4ff;--shadow:0 12px 30px rgba(15,23,42,.06);--container:1180px;--header-h:76px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);line-height:1.8;padding-top:var(--header-h)}button,input{font:inherit}a{color:var(--blue-deep);text-decoration:none}a:hover{text-decoration:underline}img{max-width:100%;display:block}.container{width:min(var(--container),calc(100% - 28px));margin:0 auto}
+    .site-header{position:fixed;top:0;left:0;width:100%;z-index:999;padding:10px 12px;background:#fff;border-bottom:1px solid #dbe7f3;box-shadow:0 10px 24px rgba(15,23,42,.06)}.site-header-inner{width:min(100%,var(--container));margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand:hover{text-decoration:none}.brand-logo{height:46px}.brand-title{margin:0;font-size:17px;line-height:1.25;font-weight:900;color:#0f172a}.brand-sub{margin:2px 0 0;font-size:11px;color:#475569;font-weight:700}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.header-search{position:relative;flex:0 0 220px;min-height:42px;border-radius:999px;border:1px solid #dbe7f3;background:#fff;color:#64748b;box-shadow:0 8px 20px rgba(15,23,42,.05);margin-left:auto}.search-box{display:flex;align-items:center;gap:8px;padding:0 12px}.search-box-input{width:100%;min-width:0;border:none;outline:none;background:transparent;font-size:12px;color:#334155;font-weight:700}.search-box-input::placeholder{color:#94a3b8}.search-box-button{border:none;background:transparent;color:inherit;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.header-search-icon{width:16px;height:16px;border:2px solid #1f2937;border-radius:50%;position:relative;flex:0 0 auto}.header-search-icon::after{content:"";position:absolute;width:7px;height:2px;background:#1f2937;border-radius:999px;right:-5px;bottom:-2px;transform:rotate(45deg)}.search-box-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(420px,92vw);max-height:min(72vh,640px);overflow-y:auto;background:#fff;border:1px solid #dbe7f3;border-radius:16px;box-shadow:0 18px 40px rgba(15,23,42,.12);padding:8px 8px 10px;z-index:1200}.search-box-results{list-style:none;margin:0;padding:0;display:grid;gap:6px}.search-result-item a{display:block;padding:10px 12px;border-radius:12px;border:1px solid #e6eef8;background:#fbfdff;text-decoration:none}.search-result-item a:hover,.search-result-item a:focus,.search-result-item.is-active a{border-color:#bfdbfe;background:#eff6ff}.search-result-title{margin:0;font-size:13px;line-height:1.45;color:#0f172a;font-weight:800}.search-result-meta{margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.search-result-category{font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:#e6f0ff;color:#1d4ed8;font-weight:700}.search-result-description{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.search-box-empty{margin:0;padding:14px 10px;text-align:center;color:#64748b;font-size:12px;font-weight:700}
+    .breadcrumb{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 14px;color:var(--muted);font-size:12px;font-weight:800}.article-hero{position:relative;overflow:hidden;min-height:410px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 35%,rgba(255,255,255,.56) 58%,rgba(255,255,255,.08) 100%),url('../assets/images/articles/plc-drilling-line-design-project-02-hero.webp') center/cover no-repeat;box-shadow:var(--shadow)}.article-hero:after{display:none}.article-hero-copy{position:relative;z-index:2;width:min(64%,720px);min-height:410px;padding:48px 42px;display:flex;flex-direction:column;justify-content:center}.hero-label{display:inline-flex;align-self:flex-start;padding:6px 11px;border-radius:999px;background:#eaf2ff;border:1px solid #bfd5ff;color:#1d4ed8;font-size:12px;font-weight:900}.article-hero h1{margin:16px 0 14px;font-size:40px;line-height:1.28}.hero-lead{margin:0;color:#475569;font-size:15px;font-weight:700;max-width:48ch}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:900}.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}.btn-secondary{background:#fff;border:1px solid #d3dfec;color:var(--text)}
+    .top-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0 22px}.summary-card,.mini-toc-card,.section-card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}.summary-card{border-radius:24px;padding:22px 20px}.summary-card h2{margin:0 0 10px;font-size:18px}.summary-card ul{margin:0;padding-left:18px}.summary-card li{margin:8px 0 0;color:var(--muted);font-size:14px}.mini-toc-card{margin:0 0 22px;padding:22px 20px 16px;border-radius:24px}.mini-toc-card h2{margin:0 0 14px;font-size:17px}.mini-toc{display:flex;flex-wrap:wrap;gap:10px}.mini-toc a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;background:#f8fbff;border:1px solid #cfdded;color:#1d4ed8;font-size:13px;font-weight:900}
+    .page-layout{display:block;margin-bottom:48px}.main-column{width:100%;min-width:0}.section-card{width:100%;padding:30px 34px;border-radius:28px;margin-bottom:20px}.section-card h2{margin:0 0 16px;font-size:22px;line-height:1.4}.section-card h3{margin:22px 0 10px;font-size:17px}.section-card p{margin:0 0 14px;font-size:15px}.key-box,.note-box,.source-box{border-radius:20px;padding:18px;margin:18px 0}.key-box{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#f8fbff)}.note-box{border:1px solid #f4d79d;background:#fff8ea}.source-box{border:1px solid #cbd5e1;background:#f8fafc}.key-box h3,.note-box h3,.source-box h3{margin:0 0 8px}.io-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.io-step{padding:16px 12px;border:1px solid #d7e4f3;border-radius:18px;background:#f8fbff;text-align:center}.io-step strong{display:block;color:#1d4ed8}.io-step span{display:block;margin-top:4px;color:#64748b;font-size:12px}.table-wrap{overflow:auto;margin:18px 0 6px;border:1px solid var(--line);border-radius:18px}.table-wrap table{width:100%;border-collapse:collapse;min-width:760px;background:#fff}.table-wrap th,.table-wrap td{padding:13px 14px;border-bottom:1px solid #dfe8f2;text-align:left;vertical-align:top;font-size:14px}.table-wrap th{background:#f8fbff;font-weight:900;white-space:nowrap}.badge{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#1d4ed8;font-size:11px;font-weight:900}.talk-thread{display:grid;gap:12px;margin-top:18px;max-width:980px}.talk-row{display:flex;align-items:flex-start;gap:12px}.talk-row.right{justify-content:flex-end}.talk-bubble{max-width:760px;background:#f8fbff;border:1px solid #d7e3f2;border-radius:22px;padding:14px 18px}.talk-row.right .talk-bubble{background:#fcfbff;border-color:#e1d6fb}.talk-name{display:inline-flex;padding:2px 8px;margin-right:8px;border-radius:999px;background:#eaf2ff;color:#1d4ed8;font-size:12px;font-weight:900}.talk-row.right .talk-name{background:#f3ebff;color:#7c3aed}.article-figure{margin:20px 0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.05)}.article-figure img{width:100%;height:auto}.article-figure figcaption{padding:10px 14px;color:#64748b;font-size:12px;font-weight:700;background:#f8fbff}.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.related-card{display:block;overflow:hidden;border:1px solid #d7e4f3;border-radius:20px;background:#fff;color:var(--text);box-shadow:0 8px 20px rgba(15,23,42,.05);transition:transform .18s ease,box-shadow .18s ease}.related-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.09);text-decoration:none}.related-card img{width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid #e2e8f0}.related-card-body{padding:15px 16px 17px}.related-card h3{margin:0 0 8px;font-size:16px;line-height:1.45;color:#1d4ed8}.related-card p{margin:0;font-size:13px;color:#64748b}
+    #summary{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#c7daf3}
+    .summary-highlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 20px}
+    .summary-point{padding:16px;border:1px solid #cfe0f5;border-radius:18px;background:#fff;box-shadow:0 6px 16px rgba(37,99,235,.06)}
+    .summary-point span{display:inline-flex;margin-bottom:8px;padding:3px 8px;border-radius:999px;background:#e8f1ff;color:#1d4ed8;font-size:11px;font-weight:900}
+    .summary-point strong{display:block;color:#1d4ed8;font-size:14px;line-height:1.5}
+    .summary-point small{display:block;margin-top:5px;color:#64748b;font-size:12px;line-height:1.6}
+    #roadmap{background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);border-color:#cdddf0}
+    #roadmap h2{margin-bottom:8px}
+    .series-roadmap-lead{margin:0 0 18px!important;color:#64748b}
+    .series-roadmap{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+    .series-roadmap li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:62px;padding:12px 14px;border:1px solid #dce6f2;border-radius:18px;background:#fff;box-shadow:0 5px 14px rgba(15,23,42,.035)}
+    .series-step{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:4px 10px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:900;white-space:nowrap}
+    .series-title{font-size:14px;font-weight:800;color:#334155}
+    .series-state{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+    .series-roadmap li.is-done .series-step{background:#e2e8f0;color:#475569}
+    .series-roadmap li.is-done .series-state{background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1}
+    .series-roadmap li.is-current{border-color:#93c5fd;background:linear-gradient(135deg,#eff6ff 0%,#f8fbff 100%);box-shadow:0 9px 22px rgba(37,99,235,.10)}
+    .series-roadmap li.is-current .series-step{background:#2563eb;color:#fff}
+    .series-roadmap li.is-current .series-title{color:#1d4ed8}
+    .series-roadmap li.is-current .series-state{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd}
+    .series-roadmap li.is-next{border-color:#f6c66f;background:linear-gradient(135deg,#fff8e8 0%,#fffdf7 100%);box-shadow:0 9px 22px rgba(245,158,11,.09)}
+    .series-roadmap li.is-next .series-step{background:#f59e0b;color:#fff}
+    .series-roadmap li.is-next .series-title{color:#92400e}
+    .series-roadmap li.is-next .series-state{background:#fff1c7;color:#92400e;border:1px solid #f6c66f}
+    .site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:#64748b;text-align:center;font-size:12px;font-weight:700}
+    @media(max-width:980px){.brand-sub{display:none}.header-search{flex-basis:180px}.article-hero-copy{width:min(70%,680px)}}@media(max-width:768px){.site-header{padding:8px 10px}.brand-logo{height:40px}.brand-title{font-size:15px}.header-search{flex:0 0 132px}.article-hero{min-height:360px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 52%,rgba(255,255,255,.65) 76%,rgba(255,255,255,.36) 100%),url('../assets/images/articles/plc-drilling-line-design-project-02-hero.webp') 62% center/cover no-repeat}.article-hero-copy{width:100%;min-height:360px;padding:34px 24px}.article-hero h1{font-size:32px}.top-summary{grid-template-columns:1fr}.io-flow,.related-grid,.summary-highlight{grid-template-columns:1fr}.section-card{padding:22px}}@media(max-width:520px){:root{--header-h:66px}.brand-title{font-size:13px}.header-search{flex-basis:120px}.article-hero h1{font-size:28px}.series-roadmap li{grid-template-columns:64px minmax(0,1fr);gap:8px 10px;padding:12px}.series-roadmap .series-state{grid-column:2;justify-self:start}.series-title{font-size:13px}}
+  </style>
+  <link rel="stylesheet" href="/assets/css/gxworks2-service-entry.css">
+<style data-ui-proposal="header">.dc-shell.site-header{padding:10px 20px;background:#fff!important;color:#14263d;border-bottom:1px solid #d9e3ed;box-shadow:0 3px 16px #102b4310;position:fixed;inset:0 0 auto;width:100%;z-index:999;box-sizing:border-box}
+.dc-shell *{box-sizing:border-box}.dc-shell [hidden]{display:none!important}
+.dc-bar{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.dc-brand{display:flex;align-items:center;gap:10px;min-width:0;color:#14263d;text-decoration:none!important}.dc-brand img{width:auto;height:46px;object-fit:contain}.dc-brand strong{display:block;font-size:17px;line-height:1.4;white-space:nowrap;letter-spacing:0}.dc-brand small{display:block;font-size:11px;color:#63758a;line-height:1.5;margin-top:2px}
+.dc-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}.dc-consult{display:flex;align-items:center;gap:10px;background:#165cb9;color:white!important;border-radius:8px;padding:10px 16px;text-decoration:none!important;min-height:44px;line-height:1.2;box-shadow:0 2px 4px #145abc16}.dc-consult span{font-size:12px;letter-spacing:.02em}.dc-consult strong{font-size:13px}.dc-consult:hover{background:#104c9a}.dc-icon-button{border:0;background:transparent;color:#263e59;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:5px 7px;cursor:pointer;font:inherit}.dc-icon-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.dc-icon-button span{font-size:12px;font-weight:700}.dc-icon-button[aria-expanded=true]{background:#eaf2fc;border-radius:7px;color:#165cb9}.dc-shell a:focus-visible,.dc-shell button:focus-visible,.dc-shell input:focus-visible{outline:3px solid #65a6ee;outline-offset:3px}
+.dc-drawer{position:absolute;top:100%;right:max(20px,calc((100% - 1180px)/2));background:white;border:1px solid #d9e3ed;box-shadow:0 12px 28px #14263d21;border-radius:0 0 12px 12px;padding:20px}.dc-search-drawer{width:min(560px,calc(100% - 40px))}.dc-search-form{position:relative;width:100%;margin:0;background:none;border:0;padding:0;display:block}.dc-search-label{display:block;color:#435972;font-size:12px;font-weight:700;margin-bottom:9px}.dc-search-row{display:flex;gap:8px}.dc-search-form .search-box-input{width:100%;min-width:0;height:46px;border:1px solid #c4d3e4;background:#f6f9fc;border-radius:7px;padding:10px 12px;font-size:16px;color:#14263d}.dc-search-form .dc-submit{width:auto;height:46px;position:static;border:0;border-radius:7px;background:#165cb9;color:white;padding:0 17px;font-size:13px;flex-shrink:0}.dc-search-form .search-box-panel{top:100%;left:0;right:0;width:100%}
+.dc-menu-drawer{width:300px}.dc-contact,.dc-alternative{display:flex;align-items:center;justify-content:space-between;text-decoration:none!important;color:#165cb9;font-weight:700;font-size:14px;padding:12px 10px;border-radius:6px}.dc-contact:hover,.dc-alternative:hover{background:#eff5fc}.dc-contact{padding-top:4px;padding-bottom:18px}.dc-language{border-top:1px solid #e3eaf2;padding-top:16px}.dc-language p{margin:0 10px 10px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}.dc-current{display:flex;align-items:center;justify-content:space-between;padding:10px;color:#354b64}.dc-current strong{font-size:14px}.dc-current>span{font-size:10px;color:#65798f;background:#eef2f6;padding:3px 7px;border-radius:4px}.dc-alternative{border:1px solid #dce7f5;margin-top:5px}
+@media(max-width:700px){.dc-shell.site-header{padding:8px 10px}.dc-bar{gap:6px}.dc-brand{gap:6px;flex:1}.dc-brand img{height:30px;max-width:34px}.dc-brand strong{font-size:12px;line-height:1.35;white-space:normal;max-width:126px}.dc-brand small{display:none}.dc-actions{gap:2px}.dc-consult{flex-direction:column;gap:3px;padding:7px 9px;min-height:44px;border-radius:6px}.dc-consult span{font-size:10px}.dc-consult strong{font-size:11px;white-space:nowrap}.dc-icon-button{flex-direction:column;gap:2px;padding:3px 4px;min-width:40px;min-height:44px}.dc-icon-button svg{height:19px;width:19px}.dc-icon-button span{font-size:9px;line-height:1.2}.dc-drawer{right:10px;padding:17px}.dc-search-drawer{width:calc(100% - 20px)}.dc-menu-drawer{width:min(300px,calc(100% - 20px))}.dc-shell[data-lang=en] .dc-brand strong{font-size:12px;max-width:none}.dc-shell[data-lang=en] .dc-consult strong{font-size:9px}}
+@media(max-width:350px){.dc-shell.site-header{padding-left:7px;padding-right:7px}.dc-brand img{height:24px;max-width:26px}.dc-brand strong{font-size:11px}.dc-consult{padding-left:6px;padding-right:6px}.dc-icon-button{min-width:36px}}
+
+
+/* Shared display-theme control */
+.dc-theme{border-top:1px solid #e3eaf2;padding:16px 0;margin-top:2px}
+.dc-theme-caption{margin:0 10px 9px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}
+.dc-theme-toggle{width:100%;min-height:48px;border:1px solid #dce7f5;border-radius:8px;background:#f8fbff;color:#263e59;display:grid;grid-template-columns:28px minmax(0,1fr) 40px;align-items:center;gap:9px;padding:8px 10px;cursor:pointer;font:inherit;text-align:left}
+.dc-theme-toggle:hover{background:#eff5fc;border-color:#bfd4ec}
+.dc-theme-symbol{font-size:18px;line-height:1;text-align:center}.dc-theme-name{font-size:14px;font-weight:800}
+.dc-theme-switch{position:relative;width:38px;height:22px;border-radius:999px;background:#c8d4e1;box-shadow:inset 0 0 0 1px #afbdcc;transition:background .18s ease}
+.dc-theme-switch::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;left:3px;top:3px;box-shadow:0 1px 4px #14263d38;transition:transform .18s ease}
+.dc-theme-toggle[aria-checked=true] .dc-theme-switch{background:#2563eb;box-shadow:inset 0 0 0 1px #1d4ed8}.dc-theme-toggle[aria-checked=true] .dc-theme-switch::after{transform:translateX(16px)}
+.dc-lang-en{display:none}.dc-shell[data-lang=en] .dc-lang-ja{display:none}.dc-shell[data-lang=en] .dc-lang-en{display:inline}
+
+/* Site-wide article dark theme. Images keep their original colors. */
+html[data-dc-theme=dark]{color-scheme:dark;--bg:#0d1621!important;--card:#172433!important;--panel:#172433!important;--text:#e7edf4!important;--muted:#a8b5c4!important;--muted-2:#94a4b7!important;--line:#34475d!important;--line-soft:#2b3b4e!important;--line-strong:#40566f!important;--blue:#7eb6ff!important;--blue-deep:#9dc8ff!important;--shadow:0 12px 30px rgba(0,0,0,.24)!important;--shadow-soft:0 8px 20px rgba(0,0,0,.18)!important}
+html[data-dc-theme=dark] body{background:#0d1621!important;color:#e7edf4!important}
+html[data-dc-theme=dark] main,html[data-dc-theme=dark] article,html[data-dc-theme=dark] aside{color:#e7edf4}
+html[data-dc-theme=dark] h1,html[data-dc-theme=dark] h2,html[data-dc-theme=dark] h3,html[data-dc-theme=dark] h4,html[data-dc-theme=dark] h5,html[data-dc-theme=dark] h6{color:#f3f7fb!important}
+html[data-dc-theme=dark] main a:not(.btn):not(.button):not([class*="button"]){color:#91bdff}
+html[data-dc-theme=dark] .breadcrumb,html[data-dc-theme=dark] figcaption,html[data-dc-theme=dark] .section-card li,html[data-dc-theme=dark] .summary-card li,html[data-dc-theme=dark] .side-card li,html[data-dc-theme=dark] .related-card p,html[data-dc-theme=dark] .article-card p{color:#a8b5c4!important}
+
+html[data-dc-theme=dark] .section-card,
+html[data-dc-theme=dark] .side-card,
+html[data-dc-theme=dark] .summary-card,
+html[data-dc-theme=dark] .mini-toc-card,
+html[data-dc-theme=dark] .related-card,
+html[data-dc-theme=dark] .article-card,
+html[data-dc-theme=dark] .policy-card,
+html[data-dc-theme=dark] .support-card,
+html[data-dc-theme=dark] .content-card,
+html[data-dc-theme=dark] .summary-point,
+html[data-dc-theme=dark] .state-card,
+html[data-dc-theme=dark] .transfer-card,
+html[data-dc-theme=dark] .check-item{background:#172433!important;color:#e7edf4!important;border-color:#34475d!important;box-shadow:0 10px 26px rgba(0,0,0,.20)!important}
+html[data-dc-theme=dark] #summary,html[data-dc-theme=dark] #roadmap{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .mini-toc a,html[data-dc-theme=dark] .keyword-pills li,html[data-dc-theme=dark] .io-step{background:#1d2c3d!important;border-color:#40566f!important;color:#9dc8ff!important}
+html[data-dc-theme=dark] .talk-bubble,html[data-dc-theme=dark] .talk-row--right .talk-bubble,html[data-dc-theme=dark] .talk-row.right .talk-bubble{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .talk-bubble p{color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box,html[data-dc-theme=dark] .key-highlight,html[data-dc-theme=dark] .field-highlight,html[data-dc-theme=dark] .point-strip,html[data-dc-theme=dark] .source-box{background:#1b2b3c!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box p,html[data-dc-theme=dark] .key-highlight p,html[data-dc-theme=dark] .field-highlight p,html[data-dc-theme=dark] .source-box p,html[data-dc-theme=dark] .point-strip{color:#d6e0ea!important}
+html[data-dc-theme=dark] .note-box{background:#302817!important;border-color:#70582a!important;color:#f4e6c7!important}
+html[data-dc-theme=dark] .danger-box{background:#321c22!important;border-color:#75404b!important;color:#ffdbe2!important}
+html[data-dc-theme=dark] .note-box p,html[data-dc-theme=dark] .danger-box p{color:inherit!important}
+
+html[data-dc-theme=dark] .article-figure{background:#111c28!important;border-color:#34475d!important;box-shadow:none!important}
+html[data-dc-theme=dark] .article-figure-inner{background:#111c28!important}
+html[data-dc-theme=dark] .article-figure figcaption{background:#172433!important;color:#a8b5c4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .table-wrap{border-color:#34475d!important}
+html[data-dc-theme=dark] table{background:#172433!important;color:#e7edf4!important}
+html[data-dc-theme=dark] th{background:#223247!important;color:#f3f7fb!important}
+html[data-dc-theme=dark] td,html[data-dc-theme=dark] th{border-color:#34475d!important}
+html[data-dc-theme=dark] pre{background:#09111a!important;color:#e7edf4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] code{background:#111e2c!important;color:#d9eaff!important}
+html[data-dc-theme=dark] pre code{background:transparent!important}
+html[data-dc-theme=dark] input,html[data-dc-theme=dark] textarea,html[data-dc-theme=dark] select{background:#101c29!important;color:#eef4fa!important;border-color:#40566f!important}
+
+html[data-dc-theme=dark] .article-hero,html[data-dc-theme=dark] .category-hero,html[data-dc-theme=dark] .page-hero{border-color:#34475d!important;box-shadow:inset 0 0 0 9999px rgba(6,13,21,.58),0 12px 30px rgba(0,0,0,.24)!important}
+html[data-dc-theme=dark] .article-hero::after{background:linear-gradient(90deg,rgba(10,18,28,.82) 0%,rgba(10,18,28,.62) 42%,rgba(10,18,28,.18) 75%,rgba(10,18,28,0) 100%)!important}
+html[data-dc-theme=dark] .hero-lead,html[data-dc-theme=dark] .hero-points li{color:#d6e0ea!important}
+html[data-dc-theme=dark] .hero-label{background:#183052!important;border-color:#365f93!important;color:#a9ccff!important}
+html[data-dc-theme=dark] .btn-secondary{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+
+html[data-dc-theme=dark] .dc-shell.site-header{background:#101b27!important;color:#e7edf4;border-bottom-color:#2f4155;box-shadow:0 3px 18px rgba(0,0,0,.34)}
+html[data-dc-theme=dark] .dc-brand{color:#eef4fa}html[data-dc-theme=dark] .dc-brand small{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-icon-button{color:#d8e3ee}html[data-dc-theme=dark] .dc-icon-button[aria-expanded=true]{background:#203248;color:#9dc8ff}
+html[data-dc-theme=dark] .dc-drawer{background:#142231;border-color:#34475d;box-shadow:0 14px 32px rgba(0,0,0,.42)}
+html[data-dc-theme=dark] .dc-search-label,html[data-dc-theme=dark] .dc-language p,html[data-dc-theme=dark] .dc-theme-caption{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-search-form .search-box-input{background:#0f1b28;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-contact,html[data-dc-theme=dark] .dc-alternative{color:#9dc8ff}
+html[data-dc-theme=dark] .dc-contact:hover,html[data-dc-theme=dark] .dc-alternative:hover{background:#1c3046}
+html[data-dc-theme=dark] .dc-language,html[data-dc-theme=dark] .dc-theme{border-color:#34475d}
+html[data-dc-theme=dark] .dc-current{color:#d8e3ee}html[data-dc-theme=dark] .dc-current>span{background:#243649;color:#bac8d6}
+html[data-dc-theme=dark] .dc-alternative{border-color:#40566f}
+html[data-dc-theme=dark] .dc-theme-toggle{background:#1a2a3b;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-theme-toggle:hover{background:#203349}
+html[data-dc-theme=dark] .dc-shared-footer,html[data-dc-theme=dark] .site-footer{border-color:#34475d!important;color:#a8b5c4!important}
+
+@media(max-width:700px){.dc-theme{padding-top:14px}.dc-theme-toggle{min-height:46px}}
+
+
+/* Compatibility for article-specific card names and search/series widgets. */
+html[data-dc-theme=dark] [class$="-card"],
+html[data-dc-theme=dark] [class*="-card "]{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .series-roadmap li{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important;box-shadow:none!important}
+html[data-dc-theme=dark] .series-roadmap li.is-current{background:#182d49!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .series-roadmap li.is-next{background:#302817!important;border-color:#70582a!important}
+html[data-dc-theme=dark] .series-title,html[data-dc-theme=dark] .series-roadmap-lead{color:#d6e0ea!important}
+html[data-dc-theme=dark] .search-box-panel{background:#142231!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .search-result-item a{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .search-result-item a:hover,html[data-dc-theme=dark] .search-result-item a:focus,html[data-dc-theme=dark] .search-result-item.is-active a{background:#1d3045!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .search-result-title{color:#f3f7fb!important}
+html[data-dc-theme=dark] .search-result-description,html[data-dc-theme=dark] .search-box-empty{color:#a8b5c4!important}
+html[data-dc-theme=dark] td.cell-blue{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] td.cell-green{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] td.cell-purple{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] td.cell-orange{background:#332817!important;color:#f4d7a0!important}
+
+/* end shared display-theme layer */
+
+
+/* Home and category hub dark-theme coverage */
+html[data-dc-theme=dark] :is(
+  .feature-main,
+  .featured-card--main,
+  .info-box,
+  .bookmark-help-panel,
+  .shelf-row,
+  .shelf-links,
+  .support-category-card,
+  .category-modal__panel,
+  .side-box,
+  .intro-box,
+  .featured-article,
+  .article-row,
+  .air-feature-card,
+  .tool-task-card,
+  .tool-article-card,
+  .featured-tool-card,
+  .tool-group,
+  .category-block,
+  .compare-group,
+  .topic-block,
+  .bottom-nav a,
+  .feature,
+  .side-pill-list li
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(.notice-box,.hub-note){
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .troubleshooting-hub{
+  background:#172b47!important;
+  color:#e7edf4!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.20)!important;
+}
+html[data-dc-theme=dark] :is(.roadmap-card-media,.troubleshooting-hub-media,.mini-card-thumb,.shelf-thumb){
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .shelf-row:hover,
+html[data-dc-theme=dark] .shelf-row:focus-within,
+html[data-dc-theme=dark] .article-row:hover,
+html[data-dc-theme=dark] .article-row:focus-within,
+html[data-dc-theme=dark] .featured-article:hover,
+html[data-dc-theme=dark] .featured-article:focus-within,
+html[data-dc-theme=dark] .featured-tool-card:hover,
+html[data-dc-theme=dark] .featured-tool-card:focus-within,
+html[data-dc-theme=dark] .tool-article-card:hover,
+html[data-dc-theme=dark] .tool-article-card:focus-within{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .shelf-links .shelf-list a,
+html[data-dc-theme=dark] .shelf-links .link-list a,
+html[data-dc-theme=dark] .category-modal__list a,
+html[data-dc-theme=dark] .side-category-card,
+html[data-dc-theme=dark] .side-list a,
+html[data-dc-theme=dark] .tool-task-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .shelf-links .more-link,
+html[data-dc-theme=dark] .shelf-more.more-link,
+html[data-dc-theme=dark] .support-link{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .support-link--coffee,
+html[data-dc-theme=dark] .support-link--coffee:hover{
+  background:#302817!important;
+  color:#f4d7a0!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .shelf-row.control .shelf-label{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] .shelf-row.circuit .shelf-label{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] .shelf-row.tools .shelf-label{background:#332817!important;color:#f4d7a0!important}
+html[data-dc-theme=dark] .shelf-row.compare .shelf-label{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] .article-filter select{
+  background:#101c29!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close:hover{background:#203349!important}
+html[data-dc-theme=dark] :is(
+  .hero-text,
+  .category-lead,
+  .section-lead,
+  .support-card-text,
+  .mobile-shortcut span,
+  .shelf-summary p,
+  .support-category-card__description,
+  .storefront-guide-card__note,
+  .category-modal__description,
+  .intro-box p,
+  .featured-article p,
+  .article-row-body p,
+  .troubleshooting-hub p,
+  .hub-note,
+  .tool-task-card p,
+  .tool-group ul,
+  .side-category-card span,
+  .side-note,
+  .category-block p,
+  .compare-group p,
+  .topic-block p,
+  .bottom-nav p,
+  .feature p,
+  .side-pill-list li
+){
+  color:#a8b5c4!important;
+}
+html[data-dc-theme=dark] .notice-box,
+html[data-dc-theme=dark] .notice-box p,
+html[data-dc-theme=dark] .hub-note{color:#f4e6c7!important}
+html[data-dc-theme=dark] .top-right-rail .info-box h3{color:#a9ccff!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .info-box :is(p,li,small){color:#a8b5c4!important}
+html[data-dc-theme=dark] .storefront-guide-card{
+  background:#2d2518!important;
+  color:#f3e4ca!important;
+  border-color:#6f5427!important;
+}
+html[data-dc-theme=dark] .storefront-guide-card__arrow{background:#4a301c!important;color:#ffd09a!important}
+
+
+/* Home/category bright-surface fixes */
+html[data-dc-theme=dark] .hero-grid{
+  background:linear-gradient(90deg,#172433 0%,#182637 56%,#152231 100%)!important;
+  border-color:#40566f!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .hero-visual::before{
+  background:linear-gradient(90deg,rgba(23,36,51,.92) 0%,rgba(23,36,51,.48) 34%,rgba(23,36,51,0) 72%)!important;
+}
+html[data-dc-theme=dark] .hero-visual img{
+  opacity:.82!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry:hover,
+html[data-dc-theme=dark] .gxw-service-entry:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy strong{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy p,
+html[data-dc-theme=dark] .gxw-service-entry-copy small{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-arrow{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .category-hero{
+  box-shadow:inset 0 0 0 9999px rgba(6,13,21,.70),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .category-label{
+  background:#183052!important;
+  color:#b9d6ff!important;
+  border-color:#365f93!important;
+}
+html[data-dc-theme=dark] :is(.lead-em,.lead-mark,.mark,.mark-orange){
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] :is(.lead-mark,.mark,.mark-orange){
+  background:rgba(53,95,147,.34)!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .feature-main-body p,
+html[data-dc-theme=dark] .mini-card p,
+html[data-dc-theme=dark] .ranked-list a,
+html[data-dc-theme=dark] .link-list a{
+  color:#c2ceda!important;
+}
+
+
+/* Residual dark-mode coverage found in home/category browser review */
+@media (min-width:1101px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.98) 0%,
+        rgba(23,36,51,.94) 34%,
+        rgba(23,36,51,.74) 48%,
+        rgba(23,36,51,.26) 62%,
+        rgba(23,36,51,.05) 76%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+  }
+}
+html[data-dc-theme=dark] .container > .hero{
+  border-color:#34475d!important;
+  box-shadow:inset 0 0 0 9999px rgba(7,14,22,.34),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .container > .hero::after{
+  background:linear-gradient(90deg,rgba(8,16,25,.90) 0%,rgba(8,16,25,.72) 42%,rgba(8,16,25,.34) 66%,rgba(8,16,25,.16) 100%)!important;
+}
+html[data-dc-theme=dark] .container > .hero p{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .label{
+  background:#2b2240!important;
+  color:#dbcaff!important;
+  border-color:#66528f!important;
+}
+html[data-dc-theme=dark] .step{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-no{
+  background:#20324a!important;
+  color:#b8d5ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step h3{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .step p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .step-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-links a::after{
+  background:#294362!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .step-links span{
+  background:#182534!important;
+  color:#a8b5c4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step-links span::after{
+  background:#2a394b!important;
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .feature{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .feature p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .note{
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .finder-pill{
+  background:#1b2a3a!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .finder-pill.active,
+html[data-dc-theme=dark] .finder-pill[aria-pressed="true"]{
+  background:#2563eb!important;
+  color:#fff!important;
+  border-color:#3b82f6!important;
+}
+html[data-dc-theme=dark] :is(.eyebrow,.finder-heading,.support-category-card__title){
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a:hover,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a:hover{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+) :is(p,small,span){
+  color:#c2ceda!important;
+}
+
+
+/* Remaining dynamic/home controls */
+html[data-dc-theme=dark] .bookmark-help-button{
+  background:#172433!important;
+  color:#9dc8ff!important;
+  border-color:#40566f!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-button:hover,
+html[data-dc-theme=dark] .bookmark-help-button:focus-visible{
+  background:#1d3045!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel{
+  background:#172433!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel p,
+html[data-dc-theme=dark] .bookmark-help-panel strong{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link{
+  background:linear-gradient(135deg,#172433 0%,#1b2a3a 62%)!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link:hover,
+html[data-dc-theme=dark] .project-series-entry__link:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 12px 26px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__media{
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .project-series-entry__kicker{
+  background:#183052!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .project-series-entry__title{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .project-series-entry__sub{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .project-series-entry__cta{
+  color:#9dc8ff!important;
+}
+
+
+/* Keep the top hero image visible with a dark overlay on tablet/mobile */
+@media (min-width:481px) and (max-width:1100px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 46%,
+        rgba(23,36,51,.58) 68%,
+        rgba(23,36,51,.20) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+    border-color:#40566f!important;
+  }
+}
+@media (max-width:480px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        180deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 44%,
+        rgba(23,36,51,.68) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right -10px bottom 4px / 112% auto no-repeat !important;
+    border-color:#40566f!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-copy{
+    background:transparent!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-title{
+    color:#f3f7fb!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-text{
+    color:#c2ceda!important;
+  }
+}
+</style><link rel="stylesheet" href="/assets/css/article-toc-v2.css"><link rel="stylesheet" href="/assets/css/article-end-related.css"><link rel="stylesheet" href="/assets/css/article-end-feedback.css"><link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>
+<body>
+<header class="site-header dc-shell" data-lang="ja">
+  <script data-dc-theme-init>(()=>{let saved=null,explicit=false;try{explicit=localStorage.getItem('dc-theme-explicit-v2')==='1';if(explicit)saved=localStorage.getItem('dc-theme')}catch{}let systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;try{const v=navigator.preferences?.colorScheme?.value;if(v==='dark')systemDark=true;else if(v==='light')systemDark=false}catch{}document.documentElement.dataset.dcTheme=explicit?(saved==='dark'?'dark':'light'):(systemDark?'dark':'light')})()</script>
+  <div class="dc-bar">
+    <a class="dc-brand" href="/" aria-label="トップページへ">
+      <img src="/assets/images/common/site-logo-dcl.webp" alt="" width="46" height="46">
+      <span><strong>電気と制御の実務メモ</strong><small>現場で使える考え方と制御の基礎をわかりやすく解説</small></span>
+    </a>
+    <div class="dc-actions">
+      <a class="dc-consult" href="/services/gxworks2-online-support.html"><span>GX Works2</span><strong>オンライン相談</strong></a>
+      <button class="dc-icon-button" id="dc-search-toggle" aria-label="サイト内検索" aria-expanded="false" aria-controls="dc-search-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><span>検索</span></button>
+      <button class="dc-icon-button" id="dc-menu-toggle" aria-label="メニュー" aria-expanded="false" aria-controls="dc-menu-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg><span>メニュー</span></button>
+    </div>
+  </div>
+  <div class="dc-drawer dc-search-drawer" id="dc-search-drawer" hidden>
+    <form class="search-box dc-search-form" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="dc-search-label" for="site-search-input">サイト内検索</label>
+      <div class="dc-search-row"><input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search"><button class="search-box-button dc-submit" type="submit">検索</button></div>
+      <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p></div>
+    </form>
+  </div>
+  <nav class="dc-drawer dc-menu-drawer" id="dc-menu-drawer" aria-label="メニュー" hidden>
+    <a class="dc-contact" href="/contact/index.html"><span>お問い合わせ</span><span aria-hidden="true">↗</span></a>
+    <div class="dc-theme">
+      <p class="dc-theme-caption"><span class="dc-lang-ja">表示テーマ</span><span class="dc-lang-en">DISPLAY THEME</span></p>
+      <button class="dc-theme-toggle" id="dc-theme-toggle" type="button" role="switch" aria-checked="false">
+        <span class="dc-theme-symbol" aria-hidden="true">🌙</span>
+        <span class="dc-theme-name"><span class="dc-lang-ja">ダークモード</span><span class="dc-lang-en">Dark mode</span></span>
+        <span class="dc-theme-switch" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="dc-language"><p>記事の言語</p><div class="dc-current"><strong lang="ja">日本語</strong><span>現在の言語</span></div>
+    </div>
+  </nav>
+</header>
+
+<main class="container">
+  <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><span>実践・設備設計</span><span>›</span><span>I/O設計 第2回</span></nav>
+
+  <section class="article-hero" aria-labelledby="page-title">
+    <div class="article-hero-copy">
+      <span class="hero-label">実践・設備設計シリーズ #02</span>
+      <h1 id="page-title">PLCで設備を1から設計する<br>I/O設計編</h1>
+      <p class="hero-lead">第1回で決めた設備仕様を、PLCが扱える「入力」と「出力」へ落とし込みます。センサ・モータ・ストッパの役割を整理し、X/Y割付の大枠まで作ります。</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#input">入力から見る</a><a class="btn btn-secondary" href="#map">X/Y割付を見る</a></div>
+    </div>
+  </section>
+
+  <section class="top-summary" aria-label="記事の導入まとめ">
+    <section class="summary-card"><h2>今回決めること</h2><ul><li>入力と出力の役割分け</li><li>搬送部I/Oの仮割付</li><li>X/Y割付と予備点の考え方</li></ul></section>
+    <section class="summary-card"><h2>前提にする設備</h2><ul><li>CV01〜CV04の独立搬送</li><li>各区間に存在・通過センサ</li><li>モータと前後ストッパ</li></ul></section>
+    <section class="summary-card"><h2>今回はまだやらないこと</h2><ul><li>ラダー入力</li><li>GX Works2での動作確認</li><li>加工部I/Oの最終確定</li></ul></section>
+  </section>
+
+  <section class="mini-toc-card"><h2>第2回でわかること</h2><div class="mini-toc"><a href="#purpose">I/O設計の考え方</a><a href="#input">入力一覧</a><a href="#output">出力一覧</a><a href="#map">X/Y割付</a><a href="#spare">予備点</a><a href="#next">次回へのつなぎ</a></div></section>
+
+  <div class="page-layout"><div class="main-column">
+    <section class="section-card" id="purpose">
+      <h2>1. I/O設計は「設備の動き」をPLCの言葉に置き換える作業</h2>
+      <p>第1回では設備全体の流れを決めました。第2回では、その流れをPLCから見える信号へ分解します。センサや押しボタンは入力、モータやストッパ用の電磁弁などは出力として整理します。</p>
+      <div class="io-flow"><div class="io-step"><strong>設備仕様</strong><span>何をしたいか</span></div><div class="io-step"><strong>機器を分ける</strong><span>センサ・駆動機器</span></div><div class="io-step"><strong>I/O一覧</strong><span>入力・出力へ分類</span></div><div class="io-step"><strong>X/Y割付</strong><span>PLC番地へ配置</span></div></div>
+      <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-io-overview.webp" alt="入力機器からPLC、出力機器へつながるI/O設計の全体像" loading="lazy" decoding="async"><figcaption>入力・PLC・出力の関係と、I/O設計を進める流れを1枚で整理します。</figcaption></figure>
+      <div class="talk-thread"><div class="talk-row"><div class="talk-bubble"><span class="talk-name">先輩</span>いきなりX0、Y0から埋めるより、まず設備側の信号を全部並べる方が抜け漏れを減らせます。</div></div><div class="talk-row right"><div class="talk-bubble"><span class="talk-name">後輩</span>番地を決める前に「何の信号が必要か」を固めるんですね。</div></div></div>
+    </section>
+
+    <section class="section-card" id="input">
+      <h2>2. まず入力側を整理する</h2>
+      <p>搬送区間ごとに、ワークがその区間にいるかを見る<strong>存在センサ</strong>と、区間を通過したことを見る<strong>通過センサ</strong>を用意します。CV01〜CV04に各2点、搬送センサだけで合計8点です。</p>
+      <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>信号</th><th>役割</th></tr></thead><tbody><tr><td><span class="badge">X0</span></td><td>CV01 存在</td><td>CV01上のワーク有無</td></tr><tr><td><span class="badge">X1</span></td><td>CV01 通過</td><td>CV01通過判定</td></tr><tr><td><span class="badge">X2</span></td><td>CV02 存在</td><td>CV02上のワーク有無</td></tr><tr><td><span class="badge">X3</span></td><td>CV02 通過</td><td>CV02通過判定</td></tr><tr><td><span class="badge">X4</span></td><td>CV03 存在</td><td>CV03上のワーク有無</td></tr><tr><td><span class="badge">X5</span></td><td>CV03 通過</td><td>CV03通過判定</td></tr><tr><td><span class="badge">X6</span></td><td>CV04 存在</td><td>CV04上のワーク有無</td></tr><tr><td><span class="badge">X7</span></td><td>CV04 通過</td><td>CV04通過判定</td></tr><tr><td><span class="badge">X10</span></td><td>投入完了</td><td>作業者の投入完了通知</td></tr><tr><td><span class="badge">X11〜X17</span></td><td>操作・監視系の予備</td><td>運転モード、リセット、監視信号などを仕様確定後に配置</td></tr></tbody></table></div>
+      <div class="key-box"><h3>通過センサは「OFFだった」だけでは完了にしない</h3><p>このプロジェクトでは、通過センサが一度ONしたあとにOFFへ戻る変化を見て通過完了とします。初めからOFFだった状態を通過完了と誤判定しないためです。</p></div>
+      <p>安全関連の信号をPLCへ取り込む場合も、ここでは状態監視として扱います。安全機能そのものを通常PLCだけで代用する設計にはしません。</p>
+    </section>
+
+    <section class="section-card" id="output">
+      <h2>3. 次に出力側を整理する</h2>
+      <p>搬送部では、各コンベヤの運転指令と、ワークを区切る入口側・出口側ストッパ、投入可表示をまとめます。</p>
+      <div class="table-wrap"><table><thead><tr><th>仮番地</th><th>出力</th><th>役割</th></tr></thead><tbody><tr><td><span class="badge">Y0〜Y3</span></td><td>CV01〜CV04 運転</td><td>4区間を独立して搬送</td></tr><tr><td><span class="badge">Y4〜Y7</span></td><td>CV01〜CV04 入口側ストッパ</td><td>各区間へのワーク流入を制御</td></tr><tr><td><span class="badge">Y10〜Y13</span></td><td>CV01〜CV04 出口側ストッパ</td><td>次工程への流出を制御</td></tr><tr><td><span class="badge">Y14</span></td><td>投入可表示</td><td>作業者へ投入可能状態を表示</td></tr><tr><td><span class="badge">Y15〜Y17</span></td><td>予備</td><td>表示や補助機器の追加用</td></tr></tbody></table></div>
+      <div class="note-box"><h3>加工エリアの細かな出力は第4回で確定</h3><p>加工ステーションの具体的な駆動機器は、加工工程の動作を整理してから追加します。未確定の機器をここで作り込まず、確定した信号だけを先に割り付けます。</p></div>
+    </section>
+
+    <section class="section-card" id="map">
+      <h2>4. X/Y割付は「まとまり」と8進数を意識する</h2>
+      <p>今回のPLC構成は<strong>FX3U-80MT/DS + FX2N-16EX</strong>を前提にし、入力56点・出力40点の範囲で設計します。番地は、あとでラダーを読む人が追いやすいように、設備のまとまりごとに並べます。</p>
+      <div class="key-box"><h3>FX3UのX/Y番地は8進数</h3><p>FX3U系の入出力番号は8進数で、<strong>X0〜X7の次はX10</strong>です。X8・X9は使いません。Yも同じ考え方でY0〜Y7、Y10〜Y17と進みます。</p></div>
+      <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-xy-addressing.webp" alt="FX3U系PLCのXとYの8進数番地でX7の次がX10、Y7の次がY10になることを示す図" loading="lazy" decoding="async"><figcaption>FX3U系のX/Y番地は8進数で進みます。X0〜X7の次はX10、Y0〜Y7の次はY10です。</figcaption></figure>
+      <div class="table-wrap"><table><thead><tr><th>番地ブロック</th><th>今回の使い方</th><th>狙い</th></tr></thead><tbody><tr><td><span class="badge">X0〜X7</span></td><td>CV01〜CV04 存在・通過</td><td>搬送センサを連続番地にまとめる</td></tr><tr><td><span class="badge">X10〜X17</span></td><td>投入・操作・監視系</td><td>操作信号を別グループへ分ける</td></tr><tr><td><span class="badge">Y0〜Y7</span></td><td>モータ＋入口ストッパ</td><td>搬送駆動を先頭側へまとめる</td></tr><tr><td><span class="badge">Y10〜Y17</span></td><td>出口ストッパ＋表示＋予備</td><td>空圧・表示系をひとまとめにする</td></tr></tbody></table></div>
+      <div class="source-box"><h3>メーカー公式資料で確認</h3><p>三菱電機「FX3Uシリーズ ユーザーズマニュアル［ハードウェア編］」（Ver.AA / JY997D16101-AA / 2024年6月）の入出力番号割付では、X/Yが8進数で割り付けられることが示されています。<a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?category1=0&category2=0&category3=0&filter_bundled=&filter_discontinued=&filter_readme=1&kisyu=%2Fplc_fx&kisyuid=&lang=1&listView=1&mode=manual&preview=&q=fx3u&sort=0" target="_blank" rel="noopener noreferrer">三菱電機公式・日本語マニュアルを見る</a></p></div>
+      <p>ここで示した番地は搬送部を理解しやすくするための仮割付です。加工部のI/Oが揃った段階で、設備全体の最終I/O表として確定します。</p>
+    </section>
+
+    <section class="section-card" id="spare">
+      <h2>5. 予備点を残しておく</h2>
+      <p>I/Oをぎりぎりまで詰めると、後からセンサや表示灯を1点追加しただけで割付全体を崩すことがあります。そこで、搬送・操作・加工などのまとまりごとに少し空きを残します。</p>
+      <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-design-project-02-spare-io.webp" alt="使用中のI/O、予備点、将来増設用のI/Oを分けて確保する考え方" loading="lazy" decoding="async"><figcaption>現在使う点だけで埋めず、予備点と将来増設用の余白を意識してI/Oを割り付けます。</figcaption></figure>
+      <div class="key-box"><h3>「使っていない点」も設計の一部</h3><p>予備点は無駄ではありません。変更しやすさ、保守しやすさ、図面とプログラムの読みやすさを守るための余白です。</p></div>
+      <p>予備点を残す場合は、図面やI/O表にも「予備」と明記します。何も書かれていない空き番地より、意図して空けていることが分かる方が後工程で迷いません。</p>
+    </section>
+
+    <section class="section-card" id="summary">
+      <h2>6. 第2回のまとめ</h2>
+      <p>設備仕様からI/Oを起こすときは、番地から考えるのではなく、まず設備側の信号を洗い出します。その後に入力・出力へ分け、機能ごとにまとまりを持たせてX/Yへ配置します。</p>
+      <div class="summary-highlight" aria-label="第2回の重要ポイント">
+        <div class="summary-point"><span>STEP 1</span><strong>設備側の信号を洗い出す</strong><small>センサ・操作・監視信号を先に整理</small></div>
+        <div class="summary-point"><span>STEP 2</span><strong>入力・出力へ分ける</strong><small>役割ごとにI/O一覧へ落とし込む</small></div>
+        <div class="summary-point"><span>STEP 3</span><strong>X/Yへまとまりで割り付ける</strong><small>8進数と予備点も一緒に考える</small></div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>設計ステップ</th><th>今回の結果</th></tr></thead><tbody><tr><td>設備仕様を確認</td><td>CV01〜CV04と加工エリアの役割を再確認</td></tr><tr><td>入力を整理</td><td>X0〜X10を中心に搬送・投入信号を仮割付</td></tr><tr><td>出力を整理</td><td>Y0〜Y14へモータ・ストッパ・表示を仮割付</td></tr><tr><td>番地ルール</td><td>FX3UのX/Yは8進数であることを確認</td></tr><tr><td>予備</td><td>操作系・表示系の追加用に空きを残す</td></tr></tbody></table></div>
+    </section>
+
+    <section class="section-card" id="roadmap">
+      <h2>この設備を、設計の順番でシリーズ化する</h2>
+      <p class="series-roadmap-lead">今読んでいる位置と、次に進む記事がすぐ分かるようにシリーズ全体を並べています。</p>
+      <ol class="series-roadmap">
+        <li class="is-done"><span class="series-step">第1回</span><span class="series-title">設備仕様と全体構想</span><span class="series-state">完了</span></li>
+        <li class="is-current"><span class="series-step">第2回</span><span class="series-title">PLC・I/O構成を決める</span><span class="series-state">今ここ</span></li>
+        <li class="is-next"><span class="series-step">第3回</span><span class="series-title">CV01〜CV04の搬送制御を考える</span><span class="series-state">次ここ</span></li>
+        <li><span class="series-step">第4回</span><span class="series-title">加工ステーションのシーケンスを作る</span></li>
+        <li><span class="series-step">第5回</span><span class="series-title">手動運転・異常処理・復旧を設計する</span></li>
+        <li><span class="series-step">第6回</span><span class="series-title">GOT画面と保守・生産情報を作る</span></li>
+        <li><span class="series-step">最終</span><span class="series-title">GX Works2へ実装してシミュレーションする</span></li>
+      </ol>
+    </section>
+  
+      <section class="section-card" id="next">
+      <h2>次回｜搬送制御を組み立てる</h2>
+      <p>第3回では、今回整理したI/Oを使って、CV01→CV02、CV02→CV03、CV03→CV04の搬送条件と、搬送完了・タイムアウト・隣接区間インターロックを組み立てます。</p>
+      <div class="key-box"><h3>第3回で使う材料は揃った</h3><p>「どのセンサを見て、どの出力を動かすか」が決まったので、次は内部リレーやステップへ入る前に、1区間ずつ搬送条件を文章で固定していきます。</p></div>
+      <p><a class="btn btn-primary" href="./plc-drilling-line-design-project-03.html" aria-label="第3回 搬送制御編を読む">第3回｜搬送制御編を読む</a></p>
+    </section>
+
+    
+      <a class="gxw-service-entry" href="/services/gxworks2-online-support.html" aria-label="GX Works2 オンライン相談サービスを見る">
+        <img src="/assets/images/services/gxworks2-online-support-ogp.webp" width="1536" height="1024" alt="GX Works2 オンライン相談サービス" loading="lazy" decoding="async">
+        <div class="gxw-service-entry-copy">
+          <strong>実際のGX Works2変更でお困りなら</strong>
+          <p>既設設備のラダー変更・動作変更は、プロジェクトデータを確認してオンラインで対応します。</p>
+          <small>会員登録不要｜データ確認後にお見積り</small>
+        </div>
+        <span class="gxw-service-entry-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <section id="articleFeedbackCard" class="article-feedback-card" aria-labelledby="articleFeedbackTitle">
+      <h2 id="articleFeedbackTitle">この記事は役に立ちましたか？</h2>
+      <p class="article-feedback-lead">今後の記事づくりの参考にします。どちらかを選ぶだけで回答できます。</p>
+      <div class="article-feedback-actions" role="group" aria-label="記事の評価">
+        <button class="article-feedback-button" type="button" data-feedback-vote="helpful">👍 役に立った</button>
+        <button class="article-feedback-button" type="button" data-feedback-vote="not_helpful">👎 役に立たなかった</button>
+      </div>
+      <p class="article-feedback-status" id="articleFeedbackStatus" aria-live="polite"></p>
+      <p class="article-feedback-note">回答は匿名で集計し、個人情報の入力はありません。</p></section><section class="section-card" id="related"><h2>あわせて読みたい記事</h2><div class="related-grid article-end-related-grid">
+<a class="related-card article-end-related-card" href="./plc-drilling-line-design-project-03.html">
+  <span class="article-end-related-media"><img src="/assets/images/articles/plc-drilling-line-design-project-03-ogp.webp" alt="PLCで設備を1から設計する｜搬送制御編 第3回" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>第3回｜搬送制御編</h3><p>今回決めたI/Oを使って、CV01〜CV04の搬送条件を組み立てる。</p></span>
+</a>
+<a class="related-card article-end-related-card" href="./plc-drilling-line-design-project-01.html">
+  <span class="article-end-related-media"><img src="/assets/images/articles/plc-drilling-line-design-project-01-ogp.webp" alt="PLCで設備を1から設計する｜穴あけ生産ライン設計プロジェクト 第1回" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>第1回｜設備全体設計</h3><p>設備構成と設計条件を最初から確認する。</p></span>
+</a>
+<a class="related-card article-end-related-card" href="./plc-io-unit-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.webp" alt="PLC入力ユニット・出力ユニットとは？I/O配線の見方をやさしく解説" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy"><h3>PLC I/Oユニットの基本</h3><p>入力・出力ユニットと信号の考え方を基礎から確認する。</p></span>
+</a>
+</div>
+</section>
+  </div></div>
+</main>
+
+<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a></p></div><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
+<script src="../assets/js/site-search.js" defer></script>
+<script data-ui-proposal="header">(() => {
+  const header=document.querySelector('.dc-shell');if(!header)return;
+  const root=document.documentElement,themeButton=document.getElementById('dc-theme-toggle'),themeKey='dc-theme',explicitKey='dc-theme-explicit-v2';
+  const themeMeta=document.querySelector('meta[name="theme-color"]'),lightThemeColor=themeMeta?.getAttribute('content')||null;
+  const systemQuery=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  const hasExplicitTheme=()=>{try{return localStorage.getItem(explicitKey)==='1';}catch{return false;}};
+  const readSavedTheme=()=>{try{if(!hasExplicitTheme())return null;const value=localStorage.getItem(themeKey);return value==='dark'||value==='light'?value:null;}catch{return null;}};
+  const preferenceObject=()=>{try{return navigator.preferences?.colorScheme||null;}catch{return null;}};
+  const readSystemTheme=()=>{try{const value=preferenceObject()?.value;if(value==='dark'||value==='light')return value;}catch{}return systemQuery?.matches?'dark':'light';};
+  const resolveTheme=()=>readSavedTheme()??readSystemTheme();
+  const applyTheme=(theme,persist=false)=>{
+    const dark=theme==='dark';root.dataset.dcTheme=dark?'dark':'light';
+    if(themeButton)themeButton.setAttribute('aria-checked',String(dark));
+    if(themeMeta){if(dark)themeMeta.setAttribute('content','#0d1621');else if(lightThemeColor)themeMeta.setAttribute('content',lightThemeColor);else themeMeta.removeAttribute('content');}
+    if(persist)try{localStorage.setItem(themeKey,dark?'dark':'light');localStorage.setItem(explicitKey,'1');}catch{}
+  };
+  applyTheme(resolveTheme(),false);
+  themeButton?.addEventListener('click',()=>applyTheme(root.dataset.dcTheme==='dark'?'light':'dark',true));
+  const followSystem=()=>{if(!readSavedTheme())applyTheme(readSystemTheme(),false);};
+  if(systemQuery?.addEventListener)systemQuery.addEventListener('change',followSystem);else systemQuery?.addListener?.(followSystem);
+  try{preferenceObject()?.addEventListener?.('change',followSystem);}catch{}
+  window.addEventListener('storage',event=>{if(event.key===themeKey||event.key===explicitKey)applyTheme(resolveTheme(),false);});
+  const pairs=['search','menu'].map(name=>({button:document.getElementById(`dc-${name}-toggle`),panel:document.getElementById(`dc-${name}-drawer`),name}));
+  function close(pair,focus=false){pair.button.setAttribute('aria-expanded','false');pair.panel.hidden=true;if(focus)pair.button.focus();}
+  for(const pair of pairs)pair.button.addEventListener('click',()=>{const open=pair.panel.hidden;pairs.forEach(p=>close(p));if(open){pair.panel.hidden=false;pair.button.setAttribute('aria-expanded','true');if(pair.name==='search')setTimeout(()=>{if(!pair.panel.hidden)document.getElementById('site-search-input').focus();},0);}});
+  document.addEventListener('click',event=>{if(!header.contains(event.target))pairs.forEach(p=>close(p));});
+  header.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=pairs.find(p=>!p.panel.hidden);if(open){event.preventDefault();close(open,true);}}});
+})();</script><script type="application/json" id="dc-toc-data">{"lang": "ja", "toc": [{"id": "purpose", "label": "1. I/O設計は「設備の動き」をPLCの言葉に置き換える作業"}, {"id": "input", "label": "2. まず入力側を整理する"}, {"id": "output", "label": "3. 次に出力側を整理する"}, {"id": "map", "label": "4. X/Y割付は「まとまり」と8進数を意識する"}, {"id": "spare", "label": "5. 予備点を残しておく"}, {"id": "summary", "label": "6. 第2回のまとめ"}, {"id": "roadmap", "label": "この設備を、設計の順番でシリーズ化する"}, {"id": "next", "label": "次回｜搬送制御を組み立てる"}], "compactMaxWidth": 768, "kind": "設計シリーズ・右欄なし"}</script><script src="/assets/js/article-toc-v2.js" defer></script><script src="/assets/js/article-integration-compat.js" defer></script></body>
+</html>

@@ -973,6 +973,7 @@ async function handleAdminRequest(request, env, origin, url) {
   await ensureAdminCaseSchema(env.DB);
   await syncGxwCasesToAdmin(env.DB);
   await backfillAdminCaseDueDates(env.DB);
+  await syncAdminAssigneeDisplayName(env.DB, admin);
 
   if (request.method === 'GET' && url.pathname === '/admin/cases') {
     const result = await env.DB.prepare('SELECT * FROM admin_cases ORDER BY CASE status WHEN \'deposit_wait\' THEN 0 WHEN \'estimating\' THEN 1 WHEN \'estimate_sent\' THEN 2 WHEN \'working\' THEN 3 WHEN \'received\' THEN 4 WHEN \'delivered\' THEN 5 WHEN \'on_hold\' THEN 6 ELSE 7 END, COALESCE(due_date, \'9999-12-31\') ASC, updated_at DESC LIMIT 300').all();
@@ -1093,6 +1094,18 @@ async function upsertAdminCaseFromGeneral(db, caseNumber, acceptedAt, data) {
   if ((result.meta && result.meta.changes || 0) > 0) {
     await addAdminCaseEvent(db,caseNumber,'received','','received','オンライン相談を案件管理へ登録','system');
     if (dueDate) await addAdminCaseEvent(db,caseNumber,'due_date_auto_set','','','受付から2営業日後（日本の土日祝を除外）: '+dueDate,'system');
+  }
+}
+
+async function syncAdminAssigneeDisplayName(db, admin) {
+  const email = normalizeAdminEmail(admin && admin.email);
+  const name = clean((admin && admin.name) || '',120);
+  if (!email || !name) return;
+  try {
+    await db.prepare("UPDATE admin_cases SET assignee=?2 WHERE LOWER(TRIM(assignee_email))=?1 AND assignee<>?2")
+      .bind(email,name).run();
+  } catch (error) {
+    console.error('Admin assignee display-name sync failed', error);
   }
 }
 

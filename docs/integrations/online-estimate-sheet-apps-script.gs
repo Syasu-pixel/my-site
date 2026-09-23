@@ -85,18 +85,30 @@ function doPost(e) {
     settingsSheet.getRange('C2').setValue(firstTransaction ? '完了案件0件=初回' : '完了案件あり=2回目以降');
     if (!settingsSheet.getRange('B3').getValue()) settingsSheet.getRange('B3').setValue('');
 
-    // 着手金は取引区分とPLANから自動決定。PLAN-04のみB4を手入力する。
-    settingsSheet.getRange('B5').setFormula('=IF(B2="初回取引",SWITCH(B3,"PLAN-01",11000,"PLAN-02",22000,"PLAN-03",44000,"PLAN-04",IF(B4="","",B4),""),0)');
-    sheet.getRange('D9').setFormula("='見積設定'!B5");
+    // PLAN1〜3は総額・着手金・納期・内訳を自動。PLAN2は公開価格帯をA/Bに分ける。
+    settingsSheet.getRange('B6').setFormula('=SWITCH(B3,"PLAN-01",22000,"PLAN-02A",44000,"PLAN-02B",66000,"PLAN-03",88000,"PLAN-04",SUM(B11:B16),"")');
+    settingsSheet.getRange('B7').setFormula('=IF(B2="初回取引",SWITCH(B3,"PLAN-01",11000,"PLAN-02A",22000,"PLAN-02B",22000,"PLAN-03",44000,"PLAN-04",IF(B4="","",B4),""),0)');
+    settingsSheet.getRange('B8').setFormula('=SWITCH(B3,"PLAN-01","3〜5営業日","PLAN-02A","5〜10営業日","PLAN-02B","5〜10営業日","PLAN-03","10〜15営業日","PLAN-04",B5,"")');
+
+    sheet.getRange('F6').setFormula("='見積設定'!B8");
+    sheet.getRange('D9').setFormula("='見積設定'!B7");
+    sheet.getRange('E16').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B11,IF(\'見積設定\'!$B$6="","",ROUND(\'見積設定\'!$B$6*30%,0)))');
+    sheet.getRange('E17').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B12,IF(\'見積設定\'!$B$6="","",ROUND(\'見積設定\'!$B$6*15%,0)))');
+    sheet.getRange('E18').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B13,IF(\'見積設定\'!$B$6="","",ROUND(\'見積設定\'!$B$6*35%,0)))');
+    sheet.getRange('E19').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B14,IF(\'見積設定\'!$B$6="","",ROUND(\'見積設定\'!$B$6*10%,0)))');
+    sheet.getRange('E20').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B15,IF(\'見積設定\'!$B$6="","",ROUND(\'見積設定\'!$B$6*10%,0)))');
+    sheet.getRange('E21').setFormula('=IF(\'見積設定\'!$B$3="PLAN-04",\'見積設定\'!B16,"")');
+
+    sheet.getRange('B12').setFormula('=IF(COUNT(F16:F21)=0,"",SUM(F16:F21))');
     sheet.getRange('D12').setFormula('=IF(D9="","",D9)');
     sheet.getRange('F12').setFormula('=IF(OR(B12="",D12=""),"",B12-D12)');
 
-    // 見積総額は内訳(F16:F21)から計算するため、管理画面の旧値では上書きしない。
-    sheet.getRange('B12').setFormula('=IF(COUNT(F16:F21)=0,"",SUM(F16:F21))');
-
     sheet.getRange('B12:F12').setNumberFormat('¥#,##0');
     sheet.getRange('D9').setNumberFormat('¥#,##0');
-    settingsSheet.getRange('B4:B5').setNumberFormat('¥#,##0');
+    sheet.getRange('E16:F21').setNumberFormat('¥#,##0');
+    settingsSheet.getRange('B4').setNumberFormat('¥#,##0');
+    settingsSheet.getRange('B6:B7').setNumberFormat('¥#,##0');
+    settingsSheet.getRange('B11:B16').setNumberFormat('¥#,##0');
 
     SpreadsheetApp.flush();
 

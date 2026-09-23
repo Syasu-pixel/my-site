@@ -338,7 +338,73 @@ Cost and timing:
 - Evaluate AI implementation after traffic, consultation demand, and revenue are more stable.
 - When tested, begin with a small pilot and measure actual usage, API cost, article click-through, self-resolution, and consultation handoff before scaling.
 
-## 17. Product Evolution Order
+## 17. Manufacturer Partnership & Sponsored Technical Content — Future Concept
+Denkicontrol should preserve its current reader-first experience and avoid becoming a generic banner-ad site. The absence of intrusive display advertising is treated as a potential trust and brand asset rather than merely unused ad inventory.
+
+A future revenue path may be **manufacturer-supported technical content** when it creates clear value for readers.
+
+Potential model:
+- A manufacturer provides or lends a new product, sample, evaluation unit, or official technical material.
+- Denkicontrol powers the product on, observes actual behavior where safely and practically possible, and explains what is materially different from existing products or common alternatives.
+- The resulting article focuses on practical operation, setup, use cases, limitations, compatibility, and what a maintenance or control professional should check before adopting the product.
+- Manufacturer support, loaned equipment, sponsorship, or other commercial relationships must be clearly disclosed.
+
+Editorial guardrails:
+- Sponsorship must not guarantee a favorable conclusion.
+- Manufacturer claims should be distinguished from Denkicontrol's own observations.
+- Official specifications and safety requirements remain primary sources.
+- The article should remain useful even to a reader who does not buy the featured product.
+- Avoid generic banner inventory, intrusive ad placements, or paid content that weakens the site's technical credibility.
+
+Commercial timing:
+- Do not depend on sponsorship income before the site's reach and credibility are strong enough to give manufacturers meaningful value.
+- Traffic, reader profile, article engagement, and technical niche relevance can later become part of the manufacturer-facing media proposal.
+- Monthly PV may become one negotiation input, but technical audience quality and subject relevance are equally important.
+
+## 18. B2B Work Matching Platform — Future Concept
+A longer-term direction is to evolve Denkicontrol from a site that only publishes technical information into a platform that can also connect companies and qualified technical service providers.
+
+Target use case:
+1. A customer posts an electrical, control, FA, PLC, equipment-modification, maintenance, or related work request.
+2. Registered businesses or qualified practitioners can review the request and express interest.
+3. The customer and selected provider communicate and contract under the platform rules.
+4. Denkicontrol itself may participate as one registered provider when the work fits its own capacity and service area; work that cannot be handled internally can remain available to other providers.
+
+Geographic value:
+- The audience is nationwide, while Denkicontrol's own field capacity is finite.
+- The platform can help route local work toward providers closer to the customer instead of forcing Denkicontrol to act as the contractor for every request.
+- The objective is to make the site's reader and member network useful in the real world, not merely to increase page views.
+
+Platform role:
+- The current concept is **not** to make Denkicontrol the prime contractor for every listed job.
+- The preferred model is a matching/platform role where the actual work contract is primarily between the customer and the selected provider.
+- The exact contract structure, responsibility allocation, payment flow, dispute handling, licensing requirements, insurance requirements, and legal classification must be reviewed before implementation.
+- The platform operator's own participation in a job must be visibly distinguished from its neutral platform role.
+
+Provider trust layer:
+- Participation should be tied to the member/My Page system.
+- Provider profiles may later include business identity, service area, qualifications or licenses where relevant, supported work categories, and response history.
+- Verification levels should be designed carefully; the platform must not imply that every registered provider has been technically guaranteed by Denkicontrol unless an actual verification program exists.
+
+## 19. B2B Matching Revenue Model — Future Concept
+A transaction or introduction fee is a possible future revenue source for the B2B matching layer.
+
+Principles:
+- Do not fix a final fee percentage at the concept stage.
+- A simple flat percentage may become disproportionate on large projects.
+- Consider a progressive or banded fee model in which the effective percentage declines as project value increases, or use a capped fee, fixed introduction fee, subscription, or hybrid model.
+- Example figures discussed during concept development (such as different percentages for different project-value bands) are exploratory only and are **not adopted pricing**.
+- The fee trigger must be defined clearly: listing, lead introduction, accepted match, contract execution, payment receipt, or another auditable event.
+- Prevent off-platform circumvention only through reasonable terms and value creation; do not design a fee model that makes users feel trapped.
+
+Before launch:
+- Confirm legal and regulatory treatment of the exact matching, fee, payment, and contract structure.
+- Confirm tax/accounting treatment, invoicing, cancellation/refund rules, liability allocation, privacy handling, and dispute procedures.
+- Use qualified human professional review at the final pre-launch stage for areas requiring licensed legal, tax, labor, construction, or other regulated advice.
+
+The purpose of the revenue model is to make the platform sustainable while keeping incentives aligned with successful, useful matches.
+
+## 20. Product Evolution Order
 The current preferred sequence is:
 
 1. **Refresh the existing article base.**
@@ -359,13 +425,20 @@ The current preferred sequence is:
    - Launch only when traffic and repeat-user activity are sufficient to avoid an inactive community.
 6. **Evaluate member priority or emergency support.**
    - Introduce only with clear service scope, pricing, response terms, and capacity.
-7. **Evaluate AI technical navigation.**
+7. **Evaluate manufacturer-supported technical content.**
+   - Preserve editorial independence and clear commercial disclosure.
+   - Prefer hands-on, technically useful evaluation over generic advertising.
+8. **Evaluate B2B work matching.**
+   - Use the member/account layer as the trust and identity foundation.
+   - Keep the platform role distinct from Denkicontrol acting as a service provider.
+   - Validate legal, contractual, payment, licensing, and dispute-handling structure before launch.
+9. **Evaluate AI technical navigation.**
    - Use the matured article library as the knowledge foundation.
    - Connect unresolved AI sessions to human consultation rather than forcing an answer.
 
-This ordering is intentional. Heavy account, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
+This ordering is intentional. Heavy account, community, marketplace, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
 
-## 18. Repository Documentation Policy
+## 21. Repository Documentation Policy
 Role definitions under `docs/`:
 - `docs/denkicontrol-site-strategy.md`
   - Higher-level site strategy. If it conflicts with this whitepaper, the site-strategy document takes precedence.
@@ -378,10 +451,12 @@ Role definitions under `docs/`:
 - `docs/en-article-backlog.md`
   - Backlog for English article creation and revision candidates.
 
-## 19. Next Actions
+## 22. Next Actions
 Execution order after this whitepaper:
 1. Continue the current existing-article refresh cycle.
 2. Strengthen contextual internal linking while preserving end-of-article related navigation.
 3. Define a small technical-term help-panel prototype using selected recurring terms.
 4. Continue hub design and Search Console-responsive page improvements.
-5. Keep My Page, member community/forum, priority/emergency support, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.
+5. Keep My Page, member community/forum, priority/emergency support, manufacturer-sponsored technical content, B2B work matching, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.
+6. When future traffic and repeat-user activity justify platform expansion, evaluate the member identity layer before community or B2B matching features.
+7. Before any manufacturer sponsorship or B2B fee model goes live, define disclosure, neutrality, contract, responsibility, and compliance requirements in a separate implementation decision.

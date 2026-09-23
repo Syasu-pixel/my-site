@@ -42,6 +42,7 @@ class FakeDB {
       updated_by:'',
     };
     this.events=[];
+    this.completedHistoryCount=0;
   }
   prepare(sql){
     const db=this;
@@ -78,6 +79,9 @@ class FakeDB {
       async first(){
         if(sql.startsWith('SELECT * FROM admin_cases WHERE case_number=')){
           return this.args[0]===db.case.case_number?{...db.case}:null;
+        }
+        if(sql.startsWith("SELECT COUNT(*) AS count FROM admin_cases WHERE status='completed'")){
+          return {count:db.completedHistoryCount};
         }
         if(sql.startsWith('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations')){
           return null;
@@ -167,6 +171,18 @@ try{
   assert.equal(detailJson.permissions.canEdit,true);
   assert.equal(detailJson.permissions.assigned,false);
   assert.equal(detailJson.viewer.name,'担当A');
+  assert.equal(detailJson.customer_history.first_transaction,true);
+  assert.equal(detailJson.customer_history.completed_count,0);
+
+  env.DB.completedHistoryCount=1;
+  const repeatDetail=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'GET',
+    headers:authHeaders,
+  }),env);
+  const repeatDetailJson=await repeatDetail.json();
+  assert.equal(repeatDetailJson.customer_history.first_transaction,false);
+  assert.equal(repeatDetailJson.customer_history.completed_count,1);
+  env.DB.completedHistoryCount=0;
 
   const invalid=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
     method:'PATCH',
@@ -351,6 +367,7 @@ try{
       'admin authorization',
       'case list and due-date backfill',
       'case detail route',
+      'first/repeat customer classification from completed history',
       'invalid status rejection',
       'case patch and manual assignee rejection',
       'deposit confirmation transition and auto assignment',

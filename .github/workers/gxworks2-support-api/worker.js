@@ -994,7 +994,8 @@ async function handleAdminRequest(request, env, origin, url) {
     if (row.source === 'gxworks2') {
       try { source = await env.DB.prepare('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations WHERE case_number=?1 LIMIT 1').bind(caseNumber).first(); } catch {}
     }
-    return json({ ok:true, case:row, source, events:events.results || [], permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
+    const customerHistory = await getAdminCustomerHistory(env.DB, row);
+    return json({ ok:true, case:row, source, events:events.results || [], customer_history:customerHistory, permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
   }
 
   if (detailMatch && request.method === 'PATCH') {
@@ -1333,6 +1334,7 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
   if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
   if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot create estimate sheets' }, 409, origin);
 
+  const customerHistory = await getAdminCustomerHistory(env.DB, before);
   const payload = {
     secret: env.ESTIMATE_SHEET_WEBHOOK_SECRET,
     case_number: clean(before.case_number || '',80),
@@ -1345,6 +1347,8 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
     deposit_amount: before.deposit_amount === null || before.deposit_amount === undefined ? null : Number(before.deposit_amount),
     assignee: clean(before.assignee || '',120),
     requested_by: clean(admin.email || 'admin',254),
+    is_first_transaction: customerHistory.first_transaction,
+    completed_customer_cases: customerHistory.completed_count,
   };
 
   let response;
@@ -1384,6 +1388,7 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
     url:clean(body.url,1000),
     created:Boolean(body.created),
     title:clean(body.title || '',300),
+    customer_history:customerHistory,
   }, 200, origin);
 }
 
@@ -1544,6 +1549,27 @@ function autoAdminAssignment(before, admin) {
   if (!email) return {};
   const name = clean((admin && admin.name) || email,120) || email;
   return {assignee:name,assignee_email:email};
+}
+
+function adminCustomerIdentity(row) {
+  const company = clean((row && row.company) || '',120);
+  if (company) return { type:'company', value:company };
+  const email = normalizeAdminEmail(row && row.customer_email);
+  if (email) return { type:'email', value:email };
+  const name = clean((row && row.customer_name) || '',120);
+  if (name) return { type:'name', value:name };
+  return { type:'unknown', value:'' };
+}
+async function getAdminCustomerHistory(db, row) {
+  const identity = adminCustomerIdentity(row);
+  if (!identity.value) return { identity_type:identity.type, completed_count:0, first_transaction:true };
+  let sql = '';
+  if (identity.type === 'company') sql = "SELECT COUNT(*) AS count FROM admin_cases WHERE status='completed' AND TRIM(company)=?1 AND case_number<>?2";
+  else if (identity.type === 'email') sql = "SELECT COUNT(*) AS count FROM admin_cases WHERE status='completed' AND LOWER(TRIM(customer_email))=?1 AND case_number<>?2";
+  else sql = "SELECT COUNT(*) AS count FROM admin_cases WHERE status='completed' AND TRIM(customer_name)=?1 AND case_number<>?2";
+  const result = await db.prepare(sql).bind(identity.value, clean((row && row.case_number) || '',80)).first();
+  const completedCount = Math.max(0, Number(result && result.count || 0) || 0);
+  return { identity_type:identity.type, completed_count:completedCount, first_transaction:completedCount === 0 };
 }
 
 function isAdminCalendarDate(value) {

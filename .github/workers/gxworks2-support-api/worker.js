@@ -995,7 +995,11 @@ async function handleAdminRequest(request, env, origin, url) {
       try { source = await env.DB.prepare('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations WHERE case_number=?1 LIMIT 1').bind(caseNumber).first(); } catch {}
     }
     const customerHistory = await getAdminCustomerHistory(env.DB, row);
-    return json({ ok:true, case:row, source, events:events.results || [], customer_history:customerHistory, permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
+    const estimateEmailDefaults = {
+      from:'株式会社ケイディエス <support@denkicontrol.com>',
+      reply_to:adminContactEmail(env, row.assignee_email || admin.email || ''),
+    };
+    return json({ ok:true, case:row, source, events:events.results || [], customer_history:customerHistory, estimate_email_defaults:estimateEmailDefaults, permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
   }
 
   if (detailMatch && request.method === 'PATCH') {
@@ -1443,7 +1447,8 @@ async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
     text,
     attachments:[{ filename, content:bytesToBase64(bytes) }],
   };
-  if (env.NOTIFY_TO_EMAIL && isValidEmail(env.NOTIFY_TO_EMAIL)) payload.reply_to = env.NOTIFY_TO_EMAIL;
+  const replyTo = adminContactEmail(env, before.assignee_email || admin.email || '');
+  if (isValidEmail(replyTo)) payload.reply_to = replyTo;
 
   const idempotencyKey = 'estimate-send-' + caseNumber.replace(/[^A-Za-z0-9_-]/g,'_');
   const result = await sendEmail(env,payload,idempotencyKey);
@@ -1490,6 +1495,7 @@ async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
   const detail = [
     '見積書メールを送信',
     '宛先: '+to,
+    replyTo ? '返信先: '+replyTo : '',
     '添付: '+filename,
     providerId ? 'メールID: '+providerId : '',
     archiveKey ? 'PDF控え: 非公開R2保存済み' : 'PDF控え: メール添付のみ',
@@ -1500,7 +1506,7 @@ async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
   return json({
     ok:true,
     case:after,
-    email:{ to, subject, attachmentName:filename, providerId, archived:Boolean(archiveKey) },
+    email:{ to, subject, from:payload.from, replyTo:payload.reply_to || '', attachmentName:filename, providerId, archived:Boolean(archiveKey) },
   },200,origin);
 }
 

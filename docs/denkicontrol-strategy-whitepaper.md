@@ -220,10 +220,157 @@ Priority audit checklist:
 - PV targets are directional operating benchmarks, not guaranteed outcomes.
 - In short-term decision making, prioritize expertise depth, trust, and intent matching over vanity traffic.
 
-## 11. Repository Documentation Policy
+## 11. Strategic Timing & Investment Guardrail
+- The site is still prioritizing content quality, discoverability, and operational stability over adding recurring platform cost.
+- New recurring-cost features should be justified by observed reader demand, consultation demand, or clear operational savings.
+- Future services should be staged so that each layer can be validated before the next is added.
+- Documenting a future capability does not authorize immediate implementation, production deployment, new paid APIs, or a change to the current publication workflow.
+
+## 12. Reader Navigation & In-Article Assistance Roadmap
+### 12.1 Contextual internal links
+- Do not rely only on a related-articles block at the end of an article.
+- Add contextual links at the point where a reader naturally encounters the next concept, component, symptom, or verification step.
+- Links should answer “what should I understand next?” rather than exist only for SEO.
+- Examples include moving from a mention of a safety door lock, proximity sensor, pressure switch, PLC input, or other technical term to the most relevant supporting article.
+- Keep end-of-article related links as a summary layer; contextual links are an additional navigation layer, not a replacement.
+
+### 12.2 Technical-term help panel
+A future lightweight site feature should allow selected technical terms in article text to act as help triggers rather than immediately navigating away.
+
+Target behavior:
+- Desktop: click/tap a marked technical term to open a compact side panel or equivalent non-disruptive help surface.
+- Mobile: use a touch-friendly drawer, sheet, or inline equivalent; do not depend on hover.
+- The panel should show:
+  - the term name,
+  - a short plain-language definition,
+  - the practical context in which the term appears,
+  - one or more relevant Denkicontrol articles for deeper reading.
+- “Read more” should take the reader to the full article only when deeper detail is needed.
+
+This concept fits the site because technical terms recur across many articles. The trigger term is predetermined by the article text, so it avoids free-text input errors and can reuse parts of the existing site-search/indexing approach where appropriate.
+
+### 12.3 Scope control
+- Do not mark every technical noun as interactive.
+- Prioritize terms where a short explanation prevents the reader from leaving the current article to search elsewhere.
+- Avoid intrusive cards, excessive popovers, or interactions that make long technical articles harder to read.
+- Reuse existing shared site structures where practical instead of creating a separate heavy framework.
+
+## 13. Member Account & My Page — Future Concept
+A member system is a future option, not a current implementation priority.
+
+Potential value:
+- Preserve optional reader history such as saved articles or recent technical references.
+- Associate previous consultations with the same user when the user chooses to register.
+- Allow users to pre-register equipment or recurring technical context that can reduce repeated explanation in later consultations.
+- Provide a clear service layer for repeat users without removing the low-friction, relatively anonymous path for ordinary online consultation.
+
+Possible technical direction:
+- Cloudflare D1 or the site’s existing cloud-side data layer may be evaluated for account-linked records.
+- Authentication, personal-data handling, account recovery, deletion, access control, and security must be designed before implementation.
+- A My Page should only be introduced when repeat usage and service value justify the added operational burden.
+
+The account system must not become a prerequisite for reading technical content or submitting the ordinary consultation flow unless a separate future decision explicitly changes that policy.
+
+## 14. Member Community / Technical Forum — Future Concept
+A member-only technical community is a future option to consider after the My Page/account foundation exists and the site has enough active readers to sustain useful conversation.
+
+Purpose:
+- Give maintenance, electrical-control, FA, PLC, sensor, pneumatic, and related practitioners a place to ask questions, compare experiences, and help each other solve practical problems.
+- Turn repeat readership into a technical community without forcing ordinary article readers to participate.
+- Allow useful discussions to become an additional layer of practical knowledge alongside editorial articles and online consultation.
+
+Identity model:
+- Community participation should require a registered account.
+- Members may use a display name or pseudonymous identity toward other members.
+- The site operator must still be able to associate activity with the registered account for moderation, abuse handling, and account administration.
+- Public anonymity must not mean administrative untraceability.
+
+Moderation and safety requirements:
+- Provide a report function for posts/replies and a clear path for moderation review.
+- Define rules for harassment, spam, dangerous instructions, impersonation, confidential information, and other unacceptable conduct.
+- Support moderation actions such as hiding/removing content, warnings, temporary restrictions, and account suspension when necessary.
+- Design privacy handling, retention, access control, and account deletion before launch.
+- Technical discussions must not be presented as replacing manufacturer documentation, qualified professional judgment, or site-specific safety rules.
+
+Launch timing:
+- Do not launch an empty forum simply because the feature can be built.
+- Re-evaluate around the medium-term horizon (roughly six months) using real traffic, repeat-user activity, consultation demand, and expected conversation density.
+- A useful trigger is sustained readership large enough that new posts are likely to receive responses; daily PV in the thousands would be a strong signal, but no single PV threshold should be treated as an automatic launch rule.
+- Start with a limited number of technical categories rather than many empty boards.
+
+The forum depends on the member/account layer and should be introduced only when moderation capacity and community activity can be maintained.
+
+## 15. Member Emergency / Priority Support — Future Concept
+A future member tier may provide a clearer path for urgent or priority technical consultation.
+
+Potential model:
+- Ordinary online consultation remains the broad entry route.
+- Registered users may receive a defined priority-support option when service capacity, pricing, responsibility boundaries, and response rules are ready.
+- A rough estimate or initial scope can be prepared from the information already stored or collected during consultation.
+- The service may connect consultation history, equipment context, quotation workflow, and follow-up management.
+
+Guardrails:
+- Do not promise 24/7 human response merely because intake is available 24/7.
+- Clearly separate “24-hour reception” from actual response hours and guaranteed response levels.
+- Define supported work, exclusions, responsibility boundaries, pricing, deposits/initial fees, and escalation conditions before launch.
+- Emergency support should be introduced only after the existing consultation workflow is operationally stable.
+
+## 16. AI Assistant / Technical Navigation — Future Concept
+AI has strong long-term compatibility with Denkicontrol because the site is accumulating structured technical articles that can become a knowledge base.
+
+Preferred role:
+1. Accept a reader’s technical question.
+2. Use Denkicontrol articles and approved reference material to identify the relevant topic.
+3. Give a concise explanation and point to the appropriate article or next check.
+4. If the issue is not resolved, hand the user off to the existing online consultation flow with useful context carried forward where possible.
+
+The preferred design is **site-grounded technical navigation**, not an unrestricted general-purpose chatbot.
+
+Safety and quality rules:
+- Prefer site articles, official manufacturer information, and registered technical sources.
+- Do not fabricate an answer when the available sources are insufficient.
+- For safety-critical, model-specific, or site-condition-dependent questions, direct the reader to official documentation and/or human consultation.
+- The AI should assist with triage and information discovery; it must not be presented as replacing professional judgment or on-site safety procedures.
+
+Cost and timing:
+- Do not add recurring AI API cost merely because the feature is technically possible.
+- Current priority is to improve the existing article asset base, internal navigation, and consultation workflow.
+- Evaluate AI implementation after traffic, consultation demand, and revenue are more stable.
+- When tested, begin with a small pilot and measure actual usage, API cost, article click-through, self-resolution, and consultation handoff before scaling.
+
+## 17. Product Evolution Order
+The current preferred sequence is:
+
+1. **Refresh the existing article base.**
+   - Replace clearly outdated visuals.
+   - Improve technical accuracy, readability, and mobile presentation.
+   - Continue the current multi-article refresh work before adding heavy new platform features.
+2. **Strengthen navigation inside the knowledge base.**
+   - Contextual internal links.
+   - Better hub/spoke paths.
+   - Selected technical-term help panels.
+3. **Stabilize online consultation and case operations.**
+   - Keep the ordinary consultation route easy to use.
+   - Improve handoff, follow-up, estimation, and operational reliability before expanding service promises.
+4. **Evaluate member accounts / My Page.**
+   - Add only when repeat-user benefits are concrete.
+5. **Evaluate a member technical community / forum.**
+   - Require accounts, support pseudonymous member-facing identities, and retain operator-side accountability.
+   - Launch only when traffic and repeat-user activity are sufficient to avoid an inactive community.
+6. **Evaluate member priority or emergency support.**
+   - Introduce only with clear service scope, pricing, response terms, and capacity.
+7. **Evaluate AI technical navigation.**
+   - Use the matured article library as the knowledge foundation.
+   - Connect unresolved AI sessions to human consultation rather than forcing an answer.
+
+This ordering is intentional. Heavy account, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
+
+## 18. Repository Documentation Policy
 Role definitions under `docs/`:
+- `docs/denkicontrol-site-strategy.md`
+  - Higher-level site strategy. If it conflicts with this whitepaper, the site-strategy document takes precedence.
 - `docs/denkicontrol-strategy-whitepaper.md`
-  - Primary governance document for operations, SEO policy, and content strategy.
+  - Detailed strategy for SEO, content operations, reader navigation, and future service/product evolution.
 - `docs/search-console-content-improvement-log.md`
   - Log of Search Console-based content improvements.
 - `docs/article-backlog.md`
@@ -231,10 +378,10 @@ Role definitions under `docs/`:
 - `docs/en-article-backlog.md`
   - Backlog for English article creation and revision candidates.
 
-## 12. Next Actions
+## 19. Next Actions
 Execution order after this whitepaper:
-1. JA/EN Technical SEO Audit.
-2. Design of **Air Pneumatic Troubleshooting Guide**.
-3. Design of **Control Panel Noise Reduction Basics**.
-4. Second-pass improvements on Search Console-responsive pages.
-5. Create only necessary gap-filler articles required by hub architecture.
+1. Continue the current existing-article refresh cycle.
+2. Strengthen contextual internal linking while preserving end-of-article related navigation.
+3. Define a small technical-term help-panel prototype using selected recurring terms.
+4. Continue hub design and Search Console-responsive page improvements.
+5. Keep My Page, member community/forum, priority/emergency support, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.

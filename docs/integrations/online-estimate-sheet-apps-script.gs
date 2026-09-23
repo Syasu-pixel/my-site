@@ -56,7 +56,9 @@ function doPost(e) {
 
     const ss = SpreadsheetApp.openById(fileId);
     const sheet = ss.getSheetByName(ESTIMATE_SHEET_NAME);
+    const settingsSheet = ss.getSheetByName('見積設定');
     if (!sheet) throw new Error('見積書シートが見つかりません');
+    if (!settingsSheet) throw new Error('見積設定シートが見つかりません');
 
     const now = new Date();
     const estimateDate = Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy/MM/dd');
@@ -78,14 +80,14 @@ function doPost(e) {
     sheet.getRange('B5').setValue(subject);
     sheet.getRange('B6').setValue(validUntil);
 
-    // 印刷範囲外の見積設定。料金区分(H3)は担当者が選び、再度開いても上書きしない。
-    sheet.getRange('H2').setValue(transactionType);
-    sheet.getRange('I2').setValue(firstTransaction ? '完了案件0件=初回' : '完了案件あり=2回目以降');
-    if (!sheet.getRange('H3').getValue()) sheet.getRange('H3').setValue('');
+    // 社内用の見積設定は別タブへ分離し、見積書本体の印刷範囲をA:Fだけに保つ。
+    settingsSheet.getRange('B2').setValue(transactionType);
+    settingsSheet.getRange('C2').setValue(firstTransaction ? '完了案件0件=初回' : '完了案件あり=2回目以降');
+    if (!settingsSheet.getRange('B3').getValue()) settingsSheet.getRange('B3').setValue('');
 
-    // 着手金は取引区分とPLANから自動決定。PLAN-04のみH4を手入力する。
-    sheet.getRange('H5').setFormula('=IF(H2="初回取引",SWITCH(H3,"PLAN-01",11000,"PLAN-02",22000,"PLAN-03",44000,"PLAN-04",IF(H4="","",H4),""),0)');
-    sheet.getRange('D9').setFormula('=H5');
+    // 着手金は取引区分とPLANから自動決定。PLAN-04のみB4を手入力する。
+    settingsSheet.getRange('B5').setFormula('=IF(B2="初回取引",SWITCH(B3,"PLAN-01",11000,"PLAN-02",22000,"PLAN-03",44000,"PLAN-04",IF(B4="","",B4),""),0)');
+    sheet.getRange('D9').setFormula("='見積設定'!B5");
     sheet.getRange('D12').setFormula('=IF(D9="","",D9)');
     sheet.getRange('F12').setFormula('=IF(OR(B12="",D12=""),"",B12-D12)');
 
@@ -94,7 +96,7 @@ function doPost(e) {
 
     sheet.getRange('B12:F12').setNumberFormat('¥#,##0');
     sheet.getRange('D9').setNumberFormat('¥#,##0');
-    sheet.getRange('H4:H5').setNumberFormat('¥#,##0');
+    settingsSheet.getRange('B4:B5').setNumberFormat('¥#,##0');
 
     SpreadsheetApp.flush();
 

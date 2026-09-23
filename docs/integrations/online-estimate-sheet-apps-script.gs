@@ -70,7 +70,7 @@ function doPost(e) {
     const customerName = clean_(body.customer_name, 120);
     const subject = clean_(body.subject, 300) || 'GX Works2オンライン対応';
     const assignee = clean_(body.assignee, 120);
-    const assigneeEmail = clean_(body.assignee_email, 254);
+    const assigneeEmail = clean_(body.assignee_contact_email, 254);
     const total = nullableAmount_(body.estimate_total);
     const firstTransaction = body.is_first_transaction === true;
     const transactionType = firstTransaction ? '初回取引' : '2回目以降';

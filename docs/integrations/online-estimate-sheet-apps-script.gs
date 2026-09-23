@@ -69,6 +69,8 @@ function doPost(e) {
     const company = clean_(body.company, 120);
     const customerName = clean_(body.customer_name, 120);
     const subject = clean_(body.subject, 300) || 'GX Works2オンライン対応';
+    const assignee = clean_(body.assignee, 120);
+    const assigneeEmail = clean_(body.assignee_email, 254);
     const total = nullableAmount_(body.estimate_total);
     const firstTransaction = body.is_first_transaction === true;
     const transactionType = firstTransaction ? '初回取引' : '2回目以降';
@@ -79,6 +81,8 @@ function doPost(e) {
     sheet.getRange('F4').setValue(caseNumber);
     sheet.getRange('B5').setValue(subject);
     sheet.getRange('B6').setValue(validUntil);
+    if (assignee) sheet.getRange('B41').setValue(assignee);
+    sheet.getRange('E41').setValue(assigneeEmail || '');
 
     // 社内用の見積設定は別タブへ分離し、見積書本体の印刷範囲をA:Fだけに保つ。
     settingsSheet.getRange('B2').setValue(transactionType);

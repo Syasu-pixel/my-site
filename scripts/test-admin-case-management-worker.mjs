@@ -110,6 +110,7 @@ const authHeaders3={Origin:'https://denkicontrol.com',Authorization:'Bearer '+to
 const validTokens=new Set([token,token2,token3]);
 
 let supabaseCalls=0;
+const sentEmails=[];
 globalThis.fetch=async (url,init={})=>{
   const href=String(url);
   if(href==='https://pavitnsnmoaiospswiys.supabase.co/rest/v1/rpc/admin_article_feedback_dashboard'){
@@ -118,11 +119,18 @@ globalThis.fetch=async (url,init={})=>{
     assert.ok(validTokens.has(String(headers.get('Authorization')||'').replace(/^Bearer\s+/,'')));
     return new Response(JSON.stringify({summary:{}}),{status:200,headers:{'Content-Type':'application/json'}});
   }
+  if(href==='https://api.resend.com/emails'){
+    const headers=new Headers(init.headers||{});
+    assert.equal(headers.get('Authorization'),'Bearer test-resend-key');
+    const payload=JSON.parse(String(init.body||'{}'));
+    sentEmails.push({payload,headers});
+    return new Response(JSON.stringify({id:'email_test_001'}),{status:200,headers:{'Content-Type':'application/json'}});
+  }
   throw new Error('Unexpected fetch URL: '+href);
 };
 
 try{
-  const env={DB:new FakeDB()};
+  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com'};
 
   const preflight=await worker.fetch(new Request('https://worker.example/admin/cases',{
     method:'OPTIONS',
@@ -222,6 +230,37 @@ try{
   assert.equal(env.DB.case.assignee,'中村 宏樹');
 
   env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
+
+  const badEstimateForm=new FormData();
+  badEstimateForm.append('to','customer@example.com');
+  badEstimateForm.append('subject','見積書送付テスト');
+  badEstimateForm.append('text','本文');
+  const missingPdf=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-email',{
+    method:'POST',headers:authHeaders3,body:badEstimateForm,
+  }),env);
+  assert.equal(missingPdf.status,400);
+  assert.equal(sentEmails.length,0);
+
+  const estimateForm=new FormData();
+  estimateForm.append('to','customer@example.com');
+  estimateForm.append('subject','['+env.DB.case.case_number+'] 見積書送付のご案内');
+  estimateForm.append('text','見積書を添付いたします。');
+  estimateForm.append('pdf',new File([Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF')],'estimate.pdf',{type:'application/pdf'}));
+  const estimateEmail=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-email',{
+    method:'POST',headers:authHeaders3,body:estimateForm,
+  }),env);
+  assert.equal(estimateEmail.status,200);
+  const estimateEmailJson=await estimateEmail.json();
+  assert.equal(estimateEmailJson.case.status,'estimate_sent');
+  assert.equal(estimateEmailJson.case.next_action,'見積内容への回答を確認する');
+  assert.equal(sentEmails.length,1);
+  assert.deepEqual(sentEmails[0].payload.to,['customer@example.com']);
+  assert.equal(sentEmails[0].payload.attachments[0].filename,'estimate.pdf');
+  assert.equal(sentEmails[0].payload.reply_to,'owner@example.com');
+  assert.equal(sentEmails[0].headers.get('Idempotency-Key'),'estimate-send-'+env.DB.case.case_number);
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_email_sent'));
+
+  env.DB.case.status='estimating';
   const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
     method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},body:JSON.stringify({action:'record_estimate_sent'}),
   }),env);
@@ -317,7 +356,9 @@ try{
       'deposit confirmation transition and auto assignment',
       'start estimate action',
       'assignee display-name profile sync',
-      'estimate sent action',
+      'estimate PDF email validation and send',
+      'estimate email auto-transition and audit',
+      'estimate sent manual fallback action',
       'estimate acceptance action',
       'delivery action and follow-up schedule',
       'follow-up sent action',

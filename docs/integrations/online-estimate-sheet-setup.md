@@ -34,13 +34,13 @@ Apps Script の Script Properties に `estimateSheet:<相談番号>` -> Spreadsh
 
 ## 認証
 
-Cloudflare Worker と Apps Script の間では共通Secret `ESTIMATE_WEBHOOK_SECRET` を使用する。
+Cloudflare Worker と Apps Script の間では同じSecret値を使う。名前は保存先ごとに分ける。
 
 - SecretはGitHubへ保存しない。
-- Apps Script: Script Properties に保存する。
-- Cloudflare Worker: Secretとして保存する。
+- Apps Script: Script Properties の `ESTIMATE_WEBHOOK_SECRET` に保存する。
+- Cloudflare Worker: `ESTIMATE_SHEET_WEBHOOK_SECRET` として保存する。
+- 2つには同じSecret値を設定する。
 - WebアプリURLは公開情報のためWorker正本に固定する。
-- Cloudflare Worker側で追加が必要なのは `ESTIMATE_WEBHOOK_SECRET` のみ。
 
 現在のWebアプリURL:
 `https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec`
@@ -54,12 +54,28 @@ Cloudflare Worker と Apps Script の間では共通Secret `ESTIMATE_WEBHOOK_SEC
 5. 実行ユーザーは自分。
 6. Cloudflare WorkerからPOSTできるアクセス設定にする。
 7. 発行された `.../exec` URLをWorker正本の `ESTIMATE_SHEET_WEBAPP_URL` と一致させる。
-8. 同じSecretをCloudflare Workerの `ESTIMATE_WEBHOOK_SECRET` に設定する。
+8. 同じSecret値をCloudflare Workerの `ESTIMATE_SHEET_WEBHOOK_SECRET` に設定する。
+
+## 見積書PDFのメール送付
+
+案件が「見積作成中」のとき、案件管理の「見積書をメール送付」から完成したPDFをドラッグ＆ドロップできる。
+
+- 宛先は案件の顧客メールアドレスを初期値にする。
+- 件名・本文は案件情報から初期文面を作るが、管理者が送信前に編集できる。
+- PDFは10MB以下に限定し、PDFヘッダーもWorker側で確認する。
+- 「送信内容を確認」を押しても送信しない。確認ダイアログで宛先・件名・添付名・本文を再確認し、「確認して送信する」を押した場合だけ外部送信する。
+- メール送信成功後だけ案件状態を「見積提出済み」に更新し、次の対応も自動更新する。
+- 送信失敗時は案件状態を進めない。
+- 送信履歴は案件イベントへ記録する。R2が利用可能なら送信したPDF控えも非公開保存する。
+- 「見積送付を記録（手動）」は、管理画面以外の方法で実際に送付した例外時の記録用として残す。
+
+メール送信は既存のResend設定を再利用する。新しい有料AI APIは追加しない。
 
 ## セキュリティ
 
 Apps ScriptのURLが知られてもSecretが一致しなければ処理しない。
 管理画面側は既存のSupabase管理者認証と案件担当者ロックを通過した管理者だけがWorker経由で呼び出せる。
+見積書メールはPDFを選択しただけでは送信せず、管理者の2段階確認を必須とする。
 
 ## 課金方針
 

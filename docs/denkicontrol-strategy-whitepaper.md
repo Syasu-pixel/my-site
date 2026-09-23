@@ -271,7 +271,36 @@ Possible technical direction:
 
 The account system must not become a prerequisite for reading technical content or submitting the ordinary consultation flow unless a separate future decision explicitly changes that policy.
 
-## 14. Member Emergency / Priority Support — Future Concept
+## 14. Member Community / Technical Forum — Future Concept
+A member-only technical community is a future option to consider after the My Page/account foundation exists and the site has enough active readers to sustain useful conversation.
+
+Purpose:
+- Give maintenance, electrical-control, FA, PLC, sensor, pneumatic, and related practitioners a place to ask questions, compare experiences, and help each other solve practical problems.
+- Turn repeat readership into a technical community without forcing ordinary article readers to participate.
+- Allow useful discussions to become an additional layer of practical knowledge alongside editorial articles and online consultation.
+
+Identity model:
+- Community participation should require a registered account.
+- Members may use a display name or pseudonymous identity toward other members.
+- The site operator must still be able to associate activity with the registered account for moderation, abuse handling, and account administration.
+- Public anonymity must not mean administrative untraceability.
+
+Moderation and safety requirements:
+- Provide a report function for posts/replies and a clear path for moderation review.
+- Define rules for harassment, spam, dangerous instructions, impersonation, confidential information, and other unacceptable conduct.
+- Support moderation actions such as hiding/removing content, warnings, temporary restrictions, and account suspension when necessary.
+- Design privacy handling, retention, access control, and account deletion before launch.
+- Technical discussions must not be presented as replacing manufacturer documentation, qualified professional judgment, or site-specific safety rules.
+
+Launch timing:
+- Do not launch an empty forum simply because the feature can be built.
+- Re-evaluate around the medium-term horizon (roughly six months) using real traffic, repeat-user activity, consultation demand, and expected conversation density.
+- A useful trigger is sustained readership large enough that new posts are likely to receive responses; daily PV in the thousands would be a strong signal, but no single PV threshold should be treated as an automatic launch rule.
+- Start with a limited number of technical categories rather than many empty boards.
+
+The forum depends on the member/account layer and should be introduced only when moderation capacity and community activity can be maintained.
+
+## 15. Member Emergency / Priority Support — Future Concept
 A future member tier may provide a clearer path for urgent or priority technical consultation.
 
 Potential model:
@@ -286,7 +315,7 @@ Guardrails:
 - Define supported work, exclusions, responsibility boundaries, pricing, deposits/initial fees, and escalation conditions before launch.
 - Emergency support should be introduced only after the existing consultation workflow is operationally stable.
 
-## 15. AI Assistant / Technical Navigation — Future Concept
+## 16. AI Assistant / Technical Navigation — Future Concept
 AI has strong long-term compatibility with Denkicontrol because the site is accumulating structured technical articles that can become a knowledge base.
 
 Preferred role:
@@ -309,7 +338,7 @@ Cost and timing:
 - Evaluate AI implementation after traffic, consultation demand, and revenue are more stable.
 - When tested, begin with a small pilot and measure actual usage, API cost, article click-through, self-resolution, and consultation handoff before scaling.
 
-## 16. Product Evolution Order
+## 17. Product Evolution Order
 The current preferred sequence is:
 
 1. **Refresh the existing article base.**
@@ -325,15 +354,18 @@ The current preferred sequence is:
    - Improve handoff, follow-up, estimation, and operational reliability before expanding service promises.
 4. **Evaluate member accounts / My Page.**
    - Add only when repeat-user benefits are concrete.
-5. **Evaluate member priority or emergency support.**
+5. **Evaluate a member technical community / forum.**
+   - Require accounts, support pseudonymous member-facing identities, and retain operator-side accountability.
+   - Launch only when traffic and repeat-user activity are sufficient to avoid an inactive community.
+6. **Evaluate member priority or emergency support.**
    - Introduce only with clear service scope, pricing, response terms, and capacity.
-6. **Evaluate AI technical navigation.**
+7. **Evaluate AI technical navigation.**
    - Use the matured article library as the knowledge foundation.
    - Connect unresolved AI sessions to human consultation rather than forcing an answer.
 
 This ordering is intentional. Heavy account, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
 
-## 17. Repository Documentation Policy
+## 18. Repository Documentation Policy
 Role definitions under `docs/`:
 - `docs/denkicontrol-site-strategy.md`
   - Higher-level site strategy. If it conflicts with this whitepaper, the site-strategy document takes precedence.
@@ -346,10 +378,10 @@ Role definitions under `docs/`:
 - `docs/en-article-backlog.md`
   - Backlog for English article creation and revision candidates.
 
-## 18. Next Actions
+## 19. Next Actions
 Execution order after this whitepaper:
 1. Continue the current existing-article refresh cycle.
 2. Strengthen contextual internal linking while preserving end-of-article related navigation.
 3. Define a small technical-term help-panel prototype using selected recurring terms.
 4. Continue hub design and Search Console-responsive page improvements.
-5. Keep My Page, priority/emergency support, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.
+5. Keep My Page, member community/forum, priority/emergency support, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.

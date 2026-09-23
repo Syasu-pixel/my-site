@@ -23,7 +23,7 @@
 - [x] `articles/a-contact-b-contact-basic.html` — a接点・b接点
 - [x] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
 - [ ] `articles/dc24v-common-basic.html` — DC24Vコモン
-- [ ] `articles/no-nc-basic.html` — NO・NC
+- [ ] `articles/no-nc-basic.html` — NO・NC — 作業中（本文見直し / 関連記事画像カード化 / 追加画像は保留）
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
 - [ ] `articles/one-shot-circuit-basic.html` — ワンショット回路

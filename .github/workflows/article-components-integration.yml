@@ -8,6 +8,7 @@ on:
       - 'scripts/*integrat*'
       - 'scripts/*article*preservation*'
       - 'scripts/*article-components*'
+      - 'scripts/*dark-mode*'
       - 'scripts/*component-regeneration*'
       - 'scripts/*publication*'
       - '.github/workflows/pages.yml'
@@ -94,12 +95,13 @@ jobs:
         with:
           name: integration-prepared-${{ github.run_id }}
           path: ${{ runner.temp }}/integration-build
-      - name: All-article viewport and isolated-vote checks
+      - name: All-article viewport, dark-mode and isolated-vote checks
         run: |
           node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
           REVIEW_PID=$!
           trap 'kill "$REVIEW_PID" || true' EXIT
           node scripts/check-integrated-review.mjs ${{ runner.temp }}/integration-build
+          node scripts/check-article-dark-mode.mjs ${{ runner.temp }}/integration-build
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -107,6 +109,7 @@ jobs:
           path: |
             ${{ runner.temp }}/integration-build/evidence-shard-${{ matrix.shard }}/
             ${{ runner.temp }}/integration-build/browser-checks-shard-${{ matrix.shard }}.json
+            ${{ runner.temp }}/integration-build/article-dark-checks-shard-${{ matrix.shard }}.json
           retention-days: 30
           if-no-files-found: error
   reconcile:

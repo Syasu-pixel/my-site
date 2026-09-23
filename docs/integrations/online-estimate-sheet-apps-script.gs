@@ -68,7 +68,8 @@ function doPost(e) {
     const customerName = clean_(body.customer_name, 120);
     const subject = clean_(body.subject, 300) || 'GX Works2オンライン対応';
     const total = nullableAmount_(body.estimate_total);
-    const deposit = nullableAmount_(body.deposit_amount);
+    const firstTransaction = body.is_first_transaction === true;
+    const transactionType = firstTransaction ? '初回取引' : '2回目以降';
 
     sheet.getRange('B3').setValue((company || customerName || '') + (company ? ' 御中' : ' 様'));
     sheet.getRange('B4').setValue(customerName ? customerName + ' 様' : '');
@@ -76,15 +77,24 @@ function doPost(e) {
     sheet.getRange('F4').setValue(caseNumber);
     sheet.getRange('B5').setValue(subject);
     sheet.getRange('B6').setValue(validUntil);
-    sheet.getRange('D9').setValue(deposit === null ? '' : deposit);
-    sheet.getRange('B12').setValue(total === null ? '' : total);
-    sheet.getRange('D12').setValue(deposit === null ? '' : deposit);
-    sheet.getRange('F12').setFormula('=IFERROR(B12-D12,"")');
 
-    if (total !== null || deposit !== null) {
-      sheet.getRange('B12:F12').setNumberFormat('¥#,##0');
-      sheet.getRange('D9').setNumberFormat('¥#,##0');
-    }
+    // 印刷範囲外の見積設定。料金区分(H3)は担当者が選び、再度開いても上書きしない。
+    sheet.getRange('H2').setValue(transactionType);
+    sheet.getRange('I2').setValue(firstTransaction ? '完了案件0件=初回' : '完了案件あり=2回目以降');
+    if (!sheet.getRange('H3').getValue()) sheet.getRange('H3').setValue('');
+
+    // 着手金は取引区分とPLANから自動決定。PLAN-04のみH4を手入力する。
+    sheet.getRange('H5').setFormula('=IF(H2="初回取引",SWITCH(H3,"PLAN-01",11000,"PLAN-02",22000,"PLAN-03",44000,"PLAN-04",IF(H4="","",H4),""),0)');
+    sheet.getRange('D9').setFormula('=H5');
+    sheet.getRange('D12').setFormula('=IF(D9="","",D9)');
+    sheet.getRange('F12').setFormula('=IF(OR(B12="",D12=""),"",B12-D12)');
+
+    // 見積総額は内訳(F16:F21)から計算するため、管理画面の旧値では上書きしない。
+    sheet.getRange('B12').setFormula('=IF(COUNT(F16:F21)=0,"",SUM(F16:F21))');
+
+    sheet.getRange('B12:F12').setNumberFormat('¥#,##0');
+    sheet.getRange('D9').setNumberFormat('¥#,##0');
+    sheet.getRange('H4:H5').setNumberFormat('¥#,##0');
 
     SpreadsheetApp.flush();
 
@@ -94,7 +104,10 @@ function doPost(e) {
       caseNumber,
       spreadsheetId:fileId,
       url:ss.getUrl(),
-      title:DriveApp.getFileById(fileId).getName()
+      title:DriveApp.getFileById(fileId).getName(),
+      transactionType,
+      firstTransaction,
+      completedCustomerCases:Number(body.completed_customer_cases || 0) || 0
     });
   } catch (error) {
     console.error(error);

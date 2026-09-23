@@ -82,7 +82,7 @@ try{
         const textFindings=[];
         const textSelector='p,li,span,a,strong,small,h1,h2,h3,h4,h5,h6,td,th,label,figcaption,button';
         for(const element of document.querySelectorAll(textSelector)){
-          if(!visible(element))continue;
+          if(!visible(element)||element.closest('.article-hero,.hero-visual'))continue;
           const directText=[...element.childNodes].some(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim());
           if(!directText)continue;
           const style=getComputedStyle(element),fg=parse(style.color);

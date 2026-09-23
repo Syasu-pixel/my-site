@@ -2,6 +2,7 @@ const ALLOWED_ORIGIN_SUFFIX = '.denkicontrol-preview.pages.dev';
 const PROD_ORIGIN = 'https://denkicontrol.com';
 const MAIL_LOCK_MS = 120000;
 const ADMIN_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024;
+const ADMIN_ESTIMATE_PDF_MAX_BYTES = 10 * 1024 * 1024;
 const ADMIN_CASE_STATUSES = new Set(['received','estimating','estimate_sent','deposit_wait','working','delivered','completed','on_hold','cancelled']);
 const ADMIN_FOLLOWUP_STATUSES = new Set(['not_scheduled','scheduled','sent','replied','closed','cancelled']);
 const ADMIN_NEXT_ACTION_DEFAULTS = Object.freeze({
@@ -40,6 +41,7 @@ export default {
         db: Boolean(env.DB),
         passwordStorage: Boolean(env.GXW_PASSWORD_KEY),
         adminZipAttachmentMaxBytes: ADMIN_ATTACHMENT_MAX_BYTES,
+        adminEstimatePdfMaxBytes: ADMIN_ESTIMATE_PDF_MAX_BYTES,
         estimateSheetConfigured: Boolean((env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL) && env.ESTIMATE_SHEET_WEBHOOK_SECRET),
       }, 200, origin);
     }
@@ -1018,6 +1020,11 @@ async function handleAdminRequest(request, env, origin, url) {
   if (estimateSheetMatch && request.method === 'POST') {
     return openAdminEstimateSheet(env, decodeURIComponent(estimateSheetMatch[1]), admin, origin);
   }
+
+  const estimateEmailMatch = /^\/admin\/cases\/([^/]+)\/estimate-email$/.exec(url.pathname);
+  if (estimateEmailMatch && request.method === 'POST') {
+    return sendAdminEstimateEmail(request, env, decodeURIComponent(estimateEmailMatch[1]), admin, origin);
+  }
   return json({ ok:false, error:'Admin endpoint not found' }, 404, origin);
 }
 
@@ -1378,6 +1385,117 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
     created:Boolean(body.created),
     title:clean(body.title || '',300),
   }, 200, origin);
+}
+
+
+async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
+  if (!env.RESEND_API_KEY) return json({ ok:false, error:'Email service is not configured' }, 503, origin);
+
+  const before = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
+  if (before.status !== 'estimating') {
+    return json({ ok:false, error:'Estimate email can only be sent while the case is in estimating status' }, 409, origin);
+  }
+  if (before.estimate_total === null || before.estimate_total === undefined) {
+    return json({ ok:false, error:'Estimate total is required before sending the estimate' }, 409, origin);
+  }
+
+  let form;
+  try { form = await request.formData(); }
+  catch { return json({ ok:false, error:'Invalid estimate email form' }, 400, origin); }
+
+  const rawTo = typeof form.get('to') === 'string' ? form.get('to') : '';
+  const rawSubject = typeof form.get('subject') === 'string' ? form.get('subject') : '';
+  const rawText = typeof form.get('text') === 'string' ? form.get('text') : '';
+  const to = clean(rawTo || before.customer_email || '',254);
+  const subject = clean(rawSubject,300);
+  const text = clean(rawText,12000);
+  const pdf = form.get('pdf');
+
+  if (!isValidEmail(to)) return json({ ok:false, error:'A valid recipient email is required' }, 400, origin);
+  if (!subject || rawSubject.length > 300) return json({ ok:false, error:'Email subject is required and must be 300 characters or fewer' }, 400, origin);
+  if (!text || rawText.length > 12000) return json({ ok:false, error:'Email body is required and must be 12000 characters or fewer' }, 400, origin);
+  if (!pdf || typeof pdf.arrayBuffer !== 'function') return json({ ok:false, error:'Estimate PDF is required' }, 400, origin);
+
+  const filename = clean(pdf.name || ('estimate-' + caseNumber + '.pdf'),255);
+  const size = Number(pdf.size || 0);
+  if (!filename.toLowerCase().endsWith('.pdf')) return json({ ok:false, error:'Only PDF attachments are accepted' }, 400, origin);
+  if (size < 1 || size > ADMIN_ESTIMATE_PDF_MAX_BYTES) return json({ ok:false, error:'Estimate PDF must be 10MB or smaller' }, 413, origin);
+
+  let bytes;
+  try { bytes = new Uint8Array(await pdf.arrayBuffer()); }
+  catch { return json({ ok:false, error:'Estimate PDF could not be read' }, 400, origin); }
+  if (bytes.byteLength !== size || bytes.byteLength < 5 || new TextDecoder().decode(bytes.subarray(0,5)) !== '%PDF-') {
+    return json({ ok:false, error:'Attachment is not a valid PDF file' }, 400, origin);
+  }
+
+  const payload = {
+    from:'株式会社ケイディエス <support@denkicontrol.com>',
+    to:[to],
+    subject,
+    text,
+    attachments:[{ filename, content:bytesToBase64(bytes) }],
+  };
+  if (env.NOTIFY_TO_EMAIL && isValidEmail(env.NOTIFY_TO_EMAIL)) payload.reply_to = env.NOTIFY_TO_EMAIL;
+
+  const idempotencyKey = 'estimate-send-' + caseNumber.replace(/[^A-Za-z0-9_-]/g,'_');
+  const result = await sendEmail(env,payload,idempotencyKey);
+  const actor = admin.email || 'admin';
+
+  if (!result.ok) {
+    await addAdminCaseEvent(env.DB,caseNumber,'estimate_email_failed',before.status,before.status,'見積メール送信失敗: '+safeDetail(result.body),actor);
+    return json({ ok:false, error:'Estimate email could not be sent' }, 502, origin);
+  }
+
+  let archiveKey = '';
+  if (env.GXW_FILES) {
+    try {
+      const safeName = filename.replace(/[^A-Za-z0-9._-]+/g,'_').slice(-160) || 'estimate.pdf';
+      archiveKey = 'admin-estimates/' + caseNumber + '/' + Date.now() + '-' + safeName;
+      await env.GXW_FILES.put(archiveKey,bytes,{
+        httpMetadata:{ contentType:'application/pdf' },
+        customMetadata:{ caseNumber, recipient:to, sentBy:actor },
+      });
+    } catch (error) {
+      archiveKey = '';
+      console.error('Estimate PDF archive failed', error);
+    }
+  }
+
+  const now = new Date().toISOString();
+  const assignment = autoAdminAssignment(before,admin);
+  const updates = {
+    status:'estimate_sent',
+    next_action:ADMIN_NEXT_ACTION_DEFAULTS.estimate_sent,
+    ...assignment,
+  };
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  const set = changed.map(([key],index)=>key+'=?'+(index+2));
+  set.push('updated_at=?'+(changed.length+2));
+  set.push('updated_by=?'+(changed.length+3));
+  const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+  await env.DB.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+
+  if (assignment.assignee_email) {
+    await addAdminCaseEvent(env.DB,caseNumber,'assignee_assigned','','','最初の進行操作で '+assignment.assignee+' を担当者に設定',actor);
+  }
+  const providerId = clean((result.body && result.body.id) || '',200);
+  const detail = [
+    '見積書メールを送信',
+    '宛先: '+to,
+    '添付: '+filename,
+    providerId ? 'メールID: '+providerId : '',
+    archiveKey ? 'PDF控え: 非公開R2保存済み' : 'PDF控え: メール添付のみ',
+  ].filter(Boolean).join(' / ');
+  await addAdminCaseEvent(env.DB,caseNumber,'estimate_email_sent',before.status,'estimate_sent',detail,actor);
+
+  const after = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({
+    ok:true,
+    case:after,
+    email:{ to, subject, attachmentName:filename, providerId, archived:Boolean(archiveKey) },
+  },200,origin);
 }
 
 async function reassignAdminCase(db, caseNumber, admin, origin) {

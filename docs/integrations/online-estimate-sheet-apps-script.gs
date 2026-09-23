@@ -20,15 +20,19 @@ const CASE_PROPERTY_PREFIX = 'estimateSheet:';
 function doPost(e) {
   try {
     const body = parseJson_(e && e.postData && e.postData.contents);
-    const expected = PropertiesService.getScriptProperties().getProperty('ESTIMATE_WEBHOOK_SECRET') || '';
+    const scriptProps = PropertiesService.getScriptProperties();
+    const expected = scriptProps.getProperty('ESTIMATE_WEBHOOK_SECRET') || '';
     if (!expected || String(body.secret || '') !== expected) {
       return json_({ok:false,error:'unauthorized'});
     }
 
+    const bankAccountNumber = clean_(scriptProps.getProperty('ESTIMATE_BANK_ACCOUNT_NUMBER') || '', 80);
+    const bankAccountName = clean_(scriptProps.getProperty('ESTIMATE_BANK_ACCOUNT_NAME') || '', 120);
+
     const caseNumber = clean_(body.case_number, 80);
     if (!caseNumber) return json_({ok:false,error:'case_number is required'});
 
-    const props = PropertiesService.getScriptProperties();
+    const props = scriptProps;
     const propertyKey = CASE_PROPERTY_PREFIX + caseNumber;
     let fileId = props.getProperty(propertyKey) || '';
     let created = false;
@@ -83,6 +87,13 @@ function doPost(e) {
     sheet.getRange('B6').setValue(validUntil);
     if (assignee) sheet.getRange('B41').setValue(assignee);
     sheet.getRange('E41').setValue(assigneeEmail || '');
+
+    // 口座番号・口座名義はScript Propertiesから自動入力し、公開GitHubへ値を保存しない。
+    if (!bankAccountNumber || !bankAccountName) {
+      throw new Error('銀行口座情報のScript Propertiesが未設定です');
+    }
+    sheet.getRange('D33').setValue(bankAccountNumber).setNumberFormat('@');
+    sheet.getRange('B34').setValue(bankAccountName);
 
     // 社内用の見積設定は別タブへ分離し、見積書本体の印刷範囲をA:Fだけに保つ。
     settingsSheet.getRange('B2').setValue(transactionType);

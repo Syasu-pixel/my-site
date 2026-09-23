@@ -25,6 +25,14 @@
 
 抽出するタイトル等はHTML断片であり、br、span、タグ属性、空白を保持する。labelはhero-labelとhero-kickerに対応。points/disclosure/actionsは任意、順序はテンプレートで規定する。未知の子要素、重複フィールド、未知の順序、CSS元指紋の変化、抽出後のソース変更は失敗させ、黙って捨てない。
 
+### Hero画像・背景URLを意図的に変更する場合
+
+- Hero画像またはHero背景URLを変えると、CSSテンプレート本体が同じでも対象slotの `sourceSha256` と `urls` は変化する。
+- `.github/article-components/hero/css-bindings.json` は対象ページの該当entryだけを、現在の編集元CSSから得た値へ更新する。意図した変更を「古いbindingに合わせる」ために画像URLを戻さない。
+- 全ページの `--initialize-css` を通常更新の近道として実行しない。既存共有プロフィールを上書きせず、対象slotと利用ページへの影響を確認する。
+- Hero変更と同時に記事HTMLが変わる場合は、[実作業手順](article-editing-playbook.md) に従い shell baseline、site inventory、source verification等の対象記事ハッシュも点検する。
+- OGPとHeroを分離した場合は、`og:image` / `twitter:image` とHero CSS参照を取り違えない。OGP用画像をHeroへ戻してCIを通すなど、役割を逆戻りさせない。
+
 ## 正規の生成工程
 
 既存の [build-integrated-review.mjs](../scripts/build-integrated-review.mjs) 内で、最新記事からhero-pages.jsonを生成する。既存のヘッダー/目次/関連記事/評価の生成後に、登録288記事だけへhero.njkとCSSを適用する。candidateとreviewは従来の境界を維持する。Pagesが呼ぶ同じ生成入口に接続しており、生成HTMLを手直しする別工程はない。

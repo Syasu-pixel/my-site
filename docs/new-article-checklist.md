@@ -87,6 +87,16 @@ PR確認時:
 - CSS追加や新規class追加がないかを確認する。
 - 強調の追加で本文の意味が変わっていないかを確認する。
 
+### 0.6.a 公開前最終Previewチェック（新規・既存記事共通）
+- 共通shell / Hero / sidebar / 関連記事 / 記事評価等の統合対象記事では、repository rootの編集元HTMLをそのまま配信するraw branch Previewを最終承認に使わない。
+- 最終承認用Previewは、本番と同じ生成経路 `build-integrated-review → prepare-integrated-publication → 公開用画像WebP最適化 → publication最終検証` を通した成果物を表示する。
+- Preview URLが存在するだけで合格にしない。外部URLのHTMLが実際に統合生成物であることを確認し、編集元raw HTMLを誤って表示していないかを確認する。
+- 最低限、PCライト／PCダーク／スマホライト／スマホダークの4条件を目視する。必要な専用レイアウトではタブレット幅も追加する。
+- 各条件で固定ヘッダー、Hero、本文、本文画像、表・カード・会話、右カラム／追従目次、関連記事、記事評価、応援カード、フッター、文字コントラスト、白飛び、横はみ出し、画像欠けを確認する。
+- Hero画像またはHero背景URLを意図的に変更した場合は、`.github/article-components/hero/css-bindings.json` の対象entryと、shell baseline / site inventory / source verification等の対象記事ハッシュを確認する。古いhashへ合わせるため新しいHeroを戻さない。
+- 最終確認専用branch / PR / Workflow / triggerを作る場合は `DO NOT MERGE` 相当として扱い、本番mainへ混入させない。公開成功後にクローズし、一時Workflow・triggerがmainへ入っていないことを確認する。
+- 上記の最終Preview承認後に、意味・技術・画像・レイアウトへ影響する変更を加えた場合は再Preview・再承認する。
+
 ### 0.6.x Codex依頼文テンプレート確認
 - Codexへの依頼文に `対象リポジトリ: Syasu-pixel/my-site` があることを確認する。
 - 依頼文に `目的`（1〜3行）と作業種別（例: リンク修正 / 本文強調 / Step 2導線追加 / 整形のみ）があることを確認する。

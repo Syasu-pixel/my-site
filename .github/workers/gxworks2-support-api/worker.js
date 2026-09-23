@@ -1346,6 +1346,7 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
     estimate_total: before.estimate_total === null || before.estimate_total === undefined ? null : Number(before.estimate_total),
     deposit_amount: before.deposit_amount === null || before.deposit_amount === undefined ? null : Number(before.deposit_amount),
     assignee: clean(before.assignee || '',120),
+    assignee_email: clean(before.assignee_email || admin.email || '',254),
     requested_by: clean(admin.email || 'admin',254),
     is_first_transaction: customerHistory.first_transaction,
     completed_customer_cases: customerHistory.completed_count,

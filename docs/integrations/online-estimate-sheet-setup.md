@@ -148,3 +148,30 @@ Apps Script は見積書を作成・更新するたびに以下へ自動反映�
 どちらかのScript Propertyが未設定の場合は見積書生成をエラーにして、空欄や誤った口座情報のまま送付されないようにする。
 
 銀行口座情報の実値は公開GitHubへコミットしない。変更があった場合も Script Properties だけを更新する。
+
+## 担当者メールの自動入力
+
+ログイン認証に使うメールアドレスと、お客様とのやり取りに使う担当者連絡先メールは分離する。
+
+- `assignee_email`: 案件の所有者判定に使うログインメール。管理画面内部用。
+- `assignee_contact_email`: 見積書へ表示する顧客向け連絡先メール。
+
+顧客向け連絡先は Cloudflare Worker の secret `ADMIN_CONTACT_EMAIL_MAP` で、ログインメールをキーに対応付ける。JSON形式で保存し、実際のメールアドレスは公開GitHubへコミットしない。
+
+例の形式だけ示す（実値は保存しない）。
+
+```json
+{"login@example.com":"contact@example.com"}
+```
+
+Worker は見積Sheet連携時に次をApps Scriptへ渡す。
+
+- `assignee`: 担当者表示名
+- `assignee_contact_email`: 顧客向け担当者連絡先メール
+
+Apps Script は見積書の発行者情報へ自動反映する。
+
+- `見積書!B41`: 担当者名
+- `見積書!E41`: 顧客向け担当者メール
+
+マッピングが未設定の場合のみログインメールへフォールバックする。見積書での担当者メール手入力は不要とする。

@@ -1,1 +1,0 @@
-(()=>{const h=document.querySelector('.dc-shell');const update=()=>document.documentElement.style.setProperty('--dc-shell-height',h.getBoundingClientRect().height+'px');new ResizeObserver(update).observe(h);update()})();

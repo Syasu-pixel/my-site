@@ -520,7 +520,7 @@
   const shieldTitle = shield.querySelector('h3');
   const shieldDesc = shield.querySelector('p');
   if (shieldImage) {
-    shieldImage.src = 'assets/images/shielded-cable-basic/shielded-cable-basic-ogp.png';
+    shieldImage.src = 'assets/images/shielded-cable-basic/shielded-cable-basic-ogp.webp';
     shieldImage.alt = 'シールドケーブルの基本';
   }
   if (shieldTag) {

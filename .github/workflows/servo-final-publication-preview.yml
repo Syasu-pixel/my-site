@@ -129,17 +129,19 @@ jobs:
       - name: Verify final standalone publication
         run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
 
-      - name: Publish verified artifact into isolated preview path
+      - name: Publish verified artifact at preview root
         run: |
           set -euo pipefail
+          # This branch is preview-only. Overlay the fully verified publication at
+          # repository root so root-relative /assets/... URLs resolve exactly as
+          # they do in production.
+          rsync -a _site/ ./
+          cp "${RUNNER_TEMP}/integration-build/publication-final-checks.json" publication-final-checks.json
+          cp "${RUNNER_TEMP}/integration-build/published-image-mapping.json" published-image-mapping.json
           rm -rf final-preview
-          mkdir -p final-preview
-          rsync -a _site/ final-preview/
-          cp "${RUNNER_TEMP}/integration-build/publication-final-checks.json" final-preview/publication-final-checks.json
-          cp "${RUNNER_TEMP}/integration-build/published-image-mapping.json" final-preview/published-image-mapping.json
 
           git config user.name 'denkicontrol-final-preview'
           git config user.email 'actions@users.noreply.github.com'
-          git add final-preview
-          git commit -m 'chore: publish verified servo final preview [final-preview-generated]'
+          git add -A
+          git commit -m 'chore: publish verified servo final preview at root [final-preview-generated]'
           git push origin "HEAD:${GITHUB_REF_NAME}"

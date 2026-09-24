@@ -43,6 +43,25 @@ jobs:
           const browser = await chromium.launch({headless:true});
           const url = 'http://127.0.0.1:4173/articles/sensor-basic.html';
 
+          async function forceImages(page) {
+            await page.evaluate(async()=>{
+              const imgs=[...document.images];
+              imgs.forEach(img=>{ img.loading='eager'; });
+              for(const img of imgs){
+                img.scrollIntoView({block:'center'});
+                await new Promise(r=>setTimeout(r,90));
+              }
+              const deadline=Date.now()+12000;
+              while(Date.now()<deadline){
+                const pending=imgs.filter(img=>!img.complete);
+                if(!pending.length) break;
+                await new Promise(r=>setTimeout(r,150));
+              }
+              scrollTo(0,0);
+              await new Promise(r=>setTimeout(r,700));
+            });
+          }
+
           async function capture(name, viewport, theme) {
             const page = await browser.newPage({viewport, deviceScaleFactor:1});
             await page.addInitScript((t)=>{
@@ -51,17 +70,9 @@ jobs:
             }, theme);
             const response = await page.goto(url,{waitUntil:'networkidle',timeout:90000});
             if(!response?.ok()) throw new Error('render failed: '+(response?.status() ?? 'unknown'));
-            await page.evaluate(async()=>{
-              if(document.fonts?.ready) await document.fonts.ready;
-              const step=Math.max(300,Math.floor(innerHeight*0.7));
-              for(let y=0;y<document.documentElement.scrollHeight;y+=step){
-                scrollTo(0,y);
-                await new Promise(r=>setTimeout(r,80));
-              }
-              scrollTo(0,0);
-              await new Promise(r=>setTimeout(r,800));
-            });
-            const broken = await page.evaluate(() => [...document.images].filter(img => !img.complete || img.naturalWidth===0).map(img=>img.src));
+            if(document?.fonts?.ready){}
+            await forceImages(page);
+            const broken = await page.evaluate(() => [...document.images].filter(img => !img.complete || img.naturalWidth===0).map(img=>({src:img.src,complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight})));
             fs.writeFileSync('final-visual/'+name+'-broken-images.json',JSON.stringify(broken,null,2));
             await page.screenshot({path:'final-visual/'+name+'.png',fullPage:true});
             await page.close();

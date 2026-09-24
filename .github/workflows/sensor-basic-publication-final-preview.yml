@@ -1,0 +1,70 @@
+name: Sensor basic publication final preview
+
+on:
+  push:
+    branches:
+      - preview-sensor-basic-publication-final
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-commit:
+    if: ${{ !contains(github.event.head_commit.message || '', '[publication-final]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-sensor-basic-publication-final
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: python -m pip install lxml==6.1.1
+      - name: Build integrated publication source
+        run: |
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+          node scripts/check-component-regeneration.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/check-integrated-publication.mjs "${RUNNER_TEMP}/integration-build"
+          python scripts/test-publication-artifact.py
+      - name: Materialize sensor article and generated assets
+        run: |
+          cp "${RUNNER_TEMP}/integration-build/candidate/articles/sensor-basic.html" articles/sensor-basic.html
+          mkdir -p assets/css assets/js
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-toc-v2.css" assets/css/article-toc-v2.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-toc-v2.js" assets/js/article-toc-v2.js
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-related.css" assets/css/article-end-related.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-feedback.css" assets/css/article-end-feedback.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-integration-compat.css" assets/css/article-integration-compat.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-integration-compat.js" assets/js/article-integration-compat.js
+      - name: Verify final generated files
+        run: |
+          test -s assets/css/article-end-feedback.css
+          test -s assets/css/article-end-related.css
+          test -s assets/css/article-toc-v2.css
+          test -s assets/css/article-integration-compat.css
+          test -s assets/js/article-toc-v2.js
+          test -s assets/js/article-integration-compat.js
+          grep -q 'class="site-header dc-shell"' articles/sensor-basic.html
+          grep -q 'article-end-feedback.css' articles/sensor-basic.html
+          grep -q 'article-end-related.css' articles/sensor-basic.html
+          grep -q 'articleFeedbackCard' articles/sensor-basic.html
+      - name: Commit preview-only publication files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/sensor-basic.html assets/css/article-toc-v2.css assets/js/article-toc-v2.js assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-integration-compat.js
+          git commit -m "Preview-only: materialize sensor publication [publication-final]"
+          git push origin HEAD:preview-sensor-basic-publication-final

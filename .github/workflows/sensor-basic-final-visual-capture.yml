@@ -70,7 +70,6 @@ jobs:
             }, theme);
             const response = await page.goto(url,{waitUntil:'networkidle',timeout:90000});
             if(!response?.ok()) throw new Error('render failed: '+(response?.status() ?? 'unknown'));
-            if(document?.fonts?.ready){}
             await forceImages(page);
             const broken = await page.evaluate(() => [...document.images].filter(img => !img.complete || img.naturalWidth===0).map(img=>({src:img.src,complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight})));
             fs.writeFileSync('final-visual/'+name+'-broken-images.json',JSON.stringify(broken,null,2));

@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>回路 | 電気と制御の実務メモ</title>
+  <meta name="description" content="自己保持回路、タイマー回路、インターロック回路、ワンショット回路など、制御盤やPLCでよく使う基本回路を図で追いやすく整理。初心者が動作の流れを確認しやすいカテゴリページです。">
+  <link rel="canonical" href="https://denkicontrol.com/categories/circuit-basics.html">
+
+
+  <meta property="og:title" content="回路 | 電気と制御の実務メモ">
+  <meta property="og:description" content="自己保持・タイマー・インターロック・ワンショットなど、現場でよく使う基本回路を整理しています。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://denkicontrol.com/categories/circuit-basics.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/hero/hero-category-howto.webp">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="回路 | 電気と制御の実務メモ">
+  <meta name="twitter:description" content="自己保持・タイマー・インターロック・ワンショットなど、現場でよく使う基本回路を整理しています。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/hero/hero-category-howto.webp">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.webp">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.webp">
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --muted-2:#64748b;
+      --line:#dbe7f3;
+      --line-soft:#e7eef7;
+      --blue:#1d4ed8;
+      --blue-deep:#1e3a8a;
+      --green:#16a34a;
+      --orange:#ea580c;
+      --purple:#7c3aed;
+      --shadow:0 18px 42px rgba(15,23,42,.08);
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+      --container:1180px;
+      --header-h:76px;
+    }
+
+    *{box-sizing:border-box;}
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+    }
+    html{
+      scroll-padding-top:104px;
+    }
+    .category-hero,
+    .section-card,
+    #category-title,
+    #first,
+    #articles,
+    #intro-heading,
+    #first-heading,
+    #articles-heading{
+      scroll-margin-top:104px;
+    }
+    
+    @media (max-width:1100px){
+      .language-menu-current{
+        display:none;
+      }
+
+      .language-menu-button{
+        width:38px;
+        min-width:38px;
+        padding:0;
+      }
+
+      .language-menu-panel{
+        right:0;
+        width:210px;
+      }
+    }
+
+    @media (min-width:1101px){
+      html{
+        scroll-padding-top:104px !important;
+      }
+      .category-hero,
+      .section-card,
+      #category-title,
+      #first,
+      #articles,
+      #intro-heading,
+      #first-heading,
+      #articles-heading{
+        scroll-margin-top:104px !important;
+      }
+    }
+    @media (min-width:769px) and (max-width:1100px){
+      html{
+        scroll-padding-top:112px !important;
+      }
+      .category-hero,
+      .section-card,
+      #category-title,
+      #first,
+      #articles,
+      #intro-heading,
+      #first-heading,
+      #articles-heading{
+        scroll-margin-top:112px !important;
+      }
+      .category-hero{
+        background:
+          linear-gradient(
+            90deg,
+            rgba(248,251,255,.98) 0%,
+            rgba(248,251,255,.94) 35%,
+            rgba(248,251,255,.76) 50%,
+            rgba(248,251,255,.20) 70%,
+            rgba(248,251,255,0) 100%
+          ),
+          url("../assets/images/hero/hero-category-howto.webp") right center / auto 86% no-repeat;
+      }
+    }
+    @media (min-width:481px) and (max-width:768px){
+      html{
+        scroll-padding-top:94px !important;
+      }
+      .category-hero,
+      .section-card,
+      #category-title,
+      #first,
+      #articles,
+      #intro-heading,
+      #first-heading,
+      #articles-heading{
+        scroll-margin-top:94px !important;
+      }
+    }
+    @media (max-width:480px){
+      html{
+        scroll-padding-top:84px !important;
+      }
+      .category-hero,
+      .section-card,
+      #category-title,
+      #first,
+      #articles,
+      #intro-heading,
+      #first-heading,
+      #articles-heading{
+        scroll-margin-top:84px !important;
+      }
+    }
+    body{
+      margin:0;
+      min-width:320px;
+      font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%, var(--bg) 100%);
+      line-height:1.75;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      padding-top:var(--header-h);
+    }
+    img{
+      display:block;
+      max-width:100%;
+      height:auto;
+    }
+    a{
+      color:inherit;
+      text-decoration:none;
+      transition:.2s ease;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px; background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06); backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+    .brand-copy{
+      min-width:0;
+      display:block;
+    }
+    .brand-title{
+      display:block;
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+    }
+    .brand-sub{
+      display:block;
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .language-menu-item small{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      line-height:1.3;
+      color:#64748b;
+      font-weight:700;
+    }
+
+    .language-menu-item strong{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:900;
+    }
+
+    .language-menu-flag{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .language-menu-item.is-active{
+      background:#e6f0ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-panel[hidden]{
+      display:none;
+    }
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-icon{
+      font-size:15px;
+      line-height:1;
+    }
+
+    .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh, 640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-result-item{
+      margin:0;
+    }
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+    }
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+    .header-link:hover{
+      color:var(--blue);
+      background:#f8fbff;
+      border-color:#dbeafe;
+    }
+    .header-search{
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--container);
+      margin:0 auto;
+      padding:0 14px 56px;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:14px 0 10px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:500;
+    }
+    .breadcrumb a{
+      color:#1d4ed8;
+    }
+
+    .category-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(203,219,235,.78);
+      border-radius:28px;
+      min-height:390px;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(248,251,255,.98) 0%,
+          rgba(248,251,255,.94) 35%,
+          rgba(248,251,255,.76) 50%,
+          rgba(248,251,255,.20) 70%,
+          rgba(248,251,255,0) 100%
+        ),
+        url("../assets/images/hero/hero-category-howto.webp") right center / auto 100% no-repeat;
+      box-shadow:none;
+    }
+    .category-hero-copy{
+      width:min(100%,570px);
+      min-height:390px;
+      padding:52px 34px 52px 38px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    .category-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 12px;
+      border-radius:999px;
+      background:#ecfdf5;
+      color:#15803d;
+      border:1px solid #bbf7d0;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:14px;
+    }
+    .category-title{
+      margin:0;
+      font-size:42px;
+      line-height:1.22;
+      letter-spacing:.01em;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .category-title .blue{color:var(--blue);}
+    .category-title .green{color:var(--green);}
+    .category-lead{
+      margin:16px 0 0;
+      max-width:46ch;
+      font-size:15px;
+      line-height:1.8;
+      color:#475569;
+      font-weight:500;
+    }
+    .mark{
+      font-weight:900;
+      color:#1d4ed8;
+      background:linear-gradient(transparent 62%, rgba(191,219,254,.9) 62%);
+      padding:0 .08em;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:22px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      padding:9px 16px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.35;
+      border:1px solid transparent;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,#1d4ed8 0%, #2563eb 100%);
+      box-shadow:0 10px 22px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      color:#1f2937;
+      background:#fff;
+      border-color:#cbd5e1;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) 260px;
+      gap:24px;
+      margin-top:22px;
+      align-items:start;
+    }
+    .main-flow{
+      min-width:0;
+      display:grid;
+      gap:18px;
+    }
+    .side-rail{
+      position:sticky;
+      top:96px;
+      display:grid;
+      gap:12px;
+      min-width:0;
+    }
+
+    .section-card{
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:22px;
+      box-shadow:0 8px 22px rgba(15,23,42,.04);
+      padding:20px;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .section-head--with-filter{
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .section-title-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    .article-filter{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .article-filter-label{
+      font-size:12px;
+      font-weight:900;
+      color:#475569;
+      white-space:nowrap;
+    }
+    .article-filter select{
+      min-height:36px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#fff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.2;
+      padding:0 34px 0 12px;
+      cursor:pointer;
+    }
+    .section-bar{
+      width:4px;
+      height:24px;
+      border-radius:999px;
+      background:var(--blue);
+      flex:0 0 auto;
+    }
+    .section-title{
+      margin:0;
+      font-size:20px;
+      line-height:1.45;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .section-lead{
+      margin:-4px 0 16px;
+      color:#64748b;
+      font-size:13px;
+      line-height:1.75;
+      font-weight:500;
+    }
+
+    .intro-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .intro-box{
+      border-radius:18px;
+      border:1px solid #e2e8f0;
+      background:#fbfdff;
+      padding:14px;
+    }
+    .intro-box strong{
+      display:block;
+      margin-bottom:6px;
+      color:#0f172a;
+      font-size:14px;
+      line-height:1.45;
+      font-weight:900;
+    }
+    .intro-box p{
+      margin:0;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:500;
+    }
+
+    .featured-list{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+    .featured-article{
+      display:grid;
+      grid-template-columns:94px minmax(0,1fr);
+      gap:12px;
+      align-items:center;
+      border:1px solid #dbeafe;
+      background:#f8fbff;
+      border-radius:18px;
+      padding:12px;
+      min-height:126px;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .article-thumb{
+      position:relative;
+      width:94px;
+      height:78px;
+      border-radius:16px;
+      border:1px solid #bfdbfe;
+      background:
+        linear-gradient(135deg, rgba(239,246,255,.92), rgba(255,255,255,.78)),
+        radial-gradient(circle at 70% 30%, rgba(37,99,235,.14), transparent 34%);
+      overflow:hidden;
+      box-shadow:0 8px 18px rgba(37,99,235,.08);
+    }
+    .article-thumb-img{
+      width:100%;
+      aspect-ratio:16/10;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      display:block;
+      padding:0;
+      border-radius:0;
+      overflow:visible;
+    }
+    .article-thumb-img img{
+      display:block;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+      object-position:center;
+    }
+    .article-row .article-thumb-img{
+      width:100%;
+    }
+    .article-thumb::before{
+      content:"";
+      position:absolute;
+      left:14px;
+      top:17px;
+      width:66px;
+      height:42px;
+      border-left:2px solid #60a5fa;
+      border-right:2px solid #60a5fa;
+      background:
+        linear-gradient(#60a5fa,#60a5fa) left 12px top 9px / 44px 2px no-repeat,
+        linear-gradient(#60a5fa,#60a5fa) left 12px top 25px / 44px 2px no-repeat,
+        radial-gradient(circle at 19px 10px, #1d4ed8 0 3px, transparent 4px),
+        radial-gradient(circle at 48px 26px, #1d4ed8 0 3px, transparent 4px);
+      opacity:.85;
+    }
+    .article-thumb::after{
+      position:absolute;
+      right:8px;
+      bottom:6px;
+      min-width:28px;
+      height:20px;
+      padding:0 6px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#1d4ed8;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.02em;
+    }
+    .thumb-self::after{content:"R1";}
+    .thumb-timer::after{content:"T1";}
+    .thumb-interlock::after{content:"IL";}
+    .thumb-one::after{content:"1S";}
+    .thumb-alt::after{content:"AB";}
+    .thumb-delay::after{content:"TON";}
+    .thumb-while::after{content:"PB";}
+    .thumb-ladder::after{content:"LD";}
+
+    .featured-article h3{
+      margin:0;
+      font-size:15px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+    }
+    .featured-article p{
+      margin:5px 0 0;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.6;
+      font-weight:500;
+    }
+
+    .article-shelf{
+      display:grid;
+      gap:10px;
+    }
+    .article-shelf--grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    @media (min-width:744px){
+      .article-shelf--grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:12px;
+      }
+    }
+    .article-row{
+      display:grid;
+      grid-template-columns:180px minmax(0,1fr);
+      gap:16px;
+      align-items:center;
+      border:1px solid #e2e8f0;
+      background:#fff;
+      border-radius:18px;
+      padding:12px;
+      min-height:126px;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+    }
+
+    @media (hover:hover) and (pointer:fine){
+      .article-row:hover,
+      .article-row:focus-within,
+      .featured-article:hover,
+      .featured-article:focus-within{
+        transform:translateY(-4px);
+        box-shadow:0 14px 28px rgba(15, 23, 42, .14);
+        border-color:#bfdbfe;
+        background:#fbfdff;
+      }
+    }
+
+    .article-row h3{
+      margin:0;
+      font-size:15px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+    }
+    .article-row p{
+      margin:5px 0 0;
+      color:#64748b;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:500;
+    }
+    .article-shelf--grid .article-row{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:8px;
+      min-height:0;
+      height:100%;
+      padding:10px;
+    }
+    .article-shelf--grid .article-thumb-img{
+      width:100%;
+      aspect-ratio:16/10;
+    }
+    .article-shelf--grid .article-row h3{
+      font-size:14px;
+      line-height:1.45;
+    }
+    .article-shelf--grid .article-row p{
+      font-size:12px;
+      line-height:1.55;
+    }
+    #articles .article-row[hidden]{
+      display:none !important;
+    }
+
+    .category-blocks{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+    .category-block{
+      border:1px solid #e2e8f0;
+      border-radius:18px;
+      background:#fbfdff;
+      padding:14px;
+    }
+    .category-block h3{
+      margin:0 0 8px;
+      font-size:15px;
+      line-height:1.45;
+      font-weight:900;
+      color:#0f172a;
+    }
+    .category-block ul{
+      margin:0;
+      padding-left:18px;
+      color:#475569;
+      font-size:12px;
+      line-height:1.8;
+      font-weight:500;
+    }
+
+    .side-box{
+      border:1px solid #dbe7f3;
+      background:#fdfefe;
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 6px 18px rgba(15,23,42,.04);
+    }
+
+    .support-card{
+      border-color:#dbeafe;
+    }
+    .support-card-title{
+      margin:0 0 8px;
+      padding-bottom:8px;
+      border-bottom:1px solid #dbeafe;
+      font-size:15px;
+      line-height:1.5;
+      font-weight:900;
+      color:#1e3a8a;
+    }
+    .support-card-text{
+      margin:0;
+      font-size:13px;
+      line-height:1.75;
+      color:#334155;
+    }
+    .support-card-actions{
+      margin-top:12px;
+      display:grid;
+      gap:8px;
+    }
+    .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:38px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.4;
+      text-align:center;
+      text-decoration:none;
+      white-space:normal;
+    }
+    .support-link:hover{
+      text-decoration:none;
+    }
+    .support-link--coffee{
+      border-color:#facc15;
+      color:#854d0e;
+      background:#fff3bf;
+    }
+    .support-link--coffee:hover{
+      border-color:#eab308;
+      background:#fde68a;
+    }
+    .support-link--paypal{
+      border-color:#93c5fd;
+      color:#0b5cad;
+      background:#eaf3ff;
+    }
+    .support-link--paypal:hover{
+      border-color:#60a5fa;
+      background:#dbeafe;
+    }
+    .side-box h2{
+      margin:0 0 10px;
+      font-size:15px;
+      line-height:1.4;
+      color:#0f172a;
+      font-weight:900;
+      padding-bottom:8px;
+      border-bottom:1px solid #dbe7f3;
+    }
+    .side-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+    }
+    .side-list a{
+      display:grid;
+      grid-template-columns:24px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      color:#334155;
+      font-size:12px;
+      line-height:1.45;
+      font-weight:600;
+    }
+    .side-number{
+      width:22px;
+      height:22px;
+      border-radius:7px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#1d4ed8;
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+    }
+    .side-link-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:8px;
+    }
+    .side-link-list a{
+      display:block;
+      color:#334155;
+      font-size:12px;
+      line-height:1.5;
+      font-weight:600;
+      padding-left:12px;
+      position:relative;
+    }
+    .side-link-list a::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.72em;
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#1d4ed8;
+    }
+
+    .bottom-nav{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .bottom-nav a{
+      border:1px solid #dbe7f3;
+      background:#fff;
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 6px 18px rgba(15,23,42,.04);
+    }
+    .bottom-nav strong{
+      display:block;
+      font-size:15px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:900;
+      margin-bottom:4px;
+    }
+    .bottom-nav span{
+      color:#64748b;
+      font-size:12px;
+      line-height:1.6;
+      font-weight:700;
+    }
+
+    .footer{
+      margin-top:28px;
+      padding:24px 0 0;
+      border-top:1px solid #dbe7f3;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:900px){
+      :root{--header-h:72px;}
+      body{padding-top:var(--header-h);}
+      .site-header{padding:8px 10px;}
+      .site-header-inner{gap:8px;}
+      .brand-logo{height:40px;}
+      .brand-title{font-size:15px;}
+      .brand-sub{font-size:10px;white-space:normal;}
+      .header-search{flex:0 0 156px;min-height:38px;font-size:11px;padding:0 10px;}
+
+      .container{padding:0 10px 40px;}
+      .category-hero{
+        min-height:auto;
+        border-radius:22px;
+        background:
+          linear-gradient(180deg, rgba(248,251,255,.98) 0%, rgba(248,251,255,.92) 50%, rgba(248,251,255,.45) 100%),
+          url("../assets/images/hero/hero-category-howto.webp") right bottom / 150% auto no-repeat;
+      }
+      .category-hero-copy{
+        min-height:360px;
+        padding:34px 20px;
+        justify-content:flex-start;
+      }
+      .category-title{
+        font-size:30px;
+      }
+      .category-lead{
+        font-size:13px;
+        max-width:34ch;
+      }
+      .page-layout{
+        grid-template-columns:1fr;
+      }
+      .side-rail{
+        position:static;
+      }
+      .intro-grid,
+      .featured-list,
+      .category-blocks,
+      .bottom-nav{
+        grid-template-columns:1fr;
+      }
+      .section-head--with-filter{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .article-filter{
+        width:100%;
+        justify-content:space-between;
+      }
+      .article-filter select{
+        width:100%;
+      }
+      .article-row{
+        grid-template-columns:140px minmax(0,1fr);
+        gap:10px;
+      }
+      .article-shelf--grid .article-row{
+        gap:8px;
+      }
+      .article-thumb{
+        width:86px;
+        height:72px;
+        border-radius:14px;
+      }
+      .article-thumb-img,
+      .article-row .article-thumb-img{
+        width:100%;
+        height:auto;
+        aspect-ratio:16/10;
+        border-radius:12px;
+      }
+      .section-card{
+        padding:16px;
+        border-radius:18px;
+      }
+    
+      .brand-sub{
+        display:none;
+      }
+    }
+    @media (min-width:744px) and (max-width:900px){
+      .category-hero{
+        background:
+          linear-gradient(
+            90deg,
+            rgba(248,251,255,.98) 0%,
+            rgba(248,251,255,.94) 35%,
+            rgba(248,251,255,.76) 50%,
+            rgba(248,251,255,.20) 70%,
+            rgba(248,251,255,0) 100%
+          ),
+          url("../assets/images/hero/hero-category-howto.webp") right center / auto 78% no-repeat;
+      }
+    }
+    @media (max-width:768px){
+      .header-search{flex:0 0 160px;min-height:36px;padding:0 10px;}
+      .search-box-input{font-size:11px;}
+      .search-box-panel{
+        max-height:min(68vh, 520px);
+        overflow-y:auto;
+      }
+    }
+  
+    @media (max-width:640px){
+      :root{--header-h:66px;}
+      html{scroll-padding-top:82px;}
+      .site-header{padding:7px 8px;}
+      .site-header-inner{gap:6px;}
+      .brand{gap:7px;}
+      .brand-logo{height:36px;}
+      .brand-title{font-size:13px;letter-spacing:0;}
+      .brand-sub{display:none;}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px;}
+      .header-search{flex:0 1 138px;min-height:36px;}
+      .search-box{padding:0 9px;gap:6px;}
+      .search-box-input{font-size:11px;}
+      .header-search-icon{width:14px;height:14px;}
+      .search-box-panel{right:-48px;width:min(340px,94vw);}
+    }
+</style>
+  <link rel="stylesheet" href="/assets/css/gxworks2-service-entry.css">
+<style data-shell-extension="header">.dc-shell.site-header{padding:10px 20px;background:#fff!important;color:#14263d;border-bottom:1px solid #d9e3ed;box-shadow:0 3px 16px #102b4310;position:fixed;inset:0 0 auto;width:100%;z-index:999;box-sizing:border-box}
+.dc-shell *{box-sizing:border-box}.dc-shell [hidden]{display:none!important}
+.dc-bar{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.dc-brand{display:flex;align-items:center;gap:10px;min-width:0;color:#14263d;text-decoration:none!important}.dc-brand img{width:auto;height:46px;object-fit:contain}.dc-brand strong{display:block;font-size:17px;line-height:1.4;white-space:nowrap;letter-spacing:0}.dc-brand small{display:block;font-size:11px;color:#63758a;line-height:1.5;margin-top:2px}
+.dc-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}.dc-consult{display:flex;align-items:center;gap:10px;background:#165cb9;color:white!important;border-radius:8px;padding:10px 16px;text-decoration:none!important;min-height:44px;line-height:1.2;box-shadow:0 2px 4px #145abc16}.dc-consult span{font-size:12px;letter-spacing:.02em}.dc-consult strong{font-size:13px}.dc-consult:hover{background:#104c9a}.dc-icon-button{border:0;background:transparent;color:#263e59;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:5px 7px;cursor:pointer;font:inherit}.dc-icon-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.dc-icon-button span{font-size:12px;font-weight:700}.dc-icon-button[aria-expanded=true]{background:#eaf2fc;border-radius:7px;color:#165cb9}.dc-shell a:focus-visible,.dc-shell button:focus-visible,.dc-shell input:focus-visible{outline:3px solid #65a6ee;outline-offset:3px}
+.dc-drawer{position:absolute;top:100%;right:max(20px,calc((100% - 1180px)/2));background:white;border:1px solid #d9e3ed;box-shadow:0 12px 28px #14263d21;border-radius:0 0 12px 12px;padding:20px}.dc-search-drawer{width:min(560px,calc(100% - 40px))}.dc-search-form{position:relative;width:100%;margin:0;background:none;border:0;padding:0;display:block}.dc-search-label{display:block;color:#435972;font-size:12px;font-weight:700;margin-bottom:9px}.dc-search-row{display:flex;gap:8px}.dc-search-form .search-box-input{width:100%;min-width:0;height:46px;border:1px solid #c4d3e4;background:#f6f9fc;border-radius:7px;padding:10px 12px;font-size:16px;color:#14263d}.dc-search-form .dc-submit{width:auto;height:46px;position:static;border:0;border-radius:7px;background:#165cb9;color:white;padding:0 17px;font-size:13px;flex-shrink:0}.dc-search-form .search-box-panel{top:100%;left:0;right:0;width:100%}
+.dc-menu-drawer{width:300px}.dc-contact,.dc-alternative{display:flex;align-items:center;justify-content:space-between;text-decoration:none!important;color:#165cb9;font-weight:700;font-size:14px;padding:12px 10px;border-radius:6px}.dc-contact:hover,.dc-alternative:hover{background:#eff5fc}.dc-contact{padding-top:4px;padding-bottom:18px}.dc-language{border-top:1px solid #e3eaf2;padding-top:16px}.dc-language p{margin:0 10px 10px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}.dc-current{display:flex;align-items:center;justify-content:space-between;padding:10px;color:#354b64}.dc-current strong{font-size:14px}.dc-current>span{font-size:10px;color:#65798f;background:#eef2f6;padding:3px 7px;border-radius:4px}.dc-alternative{border:1px solid #dce7f5;margin-top:5px}
+@media(max-width:700px){.dc-shell.site-header{padding:8px 10px}.dc-bar{gap:6px}.dc-brand{gap:6px;flex:1}.dc-brand img{height:30px;max-width:34px}.dc-brand strong{font-size:12px;line-height:1.35;white-space:normal;max-width:126px}.dc-brand small{display:none}.dc-actions{gap:2px}.dc-consult{flex-direction:column;gap:3px;padding:7px 9px;min-height:44px;border-radius:6px}.dc-consult span{font-size:10px}.dc-consult strong{font-size:11px;white-space:nowrap}.dc-icon-button{flex-direction:column;gap:2px;padding:3px 4px;min-width:40px;min-height:44px}.dc-icon-button svg{height:19px;width:19px}.dc-icon-button span{font-size:9px;line-height:1.2}.dc-drawer{right:10px;padding:17px}.dc-search-drawer{width:calc(100% - 20px)}.dc-menu-drawer{width:min(300px,calc(100% - 20px))}.dc-shell[data-lang=en] .dc-brand strong{font-size:12px;max-width:none}.dc-shell[data-lang=en] .dc-consult strong{font-size:9px}}
+@media(max-width:350px){.dc-shell.site-header{padding-left:7px;padding-right:7px}.dc-brand img{height:24px;max-width:26px}.dc-brand strong{font-size:11px}.dc-consult{padding-left:6px;padding-right:6px}.dc-icon-button{min-width:36px}}
+
+
+/* Shared display-theme control */
+.dc-theme{border-top:1px solid #e3eaf2;padding:16px 0;margin-top:2px}
+.dc-theme-caption{margin:0 10px 9px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}
+.dc-theme-toggle{width:100%;min-height:48px;border:1px solid #dce7f5;border-radius:8px;background:#f8fbff;color:#263e59;display:grid;grid-template-columns:28px minmax(0,1fr) 40px;align-items:center;gap:9px;padding:8px 10px;cursor:pointer;font:inherit;text-align:left}
+.dc-theme-toggle:hover{background:#eff5fc;border-color:#bfd4ec}
+.dc-theme-symbol{font-size:18px;line-height:1;text-align:center}.dc-theme-name{font-size:14px;font-weight:800}
+.dc-theme-switch{position:relative;width:38px;height:22px;border-radius:999px;background:#c8d4e1;box-shadow:inset 0 0 0 1px #afbdcc;transition:background .18s ease}
+.dc-theme-switch::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;left:3px;top:3px;box-shadow:0 1px 4px #14263d38;transition:transform .18s ease}
+.dc-theme-toggle[aria-checked=true] .dc-theme-switch{background:#2563eb;box-shadow:inset 0 0 0 1px #1d4ed8}.dc-theme-toggle[aria-checked=true] .dc-theme-switch::after{transform:translateX(16px)}
+.dc-lang-en{display:none}.dc-shell[data-lang=en] .dc-lang-ja{display:none}.dc-shell[data-lang=en] .dc-lang-en{display:inline}
+
+/* Site-wide article dark theme. Images keep their original colors. */
+html[data-dc-theme=dark]{color-scheme:dark;--bg:#0d1621!important;--card:#172433!important;--panel:#172433!important;--text:#e7edf4!important;--muted:#a8b5c4!important;--muted-2:#94a4b7!important;--line:#34475d!important;--line-soft:#2b3b4e!important;--line-strong:#40566f!important;--blue:#7eb6ff!important;--blue-deep:#9dc8ff!important;--shadow:0 12px 30px rgba(0,0,0,.24)!important;--shadow-soft:0 8px 20px rgba(0,0,0,.18)!important}
+html[data-dc-theme=dark] body{background:#0d1621!important;color:#e7edf4!important}
+html[data-dc-theme=dark] main,html[data-dc-theme=dark] article,html[data-dc-theme=dark] aside{color:#e7edf4}
+html[data-dc-theme=dark] h1,html[data-dc-theme=dark] h2,html[data-dc-theme=dark] h3,html[data-dc-theme=dark] h4,html[data-dc-theme=dark] h5,html[data-dc-theme=dark] h6{color:#f3f7fb!important}
+html[data-dc-theme=dark] main a:not(.btn):not(.button):not([class*="button"]){color:#91bdff}
+html[data-dc-theme=dark] .breadcrumb,html[data-dc-theme=dark] figcaption,html[data-dc-theme=dark] .section-card li,html[data-dc-theme=dark] .summary-card li,html[data-dc-theme=dark] .side-card li,html[data-dc-theme=dark] .related-card p,html[data-dc-theme=dark] .article-card p{color:#a8b5c4!important}
+
+html[data-dc-theme=dark] .section-card,
+html[data-dc-theme=dark] .side-card,
+html[data-dc-theme=dark] .summary-card,
+html[data-dc-theme=dark] .mini-toc-card,
+html[data-dc-theme=dark] .related-card,
+html[data-dc-theme=dark] .article-card,
+html[data-dc-theme=dark] .policy-card,
+html[data-dc-theme=dark] .support-card,
+html[data-dc-theme=dark] .content-card,
+html[data-dc-theme=dark] .summary-point,
+html[data-dc-theme=dark] .state-card,
+html[data-dc-theme=dark] .transfer-card,
+html[data-dc-theme=dark] .check-item{background:#172433!important;color:#e7edf4!important;border-color:#34475d!important;box-shadow:0 10px 26px rgba(0,0,0,.20)!important}
+html[data-dc-theme=dark] #summary,html[data-dc-theme=dark] #roadmap{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .mini-toc a,html[data-dc-theme=dark] .keyword-pills li,html[data-dc-theme=dark] .io-step{background:#1d2c3d!important;border-color:#40566f!important;color:#9dc8ff!important}
+html[data-dc-theme=dark] .talk-bubble,html[data-dc-theme=dark] .talk-row--right .talk-bubble,html[data-dc-theme=dark] .talk-row.right .talk-bubble{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .talk-bubble p{color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box,html[data-dc-theme=dark] .key-highlight,html[data-dc-theme=dark] .field-highlight,html[data-dc-theme=dark] .point-strip,html[data-dc-theme=dark] .source-box{background:#1b2b3c!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box p,html[data-dc-theme=dark] .key-highlight p,html[data-dc-theme=dark] .field-highlight p,html[data-dc-theme=dark] .source-box p,html[data-dc-theme=dark] .point-strip{color:#d6e0ea!important}
+html[data-dc-theme=dark] .note-box{background:#302817!important;border-color:#70582a!important;color:#f4e6c7!important}
+html[data-dc-theme=dark] .danger-box{background:#321c22!important;border-color:#75404b!important;color:#ffdbe2!important}
+html[data-dc-theme=dark] .note-box p,html[data-dc-theme=dark] .danger-box p{color:inherit!important}
+
+html[data-dc-theme=dark] .article-figure{background:#111c28!important;border-color:#34475d!important;box-shadow:none!important}
+html[data-dc-theme=dark] .article-figure-inner{background:#111c28!important}
+html[data-dc-theme=dark] .article-figure figcaption{background:#172433!important;color:#a8b5c4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .table-wrap{border-color:#34475d!important}
+html[data-dc-theme=dark] table{background:#172433!important;color:#e7edf4!important}
+html[data-dc-theme=dark] th{background:#223247!important;color:#f3f7fb!important}
+html[data-dc-theme=dark] td,html[data-dc-theme=dark] th{border-color:#34475d!important}
+html[data-dc-theme=dark] pre{background:#09111a!important;color:#e7edf4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] code{background:#111e2c!important;color:#d9eaff!important}
+html[data-dc-theme=dark] pre code{background:transparent!important}
+html[data-dc-theme=dark] input,html[data-dc-theme=dark] textarea,html[data-dc-theme=dark] select{background:#101c29!important;color:#eef4fa!important;border-color:#40566f!important}
+
+html[data-dc-theme=dark] .article-hero,html[data-dc-theme=dark] .category-hero,html[data-dc-theme=dark] .page-hero{border-color:#34475d!important;box-shadow:inset 0 0 0 9999px rgba(6,13,21,.58),0 12px 30px rgba(0,0,0,.24)!important}
+html[data-dc-theme=dark] .article-hero::after{background:linear-gradient(90deg,rgba(10,18,28,.82) 0%,rgba(10,18,28,.62) 42%,rgba(10,18,28,.18) 75%,rgba(10,18,28,0) 100%)!important}
+html[data-dc-theme=dark] .hero-lead,html[data-dc-theme=dark] .hero-points li{color:#d6e0ea!important}
+html[data-dc-theme=dark] .hero-label{background:#183052!important;border-color:#365f93!important;color:#a9ccff!important}
+html[data-dc-theme=dark] .btn-secondary{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+
+html[data-dc-theme=dark] .dc-shell.site-header{background:#101b27!important;color:#e7edf4;border-bottom-color:#2f4155;box-shadow:0 3px 18px rgba(0,0,0,.34)}
+html[data-dc-theme=dark] .dc-brand{color:#eef4fa}html[data-dc-theme=dark] .dc-brand small{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-icon-button{color:#d8e3ee}html[data-dc-theme=dark] .dc-icon-button[aria-expanded=true]{background:#203248;color:#9dc8ff}
+html[data-dc-theme=dark] .dc-drawer{background:#142231;border-color:#34475d;box-shadow:0 14px 32px rgba(0,0,0,.42)}
+html[data-dc-theme=dark] .dc-search-label,html[data-dc-theme=dark] .dc-language p,html[data-dc-theme=dark] .dc-theme-caption{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-search-form .search-box-input{background:#0f1b28;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-contact,html[data-dc-theme=dark] .dc-alternative{color:#9dc8ff}
+html[data-dc-theme=dark] .dc-contact:hover,html[data-dc-theme=dark] .dc-alternative:hover{background:#1c3046}
+html[data-dc-theme=dark] .dc-language,html[data-dc-theme=dark] .dc-theme{border-color:#34475d}
+html[data-dc-theme=dark] .dc-current{color:#d8e3ee}html[data-dc-theme=dark] .dc-current>span{background:#243649;color:#bac8d6}
+html[data-dc-theme=dark] .dc-alternative{border-color:#40566f}
+html[data-dc-theme=dark] .dc-theme-toggle{background:#1a2a3b;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-theme-toggle:hover{background:#203349}
+html[data-dc-theme=dark] .dc-shared-footer,html[data-dc-theme=dark] .site-footer{border-color:#34475d!important;color:#a8b5c4!important}
+
+@media(max-width:700px){.dc-theme{padding-top:14px}.dc-theme-toggle{min-height:46px}}
+
+
+/* Compatibility for article-specific card names and search/series widgets. */
+html[data-dc-theme=dark] [class$="-card"],
+html[data-dc-theme=dark] [class*="-card "]{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .series-roadmap li{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important;box-shadow:none!important}
+html[data-dc-theme=dark] .series-roadmap li.is-current{background:#182d49!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .series-roadmap li.is-next{background:#302817!important;border-color:#70582a!important}
+html[data-dc-theme=dark] .series-title,html[data-dc-theme=dark] .series-roadmap-lead{color:#d6e0ea!important}
+html[data-dc-theme=dark] .search-box-panel{background:#142231!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .search-result-item a{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .search-result-item a:hover,html[data-dc-theme=dark] .search-result-item a:focus,html[data-dc-theme=dark] .search-result-item.is-active a{background:#1d3045!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .search-result-title{color:#f3f7fb!important}
+html[data-dc-theme=dark] .search-result-description,html[data-dc-theme=dark] .search-box-empty{color:#a8b5c4!important}
+html[data-dc-theme=dark] td.cell-blue{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] td.cell-green{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] td.cell-purple{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] td.cell-orange{background:#332817!important;color:#f4d7a0!important}
+
+/* end shared display-theme layer */
+
+
+/* Home and category hub dark-theme coverage */
+html[data-dc-theme=dark] :is(
+  .feature-main,
+  .featured-card--main,
+  .info-box,
+  .bookmark-help-panel,
+  .shelf-row,
+  .shelf-links,
+  .support-category-card,
+  .category-modal__panel,
+  .side-box,
+  .intro-box,
+  .featured-article,
+  .article-row,
+  .air-feature-card,
+  .tool-task-card,
+  .tool-article-card,
+  .featured-tool-card,
+  .tool-group,
+  .category-block,
+  .compare-group,
+  .topic-block,
+  .bottom-nav a,
+  .feature,
+  .side-pill-list li
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(.notice-box,.hub-note){
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .troubleshooting-hub{
+  background:#172b47!important;
+  color:#e7edf4!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.20)!important;
+}
+html[data-dc-theme=dark] :is(.roadmap-card-media,.troubleshooting-hub-media,.mini-card-thumb,.shelf-thumb){
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .shelf-row:hover,
+html[data-dc-theme=dark] .shelf-row:focus-within,
+html[data-dc-theme=dark] .article-row:hover,
+html[data-dc-theme=dark] .article-row:focus-within,
+html[data-dc-theme=dark] .featured-article:hover,
+html[data-dc-theme=dark] .featured-article:focus-within,
+html[data-dc-theme=dark] .featured-tool-card:hover,
+html[data-dc-theme=dark] .featured-tool-card:focus-within,
+html[data-dc-theme=dark] .tool-article-card:hover,
+html[data-dc-theme=dark] .tool-article-card:focus-within{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .shelf-links .shelf-list a,
+html[data-dc-theme=dark] .shelf-links .link-list a,
+html[data-dc-theme=dark] .category-modal__list a,
+html[data-dc-theme=dark] .side-category-card,
+html[data-dc-theme=dark] .side-list a,
+html[data-dc-theme=dark] .tool-task-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .shelf-links .more-link,
+html[data-dc-theme=dark] .shelf-more.more-link,
+html[data-dc-theme=dark] .support-link{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .support-link--coffee,
+html[data-dc-theme=dark] .support-link--coffee:hover{
+  background:#302817!important;
+  color:#f4d7a0!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .shelf-row.control .shelf-label{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] .shelf-row.circuit .shelf-label{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] .shelf-row.tools .shelf-label{background:#332817!important;color:#f4d7a0!important}
+html[data-dc-theme=dark] .shelf-row.compare .shelf-label{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] .article-filter select{
+  background:#101c29!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close:hover{background:#203349!important}
+html[data-dc-theme=dark] :is(
+  .hero-text,
+  .category-lead,
+  .section-lead,
+  .support-card-text,
+  .mobile-shortcut span,
+  .shelf-summary p,
+  .support-category-card__description,
+  .storefront-guide-card__note,
+  .category-modal__description,
+  .intro-box p,
+  .featured-article p,
+  .article-row-body p,
+  .troubleshooting-hub p,
+  .hub-note,
+  .tool-task-card p,
+  .tool-group ul,
+  .side-category-card span,
+  .side-note,
+  .category-block p,
+  .compare-group p,
+  .topic-block p,
+  .bottom-nav p,
+  .feature p,
+  .side-pill-list li
+){
+  color:#a8b5c4!important;
+}
+html[data-dc-theme=dark] .notice-box,
+html[data-dc-theme=dark] .notice-box p,
+html[data-dc-theme=dark] .hub-note{color:#f4e6c7!important}
+html[data-dc-theme=dark] .top-right-rail .info-box h3{color:#a9ccff!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .info-box :is(p,li,small){color:#a8b5c4!important}
+html[data-dc-theme=dark] .storefront-guide-card{
+  background:#2d2518!important;
+  color:#f3e4ca!important;
+  border-color:#6f5427!important;
+}
+html[data-dc-theme=dark] .storefront-guide-card__arrow{background:#4a301c!important;color:#ffd09a!important}
+
+
+/* Home/category bright-surface fixes */
+html[data-dc-theme=dark] .hero-grid{
+  background:linear-gradient(90deg,#172433 0%,#182637 56%,#152231 100%)!important;
+  border-color:#40566f!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .hero-visual::before{
+  background:linear-gradient(90deg,rgba(23,36,51,.92) 0%,rgba(23,36,51,.48) 34%,rgba(23,36,51,0) 72%)!important;
+}
+html[data-dc-theme=dark] .hero-visual img{
+  opacity:.82!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry:hover,
+html[data-dc-theme=dark] .gxw-service-entry:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy strong{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy p,
+html[data-dc-theme=dark] .gxw-service-entry-copy small{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-arrow{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .category-hero{
+  box-shadow:inset 0 0 0 9999px rgba(6,13,21,.70),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .category-label{
+  background:#183052!important;
+  color:#b9d6ff!important;
+  border-color:#365f93!important;
+}
+html[data-dc-theme=dark] :is(.lead-em,.lead-mark,.mark,.mark-orange){
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] :is(.lead-mark,.mark,.mark-orange){
+  background:rgba(53,95,147,.34)!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .feature-main-body p,
+html[data-dc-theme=dark] .mini-card p,
+html[data-dc-theme=dark] .ranked-list a,
+html[data-dc-theme=dark] .link-list a{
+  color:#c2ceda!important;
+}
+
+
+/* Residual dark-mode coverage found in home/category browser review */
+@media (min-width:1101px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.98) 0%,
+        rgba(23,36,51,.94) 34%,
+        rgba(23,36,51,.74) 48%,
+        rgba(23,36,51,.26) 62%,
+        rgba(23,36,51,.05) 76%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+  }
+}
+html[data-dc-theme=dark] .container > .hero{
+  border-color:#34475d!important;
+  box-shadow:inset 0 0 0 9999px rgba(7,14,22,.34),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .container > .hero::after{
+  background:linear-gradient(90deg,rgba(8,16,25,.90) 0%,rgba(8,16,25,.72) 42%,rgba(8,16,25,.34) 66%,rgba(8,16,25,.16) 100%)!important;
+}
+html[data-dc-theme=dark] .container > .hero p{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .label{
+  background:#2b2240!important;
+  color:#dbcaff!important;
+  border-color:#66528f!important;
+}
+html[data-dc-theme=dark] .step{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-no{
+  background:#20324a!important;
+  color:#b8d5ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step h3{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .step p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .step-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-links a::after{
+  background:#294362!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .step-links span{
+  background:#182534!important;
+  color:#a8b5c4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step-links span::after{
+  background:#2a394b!important;
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .feature{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .feature p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .note{
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .finder-pill{
+  background:#1b2a3a!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .finder-pill.active,
+html[data-dc-theme=dark] .finder-pill[aria-pressed="true"]{
+  background:#2563eb!important;
+  color:#fff!important;
+  border-color:#3b82f6!important;
+}
+html[data-dc-theme=dark] :is(.eyebrow,.finder-heading,.support-category-card__title){
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a:hover,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a:hover{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+) :is(p,small,span){
+  color:#c2ceda!important;
+}
+
+
+/* Remaining dynamic/home controls */
+html[data-dc-theme=dark] .bookmark-help-button{
+  background:#172433!important;
+  color:#9dc8ff!important;
+  border-color:#40566f!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-button:hover,
+html[data-dc-theme=dark] .bookmark-help-button:focus-visible{
+  background:#1d3045!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel{
+  background:#172433!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel p,
+html[data-dc-theme=dark] .bookmark-help-panel strong{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link{
+  background:linear-gradient(135deg,#172433 0%,#1b2a3a 62%)!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link:hover,
+html[data-dc-theme=dark] .project-series-entry__link:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 12px 26px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__media{
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .project-series-entry__kicker{
+  background:#183052!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .project-series-entry__title{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .project-series-entry__sub{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .project-series-entry__cta{
+  color:#9dc8ff!important;
+}
+
+
+/* Keep the top hero image visible with a dark overlay on tablet/mobile */
+@media (min-width:481px) and (max-width:1100px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 46%,
+        rgba(23,36,51,.58) 68%,
+        rgba(23,36,51,.20) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+    border-color:#40566f!important;
+  }
+}
+@media (max-width:480px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        180deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 44%,
+        rgba(23,36,51,.68) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right -10px bottom 4px / 112% auto no-repeat !important;
+    border-color:#40566f!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-copy{
+    background:transparent!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-title{
+    color:#f3f7fb!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-text{
+    color:#c2ceda!important;
+  }
+}
+</style><style data-shell-extension="frame">body{padding-top:var(--dc-shell-height,76px)!important}html{scroll-padding-top:calc(var(--dc-shell-height,76px) + 16px)}
+.dc-shared-footer{padding:26px 0 36px!important;border-top:1px solid #dbe7f3!important;color:var(--muted,#5f7288)!important;text-align:center!important;font-size:12px!important;font-weight:700!important;line-height:1.8!important;background:transparent!important}
+.dc-shared-footer>.container{width:100%!important;max-width:1180px!important;padding:0 14px!important;margin:0 auto!important}.dc-shared-footer a{color:#1d4ed8}.dc-shared-footer p{margin:0 0 8px}.dc-shared-footer .footer-links,.dc-shared-footer .site-footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 12px}.dc-shell span.dc-consult{cursor:default}
+
+
+/* Dark-mode footer link contrast. */
+html[data-dc-theme=dark] .dc-shared-footer a{
+  color:#9dc8ff!important;
+}
+</style><style data-shell-extension="category">/* Category pages: dark-mode text contrast fixes. */
+html[data-dc-theme=dark] .intro-box strong,
+html[data-dc-theme=dark] .side-category-card strong,
+html[data-dc-theme=dark] .bottom-nav strong{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .intro-box p,
+html[data-dc-theme=dark] .side-category-card span,
+html[data-dc-theme=dark] .bottom-nav span,
+html[data-dc-theme=dark] .article-filter-label{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .side-link-list a{
+  color:#dce7f2!important;
+}
+html[data-dc-theme=dark] .side-link-list a::before{
+  background:#7eb6ff!important;
+}
+</style></head>
+<body>
+  <header class="site-header dc-shell" data-lang="ja">
+  <script data-dc-theme-init>(()=>{let saved=null,explicit=false;try{explicit=localStorage.getItem('dc-theme-explicit-v2')==='1';if(explicit)saved=localStorage.getItem('dc-theme')}catch{}let systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;try{const v=navigator.preferences?.colorScheme?.value;if(v==='dark')systemDark=true;else if(v==='light')systemDark=false}catch{}document.documentElement.dataset.dcTheme=explicit?(saved==='dark'?'dark':'light'):(systemDark?'dark':'light')})()</script>
+  <div class="dc-bar">
+    <a class="dc-brand" href="/" aria-label="トップページへ">
+      <img src="/assets/images/common/site-logo-dcl.webp" alt="" width="46" height="46">
+      <span><strong>電気と制御の実務メモ</strong><small>現場で使える考え方と制御の基礎をわかりやすく解説</small></span>
+    </a>
+    <div class="dc-actions">
+      <a class="dc-consult" href="/services/gxworks2-online-support.html"><span>GX Works2</span><strong>オンライン相談</strong></a>
+      <button class="dc-icon-button" id="dc-search-toggle" aria-label="サイト内検索" aria-expanded="false" aria-controls="dc-search-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><span>検索</span></button>
+      <button class="dc-icon-button" id="dc-menu-toggle" aria-label="メニュー" aria-expanded="false" aria-controls="dc-menu-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg><span>メニュー</span></button>
+    </div>
+  </div>
+  <div class="dc-drawer dc-search-drawer" id="dc-search-drawer" hidden>
+    <form class="search-box dc-search-form" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="dc-search-label" for="site-search-input">サイト内検索</label>
+      <div class="dc-search-row"><input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search"><button class="search-box-button dc-submit" type="submit">検索</button></div>
+      <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p></div>
+    </form>
+  </div>
+  <nav class="dc-drawer dc-menu-drawer" id="dc-menu-drawer" aria-label="メニュー" hidden>
+    <a class="dc-contact" href="/contact/index.html"><span>お問い合わせ</span><span aria-hidden="true">↗</span></a>
+    <div class="dc-theme">
+      <p class="dc-theme-caption"><span class="dc-lang-ja">表示テーマ</span><span class="dc-lang-en">DISPLAY THEME</span></p>
+      <button class="dc-theme-toggle" id="dc-theme-toggle" type="button" role="switch" aria-checked="false">
+        <span class="dc-theme-symbol" aria-hidden="true">🌙</span>
+        <span class="dc-theme-name"><span class="dc-lang-ja">ダークモード</span><span class="dc-lang-en">Dark mode</span></span>
+        <span class="dc-theme-switch" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="dc-language"><p>ページの言語</p><div class="dc-current"><strong lang="ja">日本語</strong><span>現在の言語</span></div>
+    <a class="dc-alternative" href="/en/categories/circuit-basics.html" lang="en" hreflang="en"><span>English</span><span aria-hidden="true">→</span></a></div>
+  </nav>
+</header>
+
+  <main class="container">
+    <nav class="breadcrumb" aria-label="パンくずリスト">
+      <a href="../index.html">ホーム</a>
+      <span>›</span>
+      <span>回路</span>
+    </nav>
+
+      <a class="gxw-service-entry" href="/services/gxworks2-online-support.html" aria-label="GX Works2 オンライン相談サービスを見る">
+        <img src="/assets/images/services/gxworks2-online-support-ogp.webp" width="1536" height="1024" alt="GX Works2 オンライン相談サービス" loading="lazy" decoding="async">
+        <div class="gxw-service-entry-copy">
+          <strong>実際のGX Works2変更でお困りなら</strong>
+          <p>既設設備のラダー変更・動作変更は、プロジェクトデータを確認してオンラインで対応します。</p>
+          <small>会員登録不要｜データ確認後にお見積り</small>
+        </div>
+        <span class="gxw-service-entry-arrow" aria-hidden="true">→</span>
+      </a>
+
+
+    <section class="category-hero" aria-labelledby="category-title">
+      <div class="category-hero-copy">
+        <span class="category-label">回路</span>
+        <h1 class="category-title" id="category-title">
+          回路の土台を、<br>
+          <span class="green">図で追える形</span>に。
+        </h1>
+        <p class="category-lead">
+          自己保持・タイマー・インターロックなど、現場でよく出てくる回路を、<span class="mark">後から見ても追いやすい順番</span>で整理しています。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#first">まず読む4本へ</a>
+          <a class="btn btn-secondary" href="#articles">回路一覧を見る</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-layout">
+      <div class="main-flow">
+        <section class="section-card" aria-labelledby="intro-heading">
+          <div class="section-head">
+            <span class="section-bar" aria-hidden="true"></span>
+            <h2 class="section-title" id="intro-heading">このカテゴリで分かること</h2>
+          </div>
+          <p class="section-lead">
+            回路は暗記よりも、<span class="mark">入力が入ったあと、どの条件で出力が動くか</span>を順番に見ると理解しやすくなります。
+          </p>
+
+          <div class="intro-grid">
+            <div class="intro-box">
+              <strong>基本回路の流れ</strong>
+              <p>自己保持、タイマー、ワンショットなど、よく使う回路の考え方を整理します。</p>
+            </div>
+            <div class="intro-box">
+              <strong>安全に動かす条件</strong>
+              <p>インターロックや同時動作防止など、設備を安全に動かすための回路を確認します。</p>
+            </div>
+            <div class="intro-box">
+              <strong>ラダーを追いやすくする</strong>
+              <p>設備トラブル時に後から見ても追えるよう、シンプルな順番で見ていきます。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="first" aria-labelledby="first-heading">
+          <div class="section-head">
+            <span class="section-bar" aria-hidden="true"></span>
+            <h2 class="section-title" id="first-heading">まず読む4本</h2>
+          </div>
+          <p class="section-lead">
+            回路系の記事を読み進める前に、最初に押さえておきたい入口記事です。
+          </p>
+
+          <div class="featured-list">
+            <a class="featured-article" href="../articles/start-stop-circuit-basic.html">
+              <span class="article-thumb-img">
+                <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.webp" alt="起動・停止回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>起動・停止回路とは？</h3>
+                <p>起動ボタンと停止ボタンで設備を動かす、基本になる回路を整理します。</p>
+              </span>
+            </a>
+            <a class="featured-article" href="../articles/self-hold-circuit.html">
+              <span class="article-thumb-img">
+                <img src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.webp" alt="自己保持回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>自己保持回路とは？</h3>
+                <p>押したあとも動作を保持する、基本中の基本になる回路です。</p>
+              </span>
+            </a>
+            <a class="featured-article" href="../articles/while-pressed-circuit-basic.html">
+              <span class="article-thumb-img">
+                <img src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ogp.webp" alt="押している間だけ動く回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>押している間だけ動く回路とは？</h3>
+                <p>押している間だけONになる、回路理解の土台を先に固めます。</p>
+              </span>
+            </a>
+            <a class="featured-article" href="../articles/timer-circuit-basic.html">
+              <span class="article-thumb-img">
+                <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ogp.webp" alt="タイマー回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>タイマー回路とは？</h3>
+                <p>一定時間後に動かす・止める考え方を整理します。</p>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section-card" id="articles" aria-labelledby="articles-heading">
+          <div class="section-head section-head--with-filter">
+            <div class="section-title-wrap">
+              <span class="section-bar" aria-hidden="true"></span>
+              <h2 class="section-title" id="articles-heading">回路記事一覧</h2>
+            </div>
+            <label class="article-filter">
+              <span class="article-filter-label">表示を絞り込む</span>
+              <select id="circuitArticleFilter" aria-label="回路記事を分類で絞り込む">
+                <option value="all">すべて表示</option>
+                <option value="basic">基本回路</option>
+                <option value="timer">時間制御</option>
+                <option value="safety">安全・切替</option>
+                <option value="ladder">接点・ラダー</option>
+              </select>
+            </label>
+          </div>
+          <p class="section-lead">
+            記事が増えても探しやすいように、<span class="mark">基本回路 → 時間制御 → 安全・切替</span> の順で並べます。
+          </p>
+
+          <div class="article-shelf article-shelf--grid">
+            <a class="article-row" href="../articles/start-stop-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.webp" alt="起動・停止回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>起動・停止回路とは？</h3>
+                <p>起動ボタンと停止ボタンで設備を動かす、基本になる回路を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/self-hold-circuit.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.webp" alt="自己保持回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>自己保持回路とは？</h3>
+                <p>押しボタンを離しても動作を続ける基本回路を、図で追いやすく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/magnetic-switch-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/magnetic-switch-basic/magnetic-switch-basic-ogp.webp" alt="マグネットスイッチの基本を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>マグネットスイッチとは？モーターを動かす制御盤の基本部品をやさしく解説</h3>
+                <p>自己保持回路やモーター制御と関係の深いマグネットスイッチの基本を、コイル・主接点・補助接点の役割から整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/thermal-relay-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/thermal-relay-basic/thermal-relay-overview.webp" alt="サーマルリレーの基本を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>サーマルリレーとは？モーターを守る過負荷保護の基本をやさしく解説</h3>
+                <p>過負荷でサーマルが動作し、制御回路側を切ってマグネットをOFFにする流れをやさしく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/motor-breaker-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/motor-breaker-basic/motor-breaker-overview.webp" alt="モーターブレーカの基本を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>モーターブレーカとは？モーターを守る遮断器の基本をやさしく解説</h3>
+                <p>過電流や短絡を検知してトリップし、主回路を遮断してモーターを止める流れをやさしく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/lamp-indicator-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/lamp-indicator-circuit-basic/lamp-indicator-circuit-basic-hero.webp" alt="ランプ表示回路の基本を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>ランプ表示回路とは？ランプで設備状態を見える化する基本をやさしく解説</h3>
+                <p>運転中・停止中・異常時をランプで見分けるための基本構成と、a接点・b接点の使い分けをやさしく整理します。</p>
+              </span>
+            </a>
+
+
+            <a class="article-row" href="../articles/buzzer-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/buzzer-circuit-basic/buzzer-circuit-basic-ogp.webp" alt="ブザー回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>ブザー回路とは？異常時に鳴らす基本回路をやさしく解説</h3>
+                <p>異常入力でブザーを鳴らす考え方や、PLC出力とのつながりを現場目線で整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/reset-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/reset-circuit-basic/reset-circuit-basic-ogp.webp" alt="リセット回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>リセット回路とは？自己保持を解除して元に戻す考え方をやさしく解説</h3>
+                <p>自己保持を解除する考え方と、異常保持から復帰する流れをやさしく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/counter-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/counter-circuit-basic/counter-circuit-basic-ogp.webp" alt="カウンタ回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>カウンタ回路とは？入力が何回入ったかを数える基本回路をやさしく解説</h3>
+                <p>入力パルスを数えて設定値に達したら出力する、カウント制御の基本を整理します。</p>
+              </span>
+            </a>
+            <a class="article-row" href="../articles/while-pressed-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/while-pressed-circuit-basic/while-pressed-circuit-basic-ogp.webp" alt="押している間だけ動く回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>押している間だけ動く回路とは？</h3>
+                <p>自己保持に入る前の土台として、押している間だけ動く考え方を確認します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/alarm-hold-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-ogp.webp" alt="異常保持回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説</h3>
+                <p>異常を一度受けたらリセットまで状態を保持する考え方と、表示灯・ブザーとの関係を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/jog-operation-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/jog-operation-circuit-basic/jog-operation-circuit-basic-ogp.webp" alt="ジョグ運転回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>ジョグ運転回路とは？寸動操作で少しだけ動かす基本をやさしく解説</h3>
+                <p>押している間だけ少し動かす寸動操作の考え方と、自己保持を使わない理由をやさしく解説します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/upper-lower-limit-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp.webp" alt="上限・下限リミット回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>上限・下限リミット回路とは？行き過ぎを止める基本をやさしく解説</h3>
+                <p>上限LS・下限LSで行き過ぎを防ぐ考え方と、前進後退・上昇下降との関係を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/home-return-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/home-return-circuit-basic/home-return-circuit-basic-ogp.webp" alt="原点復帰回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>原点復帰回路とは？設備を基準位置へ戻す基本をやさしく解説</h3>
+                <p>原点センサーを使って設備を基準位置へ戻す流れと、復帰完了の考え方をやさしく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/flicker-circuit-basic.html" data-circuit-category="basic">
+              <span class="article-thumb-img">
+                <img src="../assets/images/flicker-circuit-basic/flicker-circuit-basic-ogp.webp" alt="フリッカ回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>フリッカ回路とは？ランプを点滅させる基本回路をやさしく解説</h3>
+                <p>ランプ点滅の基本構成と、タイマーを使った異常表示・注意喚起の使い方を分かりやすく解説します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/timer-circuit-basic.html" data-circuit-category="timer">
+              <span class="article-thumb-img">
+                <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ogp.webp" alt="タイマー回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>タイマー回路とは？</h3>
+                <p>遅れて動く、一定時間後に切り替わるなど、時間を使う回路の基本を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/delayed-start-circuit-basic.html" data-circuit-category="timer">
+              <span class="article-thumb-img">
+                <img src="../assets/images/delayed-start-circuit-basic/delayed-start-circuit-basic-ogp.webp" alt="一定時間後に動く回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>一定時間後に動く回路とは？</h3>
+                <p>入力ON後にタイマーで時間を数え、設定時間後に出力する流れを整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/interlock-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/interlock-basic/interlock-basic-ogp.webp" alt="インターロック回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>インターロック回路とは？</h3>
+                <p>正転・逆転や同時動作防止など、設備を守るための基本回路を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/manual-auto-selector-circuit-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/manual-auto-selector-circuit-basic/manual-auto-selector-circuit-basic-ogp.webp" alt="手動・自動切替回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>手動・自動切替回路とは？2つの指令系統を1つの出力へつなぐ基本をやさしく解説</h3>
+                <p>手動指令系統と自動指令系統を切り替えて1つの出力へつなぐ考え方を、手動優先・自動優先・停止位置・禁止条件まで整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/forward-reverse-circuit-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/forward-reverse-circuit-basic/forward-reverse-circuit-basic-ogp.webp" alt="正転・逆転回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>正転・逆転回路とは？</h3>
+                <p>モーターの回転方向を切り替える基本回路を、自己保持・相互インターロック・GX Works3での見方もあわせてやさしく整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/one-shot-circuit-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/one-shot-circuit-basic/one-shot-circuit-basic-ogp.webp" alt="ワンショット回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>ワンショット回路とは？</h3>
+                <p>入力が入った瞬間だけ1回出力する回路の見方を整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/alternate-operation-circuit-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.webp" alt="交互運転回路の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>交互運転回路とは？</h3>
+                <p>AとBを1回ごとに交互に動かす考え方と使いどころを整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/star-delta-start-basic.html" data-circuit-category="safety">
+              <span class="article-thumb-img">
+                <img src="../assets/images/star-delta-start-basic/star-delta-start-overview.webp" alt="スターデルタ始動の結線と切替を示す記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>スターデルタ始動とは？結線・始動電流の基本</h3>
+                <p>Y結線で始動電流を抑え、加速後にΔ結線へ切り替えるスターデルタ始動を解説。巻線電圧、始動電流・トルク、回路図の見方まで整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/a-contact-b-contact-basic.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/a-contact-b-contact-basic/a-contact-b-contact-basic-ogp.webp" alt="a接点・b接点の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>a接点・b接点とは？</h3>
+                <p>回路図やラダーでよく使うa接点・b接点の見方を整理します。</p>
+              </span>
+            </a>
+
+
+
+            <a class="article-row" href="../articles/gxw3-one-shot-rise-fall-detection.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-one-shot-rise-fall-detection/gxw3-one-shot-rise-fall-detection-ogp.webp" alt="GX Works3の立上り・立下り検出を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3の立上り・立下り検出とは？ワンショットで1回だけ動かす基本</h3>
+                <p>LDP/LDF、PLS/PLF、立上り・立下り検出を現場目線で整理。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/gxw3-counter-up-down-reset.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-counter-up-down-reset/gxw3-counter-up-down-reset-ogp.webp" alt="GX Works3のカウンター命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3のカウンター命令とは？設定値・現在値・RSTの基本</h3>
+                <p>カウント入力、設定値、現在値、カウントアップ後の接点動作、RSTでのリセットまで現場目線で整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/gxw3-comparison-instruction-basic.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-comparison-instruction-basic/gxw3-comparison-instruction-basic-ogp.webp" alt="GX Works3の比較命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3の比較命令とは？=・>・<で条件を判定する基本</h3>
+                <p>=、<>、>、<、>=、<= を使って、設定値や現在値を条件判定する基本を整理。</p>
+              </span>
+            </a>
+
+
+            <a class="article-row" href="../articles/gxw3-mov-instruction-basic.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-mov-instruction-basic/gxw3-mov-instruction-basic-ogp.webp" alt="GX Works3のMOV命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3のMOV命令とは？値をデバイスへ転送する基本</h3>
+                <p>MOVで定数やデータレジスタの値を別デバイスへ転送する基本を整理。</p>
+              </span>
+            </a>
+
+
+            <a class="article-row" href="../articles/gxw3-add-sub-instruction-basic.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-add-sub-instruction-basic/gxw3-add-sub-instruction-basic-ogp.webp" alt="GX Works3のADD・SUB命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3のADD・SUB命令とは？数値を足す・引く基本</h3>
+                <p>ADD/SUBでDレジスタや定数を足す・引く基本と、毎スキャン実行の注意点を整理。</p>
+              </span>
+            </a>
+
+
+            <a class="article-row" href="../articles/gxw3-mul-div-instruction-basic.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-instruction-basic-ogp.webp" alt="GX Works3のMUL・DIV命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3のMUL・DIV命令とは？掛け算・割り算の基本</h3>
+                <p>MULの2ワード結果、DIVの商と余り、結果格納先の見方とつまずきやすい確認ポイントを現場目線で整理します。</p>
+              </span>
+            </a>
+            <a class="article-row" href="../articles/gxw3-out-set-rst-coil-usage.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-out-set-rst-coil-usage/gxw3-out-set-rst-coil-usage-ogp.webp" alt="OUT・SET・RSTの違いを解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>OUT・SET・RSTの違いとは？GX Works3でコイルを使い分ける基本</h3>
+                <p>OUT・SET・RST命令の違いと使い分け、二重コイルや解除忘れの注意点を初心者向けに整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/gxw3-timer-ton-toff-retentive.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/gxw3-timer-ton-toff-retentive/gxw3-timer-ton-toff-retentive-ogp.webp" alt="GX Works3のタイマー命令を解説する記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>GX Works3のタイマー命令とは？ONディレー・OFFディレー・積算タイマーの違い</h3>
+                <p>ONディレー・OFFディレー・積算タイマーの違い、設定値の見方、RSTでのクリアまで現場目線で整理します。</p>
+              </span>
+            </a>
+
+            <a class="article-row" href="../articles/ladder-reading.html" data-circuit-category="ladder">
+              <span class="article-thumb-img">
+                <img src="../assets/images/ladder-reading/ladder-reading-ogp.webp" alt="ラダー図の読み方入門の記事イメージ" loading="lazy" decoding="async">
+              </span>
+              <span>
+                <h3>ラダー図の読み方入門</h3>
+                <p>回路を追う前に、ラダー図でどこから見ればいいかを整理します。</p>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section-card" aria-labelledby="grow-heading">
+          <div class="section-head">
+            <span class="section-bar" aria-hidden="true"></span>
+            <h2 class="section-title" id="grow-heading">今後増やしていく回路</h2>
+          </div>
+          <p class="section-lead">
+            回路カテゴリは、基本回路から実務でよく出るパターンへ少しずつ増やしていくページです。
+          </p>
+
+          <div class="category-blocks">
+            <div class="category-block">
+              <h3>基本動作の回路</h3>
+              <ul>
+                <li>起動・停止回路</li>
+                <li>自己保持回路の応用</li>
+                <li>ランプ表示回路</li>
+              </ul>
+            </div>
+            <div class="category-block">
+              <h3>設備で使う回路</h3>
+              <ul>
+                <li>エアシリンダ動作回路</li>
+                <li>安全確認を入れた回路</li>
+                <li>異常時に止める回路</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <nav class="bottom-nav" aria-label="他カテゴリへの導線">
+          <a href="control-basics.html">
+            <strong>制御の基礎へ</strong>
+            <span>入力・出力・接点・センサなど、回路を読む前の土台へ。</span>
+          </a>
+          <a href="tools-guide.html">
+            <strong>工具カテゴリへ</strong>
+            <span>現場で使う工具を、用途別に整理したカテゴリへ。</span>
+          </a>
+          <a href="comparison-guide.html">
+            <strong>比較・使い分けへ</strong>
+            <span>似ている機器や回路の違いを、選びやすく整理します。</span>
+          </a>
+        </nav>
+      </div>
+
+      <aside class="side-rail" aria-label="補助ナビゲーション">
+        <section class="side-box">
+          <h2>このカテゴリの順番</h2>
+          <ol class="side-list">
+            <li><a href="#first"><span class="side-number">1</span><span>まず読む4本</span></a></li>
+            <li><a href="#articles"><span class="side-number">2</span><span>回路記事一覧</span></a></li>
+            <li><a href="#grow-heading"><span class="side-number">3</span><span>今後増やす回路</span></a></li>
+          </ol>
+        </section>
+
+        <section class="side-box">
+          <h2>よく使う回路</h2>
+          <ul class="side-link-list">
+            <li><a href="../articles/start-stop-circuit-basic.html">起動・停止回路</a></li>
+            <li><a href="../articles/self-hold-circuit.html">自己保持回路</a></li>
+            <li><a href="../articles/timer-circuit-basic.html">タイマー回路</a></li>
+            <li><a href="../articles/interlock-basic.html">インターロック回路</a></li>
+            <li><a href="../articles/one-shot-circuit-basic.html">ワンショット回路</a></li>
+            <li><a href="../articles/a-contact-b-contact-basic.html">a接点・b接点</a></li>
+          </ul>
+        </section>
+
+        <section class="side-box">
+          <h2>関連カテゴリ</h2>
+          <ul class="side-link-list">
+            <li><a href="control-basics.html">制御の基礎</a></li>
+            <li><a href="tools-guide.html">工具</a></li>
+            <li><a href="comparison-guide.html">比較・使い分け</a></li>
+          </ul>
+        </section>
+
+        <section class="side-box support-card" aria-label="サイト応援">
+          <h2 class="support-card-title">このサイトを応援する</h2>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">
+              Buy Me a Coffeeで応援
+            </a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">
+              PayPalで応援
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="footer dc-shared-footer">
+      <p>電気と制御の実務メモ｜現場で使える考え方を、少しずつ整理しています。</p>
+    <p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var filter = document.getElementById('circuitArticleFilter');
+      var cards = document.querySelectorAll('#articles .article-row[data-circuit-category]');
+      if(!filter || !cards.length) return;
+
+      filter.addEventListener('change', function(){
+        var value = filter.value;
+        cards.forEach(function(card){
+          var show = value === 'all' || card.dataset.circuitCategory === value;
+          card.hidden = !show;
+        });
+      });
+    });
+  </script>
+
+  
+
+  <script>
+    const languageMenuButton = document.getElementById('languageMenuButton');
+    const languageMenuPanel = document.getElementById('languageMenuPanel');
+
+    if (languageMenuButton && languageMenuPanel) {
+      languageMenuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isHidden = languageMenuPanel.hasAttribute('hidden');
+
+        if (isHidden) {
+          languageMenuPanel.removeAttribute('hidden');
+          languageMenuButton.setAttribute('aria-expanded', 'true');
+        } else {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const clickedInsideLanguageMenu = languageMenuPanel.contains(event.target) || languageMenuButton.contains(event.target);
+
+        if (!clickedInsideLanguageMenu) {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          languageMenuPanel.setAttribute('hidden', '');
+          languageMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  </script>
+  <script src="../assets/js/site-search.js" defer></script>
+<script data-shell-extension="header">(() => {
+  const header=document.querySelector('.dc-shell');if(!header)return;
+  const root=document.documentElement,themeButton=document.getElementById('dc-theme-toggle'),themeKey='dc-theme',explicitKey='dc-theme-explicit-v2';
+  const themeMeta=document.querySelector('meta[name="theme-color"]'),lightThemeColor=themeMeta?.getAttribute('content')||null;
+  const systemQuery=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  const hasExplicitTheme=()=>{try{return localStorage.getItem(explicitKey)==='1';}catch{return false;}};
+  const readSavedTheme=()=>{try{if(!hasExplicitTheme())return null;const value=localStorage.getItem(themeKey);return value==='dark'||value==='light'?value:null;}catch{return null;}};
+  const preferenceObject=()=>{try{return navigator.preferences?.colorScheme||null;}catch{return null;}};
+  const readSystemTheme=()=>{try{const value=preferenceObject()?.value;if(value==='dark'||value==='light')return value;}catch{}return systemQuery?.matches?'dark':'light';};
+  const resolveTheme=()=>readSavedTheme()??readSystemTheme();
+  const applyTheme=(theme,persist=false)=>{
+    const dark=theme==='dark';root.dataset.dcTheme=dark?'dark':'light';
+    if(themeButton)themeButton.setAttribute('aria-checked',String(dark));
+    if(themeMeta){if(dark)themeMeta.setAttribute('content','#0d1621');else if(lightThemeColor)themeMeta.setAttribute('content',lightThemeColor);else themeMeta.removeAttribute('content');}
+    if(persist)try{localStorage.setItem(themeKey,dark?'dark':'light');localStorage.setItem(explicitKey,'1');}catch{}
+  };
+  applyTheme(resolveTheme(),false);
+  themeButton?.addEventListener('click',()=>applyTheme(root.dataset.dcTheme==='dark'?'light':'dark',true));
+  const followSystem=()=>{if(!readSavedTheme())applyTheme(readSystemTheme(),false);};
+  if(systemQuery?.addEventListener)systemQuery.addEventListener('change',followSystem);else systemQuery?.addListener?.(followSystem);
+  try{preferenceObject()?.addEventListener?.('change',followSystem);}catch{}
+  window.addEventListener('storage',event=>{if(event.key===themeKey||event.key===explicitKey)applyTheme(resolveTheme(),false);});
+  const pairs=['search','menu'].map(name=>({button:document.getElementById(`dc-${name}-toggle`),panel:document.getElementById(`dc-${name}-drawer`),name}));
+  function close(pair,focus=false){pair.button.setAttribute('aria-expanded','false');pair.panel.hidden=true;if(focus)pair.button.focus();}
+  for(const pair of pairs)pair.button.addEventListener('click',()=>{const open=pair.panel.hidden;pairs.forEach(p=>close(p));if(open){pair.panel.hidden=false;pair.button.setAttribute('aria-expanded','true');if(pair.name==='search')setTimeout(()=>{if(!pair.panel.hidden)document.getElementById('site-search-input').focus();},0);}});
+  document.addEventListener('click',event=>{if(!header.contains(event.target))pairs.forEach(p=>close(p));});
+  header.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=pairs.find(p=>!p.panel.hidden);if(open){event.preventDefault();close(open,true);}}});
+})();</script><script data-shell-extension="offset">(()=>{const h=document.querySelector('.dc-shell');const update=()=>document.documentElement.style.setProperty('--dc-shell-height',h.getBoundingClientRect().height+'px');new ResizeObserver(update).observe(h);update()})();</script></body>
+</html>

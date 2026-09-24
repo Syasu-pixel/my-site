@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>リードスイッチとは？エアシリンダとの関係も初心者向けに整理 | 電気と制御の実務メモ</title>
+  <meta name="description" content="リードスイッチとは何かを初心者向けに整理。有接点リード式と無接点オートスイッチの違い、エアシリンダでの位置検出、PLC入力との関係、表示灯や配線方式が型式で異なる点まで公式資料をもとに解説します。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://denkicontrol.com/articles/reed-switch-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/reed-switch-basic.html">
+  <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/reed-switch-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/reed-switch-basic.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="リードスイッチとは？エアシリンダとの関係も初心者向けに整理">
+  <meta property="og:description" content="有接点リード式の仕組み、シリンダ位置検出、PLC入力との関係、無接点オートスイッチとの違いを初心者向けに整理。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/reed-switch-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/reed-switch-basic/reed-switch-basic-ogp.webp">
+  <meta property="og:site_name" content="電気と制御の実務メモ">
+  <meta property="og:locale" content="ja_JP">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="リードスイッチとは？エアシリンダとの関係も初心者向けに整理">
+  <meta name="twitter:description" content="有接点リード式の仕組みとエアシリンダの位置検出、PLC入力との関係を初心者向けに整理。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/reed-switch-basic/reed-switch-basic-ogp.webp">
+
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.webp">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.webp">
+
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --green:#16a34a;
+      --orange:#f59e0b;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --shadow:0 12px 30px rgba(15,23,42,.06);
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:100px;
+    }
+
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    a{
+      color:var(--blue-deep);
+      text-decoration:none;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .container{
+      width:min(var(--container),calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .brand:hover{
+      text-decoration:none;
+    }
+
+    .brand-logo{
+      width:auto;
+      height:46px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{
+      min-width:0;
+      display:block;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+      display:block;
+    }
+
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+      display:block;
+    }
+
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+
+        .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+}
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .language-menu-icon{
+      font-size:15px;
+      line-height:1;
+    }
+
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-panel[hidden]{
+      display:none;
+    }
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-item:hover{
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-item.is-active{
+      background:#e6f0ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-flag{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .language-menu-item strong{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:900;
+    }
+
+    .language-menu-item small{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      line-height:1.3;
+      color:#64748b;
+      font-weight:700;
+    }
+
+
+    @media (max-width:1100px){
+      .language-menu-current{
+        display:none;
+      }
+
+      .language-menu-button{
+        width:38px;
+        min-width:38px;
+        padding:0;
+      }
+
+      .language-menu-panel{
+        right:0;
+        width:210px;
+      }
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .search-box-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+
+    .search-result-item{
+      margin:0;
+    }
+
+    .search-result-item a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #e6eef8;
+      background:#fbfdff;
+      text-decoration:none;
+    }
+
+    .search-result-item a:hover,
+    .search-result-item a:focus,
+    .search-result-item.is-active a{
+      border-color:#bfdbfe;
+      background:#eff6ff;
+      text-decoration:none;
+    }
+
+    .search-result-title{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .search-result-meta{
+      margin:4px 0 0;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .search-result-category{
+      font-size:11px;
+      line-height:1;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e6f0ff;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+
+    .search-result-description{
+      margin:6px 0 0;
+      font-size:12px;
+      line-height:1.5;
+      color:#64748b;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/reed-switch-basic/reed-switch-basic-hero.webp") right center / auto 100% no-repeat;
+      opacity:.32;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.5) 38%, rgba(255,255,255,.2) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .btn:hover{
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .summary-card--fit h2{
+      color:#0f766e;
+    }
+
+    .summary-card--notyet h2{
+      color:#b45309;
+    }
+
+    .summary-card--conclusion h2{
+      color:var(--blue-deep);
+    }
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+
+    .main-column{
+      min-width:0;
+    }
+
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+
+    .side-card{
+      padding:20px;
+    }
+
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+
+    .section-card h3{
+      margin:22px 0 10px;
+      font-size:17px;
+      line-height:1.5;
+    }
+
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+
+    .section-card p:last-child{
+      margin-bottom:0;
+    }
+
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(96,165,250,.24) 58%);
+      font-weight:900;
+    }
+
+    .key-highlight{
+      border:1px solid #bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .key-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#1d4ed8;
+      line-height:1.5;
+    }
+
+    .key-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .field-highlight{
+      border:1px solid #bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+      border-radius:20px;
+      padding:18px;
+      margin:18px 0;
+    }
+
+    .field-highlight h3{
+      margin:0 0 10px;
+      font-size:16px;
+      color:#15803d;
+      line-height:1.5;
+    }
+
+    .field-highlight p{
+      margin:0;
+      color:#334155;
+      font-size:14px;
+    }
+
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+
+    .danger-box{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .check-item--important{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .check-item--field{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+
+    .check-item--warning{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+
+    th,
+    td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    th{
+      background:#f8fbff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .side-card a{
+      font-weight:800;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+
+    .related-card-thumb{
+      width:100%;
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:12px;
+      border:1px solid #dbe6f1;
+      background:#fff;
+    }
+
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{
+        grid-template-columns:minmax(0,1fr);
+      }
+
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:980px){
+      .brand-sub,
+      .header-nav{
+        display:none !important;
+      }
+
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .brand{
+        min-width:0;
+        gap:8px;
+      }
+
+      .brand-title{
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 180px;
+      }
+    }
+
+    @media (max-width:900px){
+      :root{
+        --header-h:74px;
+      }
+
+      html{
+        scroll-padding-top:92px;
+      }
+
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-hero.webp") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+
+      h1{
+        font-size:30px;
+      }
+
+      .hero-lead{
+        font-size:14px;
+        max-width:32ch;
+      }
+
+      .top-summary,
+      .side-rail,
+      .related-grid,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+
+      .section-card{
+        padding:22px;
+      }
+
+      .talk-avatar{
+        flex-basis:72px;
+        width:72px;
+      }
+
+      .talk-avatar img{
+        width:66px;
+      }
+    }
+
+    @media (max-width:768px){
+      .site-header{
+        padding:8px 10px;
+      }
+
+      .brand-logo{
+        height:40px;
+      }
+
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+
+      .search-box{
+        padding:0 10px;
+      }
+
+      .search-box-input{
+        font-size:12px;
+      }
+
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+        overflow-y:auto;
+      }
+
+      .talk-thread,
+      .talk-bubble{
+        max-width:none;
+      }
+    }
+
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-hero.webp") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+
+      h1{
+        font-size:34px;
+      }
+
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+      }
+
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+
+      .summary-card{
+        padding:20px 18px;
+      }
+
+      .summary-card h2{
+        font-size:17px;
+      }
+
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+
+      .side-rail{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/reed-switch-basic/reed-switch-basic-hero.webp") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+
+      .container{
+        width:min(100%,calc(100% - 20px));
+      }
+
+      .breadcrumb{
+        margin-top:14px;
+      }
+
+      .mini-toc{
+        gap:8px;
+      }
+
+      .mini-toc a{
+        min-height:36px;
+        font-size:12px;
+        padding:0 12px;
+      }
+
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{
+        border-radius:22px;
+      }
+
+      .section-card h2{
+        font-size:20px;
+      }
+
+      .section-card p,
+      .talk-bubble p{
+        font-size:14px;
+      }
+
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+
+      .talk-avatar img{
+        width:60px;
+      }
+    }
+  
+    .support-card{
+      border-color:#dbeafe;
+    }
+
+    .support-card-title{
+      margin:0 0 8px;
+      padding-bottom:8px;
+      border-bottom:1px solid #dbeafe;
+      font-size:15px;
+      line-height:1.5;
+      font-weight:900;
+      color:#1e3a8a;
+    }
+
+    .support-card-text{
+      margin:0;
+      font-size:13px;
+      line-height:1.75;
+      color:#334155;
+    }
+
+    .support-card-actions{
+      margin-top:12px;
+      display:grid;
+      gap:8px;
+    }
+
+    .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:38px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.4;
+      text-align:center;
+      text-decoration:none;
+      white-space:normal;
+    }
+
+    .support-link:hover{
+      text-decoration:none;
+    }
+
+    .support-link--coffee{
+      border-color:#facc15;
+      color:#854d0e;
+      background:#fff3bf;
+    }
+
+    .support-link--coffee:hover{
+      border-color:#eab308;
+      background:#fde68a;
+    }
+
+    .support-link--paypal{
+      border-color:#93c5fd;
+      color:#0b5cad;
+      background:#eaf3ff;
+    }
+
+    .support-link--paypal:hover{
+      border-color:#60a5fa;
+      background:#dbeafe;
+    }
+
+  @media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
+</style>
+<style data-ui-proposal="header">.dc-shell.site-header{padding:10px 20px;background:#fff!important;color:#14263d;border-bottom:1px solid #d9e3ed;box-shadow:0 3px 16px #102b4310;position:fixed;inset:0 0 auto;width:100%;z-index:999;box-sizing:border-box}
+.dc-shell *{box-sizing:border-box}.dc-shell [hidden]{display:none!important}
+.dc-bar{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.dc-brand{display:flex;align-items:center;gap:10px;min-width:0;color:#14263d;text-decoration:none!important}.dc-brand img{width:auto;height:46px;object-fit:contain}.dc-brand strong{display:block;font-size:17px;line-height:1.4;white-space:nowrap;letter-spacing:0}.dc-brand small{display:block;font-size:11px;color:#63758a;line-height:1.5;margin-top:2px}
+.dc-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}.dc-consult{display:flex;align-items:center;gap:10px;background:#165cb9;color:white!important;border-radius:8px;padding:10px 16px;text-decoration:none!important;min-height:44px;line-height:1.2;box-shadow:0 2px 4px #145abc16}.dc-consult span{font-size:12px;letter-spacing:.02em}.dc-consult strong{font-size:13px}.dc-consult:hover{background:#104c9a}.dc-icon-button{border:0;background:transparent;color:#263e59;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:5px 7px;cursor:pointer;font:inherit}.dc-icon-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}.dc-icon-button span{font-size:12px;font-weight:700}.dc-icon-button[aria-expanded=true]{background:#eaf2fc;border-radius:7px;color:#165cb9}.dc-shell a:focus-visible,.dc-shell button:focus-visible,.dc-shell input:focus-visible{outline:3px solid #65a6ee;outline-offset:3px}
+.dc-drawer{position:absolute;top:100%;right:max(20px,calc((100% - 1180px)/2));background:white;border:1px solid #d9e3ed;box-shadow:0 12px 28px #14263d21;border-radius:0 0 12px 12px;padding:20px}.dc-search-drawer{width:min(560px,calc(100% - 40px))}.dc-search-form{position:relative;width:100%;margin:0;background:none;border:0;padding:0;display:block}.dc-search-label{display:block;color:#435972;font-size:12px;font-weight:700;margin-bottom:9px}.dc-search-row{display:flex;gap:8px}.dc-search-form .search-box-input{width:100%;min-width:0;height:46px;border:1px solid #c4d3e4;background:#f6f9fc;border-radius:7px;padding:10px 12px;font-size:16px;color:#14263d}.dc-search-form .dc-submit{width:auto;height:46px;position:static;border:0;border-radius:7px;background:#165cb9;color:white;padding:0 17px;font-size:13px;flex-shrink:0}.dc-search-form .search-box-panel{top:100%;left:0;right:0;width:100%}
+.dc-menu-drawer{width:300px}.dc-contact,.dc-alternative{display:flex;align-items:center;justify-content:space-between;text-decoration:none!important;color:#165cb9;font-weight:700;font-size:14px;padding:12px 10px;border-radius:6px}.dc-contact:hover,.dc-alternative:hover{background:#eff5fc}.dc-contact{padding-top:4px;padding-bottom:18px}.dc-language{border-top:1px solid #e3eaf2;padding-top:16px}.dc-language p{margin:0 10px 10px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}.dc-current{display:flex;align-items:center;justify-content:space-between;padding:10px;color:#354b64}.dc-current strong{font-size:14px}.dc-current>span{font-size:10px;color:#65798f;background:#eef2f6;padding:3px 7px;border-radius:4px}.dc-alternative{border:1px solid #dce7f5;margin-top:5px}
+@media(max-width:700px){.dc-shell.site-header{padding:8px 10px}.dc-bar{gap:6px}.dc-brand{gap:6px;flex:1}.dc-brand img{height:30px;max-width:34px}.dc-brand strong{font-size:12px;line-height:1.35;white-space:normal;max-width:126px}.dc-brand small{display:none}.dc-actions{gap:2px}.dc-consult{flex-direction:column;gap:3px;padding:7px 9px;min-height:44px;border-radius:6px}.dc-consult span{font-size:10px}.dc-consult strong{font-size:11px;white-space:nowrap}.dc-icon-button{flex-direction:column;gap:2px;padding:3px 4px;min-width:40px;min-height:44px}.dc-icon-button svg{height:19px;width:19px}.dc-icon-button span{font-size:9px;line-height:1.2}.dc-drawer{right:10px;padding:17px}.dc-search-drawer{width:calc(100% - 20px)}.dc-menu-drawer{width:min(300px,calc(100% - 20px))}.dc-shell[data-lang=en] .dc-brand strong{font-size:12px;max-width:none}.dc-shell[data-lang=en] .dc-consult strong{font-size:9px}}
+@media(max-width:350px){.dc-shell.site-header{padding-left:7px;padding-right:7px}.dc-brand img{height:24px;max-width:26px}.dc-brand strong{font-size:11px}.dc-consult{padding-left:6px;padding-right:6px}.dc-icon-button{min-width:36px}}
+
+
+/* Shared display-theme control */
+.dc-theme{border-top:1px solid #e3eaf2;padding:16px 0;margin-top:2px}
+.dc-theme-caption{margin:0 10px 9px;font-size:11px;font-weight:700;color:#6b7d90;letter-spacing:.03em}
+.dc-theme-toggle{width:100%;min-height:48px;border:1px solid #dce7f5;border-radius:8px;background:#f8fbff;color:#263e59;display:grid;grid-template-columns:28px minmax(0,1fr) 40px;align-items:center;gap:9px;padding:8px 10px;cursor:pointer;font:inherit;text-align:left}
+.dc-theme-toggle:hover{background:#eff5fc;border-color:#bfd4ec}
+.dc-theme-symbol{font-size:18px;line-height:1;text-align:center}.dc-theme-name{font-size:14px;font-weight:800}
+.dc-theme-switch{position:relative;width:38px;height:22px;border-radius:999px;background:#c8d4e1;box-shadow:inset 0 0 0 1px #afbdcc;transition:background .18s ease}
+.dc-theme-switch::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;left:3px;top:3px;box-shadow:0 1px 4px #14263d38;transition:transform .18s ease}
+.dc-theme-toggle[aria-checked=true] .dc-theme-switch{background:#2563eb;box-shadow:inset 0 0 0 1px #1d4ed8}.dc-theme-toggle[aria-checked=true] .dc-theme-switch::after{transform:translateX(16px)}
+.dc-lang-en{display:none}.dc-shell[data-lang=en] .dc-lang-ja{display:none}.dc-shell[data-lang=en] .dc-lang-en{display:inline}
+
+/* Site-wide article dark theme. Images keep their original colors. */
+html[data-dc-theme=dark]{color-scheme:dark;--bg:#0d1621!important;--card:#172433!important;--panel:#172433!important;--text:#e7edf4!important;--muted:#a8b5c4!important;--muted-2:#94a4b7!important;--line:#34475d!important;--line-soft:#2b3b4e!important;--line-strong:#40566f!important;--blue:#7eb6ff!important;--blue-deep:#9dc8ff!important;--shadow:0 12px 30px rgba(0,0,0,.24)!important;--shadow-soft:0 8px 20px rgba(0,0,0,.18)!important}
+html[data-dc-theme=dark] body{background:#0d1621!important;color:#e7edf4!important}
+html[data-dc-theme=dark] main,html[data-dc-theme=dark] article,html[data-dc-theme=dark] aside{color:#e7edf4}
+html[data-dc-theme=dark] h1,html[data-dc-theme=dark] h2,html[data-dc-theme=dark] h3,html[data-dc-theme=dark] h4,html[data-dc-theme=dark] h5,html[data-dc-theme=dark] h6{color:#f3f7fb!important}
+html[data-dc-theme=dark] main a:not(.btn):not(.button):not([class*="button"]){color:#91bdff}
+html[data-dc-theme=dark] .breadcrumb,html[data-dc-theme=dark] figcaption,html[data-dc-theme=dark] .section-card li,html[data-dc-theme=dark] .summary-card li,html[data-dc-theme=dark] .side-card li,html[data-dc-theme=dark] .related-card p,html[data-dc-theme=dark] .article-card p{color:#a8b5c4!important}
+
+html[data-dc-theme=dark] .section-card,
+html[data-dc-theme=dark] .side-card,
+html[data-dc-theme=dark] .summary-card,
+html[data-dc-theme=dark] .mini-toc-card,
+html[data-dc-theme=dark] .related-card,
+html[data-dc-theme=dark] .article-card,
+html[data-dc-theme=dark] .policy-card,
+html[data-dc-theme=dark] .support-card,
+html[data-dc-theme=dark] .content-card,
+html[data-dc-theme=dark] .summary-point,
+html[data-dc-theme=dark] .state-card,
+html[data-dc-theme=dark] .transfer-card,
+html[data-dc-theme=dark] .check-item{background:#172433!important;color:#e7edf4!important;border-color:#34475d!important;box-shadow:0 10px 26px rgba(0,0,0,.20)!important}
+html[data-dc-theme=dark] #summary,html[data-dc-theme=dark] #roadmap{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .mini-toc a,html[data-dc-theme=dark] .keyword-pills li,html[data-dc-theme=dark] .io-step{background:#1d2c3d!important;border-color:#40566f!important;color:#9dc8ff!important}
+html[data-dc-theme=dark] .talk-bubble,html[data-dc-theme=dark] .talk-row--right .talk-bubble,html[data-dc-theme=dark] .talk-row.right .talk-bubble{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .talk-bubble p{color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box,html[data-dc-theme=dark] .key-highlight,html[data-dc-theme=dark] .field-highlight,html[data-dc-theme=dark] .point-strip,html[data-dc-theme=dark] .source-box{background:#1b2b3c!important;border-color:#40566f!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .key-box p,html[data-dc-theme=dark] .key-highlight p,html[data-dc-theme=dark] .field-highlight p,html[data-dc-theme=dark] .source-box p,html[data-dc-theme=dark] .point-strip{color:#d6e0ea!important}
+html[data-dc-theme=dark] .note-box{background:#302817!important;border-color:#70582a!important;color:#f4e6c7!important}
+html[data-dc-theme=dark] .danger-box{background:#321c22!important;border-color:#75404b!important;color:#ffdbe2!important}
+html[data-dc-theme=dark] .note-box p,html[data-dc-theme=dark] .danger-box p{color:inherit!important}
+
+html[data-dc-theme=dark] .article-figure{background:#111c28!important;border-color:#34475d!important;box-shadow:none!important}
+html[data-dc-theme=dark] .article-figure-inner{background:#111c28!important}
+html[data-dc-theme=dark] .article-figure figcaption{background:#172433!important;color:#a8b5c4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .table-wrap{border-color:#34475d!important}
+html[data-dc-theme=dark] table{background:#172433!important;color:#e7edf4!important}
+html[data-dc-theme=dark] th{background:#223247!important;color:#f3f7fb!important}
+html[data-dc-theme=dark] td,html[data-dc-theme=dark] th{border-color:#34475d!important}
+html[data-dc-theme=dark] pre{background:#09111a!important;color:#e7edf4!important;border-color:#34475d!important}
+html[data-dc-theme=dark] code{background:#111e2c!important;color:#d9eaff!important}
+html[data-dc-theme=dark] pre code{background:transparent!important}
+html[data-dc-theme=dark] input,html[data-dc-theme=dark] textarea,html[data-dc-theme=dark] select{background:#101c29!important;color:#eef4fa!important;border-color:#40566f!important}
+
+html[data-dc-theme=dark] .article-hero,html[data-dc-theme=dark] .category-hero,html[data-dc-theme=dark] .page-hero{border-color:#34475d!important;box-shadow:inset 0 0 0 9999px rgba(6,13,21,.58),0 12px 30px rgba(0,0,0,.24)!important}
+html[data-dc-theme=dark] .article-hero::after{background:linear-gradient(90deg,rgba(10,18,28,.82) 0%,rgba(10,18,28,.62) 42%,rgba(10,18,28,.18) 75%,rgba(10,18,28,0) 100%)!important}
+html[data-dc-theme=dark] .hero-lead,html[data-dc-theme=dark] .hero-points li{color:#d6e0ea!important}
+html[data-dc-theme=dark] .hero-label{background:#183052!important;border-color:#365f93!important;color:#a9ccff!important}
+html[data-dc-theme=dark] .btn-secondary{background:#1b2a3a!important;border-color:#40566f!important;color:#e7edf4!important}
+
+html[data-dc-theme=dark] .dc-shell.site-header{background:#101b27!important;color:#e7edf4;border-bottom-color:#2f4155;box-shadow:0 3px 18px rgba(0,0,0,.34)}
+html[data-dc-theme=dark] .dc-brand{color:#eef4fa}html[data-dc-theme=dark] .dc-brand small{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-icon-button{color:#d8e3ee}html[data-dc-theme=dark] .dc-icon-button[aria-expanded=true]{background:#203248;color:#9dc8ff}
+html[data-dc-theme=dark] .dc-drawer{background:#142231;border-color:#34475d;box-shadow:0 14px 32px rgba(0,0,0,.42)}
+html[data-dc-theme=dark] .dc-search-label,html[data-dc-theme=dark] .dc-language p,html[data-dc-theme=dark] .dc-theme-caption{color:#a8b5c4}
+html[data-dc-theme=dark] .dc-search-form .search-box-input{background:#0f1b28;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-contact,html[data-dc-theme=dark] .dc-alternative{color:#9dc8ff}
+html[data-dc-theme=dark] .dc-contact:hover,html[data-dc-theme=dark] .dc-alternative:hover{background:#1c3046}
+html[data-dc-theme=dark] .dc-language,html[data-dc-theme=dark] .dc-theme{border-color:#34475d}
+html[data-dc-theme=dark] .dc-current{color:#d8e3ee}html[data-dc-theme=dark] .dc-current>span{background:#243649;color:#bac8d6}
+html[data-dc-theme=dark] .dc-alternative{border-color:#40566f}
+html[data-dc-theme=dark] .dc-theme-toggle{background:#1a2a3b;border-color:#40566f;color:#eef4fa}
+html[data-dc-theme=dark] .dc-theme-toggle:hover{background:#203349}
+html[data-dc-theme=dark] .dc-shared-footer,html[data-dc-theme=dark] .site-footer{border-color:#34475d!important;color:#a8b5c4!important}
+
+@media(max-width:700px){.dc-theme{padding-top:14px}.dc-theme-toggle{min-height:46px}}
+
+
+/* Compatibility for article-specific card names and search/series widgets. */
+html[data-dc-theme=dark] [class$="-card"],
+html[data-dc-theme=dark] [class*="-card "]{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .series-roadmap li{background:#172433!important;border-color:#34475d!important;color:#e7edf4!important;box-shadow:none!important}
+html[data-dc-theme=dark] .series-roadmap li.is-current{background:#182d49!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .series-roadmap li.is-next{background:#302817!important;border-color:#70582a!important}
+html[data-dc-theme=dark] .series-title,html[data-dc-theme=dark] .series-roadmap-lead{color:#d6e0ea!important}
+html[data-dc-theme=dark] .search-box-panel{background:#142231!important;border-color:#34475d!important;color:#e7edf4!important}
+html[data-dc-theme=dark] .search-result-item a{background:#172433!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .search-result-item a:hover,html[data-dc-theme=dark] .search-result-item a:focus,html[data-dc-theme=dark] .search-result-item.is-active a{background:#1d3045!important;border-color:#4e79ad!important}
+html[data-dc-theme=dark] .search-result-title{color:#f3f7fb!important}
+html[data-dc-theme=dark] .search-result-description,html[data-dc-theme=dark] .search-box-empty{color:#a8b5c4!important}
+html[data-dc-theme=dark] td.cell-blue{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] td.cell-green{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] td.cell-purple{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] td.cell-orange{background:#332817!important;color:#f4d7a0!important}
+
+/* end shared display-theme layer */
+
+
+/* Home and category hub dark-theme coverage */
+html[data-dc-theme=dark] :is(
+  .feature-main,
+  .featured-card--main,
+  .info-box,
+  .bookmark-help-panel,
+  .shelf-row,
+  .shelf-links,
+  .support-category-card,
+  .category-modal__panel,
+  .side-box,
+  .intro-box,
+  .featured-article,
+  .article-row,
+  .air-feature-card,
+  .tool-task-card,
+  .tool-article-card,
+  .featured-tool-card,
+  .tool-group,
+  .category-block,
+  .compare-group,
+  .topic-block,
+  .bottom-nav a,
+  .feature,
+  .side-pill-list li
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(.notice-box,.hub-note){
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .troubleshooting-hub{
+  background:#172b47!important;
+  color:#e7edf4!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.20)!important;
+}
+html[data-dc-theme=dark] :is(.roadmap-card-media,.troubleshooting-hub-media,.mini-card-thumb,.shelf-thumb){
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .shelf-row:hover,
+html[data-dc-theme=dark] .shelf-row:focus-within,
+html[data-dc-theme=dark] .article-row:hover,
+html[data-dc-theme=dark] .article-row:focus-within,
+html[data-dc-theme=dark] .featured-article:hover,
+html[data-dc-theme=dark] .featured-article:focus-within,
+html[data-dc-theme=dark] .featured-tool-card:hover,
+html[data-dc-theme=dark] .featured-tool-card:focus-within,
+html[data-dc-theme=dark] .tool-article-card:hover,
+html[data-dc-theme=dark] .tool-article-card:focus-within{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .shelf-links .shelf-list a,
+html[data-dc-theme=dark] .shelf-links .link-list a,
+html[data-dc-theme=dark] .category-modal__list a,
+html[data-dc-theme=dark] .side-category-card,
+html[data-dc-theme=dark] .side-list a,
+html[data-dc-theme=dark] .tool-task-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .shelf-links .more-link,
+html[data-dc-theme=dark] .shelf-more.more-link,
+html[data-dc-theme=dark] .support-link{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .support-link--coffee,
+html[data-dc-theme=dark] .support-link--coffee:hover{
+  background:#302817!important;
+  color:#f4d7a0!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .shelf-row.control .shelf-label{background:#172b47!important;color:#b8d5ff!important}
+html[data-dc-theme=dark] .shelf-row.circuit .shelf-label{background:#173126!important;color:#b6edc9!important}
+html[data-dc-theme=dark] .shelf-row.tools .shelf-label{background:#332817!important;color:#f4d7a0!important}
+html[data-dc-theme=dark] .shelf-row.compare .shelf-label{background:#2b2240!important;color:#d9c8ff!important}
+html[data-dc-theme=dark] .article-filter select{
+  background:#101c29!important;
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .category-modal__close:hover{background:#203349!important}
+html[data-dc-theme=dark] :is(
+  .hero-text,
+  .category-lead,
+  .section-lead,
+  .support-card-text,
+  .mobile-shortcut span,
+  .shelf-summary p,
+  .support-category-card__description,
+  .storefront-guide-card__note,
+  .category-modal__description,
+  .intro-box p,
+  .featured-article p,
+  .article-row-body p,
+  .troubleshooting-hub p,
+  .hub-note,
+  .tool-task-card p,
+  .tool-group ul,
+  .side-category-card span,
+  .side-note,
+  .category-block p,
+  .compare-group p,
+  .topic-block p,
+  .bottom-nav p,
+  .feature p,
+  .side-pill-list li
+){
+  color:#a8b5c4!important;
+}
+html[data-dc-theme=dark] .notice-box,
+html[data-dc-theme=dark] .notice-box p,
+html[data-dc-theme=dark] .hub-note{color:#f4e6c7!important}
+html[data-dc-theme=dark] .top-right-rail .info-box h3{color:#a9ccff!important;border-color:#34475d!important}
+html[data-dc-theme=dark] .info-box :is(p,li,small){color:#a8b5c4!important}
+html[data-dc-theme=dark] .storefront-guide-card{
+  background:#2d2518!important;
+  color:#f3e4ca!important;
+  border-color:#6f5427!important;
+}
+html[data-dc-theme=dark] .storefront-guide-card__arrow{background:#4a301c!important;color:#ffd09a!important}
+
+
+/* Home/category bright-surface fixes */
+html[data-dc-theme=dark] .hero-grid{
+  background:linear-gradient(90deg,#172433 0%,#182637 56%,#152231 100%)!important;
+  border-color:#40566f!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .hero-visual::before{
+  background:linear-gradient(90deg,rgba(23,36,51,.92) 0%,rgba(23,36,51,.48) 34%,rgba(23,36,51,0) 72%)!important;
+}
+html[data-dc-theme=dark] .hero-visual img{
+  opacity:.82!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry:hover,
+html[data-dc-theme=dark] .gxw-service-entry:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy strong{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-copy p,
+html[data-dc-theme=dark] .gxw-service-entry-copy small{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .gxw-service-entry-arrow{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] .category-hero{
+  box-shadow:inset 0 0 0 9999px rgba(6,13,21,.70),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .category-label{
+  background:#183052!important;
+  color:#b9d6ff!important;
+  border-color:#365f93!important;
+}
+html[data-dc-theme=dark] :is(.lead-em,.lead-mark,.mark,.mark-orange){
+  color:#b9d6ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] :is(.lead-mark,.mark,.mark-orange){
+  background:rgba(53,95,147,.34)!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .feature-main-body p,
+html[data-dc-theme=dark] .mini-card p,
+html[data-dc-theme=dark] .ranked-list a,
+html[data-dc-theme=dark] .link-list a{
+  color:#c2ceda!important;
+}
+
+
+/* Residual dark-mode coverage found in home/category browser review */
+@media (min-width:1101px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.98) 0%,
+        rgba(23,36,51,.94) 34%,
+        rgba(23,36,51,.74) 48%,
+        rgba(23,36,51,.26) 62%,
+        rgba(23,36,51,.05) 76%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+  }
+}
+html[data-dc-theme=dark] .container > .hero{
+  border-color:#34475d!important;
+  box-shadow:inset 0 0 0 9999px rgba(7,14,22,.34),0 12px 30px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .container > .hero::after{
+  background:linear-gradient(90deg,rgba(8,16,25,.90) 0%,rgba(8,16,25,.72) 42%,rgba(8,16,25,.34) 66%,rgba(8,16,25,.16) 100%)!important;
+}
+html[data-dc-theme=dark] .container > .hero p{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .label{
+  background:#2b2240!important;
+  color:#dbcaff!important;
+  border-color:#66528f!important;
+}
+html[data-dc-theme=dark] .step{
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-no{
+  background:#20324a!important;
+  color:#b8d5ff!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step h3{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .step p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .step-links a{
+  background:#1b2a3a!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+  box-shadow:none!important;
+}
+html[data-dc-theme=dark] .step-links a::after{
+  background:#294362!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .step-links span{
+  background:#182534!important;
+  color:#a8b5c4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .step-links span::after{
+  background:#2a394b!important;
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .feature{
+  background:#1b2a3a!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .feature p{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .note{
+  background:#302817!important;
+  color:#f4e6c7!important;
+  border-color:#70582a!important;
+}
+html[data-dc-theme=dark] .finder-pill{
+  background:#1b2a3a!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+}
+html[data-dc-theme=dark] .finder-pill.active,
+html[data-dc-theme=dark] .finder-pill[aria-pressed="true"]{
+  background:#2563eb!important;
+  color:#fff!important;
+  border-color:#3b82f6!important;
+}
+html[data-dc-theme=dark] :is(.eyebrow,.finder-heading,.support-category-card__title){
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .top-right-rail .info-box--latest a:hover,
+html[data-dc-theme=dark] .top-right-rail .info-box--series .link-list a:hover{
+  color:#9dc8ff!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+){
+  background:#172433!important;
+  color:#e7edf4!important;
+  border-color:#34475d!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] :is(
+  .project-card,
+  .project-feature,
+  .series-card,
+  .series-feature,
+  [class*="project-card"],
+  [class*="series-card"]
+) :is(p,small,span){
+  color:#c2ceda!important;
+}
+
+
+/* Remaining dynamic/home controls */
+html[data-dc-theme=dark] .bookmark-help-button{
+  background:#172433!important;
+  color:#9dc8ff!important;
+  border-color:#40566f!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-button:hover,
+html[data-dc-theme=dark] .bookmark-help-button:focus-visible{
+  background:#1d3045!important;
+  color:#b9d6ff!important;
+  border-color:#4e79ad!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel{
+  background:#172433!important;
+  color:#d6e0ea!important;
+  border-color:#40566f!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .bookmark-help-panel p,
+html[data-dc-theme=dark] .bookmark-help-panel strong{
+  color:#d6e0ea!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link{
+  background:linear-gradient(135deg,#172433 0%,#1b2a3a 62%)!important;
+  color:#e7edf4!important;
+  border-color:#40566f!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__link:hover,
+html[data-dc-theme=dark] .project-series-entry__link:focus-visible{
+  background:#1d3045!important;
+  border-color:#4e79ad!important;
+  box-shadow:0 12px 26px rgba(0,0,0,.24)!important;
+}
+html[data-dc-theme=dark] .project-series-entry__media{
+  background:#111c28!important;
+  border-color:#34475d!important;
+}
+html[data-dc-theme=dark] .project-series-entry__kicker{
+  background:#183052!important;
+  color:#b9d6ff!important;
+}
+html[data-dc-theme=dark] .project-series-entry__title{
+  color:#f3f7fb!important;
+}
+html[data-dc-theme=dark] .project-series-entry__sub{
+  color:#c2ceda!important;
+}
+html[data-dc-theme=dark] .project-series-entry__cta{
+  color:#9dc8ff!important;
+}
+
+
+/* Keep the top hero image visible with a dark overlay on tablet/mobile */
+@media (min-width:481px) and (max-width:1100px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        90deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 46%,
+        rgba(23,36,51,.58) 68%,
+        rgba(23,36,51,.20) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right center / auto 100% no-repeat !important;
+    border-color:#40566f!important;
+  }
+}
+@media (max-width:480px){
+  html[data-dc-theme=dark] .home-panel > .hero .hero-grid{
+    background:
+      linear-gradient(
+        180deg,
+        rgba(23,36,51,.96) 0%,
+        rgba(23,36,51,.90) 44%,
+        rgba(23,36,51,.68) 100%
+      ),
+      url('/assets/images/hero/hero-top.webp') right -10px bottom 4px / 112% auto no-repeat !important;
+    border-color:#40566f!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-copy{
+    background:transparent!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-title{
+    color:#f3f7fb!important;
+  }
+  html[data-dc-theme=dark] .home-panel > .hero .hero-text{
+    color:#c2ceda!important;
+  }
+}
+</style><link rel="stylesheet" href="/assets/css/article-toc-v2.css"><link rel="stylesheet" href="/assets/css/article-end-related.css"><link rel="stylesheet" href="/assets/css/article-end-feedback.css"><link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>
+<body>
+  <header class="site-header dc-shell" data-lang="ja">
+  <script data-dc-theme-init>(()=>{let saved=null,explicit=false;try{explicit=localStorage.getItem('dc-theme-explicit-v2')==='1';if(explicit)saved=localStorage.getItem('dc-theme')}catch{}let systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;try{const v=navigator.preferences?.colorScheme?.value;if(v==='dark')systemDark=true;else if(v==='light')systemDark=false}catch{}document.documentElement.dataset.dcTheme=explicit?(saved==='dark'?'dark':'light'):(systemDark?'dark':'light')})()</script>
+  <div class="dc-bar">
+    <a class="dc-brand" href="/" aria-label="トップページへ">
+      <img src="/assets/images/common/site-logo-dcl.webp" alt="" width="46" height="46">
+      <span><strong>電気と制御の実務メモ</strong><small>現場で使える考え方と制御の基礎をわかりやすく解説</small></span>
+    </a>
+    <div class="dc-actions">
+      <a class="dc-consult" href="/services/gxworks2-online-support.html"><span>GX Works2</span><strong>オンライン相談</strong></a>
+      <button class="dc-icon-button" id="dc-search-toggle" aria-label="サイト内検索" aria-expanded="false" aria-controls="dc-search-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><span>検索</span></button>
+      <button class="dc-icon-button" id="dc-menu-toggle" aria-label="メニュー" aria-expanded="false" aria-controls="dc-menu-drawer" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg><span>メニュー</span></button>
+    </div>
+  </div>
+  <div class="dc-drawer dc-search-drawer" id="dc-search-drawer" hidden>
+    <form class="search-box dc-search-form" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="dc-search-label" for="site-search-input">サイト内検索</label>
+      <div class="dc-search-row"><input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search"><button class="search-box-button dc-submit" type="submit">検索</button></div>
+      <div class="search-box-panel" id="site-search-panel" hidden><ul class="search-box-results" id="site-search-results"></ul><p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p></div>
+    </form>
+  </div>
+  <nav class="dc-drawer dc-menu-drawer" id="dc-menu-drawer" aria-label="メニュー" hidden>
+    <a class="dc-contact" href="/contact/index.html"><span>お問い合わせ</span><span aria-hidden="true">↗</span></a>
+    <div class="dc-theme">
+      <p class="dc-theme-caption"><span class="dc-lang-ja">表示テーマ</span><span class="dc-lang-en">DISPLAY THEME</span></p>
+      <button class="dc-theme-toggle" id="dc-theme-toggle" type="button" role="switch" aria-checked="false">
+        <span class="dc-theme-symbol" aria-hidden="true">🌙</span>
+        <span class="dc-theme-name"><span class="dc-lang-ja">ダークモード</span><span class="dc-lang-en">Dark mode</span></span>
+        <span class="dc-theme-switch" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="dc-language"><p>記事の言語</p><div class="dc-current"><strong lang="ja">日本語</strong><span>現在の言語</span></div>
+    <a class="dc-alternative" href="/en/articles/reed-switch-basic.html" lang="en" hreflang="en"><span>English</span><span aria-hidden="true">→</span></a></div>
+  </nav>
+</header>
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../index.html">ホーム</a>
+        <span>›</span>
+        <a href="../index.html#category">カテゴリ</a>
+        <span>›</span>
+        <span>リードスイッチとは？</span>
+      </nav>
+
+      <section class="article-hero">
+        <div class="article-hero-copy">
+          <span class="hero-label">空圧機器と入力の基礎</span>
+          <h1>リードスイッチとは？<br>エアシリンダとの関係も整理</h1>
+          <p class="hero-lead">
+            この記事では、磁力で機械接点が動作する有接点のリードスイッチを中心に、エアシリンダの位置検出とPLC入力とのつながりを整理します。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
+            <a class="btn btn-secondary" href="#air-cylinder">エアシリンダとの関係を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="top-summary" aria-label="この記事の要点">
+        <article class="summary-card summary-card--fit">
+          <h2>向いている人</h2>
+          <ul>
+            <li>エアシリンダに付いているスイッチの意味を知りたい人</li>
+            <li>リードスイッチの基本動作を知りたい人</li>
+            <li>PLC入力とのつながりをイメージしたい人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--notyet">
+          <h2>まだ不要な人</h2>
+          <ul>
+            <li>リードスイッチの配線や選定をすでに問題なくできる人</li>
+            <li>メーカーごとの差まで整理できている人</li>
+            <li>空圧設備の設計・保全にかなり慣れている人</li>
+          </ul>
+        </article>
+        <article class="summary-card summary-card--conclusion">
+          <h2>先に結論</h2>
+          <ul>
+            <li>有接点リード式は磁石の磁界で接点が切り替わる</li>
+            <li>エアシリンダの原点・端点・動作完了確認でよく使われる</li>
+            <li>表示灯の有無や配線・出力方式は型式によって異なる</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="メーカー公式資料">
+        <h2>メーカー公式資料を確認して作成しています</h2>
+        <p>この記事は、SMCの有接点・無接点オートスイッチ資料と現行WEBカタログを確認し、リード式と電子式を混同しないよう整理しています。実際の型式選定・配線・取付条件は、対象機器の最新資料を優先してください。</p>
+        <ul>
+          <li><a href="https://www.smcworld.com/assets/support/faq/images/pdf/autoswitch.pdf" target="_blank" rel="noopener noreferrer">SMC FAQ「有接点・無接点オートスイッチの動作原理と違い」</a></li>
+          <li><a href="https://www.smcworld.com/upfiles/manual/ja-jp/files/DxZZ-OM0287Q.pdf" target="_blank" rel="noopener noreferrer">SMC 有接点オートスイッチ D-A9シリーズ 取扱説明書</a></li>
+          <li><a href="https://www.smcworld.com/webcatalog/s3s/ja-jp/detail/?partNumber=D-M9N" target="_blank" rel="noopener noreferrer">SMC 無接点オートスイッチ D-M9N WEBカタログ</a></li>
+        </ul>
+        <p>最終内容更新：2026年9月23日 ／ 公式資料確認日：2026年9月23日</p>
+      </section>
+
+      <section class="mini-toc-card" aria-label="記事内メニュー">
+        <h2>この記事でわかること</h2>
+        <div class="mini-toc">
+          <a href="#what-is">リードスイッチとは？</a>
+          <a href="#how-it-works">どうやって動く？</a>
+          <a href="#air-cylinder">エアシリンダとの関係</a>
+          <a href="#plc-input">PLC入力との関係</a>
+          <a href="#field-view">現場で見るポイント</a>
+          <a href="#mistakes">よくある混乱</a>
+          <a href="#summary">まとめ</a>
+        </div>
+      </section>
+
+      <div class="page-layout">
+        <article class="main-column">
+          <section class="section-card" id="what-is">
+            <h2>リードスイッチとは？</h2>
+            <p>
+              リードスイッチは、<span class="mark">磁力で金属製のリード接点が開閉する有接点スイッチ</span>です。この記事では、磁石が近づくと接点が閉じるNO（a接点）の例を中心に説明します。
+            </p>
+            <p>
+              エアシリンダでは、ピストンに内蔵された磁石をシリンダ外側から検出する用途で使われます。メーカーではシリンダ用の検出器を「オートスイッチ」と呼ぶことがあり、有接点のリード式だけでなく、無接点の電子式もあります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/reed-switch-basic/reed-switch-basic-01.webp" alt="有接点リードスイッチのNO例と、エアシリンダの磁石・PLC入力・表示灯付きオートスイッチの関係を整理した図。">
+              <figcaption>
+                有接点リード式のNO例です。磁石が検出範囲へ入ると内部接点が閉じます。表示灯の有無、配線方式、出力方式は型式によって異なります。
+              </figcaption>
+            </figure>
+
+            <div class="key-highlight">
+              <h3>まずは「磁石が近づいたことを検出するスイッチ」と覚える</h3>
+              <p>
+                有接点リード式は、磁界によって内部のリード接点が開閉します。シリンダ用オートスイッチには無接点式もあるため、型式を見て区別することが大切です。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="how-it-works">
+            <h2>どうやって動くのか</h2>
+            <p>
+              NO（a接点）の例では、磁石が離れているとリード接点は開いており、磁石が近づくと接点が引き寄せられて閉じます。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>磁石が遠いとき</h3>
+                <p>
+                  NOの例では接点が開いており、スイッチ出力はOFF側です。実際のPLC入力状態は回路・配線条件によって決まります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>磁石が近いとき</h3>
+                <p>
+                  NOの例では接点が閉じ、接続された負荷回路の条件に応じて信号が出力されます。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>配線方式の違い</h3>
+                <p>
+                  有接点でも表示灯の有無や2線式など型式差があります。無接点には2線式・3線式、NPN/PNPなどの違いがあります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>表示LED</h3>
+                <p>
+                  表示灯付きの型式では、検出状態に応じてランプが点灯します。表示灯のない型式もあるため、ランプだけで種類や状態を判断しません。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>接点そのものを見るというより、磁石との位置関係を見る</h3>
+              <p>
+                リードスイッチは外から押して動作させるのではなく、磁界で内部接点が動きます。検出位置や使用条件は、対象シリンダとスイッチの組合せ・メーカー資料に従います。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="air-cylinder">
+            <h2>エアシリンダとの関係</h2>
+            <p>
+              エアシリンダの中には、ピストンに磁石が入っているタイプがあります。シリンダが前進・後退すると、内部のピストンと一緒に磁石も移動します。
+            </p>
+            <p>
+              その外側に対応する有接点オートスイッチ（リード式）を取り付けると、ピストン磁石が検出範囲へ入った位置で信号を得られます。実際の検出位置や取付可能範囲は機種ごとに異なります。
+            </p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/reed-switch-basic/reed-switch-basic-02.webp" alt="エアシリンダのピストン磁石が移動し、外側のリードスイッチが検出してPLC入力へ信号を送る流れを3段階で説明した図。">
+              <figcaption>
+                シリンダの動き、ピストン磁石、リードスイッチ、PLC入力までの関係を整理した図です。PLCの入力番号や信号条件は一例で、実機では機種・回路・配線条件を確認します。
+              </figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>原点確認</h3>
+                <p>
+                  シリンダが戻りきった位置を確認するために使われることがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>端点確認</h3>
+                <p>
+                  シリンダが前進端や後退端まで動いたかを確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>動作完了確認</h3>
+                <p>
+                  リードスイッチの入力を、次工程へ進む条件として使うことがあります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>位置調整</h3>
+                <p>
+                  取り付け位置がずれると、検出タイミングが変わったり、うまくONしないことがあります。
+                </p>
+              </div>
+            </div>
+
+            <div class="field-highlight">
+              <h3>シリンダ内部のピストン位置を直接見ているわけではない</h3>
+              <p>
+                リードスイッチは、シリンダ内部の磁石を外側から検出しています。つまり「ピストンについている磁石の位置を見ている」と考えると理解しやすいです。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="plc-input">
+            <h2>PLC入力との関係</h2>
+            <p>
+              有接点リード式のON/OFF信号は、適切な回路・配線を通じてPLC入力に利用されます。NOの例では、磁石が検出範囲に入って接点が閉じると入力条件が成立する構成があります。
+            </p>
+            <p>
+              ラダー上では、前進端確認、後退端確認、原位置確認、動作完了条件などに利用されます。シリンダが実際に動いていても、想定した入力条件が成立しなければ、制御上は動作完了として扱われない構成があります。
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>見る場所</th>
+                    <th>確認すること</th>
+                    <th>よくある見方</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-blue">シリンダ側</td>
+                    <td>シリンダが所定位置まで動いているか</td>
+                    <td>前進端、後退端、途中位置</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-green">リードスイッチ側</td>
+                    <td>型式、取付状態、表示灯付きなら表示灯の変化</td>
+                    <td>オートスイッチ種類、固定状態、表示灯の有無</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-orange">PLC側</td>
+                    <td>設備の安全手順に従って入力状態を確認</td>
+                    <td>図面・I/O割付・PLC側の入力状態</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="key-highlight">
+              <h3>シリンダ位置 → オートスイッチ検出 → PLC入力</h3>
+              <p>
+                この信号の流れで整理すると、機械側と電気側を混同しにくくなります。表示灯は型式によって有無があるため、型式・図面・メーカー資料・設備側の入力状態を合わせて確認します。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="field-view">
+            <h2>現場で見るポイント</h2>
+            <p>
+              リードスイッチを見る時は、スイッチ単体だけでなく、シリンダの位置、オートスイッチの種類と取付状態、表示灯の有無、PLC入力との関係を分けて考えます。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>本当にリードスイッチか</h3>
+                <p>
+                  シリンダ用オートスイッチには有接点リード式と無接点式があります。見た目だけで決めず、型式とメーカー資料で種類を確認します。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>取り付け位置</h3>
+                <p>
+                  検出可能位置や応差、取付範囲は機種によって異なります。調整が必要な場合は対象機器の手順を優先します。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>LED表示</h3>
+                <p>
+                  表示灯付きの型式では検出状態の手掛かりになります。表示灯がない型式もあるため、点灯だけを前提にしません。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>PLC入力</h3>
+                <p>
+                  PLC側の入力状態は、設備の安全手順と担当者の権限に従って確認します。図面やI/O割付との照合も重要です。
+                </p>
+              </div>
+            </div>
+
+            <div class="talk-thread">
+              <div class="talk-row">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.webp" alt="説明する先輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--senpai">先輩</span>シリンダの動きだけで判断せず、オートスイッチの種類や取付状態、表示灯の有無、PLC側の入力条件を分けて考えると整理しやすいよ。</p>
+                </div>
+              </div>
+              <div class="talk-row talk-row--right">
+                <div class="talk-avatar">
+                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.webp" alt="質問する後輩キャラクター">
+                </div>
+                <div class="talk-bubble">
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>オートスイッチ全部がリード式ではなくて、表示灯や配線方式も型式で違うんですね。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="danger-box">
+              <h3>位置調整・配線変更は設備の安全手順を優先</h3>
+              <p>
+                エアシリンダや制御回路には、急な動作・挟まれ・残圧・通電部などの危険があります。位置調整や配線変更は、対象設備の安全停止手順、メーカー資料、現場ルールと担当者の権限を優先し、運転中の可動部へ手を入れないでください。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="mistakes">
+            <h2>よくある混乱</h2>
+            <p>
+              リードスイッチは、近接センサやリミットスイッチと役割が似て見えることがあります。ただし、見ているものや動作原理が異なります。また、シリンダ用オートスイッチにはリード式だけでなく無接点式もあります。
+            </p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--warning">
+                <h3>近接センサと同じだと思う</h3>
+                <p>
+                  リードスイッチは磁石を見ています。近接センサは金属などを非接触で検出することが多いです。
+                </p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>リミットスイッチと同じだと思う</h3>
+                <p>
+                  リミットスイッチは物理的に当たって切り替わることが多いですが、リードスイッチは磁力で切り替わります。
+                </p>
+              </div>
+              <div class="check-item">
+                <h3>シリンダが動いたからOKと思う</h3>
+                <p>
+                  シリンダが動いていても、リードスイッチ入力が入っていなければPLC上では完了条件にならないことがあります。
+                </p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>磁石内蔵タイプか見ない</h3>
+                <p>
+                  そもそもシリンダ側が磁石内蔵タイプでないと、リードスイッチで検出できない場合があります。
+                </p>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>動かない・入力が入らない時の順番</h3>
+              <p>
+                型式、シリンダ側の磁石対応、取付状態、表示灯の有無、配線・PLC入力との整合を、対象機器の資料と設備の安全手順に沿って切り分けます。
+              </p>
+            </div>
+          </section>
+
+          <section class="section-card" id="summary">
+            <h2>まとめ：リードスイッチは磁石でON/OFFが変わる位置検出用のスイッチ</h2>
+            <p>
+              リードスイッチは、磁界によって金属製のリード接点が開閉する有接点スイッチです。エアシリンダでは、ピストン磁石を外側から検出する位置検出用途で使われます。
+            </p>
+            <p>
+              シリンダ用オートスイッチ全体には無接点式もあり、表示灯、2線式・3線式、NPN/PNPなどの仕様は型式によって異なります。エアシリンダからPLC入力までの信号の流れと、使用する型式の公式資料を合わせて見ると理解しやすくなります。
+            </p>
+
+            <div class="field-highlight">
+              <h3>この記事の要点</h3>
+              <p>
+                有接点リード式は、磁石の磁界で内部接点が開閉します。エアシリンダでは位置検出に利用されますが、オートスイッチには無接点式もあるため、型式・配線・表示灯・出力方式を公式資料で確認することが大切です。
+              </p>
+            </div>
+          </section>
+
+          <section id="articleFeedbackCard" class="article-feedback-card" aria-labelledby="articleFeedbackTitle">
+      <h2 id="articleFeedbackTitle">この記事は役に立ちましたか？</h2>
+      <p class="article-feedback-lead">今後の記事づくりの参考にします。どちらかを選ぶだけで回答できます。</p>
+      <div class="article-feedback-actions" role="group" aria-label="記事の評価">
+        <button class="article-feedback-button" type="button" data-feedback-vote="helpful">👍 役に立った</button>
+        <button class="article-feedback-button" type="button" data-feedback-vote="not_helpful">👎 役に立たなかった</button>
+      </div>
+      <p class="article-feedback-status" id="articleFeedbackStatus" aria-live="polite"></p>
+      <p class="article-feedback-note">回答は匿名で集計し、個人情報の入力はありません。</p></section><section class="section-card" aria-labelledby="related-title">
+            <h2 id="related-title">関連記事</h2>
+            <div class="related-grid article-end-related-grid">
+<a class="related-card article-end-related-card" href="./air-cylinder-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/air-cylinder-basic/air-cylinder-basic-ogp.webp" alt="エアシリンダとは？仕組み・動き・どこを見るかを初心者向けに整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>エアシリンダとは？</h3>
+                <p>リードスイッチがよく取り付けられるエアシリンダの基本を整理します。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./npn-pnp-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/npn-pnp-basic/npn-pnp-basic-ogp.webp" alt="NPN / PNP の違いとは？センサ配線とPLC入力の基本を初心者向けに整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>NPN / PNP の違いとは？</h3>
+                <p>センサ出力とPLC入力の関係を整理したい時につながる記事です。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./air-cylinder-troubleshooting-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-ogp.webp" alt="エアシリンダが動かない時に見る順番｜エア圧・スピコン・リードスイッチ・機械干渉の確認" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>エアシリンダが動かない時に見る順番</h3>
+                <p>リードスイッチの基本を押さえた後、シリンダが動かない・検出しない時の確認順へ進みます。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./no-nc-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/no-nc-basic/no-nc-basic-ogp.webp" alt="NO / NC の違いとは？意味・見分け方・使い分けを初心者向けに整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>NO / NC の違いとは？</h3>
+                <p>接点の基本を整理したい人向け。リードスイッチの接点理解にもつながります。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./limit-switch-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/limit-switch-basic/limit-switch-basic-hero.webp" alt="リミットスイッチとは？仕組み・使い方・現場で見るポイントを整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>リミットスイッチとは？</h3>
+                <p>物理接触で検出するスイッチとの違いを比較しやすい記事です。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./proximity-sensor-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/proximity-sensor-basic/proximity-sensor-basic-ogp.webp" alt="近接センサとは？電気工事士向けにやさしく整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>近接センサとは？</h3>
+                <p>非接触で検出する入力機器との違いを整理できます。</p>
+              </span>
+</a>
+<a class="related-card article-end-related-card" href="./sensor-basic.html">
+  <span class="article-end-related-media"><img src="/assets/images/sensor-basic/sensor-basic-ogp.webp" alt="センサとは何か？電気工事士向けにやさしく整理" loading="lazy" decoding="async"></span>
+  <span class="article-end-related-copy">
+                
+                <h3>センサとは何か？</h3>
+                <p>入力機器全体の考え方を整理した入口記事です。</p>
+              </span>
+</a>
+</div>
+
+
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-rail" aria-label="補足情報">
+<section class="side-card">
+            <h3>先に覚えること</h3>
+            <ul>
+              <li>リードスイッチは磁石で反応する</li>
+              <li>エアシリンダの位置検出でよく使う</li>
+              <li>原点確認・端点確認に使いやすい</li>
+              <li>LEDとPLC入力を一緒に見る</li>
+              <li>シリンダ側の磁石内蔵も確認する</li>
+            </ul>
+          </section>
+<section class="side-card">
+            <h3>次に読むとつながる記事</h3>
+            <ul>
+              <li><a href="./air-cylinder-basic.html">エアシリンダとは？</a></li>
+              <li><a href="./npn-pnp-basic.html">NPN / PNP の違いとは？</a></li>
+              <li><a href="./no-nc-basic.html">NO / NC の違いとは？</a></li>
+              <li><a href="./limit-switch-basic.html">リミットスイッチとは？</a></li>
+              <li><a href="./proximity-sensor-basic.html">近接センサとは？</a></li>
+            </ul>
+          </section>
+<section class="side-card support-card" aria-label="サイト応援">
+          <h3 class="support-card-title">このサイトを応援する</h3>
+          <p class="support-card-text">
+            記事づくりとサイト運営の励みになります。無理のない範囲で応援いただけるとうれしいです。
+          </p>
+          <div class="support-card-actions">
+            <a class="support-link support-link--coffee" href="https://buymeacoffee.com/denkicontrol" target="_blank" rel="noopener noreferrer">
+              Buy Me a Coffeeで応援
+            </a>
+            <a class="support-link support-link--paypal" href="https://www.paypal.com/paypalme/denkicontrol" target="_blank" rel="noopener noreferrer">
+              PayPalで応援
+            </a>
+          </div>
+        </section>
+</aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+  <div class="container">
+    <p>
+      現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+      <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+    </p>
+  </div>
+<p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
+
+  <script>
+  (function(){
+    const button = document.getElementById("languageMenuButton");
+    const panel = document.getElementById("languageMenuPanel");
+
+    if(!button || !panel){
+      return;
+    }
+
+    button.addEventListener("click", function(){
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!isOpen));
+      panel.hidden = isOpen;
+    });
+
+    document.addEventListener("click", function(event){
+      if(!button.contains(event.target) && !panel.contains(event.target)){
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+      }
+    });
+
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape"){
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+        button.focus();
+      }
+    });
+  })();
+</script>
+  <script src="../assets/js/site-search.js"></script>
+<script data-ui-proposal="header">(() => {
+  const header=document.querySelector('.dc-shell');if(!header)return;
+  const root=document.documentElement,themeButton=document.getElementById('dc-theme-toggle'),themeKey='dc-theme',explicitKey='dc-theme-explicit-v2';
+  const themeMeta=document.querySelector('meta[name="theme-color"]'),lightThemeColor=themeMeta?.getAttribute('content')||null;
+  const systemQuery=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  const hasExplicitTheme=()=>{try{return localStorage.getItem(explicitKey)==='1';}catch{return false;}};
+  const readSavedTheme=()=>{try{if(!hasExplicitTheme())return null;const value=localStorage.getItem(themeKey);return value==='dark'||value==='light'?value:null;}catch{return null;}};
+  const preferenceObject=()=>{try{return navigator.preferences?.colorScheme||null;}catch{return null;}};
+  const readSystemTheme=()=>{try{const value=preferenceObject()?.value;if(value==='dark'||value==='light')return value;}catch{}return systemQuery?.matches?'dark':'light';};
+  const resolveTheme=()=>readSavedTheme()??readSystemTheme();
+  const applyTheme=(theme,persist=false)=>{
+    const dark=theme==='dark';root.dataset.dcTheme=dark?'dark':'light';
+    if(themeButton)themeButton.setAttribute('aria-checked',String(dark));
+    if(themeMeta){if(dark)themeMeta.setAttribute('content','#0d1621');else if(lightThemeColor)themeMeta.setAttribute('content',lightThemeColor);else themeMeta.removeAttribute('content');}
+    if(persist)try{localStorage.setItem(themeKey,dark?'dark':'light');localStorage.setItem(explicitKey,'1');}catch{}
+  };
+  applyTheme(resolveTheme(),false);
+  themeButton?.addEventListener('click',()=>applyTheme(root.dataset.dcTheme==='dark'?'light':'dark',true));
+  const followSystem=()=>{if(!readSavedTheme())applyTheme(readSystemTheme(),false);};
+  if(systemQuery?.addEventListener)systemQuery.addEventListener('change',followSystem);else systemQuery?.addListener?.(followSystem);
+  try{preferenceObject()?.addEventListener?.('change',followSystem);}catch{}
+  window.addEventListener('storage',event=>{if(event.key===themeKey||event.key===explicitKey)applyTheme(resolveTheme(),false);});
+  const pairs=['search','menu'].map(name=>({button:document.getElementById(`dc-${name}-toggle`),panel:document.getElementById(`dc-${name}-drawer`),name}));
+  function close(pair,focus=false){pair.button.setAttribute('aria-expanded','false');pair.panel.hidden=true;if(focus)pair.button.focus();}
+  for(const pair of pairs)pair.button.addEventListener('click',()=>{const open=pair.panel.hidden;pairs.forEach(p=>close(p));if(open){pair.panel.hidden=false;pair.button.setAttribute('aria-expanded','true');if(pair.name==='search')setTimeout(()=>{if(!pair.panel.hidden)document.getElementById('site-search-input').focus();},0);}});
+  document.addEventListener('click',event=>{if(!header.contains(event.target))pairs.forEach(p=>close(p));});
+  header.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=pairs.find(p=>!p.panel.hidden);if(open){event.preventDefault();close(open,true);}}});
+})();</script><script type="application/json" id="dc-toc-data">{"lang": "ja", "toc": [{"id": "what-is", "label": "リードスイッチとは？"}, {"id": "how-it-works", "label": "どうやって動くのか"}, {"id": "air-cylinder", "label": "エアシリンダとの関係"}, {"id": "plc-input", "label": "PLC入力との関係"}, {"id": "field-view", "label": "現場で見るポイント"}, {"id": "mistakes", "label": "よくある混乱"}, {"id": "summary", "label": "まとめ：リードスイッチは磁石でON/OFFが変わる位置検出用のスイッチ"}], "compactMaxWidth": 1100, "kind": "通常・既存構成保持"}</script><script src="/assets/js/article-toc-v2.js" defer></script><script src="/assets/js/article-integration-compat.js" defer></script></body>
+</html>

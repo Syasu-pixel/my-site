@@ -190,6 +190,21 @@ Template:
 - Do not repeatedly run large design or structural HTML changes without clear strategic necessity.
 - Do not prioritize article count over hub and internal-link architecture.
 
+### 8.4 Lightweight SNS distribution using four-panel comics
+Existing articles may be reused as lightweight social-distribution assets without changing the article's primary role as a technical reference.
+
+Operating concept:
+- Use the established senior/junior character pair as the recurring visual identity.
+- Create article-linked four-panel comics for channels such as X and Instagram; other suitable social channels may be evaluated later.
+- The comic should use a simple narrative flow: field problem or question → development/realization → senior character's practical insight → clear invitation to continue with the full Denkicontrol article.
+- The comic is an entry point, not a substitute for the technical article. Detailed reasoning, cautions, official-source context, and technical depth remain on Denkicontrol.
+- Existing articles do not need to be rewritten into comic-style content merely to support SNS distribution. Short senior/junior exchanges may be added only when they improve the article itself.
+- Reuse one article as the source asset for script, comic image, post copy, and article link where practical, so SNS activity does not create a separate heavy editorial workload.
+- Video production is not a current priority because of its higher creation and processing burden. Re-evaluate video only when the operating cost and workflow are justified.
+- Prefer a repeatable, low-cost workflow over high-volume posting. The objective is qualified inflow to Denkicontrol and brand familiarity, not social reach by itself.
+
+The detailed creation checklist, character-consistency rules, image-generation steps, self-review, approval flow, and per-platform posting format should live in the repository's production rules/checklists rather than in this strategy document.
+
 ## 9. Technical SEO Priorities
 Priority audit checklist:
 - JA/EN counterpart mapping quality.

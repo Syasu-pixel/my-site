@@ -134,7 +134,7 @@ globalThis.fetch=async (url,init={})=>{
 };
 
 try{
-  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com'};
+  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com',ADMIN_CONTACT_EMAIL_MAP:JSON.stringify({'admin@example.com':'contact@example.com'})};
 
   const preflight=await worker.fetch(new Request('https://worker.example/admin/cases',{
     method:'OPTIONS',
@@ -171,6 +171,8 @@ try{
   assert.equal(detailJson.permissions.canEdit,true);
   assert.equal(detailJson.permissions.assigned,false);
   assert.equal(detailJson.viewer.name,'担当A');
+  assert.equal(detailJson.estimate_email_defaults.from,'株式会社ケイディエス <support@denkicontrol.com>');
+  assert.equal(detailJson.estimate_email_defaults.reply_to,'contact@example.com');
   assert.equal(detailJson.customer_history.first_transaction,true);
   assert.equal(detailJson.customer_history.completed_count,0);
 
@@ -272,7 +274,7 @@ try{
   assert.equal(sentEmails.length,1);
   assert.deepEqual(sentEmails[0].payload.to,['customer@example.com']);
   assert.equal(sentEmails[0].payload.attachments[0].filename,'estimate.pdf');
-  assert.equal(sentEmails[0].payload.reply_to,'owner@example.com');
+  assert.equal(sentEmails[0].payload.reply_to,'contact@example.com');
   assert.equal(sentEmails[0].headers.get('Idempotency-Key'),'estimate-send-'+env.DB.case.case_number);
   assert.ok(env.DB.events.some(e=>e.event_type==='estimate_email_sent'));
 
@@ -366,7 +368,7 @@ try{
       'unauthorized rejection',
       'admin authorization',
       'case list and due-date backfill',
-      'case detail route',
+      'case detail route and visible estimate mail route',
       'first/repeat customer classification from completed history',
       'invalid status rejection',
       'case patch and manual assignee rejection',

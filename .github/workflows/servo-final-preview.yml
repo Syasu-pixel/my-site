@@ -1,0 +1,125 @@
+name: Servo final publication preview
+
+on:
+  push:
+    branches:
+      - preview-servo-publication-builder-20260924
+    paths:
+      - '.github/workflows/servo-final-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-final-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Build integrated publication
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+          rsync -a ./ _site/ \
+            --exclude '_site/' \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '/docs/rules/catalog.json' \
+            --exclude 'node_modules/' \
+            --exclude '.netlify/' \
+            --exclude '.wrangler/' \
+            --exclude '.cache/' \
+            --exclude 'tmp/' \
+            --exclude 'temp/' \
+            --exclude '*.zip' \
+            --exclude '*.tar' \
+            --exclude '*.tar.gz' \
+            --exclude '*.7z' \
+            --exclude '*.psd' \
+            --exclude '*.ai'
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
+          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
+      - name: Optimize published images
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
+            | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+                dst="${src%.*}.webp"
+                [ -e "$dst" ] && exit 0
+                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+              ' _ {}
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json, os
+          root=Path('_site'); image_root=root/'assets'/'images'; mapping={}
+          build=Path(os.environ['RUNNER_TEMP'])/'integration-build'
+          keep=set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
+          for src in image_root.rglob('*'):
+              if not src.is_file() or src.suffix.lower() not in {'.png','.jpg','.jpeg'}: continue
+              if src.relative_to(root).as_posix() in keep: continue
+              dst=src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size>0:
+                  mapping[src.relative_to(root).as_posix()]=dst.relative_to(root).as_posix()
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping),encoding='utf-8')
+          text_exts={'.html','.css','.js','.json','.xml'}
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts: continue
+              try: text=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError: continue
+              new=text
+              for old,replacement in mapping.items():
+                  new=new.replace('/'+old,'/'+replacement).replace(old,replacement)
+              if new!=text: path.write_text(new,encoding='utf-8')
+          for old in mapping:
+              src=root/old
+              if src.exists(): src.unlink()
+          stale=[]
+          pattern=re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)',re.I)
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts: continue
+              try: text=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError: continue
+              for match in pattern.findall(text):
+                  if not (root/match.lstrip('/')).exists(): stale.append(f'{path}: {match}')
+          if stale:
+              print('\n'.join(stale[:100]))
+              raise SystemExit(1)
+          PY
+          python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+      - name: Publish isolated preview branch
+        env:
+          TARGET_BRANCH: preview-servo-publication-20260924
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          cd _site
+          git init
+          git config user.name github-actions
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout -b "$TARGET_BRANCH"
+          git add -A
+          git commit -m "Generated servo final publication preview from ${GITHUB_SHA}"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:"refs/heads/$TARGET_BRANCH"

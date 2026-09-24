@@ -33,6 +33,9 @@ jobs:
           pnpm check:shells
           node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
           node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
           rsync -a ./ _site/ \
             --exclude '_site/' \
             --exclude '.git/' \

@@ -1,0 +1,96 @@
+name: Sensor basic final visual capture
+
+on:
+  push:
+    branches:
+      - preview-sensor-basic-integrated-final
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-sensor-basic-integrated-final
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/sensor-preview.log 2>&1 &
+          echo $! >/tmp/sensor-preview.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/articles/sensor-basic.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/sensor-preview.log || true
+          exit 1
+      - name: Capture four final views
+        run: |
+          mkdir -p final-visual
+          cat > .sensor-final-capture.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser = await chromium.launch({headless:true});
+          const url = 'http://127.0.0.1:4173/articles/sensor-basic.html';
+
+          async function capture(name, viewport, theme) {
+            const page = await browser.newPage({viewport, deviceScaleFactor:1});
+            await page.addInitScript((t)=>{
+              localStorage.setItem('dc-theme-explicit-v2','1');
+              localStorage.setItem('dc-theme',t);
+            }, theme);
+            const response = await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+            if(!response?.ok()) throw new Error('render failed: '+(response?.status() ?? 'unknown'));
+            await page.evaluate(async()=>{
+              if(document.fonts?.ready) await document.fonts.ready;
+              const step=Math.max(300,Math.floor(innerHeight*0.7));
+              for(let y=0;y<document.documentElement.scrollHeight;y+=step){
+                scrollTo(0,y);
+                await new Promise(r=>setTimeout(r,80));
+              }
+              scrollTo(0,0);
+              await new Promise(r=>setTimeout(r,800));
+            });
+            const broken = await page.evaluate(() => [...document.images].filter(img => !img.complete || img.naturalWidth===0).map(img=>img.src));
+            fs.writeFileSync('final-visual/'+name+'-broken-images.json',JSON.stringify(broken,null,2));
+            await page.screenshot({path:'final-visual/'+name+'.png',fullPage:true});
+            await page.close();
+          }
+
+          await capture('pc-light',{width:1440,height:1000},'light');
+          await capture('pc-dark',{width:1440,height:1000},'dark');
+          await capture('mobile-light',{width:390,height:844},'light');
+          await capture('mobile-dark',{width:390,height:844},'dark');
+          await browser.close();
+          JS
+          node .sensor-final-capture.mjs
+          rm -f .sensor-final-capture.mjs
+      - name: Verify no broken images
+        run: |
+          python3 - <<'PY'
+          import json,glob,sys
+          bad={}
+          for p in glob.glob('final-visual/*-broken-images.json'):
+              d=json.load(open(p,encoding='utf-8'))
+              if d: bad[p]=d
+          if bad:
+              print(json.dumps(bad,ensure_ascii=False,indent=2))
+              sys.exit(1)
+          print('No broken images in four final captures.')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sensor-basic-final-visual-${{ github.run_id }}
+          path: final-visual/
+          retention-days: 14

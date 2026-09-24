@@ -1,0 +1,144 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import JSZip from "npm:jszip@3.10.1";
+
+const U=Deno.env.get("SUPABASE_URL")??"";
+const K=Deno.env.get("SUPABASE_ANON_KEY")??"";
+const O=Deno.env.get("OPENAI_API_KEY")??"";
+const GH=Deno.env.get("GITHUB_TOKEN")??Deno.env.get("GITHUB_PAT")??Deno.env.get("GITHUB_REPO_TOKEN")??"";
+const REPO=Deno.env.get("AI_EDITORIAL_GITHUB_REPO")??"Syasu-pixel/my-site";
+const REVIEW_MODEL=Deno.env.get("OPENAI_REVIEW_MODEL")??"gpt-5.6-luna";
+const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"POST, OPTIONS","Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"};
+const J=(b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:H});
+
+function outputText(b:any){if(typeof b?.output_text==="string")return b.output_text;for(const i of Array.isArray(b?.output)?b.output:[])if(i?.type==="message")for(const p of Array.isArray(i?.content)?i.content:[])if(p?.type==="output_text"&&typeof p.text==="string")return p.text;return ""}
+async function rpc(raw:string,name:string,args:any){const r=await fetch(`${U}/rest/v1/rpc/${name}`,{method:"POST",headers:{Authorization:raw,apikey:K,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(args)});const t=await r.text();if(!r.ok)throw new Error(`${name} ${r.status}: ${t.slice(0,700)}`);return t?JSON.parse(t):{}}
+async function gh(path:string,init:RequestInit={}){if(!GH)throw new Error("GITHUB_REPO_TOKEN missing");const r=await fetch(`https://api.github.com/repos/${REPO}${path}`,{...init,redirect:"follow",headers:{Authorization:`Bearer ${GH}`,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(init.headers||{})}});if(!r.ok){const t=await r.text();throw new Error(`GitHub ${r.status} ${path}: ${t.slice(0,700)}`)}const ct=r.headers.get("content-type")||"";if(ct.includes("application/json")){const t=await r.text();return t?JSON.parse(t):{}}return new Uint8Array(await r.arrayBuffer())}
+async function checkpoint(raw:string,id:string,stage:string,st:any){return rpc(raw,"ai_editorial_builder_checkpoint",{p_command_id:id,p_stage:stage,p_state:st})}
+async function event(raw:string,id:string,summary:string,state="BUILDING",severity="info",discussion:any={}){return rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"status",summary,evidence:[],severity,state,created_at:new Date().toISOString(),discussion:{command_id:id,...discussion},availability:{primary_provider:"gpt-preview-audit",status:state==="NEEDS_HUMAN"?"waiting-human":"online"}}]})}
+function bytesToB64(bytes:Uint8Array){let bin="";for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin)}
+async function repoFileB64(path:string,ref="main"){try{const x=await gh(`/contents/${path}?ref=${encodeURIComponent(ref)}`);if(x?.content)return String(x.content).replace(/\n/g,"");if(x?.sha){const b=await gh(`/git/blobs/${x.sha}`);if(b?.content)return String(b.content).replace(/\n/g,"")}}catch{}return ""}
+async function oa(payload:any){if(!O)throw new Error("OPENAI_API_KEY missing");const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${O}`,"Content-Type":"application/json"},body:JSON.stringify(payload)});const t=await r.text();if(!r.ok)throw new Error(`OpenAI ${r.status}: ${t.slice(0,900)}`);return JSON.parse(t)}
+async function previewReachable(url:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-audit","Cache-Control":"no-cache"}});return r.ok}catch{return false}}
+async function previewContentReady(url:string,expectedPath:string,expectedTitle:string){try{const r=await fetch(url,{method:"GET",redirect:"follow",headers:{"User-Agent":"denkicontrol-ai-editorial-preview-final-live-check","Cache-Control":"no-cache"}});const ct=(r.headers.get("content-type")||"").toLowerCase();const body=ct.includes("text/html")?await r.text():"";const lower=body.toLowerCase();const cloudflareMissing=lower.includes("nothing is here yet")||lower.includes("if the project exists, it may not be ready yet")||lower.includes("runs on cloudflare pages");const normalized="/"+String(expectedPath||"").replace(/^\/+/,"");let finalPath="";try{finalPath=new URL(r.url).pathname}catch{}const pathMatches=!normalized||finalPath===normalized||finalPath===normalized.replace(/\/index\.html$/i,"/");const title=String(expectedTitle||"").trim().toLowerCase();const titleMatches=!title||lower.includes(title);const articleMarkers=/<article\b/i.test(body)||/<main\b/i.test(body)||/<h1\b/i.test(body);return {ok:r.ok&&ct.includes("text/html")&&!cloudflareMissing&&pathMatches&&titleMatches&&articleMarkers,status:r.status,cloudflareMissing,pathMatches,titleMatches,articleMarkers}}catch(e){return {ok:false,status:0,error:e instanceof Error?e.message:String(e)}}}
+
+function textToB64(text:string){const bytes=new TextEncoder().encode(text);let bin="";for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin)}
+function b64ToText(s:string){const bin=atob(String(s||"").replace(/\n/g,""));const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new TextDecoder().decode(bytes)}
+async function repoText(path:string,ref:string){const x=await gh(`/contents/${path}?ref=${encodeURIComponent(ref)}`);if(!x?.content||!x?.sha)throw new Error(`repo source missing: ${path}`);return {text:b64ToText(String(x.content)),sha:String(x.sha)}}
+async function revisePreview(raw:string,id:string,st:any,audit:any){
+  const round=Number(st.preview_auto_revision_round||0)+1;
+  const maxRounds=5;
+  if(round>maxRounds)return {status:"exhausted",round};
+  const branch=String(st.branch||"");const path=String(st.article_path||"");
+  if(!branch||!path)throw new Error("preview auto revision metadata missing");
+  const src=await repoText(path,branch);
+  const issues=Array.isArray(audit?.blocking_issues)?audit.blocking_issues:[];
+  const instructions=Array.isArray(audit?.revision_instructions)?audit.revision_instructions:[];
+  const today=new Date().toISOString().slice(0,10);
+  const prompt=`denkicontrol.com の記事HTMLを、Preview監査の指摘だけに基づいて修正してください。完全なHTML全文だけを返してください。Markdownコードフェンスは禁止です。
+
+絶対条件:
+- 既存の上部構造、3カラム/サイドバー、先輩後輩会話、寄付導線、関連記事、ヘッダー、フッター、レスポンシブ構造を維持する。
+- 技術的事実、メーカー仕様、端子番号、定格、適合情報を新しく推測・創作しない。
+- 外部URLを新規追加しない。
+- 監査で問題になった箇所だけを直し、記事の検索意図と主題を変えない。
+- article-figure の重要画像は全ページPreview監査で確実に描画されるよう loading="eager" を使ってよい。既存の画像パスは勝手に変更しない。
+- スマホで表が横にはみ出す場合はカード化またはoverflow-x:auto等で、ページ全体を横にはみ出させない。
+- 会話の生成残骸・誤文は自然な日本語へ修正する。
+- 公式資料の公開日/改訂日を確認できない場合は日付を創作せず『発行日・改訂日を確認できず（${today}参照）』のように資料日付と参照日を分離する。
+- サイドバーに別記事由来の内容があればこの記事専用の一般的な確認ポイントへ置換するが、新しい製品固有仕様は追加しない。
+- heroの文字と背景図が重なり読みにくい場合はCSSだけでコントラストを改善する。
+
+監査スコア: ${audit?.score??0}
+Blocking issues:
+${issues.map((x:string,i:number)=>`${i+1}. ${x}`).join("\n")}
+
+Revision instructions:
+${instructions.map((x:string,i:number)=>`${i+1}. ${x}`).join("\n")}
+
+現在のHTML:
+${src.text}`;
+  const b=await oa({model:REVIEW_MODEL,store:false,reasoning:{effort:"medium"},input:[{role:"user",content:[{type:"input_text",text:prompt}]}]});
+  let revised=outputText(b).trim().replace(/^```html\s*/i,"").replace(/```$/i,"").trim();
+  if(!/^<!doctype html>/i.test(revised)||!/<html[\s>]/i.test(revised)||!/<\/html>\s*$/i.test(revised))throw new Error("preview auto revision returned invalid full HTML");
+  await gh(`/contents/${path}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:`AI編集部: Preview監査の自動修正 ${round}/${maxRounds}`,content:textToB64(revised),sha:src.sha,branch})});
+  const next={...st,preview_verified:false,preview_audit_artifact_id:null,preview_head_sha:null,gpt_visual_audit:audit,gpt_visual_audit_pass:false,gpt_visual_audit_score:audit?.score??0,gpt_visual_audit_issues:issues,gpt_revision_instructions:instructions,preview_auto_revision_round:round,preview_auto_revision_last_at:new Date().toISOString(),autonomous_remediation_exhausted:false};
+  await checkpoint(raw,id,"preview_wait",next);
+  await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
+  await event(raw,id,`GPT Preview監査は${audit?.score??0}点。管理者には止めず、指摘を記事HTMLへ自動反映しました。同じPRでCloudflare Previewを再構築して再監査します（自動修正 ${round}/${maxRounds}）。`,"BUILDING","medium",{stage:"gpt-preview-audit-auto-revise",score:audit?.score??0,round,max_rounds:maxRounds,same_queue:true,human_gate_policy:"final-preview-only",requires_human_decision:false});
+  return {status:"preview-revising",round};
+}
+
+async function auditOgp(ogp:string,title:string,level:string,ogpPrompt:string){
+  const character=await repoFileB64("assets/images/character-templates/senpai-kouhai-character-template.png","main");
+  const gold=await repoFileB64("assets/images/star-delta-start-basic/star-delta-start-overview.webp","main");
+  const axisSchema={type:"object",additionalProperties:false,required:["attention_impact","thumbnail_readability","character_brand_match","topic_recognition","technical_correctness","site_identity"],properties:{attention_impact:{type:"integer",minimum:0,maximum:100},thumbnail_readability:{type:"integer",minimum:0,maximum:100},character_brand_match:{type:"integer",minimum:0,maximum:100},topic_recognition:{type:"integer",minimum:0,maximum:100},technical_correctness:{type:"integer",minimum:0,maximum:100},site_identity:{type:"integer",minimum:0,maximum:100}}};
+  const schema={type:"object",additionalProperties:false,required:["pass","score","character_present","fact_fatal","character_fatal","axes","strengths","issues","redesign_instructions"],properties:{pass:{type:"boolean"},score:{type:"integer",minimum:0,maximum:100},character_present:{type:"boolean"},fact_fatal:{type:"boolean"},character_fatal:{type:"boolean"},axes:axisSchema,strengths:{type:"array",items:{type:"string"},maxItems:8},issues:{type:"array",items:{type:"string"},maxItems:12},redesign_instructions:{type:"array",items:{type:"string"},maxItems:12}}};
+  const content:any[]=[{type:"input_text",text:`denkicontrol.comのOGP専用Reviewer。本文図解やheroとは別基準で審査する。\n\n記事タイトル: ${title}\n記事レベル: ${level}\n元のOGP設計意図: ${ogpPrompt}\n\nOGPの役割は「SNS・一覧・共有カードで一瞬で目を止め、なんだこの電気サイト？と思わせる看板」。先輩・後輩キャラクターをブランドフックとして積極的に使い、記事テーマの主役機器・現象を大きく1つ見せる。長い説明、細かい凡例、小文字の詰め込みは不要。\n\n必須判定:\n- character_present: 正本キャラクターの少なくとも1人が明確に見えること。原則2人が望ましい。\n- character_brand_match: 添付の正本テンプレートと同一人物に見えるか。顔、髪型、ヘルメット、服装、年齢感、全体シルエットが大きく違えばcharacter_fatal=true。\n- attention_impact: 縮小サムネイルでも視線を止める強さ。\n- thumbnail_readability: 大見出しと主役が小さくしても残るか。\n- topic_recognition: 記事テーマが一瞬で分かるか。\n- technical_correctness: 安全機器でないものを安全機器に見せる、機器の向き・位置関係、光軸、ワーク進行、配線等の誤認がないか。重大ならfact_fatal=true。\n- site_identity: Denkicontrolらしい親しみやすい技術教材ブランドか。\n\n今回のエリアセンサのような対向型多光軸タイプでは、投光側と受光側はコンベア左右に縦置きで向かい合い、その間をワークが通る。汎用エリアセンサを安全ライトカーテン、安全停止、安全出力OFF、設備停止、侵入防護として見せてはいけない。\n\n総合95点未満、character_present=false、fact_fatal=true、character_fatal=trueのどれか1つでもpass=false。さらにcharacter_brand_matchとtechnical_correctnessは95未満ならpass=false。`},{type:"input_image",image_url:`data:image/png;base64,${ogp}`}];
+  if(character)content.push({type:"input_image",image_url:`data:image/png;base64,${character}`});
+  if(gold)content.push({type:"input_image",image_url:`data:image/webp;base64,${gold}`});
+  const b=await oa({model:REVIEW_MODEL,store:false,reasoning:{effort:"medium"},input:[{role:"user",content}],text:{format:{type:"json_schema",name:"ogp_dedicated_review",strict:true,schema}}});
+  const x=JSON.parse(outputText(b));const a=x?.axes??{};
+  const pass=Boolean(x.pass)&&Number(x.score)>=95&&Boolean(x.character_present)&&!Boolean(x.fact_fatal)&&!Boolean(x.character_fatal)&&Number(a.character_brand_match)>=95&&Number(a.technical_correctness)>=95&&Number(a.attention_impact)>=90&&Number(a.thumbnail_readability)>=90&&Number(a.topic_recognition)>=90&&Number(a.site_identity)>=90;
+  return {...x,pass};
+}
+
+async function recoverOgp(raw:string,id:string,st:any,audit:any,sha:string){
+  const round=Number(st.ogp_dedicated_review_round||0)+1;
+  const instructions=(Array.isArray(audit?.redesign_instructions)&&audit.redesign_instructions.length?audit.redesign_instructions:audit?.issues)||["OGPをキャラクター主役級・短い大見出し・主役機器1つへ全面再設計する"];
+  if(round<=5){
+    const next={...st,ogp_attempt:0,ogp_score:Number(audit?.score||0),ogp_issues:instructions,ogp_dedicated_review:audit,ogp_dedicated_review_pass:false,ogp_dedicated_review_round:round,ogp_dedicated_review_head_sha:sha,preview_verified:false,preview_audit_artifact_id:null,gpt_visual_audit:null,gpt_visual_audit_pass:false,...(round===1?{ogp_redesign_round:0}:{})};
+    await checkpoint(raw,id,"ogp_retry",next);await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
+    await event(raw,id,`OGP専用Reviewerは${audit.score}点で不合格。キャラクターのブランド一致・サムネイルでのインパクト・技術的正確性を基準に、同じ案件・同じPRでOGPだけ再設計します（専用再設計 ${round}/5）。`,"BUILDING","medium",{stage:"ogp-dedicated-review-retry",score:audit.score,round,axes:audit.axes,fact_fatal:audit.fact_fatal,character_fatal:audit.character_fatal,same_queue:true});
+    return {status:"ogp_retry",round};
+  }
+  const next={...st,ogp_dedicated_review:audit,ogp_dedicated_review_pass:false,ogp_dedicated_review_round:round,ogp_dedicated_review_head_sha:sha,ogp_degraded_continue:true,preview_verified:false};
+  await checkpoint(raw,id,"preview_wait",next);await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
+  await event(raw,id,`OGP専用Reviewerで5回の全面再設計後も基準未達です（${audit.score}点）。途中で管理者へ止めず、警告を保持したままPreview全体監査へ進みます。`,"BUILDING","high",{stage:"ogp-dedicated-review-degraded-continue",score:audit.score,round,same_queue:true,human_gate_policy:"final-preview-only"});
+  return {status:"ogp_degraded_continue",round};
+}
+
+async function auditPreview(desktop:string,mobile:string,html:string){
+  const character=await repoFileB64("assets/images/character-templates/senpai-kouhai-character-template.png","main");
+  const gold=await repoFileB64("assets/images/star-delta-start-basic/star-delta-start-overview.webp","main");
+  const schema={type:"object",additionalProperties:false,required:["pass","score","strengths","blocking_issues","revision_instructions"],properties:{pass:{type:"boolean"},score:{type:"integer",minimum:0,maximum:100},strengths:{type:"array",items:{type:"string"},maxItems:8},blocking_issues:{type:"array",items:{type:"string"},maxItems:15},revision_instructions:{type:"array",items:{type:"string"},maxItems:15}}};
+  const compact=html.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/<style[\s\S]*?<\/style>/gi,"").slice(0,60000);
+  const relative=[...new Set((compact.match(/先月|先週|昨日|今日|約\d+日前|\d+週間前/g)||[]))];
+  const content:any[]=[{type:"input_text",text:`denkicontrol.comの記事Previewを管理者へ上げる前に監査する。desktopとmobileは同一ページの全ページキャプチャ。HTMLも補助証拠として使う。\n\n必須確認:\n- 本文が黒文字の塊になっておらず、要点・注意・結論を色、太字、カード、箇条書き等で読み飛ばせるか\n- 画像はスター・デルタ採用画像レベルの教育的説明力があるか\n- キャラクター使用時は正本テンプレートと同一人物に見えるか。別人なら致命的不合格\n- 機器配置・向き・矢印・ワーク進行が現実的か。対向型多光軸エリアセンサなら左右縦置きで間をワークが通るのが基本\n- 右サイドバーに別記事由来の内容が混入していないか\n- PC/スマホで表・画像・会話UI・寄付導線・フッターが崩れていないか\n- mobile画像は本当にスマホ幅の縦長レイアウトに見えるか。desktopと同じ横幅に見える場合は不合格\n- 公式参照資料の日付に相対表現を使っていないか。相対表現検出=${JSON.stringify(relative)}\n- 安全ライトカーテンと汎用エリアセンサを混同していないか\n\n95点未満または致命的不整合が1つでもあればpass=false。管理者が大量のスクショを撮らなくても修正できる具体的なrevision_instructionsを書く。\n\nrendered HTML抜粋:\n${compact}`},{type:"input_image",image_url:`data:image/png;base64,${desktop}`},{type:"input_image",image_url:`data:image/png;base64,${mobile}`}];
+  if(character)content.push({type:"input_image",image_url:`data:image/png;base64,${character}`});
+  if(gold)content.push({type:"input_image",image_url:`data:image/webp;base64,${gold}`});
+  const b=await oa({model:REVIEW_MODEL,store:false,reasoning:{effort:"medium"},input:[{role:"user",content}],text:{format:{type:"json_schema",name:"preview_visual_audit",strict:true,schema}}});return JSON.parse(outputText(b));
+}
+
+async function finalize(raw:string,id:string,st:any,audit:any){
+  const pass=Boolean(audit?.pass)&&Number(audit?.score)>=95;
+  const issues=Array.isArray(audit?.blocking_issues)?audit.blocking_issues:[];
+  if(!pass){
+    const revised=await revisePreview(raw,id,st,audit);
+    if(revised.status!=="exhausted")return revised;
+    const msg=`GPT Preview監査が${audit?.score??0}点で基準未達のまま、自動修正5回を使い切りました。管理者確認には回さず、自動工程の失敗として停止します。`;
+    await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"failed",p_last_error:msg,p_mark_started:false});
+    await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"error",summary:msg,evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"preview",ref:st.preview_url}],severity:"high",state:"ERROR",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"gpt-preview-audit-auto-revise-exhausted",pr_number:st.pr_number,preview_url:st.preview_url,gpt_visual_audit_pass:false,gpt_visual_audit_score:audit?.score??0,gpt_visual_audit_issues:issues,gpt_revision_instructions:audit?.revision_instructions||[],preview_auto_revision_round:Number(st.preview_auto_revision_round||0),human_gate_policy:"final-preview-only",requires_human_decision:false},availability:{primary_provider:"gpt-preview-audit",status:"error"}}]});
+    await checkpoint(raw,id,"done",{...st,preview_verified:false,gpt_visual_audit:audit,gpt_visual_audit_pass:false,autonomous_remediation_exhausted:true});
+    return {status:"failed",round:Number(st.preview_auto_revision_round||0)};
+  }
+  const live=await previewContentReady(String(st.preview_url||""),String(st.article_path||""),String(st.bp?.title||st.article_title||""));
+  if(!live.ok){
+    const next={...st,preview_verified:false,preview_content_valid:false,preview_live_check:live,preview_last_status:live.cloudflareMissing?"cloudflare-not-ready":"content-mismatch",preview_last_checked_at:new Date().toISOString()};
+    await checkpoint(raw,id,"preview_wait",next);
+    await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"building",p_last_error:null,p_mark_started:false});
+    await event(raw,id,"自動監査は合格しましたが、現在のCloudflare最終Previewが記事本文ではないため管理者確認には進めません。配信を再確認して同じ案件で継続します。","BUILDING","medium",{stage:"final-preview-live-check-wait",requires_human_decision:false,human_gate_policy:"final-preview-only",preview_live_check:live});
+    return J({ok:true,status:"waiting-live-preview",preview_url:st.preview_url,live});
+  }
+  const summary=`GPT Preview監査を通過しました（${audit.score}点）。これが唯一の管理者確認です。`;
+  await rpc(raw,"ai_editorial_command_patch",{p_command_id:id,p_status:"needs_human",p_last_error:null,p_mark_started:false});
+  await rpc(raw,"ai_editorial_command_add_events",{p_command_id:id,p_events:[{event_id:crypto.randomUUID(),job_id:`command-${id}`,role:"reviewer",provider:"gpt-preview-audit",event_type:"preview-ready",summary,evidence:[{kind:"github-pr",ref:st.pr_url},{kind:"preview",ref:st.preview_url}],severity:"info",state:"NEEDS_HUMAN",created_at:new Date().toISOString(),discussion:{command_id:id,stage:"gpt-preview-audit",pr_number:st.pr_number,pr_url:st.pr_url,preview_url:st.preview_url,article_path:st.article_path,article_title:st.bp?.title,gpt_visual_audit_pass:true,gpt_visual_audit_score:audit.score,gpt_visual_audit_strengths:audit.strengths||[],gpt_visual_audit_issues:[],gpt_revision_instructions:[],ogp_dedicated_review:st.ogp_dedicated_review||null,admin_gate:"final-review",human_gate_policy:"final-preview-only",preview_verified_by:st.preview_verified_by||"github-actions-playwright+gpt-vision"},availability:{primary_provider:"gpt-preview-audit",status:"waiting-human"}}]});
+  await checkpoint(raw,id,"done",{...st,preview_verified:true,preview_verified_at:new Date().toISOString(),gpt_visual_audit:audit,gpt_visual_audit_pass:true,autonomous_remediation_exhausted:false});
+  return {status:"needs_human"};
+}
+
+Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response(null,{status:204,headers:H});if(req.method!=="POST")return J({error:"method not allowed"},405);const raw=req.headers.get("authorization")??"";if(!raw.toLowerCase().startsWith("bearer "))return J({error:"authentication required"},401);let input:any={};try{input=await req.json()}catch{return J({error:"invalid json"},400)}const id=String(input.command_id??"");const st=input.state&&typeof input.state==="object"?input.state:{};if(!/^[0-9a-f-]{36}$/i.test(id))return J({error:"valid command_id required"},400);
+  try{const pr=Number(st.pr_number||0);if(!pr||!st.preview_url)return J({ok:false,error:"preview metadata missing"},409);const p=await gh(`/pulls/${pr}`);const sha=String(p?.head?.sha||"");const branch=String(p?.head?.ref||st.branch||"");if(!sha)return J({ok:false,error:"PR head SHA missing"},409);
+    const artifactName=`ai-editorial-preview-pr-${pr}`;const [statuses,checkRuns,arts,directOk]=await Promise.all([gh(`/commits/${sha}/status`).catch(()=>({statuses:[],state:"unknown"})),gh(`/commits/${sha}/check-runs`).catch(()=>({check_runs:[]})),gh(`/actions/artifacts?name=${encodeURIComponent(artifactName)}&per_page=20`).catch(()=>({artifacts:[]})),previewReachable(String(st.preview_url))]);const statusList=Array.isArray(statuses?.statuses)?statuses.statuses:[];const netlifyStatus=statusList.find((x:any)=>String(x?.context||"").includes("netlify/")&&String(x?.context||"").includes("deploy-preview"));const checkList=Array.isArray(checkRuns?.check_runs)?checkRuns.check_runs:[];const netlifyCheck=checkList.find((x:any)=>/netlify|deploy preview|deploy-preview/i.test(String(x?.name||"")));const arr=Array.isArray(arts?.artifacts)?arts.artifacts.filter((a:any)=>!a.expired&&String(a?.workflow_run?.head_sha||"")===sha):[];const art=arr.sort((a:any,b:any)=>Date.parse(b.created_at)-Date.parse(a.created_at))[0];const captureReady=Boolean(art);const netlifyReady=netlifyStatus?.state==="success"||(netlifyCheck?.status==="completed"&&netlifyCheck?.conclusion==="success")||directOk;const readiness=netlifyReady?"netlify-success":captureReady?"capture-success":netlifyStatus?.state??netlifyCheck?.status??statuses?.state??"unknown";const verifiedBy=netlifyReady?"netlify-http-or-check+github-actions-playwright+gpt-vision":"github-actions-playwright+gpt-vision";const checks=Number(st.preview_probe_checks||0)+1;let next={...st,preview_probe_checks:checks,preview_last_status:readiness,preview_last_checked_at:new Date().toISOString(),preview_head_sha:sha,preview_capture_artifact_name:artifactName,preview_verified_by:verifiedBy};if(!netlifyReady&&!captureReady){await checkpoint(raw,id,"preview_wait",next);return J({ok:true,status:"waiting-preview",preview_status:readiness,checks})}if(!art){next={...next,preview_capture_checks:Number(next.preview_capture_checks||0)+1,preview_capture_mode:"pull-request-auto"};await checkpoint(raw,id,"preview_wait",next);if(Number(next.preview_capture_checks||0)===1)await event(raw,id,"PR更新に連動したPC/スマホPreview自動取得を待っています。追加のGitHub Actions権限は不要です。","BUILDING","info",{stage:"preview-capture-wait",pr_number:pr});return J({ok:true,status:"waiting-capture",artifact_name:artifactName})}
+    const slug=String(st.bp?.slug||"");if(slug&&st.ogp_dedicated_review_head_sha!==sha){const ogp=await repoFileB64(`assets/images/${slug}/${slug}-ogp.png`,branch);if(!ogp)throw new Error("OGP image missing from PR branch");await event(raw,id,"OGP専用Reviewerが、キャラクターのブランド一致・サムネイルでのインパクト・技術的正確性を確認しています。","BUILDING","info",{stage:"ogp-dedicated-review",pr_number:pr});const ogpAudit=await auditOgp(ogp,String(st.bp?.title||""),String(st.bp?.article_level||"beginner"),String(st.bp?.ogp_prompt||""));next={...next,ogp_dedicated_review:ogpAudit,ogp_dedicated_review_pass:ogpAudit.pass,ogp_dedicated_review_head_sha:sha};if(!ogpAudit.pass){const r=await recoverOgp(raw,id,next,ogpAudit,sha);return J({ok:true,...r,ogp_audit:ogpAudit})}await checkpoint(raw,id,"preview_wait",next);await event(raw,id,`OGP専用Reviewerを通過しました（${ogpAudit.score}点）。Preview全体監査へ進みます。`,"BUILDING","info",{stage:"ogp-dedicated-review-pass",score:ogpAudit.score,axes:ogpAudit.axes});}
+    if(next.preview_audit_artifact_id===art.id&&next.gpt_visual_audit&&next.gpt_visual_audit_pass===true)return J({ok:true,status:"already-audited",audit:next.gpt_visual_audit});const zipBytes=await gh(`/actions/artifacts/${art.id}/zip`) as Uint8Array;const zip=await JSZip.loadAsync(zipBytes);const root=`preview-capture/pr-${pr}/`;const pick=(name:string)=>zip.file(root+name)||zip.file(name)||Object.values(zip.files).find((f:any)=>String(f.name).endsWith("/"+name));const d=pick("desktop.png"),m=pick("mobile.png"),h=pick("rendered.html");if(!d||!m||!h)throw new Error("preview artifact files missing");const desktop=bytesToB64(await d.async("uint8array"));const mobile=bytesToB64(await m.async("uint8array"));const html=await h.async("string");await event(raw,id,"PC/スマホのPreview画面を自動取得しました。GPTが本文密度・図解・キャラクター・機器配置・レスポンシブ表示を監査しています。","BUILDING","info",{stage:"gpt-preview-audit-start",artifact_id:art.id,pr_number:pr,preview_readiness:readiness});const audit=await auditPreview(desktop,mobile,html);next={...next,preview_audit_artifact_id:art.id,preview_audit_run_at:new Date().toISOString(),gpt_visual_audit:audit,preview_capture_mode:"pull-request-auto"};const finalResult=await finalize(raw,id,next,audit);return J({ok:true,...finalResult,audit})
+  }catch(e){const msg=e instanceof Error?e.message:String(e);try{await checkpoint(raw,id,"preview_wait",{...st,preview_visual_last_error:msg,preview_visual_last_error_at:new Date().toISOString()})}catch{}return J({ok:false,error:msg},500)}});

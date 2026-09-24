@@ -1,0 +1,118 @@
+# 記事タイプ別テンプレート（article type templates）
+
+## 共通ひな形移行との関係（2026-09-18）
+- サイト構造・共通部品・記事制作に関係する作業では、[site-template-policy.md](site-template-policy.md) と [site-template-migration-status.md](site-template-migration-status.md) を先に確認する。
+- 現在段階・採用判断・対象ごとの移行状態は、上記の移行状況文書だけを正本とする。本書の既存要件は、同方針に明示した限定例外以外は維持する。
+- 方針採用後、既存の移行済みページ、または利用可能なひな形・正本を台帳で確認して新規登録するページでは、完成記事HTMLのコピーをレイアウト・共通部品と固有内容の組み合わせへ読み替える。未移行・未登録は従来方式。初回移行の扱いは同方針第6節を参照する。
+- 構造移行を本文改善・公開導線追加・本番承認の省略と混同しない。相談窓口・法務・設計シリーズ等の意図した構造差を保持する。
+- 段階変更は移行状況文書へ記録し、各入口に段階・件数を重複管理しない。
+
+## 目的
+- 記事タイプごとに見出し構成を固定化し、日英で一貫した読みやすさとSEO導線を維持する。
+
+## 共通ルール
+- 先に記事タイプを決めてから見出しを作る。
+- h1直下で「この記事で分かること」を短く示す。
+- language-menu で日英記事を相互リンクする。
+- 画像は `hero / overview / comparison / check-flow / ogp` を1用途1枚で使い分ける。
+- `img` のaltは具体的に、`figcaption` は文脈補足として重複させない。
+- 記事評価カードを使う場合は `docs/article-feedback-rules.md` に従い、記事固有の `article_slug` と共通 `assets/js/article-feedback.js` を使用する。
+- コピー元の記事評価カードを流用する場合、コピー元の `article_slug` を残さない。
+- 投票処理を `site-search.js` 等へ重複実装しない。
+
+### 記事評価カードの標準位置
+- 原則として記事本文・次回案内等の後、`あわせて読みたい記事` / `related-grid` より前に配置する。
+- 1ブラウザ・1記事・1票を基本とし、投票済みでは両ボタンを無効化する。
+- 投票済み状態では `wait` カーソルを使用しない。
+- `/admin/` の運営ダッシュボードで、記事slug単位に正しく集計されるところまで確認して完了とする。
+
+### 本文の軽い強調ルール（全テンプレート共通）
+- 本文は淡々としすぎないよう、重要語だけを既存スタイルで軽く強調する。
+- 使用可能: `<strong>...</strong>` / `<span class="term">...</span>` / `<span class="marker-blue">...</span>`。
+- CSS追加・新規class追加は禁止。
+- 1段落の強調は最小限にし、色付きspanは1〜2個程度まで。
+- 全専門語を装飾せず、読者（初心者）が理解の軸にする語を優先する。
+- 意味を変える改稿は行わず、既存文脈のまま軽く視認性を上げる。
+
+使い分け目安:
+- `<span class="term">...</span>`: 中心用語・短い技術語・summaryで残す語。
+- `<span class="marker-blue">...</span>`: 文中で特に目に留めたい語や短いフレーズ。
+- `<strong>...</strong>`: 注意点・確認項目・安全上の重要語・表内重要語。
+
+セクション別目安:
+- 冒頭: 中心語を2〜4個だけ強調。
+- 仕組み説明: 信号の流れや装置関係語を軽く強調。
+- 表: 重要語のみ `<strong>`（表構造は変更しない）。
+- 注意点: safety / interlock / emergency stop / official manual などは太字で保持。
+- Summary: 最後に覚える語を `<span class="term">...</span>` で整理可。
+
+
+## 1) 基礎解説記事（Fundamentals）
+推奨構成:
+1. 概要（What it is）
+2. なぜ必要か（Why it matters）
+3. 仕組み（How it works）
+4. よくある注意点
+5. まとめ
+
+## 2) 比較・使い分け記事（Comparison）
+推奨構成:
+1. 比較対象の定義
+2. 比較表（用途・コスト・保守性など）
+3. シーン別の選び方
+4. 導入前チェック
+5. まとめ
+
+## 3) 手順・トラブル対応記事（Procedure / Troubleshooting）
+推奨構成:
+1. 前提条件・安全注意
+2. 手順（STEP）
+3. 失敗しやすいポイント
+4. 切り分けチェック
+5. まとめ
+
+## 英語記事の自然化ルール
+- 直訳ではなく、英語話者が自然に読める順序（結論→理由→補足）で書く。
+- 見出しは短く具体的にし、曖昧な名詞句を避ける。
+- 同じ概念に複数の訳語を混在させない。
+
+## 日英SEO導線ルール
+- canonical / og:url / hreflang / sitemap は `https://denkicontrol.com` で統一する。
+- Step 2で `en/index.html`、`en/categories/**`、`assets/data/search-index.json`、`sitemap.xml`、`docs/en-article-backlog.md` の更新整合を確認する。
+
+
+## 記事更新フロー
+- 記事更新では、原則として全文を丸ごと書き換えない。
+- 更新理由・公式参照元・影響範囲を先に整理し、必要箇所だけ差分更新する。
+- 全文書き換えは、章構成の破綻など明確な理由がある場合に限る。
+- 日英記事の同期、画像更新、reference-notes / terminology 更新の必要性を確認する。
+- 更新PRでは「変更理由」「更新した範囲」「更新しなかった範囲」「確認した公式参照元」「safe to merge: YES / NO」を報告する。
+
+
+## HTML内リンク実在確認テンプレートルール
+- テンプレート適用時は、関連記事カードに加えて、パンくず・戻るボタン・右カラムCategory links・language-menu・フッター内リンク・画像 `src`・OGP/twitter画像・ヒーロー背景画像の実在確認を行う。
+- カテゴリURLは推測で作らず、日本語は `categories/*.html`、英語は `en/categories/*.html` の実在確認後に設定する。
+- 対応カテゴリ未作成時は暫定で `../index.html`（または `../`）へ戻し、表示文言を `English Home` / `Back to English Home` などに合わせる。
+- 右カラムで同一URLを重複配置しない。
+- 関連記事は実在記事のみ（英語記事は `en/articles/*.html` 実在のみ）を掲載し、未作成記事を先行リンクしない。
+- language-menuは日英記事の相互リンク実在を確認し、small文言は `日本語記事` / `English article` を使う。
+
+
+## Category links 運用ルール
+- `Category links` 枠は、コピー元テンプレートに存在していても自動で残さない。
+- 実在するカテゴリページがある場合のみ表示する。
+- 対応カテゴリページが未作成の場合は、`Category links` 枠ごと削除する。
+- `English Home` だけを `Category links` に入れない。
+- `../index.html` へ退避する場合は、パンくずや記事下部ボタンに留める。
+- `PLC / GX Works3`、`PLC basics`、`HMI / GOT` などカテゴリ風の文言で `../index.html` にリンクしない。
+- 同じURLのリンクを右カラム内に重複して並べない。
+
+NG例:
+```html
+<section class="side-card">
+  <h3>Category links</h3>
+  <ul>
+    <li><a href="../index.html">English Home</a></li>
+  </ul>
+</section>
+```

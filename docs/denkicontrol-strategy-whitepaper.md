@@ -419,7 +419,71 @@ Before launch:
 
 The purpose of the revenue model is to make the platform sustainable while keeping incentives aligned with successful, useful matches.
 
-## 20. Product Evolution Order
+## 20. Paid Practical Assets — Future Concept
+Denkicontrol may later offer paid assets that add operational value beyond the free article library.
+
+Possible products:
+- practical checklists,
+- inspection and troubleshooting worksheets,
+- design templates,
+- comparison sheets,
+- equipment or project planning forms,
+- curated technical reference packs,
+- other reusable materials that save time in real work.
+
+Principles:
+- Core explanatory articles should remain broadly accessible and useful without payment.
+- Paid value should come from organization, reuse, time savings, convenience, or workflow support rather than simply placing existing article text behind a paywall.
+- Pricing, update responsibility, versioning, support expectations, licensing, and refund policy must be defined before sale.
+- Start only when there is evidence of repeated reader demand for a specific practical asset.
+
+## 21. Electrical Materials Distributor Partnerships — Future Concept
+A future partnership model may connect Denkicontrol readers with regional electrical-materials distributors and specialist suppliers.
+
+Potential value for readers:
+- easier access to stocked electrical materials,
+- local delivery or job-site delivery where supported,
+- access to products that may be harder to source through general marketplaces,
+- a clearer path from technical article to actual procurement.
+
+Potential value for distributors:
+- qualified inbound leads from electricians, maintenance engineers, control engineers, and related practitioners,
+- new-customer acquisition beyond existing sales relationships,
+- referral traffic from technical content that already explains the use case.
+
+Possible commercial model:
+- Denkicontrol may link readers to participating distributor sites or registration pages.
+- Revenue could come from referral fees, affiliate-style commissions, qualified-lead fees, sponsored placement, or another clearly disclosed agreement.
+- Recommendations must remain reader-first and should not imply a distributor is technically superior merely because it pays a fee.
+
+This partnership model should be evaluated separately from generic retail affiliate links because distributor value often includes inventory depth, account support, logistics, and local delivery rather than price alone.
+
+## 22. Denkicontrol Points / Member Benefit System — Future Concept
+A future points or member-benefit system may connect the My Page layer with procurement, paid content, consultations, and other platform services.
+
+Possible earning events:
+- purchases or qualified registrations through participating supplier/distributor links,
+- purchase of eligible Denkicontrol paid materials or services,
+- other future platform actions explicitly defined in the program rules.
+
+Possible uses:
+- discounts on eligible Denkicontrol paid materials,
+- consultation or service credits,
+- member benefits,
+- other platform rewards introduced later.
+
+Strategic purpose:
+- give repeat users a reason to return through Denkicontrol rather than bypassing the platform after the first referral,
+- create a common member-benefit layer across content, procurement, services, and future B2B functionality,
+- strengthen the value of My Page without forcing registration for ordinary article reading.
+
+Guardrails:
+- Do not launch points merely to create artificial lock-in.
+- Define expiration, refunds, cancellations, abuse prevention, accounting/tax treatment, terms, and consumer-law implications before launch.
+- Avoid storing payment-card numbers directly in Denkicontrol systems. If saved-payment functionality is introduced later, use a suitable payment provider/tokenized approach and keep raw card data outside Denkicontrol infrastructure.
+- The economic model must be sustainable; rewards should not exceed the value created by the underlying referral or transaction.
+
+## 23. Product Evolution Order
 The current preferred sequence is:
 
 1. **Refresh the existing article base.**
@@ -447,13 +511,22 @@ The current preferred sequence is:
    - Use the member/account layer as the trust and identity foundation.
    - Keep the platform role distinct from Denkicontrol acting as a service provider.
    - Validate legal, contractual, payment, licensing, and dispute-handling structure before launch.
-9. **Evaluate AI technical navigation.**
+9. **Evaluate paid practical assets.**
+   - Keep core technical articles broadly accessible.
+   - Charge for reusable tools, templates, or workflow value rather than hiding ordinary explanations.
+10. **Evaluate electrical-materials distributor partnerships.**
+   - Focus on procurement value such as stock, logistics, account support, and job-site delivery.
+   - Test referral or affiliate-style models only with clear disclosure and reader-first selection.
+11. **Evaluate a Denkicontrol points/member-benefit layer.**
+   - Tie rewards to real platform value and My Page usage.
+   - Validate economics, accounting/tax, refund, abuse, and program-rule requirements before launch.
+12. **Evaluate AI technical navigation.**
    - Use the matured article library as the knowledge foundation.
    - Connect unresolved AI sessions to human consultation rather than forcing an answer.
 
-This ordering is intentional. Heavy account, community, marketplace, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
+This ordering is intentional. Heavy account, community, marketplace, points, AI, and priority-support features should not distract from the current task of improving the knowledge asset and achieving more stable site economics.
 
-## 21. Repository Documentation Policy
+## 24. Repository Documentation Policy
 Role definitions under `docs/`:
 - `docs/denkicontrol-site-strategy.md`
   - Higher-level site strategy. If it conflicts with this whitepaper, the site-strategy document takes precedence.
@@ -466,12 +539,12 @@ Role definitions under `docs/`:
 - `docs/en-article-backlog.md`
   - Backlog for English article creation and revision candidates.
 
-## 22. Next Actions
+## 25. Next Actions
 Execution order after this whitepaper:
 1. Continue the current existing-article refresh cycle.
 2. Strengthen contextual internal linking while preserving end-of-article related navigation.
 3. Define a small technical-term help-panel prototype using selected recurring terms.
 4. Continue hub design and Search Console-responsive page improvements.
-5. Keep My Page, member community/forum, priority/emergency support, manufacturer-sponsored technical content, B2B work matching, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.
-6. When future traffic and repeat-user activity justify platform expansion, evaluate the member identity layer before community or B2B matching features.
-7. Before any manufacturer sponsorship or B2B fee model goes live, define disclosure, neutrality, contract, responsibility, and compliance requirements in a separate implementation decision.
+5. Keep My Page, member community/forum, priority/emergency support, manufacturer-sponsored technical content, B2B work matching, paid practical assets, distributor partnerships, points/member benefits, and AI technical navigation documented as future stages; do not implement them solely because they are now documented.
+6. When future traffic and repeat-user activity justify platform expansion, evaluate the member identity layer before community, points, or B2B matching features.
+7. Before any manufacturer sponsorship, distributor referral model, points program, paid-content offer, or B2B fee model goes live, define disclosure, neutrality, contract, responsibility, payment, accounting/tax, refund, privacy, and compliance requirements in a separate implementation decision.

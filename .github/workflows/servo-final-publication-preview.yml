@@ -1,0 +1,145 @@
+name: Servo final publication preview
+
+on:
+  push:
+    paths:
+      - '.github/workflows/servo-final-publication-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-final-preview:
+    if: ${{ github.ref_name == 'preview-servo-final' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Build integrated publication
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+
+          rsync -a ./ _site/             --exclude '_site/'             --exclude '.git/'             --exclude '.github/'             --exclude '/docs/rules/catalog.json'             --exclude 'node_modules/'             --exclude '.netlify/'             --exclude '.wrangler/'             --exclude '.cache/'             --exclude 'tmp/'             --exclude 'temp/'             --exclude '*.zip'             --exclude '*.tar'             --exclude '*.tar.gz'             --exclude '*.7z'             --exclude '*.psd'             --exclude '*.ai'
+
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
+          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Optimize published images to WebP
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
+
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0             | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+                dst="${src%.*}.webp"
+                [ -e "$dst" ] && exit 0
+                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+              ' _ {}
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json, os
+
+          root = Path('_site')
+          image_root = root / 'assets' / 'images'
+          mapping = {}
+          build = Path(os.environ['RUNNER_TEMP']) / 'integration-build'
+          keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
+          for src in image_root.rglob('*'):
+              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
+                  continue
+              if src.relative_to(root).as_posix() in keep_originals:
+                  continue
+              dst = src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size > 0:
+                  rel_src = src.relative_to(root).as_posix()
+                  rel_dst = dst.relative_to(root).as_posix()
+                  mapping[rel_src] = rel_dst
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')
+
+          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              new = text
+              for old, replacement in mapping.items():
+                  new = new.replace('/' + old, '/' + replacement)
+                  new = new.replace(old, replacement)
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+
+          for old in mapping:
+              src = root / old
+              if src.exists():
+                  src.unlink()
+
+          stale = []
+          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for match in pattern.findall(text):
+                  candidate = root / match.lstrip('/')
+                  if not candidate.exists():
+                      stale.append(f'{path}: {match}')
+          if stale:
+              print('\n'.join(stale[:100]))
+              raise SystemExit(1)
+          PY
+
+          bytes=$(du -sb _site | cut -f1)
+          limit=$((900 * 1024 * 1024))
+          test "$bytes" -lt "$limit"
+
+      - name: Verify final standalone publication
+        run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Publish verified artifact into isolated preview path
+        run: |
+          set -euo pipefail
+          rm -rf final-preview
+          mkdir -p final-preview
+          rsync -a _site/ final-preview/
+          cp "${RUNNER_TEMP}/integration-build/publication-final-checks.json" final-preview/publication-final-checks.json
+          cp "${RUNNER_TEMP}/integration-build/published-image-mapping.json" final-preview/published-image-mapping.json
+
+          git config user.name 'denkicontrol-final-preview'
+          git config user.email 'actions@users.noreply.github.com'
+          git add final-preview
+          git commit -m 'chore: publish verified servo final preview [final-preview-generated]'
+          git push origin "HEAD:${GITHUB_REF_NAME}"

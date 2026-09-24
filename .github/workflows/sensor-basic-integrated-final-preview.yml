@@ -40,9 +40,16 @@ jobs:
           node scripts/check-component-regeneration.mjs "${RUNNER_TEMP}/integration-build"
           node scripts/check-integrated-publication.mjs "${RUNNER_TEMP}/integration-build"
           python scripts/test-publication-artifact.py
-      - name: Replace only sensor-basic with integrated candidate
+      - name: Materialize sensor-basic and generated publication assets
         run: |
           cp "${RUNNER_TEMP}/integration-build/candidate/articles/sensor-basic.html" articles/sensor-basic.html
+          mkdir -p assets/css assets/js
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-toc-v2.css" assets/css/article-toc-v2.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-toc-v2.js" assets/js/article-toc-v2.js
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-related.css" assets/css/article-end-related.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-feedback.css" assets/css/article-end-feedback.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-integration-compat.css" assets/css/article-integration-compat.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-integration-compat.js" assets/js/article-integration-compat.js
       - name: Verify integrated markers
         run: |
           grep -q 'class="site-header dc-shell"' articles/sensor-basic.html
@@ -53,7 +60,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add articles/sensor-basic.html
+          git add articles/sensor-basic.html assets/css/article-toc-v2.css assets/js/article-toc-v2.js assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-integration-compat.js
           if git diff --cached --quiet; then
             echo "No generated difference to commit."
             exit 0

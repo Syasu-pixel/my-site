@@ -93,6 +93,7 @@
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sensor-basic.md](../reference-notes/sensor-basic.md) — sensor-basic 公式参照メモ | articles/sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/rule-alignment-v1.md](../rule-alignment-v1.md) — AI編集部ルール整合メモ v1 | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/search-console-content-improvement-log.md](../search-console-content-improvement-log.md) — Search Console Content Improvement Log | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/search-data-acquisition-rules.md](../search-data-acquisition-rules.md) — 検索データ取得・保存ルール（正本） | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |
@@ -126,6 +127,7 @@
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [docs/worklogs/sto-basic-refresh-20260925.md](../worklogs/sto-basic-refresh-20260925.md) — STO記事 全面刷新 作業ログ 2026-09-25 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 
 ## 実装・設定の参照先

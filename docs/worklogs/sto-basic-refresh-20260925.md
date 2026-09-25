@@ -73,3 +73,42 @@ Google
 ## 公式参照
 - docs/reference-notes/sto-basic.md を新規作成して管理する。
 - 公式資料確認日: 2026-09-25
+
+
+## 採用画像（2026-09-26反映）
+- Hero: `assets/images/sto-basic/sto-hero.png`
+  - 元ファイル: 安全トルクオフを学ぶ工場エンジニアたち.png
+  - byte size: 1,665,820
+  - SHA-256: 9a580533e34f189b64189dea0f07646c50915c301b9e137d2fb15fac193e2af6
+- OGP: `assets/images/sto-basic/sto-ogp.png`
+  - 元ファイル: sto安全機能を学ぶ工場イラスト.png
+  - byte size: 1,881,528
+  - SHA-256: 3d16773cd50fb45fbb0e7f1898fc614ac3e3a9e091ec0801e2ee0304de0133ec
+- 本文1（通常停止とSTOの違い）: `assets/images/sto-basic/sto-normal-stop-vs-sto.png`
+  - byte size: 1,889,515
+  - SHA-256: afa1f1d3d2ca73409ddf669ee9398cf905c955eb4d02ef11636320abf1bdda6b
+- 本文2（STOとSS1の違い）: `assets/images/sto-basic/sto-vs-ss1.png`
+  - byte size: 1,825,222
+  - SHA-256: 015f7e4b770c33a6f943254e0c303368c01ec6adfe64ef77f12f269137d986da
+- 本文3（安全要求からSTOまで）: `assets/images/sto-basic/sto-safety-flow.png`
+  - byte size: 1,941,855
+  - SHA-256: a2a7196244634aa28a572c181ce75a3f289d824713d9808df15aae5cbe3a7839
+- 本文4（安全な確認フロー）: `assets/images/sto-basic/sto-safe-check-flow.png`
+  - byte size: 1,994,447
+  - SHA-256: 8dd4aa4fe93e1ab7ea093a26a3652858688c59bdd6d34ece48c53257318a42e8
+
+配置ルート:
+- `.github/workflows/binary-image-transfer.yml` の検証付き転送を使用。
+- 全6画像でWorkflow成功を確認。
+- GitHub contents APIのblob SHAと元ファイルから算出したGit blob SHAが全件一致。
+- mainへの直接転送なし。
+
+## 画像・HTML統合監査
+- OGP / twitter:image は `sto-ogp.png` に統一。
+- Hero背景は `sto-hero.png`。
+- 本文4図の新パスをHTMLへ統合。
+- 旧 `sto-overview.png` / `sto-safety-circuit.png` / `sto-reset-checklist.png` の参照はHTMLから除去。
+- 目次アンカー欠損なし。
+- ID重複なし。
+- section / div 開閉数一致。
+- 最終Preview承認前のためmainへはマージしない。

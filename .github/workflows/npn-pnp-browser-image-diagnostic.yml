@@ -1,0 +1,74 @@
+name: NPN PNP browser image diagnostic
+
+on:
+  push:
+    branches:
+      - preview-npn-pnp-publication-final
+    paths:
+      - .github/workflows/npn-pnp-browser-image-diagnostic.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-npn-pnp-publication-final
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Diagnose remote render
+        run: |
+          cat > /tmp/diag.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const url='https://preview-npn-pnp-publication.denkicontrol-preview.pages.dev/articles/npn-pnp-basic.html';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:390,height:844}});
+          const errors=[];
+          page.on('requestfailed',r=>errors.push({url:r.url(),failure:r.failure()?.errorText||''}));
+          const res=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+          await page.evaluate(()=>new Promise(r=>setTimeout(r,1500)));
+          const data=await page.evaluate(()=>{
+            const imgs=[...document.images].filter(i=>i.src.includes('npn-pnp-basic')).map(i=>({
+              src:i.src,
+              complete:i.complete,
+              naturalWidth:i.naturalWidth,
+              naturalHeight:i.naturalHeight,
+              display:getComputedStyle(i).display,
+              visibility:getComputedStyle(i).visibility,
+              opacity:getComputedStyle(i).opacity,
+              rect:{w:i.getBoundingClientRect().width,h:i.getBoundingClientRect().height}
+            }));
+            const hero=document.querySelector('.article-hero::before');
+            const heroEl=document.querySelector('.article-hero');
+            return {
+              title:document.title,
+              imgs,
+              heroBackground: heroEl ? getComputedStyle(heroEl,'::before').backgroundImage : null,
+              heroRect: heroEl ? {w:heroEl.getBoundingClientRect().width,h:heroEl.getBoundingClientRect().height} : null
+            };
+          });
+          fs.writeFileSync('.github/npn-pnp-browser-image-diagnostic.json',JSON.stringify({status:res?.status(),...data,requestFailures:errors},null,2));
+          await browser.close();
+          JS
+          node /tmp/diag.mjs
+
+      - name: Commit browser diagnostic
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/npn-pnp-browser-image-diagnostic.json
+          git commit -m "Preview-only: record browser image diagnostic"
+          git push origin HEAD:preview-npn-pnp-publication-final

@@ -709,6 +709,21 @@
       line-height:1.75;
     }
 
+    .related-card-thumb{
+      margin:-16px -16px 14px;
+      aspect-ratio:16/9;
+      overflow:hidden;
+      border-radius:19px 19px 12px 12px;
+      background:#eaf1f8;
+      border-bottom:1px solid #d7e4f3;
+    }
+
+    .related-card-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
     .article-footer-nav{
       display:flex;
       flex-wrap:wrap;
@@ -1596,6 +1611,7 @@
         <a href="#basic">ワンショット回路の基本</a>
         <a href="#flow">動作の流れ</a>
         <a href="#ladder">簡略ラダー例</a>
+        <a href="#read-order">状態と変化の読み方</a>
         <a href="#field">現場での使い方</a>
         <a href="#check">確認ポイント</a>
       </div>
@@ -1606,8 +1622,8 @@
         <div class="section-card" id="basic">
           <h2>ワンショット回路は「一瞬だけ信号を出す」ための回路</h2>
           <p>
-            ワンショット回路は、入力条件がONになった瞬間だけ、
-            <span class="mark">短い信号を1回だけ出す</span>ために使います。
+            ワンショット回路は、入力条件がOFFからONへ変化した瞬間をとらえ、
+            <span class="mark">PLCプログラム上で1回だけ成立する信号</span>を作るために使います。一般的なPLCでは、立ち上がり検出の結果は1スキャンだけONになる考え方です。
           </p>
           <p>
             押しボタンやセンサーがONのままだと、通常の接点ではON状態が続きます。
@@ -1729,8 +1745,21 @@
           <div class="note-box">
             <h3>GX Works3で見るときの注意</h3>
             <p>
-              ワンショットの命令名は、PLC機種や書き方によって異なります。ONS、PLS、DIFUなど表記が違っても、基本は「立ち上がりの瞬間だけ信号を出す」と考えると追いやすいです。
+              ワンショットや立ち上がり検出の命令名・記号・動作仕様はメーカーやPLCシリーズで異なります。特定メーカーの命令名を他社PLCへそのまま当てはめず、対象機種の命令リファレンスで確認してください。基本の考え方は「OFF→ONの変化を1回だけ拾う」です。
             </p>
+          </div>
+        </div>
+
+
+
+        <div class="section-card" id="read-order">
+          <h2>ワンショットは「入力状態」と「変化」を分けて読む</h2>
+          <p>ラダーを読むときは、入力が現在ONかどうかと、今回OFFからONへ変わったかどうかを分けて考えると理解しやすくなります。通常接点はONしている間条件が成立しますが、立ち上がり検出は変化したタイミングだけ成立します。</p>
+          <div class="check-grid">
+            <div class="check-item check-item--important"><h3>通常接点</h3><p>入力がONしている間、条件が成立し続ける考え方です。</p></div>
+            <div class="check-item check-item--field"><h3>立ち上がり検出</h3><p>OFF→ONへ変わったタイミングを1回だけ拾う考え方です。</p></div>
+            <div class="check-item"><h3>後段の処理</h3><p>カウンタ、内部状態、処理開始など、ワンショットを何のきっかけに使っているかを追います。</p></div>
+            <div class="check-item check-item--warning"><h3>メーカー差</h3><p>命令名や細かな仕様は対象PLCの公式資料で確認します。</p></div>
           </div>
         </div>
 
@@ -1792,43 +1821,38 @@
 
         <div class="section-card">
           <h2>関連記事</h2>
-          <p>
-            ワンショット回路は、タイマー・カウンタ・自己保持・インターロックと組み合わせて使うと理解しやすくなります。
-          </p>
+          <p>ワンショット回路は、タイマー・カウンタ・自己保持・PLCスキャンとつなげて読むと、「状態」と「変化」の違いを整理しやすくなります。</p>
 
           <div class="related-grid">
-            <a class="related-card" href="timer-circuit-basic.html">
-              <h3>タイマー回路とは？</h3>
-              <p>一定時間後に動かす考え方を整理できます。</p>
-            </a>
-
-            <a class="related-card" href="self-hold-circuit.html">
-              <h3>自己保持回路とは？</h3>
-              <p>ボタンを離しても動作を保持する基本回路です。</p>
-            </a>
-
-            <a class="related-card" href="start-stop-circuit-basic.html">
-              <h3>起動停止回路の基本</h3>
-              <p>起動・停止の流れを先に押さえたい人向けです。</p>
-            </a>
-
-            <a class="related-card" href="interlock-basic.html">
-              <h3>インターロック回路の基本</h3>
-              <p>同時動作を防ぐ考え方を整理します。</p>
-            </a>
-
             <a class="related-card" href="counter-circuit-basic.html">
+              <div class="related-card-thumb"><img src="../assets/images/counter-circuit-basic/counter-circuit-basic-ogp.png" alt="カウンタ回路の基本記事" loading="lazy" decoding="async"></div>
               <h3>カウンタ回路の基本</h3>
-              <p>ワンショット信号と相性がよいカウント回路です。</p>
+              <p>ワンショットで作った1回分の信号を、回数として数える考え方につなげます。</p>
             </a>
-
+            <a class="related-card" href="timer-circuit-basic.html">
+              <div class="related-card-thumb"><img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ogp.png" alt="タイマー回路の基本記事" loading="lazy" decoding="async"></div>
+              <h3>タイマー回路とは？</h3>
+              <p>「1回だけ成立する信号」と「一定時間成立させる処理」の違いを整理できます。</p>
+            </a>
+            <a class="related-card" href="self-hold-circuit.html">
+              <div class="related-card-thumb"><img src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.png" alt="自己保持回路の基本記事" loading="lazy" decoding="async"></div>
+              <h3>自己保持回路とは？</h3>
+              <p>一瞬のきっかけを受けた後に、状態を保持する考え方を確認できます。</p>
+            </a>
+            <a class="related-card" href="plc-scan-basic.html">
+              <div class="related-card-thumb"><img src="../assets/images/plc-scan-basic/plc-scan-basic-ogp.png" alt="PLCスキャンの基本記事" loading="lazy" decoding="async"></div>
+              <h3>PLCのスキャンとは？</h3>
+              <p>ワンショットが「1スキャンだけ成立する」という考え方を理解する土台になります。</p>
+            </a>
+            <a class="related-card" href="interlock-basic.html">
+              <div class="related-card-thumb"><img src="../assets/images/interlock-basic/interlock-basic-ogp.png" alt="インターロック回路の基本記事" loading="lazy" decoding="async"></div>
+              <h3>インターロック回路の基本</h3>
+              <p>きっかけ信号の後で、許可条件や禁止条件をどう考えるかにつなげます。</p>
+            </a>
             <a class="related-card" href="plc-io-unit-basic.html">
-              <h3>PLCの入力と出力の違い</h3>
-              <p>信号の入口と出口を整理してから読むと分かりやすくなります。</p>
-            </a>
-            <a class="related-card" href="plc-tc-device-basic.html">
-              <h3>PLCのT・Cとは？</h3>
-              <p>タイマTとカウンタCのデバイス番号、現在値、設定値、接点としての使われ方を整理しています。</p>
+              <div class="related-card-thumb"><img src="../assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp.png" alt="PLC入出力ユニットの基本記事" loading="lazy" decoding="async"></div>
+              <h3>PLC入力・出力ユニットとは？</h3>
+              <p>ワンショットの元になる入力信号と、処理後の出力先をI/Oの流れから整理します。</p>
             </a>
           </div>
 

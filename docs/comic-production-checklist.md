@@ -10,7 +10,8 @@
 - [ ] 必要な `docs/reference-notes/{slug}.md` を確認した
 - [ ] `docs/comic-style-guide.md` を確認した
 - [ ] `docs/comic-character-sheet.md` を確認した
-- [ ] `docs/image-generation-rules.md` のキャラクター正本を確認した
+- [ ] `assets/images/comic-character-anchors/yonkoma-chibi-senpai-kouhai-anchor-01.png` を実際に開いて、先輩・後輩の見た目を目視確認した
+- [ ] `docs/image-generation-rules.md` の関連キャラクタールールも確認した
 - [ ] 四コマで伝えるテーマを1つに絞った
 
 ## 2. 台本
@@ -23,7 +24,8 @@
 - [ ] 最終コマまたは投稿文に記事CTAがある
 
 ## 3. 画像生成
-- [ ] `assets/images/character-templates/senpai-kouhai-character-template.png` を正本参照した
+- [ ] `assets/images/comic-character-anchors/yonkoma-chibi-senpai-kouhai-anchor-01.png` を最優先アンカーとして参照した
+- [ ] 通常記事用 character template は補助参照に留め、四コマ用正本と競合させていない
 - [ ] パイロット採用後はパイロット四コマもアンカー参照した
 - [ ] 先輩・後輩が別人化していない
 - [ ] ヘルメット色・服装・髪型・年齢感が一致している

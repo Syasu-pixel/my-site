@@ -203,7 +203,7 @@ Operating concept:
 - Video production is not a current priority because of its higher creation and processing burden. Re-evaluate video only when the operating cost and workflow are justified.
 - Prefer a repeatable, low-cost workflow over high-volume posting. The objective is qualified inflow to Denkicontrol and brand familiarity, not social reach by itself.
 
-The detailed creation checklist, character-consistency rules, image-generation steps, self-review, approval flow, and per-platform posting format should live in the repository's production rules/checklists rather than in this strategy document.
+The detailed production rules live in `docs/comic-style-guide.md`, `docs/comic-character-sheet.md`, and `docs/comic-production-checklist.md`. These are conditional GitHub rules for four-panel/SNS comic work and should be evaluated whenever the task involves comic production, character consistency, or comic-based article distribution.
 
 ## 9. Technical SEO Priorities
 Priority audit checklist:

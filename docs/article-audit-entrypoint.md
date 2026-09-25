@@ -198,7 +198,7 @@ language-menu等の相対URLは、文字列だけで broken 判定しない。
 公式資料が必要な技術記事では、次を分けて確認する。
 
 - 記事に公式資料リンクが表示されているか
-- `docs/reference-notes/{slug}.md` があるか
+- `docs/reference-notes/{slug}.md` があるか（公式資料を参照して記事を作成・更新した場合は必須）
 - メーカー名
 - 公式URL
 - 資料名 / マニュアル名

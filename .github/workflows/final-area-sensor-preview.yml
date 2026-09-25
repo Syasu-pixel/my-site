@@ -96,23 +96,21 @@ jobs:
           python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
       - name: Materialize only the final reviewed page and its referenced assets
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re, shutil
-          site=Path('_site')
-          target=Path('articles/area-sensor-basic.html')
-          final=site/target
-          target.write_bytes(final.read_bytes())
-          html=final.read_text(encoding='utf-8')
-          refs=set()
-          for m in re.finditer(r'(?:https://denkicontrol\\.com/|/|\\.\\./)?(assets/(?:images|css|js)/[^\\s"\\'<>?#)]+)',html):
-              refs.add(m.group(1))
-          for ref in sorted(refs):
-              src=site/ref
-              if src.is_file():
-                  dst=Path(ref); dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
-          print('materialized refs',len(refs))
-          PY
+          cp _site/articles/area-sensor-basic.html articles/area-sensor-basic.html
+          mkdir -p assets/css assets/js assets/images/area-sensor-basic
+          cp _site/assets/css/article-toc-v2.css assets/css/article-toc-v2.css
+          cp _site/assets/css/article-end-related.css assets/css/article-end-related.css
+          cp _site/assets/css/article-end-feedback.css assets/css/article-end-feedback.css
+          cp _site/assets/js/article-toc-v2.js assets/js/article-toc-v2.js
+          cp _site/assets/js/article-feedback.js assets/js/article-feedback.js
+          cp _site/assets/js/site-search.js assets/js/site-search.js
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-hero.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-ogp.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-01.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-02.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-03.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-04.webp assets/images/area-sensor-basic/
+          cp _site/assets/images/area-sensor-basic/area-sensor-basic-05.webp assets/images/area-sensor-basic/
       - name: Commit final integrated Preview surface
         run: |
           git config user.name "github-actions[bot]"

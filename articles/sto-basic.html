@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>STOとは？インバータやサーボで使う安全停止の考え方をやさしく解説</title>
-  <meta name="description" content="STOとは、インバータやサーボドライブがモータへトルクを出せない状態にする安全機能です。非常停止、安全リレー、安全ドアスイッチとのつながり、普通の停止信号との違い、復帰しない時の確認ポイントを初心者向けにやさしく解説します。">
+  <title>STOとは？Safe Torque Offの仕組み・SS1との違い・注意点をやさしく解説</title>
+  <meta name="description" content="STO（Safe Torque Off／安全トルク遮断）とは何かを初心者向けに解説。通常停止やSS1、機械ブレーキ、非常停止との違い、STOでは停止過程を制御しないこと、感電防止用の電源遮断ではないこと、安全回路とのつながりを公式資料ベースで整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/sto-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/sto-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/sto-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/sto-basic.html">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="STOとは？インバータやサーボで使う安全停止の考え方をやさしく解説">
-  <meta property="og:description" content="STOは、モータのトルクを安全側で出せなくする安全機能です。非常停止や安全リレーとの関係、普通の停止信号との違いを現場目線で整理します。">
+  <meta property="og:title" content="STOとは？Safe Torque Offの仕組み・SS1との違いを解説">
+  <meta property="og:description" content="STOはモータのトルクを発生させる駆動エネルギを遮断する安全機能です。通常停止、SS1、ブレーキ、非常停止との違いを安全面も含めて整理します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/sto-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/sto-basic/sto-hero.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -1394,43 +1394,46 @@ body{
     <section class="article-hero" aria-labelledby="page-title">
       <div class="article-hero-copy">
         <span class="hero-label">制御の基礎</span>
-        <h1 id="page-title">STOとは？<br>インバータやサーボで使う安全停止の考え方をやさしく解説</h1>
+        <h1 id="page-title">STOとは？<br>Safe Torque Offの仕組み・SS1との違いをやさしく解説</h1>
         <p class="hero-lead">
-          STOは、インバータやサーボドライブがモータへトルクを出せない状態にする安全機能です。
-          普通の停止信号とは分けて、安全回路側の停止として考えると理解しやすくなります。
+          STO（Safe Torque Off）は、ドライブがモータへトルクを発生させるための駆動エネルギを安全側で遮断する機能です。
+          「普通の停止」「SS1」「ブレーキ」「電源遮断」との違いを整理すると、役割が分かりやすくなります。
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
-          <a class="btn btn-secondary" href="#overview">基本を順番に見る</a>
+          <a class="btn btn-primary" href="#conclusion">30秒で結論を見る</a>
+          <a class="btn btn-secondary" href="#comparison">違いから理解する</a>
         </div>
+        <p style="margin:16px 0 0;font-size:12px;color:#64748b;font-weight:700">
+          <time datetime="2026-09-25">最終更新：2026年9月25日</time> ／ 公式資料確認日：2026年9月25日
+        </p>
       </div>
     </section>
 
     <section class="top-summary" aria-label="記事の導入まとめ">
       <section class="summary-card summary-card--fit">
-        <h2>向いている人</h2>
+        <h2>この記事で分かること</h2>
         <ul>
-          <li>STOが何を止める機能なのか知りたい人</li>
-          <li>安全リレーや非常停止とのつながりを整理したい人</li>
-          <li>インバータやサーボの安全入力を現場目線で理解したい人</li>
+          <li>STOが実際に遮断するもの</li>
+          <li>通常停止・SS1・ブレーキとの違い</li>
+          <li>非常停止や安全リレーとの関係</li>
         </ul>
       </section>
 
       <section class="summary-card summary-card--notyet">
-        <h2>まだ不要な人</h2>
+        <h2>最初に注意</h2>
         <ul>
-          <li>特定メーカーの端子番号だけを今すぐ知りたい人</li>
-          <li>PL/SILや安全カテゴリの詳細計算だけを知りたい人</li>
-          <li>設備仕様やメーカー資料を確認せずに配線変更したい人</li>
+          <li>STOは停止過程を制御する機能ではありません</li>
+          <li>STOは感電防止用の電源遮断ではありません</li>
+          <li>機種ごとの配線・復帰条件は公式資料確認が必要です</li>
         </ul>
       </section>
 
       <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>STOは<span class="mark">モータのトルクを出せなくする安全機能</span>です。</li>
-          <li>普通の停止信号ではなく、<span class="mark">安全回路側の停止</span>として扱います。</li>
-          <li>復帰しない時は、<span class="mark">安全入力・アラーム・復帰手順</span>を順番に見ます。</li>
+          <li>STOは<span class="mark">トルク生成エネルギを遮断する安全機能</span></li>
+          <li>回転中なら<span class="mark">惰性で動き続ける可能性がある</span></li>
+          <li>必要に応じて<span class="mark">SS1やブレーキ等を組み合わせる</span></li>
         </ul>
       </section>
     </section>
@@ -1438,35 +1441,35 @@ body{
     <section class="mini-toc-card" aria-labelledby="mini-toc-title">
       <h2 id="mini-toc-title">この記事でわかること</h2>
       <div class="mini-toc">
-        <a href="#conclusion">先に結論</a>
-        <a href="#overview">STOとは</a>
-        <a href="#normal-stop">普通の停止との違い</a>
-        <a href="#flow">安全回路とのつながり</a>
-        <a href="#where">どんな時に使うか</a>
-        <a href="#trouble">復帰しない時の確認</a>
-        <a href="#caution">注意点</a>
-        <a href="#summary">まとめ</a>
+        <a href="#conclusion">30秒で結論</a>
+        <a href="#overview">STOの仕組み</a>
+        <a href="#comparison">通常停止との違い</a>
+        <a href="#ss1">SS1・ブレーキとの違い</a>
+        <a href="#flow">安全回路との関係</a>
+        <a href="#misunderstanding">よくある誤解</a>
+        <a href="#trouble">動かない時の考え方</a>
+        <a href="#caution">設計・保守の注意</a>
       </div>
     </section>
 
     <div class="page-layout">
       <div class="main-column">
         <section class="section-card" id="conclusion">
-          <h2>1. 先に結論</h2>
+          <h2>1. STOとは？30秒で分かる結論</h2>
           <p>
-            STOは、<strong>Safe Torque Off</strong> の略で、インバータやサーボドライブがモータへトルクを出せない状態にする安全機能です。
-            日本語では「安全トルク遮断」と考えるとイメージしやすいです。
+            STOは <strong>Safe Torque Off</strong> の略で、日本語では一般に「安全トルク遮断」と呼ばれます。
+            インバータやサーボドライブが、モータへトルクや推力を発生させるための駆動エネルギを安全側で遮断する機能です。
           </p>
           <p>
-            ここで大事なのは、STOは単なる停止指令ではないということです。
-            PLCから「停止してください」と命令する制御停止ではなく、安全回路からの入力でドライブ側の出力段を安全側へ落とし、モータが力を出せない状態にします。
+            三菱電機FAでは、STOを外部機器からの入力に基づいてモータ駆動エネルギを電子的に遮断する機能として説明し、
+            IEC/EN 60204-1の<strong>停止カテゴリ0に相当</strong>するとしています。
           </p>
 
           <div class="key-highlight">
-            <h3>STOは「回転を止める命令」ではなく「トルクを出せない状態にする機能」</h3>
+            <h3>いちばん大事なポイント</h3>
             <p>
-              モータがすぐに完全停止するかどうかは、機械の慣性やブレーキの有無で変わります。
-              ただし、STOが働くとドライブはモータへ駆動トルクを出せない状態になります。
+              STOは「決められた減速時間でモータを止める機能」ではありません。
+              トルクを出せない状態にする機能なので、回転中にSTOが働いた場合の停止距離や停止時間は、慣性・負荷・機械構造・機種固有の停止挙動などに左右されます。
             </p>
           </div>
 
@@ -1476,7 +1479,7 @@ body{
                 <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>STOは、インバータやサーボに入る安全入力だね。普通の停止信号とは分けて考えた方がいいよ。</p>
+                <p><span class="talk-name talk-name--senpai">先輩</span>STOは「モータを減速させる命令」ではなく、「トルクを作るエネルギを安全側で遮断する機能」と覚えると分かりやすいよ。</p>
               </div>
             </div>
             <div class="talk-row talk-row--right">
@@ -1484,42 +1487,56 @@ body{
                 <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>PLCで停止命令を出すのとは違うんですね。安全側でトルクを出させないイメージですか？</p>
+                <p><span class="talk-name talk-name--kouhai">新人</span>STOが入った瞬間に、その場でピタッと止まるとは限らないんですね。</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="section-card" id="overview">
-          <h2>2. STOとは</h2>
+        <section class="section-card" id="official-sources">
+          <h2>メーカー公式資料を確認して作成しています</h2>
           <p>
-            STOは、インバータやサーボアンプの内部で、モータへトルクを発生させるための出力を安全側で遮断する機能です。
-            制御電源や表示が残っていても、STO条件が成立していない場合はモータにトルクを出せません。
+            この記事は、STOの一般原理について三菱電機FA・オムロンFAなどの公式情報を確認して整理しています。
+            型式固有の端子名、配線、復帰条件、安全性能レベル、アラームについては、実際に使用する機器の取扱説明書・機能安全マニュアルを優先してください。
+          </p>
+          <ul class="simple-list">
+            <li><a href="https://www.mitsubishielectric.co.jp/fa/solutions/competencies/safety/features/servo.html" target="_blank" rel="noopener noreferrer">三菱電機FA：ACサーボ 安全機能</a></li>
+            <li><a href="https://www.mitsubishielectric.co.jp/fa/products/drv/servo/pmerit/mr_j5/amp/index.html" target="_blank" rel="noopener noreferrer">三菱電機FA：MELSERVO-J5 安全監視機能</a></li>
+            <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/4/178/" target="_blank" rel="noopener noreferrer">オムロンFA：セーフティ機能を搭載したドライブ機器</a></li>
+          </ul>
+          <p style="margin-top:12px;font-size:13px;color:#64748b">公式資料確認日：2026年9月25日</p>
+        </section>
+
+        <section class="section-card" id="overview">
+          <h2>2. STOが実際に遮断するもの</h2>
+          <p>
+            STOが対象にするのは、モータへトルクや推力を発生させるための駆動エネルギです。
+            制御回路や表示部まで必ず電源OFFになるわけではないため、ドライブの表示が点灯していても、STO状態では運転できない機種があります。
           </p>
           <p>
-            そのため、STOは非常停止、安全ドアスイッチ、ライトカーテン、安全リレー、安全PLCなどと組み合わせて使われることがあります。
-            危険エリアに人が入る可能性がある場面で、モータが力を出せない状態を作るための機能です。
+            ここは「電源が入っている＝モータを動かせる」と考えると混乱しやすいポイントです。
+            STOはドライブ内部の安全機能として、トルクを発生できない状態を作ります。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/sto-basic/sto-overview.png" alt="STOがモータのトルク出力を遮断する基本説明図" loading="lazy" decoding="async">
-            <figcaption>STOは、ドライブがモータへトルクを出せない状態にする安全機能です。</figcaption>
+            <img src="../assets/images/sto-basic/sto-overview.png" alt="STOがモータのトルク生成エネルギを遮断する基本概念図" loading="lazy" decoding="async">
+            <figcaption>STOの基本は、モータへトルクを発生させる駆動エネルギを安全側で遮断することです。</figcaption>
           </figure>
 
-          <div class="field-highlight">
-            <h3>制御電源が入っていても、STOが入っていると動かない</h3>
+          <div class="danger-box">
+            <h3>STOは感電防止用の電源遮断ではありません</h3>
             <p>
-              インバータやサーボの画面が点灯していても、STO入力が成立していなければ運転できないことがあります。
-              「電源はあるのに動かない」時は、STO入力を確認する場面があります。
+              STOを有効にしても、ドライブやモータが電源から電気的に切り離されたことにはなりません。
+              保守・点検で電気的な安全確保が必要な場合は、設備の安全手順とメーカー資料に従い、適切な電源隔離を行う必要があります。
             </p>
           </div>
         </section>
 
-        <section class="section-card" id="normal-stop">
-          <h2>3. 普通の停止信号との違い</h2>
+        <section class="section-card" id="comparison">
+          <h2>3. 普通の停止信号とSTOは何が違う？</h2>
           <p>
-            普通の停止信号は、PLCや操作スイッチからドライブへ「停止してください」と指令する制御信号です。
-            一方、STOは安全回路側の信号で、ドライブがモータへトルクを出せない状態にする安全機能です。
+            通常の停止は、PLCや操作スイッチからドライブへ停止指令を出し、運転制御の中でモータを止める考え方です。
+            一方のSTOは、危険源となるトルクを発生できない状態にするための安全機能です。
           </p>
 
           <div class="table-wrap">
@@ -1527,192 +1544,216 @@ body{
               <thead>
                 <tr>
                   <th>項目</th>
-                  <th>普通の停止</th>
+                  <th>通常の停止</th>
                   <th>STO</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>主な目的</th>
-                  <td class="cell-blue">制御上の停止</td>
-                  <td class="cell-orange">安全側でトルクを出せない状態にする</td>
+                  <th>主な役割</th>
+                  <td class="cell-blue">運転制御として止める</td>
+                  <td class="cell-orange">トルク生成エネルギを安全側で遮断する</td>
                 </tr>
                 <tr>
-                  <th>信号の出どころ</th>
-                  <td>PLC、操作スイッチ、制御プログラムなど</td>
-                  <td>安全リレー、安全PLC、安全ドア、非常停止など</td>
+                  <th>停止過程</th>
+                  <td>制御プログラムやドライブ設定に従って減速できる</td>
+                  <td>STOそのものは減速過程を制御しない</td>
                 </tr>
                 <tr>
-                  <th>考え方</th>
-                  <td>通常運転の中で止める</td>
-                  <td>危険時に安全条件として止める</td>
+                  <th>安全機能としての位置づけ</th>
+                  <td>通常制御だけでは安全機能の代わりにならない</td>
+                  <td>機能安全設計の一部として使用する</td>
                 </tr>
                 <tr>
-                  <th>注意点</th>
-                  <td>故障時や配線異常時の安全保証とは別に考える</td>
-                  <td>機械仕様・安全設計・メーカー資料に従って扱う</td>
+                  <th>機種確認</th>
+                  <td>運転仕様・パラメータを確認</td>
+                  <td>機能安全マニュアル・安全入力仕様を確認</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <div class="note-box">
-            <h3>STOはブレーキそのものではない</h3>
+            <h3>「止まった」と「安全にトルクを出せない」は別の確認です</h3>
             <p>
-              STOはトルクを出せない状態にする機能です。
-              機械によっては慣性で回り続ける場合や、保持ブレーキ・メカブレーキとの組み合わせが必要な場合があります。
+              通常停止でモータが停止していても、それだけでSTO状態とは限りません。
+              逆にSTOが働いていても、慣性などで機械がすぐ完全停止するとは限りません。
+            </p>
+          </div>
+        </section>
+
+        <section class="section-card" id="ss1">
+          <h2>4. STOとSS1・ブレーキの違い</h2>
+          <p>
+            STOを理解するときは、<strong>SS1（Safe Stop 1）</strong>との違いを押さえると分かりやすくなります。
+            三菱電機FAの説明では、SS1はまず減速を開始し、停止確認のための条件を満たした後にSTOへ移行する安全機能です。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>機能</th>
+                  <th>考え方</th>
+                  <th>ポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>STO</th>
+                  <td class="cell-orange">トルク生成エネルギを遮断</td>
+                  <td>停止過程そのものは制御しない</td>
+                </tr>
+                <tr>
+                  <th>SS1</th>
+                  <td class="cell-blue">減速してからSTOへ移行</td>
+                  <td>回転エネルギが大きい機械などで使い分ける</td>
+                </tr>
+                <tr>
+                  <th>機械ブレーキ</th>
+                  <td class="cell-green">機械的に保持・制動</td>
+                  <td>垂直軸や落下防止など、機械側の要求に応じて必要</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="key-highlight">
+            <h3>STOだけで十分かは機械ごとに決まります</h3>
+            <p>
+              慣性で長く動く軸、重力で動く垂直軸、停止後の保持が必要な機械などでは、STOだけでは安全要求を満たせない場合があります。
+              必要な安全機能はリスクアセスメントと機械仕様から決めます。
             </p>
           </div>
         </section>
 
         <section class="section-card" id="flow">
-          <h2>4. 安全回路とSTOのつながり</h2>
+          <h2>5. 非常停止・安全ドア・安全リレーとSTOの関係</h2>
           <p>
-            STOは、非常停止や安全ドアスイッチから直接つながるというより、安全リレーや安全PLCを経由してドライブのSTO入力へ入る構成がよくあります。
-            安全入力が成立している時だけSTO入力が有効になり、ドライブが運転できる状態になります。
+            非常停止スイッチや安全ドアスイッチは「危険を検知・要求する側」、STOは「ドライブ側でトルクを出せなくする安全機能」と考えると整理しやすくなります。
+          </p>
+          <p>
+            実際の設備では、安全リレーや安全PLCなどが安全入力を監視し、その安全出力を使ってドライブのSTO機能を動作させる構成があります。
+            ただし、接続方式や必要なチャンネル数、診断、リセット方法は機種・安全設計によって異なります。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/sto-basic/sto-safety-circuit.png" alt="非常停止や安全ドアスイッチから安全リレーを経由してSTO入力へ接続する流れ" loading="lazy" decoding="async">
-            <figcaption>安全回路からの信号で、ドライブのSTO入力を成立させる流れです。</figcaption>
+            <img src="../assets/images/sto-basic/sto-safety-circuit.png" alt="非常停止や安全ドアから安全判断を経てSTOへつながる一般的な流れの概念図" loading="lazy" decoding="async">
+            <figcaption>非常停止や安全ドアは安全要求の入口、STOはドライブ側でトルクを遮断する安全機能として位置づけます。</figcaption>
           </figure>
-
-          <ul class="simple-list">
-            <li><strong>非常停止：</strong>押されると安全回路が落ち、STO入力も不成立になる</li>
-            <li><strong>安全ドアスイッチ：</strong>扉が開くと安全条件が崩れ、STO側を停止条件にする</li>
-            <li><strong>安全リレー：</strong>CH1/CH2やリセット、EDMを見て安全出力を制御する</li>
-            <li><strong>STO入力：</strong>ドライブ側の安全入力として、トルク出力の可否に関わる</li>
-          </ul>
-
-          <div class="danger-box">
-            <h3>安全回路はPLCの通常出力だけで代用しない</h3>
-            <p>
-              STOを安全機能として使う場合、安全入力・安全リレー・安全PLC・ドライブ側仕様を含めた設計が必要です。
-              PLCの通常出力だけで安全機能の代わりにする考え方は危険です。
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="where">
-          <h2>5. どんな時に使う？</h2>
-          <p>
-            STOは、モータやサーボが動く機械で、人が危険エリアに入る可能性がある場合に使われることがあります。
-            たとえば、安全ドアを開けた時、非常停止が押された時、ライトカーテンが遮光された時などです。
-          </p>
 
           <div class="check-grid">
             <div class="check-item check-item--important">
               <h3>非常停止</h3>
-              <p>非常停止が押された時に、ドライブのトルク出力を安全側で止める流れに使われます。</p>
+              <p>危険時に停止を要求するための操作機器です。STOそのものと同一ではありません。</p>
             </div>
             <div class="check-item check-item--important">
               <h3>安全ドア</h3>
-              <p>ガード扉が開いた時に、危険部が動かないようにする安全条件として使われます。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>ライトカーテン</h3>
-              <p>危険エリアへの侵入を検知した時に、駆動側を停止条件へ倒す構成で使われます。</p>
+              <p>ガードの開閉状態を安全系へ伝え、危険源を止める判断に使います。</p>
             </div>
             <div class="check-item check-item--field">
               <h3>安全リレー・安全PLC</h3>
-              <p>安全入力を監視し、条件成立時だけSTO入力を許可する役割を持ちます。</p>
+              <p>安全入力を監視し、要求された安全機能を実行するための安全出力を制御します。</p>
+            </div>
+            <div class="check-item check-item--field">
+              <h3>STO</h3>
+              <p>ドライブ側でトルク生成エネルギを遮断し、意図しない駆動を防ぐ役割を担います。</p>
             </div>
           </div>
         </section>
 
-        <section class="section-card" id="trouble">
-          <h2>6. STOが復帰しない時の確認ポイント</h2>
+        <section class="section-card" id="misunderstanding">
+          <h2>6. STOで誤解しやすい3つのポイント</h2>
+
+          <h3>① STOを入れれば必ず瞬時停止するわけではない</h3>
           <p>
-            STOが解除されず、ドライブが運転できない時は、いきなり本体故障と決めつけずに、
-            安全入力側から順番に確認します。
+            STOは減速指令ではありません。回転中の機械がどのように停止するかは、機械の慣性、負荷、ブレーキ、ドライブ固有の挙動などで変わります。
+          </p>
+
+          <h3>② STOは電源OFF・電気的隔離ではない</h3>
+          <p>
+            STO状態でも主回路や制御回路に電圧が残る構成があります。点検・保守のための電源隔離とSTOは分けて考えます。
+          </p>
+
+          <h3>③ STOだけで非常停止システム全体が完成するわけではない</h3>
+          <p>
+            非常停止、安全ドア、ライトカーテン、安全リレー、安全PLC、STOなどはそれぞれ役割が違います。
+            設備全体として必要な安全機能と性能を満たすように組み合わせます。
+          </p>
+        </section>
+
+        <section class="section-card" id="trouble">
+          <h2>7. 「電源は入るのに動かない」時の考え方</h2>
+          <p>
+            ドライブの表示は点灯しているのに運転できない場合、STOや安全回路が関係していることがあります。
+            ただし、安全機能の端子を短絡したり、ジャンパーで無効化して原因確認する方法は避けます。
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/sto-basic/sto-reset-checklist.png" alt="STOが復帰しない時の確認ポイントをまとめたチェックリスト" loading="lazy" decoding="async">
-            <figcaption>STOが解除されない時は、非常停止・安全ドア・安全リレー・STO入力・アラームを順番に確認します。</figcaption>
+            <img src="../assets/images/sto-basic/sto-reset-checklist.png" alt="STO関連で運転できない時に安全状態と診断情報を確認する流れの概念図" loading="lazy" decoding="async">
+            <figcaption>安全装置の状態、ドライブの診断表示、設備の正式な復帰手順を確認し、機種固有の判断は公式マニュアルへ戻ります。</figcaption>
           </figure>
 
           <div class="check-grid">
             <div class="check-item">
-              <h3>非常停止が戻っているか</h3>
-              <p>非常停止スイッチが押されたままだと、安全回路が復帰しません。</p>
+              <h3>安全装置の状態</h3>
+              <p>非常停止、安全ドアなど、安全要求が残っていないかを設備の表示・手順で確認します。</p>
             </div>
             <div class="check-item">
-              <h3>安全ドアが閉まっているか</h3>
-              <p>扉のズレやアクチュエータ位置の不良で、安全入力が成立しないことがあります。</p>
+              <h3>安全リレー・安全PLCの診断</h3>
+              <p>安全系に異常表示や未復帰状態がないか、メーカーの診断手順に従って確認します。</p>
             </div>
             <div class="check-item">
-              <h3>安全リレーが正常か</h3>
-              <p>安全リレーの電源、入力、リセット、EDM、出力状態を確認します。</p>
+              <h3>ドライブ側の診断表示</h3>
+              <p>STO関連の状態表示やアラームがある場合は、対象機種のマニュアルで意味を確認します。</p>
             </div>
             <div class="check-item">
-              <h3>STO入力2系統がそろっているか</h3>
-              <p>STO-A / STO-B、STO1 / STO2など、2系統入力が両方成立しているか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>ドライブのアラーム</h3>
-              <p>過負荷、過電流、エンコーダ異常など、別のアラームが残っていないか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>復帰手順</h3>
-              <p>安全確認、リセット、アラーム解除、起動操作の順番が設備仕様どおりか見ます。</p>
+              <h3>正式な復帰手順</h3>
+              <p>安全確認、リセット、再起動の順序は設備仕様に従います。機種ごとの操作を推測で行わないことが重要です。</p>
             </div>
           </div>
 
-          <div class="talk-thread">
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>ドライブに電源が入っているのに動かない時、STOが原因のこともあるんですね。</p>
-              </div>
-            </div>
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>そうだね。画面が点いていても、STO入力が成立していないとトルクを出せない。安全回路側から順番に見るのが大事だよ。</p>
-              </div>
-            </div>
+          <div class="danger-box">
+            <h3>安全回路をバイパスして原因確認しない</h3>
+            <p>
+              STOや安全入力を不用意に短絡・ジャンパーして運転可能にする行為は、安全機能を失わせるおそれがあります。
+              復旧は設備図面、メーカー資料、社内手順に基づき、適切な資格・権限を持つ担当者が行ってください。
+            </p>
           </div>
         </section>
 
         <section class="section-card" id="caution">
-          <h2>7. 注意点</h2>
-          <p>
-            STOは安全に関わる機能なので、通常の制御信号と同じ感覚で扱わない方がよいです。
-            復帰しないからといって、安全入力を短絡したり、STO端子を安易にジャンパーしたりするのは危険です。
-          </p>
-
+          <h2>8. 設計・改造・保守で押さえる注意点</h2>
           <ul class="simple-list">
-            <li>STO入力を不用意にバイパスしない</li>
-            <li>安全回路を通常PLC出力だけで代用しない</li>
-            <li>機械の慣性やブレーキの有無も合わせて考える</li>
-            <li>設備仕様、図面、メーカー資料、社内手順に従う</li>
+            <li><strong>機種固有仕様を一般化しない：</strong>STO入力名、論理、チャンネル数、復帰条件、診断方法はメーカー・シリーズごとに確認します。</li>
+            <li><strong>PL / SIL / Categoryはシステム全体で判断：</strong>ドライブ単体の対応値だけで設備全体の安全性能を決めません。</li>
+            <li><strong>停止時間・停止距離を確認：</strong>STO単独で危険が残る場合は、SS1や機械ブレーキなど必要な方策を検討します。</li>
+            <li><strong>電気的隔離と混同しない：</strong>保守作業では設備の電源遮断・ロックアウト等、別の安全手順が必要になる場合があります。</li>
+            <li><strong>リスクアセスメントを優先：</strong>安全機能は「STOがあるから大丈夫」ではなく、機械の危険源から必要機能を決めます。</li>
           </ul>
 
-          <div class="danger-box">
-            <h3>STOは人を守るための安全機能</h3>
+          <div class="note-box">
+            <h3>STOの安全性能は機種と構成で変わります</h3>
             <p>
-              実際の設計、改造、復旧判断、安全カテゴリやPL/SILの判断は、
-              設備仕様・リスクアセスメント・メーカー資料・社内ルールに従ってください。
+              対応するPL、SIL、Categoryや必要な外部機器は、ドライブのシリーズ・安全オプション・配線・安全コントローラ構成によって異なります。
+              設計時は対象機種の機能安全マニュアルを確認してください。
             </p>
           </div>
         </section>
 
         <section class="section-card" id="summary">
-          <h2>8. まとめ</h2>
+          <h2>9. まとめ</h2>
           <p>
-            STOは、インバータやサーボドライブがモータへトルクを出せない状態にする安全機能です。
-            普通の停止信号とは違い、非常停止や安全ドアスイッチ、安全リレーなどの安全回路と組み合わせて使います。
+            STOは、インバータやサーボドライブがモータへトルクや推力を発生させるための駆動エネルギを安全側で遮断する機能です。
+            通常の停止信号、SS1、機械ブレーキ、非常停止、電源遮断とはそれぞれ役割が異なります。
           </p>
-
           <ul class="simple-list">
-            <li>STOは、モータのトルクを安全側で出せなくする機能</li>
-            <li>普通の停止信号ではなく、安全回路側の停止として考える</li>
-            <li>復帰しない時は、安全入力・STO入力・アラーム・復帰手順を順番に確認する</li>
+            <li>STO = Safe Torque Off（安全トルク遮断）</li>
+            <li>STOは停止カテゴリ0に相当する安全機能</li>
+            <li>STOそのものは減速過程を制御しない</li>
+            <li>SS1は減速してからSTOへ移行する安全機能</li>
+            <li>STOは感電防止用の電源遮断ではない</li>
+            <li>必要な安全機能は機械のリスクアセスメントと公式資料から決める</li>
           </ul>
 
           <div class="article-footer-nav">

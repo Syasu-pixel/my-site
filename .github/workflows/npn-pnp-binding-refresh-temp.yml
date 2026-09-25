@@ -1,0 +1,87 @@
+name: NPN PNP binding refresh temporary
+
+on:
+  push:
+    branches:
+      - preview-npn-pnp-basic-refresh-20260925
+    paths:
+      - .github/workflows/npn-pnp-binding-refresh-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-npn-pnp-basic-refresh-20260925
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refresh only NPN PNP source fingerprints
+        run: |
+          python - <<'PY'
+          import hashlib, json, re, runpy
+          from pathlib import Path
+
+          root=Path('.').resolve()
+          target='articles/npn-pnp-basic.html'
+          article=(root/target).read_text(encoding='utf-8')
+          article_sha=hashlib.sha256(article.encode()).hexdigest()
+
+          ns=runpy.run_path(str(root/'scripts/prepare-article-heroes.py'))
+          css_slots=ns['css_slots']
+          sha=ns['sha']
+          pkg=root/'.github/article-components/hero'
+          manifest=json.loads((pkg/'manifest.json').read_text(encoding='utf-8'))
+          exception=manifest.get('cssExceptions',{}).get(target)
+          expected=[]
+          for style in css_slots(article,exception):
+              for slot in style['slots']:
+                  raw=slot['raw']; urls=[]
+                  def replace(m):
+                      urls.append(m.group(0))
+                      return '{{ urls['+str(len(urls)-1)+'] | safe }}'
+                  template=re.sub(r'url\(\s*(?:"[^"]*"|\x27[^\x27]*\x27|[^)]*)\s*\)',replace,raw)
+                  expected.append({
+                      'sourceSha256':sha(raw),
+                      'template':'css/'+sha(template)+'.css.njk',
+                      'urls':urls,
+                  })
+
+          bindings_path=pkg/'css-bindings.json'
+          bindings=json.loads(bindings_path.read_text(encoding='utf-8'))
+          if target not in bindings:
+              raise SystemExit('target missing from css bindings')
+          bindings[target]=expected
+          bindings_path.write_text(json.dumps(bindings,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          oracle_path=root/'.github/article-components/end/all-preservation-oracle.json'
+          oracle=json.loads(oracle_path.read_text(encoding='utf-8'))
+          hits=0
+          def walk(v):
+              global hits
+              if isinstance(v,dict):
+                  if v.get('path')==target and 'sourceSha256' in v:
+                      v['sourceSha256']=article_sha
+                      hits+=1
+                  for x in v.values(): walk(x)
+              elif isinstance(v,list):
+                  for x in v: walk(x)
+          walk(oracle)
+          if hits!=1:
+              raise SystemExit(f'unexpected oracle sourceSha hits: {hits}')
+          oracle_path.write_text(json.dumps(oracle,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('updated',target,'sha256',article_sha,'hero slots',len(expected))
+          PY
+      - name: Commit refreshed fingerprints and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/article-components/hero/css-bindings.json .github/article-components/end/all-preservation-oracle.json
+          git rm .github/workflows/npn-pnp-binding-refresh-temp.yml
+          git commit -m "Sync NPN PNP hero and end fingerprints"
+          git push origin HEAD:preview-npn-pnp-basic-refresh-20260925

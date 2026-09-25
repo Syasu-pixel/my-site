@@ -17,7 +17,9 @@ Denkicontrol の記事を元に、SNS・記事導線用の四コマ漫画を制�
 
 ## 3. キャラクター
 - 基本キャラは既存の先輩・後輩の2人。
-- 画像生成の正本は `assets/images/character-templates/senpai-kouhai-character-template.png`。
+- 四コマ漫画の最優先キャラクター正本は `assets/images/comic-character-anchors/yonkoma-chibi-senpai-kouhai-anchor-01.png`。
+- 四コマ制作前に、この正本画像を実際に開いて目視確認する。
+- 通常記事用 `assets/images/character-templates/senpai-kouhai-character-template.png` は補助参照とし、四コマでは採用済みちびキャラ正本を優先する。
 - HTML会話用の `assets/images/guide-characters/` は画像生成正本として使わない。
 - 詳細な固定条件は `docs/comic-character-sheet.md` に従う。
 - 新しい別キャラを勝手に作らない。
@@ -63,7 +65,7 @@ Denkicontrol の記事を元に、SNS・記事導線用の四コマ漫画を制�
 1. 本ファイル
 2. `docs/comic-character-sheet.md`
 3. `docs/comic-production-checklist.md`
-4. 画像生成正本キャラクターテンプレート
+4. 四コマ用ちびキャラ正本アンカー `assets/images/comic-character-anchors/yonkoma-chibi-senpai-kouhai-anchor-01.png`
 5. ユーザー承認後の最初のパイロット四コマ
 
 パイロット採用後は、後続作品のキャラクター、配色、線、吹き出し、余白、CTAの第二アンカーとして扱う。

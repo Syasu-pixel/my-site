@@ -26,7 +26,7 @@
 ## 3. 画像生成
 - [ ] `assets/images/comic-character-anchors/yonkoma-chibi-senpai-kouhai-anchor-01.png` を最優先アンカーとして参照した
 - [ ] 通常記事用 character template は補助参照に留め、四コマ用正本と競合させていない
-- [ ] パイロット採用後はパイロット四コマもアンカー参照した
+- [ ] 正式採用済みパイロット `assets/images/comics/sensor-basic/sensor-basic-yonkoma-01-pilot.png` を実際に開いて第二アンカーとして参照した
 - [ ] 先輩・後輩が別人化していない
 - [ ] ヘルメット色・服装・髪型・年齢感が一致している
 - [ ] 青系のシリーズ世界観を維持している
@@ -73,4 +73,7 @@
 - サイト名表示
 - 背景密度
 
-量産はパイロットのユーザー承認後に開始する。
+正式採用パイロット:
+- `assets/images/comics/sensor-basic/sensor-basic-yonkoma-01-pilot.png`
+
+量産は、この正本画像を基準にユーザー承認済みの世界観を維持して開始する。

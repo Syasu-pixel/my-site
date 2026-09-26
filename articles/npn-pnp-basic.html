@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NPN / PNP の違いとは？センサ配線とPLC入力の基本を初心者向けに整理 | 電気と制御の実務メモ</title>
-  <meta name="description" content="NPN / PNP の違いを初心者向けにやさしく整理。センサ出力の基本、0V側と+24V側の考え方、PLC入力ユニットとの組み合わせ、現場での確認ポイントまで分かりやすく解説します。">
+  <title>NPN / PNPの違いとは？センサ出力・PLC入力COM・配線の見方を解説 | 電気と制御の実務メモ</title>
+  <meta name="description" content="NPN / PNPの違いを、センサのオープンコレクタ出力とPLC入力COMの関係から解説。NPNは0V側、PNPは+24V側へ出力する考え方、+COM/-COMとの組み合わせ、NO/NCや2線式/3線式との違い、確認時の注意点を整理します。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/articles/npn-pnp-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/npn-pnp-basic.html">
@@ -12,16 +12,17 @@
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/npn-pnp-basic.html">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="NPN / PNP の違いとは？センサ配線とPLC入力の基本を初心者向けに整理">
-  <meta property="og:description" content="NPN / PNP の基本、センサ出力とPLC入力の組み合わせ、0V側と+24V側の考え方を初心者向けにやさしく整理。">
+  <meta property="article:modified_time" content="2026-09-25T00:00:00+09:00">
+  <meta property="og:title" content="NPN / PNPの違いとは？センサ出力・PLC入力COM・配線の見方を解説">
+  <meta property="og:description" content="NPN / PNPを、センサ出力とPLC入力COMの組み合わせから整理。0V側・+24V側、+COM/-COM、NO/NCとの違いを現場目線で解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/npn-pnp-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
   <meta property="og:locale" content="ja_JP">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NPN / PNP の違いとは？センサ配線とPLC入力の基本を初心者向けに整理">
-  <meta name="twitter:description" content="NPN / PNP の違い、センサ出力とPLC入力の組み合わせを現場目線でやさしく整理。">
+  <meta name="twitter:title" content="NPN / PNPの違いとは？センサ出力・PLC入力COM・配線の見方">
+  <meta name="twitter:description" content="NPN / PNPの違いを、センサ出力とPLC入力COMの組み合わせから現場目線で整理。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png">
 
   <meta name="theme-color" content="#f8fbff">
@@ -514,7 +515,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png") right center / auto 100% no-repeat;
+      background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-hero.webp") right center / auto 100% no-repeat;
       opacity:.32;
       pointer-events:none;
       z-index:0;
@@ -1171,7 +1172,7 @@
       }
 
       .article-hero::before{
-        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png") right -28px bottom -14px / 162% auto no-repeat;
+        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-hero.webp") right -28px bottom -14px / 162% auto no-repeat;
         opacity:.2;
       }
 
@@ -1272,7 +1273,7 @@
       }
 
       .article-hero::before{
-        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png") right center / auto 92% no-repeat;
+        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-hero.webp") right center / auto 92% no-repeat;
         opacity:.24;
       }
 
@@ -1327,7 +1328,7 @@
 
     @media (max-width:640px){
       .article-hero::before{
-        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-ogp.png") right -40px bottom -20px / 178% auto no-repeat;
+        background:url("../assets/images/npn-pnp-basic/npn-pnp-basic-hero.webp") right -40px bottom -20px / 178% auto no-repeat;
         opacity:.14;
       }
 
@@ -1527,13 +1528,13 @@
       <section class="article-hero">
         <div class="article-hero-copy">
           <span class="hero-label">センサ配線とPLC入力</span>
-          <h1>NPN / PNP の違いとは？<br>センサ配線とPLC入力の基本を整理</h1>
+          <h1>NPN / PNPの違いとは？<br>センサ出力とPLC入力COMの関係を整理</h1>
           <p class="hero-lead">
-            NPN / PNP は、センサ出力やPLC入力の組み合わせでよく出てくる考え方です。0V側と+24V側の違い、現場での確認ポイントを初心者向けに整理します。
+            NPN / PNPは、トランジスタ出力のセンサとPLC入力を組み合わせる時に重要な考え方です。0V側・+24V側だけでなく、入力COMやNO/NCとの違いまで整理します。
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#what-is">基本の違いを見る</a>
-            <a class="btn btn-secondary" href="#plc-input">PLC入力との関係を見る</a>
+            <a class="btn btn-secondary" href="#plc-common">PLC入力との関係を見る</a>
           </div>
         </div>
       </section>
@@ -1542,38 +1543,50 @@
         <article class="summary-card summary-card--fit">
           <h2>向いている人</h2>
           <ul>
-            <li>NPN / PNP の違いを基礎から整理したい人</li>
-            <li>センサ配線でよく分からなくなりやすい人</li>
-            <li>PLC入力ユニットとの組み合わせを理解したい人</li>
+            <li>NPN / PNPを暗記ではなく仕組みから理解したい人</li>
+            <li>センサ交換時にPLC入力COMまで確認できるようになりたい人</li>
+            <li>NO / NCや2線式 / 3線式との違いを整理したい人</li>
           </ul>
         </article>
         <article class="summary-card summary-card--notyet">
-          <h2>まだ不要な人</h2>
+          <h2>この記事だけでは足りない人</h2>
           <ul>
-            <li>NPN / PNP の配線を現場で迷わず読めている人</li>
-            <li>トランジスタ内部動作まで深く理解している人</li>
-            <li>設計実務を十分こなしている人</li>
+            <li>特定PLC入力ユニットの端子番号を確認したい人</li>
+            <li>安全回路の適合性を判断したい人</li>
+            <li>特定センサ型式の配線をそのまま施工したい人</li>
           </ul>
         </article>
         <article class="summary-card summary-card--conclusion">
           <h2>先に結論</h2>
           <ul>
-            <li>NPNは0V側につながる考え方</li>
-            <li>PNPは+24V側につながる考え方</li>
-            <li>センサ仕様・入力ユニット・実際の入力変化をセットで見る</li>
+            <li>NPN出力はON時に出力を0V側へ引き込む</li>
+            <li>PNP出力はON時に出力を+V側へ持ち上げる</li>
+            <li>センサ方式とPLC入力COMの組み合わせを必ずセットで確認する</li>
           </ul>
         </article>
+      </section>
+
+      <section class="mini-toc-card" aria-label="メーカー公式資料">
+        <h2>メーカー公式資料を確認して作成しています</h2>
+        <p>NPN / PNPはメーカーや機器側の表記によって「シンク / ソース」「+コモン / -コモン」などの言葉が混ざりやすいため、この記事ではオムロン公式の出力回路解説とI/O機器の仕様例を確認して整理しています。実機では、センサ型式とPLC入力ユニットのマニュアル・回路図を優先してください。</p>
+        <ul>
+          <li><a href="https://www.fa.omron.co.jp/view/selection/amplifierunits/popup/2_shutsuryokukeishiki.html" target="_blank" rel="noopener noreferrer">オムロン｜出力形式（NPN / PNPオープンコレクタ）</a></li>
+          <li><a href="https://www.fa.omron.co.jp/products/family/146/lineup/" target="_blank" rel="noopener noreferrer">オムロン｜NPN対応（+コモン）/ PNP対応（-コモン）の入力例</a></li>
+          <li><a href="https://www.fa.omron.co.jp/products/family/1354/specification/" target="_blank" rel="noopener noreferrer">オムロン｜NPN / PNP対応入力の電圧仕様例</a></li>
+        </ul>
+        <p><strong>記事内容更新日：</strong><time datetime="2026-09-25">2026年9月25日</time><br><strong>公式資料確認日：</strong><time datetime="2026-09-25">2026年9月25日</time></p>
       </section>
 
       <section class="mini-toc-card" aria-label="記事内メニュー">
         <h2>この記事でわかること</h2>
         <div class="mini-toc">
-          <a href="#what-is">NPN / PNP とは？</a>
-          <a href="#basic">基本の考え方</a>
-          <a href="#sensor-output">センサ出力ではどう見る？</a>
-          <a href="#plc-input">PLC入力との組み合わせ</a>
-          <a href="#field-view">現場で確認するポイント</a>
-          <a href="#mistakes">間違えやすい点</a>
+          <a href="#what-is">NPN / PNPとは？</a>
+          <a href="#current-flow">電流の流れ</a>
+          <a href="#plc-common">PLC入力COM</a>
+          <a href="#different-axis">NO/NC・2線/3線との違い</a>
+          <a href="#check">確認する順番</a>
+          <a href="#mistakes">よくある誤解</a>
+          <a href="#safety">安全上の注意</a>
           <a href="#summary">まとめ</a>
         </div>
       </section>
@@ -1581,273 +1594,205 @@
       <div class="page-layout">
         <article class="main-column">
           <section class="section-card" id="what-is">
-            <h2>NPN / PNP とは？</h2>
-            <p>
-              NPN / PNP は、主に<span class="mark">センサの出力方式</span>や、PLC入力との組み合わせを考える時に出てきます。
-            </p>
-            <p>
-              最初は難しく感じますが、初心者向けにかなりざっくり言うと、NPNは0V側、PNPは+24V側を見る考え方です。NO / NC のように「開く / 閉じる」を見るテーマではなく、どちら側へつながるかを見るテーマだと考えると整理しやすいです。
-            </p>
+            <h2>1. NPN / PNPとは？</h2>
+            <p>NPN / PNPは、主に<strong>トランジスタ出力のセンサがONした時、出力端子をどちら側へつなぐか</strong>を表す方式です。近接センサや光電センサなどでよく見かけます。</p>
+            <p>初心者向けには、<span class="mark">NPNは0V側へ、PNPは+V側へ出力する</span>と捉えると全体像をつかみやすくなります。ただし、実際の接続可否はセンサ単体では決まらず、PLC入力回路の仕様まで確認する必要があります。</p>
 
             <figure class="article-figure">
-              <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-01.png" alt="NPNとPNPの基本を比較した図。NPNは0V側、PNPは+24V側につながる考え方を説明している。">
-              <figcaption>
-                NPN / PNP の基本比較です。最初は「NPN = 0V側」「PNP = +24V側」の違いで見ると分かりやすいです。
-              </figcaption>
+              <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-overview.webp" alt="3線式センサのNPN出力とPNP出力について、NPNは0V側へ引き込み、PNPは+24V側から供給する基本とPLC入力COMの関係を左右で比較した図。" loading="lazy" decoding="async">
+              <figcaption>NPNは0V側へ引き込み、PNPは+24V側から供給するという基本を、3線式センサとPLC入力回路の代表例で整理します。</figcaption>
             </figure>
 
             <div class="key-highlight">
-              <h3>まずは0V側か+24V側かで見る</h3>
-              <p>
-                最初からシンク・ソースの言葉だけで覚えようとするより、NPNは0V側、PNPは+24V側と見た方が現場では追いやすいです。
-              </p>
+              <h3>「NPN = 0V」「PNP = +24V」だけでは不十分</h3>
+              <p>この覚え方は入口として便利ですが、実務では「センサ出力がどちら側へつながるか」と「PLC入力がどのCOM構成で受けるか」をセットで見ます。型式が違えば端子構成や入力仕様も変わります。</p>
             </div>
           </section>
 
-          <section class="section-card" id="basic">
-            <h2>まずは基本の考え方</h2>
-            <p>
-              NPN / PNP は、ON / OFF の種類ではありません。出力のつなぎ方、電流の流れ方、PLC入力との組み合わせを見る考え方です。
-            </p>
+          <section class="section-card" id="current-flow">
+            <h2>2. NPNとPNPは電流の流れ方が違う</h2>
+            <p>オープンコレクタ出力では、NPNとPNPで負荷を置く位置が変わります。オムロン公式では、NPNは<strong>電源＋とセンサ出力の間に負荷</strong>を置き、PNPは<strong>センサ出力と電源－の間に負荷</strong>を置く方式として説明されています。</p>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>NPN</h3>
-                <p>
-                  検出した時に出力が0V側につながるイメージです。よくシンク出力と呼ばれることがあります。
-                </p>
+                <h3>NPN出力</h3>
+                <p>ON時に出力トランジスタが電流を0V側へ流す方向になります。センサ出力側では一般に「カレント・シンク」と呼ばれます。</p>
               </div>
               <div class="check-item check-item--warning">
-                <h3>PNP</h3>
-                <p>
-                  検出した時に出力が+24V側につながるイメージです。よくソース出力と呼ばれることがあります。
-                </p>
+                <h3>PNP出力</h3>
+                <p>ON時に出力トランジスタが+V側から電流を供給する方向になります。センサ出力側では一般に「カレント・ソース」と呼ばれます。</p>
               </div>
               <div class="check-item check-item--field">
-                <h3>入力ユニットとの組み合わせ</h3>
-                <p>
-                  センサだけではなく、PLC入力側がどの方式を受けるかも合わせて確認します。
-                </p>
+                <h3>言葉だけで覚えない</h3>
+                <p>「シンク / ソース」はセンサ側と入力回路側で説明の基準が変わり、混乱しやすい言葉です。回路図とCOM端子で確認します。</p>
               </div>
               <div class="check-item">
-                <h3>NO / NC とは別</h3>
-                <p>
-                  NO / NC は接点の開閉、NPN / PNP は出力方式や配線の流れを見るテーマです。
-                </p>
+                <h3>24VDC設備でも型式確認</h3>
+                <p>24VDCを使う設備でも、すべての入力ユニットが同じ方式とは限りません。入力仕様を個別に確認します。</p>
               </div>
             </div>
-
-            <div class="note-box">
-              <h3>ON/OFFと混ぜない</h3>
-              <p>
-                NPN / PNP は「ONになるかOFFになるか」ではなく、ONした時にどちら側へつながるかを見る考え方です。
-              </p>
-            </div>
-          </section>
-
-          <section class="section-card" id="sensor-output">
-            <h2>センサ出力ではどう見る？</h2>
-            <p>
-              現場で一番多いのは、近接センサや光電センサの出力方式でNPN / PNPを見る場面です。センサ本体や仕様書、カタログにNPN出力 / PNP出力と書かれていることがあります。
-            </p>
-            <p>
-              この時に大事なのは、センサ単体で覚えようとしすぎず、<span class="mark">PLC入力とセットで考えること</span>です。
-            </p>
-
-            <figure class="article-figure">
-              <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-02.png" alt="NPNとPNPがどこで使われるかを説明した図。センサ出力、PLC入力ユニットとの組み合わせ、現場での確認ポイントが整理されている。">
-              <figcaption>
-                センサ出力、PLC入力ユニットとの組み合わせ、現場での確認ポイントをまとめた図です。仕様、配線、入力変化をセットで見ると整理しやすくなります。
-              </figcaption>
-            </figure>
 
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr>
-                    <th>項目</th>
-                    <th>NPN</th>
-                    <th>PNP</th>
-                  </tr>
+                  <tr><th>見る項目</th><th>NPN</th><th>PNP</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>ざっくりした見方</td>
-                    <td class="cell-blue">0V側につながる</td>
-                    <td class="cell-orange">+24V側につながる</td>
-                  </tr>
-                  <tr>
-                    <td>呼ばれ方</td>
-                    <td>シンク出力と呼ばれることがある</td>
-                    <td>ソース出力と呼ばれることがある</td>
-                  </tr>
-                  <tr>
-                    <td>確認するもの</td>
-                    <td>センサ仕様、0V、入力ユニット</td>
-                    <td>センサ仕様、+24V、入力ユニット</td>
-                  </tr>
-                  <tr>
-                    <td>注意点</td>
-                    <td>入力側との組み合わせが合うか確認</td>
-                    <td>入力側との組み合わせが合うか確認</td>
-                  </tr>
+                  <tr><td>ON時の出力側</td><td class="cell-blue">0V側へ引き込む</td><td class="cell-orange">+V側へ供給する</td></tr>
+                  <tr><td>センサ出力側の一般的な呼び方</td><td>シンク出力</td><td>ソース出力</td></tr>
+                  <tr><td>負荷の基本位置</td><td>電源＋と出力の間</td><td>出力と電源－の間</td></tr>
+                  <tr><td>PLCで次に見るもの</td><td colspan="2">入力COMと入力ユニットの対応方式</td></tr>
                 </tbody>
               </table>
             </div>
           </section>
 
-          <section class="section-card" id="plc-input">
-            <h2>PLC入力との組み合わせ</h2>
-            <p>
-              実務ではここがかなり大事です。NPN / PNP はセンサだけの話ではなく、PLC入力ユニットとの組み合わせで考える必要があります。
-            </p>
-            <p>
-              センサの出力方式と入力ユニット側の受け方が合っていないと、うまく入力が入らないことがあります。
-            </p>
+          <section class="section-card" id="plc-common">
+            <h2>3. PLC入力ではCOMの見方が重要</h2>
+            <p>センサがNPNかPNPか分かったら、次はPLC入力側の<strong>COM（共通端子）</strong>を確認します。ここが合っていないと、センサ本体が正常でもPLC入力として成立しません。</p>
+            <p>オムロンのI/O機器には、入力用として<strong>NPN対応（+コモン）</strong>、<strong>PNP対応（-コモン）</strong>と明記された製品例があります。これは分かりやすい代表例ですが、すべてのPLC・リモートI/Oへ一律に当てはめず、対象ユニットの回路図を確認してください。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-comparison.webp" alt="NPNセンサとNPN対応PLC入力の+COM、PNPセンサとPNP対応PLC入力の-COMを左右で比較し、電流の流れを示した接続例。" loading="lazy" decoding="async">
+              <figcaption>代表例では、NPN対応入力は+COM、PNP対応入力は-COMとして接続します。実機では必ず対象入力ユニットの回路図と仕様を確認してください。</figcaption>
+            </figure>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>NPN側で見る時</h3>
-                <p>
-                  センサがNPNか確認し、0V側につながる流れで見ます。入力ユニットとの組み合わせも確認します。
-                </p>
+                <h3>NPNセンサを見る時</h3>
+                <p>センサがONした時に出力が0V側へ引き込まれることを確認し、接続先入力がNPN対応か、COMの扱いがどうなっているかを見ます。</p>
               </div>
               <div class="check-item check-item--warning">
-                <h3>PNP側で見る時</h3>
-                <p>
-                  センサがPNPか確認し、+24V側につながる流れで見ます。入力ユニットとの組み合わせも確認します。
-                </p>
+                <h3>PNPセンサを見る時</h3>
+                <p>センサがONした時に+V側へ出力されることを確認し、接続先入力がPNP対応か、COMの扱いがどうなっているかを見ます。</p>
               </div>
               <div class="check-item check-item--field">
-                <h3>GX Works3で確認</h3>
-                <p>
-                  入力モニタで、センサ反応時にX入力が入るか確認します。画面だけでなく現物も見ます。
-                </p>
+                <h3>入力LEDだけで決めない</h3>
+                <p>センサ表示灯、PLC入力LED、ソフト上の入力状態は別々に確認します。どこまで信号が届いているかを分けて考えます。</p>
               </div>
               <div class="check-item">
-                <h3>仕様 → 配線 → 入力変化</h3>
-                <p>
-                  センサ仕様、配線、実際の入力変化の順で見ると、かなり切り分けしやすくなります。
-                </p>
+                <h3>交換時は同じ方式か確認</h3>
+                <p>外形や検出距離が同じでも、NPN / PNPが異なる型式があります。交換時は出力方式を型式表で確認します。</p>
               </div>
             </div>
 
             <div class="field-highlight">
-              <h3>センサとPLC入力はセットで見る</h3>
-              <p>
-                センサLEDが反応していても、PLC入力が変わらなければ制御上は条件が成立しません。仕様、配線、入力モニタを合わせて確認します。
-              </p>
+              <h3>「センサが反応しているのにPLC入力が入らない」時</h3>
+              <p>センサLEDが点灯していても、出力方式と入力回路が合わなければPLC入力は成立しません。センサ型式 → 出力方式 → PLC入力仕様 → COM → 実際の入力状態の順で確認すると切り分けしやすくなります。</p>
             </div>
           </section>
 
-          <section class="section-card" id="field-view">
-            <h2>現場で確認するポイント</h2>
-            <p>
-              NPN / PNP で迷った時は、いきなり結線だけを追うより、仕様、電源、入力変化を順番に見ると整理しやすいです。
-            </p>
+          <section class="section-card" id="different-axis">
+            <h2>4. NPN / PNP、NO / NC、2線式 / 3線式は別の分類</h2>
+            <p>現場で混同しやすいポイントです。NPN / PNPだけを見て「ONの仕方」や「線の本数」まで判断してはいけません。</p>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>まず仕様を確認する</h3>
-                <p>
-                  センサ本体、型番、仕様書、カタログでNPNかPNPかを先に確認します。見た目だけで判断しない方が安全です。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>24Vと0Vを見る</h3>
-                <p>
-                  テスターで24V / 0Vを確認してから見ると安心です。意外とここで配線ミスがあります。
-                </p>
+                <h3>NPN / PNP</h3>
+                <p>主にトランジスタ出力の方式。ON時に出力をどちら側へつなぐかを見る分類です。</p>
               </div>
               <div class="check-item check-item--warning">
-                <h3>入力が変わるかを見る</h3>
-                <p>
-                  GX Works3 のデバイスモニタなどで、センサ反応時に入力がちゃんと変わるか確認します。
-                </p>
+                <h3>NO / NC</h3>
+                <p>検出時・非検出時に出力がON/OFFのどちらになるかという動作論理の分類です。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>2線式 / 3線式</h3>
+                <p>電源線と信号線の構成に関する分類です。NPN / PNPとは別軸で確認します。</p>
               </div>
               <div class="check-item">
-                <h3>混在に注意する</h3>
-                <p>
-                  NPNとPNPを混在させると、正常に動かないだけでなくトラブルの原因になりやすいです。
-                </p>
+                <h3>配線色</h3>
+                <p>一般的な配色例はありますが、色だけで方式を断定しません。型式と公式配線図を基準にします。</p>
+              </div>
+            </div>
+
+            <div class="note-box">
+              <h3>交換時に「線数が同じだから大丈夫」は危険</h3>
+              <p>同じ3線式でもNPN / PNPが異なる製品があります。NO / NCや検出動作も別に確認し、型式末尾まで照合してください。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="check">
+            <h2>5. 現場ではこの順番で確認する</h2>
+            <p>NPN / PNPで迷った時は、配線を触る前に資料と型式から確認します。安全手順に従い、通電状態での結線変更や無理な測定は行わないでください。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/npn-pnp-basic/npn-pnp-basic-check-flow.webp" alt="センサ型式、出力回路、PLC入力仕様、COM接続先、実際の入力状態の順に確認する5ステップを示した図。" loading="lazy" decoding="async">
+              <figcaption>型式 → 出力回路 → PLC入力仕様 → COM → 入力状態の順で確認すると、NPN / PNPの取り違えや入力不成立を切り分けやすくなります。</figcaption>
+            </figure>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>1. センサ型式</h3>
+                <p>本体ラベル・図面・部品表から型式を確認し、メーカー資料でNPN / PNPを特定します。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>2. センサ出力回路</h3>
+                <p>出力回路図を見て、ON時に0V側へ引き込むのか、+V側へ出すのかを確認します。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>3. PLC入力仕様</h3>
+                <p>入力ユニットの型式と、NPN / PNPのどちらへ対応する入力回路かを確認します。</p>
+              </div>
+              <div class="check-item">
+                <h3>4. COM接続</h3>
+                <p>入力ユニットの回路図を見て、COM端子が+24V側か0V側かを確認します。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>5. 入力状態</h3>
+                <p>設備の安全を確保したうえで、センサ表示・PLC入力表示・ソフト上の入力状態を分けて確認します。</p>
               </div>
             </div>
 
             <div class="talk-thread">
               <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>NPN / PNP は、センサだけじゃなくてPLC入力側とセットで見ないと間違えやすいよ。</p>
-                </div>
+                <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター"></div>
+                <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>「NPNだからこう配線」と先に決めるより、センサと入力ユニットの回路図を並べて見る方が間違いが少ないよ。</p></div>
               </div>
               <div class="talk-row talk-row--right">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>なるほど。センサがNPNかPNPかだけじゃなくて、入力ユニット側も見るんですね。</p>
-                </div>
+                <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター"></div>
+                <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>センサ側だけじゃなくて、COMまで見て一つの回路として考えるんですね。</p></div>
               </div>
-            </div>
-
-            <div class="danger-box">
-              <h3>配線変更は電源と仕様を確認してから</h3>
-              <p>
-                NPN / PNP まわりは、配線を間違えると入力が入らないだけでなく、機器トラブルにつながることがあります。電源、0V、+24V、入力仕様を確認してから作業してください。
-              </p>
             </div>
           </section>
 
           <section class="section-card" id="mistakes">
-            <h2>間違えやすい点</h2>
-            <p>
-              NPN / PNP は、NO / NC やON / OFFと混ざりやすいテーマです。見るポイントを分けて考えると整理しやすくなります。
-            </p>
-
+            <h2>6. よくある誤解</h2>
             <div class="check-grid">
               <div class="check-item check-item--warning">
-                <h3>NO / NC と混同する</h3>
-                <p>
-                  NO / NC は接点の開閉、NPN / PNP は配線や出力方式の考え方です。同じ意味ではありません。
-                </p>
+                <h3>NPN = NO、PNP = NCだと思う</h3>
+                <p>別の分類です。NPN / PNPとNO / NCは独立して確認します。</p>
               </div>
               <div class="check-item check-item--warning">
-                <h3>センサだけで判断する</h3>
-                <p>
-                  センサがNPN / PNPどちらかだけでなく、PLC入力側がどう受けるかも確認します。
-                </p>
+                <h3>+COM / -COMを見ずに接続する</h3>
+                <p>入力ユニット側の共通端子を見ないと、方式の組み合わせを判断できません。</p>
               </div>
               <div class="check-item">
-                <h3>実際の入力変化を見ない</h3>
-                <p>
-                  仕様上は合っているように見えても、実際に入力が変わるかを確認しないと判断しきれません。
-                </p>
+                <h3>シンク / ソースの言葉だけで判断する</h3>
+                <p>誰を基準に説明しているかで混乱しやすいため、回路図と電流の向きで確認します。</p>
               </div>
               <div class="check-item check-item--field">
-                <h3>24V / 0V を追わない</h3>
-                <p>
-                  電源の取り方や共通線の考え方を見落とすと、NPN / PNP の理解が崩れやすいです。
-                </p>
+                <h3>型式末尾を見ない</h3>
+                <p>同じシリーズでもNPN / PNPで型式が分かれる場合があります。シリーズ名だけで判断しません。</p>
               </div>
             </div>
           </section>
 
-          <section class="section-card" id="summary">
-            <h2>まとめ：NPNは0V側、PNPは+24V側でまず整理する</h2>
-            <p>
-              NPN / PNP は最初は難しく見えますが、まずは「NPN = 0V側」「PNP = +24V側」と整理すると理解しやすいです。
-            </p>
-            <p>
-              そのうえで、センサ仕様、PLC入力ユニット、24V / 0V、実際の入力変化をセットで見ていくと、現場でも追いやすくなります。
-            </p>
+          <section class="section-card" id="safety">
+            <h2>7. 確認・交換時の安全上の注意</h2>
+            <p>NPN / PNPの確認は低電圧DC回路で行うことが多いですが、設備全体にはモータ回路やAC電源、可動部が存在する場合があります。<strong>設備の停止・ロックアウト等の現場手順を優先し、資格・権限のある担当者がメーカー資料に従って作業</strong>してください。</p>
+            <div class="danger-box">
+              <h3>通電状態での結線変更を前提にしない</h3>
+              <p>誤配線は入力不成立だけでなく、機器故障や予期しない動作につながる可能性があります。安全装置を無効化せず、電源遮断や残留電圧確認など所属先の正式手順に従ってください。</p>
+            </div>
+          </section>
 
+          <section class="section-card" id="summary">
+            <h2>まとめ：NPN / PNPは「センサ出力 + PLC入力COM」で見る</h2>
+            <p>NPNはON時に0V側へ電流を流す出力、PNPは+V側から電流を供給する出力として整理できます。ただし、現場で本当に重要なのは、そのセンサが<strong>接続先PLC入力と組み合わせられるか</strong>です。</p>
+            <p>センサ型式、出力方式、PLC入力ユニット、COM、実際の入力状態を一つずつ確認すれば、NPN / PNPは暗記ではなく回路として読めるようになります。</p>
             <div class="field-highlight">
               <h3>この記事の要点</h3>
-              <p>
-                NPN / PNP はON / OFFの種類ではなく、センサ出力とPLC入力の組み合わせを見るための考え方です。仕様、配線、入力変化をセットで確認しましょう。
-              </p>
+              <p>NPN / PNP、NO / NC、2線式 / 3線式は別の分類です。センサだけを見ず、PLC入力COMまで含めて確認するのが基本です。</p>
             </div>
           </section>
 

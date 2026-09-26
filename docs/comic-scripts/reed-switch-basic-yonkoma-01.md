@@ -49,4 +49,5 @@
 ## 8. 転送確認
 - 元ファイル SHA-256: `bfa0c4669b6fd683be8faa9f77cbf3e23b6d57861047648511c28d0d86e9d563`
 - 元ファイル size: `2,241,596 bytes`
-- GitHub transfer commit / Git blob SHA は転送完了確認後に追記する。
+- GitHub transfer commit: `2da0697f87bdc99a599b5a470509aa53959bad77`
+- Git blob SHA: `793846a3e527c2e389b238e70197378fa4cc4964`

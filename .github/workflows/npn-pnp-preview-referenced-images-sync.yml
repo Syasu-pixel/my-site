@@ -17,9 +17,18 @@ jobs:
     env:
       REVIEW_COPY_ASSETS: '0'
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout final Preview branch
+        uses: actions/checkout@v4
         with:
           ref: preview-npn-pnp-publication-final
+          path: preview
+          fetch-depth: 1
+
+      - name: Checkout authored source branch
+        uses: actions/checkout@v4
+        with:
+          ref: preview-npn-pnp-basic-refresh-20260925
+          path: source
           fetch-depth: 1
 
       - uses: actions/setup-node@v4
@@ -34,12 +43,14 @@ jobs:
         with:
           version: 11.19.0
 
-      - name: Install dependencies
+      - name: Install source dependencies
+        working-directory: source
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
           python -m pip install lxml==6.1.1
 
-      - name: Build production-equivalent publication
+      - name: Build production-equivalent publication from authored source
+        working-directory: source
         run: |
           pnpm check:shells
           node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
@@ -53,7 +64,8 @@ jobs:
           node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
           python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
 
-      - name: Optimize publication images exactly like production
+      - name: Optimize source publication images exactly like production
+        working-directory: source
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq webp
@@ -69,7 +81,7 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
-          import re, json, os
+          import json, os
 
           root = Path('_site')
           image_root = root / 'assets' / 'images'
@@ -111,57 +123,61 @@ jobs:
 
           python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
 
-      - name: Sync only images referenced by final NPN PNP article
+      - name: Sync all images referenced by final NPN PNP article
         run: |
-          cp _site/articles/npn-pnp-basic.html articles/npn-pnp-basic.html
+          cp source/_site/articles/npn-pnp-basic.html preview/articles/npn-pnp-basic.html
           python3 - <<'PY'
           from pathlib import Path
           import re, shutil
 
-          root = Path('_site')
-          article = root / 'articles/npn-pnp-basic.html'
+          publish_root = Path('source/_site')
+          preview_root = Path('preview')
+          article = publish_root / 'articles/npn-pnp-basic.html'
           text = article.read_text(encoding='utf-8')
 
           refs = sorted(set(re.findall(r'assets/images/[^\s"\'()<>?#]+', text)))
-          copied = []
           missing = []
+          copied = []
 
           for rel in refs:
               rel = rel.lstrip('/')
-              src = root / rel
+              src = publish_root / rel
               if not src.is_file():
                   missing.append(rel)
                   continue
-              dst = Path(rel)
+              dst = preview_root / rel
               dst.parent.mkdir(parents=True, exist_ok=True)
               shutil.copy2(src, dst)
               copied.append(rel)
 
           if missing:
-              print('Missing referenced images:')
+              print('Missing publication image refs:')
               print('\n'.join(missing))
               raise SystemExit(1)
 
-          print('Copied referenced images:')
+          print('Copied publication image refs:')
           print('\n'.join(copied))
           PY
 
-      - name: Verify no local image reference is missing
+      - name: Verify Preview branch contains every referenced local image
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
 
-          text = Path('articles/npn-pnp-basic.html').read_text(encoding='utf-8')
+          root = Path('preview')
+          text = (root/'articles/npn-pnp-basic.html').read_text(encoding='utf-8')
           refs = sorted(set(re.findall(r'assets/images/[^\s"\'()<>?#]+', text)))
-          missing = [r for r in refs if not Path(r.lstrip('/')).is_file()]
+          missing = [r for r in refs if not (root/r.lstrip('/')).is_file()]
           if missing:
+              print('Missing after sync:')
               print('\n'.join(missing))
               raise SystemExit(1)
-          print(f'All {len(refs)} referenced images exist in preview branch.')
+          print(f'All {len(refs)} local image references exist.')
           PY
 
-      - name: Commit preview-only referenced images and remove workflow
+      - name: Commit Preview-only referenced images and remove temporary workflow
+        working-directory: preview
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

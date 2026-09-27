@@ -60,6 +60,9 @@
 | [docs/cloudflare-preview-builder-finalization.md](../cloudflare-preview-builder-finalization.md) — Cloudflare Pages Preview Builder finalization | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/cloudflare-preview-migration.md](../cloudflare-preview-migration.md) — Cloudflare Pages PR Preview migration | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/codex-update-rules.md](../codex-update-rules.md) — CODEX反映ルール（codex update rules） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
+| [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
+| [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
+| [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/dashboard-progress-status-v066.md](../dashboard-progress-status-v066.md) — AI編集部 進行状況表示 v0.6.6 | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
 | [docs/denkicontrol-site-strategy.md](../denkicontrol-site-strategy.md) — Denkicontrol サイト方針 | サイト方針、企画、読者対象、収益化、言語展開を判断する。 |
@@ -103,6 +106,7 @@
 | [docs/site-template-policy.md](../site-template-policy.md) — サイト共通ひな形・構造分離方針 v1（採用済み） | サイト構造・レイアウト・共通部品・記事制作・生成方式・移行状況を扱う。 |
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
+| [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 
@@ -111,11 +115,9 @@
 | [articles/audit-product-image-links-2026-04-12.md](../../articles/audit-product-image-links-2026-04-12.md) — 商品画像クリック導線 監査結果 (2026-04-12) | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md](../ai-editorial-tuesday-hard-stop-audit-2026-09-09.md) — AI編集部 火曜日フロー hard-stop 先回り監査 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/air-pneumatic-troubleshooting-hub-design.md](../air-pneumatic-troubleshooting-hub-design.md) — Air Pneumatic Troubleshooting Hub Design | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
-| [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
-| [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |\n| [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |
+| [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-preview-provider.md](../decisions/2026-09-06-preview-provider.md) — Decision: Preview provider v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
@@ -128,6 +130,7 @@
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 
 ## 実装・設定の参照先
 

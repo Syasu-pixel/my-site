@@ -1,0 +1,190 @@
+name: Magnetic switch final integrated Preview
+
+on:
+  push:
+    branches:
+      - preview-magnetic-switch-refresh-final-20260928
+    paths:
+      - '.github/workflows/magnetic-switch-final-preview.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: magnetic-switch-final-preview
+  cancel-in-progress: false
+
+jobs:
+  build-final-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Build production-equivalent publication
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+
+          rm -rf _site
+          rsync -a ./ _site/ \
+            --exclude '_site/' --exclude '.git/' --exclude '.github/' \
+            --exclude '/docs/rules/catalog.json' --exclude 'node_modules/' \
+            --exclude '.netlify/' --exclude '.wrangler/' --exclude '.cache/' \
+            --exclude 'tmp/' --exclude 'temp/' --exclude '*.zip' --exclude '*.tar' \
+            --exclude '*.tar.gz' --exclude '*.7z' --exclude '*.psd' --exclude '*.ai'
+
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
+          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
+
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
+            | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+                dst="${src%.*}.webp"
+                [ -e "$dst" ] && exit 0
+                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+              ' _ {}
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json, os
+          root=Path('_site'); image_root=root/'assets'/'images'
+          build=Path(os.environ['RUNNER_TEMP'])/'integration-build'
+          keep=set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
+          mapping={}
+          for src in image_root.rglob('*'):
+              if not src.is_file() or src.suffix.lower() not in {'.png','.jpg','.jpeg'}: continue
+              if src.relative_to(root).as_posix() in keep: continue
+              dst=src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size:
+                  mapping[src.relative_to(root).as_posix()]=dst.relative_to(root).as_posix()
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping),encoding='utf-8')
+          exts={'.html','.css','.js','.json','.xml'}
+          for p in root.rglob('*'):
+              if not p.is_file() or p.suffix.lower() not in exts: continue
+              try: t=p.read_text(encoding='utf-8')
+              except UnicodeDecodeError: continue
+              n=t
+              for old,new in mapping.items():
+                  n=n.replace('/'+old,'/'+new).replace(old,new)
+              if n!=t: p.write_text(n,encoding='utf-8')
+          for old in mapping:
+              p=root/old
+              if p.exists(): p.unlink()
+          PY
+
+          python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Browser audit four modes
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 --directory _site --bind 127.0.0.1 >/tmp/ms-preview.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          mkdir -p final-preview-audit
+          cat > /tmp/audit.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const cases=[
+            ['pc-light',1440,1000,'light'],
+            ['pc-dark',1440,1000,'dark'],
+            ['mobile-light',390,844,'light'],
+            ['mobile-dark',390,844,'dark']
+          ];
+          const report=[];
+          for(const [name,width,height,theme] of cases){
+            const page=await browser.newPage({viewport:{width,height}});
+            await page.goto('http://127.0.0.1:4173/articles/magnetic-switch-basic.html',{waitUntil:'networkidle'});
+            await page.evaluate(t=>{document.documentElement.setAttribute('data-dc-theme',t);},theme);
+            await page.waitForTimeout(600);
+            const state=await page.evaluate(()=>{
+              const imgs=[...document.images];
+              return {
+                title:document.title,
+                width:document.documentElement.scrollWidth,
+                clientWidth:document.documentElement.clientWidth,
+                brokenImages:imgs.filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.src),
+                hero:!!document.querySelector('.article-hero'),
+                toc:!!document.querySelector('.dc-toc-button'),
+                sharedHeader:!!document.querySelector('.dc-shell.site-header'),
+                figures:document.querySelectorAll('.article-figure img').length
+              };
+            });
+            if(state.width>state.clientWidth+2) throw new Error(name+' horizontal overflow '+JSON.stringify(state));
+            if(state.brokenImages.length) throw new Error(name+' broken images '+JSON.stringify(state.brokenImages));
+            if(!state.hero||!state.toc||!state.sharedHeader||state.figures!==3) throw new Error(name+' integrated markers missing '+JSON.stringify(state));
+            await page.screenshot({path:'final-preview-audit/'+name+'.png',fullPage:true});
+            report.push({name,...state});
+            await page.close();
+          }
+          await browser.close();
+          fs.writeFileSync('final-preview-audit/report.json',JSON.stringify(report,null,2));
+          JS
+          node /tmp/audit.mjs
+
+      - name: Upload final visual audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: magnetic-switch-final-visual-audit
+          path: final-preview-audit/
+          retention-days: 14
+
+      - name: Materialize production-equivalent final Preview branch
+        env:
+          FINAL_BRANCH: preview-magnetic-switch-publication-final-20260928
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$FINAL_BRANCH" "$GITHUB_SHA"
+          rm -f .github/workflows/magnetic-switch-final-preview.yml
+          cp _site/articles/magnetic-switch-basic.html articles/magnetic-switch-basic.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, shutil
+          root=Path('_site')
+          article=root/'articles/magnetic-switch-basic.html'
+          text=article.read_text(encoding='utf-8')
+          refs=set(re.findall(r'assets/[A-Za-z0-9_./-]+\.(?:css|js|webp|png|jpg|jpeg)',text,re.I))
+          for rel in sorted(refs):
+              src=root/rel
+              if src.is_file():
+                  dst=Path(rel); dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
+          for sub in ['assets/css','assets/js']:
+              src=root/sub
+              if src.exists(): shutil.copytree(src,Path(sub),dirs_exist_ok=True)
+          PY
+          git add articles/magnetic-switch-basic.html assets/css assets/js assets/images .github/workflows/magnetic-switch-final-preview.yml
+          git commit -m 'Preview-only: materialize magnetic switch production-equivalent Preview'
+          git push origin "HEAD:refs/heads/$FINAL_BRANCH"

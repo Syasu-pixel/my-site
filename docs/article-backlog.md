@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新し、本番公開まで完了。公開PR: #1606。Google Search ConsoleのURL検査から再クロール依頼対象。
+
 - [x] PLC設備設計シリーズ 第3回: `articles/plc-drilling-line-design-project-03.html` — 搬送制御編の本文完成・本番公開・主要導線追加まで完了。
 
 

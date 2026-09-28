@@ -1,0 +1,97 @@
+name: QA final career preview v5
+
+on:
+  push:
+    branches:
+      - qa-final-career-persol-v5
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/qa-preview-server.log 2>&1 &
+          echo $! >/tmp/qa-preview-server.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/qa-preview-server.log || true
+          exit 1
+
+      - name: Capture four visual conditions
+        run: |
+          mkdir -p qa-capture
+          cat > qa-capture.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const url = 'http://127.0.0.1:4173/articles/fa-engineer-career-service-comparison.html';
+          const cases = [
+            ['desktop-light', {width:1440,height:1000}, 'light'],
+            ['desktop-dark', {width:1440,height:1000}, 'dark'],
+            ['mobile-light', {width:390,height:844}, 'light'],
+            ['mobile-dark', {width:390,height:844}, 'dark'],
+          ];
+          for (const [name, viewport, colorScheme] of cases) {
+            const context = await browser.newContext({ viewport, colorScheme, deviceScaleFactor: 1 });
+            const page = await context.newPage();
+            const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
+            if (!response || !response.ok()) throw new Error(name + ': page failed');
+            await page.evaluate(async()=>{ if(document.fonts?.ready) await document.fonts.ready; await new Promise(r=>setTimeout(r,1000)); });
+            const dims = await page.evaluate(()=>({
+              scrollWidth: document.documentElement.scrollWidth,
+              clientWidth: document.documentElement.clientWidth,
+              title: document.title,
+              hasPersol: document.body.innerText.includes('パーソルクロステクノロジー'),
+              hasMakers: document.body.innerText.includes('メーカーズジョブ')
+            }));
+            if (dims.scrollWidth > dims.clientWidth + 2) throw new Error(name + ': horizontal overflow ' + JSON.stringify(dims));
+            if (!dims.hasPersol || !dims.hasMakers) throw new Error(name + ': service content missing');
+            const lightboxState = await page.evaluate(() => {
+              const selectImg = document.querySelector('img[src*="fa-engineer-career-service-comparison-select"]');
+              const prepareImg = document.querySelector('img[src*="fa-engineer-career-service-comparison-prepare"]');
+              return {
+                selectZoomable: !!selectImg?.classList.contains('dc-zoomable-image'),
+                prepareZoomable: !!prepareImg?.classList.contains('dc-zoomable-image'),
+                prepareFigureClass: prepareImg?.closest('figure')?.className || ''
+              };
+            });
+            if (!lightboxState.selectZoomable) throw new Error(name + ': normal explanatory image lost lightbox');
+            if (lightboxState.prepareZoomable) throw new Error(name + ': special link-style banner still has lightbox');
+            if (!lightboxState.prepareFigureClass.includes('article-link-figure')) throw new Error(name + ': special banner exception class missing');
+            await page.screenshot({ path: `qa-capture/${name}.png`, fullPage: true });
+            await context.close();
+          }
+          await browser.close();
+          JS
+          node qa-capture.mjs
+
+      - name: Upload QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-career-preview-v5-visual-qa
+          path: qa-capture/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop local server
+        if: always()
+        run: |
+          if [ -f /tmp/qa-preview-server.pid ]; then kill "$(cat /tmp/qa-preview-server.pid)" || true; fi

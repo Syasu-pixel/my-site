@@ -200,7 +200,7 @@
 
 ## 公開反映メモ
 
-- [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新し、本番公開まで完了。公開PR: #1606。Google Search ConsoleのURL検査から再クロール依頼対象。
+- [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新して公開（#1606）。続けて日本語メーカー公式資料（三菱電機FA／富士電機）で「電磁接触器」「電磁開閉器」「サーマルリレー」の正式な役割区分を再確認し、本文の用語説明・公式資料欄・最終内容更新日／公式資料確認日を追補して公開（#1614）。公式参照正本は `docs/reference-notes/magnetic-switch-basic.md`。Google Search ConsoleのURL検査から再クロール依頼対象。
 
 - [x] PLC設備設計シリーズ 第3回: `articles/plc-drilling-line-design-project-03.html` — 搬送制御編の本文完成・本番公開・主要導線追加まで完了。
 

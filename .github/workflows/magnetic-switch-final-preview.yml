@@ -111,7 +111,7 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
           mkdir -p final-preview-audit
-          cat > /tmp/audit.mjs <<'JS'
+          cat > .magnetic-switch-final-audit.mjs <<'JS'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
           const browser=await chromium.launch({headless:true});
@@ -150,7 +150,8 @@ jobs:
           await browser.close();
           fs.writeFileSync('final-preview-audit/report.json',JSON.stringify(report,null,2));
           JS
-          node /tmp/audit.mjs
+          node .magnetic-switch-final-audit.mjs
+          rm -f .magnetic-switch-final-audit.mjs
 
       - name: Upload final visual audit
         uses: actions/upload-artifact@v4

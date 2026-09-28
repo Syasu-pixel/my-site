@@ -3,26 +3,30 @@
 ## 参照した公式元
 
 - 三菱電機株式会社 FA
-  - 低圧開閉器:
-    - https://www.mitsubishielectric.co.jp/fa/products/lvd/lvsw/
-  - 電磁開閉器:
-    - https://www.mitsubishielectric.co.jp/fa/products/lvd/lvsw/items/lvms/index.html
+  - 電磁開閉器 製品情報:
+    - https://www.mitsubishielectric.co.jp/fa/products/lvd/lvsw/items/lvms/
+  - 低圧開閉器 マニュアル検索:
+    - https://www.mitsubishielectric.co.jp/fa/download/search.page?category1=&category2=&category3=&kisyu=%2Flvsw&kisyuid=&lang=1&listView=1&mode=manual&preview=&q=&sort=0
   - サーマルリレー FAQ:
     - https://fa-faq.mitsubishielectric.co.jp/faq/show/15002
-  - 技術用語「電磁開閉器」:
-    - https://fa-dic.mitsubishielectric.co.jp/faq/show/15297?category_id=880
 - 富士電機機器制御株式会社
-  - 電磁開閉器:
+  - 電磁開閉器 製品情報:
     - https://www.fujielectric.co.jp/products/magnetic_contactor/
+  - SC-NEXT 電磁接触器・電磁開閉器 カタログ:
+    - https://felib.fujielectric.co.jp/ja/M10006/M20016/document_detail/4fe2a9f6-e427-4bd9-b334-424aeec18f27
 
 ## 確認対象マニュアル・資料
 
-- 三菱電機「三菱電機電磁開閉器 MS-T/Nシリーズ」カタログ
-  - 公式低圧開閉器ページから案内される現行カタログを確認
 - 三菱電機「MS-Tシリーズ 電磁接触器/電磁開閉器/サーマルリレー 取扱要項」
-  - 公式低圧開閉器ページの現行マニュアル案内を確認
-- 富士電機機器制御「電磁開閉器とは」
-  - 電磁接触器、サーマルリレー、電磁開閉器の役割分担を確認
+  - 公式マニュアル検索で日本語版を確認（2026年8月発行の現行資料を含む）
+- 三菱電機「電磁開閉器」製品情報
+  - モーターの始動・停止と、サーマルリレーによる過負荷検出・焼損保護の説明を確認
+- 三菱電機 FAQ「サーマルリレーとは何ですか？」
+  - 過負荷・拘束・欠相等による過電流を検出し、出力接点で電磁開閉器を開路する説明を確認
+- 富士電機機器制御「電磁開閉器」製品情報／サーマルリレー組み合わせ表
+  - 電磁接触器とサーマルリレーの組み合わせ、および電磁開閉器の構成を確認
+- 富士電機「電磁接触器_電磁開閉器_SC-NEXT」カタログ（資料No.62C1-J-0307g、2026年3月）
+  - 現行品の日本語カタログとして用語と製品構成を確認
 
 ## 確認日
 
@@ -96,4 +100,5 @@
 
 - 富士電機公式では、電磁接触器はコイルの電磁力で主接点・補助接点を開閉する機器、電磁開閉器は電磁接触器とサーマルリレーを組み合わせたものとして明確に区別されている。
 - 三菱電機公式でも、電磁開閉器をモーター制御・焼損保護、電磁接触器を電磁石の力による負荷電流の開閉、サーマルリレーを過負荷・欠相電流の検出として区別している。
-- 現行記事の「マグネットスイッチ／電磁開閉器／電磁接触器」の呼称説明は、次回本文修正時にこの正式区分がより明確に伝わる表現へ調整する。
+- 2026-09-28の本文修正で、「マグネット」は現場呼称として扱い、電磁接触器と電磁開閉器を同義語として扱わない説明へ調整する。
+- 記事HTMLにも日本語公式資料へのリンクと「公式資料確認日」を表示する。

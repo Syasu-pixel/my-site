@@ -42,6 +42,16 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   assert(darkAudit.darkTexts.length===0,'Dark text remains in dark mode: '+darkAudit.darkTexts.join(', '));
   if(path==='index.html'){const bg=await page.locator('.hero-grid').evaluate(e=>getComputedStyle(e).backgroundImage);assert(bg.includes('hero-top.png'),'Top hero image missing in dark mode');assert(!bg.includes('248, 251, 255'),'Light top hero overlay remains in dark mode');}
   if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
+  if(service){
+    const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{
+      const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
+      const avg=v=>v?(v[0]+v[1]+v[2])/3:null,title=e.querySelector('h1'),lead=e.querySelector('.hero-lead');
+      return {backgroundImage:getComputedStyle(e).backgroundImage,title:avg(rgb(getComputedStyle(title).color)),lead:avg(rgb(getComputedStyle(lead).color))};
+    });
+    assert(heroDark.title!==null&&heroDark.title>=180,'GX Works2 hero title contrast regressed: '+heroDark.title);
+    assert(heroDark.lead!==null&&heroDark.lead>=150,'GX Works2 hero lead contrast regressed: '+heroDark.lead);
+    if(width<=900)assert(heroDark.backgroundImage.includes('10, 18, 28'),'GX Works2 hero keeps a light mobile/tablet veil in dark mode: '+heroDark.backgroundImage);
+  }
   await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--dark.png'),animations:'disabled',fullPage:true});
   assert(errors.every(e=>beforeErrors.includes(e)),'New script errors: '+errors.join('; '));
   await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--after.png'),animations:'disabled'});await page.locator('footer').scrollIntoViewIfNeeded();await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--footer.png'),animations:'disabled'});

@@ -44,7 +44,7 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
   if(service){
     const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{
-      const rgb=s=>{const m=s.match(/rgba?\\((\\d+)[, ]+(\\d+)[, ]+(\\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
+      const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
       const avg=v=>v?(v[0]+v[1]+v[2])/3:null,title=e.querySelector('h1'),lead=e.querySelector('.hero-lead');
       return {backgroundImage:getComputedStyle(e).backgroundImage,title:avg(rgb(getComputedStyle(title).color)),lead:avg(rgb(getComputedStyle(lead).color))};
     });

@@ -133,16 +133,23 @@ jobs:
                 title:document.title,
                 width:document.documentElement.scrollWidth,
                 clientWidth:document.documentElement.clientWidth,
-                brokenImages:imgs.filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.src),
+                brokenImages:imgs.filter(i=>i.getAttribute('src')&&i.complete&&i.naturalWidth===0).map(i=>i.src),
                 hero:!!document.querySelector('.article-hero'),
                 toc:!!document.querySelector('.dc-toc-button'),
                 sharedHeader:!!document.querySelector('.dc-shell.site-header'),
-                figures:document.querySelectorAll('.article-figure img').length
+                figures:document.querySelectorAll('.article-figure img').length,
+                figureSources:[...document.querySelectorAll('.article-figure img')].map(i=>i.getAttribute('src')||''),
+                heroBackground:getComputedStyle(document.querySelector('.article-hero')).backgroundImage,
+                ogImage:document.querySelector('meta[property="og:image"]')?.content||''
               };
             });
             if(state.width>state.clientWidth+2) throw new Error(name+' horizontal overflow '+JSON.stringify(state));
             if(state.brokenImages.length) throw new Error(name+' broken images '+JSON.stringify(state.brokenImages));
             if(!state.hero||!state.toc||!state.sharedHeader||state.figures!==3) throw new Error(name+' integrated markers missing '+JSON.stringify(state));
+            const expectedFigures=['magnetic-switch-overview.webp','magnetic-switch-operation-flow.webp','magnetic-switch-coil-contact.webp'];
+            if(!expectedFigures.every(x=>state.figureSources.some(src=>src.includes(x)))) throw new Error(name+' adopted figures missing '+JSON.stringify(state));
+            if(!state.heroBackground.includes('magnetic-switch-basic-hero.webp')) throw new Error(name+' adopted hero missing '+JSON.stringify(state));
+            if(!state.ogImage.includes('magnetic-switch-basic-ogp.webp')) throw new Error(name+' adopted OGP missing '+JSON.stringify(state));
             await page.screenshot({path:'final-preview-audit/'+name+'.png',fullPage:true});
             report.push({name,...state});
             await page.close();

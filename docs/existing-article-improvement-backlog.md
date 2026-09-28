@@ -1,16 +1,25 @@
 # 既存記事改善バックログ
 
-このファイルは、Google Search Console の検索流入上位記事を中心に、既存記事を1本ずつ改善して完成・凍結していく進捗を管理するためのバックログです。
+このファイルは、既存記事の**改善履歴・完了状態・未完了候補**を管理するためのバックログです。
+
+このファイル内の並び順は、今後の更新優先順位を固定するものではありません。
+次に改善する記事は、作業開始時点の最新検索データを使って都度再評価します。
 
 ## 運用ルール
 
-- 元の優先順は `docs/search-top-content-audit-2026-09-10.md` を基準にする。
 - `[x]` は、技術内容・構造・画像・スマホ表示を確認し、必要な修正を main へ反映して「完成・凍結」と判断した記事。
-- `[ ]` は、今後の改善対象。
+- `[ ]` は、未完了または再評価対象になり得る既存記事。
+- **この一覧を上から順番に消化しない。** 次の改善対象は、毎回 `docs/article-search-data-precheck-override.md` に従って最新の Google / Bing 検索データから選び直す。
+- 優先度判断では、少なくとも impressions、clicks、CTR、average position、直近増減、Google/Bing差分を確認する。
+- 曜日・日本の祝日・連休による検索需要の変動が明らかな期間は、単純な前期間比較だけで異常判定しない。
+- 表示回数が多いのにCTRが低い記事、順位5〜15位付近で改善余地が大きい記事、直近で検索需要が伸びている記事を優先候補にする。
+- 候補記事を選んだ後は、本文・title・metaだけでなくHero / OGPも監査し、古い・内容不一致・サムネイルとして弱い場合は刷新範囲に含める。
+- HeroとOGPの兼用は必須にせず、用途ごとの見え方で専用OGPが必要か判断する。
+- 元の候補抽出や過去監査（例: `docs/search-top-content-audit-2026-09-10.md`）は**履歴資料**として参照できるが、現在の優先順位の根拠にはしない。
 - 完了済み記事は、明確な不具合・技術情報更新・検索データ上の大きな問題がない限り不用意に再編集しない。
+- ただし、完了済みでも検索データ上で明確な悪化や大きな改善機会が確認できた場合は、再評価候補へ戻してよい。
 - Preview承認前に main へ入れない。
 - 完了後は必要に応じて Google のインデックス状態確認と、既存 GitHub Actions の IndexNow 通知を確認する。
-- 画像生成が利用できない期間は、本文・構成・内部リンク・既存画像を使った関連記事カードを先行改善し、追加画像だけ保留として記録する。
 
 ## 改善進捗
 
@@ -31,7 +40,7 @@
 - [ ] `articles/terminal-block-basic.html` — 端子台
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
-- [ ] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 作業中（本文見直し / 関連記事画像カード化 / 追加画像は保留）
+- [ ] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 作業中（PR #1466を最新main基準で再構成中 / 本文・公式資料監査済み / Hero・OGP・本文画像は再監査予定）
 - [ ] `articles/din-rail-basic.html` — DINレール
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
@@ -40,8 +49,15 @@
 - [ ] `articles/dc24v-power-supply-basic.html` — DC24V電源
 - [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
 
-## 現在位置
+## 次回の改善対象の決め方
 
-現在は本文先行で複数記事をPreview中。次の新規着手候補は `articles/din-rail-basic.html`。
+固定の「現在位置」は持たない。
+記事改善を開始するたびに、最新の直接API経路
 
-最終更新: 2026-09-16
+`Google Search Console API / Bing Webmaster API -> GitHub Actions -> Supabase -> ChatGPT`
+
+から取得できる最新データを確認し、全記事を再評価して候補を選ぶ。
+
+候補選定後は、対象記事の検索queryとメーカー公式資料・一次情報を確認してから本文・meta・画像の刷新範囲を決定する。
+
+最終更新: 2026-09-29

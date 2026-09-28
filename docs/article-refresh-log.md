@@ -14,6 +14,39 @@
 
 ---
 
+## 2026-09-28 — magnetic-switch-basic 全面刷新・本番公開
+
+- 対象記事: `articles/magnetic-switch-basic.html`
+- 公開PR: [#1606](https://github.com/Syasu-pixel/my-site/pull/1606)
+- 実施内容:
+  - 記事本文の刷新内容を本番へ反映
+  - 採用済みOGPを `assets/images/magnetic-switch-basic/magnetic-switch-basic-ogp.png` へ反映
+  - 専用Heroを `assets/images/magnetic-switch-basic/magnetic-switch-basic-hero.png` へ反映し、Hero bindingを更新
+  - 本文画像3枚（全体像／動作フロー／コイル・主接点・補助接点の違い）を反映
+  - 本文画像のPC・スマホ共通ライトボックスを有効化
+  - site inventory / site-shell manifest を最終ソースに同期
+- 公開前確認:
+  - 本番同等の統合生成Previewで確認
+  - publication生成・WebP最適化・最終検証成功
+  - PCライト／PCダーク／スマホライト／スマホダーク確認済み
+- 公式参照元:
+  - 三菱電機FA 低圧開閉器／電磁開閉器／サーマルリレー公式情報
+  - 富士電機機器制御 電磁開閉器公式情報
+  - 詳細は `docs/reference-notes/magnetic-switch-basic.md` に記録
+- 公開後確認:
+  - GitHub Pagesデプロイ成功
+  - IndexNow通知成功
+  - 本番URLの目視確認済み
+- 変更しなかったもの:
+  - 記事URL
+  - canonical
+  - `sitemap.xml` のURL構成
+  - `assets/data/search-index.json` のURL構成
+  - `/seo/sitemap.xml`
+- 状態: 本番公開完了。Google Search ConsoleはURL検査から再クロール依頼を行う運用。
+
+---
+
 ## 2026-09-19 — 既存記事のリンク・表示不備修正（確認用、未公開）
 
 - PR: [#1514](https://github.com/Syasu-pixel/my-site/pull/1514)。追加4ページを含むmain `c86a6e7` を保持した独立ブランチ。マージ・本番公開は本依頼の対象外。

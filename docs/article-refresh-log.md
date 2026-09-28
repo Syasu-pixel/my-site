@@ -29,6 +29,10 @@
   - 本番同等の統合生成Previewで確認
   - publication生成・WebP最適化・最終検証成功
   - PCライト／PCダーク／スマホライト／スマホダーク確認済み
+- 公式参照元:
+  - 三菱電機FA 低圧開閉器／電磁開閉器／サーマルリレー公式情報
+  - 富士電機機器制御 電磁開閉器公式情報
+  - 詳細は `docs/reference-notes/magnetic-switch-basic.md` に記録
 - 公開後確認:
   - GitHub Pagesデプロイ成功
   - IndexNow通知成功

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>電磁弁が動かない時の確認手順｜PLC出力・電源・手動操作・エア圧の見方 | 電気と制御の実務メモ</title>
-  <meta name="description" content="電磁弁が動かない時の確認手順を、電気工事士・制御初心者向けにやさしく整理。PLC出力、DC24V電源、コイル、手動操作、エア圧、配管、シリンダー側の見方まで現場目線で解説します。">
+  <meta name="description" content="電磁弁が動かない・故障したように見える時の原因を、電気側・空圧側・負荷側に分けて整理。PLC出力、コイル仕様、配線、エア供給、配管、シリンダー側を、設備図面とメーカー公式資料を基準に確認する考え方を解説します。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/articles/solenoid-valve-troubleshooting-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/solenoid-valve-troubleshooting-basic.html">
@@ -13,7 +13,7 @@
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="電磁弁が動かない時の確認手順｜PLC出力・電源・手動操作・エア圧の見方">
-  <meta property="og:description" content="電磁弁が動かない時に、PLC出力、DC24V、コイル、手動操作、エア圧、配管をどの順番で確認するかを初心者向けに整理します。">
+  <meta property="og:description" content="電磁弁が動かない時の故障原因を、電気側・空圧側・負荷側に分けて整理。設備図面とメーカー公式資料を基準に原因を切り分ける考え方を解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/solenoid-valve-troubleshooting-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
@@ -21,7 +21,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="電磁弁が動かない時の確認手順｜PLC出力・電源・手動操作・エア圧の見方">
-  <meta name="twitter:description" content="電磁弁が動かない時の確認順を、PLC出力・電源・手動操作・エア圧・配管の流れでやさしく整理。">
+  <meta name="twitter:description" content="電磁弁が動かない時の故障原因を、電気側・空圧側・負荷側に分けて整理。図面と公式資料を基準に確認する考え方を解説。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-ogp.png">
 
   <meta name="theme-color" content="#f8fbff">
@@ -1604,11 +1604,11 @@
           <span class="hero-label">制御の基礎</span>
           <h1>電磁弁が動かない時の確認手順</h1>
           <p class="hero-lead">
-            PLC出力はONしているのに電磁弁が動かない。そんな時に、電源、出力、コイル、手動操作、エア圧、配管をどの順番で見るかを整理します。
+            PLC出力はONに見えるのに電磁弁が動かない。そんな時に、故障原因を電気側・空圧側・負荷側へ分け、設備図面とメーカー公式資料を基準に整理する考え方をまとめます。
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#check-flow">確認手順を見る</a>
-            <a class="btn btn-secondary" href="#common-mistakes">よくある原因を見る</a>
+            <a class="btn btn-primary" href="#comparison">故障原因を見る</a>
+            <a class="btn btn-secondary" href="#check-flow">確認の考え方を見る</a>
           </div>
         </div>
       </section>
@@ -1635,32 +1635,35 @@
         <div class="summary-card summary-card--conclusion">
           <h2>先に結論</h2>
           <ul>
-            <li>電磁弁が動かない時は電気側とエア側を分けて見る</li>
-            <li>PLC出力ONだけでは、コイルに電圧が来た証拠ではない</li>
-            <li>手動操作で動くかを見ると、電気側か空圧側かを切り分けやすい</li>
+            <li>電磁弁が動かない時は、<span class="mark">電気側・空圧側・負荷側</span>を分けて考える</li>
+            <li>PLCの出力表示だけで、電磁弁本体の故障と決めつけない</li>
+            <li>対象型式の仕様と設備図面を基準に、どの系統で条件が崩れているかを整理する</li>
           </ul>
         </div>
       </section>
 
-          <section class="mini-toc-card" aria-label="メーカー公式資料">
-      <h2>メーカー公式資料を確認して作成しています</h2>
-      <p>この記事は、電磁弁トラブルを電気側と空圧側に分けて考えるための一般的な整理として、メーカー公式の製品情報を確認して構成しています。実機では、対象形式のコイル定格、ポート構成、使用圧力範囲、流量特性、配線・表示仕様、取付条件を対象製品の公式資料で確認してください。</p>
-      <ul>
-        <li><a href="https://www.smcworld.com/webcatalog/ja-jp/search3S/?kw=SY" target="_blank" rel="noopener noreferrer">SMC｜SYシリーズ ソレノイドバルブ公式検索</a></li>
-        <li><a href="https://www.smcworld.com/webcatalog/ja-jp/searchSite/?kw=SY7000" target="_blank" rel="noopener noreferrer">SMC｜SYシリーズ WEBカタログ検索</a></li>
-      </ul>
-      <p><strong>公式資料確認日：</strong>2026年9月16日</p>
-      <p><strong>安全上の注意：</strong>手動操作や機能確認は、設備が意図せず動く可能性があるため、設備側の安全手順・メーカー資料・担当者の指示を優先してください。</p>
-    </section>
+      <section class="mini-toc-card" aria-label="メーカー公式資料">
+        <h2>メーカー公式資料を確認して作成しています</h2>
+        <p>
+          SMCの日本語公式製品情報とソレノイドバルブ共通注意事項を確認し、電磁弁の役割・型式ごとの仕様差・安全上の注意を踏まえて内容を整理しています。
+          実機では、対象型式のポート構成、コイル仕様、使用条件、配線・表示仕様、取付条件などを、対象製品の最新資料で確認してください。
+        </p>
+        <ul>
+          <li><a href="https://www.smcworld.com/webcatalog/ja-jp/series/SY-5" target="_blank" rel="noopener noreferrer">SMC｜5ポートソレノイドバルブ SYシリーズ</a></li>
+          <li><a href="https://www.smcworld.com/products/subject/ja-jp/machine/airsup/solenoid.html" target="_blank" rel="noopener noreferrer">SMC｜空気圧用ソレノイドバルブ 製品情報</a></li>
+          <li><a href="https://www.smcworld.com/upfiles/manual/ja-jp/files/VG300-OMY0001.pdf" target="_blank" rel="noopener noreferrer">SMC｜3・4・5ポート電磁弁 共通注意事項</a></li>
+        </ul>
+        <p class="article-updated"><strong>最終内容更新：</strong><time datetime="2026-09-29">2026年9月29日</time></p>
+        <p class="source-checked-date"><strong>公式資料確認日：</strong><time datetime="2026-09-29">2026年9月29日</time></p>
+      </section>
 
-<section class="mini-toc-card" aria-label="目次">
+      <section class="mini-toc-card" aria-label="目次">
         <h2>この記事で分かること</h2>
         <div class="mini-toc">
           <a href="#overview">電磁弁の基本</a>
           <a href="#signal-flow">信号とエアの流れ</a>
-          <a href="#comparison">症状別の見方</a>
-          <a href="#check-flow">確認手順</a>
-          <a href="#split-check">電気側/空圧側の切り分け</a>
+          <a href="#comparison">故障原因の切り分け</a>
+          <a href="#check-flow">確認の考え方</a>
           <a href="#common-mistakes">よくある原因</a>
           <a href="#related">関連記事</a>
         </div>
@@ -1668,29 +1671,30 @@
 
       <div class="page-layout">
         <article class="main-column">
+
           <section class="section-card" id="overview">
-            <h2>電磁弁は「電気信号でエアの流れを切り替える」機器</h2>
+            <h2>電磁弁は「電気信号で空気の流れを切り替える」機器</h2>
             <p>
-              電磁弁は、PLCなどからの電気信号を受けて、エアの流れを切り替える機器です。
-              エアシリンダーを前進・後退させたり、エアブローをON/OFFしたりする場面でよく使われます。
+              電磁弁は、PLCなどの制御信号を受けてバルブを切り替え、空気の流れを制御する機器です。
+              エアシリンダーの駆動やエアブローなど、FA設備のさまざまな場面で使われます。
             </p>
             <p>
-              ただし、電磁弁が動かない時は、電磁弁だけを見ても原因が分からないことがあります。
-              <span class="mark">PLC出力、DC24V、コイル、手動操作、エア圧、配管、シリンダー側</span>
-              を分けて確認する必要があります。
+              ただし「動かない」という症状だけでは、電磁弁本体の故障とは断定できません。
+              <span class="mark">電気側・空圧側・負荷側</span>のどこで条件が崩れているかを分けて考えるのが基本です。
             </p>
 
             <figure class="article-figure">
               <img src="../assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-overview.png" alt="PLC出力と電磁弁、エアシリンダーの基本構成を示す図">
               <figcaption>
-                電磁弁は、PLC出力などの電気信号を受けて、エアの流れを切り替える役割を持ちます。
+                PLCなどの制御側、電磁弁、空気の供給経路、シリンダーなどの負荷側を分けると、故障原因を整理しやすくなります。
               </figcaption>
             </figure>
 
             <div class="key-highlight">
-              <h3>電気側と空圧側を分ける</h3>
+              <h3>故障原因を3つの系統に分ける</h3>
               <p>
-                電磁弁が動かない原因は、電圧が来ていない、コイルが悪い、エア圧がない、配管やシリンダー側で止まっているなど複数あります。最初に電気側と空圧側を分けると追いやすくなります。
+                電気側には制御条件・電源条件・配線・コイル仕様、空圧側には供給条件・ポート・配管・排気、負荷側にはシリンダーや機械側の状態があります。
+                最初から部品交換を前提にせず、どの系統で症状が出ているかを整理します。
               </p>
             </div>
 
@@ -1700,194 +1704,116 @@
                   <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>PLCの出力ランプは点いているのに、電磁弁が動きません。電磁弁の故障ですか？</p>
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>PLCの出力表示はONなのに、電磁弁が動きません。電磁弁本体の故障と考えていいですか？</p>
                 </div>
               </div>
-
               <div class="talk-row">
                 <div class="talk-avatar">
                   <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>まだ決めつけない方がいいね。PLC出力がONでも、コイル端子まで24Vが来ているか、エア圧があるか、手動操作で動くかを順番に見よう。</p>
+                  <p><span class="talk-name talk-name--senpai">先輩</span>まだ決めつけない方がいいね。出力条件、対象型式の仕様、空気の供給経路、シリンダー側まで分けて見ると、どこで止まっているか整理しやすいよ。</p>
                 </div>
               </div>
             </div>
           </section>
 
           <section class="section-card" id="signal-flow">
-            <h2>PLC出力から電磁弁、エアシリンダーまでの流れ</h2>
+            <h2>制御信号から電磁弁、エアシリンダーまでを分けて考える</h2>
             <p>
-              電磁弁まわりの確認では、電気信号の流れとエアの流れを分けて考えます。
-              電気信号はPLC出力から電磁弁コイルへ、エアはレギュレータやバルブを通ってシリンダーへ流れます。
+              電磁弁まわりは、制御信号・電源とコイル・空気の供給経路・負荷側がつながっています。
+              どこか1か所だけを見るのではなく、設備図面と対象型式の資料を基準に、系統ごとに条件を照合します。
             </p>
 
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr>
-                    <th>見る場所</th>
-                    <th>確認すること</th>
-                    <th>よくある状態</th>
-                  </tr>
+                  <tr><th>系統</th><th>整理する情報</th><th>代表的な原因候補</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="cell-blue">PLC出力</td>
-                    <td>対象出力がONしているか</td>
-                    <td>ラダー条件不成立、出力番号違い、インターロック</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">電磁弁コイル</td>
-                    <td>コイル端子に電圧が来ているか</td>
-                    <td>断線、コネクタ抜け、出力線違い、コイル不良</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">手動操作</td>
-                    <td>手動ボタンや手動レバーで切り替わるか</td>
-                    <td>電気側か空圧側かの切り分けに使える</td>
-                  </tr>
-                  <tr>
-                    <td>エア圧・配管</td>
-                    <td>元圧、レギュレータ、配管、サイレンサ詰まり</td>
-                    <td>エア圧不足、配管抜け、スピコン閉じすぎ</td>
-                  </tr>
+                  <tr><td class="cell-blue">制御側</td><td>対象出力、運転条件、インターロック、I/O割付</td><td>条件不成立、出力番号の取り違い、制御条件の不一致</td></tr>
+                  <tr><td class="cell-green">電源・コイル側</td><td>対象型式のコイル仕様、電源条件、配線・コネクタ</td><td>仕様違い、配線・接続不良、電源条件の不一致</td></tr>
+                  <tr><td class="cell-orange">空圧側</td><td>供給条件、ポート構成、配管、排気側</td><td>供給不足、配管条件の不一致、排気側の影響</td></tr>
+                  <tr><td>負荷側</td><td>シリンダー、機械側、動作条件</td><td>負荷側の抵抗、機械干渉、別系統の不具合</td></tr>
                 </tbody>
               </table>
             </div>
 
             <div class="field-highlight">
-              <h3>手動操作は切り分けに便利</h3>
+              <h3>型式ごとの差を先に確認する</h3>
               <p>
-                手動操作で電磁弁やシリンダーが動くなら、空圧側はある程度生きていて、電気信号側を優先して見られます。手動でも動かないなら、エア圧や配管側を疑いやすくなります。
+                同じ「電磁弁」でも、3ポート／5ポート、シングル／ダブル、配線・表示仕様などで条件が変わります。
+                型式固有の仕様は一般論で決めず、対象製品の最新カタログ・取扱説明書を優先します。
               </p>
             </div>
 
-            <div class="note-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="補足する先輩キャラクター">
-              </div>
-              <div>
-                <h3>手動操作前に周囲を確認する</h3>
-                <p>
-                  手動操作でシリンダーや装置が急に動く場合があります。手を入れていないか、周囲に人がいないか、安全状態を確認してから操作します。
-                </p>
-              </div>
+            <div class="note-box">
+              <h3>安全条件は設備側の手順を優先</h3>
+              <p>
+                通電状態の測定や手動操作など、設備を動かす可能性がある確認は本記事で具体手順を示しません。
+                必要な場合は、設備の安全手順・資格要件・メーカー資料・責任者の指示を優先してください。
+              </p>
             </div>
           </section>
 
           <section class="section-card" id="comparison">
-            <h2>症状別に見ると原因を絞りやすい</h2>
+            <h2>電磁弁の故障原因は「電気側・空圧側・負荷側」に分ける</h2>
             <p>
-              「電磁弁が動かない」と言っても、PLC出力が入っていないのか、コイルに電圧が来ていないのか、手動でも動かないのかで原因が変わります。
-              症状を分けると、確認する場所が見えやすくなります。
+              検索で多い「電磁弁の故障原因」「故障症状」は、電磁弁本体だけでなく周辺条件を含めて考える必要があります。
+              症状と系統を分けると、交換前に確認すべき範囲が見えやすくなります。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-comparison.png" alt="電磁弁が動かない時の症状別比較図">
+              <img src="../assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-comparison.png" alt="電磁弁が動かない時の故障原因を系統別に整理する図">
               <figcaption>
-                PLC出力、コイル電圧、手動操作、エア圧のどこまで正常かを見ると、原因を切り分けやすくなります。
+                電気側・空圧側・負荷側のどこに症状があるかを分けて考えると、原因候補を整理しやすくなります。
               </figcaption>
             </figure>
 
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr>
-                    <th>症状</th>
-                    <th>考えやすい原因</th>
-                    <th>最初に見る場所</th>
-                  </tr>
+                  <tr><th>見えている症状</th><th>原因候補の系統</th><th>照合する情報</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="cell-blue">PLC出力がONしない</td>
-                    <td>ラダー条件、手動/自動モード、インターロック、出力番号違い</td>
-                    <td>PLCモニタ、ラダー、操作条件</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">PLC出力はONだがコイルに電圧がない</td>
-                    <td>出力線断線、端子番号違い、コネクタ抜け、共通線不良</td>
-                    <td>出力端子、端子台、電磁弁コネクタ</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">電圧はあるが電磁弁が切り替わらない</td>
-                    <td>コイル不良、電磁弁固着、電圧不足、コネクタ接触不良</td>
-                    <td>コイル、電圧、手動操作</td>
-                  </tr>
-                  <tr>
-                    <td>手動でも動かない</td>
-                    <td>エア圧不足、配管違い、スピコン閉じすぎ、機械側の引っかかり</td>
-                    <td>元圧、レギュレータ、配管、シリンダー</td>
-                  </tr>
+                  <tr><td class="cell-blue">制御側の出力条件が成立しない</td><td>制御側</td><td>ラダー条件、運転モード、インターロック、I/O割付</td></tr>
+                  <tr><td class="cell-green">出力表示は成立しているが反応しない</td><td>電源・コイル側</td><td>対象型式のコイル仕様、電源条件、配線・コネクタ</td></tr>
+                  <tr><td class="cell-orange">バルブ側の反応はあるが負荷が動かない</td><td>空圧側／負荷側</td><td>供給条件、ポート・配管、排気、シリンダー・機械側</td></tr>
+                  <tr><td>断続的・遅い・症状が変わる</td><td>複数系統</td><td>発生条件、接続状態、供給条件、負荷条件を記録して比較</td></tr>
                 </tbody>
               </table>
             </div>
 
             <div class="key-highlight">
-              <h3>「電気が来ているか」と「エアで動けるか」を分ける</h3>
+              <h3>「交換する部品」より先に「崩れている条件」を探す</h3>
               <p>
-                電磁弁のトラブルでは、電気側だけ見ても、空圧側だけ見ても不十分な場合があります。電気信号とエアの流れを別々に追うのが基本です。
+                電磁弁を交換しても、原因が制御条件・配線・空気供給・負荷側にあれば症状は残ります。
+                まず系統を分け、図面と対象型式の資料から条件を確認する方が、原因を見失いにくくなります。
               </p>
             </div>
           </section>
 
           <section class="section-card" id="check-flow">
-            <h2>電磁弁が動かない時の確認手順</h2>
+            <h2>確認は「症状 → 図面 → 型式 → 系統」の順で整理する</h2>
             <p>
-              現場では、思いついたところから触るよりも、順番を決めて確認した方が原因を見落としにくくなります。
-              ここでは、初心者でも追いやすい確認順で整理します。
+              思いついた箇所から触るのではなく、先に情報をそろえて原因候補を狭めます。
+              ここでは設備を直接操作する方法ではなく、故障原因を整理する順序を示します。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-check-flow.png" alt="電磁弁が動かない時の確認手順を示すフロー図">
+              <img src="../assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-check-flow.png" alt="電磁弁が動かない時に故障原因を整理する確認フロー図">
               <figcaption>
-                電磁弁の確認は、PLC出力、コイル電圧、手動操作、エア圧、配管、シリンダー側の順に見ると整理しやすくなります。
+                症状、設備図面、対象型式、制御側・空圧側・負荷側の順で情報をそろえると、確認範囲を整理しやすくなります。
               </figcaption>
             </figure>
 
             <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>1. PLC出力がONしているか</h3>
-                <p>
-                  PLCモニタや出力LEDで、対象の出力がONしているかを確認します。出力番号の見間違いにも注意します。
-                </p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>2. コイル端子に電圧が来ているか</h3>
-                <p>
-                  電磁弁のコネクタや端子で、ON時にDC24Vなどの電圧が来ているか確認します。
-                </p>
-              </div>
-
-              <div class="check-item">
-                <h3>3. コネクタや端子の状態を見る</h3>
-                <p>
-                  コネクタ抜け、端子のゆるみ、線番違い、断線しかけがないかを確認します。
-                </p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>4. 手動操作で切り替わるか</h3>
-                <p>
-                  安全を確認したうえで手動操作し、電磁弁やシリンダーが動くかを見ます。
-                </p>
-              </div>
-
-              <div class="check-item">
-                <h3>5. エア圧とレギュレータを見る</h3>
-                <p>
-                  元圧があるか、レギュレータが閉じていないか、エア供給が止まっていないかを確認します。
-                </p>
-              </div>
-
-              <div class="check-item check-item--important">
-                <h3>6. 配管とシリンダー側を見る</h3>
-                <p>
-                  配管抜け、スピードコントローラの閉じすぎ、シリンダーや機械側の引っかかりを確認します。
-                </p>
-              </div>
+              <div class="check-item check-item--important"><h3>1. 症状を言葉にする</h3><p>「全く反応しない」「途中で止まる」「負荷側だけ動かない」など、見えている症状と発生条件を先に整理します。</p></div>
+              <div class="check-item check-item--field"><h3>2. 設備図面とI/Oを照合する</h3><p>対象の出力番号、回路、端子・コネクタの識別、関連するインターロックを図面上で確認します。</p></div>
+              <div class="check-item"><h3>3. 対象型式の仕様を確認する</h3><p>コイル仕様、ポート構成、使用条件、配線・表示仕様などをメーカー公式資料で確認します。</p></div>
+              <div class="check-item check-item--warning"><h3>4. 電気側の情報をそろえる</h3><p>PLCの状態表示、設備の電源状態、配線・接続の履歴など、設備側で確認できる情報を整理します。</p></div>
+              <div class="check-item"><h3>5. 空圧側の条件を整理する</h3><p>供給条件、配管、排気側、レギュレータ等が設備の基準どおりかを、定められた保守手順の範囲で確認します。</p></div>
+              <div class="check-item check-item--important"><h3>6. 負荷側まで範囲を広げる</h3><p>電磁弁以降のシリンダーや機械側に原因がないか、設備の点検基準と照合します。</p></div>
             </div>
 
             <div class="danger-box caution-character-box">
@@ -1895,141 +1821,99 @@
                 <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意点を案内する先輩キャラクター">
               </div>
               <div>
-                <h3>急な動作に注意する</h3>
+                <h3>実機操作を伴う確認は設備の安全手順を優先</h3>
                 <p>
-                  電磁弁やシリンダーの確認では、手動操作や復帰時に装置が急に動くことがあります。手や工具を可動部に入れたまま確認しないようにします。
+                  通電中の測定、手動操作、空圧条件の変更などは、設備が意図せず動く可能性があります。
+                  本記事では具体操作を扱わず、設備の安全手順・資格要件・メーカー資料・責任者の指示を優先します。
                 </p>
               </div>
             </div>
           </section>
 
-          
-        <section class="section-card" id="split-check">
-          <h2>「電気側」と「空圧側」を分けると原因を追いやすい</h2>
-          <p>電磁弁が動かない時は、最初から部品故障と決めつけず、<strong>電気信号が届いていないのか、電磁弁以降の空圧側で止まっているのか</strong>を分けて考えると整理しやすくなります。</p>
-          <div class="check-grid">
-            <div class="check-item check-item--blue"><h3>電気側</h3><p>PLC出力の状態、電源条件、コイル仕様、配線・端子・コネクタの状態などを図面とメーカー資料で確認します。</p></div>
-            <div class="check-item check-item--green"><h3>空圧側</h3><p>元圧、レギュレータ、配管、排気側、シリンダーや負荷側など、空気が流れる経路を確認します。</p></div>
-          </div>
-          <div class="note-box"><h3>確認の基準は設備図面とメーカー資料</h3><p>電圧・圧力・手動操作などの確認は、対象設備の安全条件と定められた手順を優先します。特に手動操作は機械が意図せず動く可能性があるため、安易に試すのではなく、設備側の安全条件を満たしていることを前提に判断します。</p></div>
-        </section>
-
-        <section class="section-card" id="common-mistakes">
+          <section class="section-card" id="common-mistakes">
             <h2>よくある原因と見落としポイント</h2>
             <p>
-              電磁弁が動かない原因は、電磁弁本体だけではありません。
-              PLC出力が入っていない、コイルまで電圧が届いていない、エア圧がない、スピコンが閉じているなど、周辺の条件で止まっていることも多いです。
+              電磁弁トラブルでは、見えている症状と原因の場所が一致しないことがあります。
+              「電磁弁が動かない＝電磁弁本体が壊れた」と短絡せず、周辺条件も含めて整理します。
             </p>
 
-            <h3>PLC出力ONを見ただけで判断している</h3>
-            <p>
-              PLC出力LEDが点いていても、電磁弁コイル端子まで電圧が届いているとは限りません。端子台やコネクタまで追って確認します。
-            </p>
+            <h3>PLCの出力表示だけで電磁弁故障と判断する</h3>
+            <p>出力表示は重要な手掛かりですが、それだけでコイル・配線・空圧側・負荷側まで正常とは判断できません。</p>
 
-            <h3>手動操作での切り分けをしていない</h3>
-            <p>
-              手動操作で動くなら電気側、手動でも動かないなら空圧側や機械側を疑いやすくなります。安全確認のうえで切り分けに使います。
-            </p>
+            <h3>対象型式の仕様を確認せず一般論で判断する</h3>
+            <p>ポート構成、コイル仕様、配線・表示仕様、使用条件は型式で異なります。対象製品の最新資料を優先します。</p>
 
-            <h3>エア圧やレギュレータを見落とす</h3>
-            <p>
-              電気信号が正常でも、エアが来ていなければ動きません。元圧、レギュレータ、エア供給元、バルブの閉止状態を確認します。
-            </p>
+            <h3>電気側と空圧側の症状を混同する</h3>
+            <p>制御条件の問題と、空気供給・配管・排気の問題では見るべき資料が異なります。系統を分けて整理します。</p>
 
-            <h3>スピードコントローラが閉じている</h3>
-            <p>
-              シリンダーが動かない、または極端に遅い時は、スピードコントローラが閉じすぎている場合もあります。
-            </p>
+            <h3>負荷側を見ずに電磁弁交換へ進む</h3>
+            <p>シリンダーや機械側の条件で動作できない場合、電磁弁を交換しても症状が残ります。</p>
 
             <div class="talk-thread">
               <div class="talk-row talk-row--right">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="確認する後輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>電磁弁が動かないと、すぐ電磁弁交換を考えていました。</p>
-                </div>
+                <div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="確認する後輩キャラクター"></div>
+                <div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>動かないと、すぐ電磁弁を交換するものだと思っていました。</p></div>
               </div>
-
               <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>交換前に、PLC出力、コイル電圧、手動操作、エア圧を見よう。原因が配線やエア側なら、電磁弁を替えても直らないからね。</p>
-                </div>
+                <div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター"></div>
+                <div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>交換の前に、制御側・電源とコイル・空圧側・負荷側のどこで条件が崩れているかを分けよう。図面と型式が分かると整理しやすいよ。</p></div>
               </div>
             </div>
           </section>
 
           <section class="section-card" id="field-tips">
-            <h2>現場での見方のコツ</h2>
+            <h2>原因を追う時に残しておくと役立つ情報</h2>
             <p>
-              電磁弁まわりは、電気とエアがつながる場所です。電気側で止まっているのか、空圧側で止まっているのかを最初に分けるだけで、原因をかなり絞りやすくなります。
+              電磁弁まわりは、電気と空圧と機械がつながる境界です。
+              その場の印象だけで判断せず、後から比較できる情報をそろえると原因を追いやすくなります。
             </p>
-
             <div class="check-grid">
-              <div class="check-item check-item--field">
-                <h3>出力番号と線番を照合する</h3>
-                <p>
-                  PLCの出力番号、端子台の線番、電磁弁のコネクタ番号を図面と現物で照合します。
-                </p>
-              </div>
-
-              <div class="check-item">
-                <h3>電圧はコイル端子で見る</h3>
-                <p>
-                  PLC側だけでなく、実際に電磁弁コイルへ届いている場所で電圧を確認すると切り分けしやすくなります。
-                </p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>エアの元圧を見る</h3>
-                <p>
-                  電気側が正常でも、元圧がない、レギュレータが閉じている、供給バルブが閉まっていると動きません。
-                </p>
-              </div>
-
-              <div class="check-item check-item--important">
-                <h3>シリンダー側も見る</h3>
-                <p>
-                  電磁弁は切り替わっていても、シリンダーや機械側が引っかかっていると動かないことがあります。
-                </p>
-              </div>
-            </div>
-
-            <div class="note-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="コツを案内する先輩キャラクター">
-              </div>
-              <div>
-                <h3>「音がするか」もヒントになる</h3>
-                <p>
-                  電磁弁がカチッと動作音を出すかどうかも切り分けのヒントになります。ただし音だけで判断せず、電圧やエアの状態も合わせて確認します。
-                </p>
-              </div>
+              <div class="check-item check-item--field"><h3>図面と型式をそろえる</h3><p>対象出力、バルブ型式、端子・コネクタの識別、配管先を同じ資料上で追えるようにします。</p></div>
+              <div class="check-item"><h3>症状と発生条件を記録する</h3><p>常時か断続的か、特定の工程だけかなど、再現条件を残すと切り分けに役立ちます。</p></div>
+              <div class="check-item check-item--warning"><h3>表示や動作音は「手掛かり」として扱う</h3><p>LEDや動作音は参考になりますが、それだけで正常・故障を断定せず、他の情報と合わせて判断します。</p></div>
+              <div class="check-item check-item--important"><h3>前後の機器まで見る</h3><p>電磁弁の前段にある制御・供給条件と、後段のシリンダー・機械側を含めて系統全体で考えます。</p></div>
             </div>
           </section>
 
           <section class="section-card" id="related">
-          <h2>関連記事</h2>
-          <p>電磁弁単体だけでなく、手動操作の考え方、エアシリンダ、空圧系全体の確認順を続けて見ると原因を整理しやすくなります。</p>
-          <div class="related-grid">
-            <a class="related-card" href="solenoid-valve-manual-override-basic.html"><div class="related-card-thumb"><img src="../assets/images/solenoid-valve-manual-override-basic/solenoid-valve-manual-override-basic-hero.png" alt="電磁弁の手動操作の基本記事" loading="lazy" decoding="async"></div><h3>電磁弁の手動操作とは？</h3><p>手動操作の役割と、機械が動く可能性を含めて安全面から整理します。</p></a>
-            <a class="related-card" href="air-cylinder-basic.html"><div class="related-card-thumb"><img src="../assets/images/air-cylinder-basic/air-cylinder-basic-hero.webp" alt="エアシリンダの基本記事" loading="lazy" decoding="async"></div><h3>エアシリンダとは？</h3><p>電磁弁の先で実際に動くアクチュエータ側の基本を確認できます。</p></a>
-            <a class="related-card" href="air-pneumatic-troubleshooting-guide.html"><div class="related-card-thumb"><img src="../assets/images/air-pneumatic-troubleshooting-guide/air-pneumatic-troubleshooting-guide-ogp.png" alt="空圧トラブルの確認順記事" loading="lazy" decoding="async"></div><h3>空圧トラブルの確認順</h3><p>元圧・レギュレータ・電磁弁・配管・排気・信号を全体で切り分けます。</p></a>
-          </div>
-        </section>
+            <h2>あわせて読みたい関連記事</h2>
+            <p>
+              電磁弁単体だけでなく、PLC出力、エアバルブ、空圧系全体、エアシリンダーの基本を合わせて見ると、系統ごとの役割を整理しやすくなります。
+            </p>
+            <div class="related-grid">
+              <a class="related-card" href="plc-output-troubleshooting-basic.html">
+                <div class="related-card-thumb"><img src="../assets/images/plc-output-troubleshooting-basic/plc-output-troubleshooting-basic-ogp.png" alt="PLC出力がONしない時に見る順番の記事" loading="lazy" decoding="async"></div>
+                <h3>PLC出力がONしない時の考え方</h3><p>制御条件や出力側の考え方を整理したい時の関連記事です。</p>
+              </a>
+              <a class="related-card" href="air-valve-basic.html">
+                <div class="related-card-thumb"><img src="../assets/images/air-valve-basic/air-valve-basic-hero.png" alt="エアバルブの基本記事" loading="lazy" decoding="async"></div>
+                <h3>エアバルブの基本</h3><p>ポートと空気の流れ、バルブの役割を基礎から整理します。</p>
+              </a>
+              <a class="related-card" href="air-pneumatic-troubleshooting-guide.html">
+                <div class="related-card-thumb"><img src="../assets/images/air-pneumatic-troubleshooting-guide/air-pneumatic-troubleshooting-guide-ogp.png" alt="空圧トラブルの確認順記事" loading="lazy" decoding="async"></div>
+                <h3>空圧トラブルの見方</h3><p>供給側・配管・排気・負荷側を含めた空圧系全体の考え方へ進めます。</p>
+              </a>
+              <a class="related-card" href="air-cylinder-basic.html">
+                <div class="related-card-thumb"><img src="../assets/images/air-cylinder-basic/air-cylinder-basic-hero.png" alt="エアシリンダーの基本記事" loading="lazy" decoding="async"></div>
+                <h3>エアシリンダーの基本</h3><p>電磁弁の先で動くアクチュエータ側の役割を確認できます。</p>
+              </a>
+            </div>
+            <div class="article-footer-nav">
+              <a class="btn btn-primary" href="../index.html#category">カテゴリ一覧へ戻る</a>
+              <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
+            </div>
+          </section>
+
         </article>
 
         <aside class="side-rail" aria-label="補足情報">
           <section class="side-card">
             <h3>この記事の要点</h3>
             <ul>
-              <li>電磁弁は電気信号でエアの流れを切り替える</li>
-              <li>PLC出力ONだけで判断しない</li>
-              <li>コイル電圧と手動操作で切り分ける</li>
-              <li>エア圧、配管、シリンダー側も確認する</li>
+              <li>電磁弁本体だけを故障原因と決めつけない</li>
+              <li>電気側・空圧側・負荷側を分けて考える</li>
+              <li>設備図面と対象型式の公式資料を基準にする</li>
+              <li>表示や動作音は手掛かりの一つとして扱う</li>
             </ul>
           </section>
 
@@ -2038,8 +1922,8 @@
             <ul>
               <li><a href="#overview">電磁弁の基本</a></li>
               <li><a href="#signal-flow">信号とエアの流れ</a></li>
-              <li><a href="#comparison">症状別の見方</a></li>
-              <li><a href="#check-flow">確認手順</a></li>
+              <li><a href="#comparison">故障原因の切り分け</a></li>
+              <li><a href="#check-flow">確認の考え方</a></li>
               <li><a href="#common-mistakes">よくある原因</a></li>
             </ul>
           </section>
@@ -2047,10 +1931,10 @@
           <section class="side-card">
             <h3>現場メモ</h3>
             <ul>
-              <li>手動操作前は可動部と周囲を確認する</li>
-              <li>電圧はコイル端子で見る</li>
-              <li>元圧とレギュレータを見落とさない</li>
-              <li>配管抜けやスピコン閉じすぎも確認する</li>
+              <li>症状と発生条件を先に記録する</li>
+              <li>図面と型式をそろえてから判断する</li>
+              <li>電気側と空圧側を混同しない</li>
+              <li>実機操作は設備の安全手順を優先する</li>
             </ul>
           </section>
         
@@ -2080,7 +1964,7 @@
         <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
       </p>
     </div>
-  </footer>
+  <p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
 
   <script>
   (function(){

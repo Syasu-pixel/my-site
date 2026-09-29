@@ -114,6 +114,7 @@ const authHeaders3={Origin:'https://denkicontrol.com',Authorization:'Bearer '+to
 const validTokens=new Set([token,token2,token3]);
 
 let supabaseCalls=0;
+let sheetSyncCalls=0;
 const sentEmails=[];
 globalThis.fetch=async (url,init={})=>{
   const href=String(url);
@@ -130,11 +131,25 @@ globalThis.fetch=async (url,init={})=>{
     sentEmails.push({payload,headers});
     return new Response(JSON.stringify({id:'email_test_001'}),{status:200,headers:{'Content-Type':'application/json'}});
   }
+  if(href==='https://script.google.com/macros/s/AKfycbyPMJDrPkcOEAQi34qLHXGiIauFq98gPeRE77DhaAyzHphRoS4uUjJAzyipBQu2Wq7E2A/exec'){
+    const payload=JSON.parse(String(init.body||'{}'));
+    assert.equal(payload.secret,'test-estimate-secret');
+    if(payload.action==='sync_estimate'){
+      sheetSyncCalls++;
+      return new Response(JSON.stringify({
+        ok:true,action:'sync_estimate',caseNumber:payload.case_number,
+        url:'https://docs.google.com/spreadsheets/d/test-sheet/edit',
+        estimateTotal:22000,depositAmount:11000,balanceAmount:11000,
+        plan:'PLAN-01',leadTime:'3〜5営業日'
+      }),{status:200,headers:{'Content-Type':'application/json'}});
+    }
+    throw new Error('Unexpected estimate sheet action: '+payload.action);
+  }
   throw new Error('Unexpected fetch URL: '+href);
 };
 
 try{
-  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com',ADMIN_CONTACT_EMAIL_MAP:JSON.stringify({'admin@example.com':'contact@example.com'})};
+  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com',ADMIN_CONTACT_EMAIL_MAP:JSON.stringify({'admin@example.com':'contact@example.com'}),ESTIMATE_SHEET_WEBHOOK_SECRET:'test-estimate-secret'};
 
   const preflight=await worker.fetch(new Request('https://worker.example/admin/cases',{
     method:'OPTIONS',
@@ -247,7 +262,19 @@ try{
   assert.equal(renamedListJson.cases[0].assignee,'中村 宏樹');
   assert.equal(env.DB.case.assignee,'中村 宏樹');
 
-  env.DB.case.estimate_total=110000;env.DB.case.deposit_amount=40000;env.DB.case.balance_amount=70000;
+  env.DB.case.estimate_total=null;env.DB.case.deposit_amount=null;env.DB.case.balance_amount=null;
+  const estimateSync=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sync',{
+    method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(estimateSync.status,200);
+  const estimateSyncJson=await estimateSync.json();
+  assert.equal(estimateSyncJson.case.estimate_total,22000);
+  assert.equal(estimateSyncJson.case.deposit_amount,11000);
+  assert.equal(estimateSyncJson.case.balance_amount,11000);
+  assert.equal(estimateSyncJson.estimate.plan,'PLAN-01');
+  assert.equal(estimateSyncJson.estimate.leadTime,'3〜5営業日');
+  assert.equal(sheetSyncCalls,1);
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_sheet_synced'));
 
   const badEstimateForm=new FormData();
   badEstimateForm.append('to','customer@example.com');
@@ -375,6 +402,7 @@ try{
       'deposit confirmation transition and auto assignment',
       'start estimate action',
       'assignee display-name profile sync',
+      'estimate sheet amount sync before email review',
       'estimate PDF email validation and send',
       'estimate email auto-transition and audit',
       'estimate sent manual fallback action',

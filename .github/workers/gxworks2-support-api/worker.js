@@ -1026,6 +1026,11 @@ async function handleAdminRequest(request, env, origin, url) {
     return openAdminEstimateSheet(env, decodeURIComponent(estimateSheetMatch[1]), admin, origin);
   }
 
+  const estimateSyncMatch = /^\/admin\/cases\/([^/]+)\/estimate-sync$/.exec(url.pathname);
+  if (estimateSyncMatch && request.method === 'POST') {
+    return syncAdminEstimateFromSheet(env, decodeURIComponent(estimateSyncMatch[1]), admin, origin);
+  }
+
   const estimateEmailMatch = /^\/admin\/cases\/([^/]+)\/estimate-email$/.exec(url.pathname);
   if (estimateEmailMatch && request.method === 'POST') {
     return sendAdminEstimateEmail(request, env, decodeURIComponent(estimateEmailMatch[1]), admin, origin);
@@ -1395,6 +1400,108 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
     title:clean(body.title || '',300),
     customer_history:customerHistory,
   }, 200, origin);
+}
+
+
+async function syncAdminEstimateFromSheet(env, caseNumber, admin, origin) {
+  const webAppUrl = clean(env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL,1000);
+  if (!webAppUrl || !env.ESTIMATE_SHEET_WEBHOOK_SECRET) {
+    return json({ ok:false, error:'Estimate sheet integration is not configured' }, 503, origin);
+  }
+
+  const before = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
+  if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot sync estimate sheets' }, 409, origin);
+
+  let response;
+  try {
+    response = await fetch(webAppUrl, {
+      method:'POST',
+      redirect:'follow',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        secret:env.ESTIMATE_SHEET_WEBHOOK_SECRET,
+        action:'sync_estimate',
+        case_number:clean(before.case_number || '',80),
+      }),
+    });
+  } catch (error) {
+    console.error('Estimate sheet sync request failed', error);
+    return json({ ok:false, error:'Estimate sheet service is unavailable' }, 502, origin);
+  }
+
+  const raw = await response.text();
+  let body = {};
+  try { body = raw ? JSON.parse(raw) : {}; } catch {}
+  if (!response.ok || !body.ok) {
+    console.error('Estimate sheet sync service error', response.status, raw.slice(0,1000));
+    const code = clean(body.error || '',120);
+    return json({ ok:false, error:code === 'estimate_sheet_not_found' ? 'Estimate sheet has not been created yet' : 'Estimate sheet values could not be read' }, code === 'estimate_sheet_not_found' ? 409 : 502, origin);
+  }
+
+  const parseAmount = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const n = Number(value);
+    return Number.isSafeInteger(n) && n >= 0 && n <= 999999999 ? n : null;
+  };
+  const estimateTotal = parseAmount(body.estimateTotal);
+  const depositAmount = parseAmount(body.depositAmount);
+  const balanceAmount = parseAmount(body.balanceAmount);
+  if (estimateTotal === null || depositAmount === null || balanceAmount === null) {
+    return json({ ok:false, error:'Estimate sheet amounts are incomplete' }, 409, origin);
+  }
+  if (depositAmount > estimateTotal || balanceAmount !== estimateTotal - depositAmount) {
+    return json({ ok:false, error:'Estimate sheet amounts are inconsistent' }, 409, origin);
+  }
+
+  const actor = admin.email || 'admin';
+  const assignment = autoAdminAssignment(before,admin);
+  const updates = {
+    estimate_total:estimateTotal,
+    deposit_amount:depositAmount,
+    balance_amount:balanceAmount,
+    ...assignment,
+  };
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  if (changed.length) {
+    const now = new Date().toISOString();
+    const set = changed.map(([key],index)=>key+'=?'+(index+2));
+    set.push('updated_at=?'+(changed.length+2));
+    set.push('updated_by=?'+(changed.length+3));
+    const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+    await env.DB.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  }
+
+  if (assignment.assignee_email) {
+    await addAdminCaseEvent(env.DB,caseNumber,'assignee_assigned','','','最初の進行操作で '+assignment.assignee+' を担当者に設定',actor);
+  }
+
+  const plan = clean(body.plan || '',40);
+  const leadTime = clean(body.leadTime || '',80);
+  const detail = [
+    '見積Sheetから金額を同期',
+    '見積総額: '+estimateTotal+'円',
+    '着手金: '+depositAmount+'円',
+    '残金: '+balanceAmount+'円',
+    plan ? '料金区分: '+plan : '',
+    leadTime ? '納期目安: '+leadTime : '',
+  ].filter(Boolean).join(' / ');
+  await addAdminCaseEvent(env.DB,caseNumber,'estimate_sheet_synced',before.status,before.status,detail,actor);
+
+  const after = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({
+    ok:true,
+    case:after,
+    estimate:{
+      total:estimateTotal,
+      deposit:depositAmount,
+      balance:balanceAmount,
+      plan,
+      leadTime,
+      spreadsheetUrl:clean(body.url || '',1000),
+    },
+  },200,origin);
 }
 
 

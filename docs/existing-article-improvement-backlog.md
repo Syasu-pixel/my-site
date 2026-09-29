@@ -40,7 +40,7 @@
 - [ ] `articles/terminal-block-basic.html` — 端子台
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
-- [ ] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング
+- [ ] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 作業中（PR #1621 / 最新main基準で本文・公式資料監査済み / Hero・OGP・本文画像3枚を採用・配置済み / 最終Preview確認待ち）
 - [ ] `articles/din-rail-basic.html` — DINレール
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
@@ -60,4 +60,4 @@
 
 候補選定後は、対象記事の検索queryとメーカー公式資料・一次情報を確認してから本文・meta・画像の刷新範囲を決定する。
 
-最終更新: 2026-09-27
+最終更新: 2026-09-29

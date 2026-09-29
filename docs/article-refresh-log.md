@@ -14,6 +14,43 @@
 
 ---
 
+## 2026-09-29 — solenoid-valve-troubleshooting-basic 全面刷新・本番公開
+
+- 対象記事: `articles/solenoid-valve-troubleshooting-basic.html`
+- 公開PR: [#1629](https://github.com/Syasu-pixel/my-site/pull/1629)
+- 実施内容:
+  - 故障原因を「電気側 / 空圧側 / 負荷側」に分ける構成へ刷新
+  - 設備図面と対象型式のメーカー公式資料を基準に確認する方針へ整理
+  - 通電中測定・手動操作等の具体操作は後退させ、安全手順・メーカー資料優先へ変更
+  - 採用済みHero / OGP / 本文画像3枚を反映
+  - 本文画像のPC・スマホ共通ライトボックスを共通部品で適用
+  - 関連記事を系統理解に必要な4件へ整理
+- 採用画像:
+  - `assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-hero.png`
+  - `assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-ogp.png`
+  - `assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-overview.png`
+  - `assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-comparison.png`
+  - `assets/images/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-check-flow.png`
+- 公式参照元:
+  - SMC 5ポートソレノイドバルブ SYシリーズ
+  - SMC 空気圧用ソレノイドバルブ 製品情報
+  - SMC 3・4・5ポート電磁弁 共通注意事項
+  - 詳細は `docs/reference-notes/solenoid-valve-troubleshooting-basic.md`
+- 公開前確認:
+  - production-equivalent final Preview PR #1628
+  - `build-integrated-review → prepare-integrated-publication → WebP最適化 → publication最終検証` 成功
+  - PCライト / PCダーク / スマホライト / スマホダーク監査成功
+  - 固定ヘッダー / Hero / 追従目次 / 関連記事 / 記事評価 / フッター / ライトボックスを確認
+- 変更しなかったもの:
+  - 記事URL
+  - canonical URL
+  - `sitemap.xml` のURL構成
+  - `assets/data/search-index.json` のURL構成
+  - `/seo/sitemap.xml`
+- 状態: 最終Preview承認済み。本番PR #1629 をmainへ反映後、GitHub Pages / IndexNow / 本番URLを確認する。
+
+---
+
 ## 2026-09-28 — magnetic-switch-basic 全面刷新・本番公開
 
 - 対象記事: `articles/magnetic-switch-basic.html`

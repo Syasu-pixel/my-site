@@ -457,7 +457,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background:url("../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ogp.png") right center / auto 100% no-repeat;
+      background:url("../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-hero.png") right center / auto 100% no-repeat;
       opacity:.34;
       pointer-events:none;
       z-index:0;
@@ -1380,24 +1380,10 @@
             <p>リレーや電磁接触器を使うハード回路では、停止ボタン、起動ボタン、自己保持用の補助接点、コイルをつないで構成します。PLCでは同じ考え方を入力信号・内部状態・出力条件としてラダーへ置き換えます。</p>
             <p>現場で回路を追う時は、起動ボタンだけでなく、<strong>停止経路 → 起動指令 → 自己保持 → 運転出力</strong>の順に分けて見ると原因を追いやすくなります。</p>
 
-            <div class="check-grid" aria-label="起動・停止回路の基本の流れ">
-              <div class="check-item check-item--warning">
-                <h3>1. 停止経路</h3>
-                <p>通常運転できる時は停止許可が成立しています。停止操作やインターロック条件で、この経路が成立しなくなると運転を止めます。</p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>2. 起動指令</h3>
-                <p>起動ボタンを押した瞬間に起動条件が成立し、運転出力をONするきっかけを作ります。</p>
-              </div>
-              <div class="check-item check-item--important">
-                <h3>3. 自己保持</h3>
-                <p>運転出力がONした後は、補助a接点やPLC内部条件で起動ボタンの代わりとなる保持経路を作ります。</p>
-              </div>
-              <div class="check-item">
-                <h3>4. 停止</h3>
-                <p>停止経路が成立しなくなると運転出力がOFFし、自己保持も解除されます。再起動には改めて起動条件が必要です。</p>
-              </div>
-            </div>
+            <figure class="article-figure">
+              <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-overview.png" alt="停止経路、起動指令、自己保持、停止までの起動・停止回路の全体像" loading="lazy" decoding="async">
+              <figcaption>停止経路 → 起動指令 → 自己保持 → 停止の順で見ると、起動・停止回路の全体像を整理しやすくなります。</figcaption>
+            </figure>
 
             <div class="talk-thread">
               <div class="talk-row">
@@ -1424,6 +1410,11 @@
             <h2>押しボタンは停止b接点・起動a接点が基本</h2>
             <p>押しボタンスイッチそのものを見ると、一般的な起動・停止回路では<strong>停止ボタンにb接点（NC）、起動ボタンにa接点（NO）</strong>を使う構成が基本です。</p>
             <p>停止ボタンのb接点は通常時に閉じていて、押すと開きます。起動ボタンのa接点は通常時に開いていて、押している間だけ閉じます。自己保持では、出力がONした後に閉じる補助a接点や、PLC内部の保持条件を起動ボタンと並列に使います。</p>
+
+            <figure class="article-figure">
+              <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-contacts.png" alt="停止ボタンのb接点と起動ボタンのa接点について、通常時と押した時の物理接点の状態を比較した図" loading="lazy" decoding="async">
+              <figcaption>a接点・b接点は「通常時の状態」で決まります。押した瞬間の開閉状態だけで接点種類を判断しないことがポイントです。</figcaption>
+            </figure>
 
             <div class="table-wrap">
               <table>
@@ -1477,24 +1468,18 @@
 
           <section class="section-card" id="ladder">
             <h2>簡略ラダー例で見る起動・停止回路</h2>
-            <p>起動・停止回路の基本は、<strong>停止許可を直列</strong>に置き、その後ろで<strong>起動指令と自己保持を並列</strong>にする形です。</p>
-            <p>次のPLC例は「停止ボタンをNC配線し、通常時X0=ON、停止時X0=OFF」「起動ボタンを押すとX1=ON」という前提の学習用概念図です。メーカー固有の命令画面を再現したものではありません。</p>
+            <p>PLCの簡略例では、<strong>M0を運転準備（運転許可）の直列条件</strong>にし、その後ろで<strong>X1起動とY0自己保持を並列</strong>にします。</p>
+            <p>M0がONしている間だけX1でY0を起動でき、Y0がONした後はY0のa接点がX1だけをバイパスします。M0がOFFになれば、自己保持中でもY0はOFFします。</p>
 
-            <div class="ladder-box" role="img" aria-label="停止ボタンをNC配線し通常時X0がONになる前提の起動停止回路の簡略ラダー例">
-              <div class="ladder-row">
-                <div class="ladder-label">起動</div>
-                <div class="ladder-line">[ X0 停止許可 ] ── [ X1 起動 ] ─────────── ( Y0 運転 )</div>
-              </div>
-              <div class="ladder-row">
-                <div class="ladder-label">保持</div>
-                <div class="ladder-line">[ X0 停止許可 ] ── [ Y0 自己保持 ] ──────── ( Y0 運転 )</div>
-              </div>
-            </div>
+            <figure class="article-figure">
+              <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-ladder.png" alt="M0運転準備を直列条件にし、X1起動とY0自己保持を並列にした起動・停止回路の簡略ラダー例" loading="lazy" decoding="async">
+              <figcaption>M0は直列条件として残し、Y0の自己保持接点はX1だけをバイパスします。</figcaption>
+            </figure>
 
             <div class="key-highlight">
-              <h3>この例でX0をa接点として見る理由</h3>
-              <p>停止ボタンが押されていない正常時はX0がONなので、X0がONしていることを運転許可条件として使います。停止ボタンを押してX0がOFFになると、起動側と自己保持側のどちらの経路も成立しなくなり、Y0がOFFします。</p>
-              <p>配線方法や入力論理が違えば、同じ停止ボタンでもラダー表現は変わります。<span class="mark">物理接点のNC/NOとPLCラダーの接点命令を一対一で固定しない</span>ことが大切です。</p>
+              <h3>自己保持はX1だけをバイパスする</h3>
+              <p>Y0の自己保持接点をX1と並列にすることで、起動ボタンを離しても運転を継続できます。一方、M0は自己保持の外側にあるため、運転準備が外れればY0も必ずOFFします。</p>
+              <p>この図のM0・X1・Y0はPLCのデバイス例です。押しボタンの物理a接点／b接点と、PLCラダー上で使用する接点命令は分けて考えます。</p>
             </div>
           </section>
 
@@ -1528,30 +1513,13 @@
 
           <section class="section-card" id="checkpoints">
             <h2>起動しない・保持しない時の確認ポイント</h2>
-            <p>トラブル時は出力だけを見るのではなく、<strong>停止許可 → 起動入力 → 出力ON → 自己保持</strong>の順に追うと切り分けやすくなります。</p>
-            <p>特にPLCでは、押しボタンの見た目や「b接点」という名前だけで判断せず、I/Oモニタで通常時と操作時の入力変化を確認することが重要です。</p>
+            <p>トラブル時は、<strong>M0運転準備 → X1起動入力 → Y0運転出力 → Y0自己保持</strong>の順に追うと切り分けやすくなります。</p>
+            <p>この例では、M0が成立していなければX1を押してもY0はONしません。Y0が一度ONしても、自己保持が成立していなければX1を離した時に停止します。</p>
 
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>停止許可入力は成立しているか</h3>
-                <p>NC配線の例なら、通常時に停止入力がONし、停止操作でOFFになるかを回路図とI/Oモニタで確認します。</p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>起動入力は変化しているか</h3>
-                <p>起動ボタンを押した時に、対象入力がONへ変化するか確認します。ボタンだけでなく端子・配線も切り分けます。</p>
-              </div>
-
-              <div class="check-item">
-                <h3>運転出力はONするか</h3>
-                <p>停止許可と起動条件がそろった瞬間に、Y出力や内部運転状態がONするか確認します。</p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>自己保持が成立しているか</h3>
-                <p>起動後に保持条件が成立し、起動ボタンを離しても運転が続くか、停止操作で確実に解除されるか確認します。</p>
-              </div>
-            </div>
+            <figure class="article-figure">
+              <img src="../assets/images/start-stop-circuit-basic/start-stop-circuit-basic-checkpoints.png" alt="M0運転準備、X1起動入力、Y0運転出力、Y0自己保持の順に確認する起動・停止回路のトラブル切り分け図" loading="lazy" decoding="async">
+              <figcaption>動かない・保持しない時は、M0 → X1 → Y0 → 自己保持の順で一つずつ確認します。</figcaption>
+            </figure>
 
             <div class="danger-box caution-character-box">
               <div class="caution-character">

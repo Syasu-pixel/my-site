@@ -18,60 +18,51 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore latest-main manifest formatting and patch target hash only
+      - name: Restore main manifest and patch target hash only
         run: |
           set -euo pipefail
           git fetch origin main preview-solenoid-valve-troubleshooting-refresh-20260929
+          git checkout origin/main -- .github/site-shells/manifest.json
           rm -f .github/workflows/fix-solenoid-manifest-diff.yml
 
           python3 - <<'PY'
           import re, subprocess
           from pathlib import Path
 
-          path='.github/site-shells/manifest.json'
+          path=Path('.github/site-shells/manifest.json')
           target=b'articles/solenoid-valve-troubleshooting-basic.html'
-          base=subprocess.check_output(['git','show','origin/main:'+path])
-          source=subprocess.check_output(['git','show','origin/preview-solenoid-valve-troubleshooting-refresh-20260929:'+path])
+          data=path.read_bytes()
+          source=subprocess.check_output(['git','show','origin/preview-solenoid-valve-troubleshooting-refresh-20260929:.github/site-shells/manifest.json'])
 
-          def object_for(data):
-              pos=data.find(b'"output": "'+target+b'"')
-              if pos < 0:
-                  raise SystemExit('target output not found')
-              start=data.rfind(b'{',0,pos)
-              end=data.find(b'\n    }',pos)
-              if end < 0:
-                  end=data.find(b'\r\n    }',pos)
-              if start < 0 or end < 0:
-                  raise SystemExit('target object bounds not found')
-              return start,end+6
+          def get_object(blob):
+              pos=blob.find(b'"output": "'+target+b'"')
+              if pos < 0: raise SystemExit('target output not found')
+              start=blob.rfind(b'{',0,pos)
+              # Find the closing brace of this page record.
+              m=re.search(br'\r?\n\s*\}',blob[pos:])
+              if start < 0 or not m: raise SystemExit('target object bounds missing')
+              end=pos+m.end()
+              return blob[start:end]
 
-          ss,se=object_for(source)
-          bs,be=object_for(base)
-          src_obj=source[ss:se]
-          base_obj=base[bs:be]
-
+          src_obj=get_object(source)
           m=re.search(br'"baselineSha256"\s*:\s*"([0-9a-f]{64})"',src_obj)
-          if not m:
-              raise SystemExit('source baseline hash missing')
-          new_hash=m.group(1)
+          if not m: raise SystemExit('source hash missing')
+          wanted=m.group(1)
 
+          obj=get_object(data)
           new_obj,n=re.subn(
               br'("baselineSha256"\s*:\s*")[0-9a-f]{64}(")',
-              lambda x:x.group(1)+new_hash+x.group(2),
-              base_obj,
+              lambda x:x.group(1)+wanted+x.group(2),
+              obj,
               count=1
           )
-          if n != 1:
-              raise SystemExit('base baseline hash replacement failed')
-
-          out=base[:bs]+new_obj+base[be:]
-          Path(path).write_bytes(out)
-          print('target baselineSha256',new_hash.decode())
+          if n!=1: raise SystemExit('target hash replacement failed')
+          if obj not in data: raise SystemExit('target object not unique')
+          path.write_bytes(data.replace(obj,new_obj,1))
+          print('baselineSha256',wanted.decode())
           PY
 
-          git diff --check
-
-      - name: Commit clean manifest diff
+      - name: Commit target-only manifest update
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

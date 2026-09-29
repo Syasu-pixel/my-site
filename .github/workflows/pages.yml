@@ -28,7 +28,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pages-${{ github.event.pull_request.number || 'production' }}
@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: preview-final-start-stop-circuit-basic-20260929
 
       - name: Setup Node for shared shell verification
         uses: actions/setup-node@v4
@@ -221,6 +223,22 @@ jobs:
             ${{ runner.temp }}/integration-build/image-collision-plan.json
             ${{ runner.temp }}/integration-build/additional-shells/preservation.json
           retention-days: 30
+
+      - name: Publish verified artifact to temporary final Preview branch
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 1634 }}
+        run: |
+          final_site="${RUNNER_TEMP}/start-stop-final-preview-site"
+          rm -rf "$final_site"
+          cp -a _site "$final_site"
+
+          git config user.name 'denkicontrol-final-preview'
+          git config user.email 'actions@users.noreply.github.com'
+
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$final_site"/. .
+          git add -A
+          git commit -m 'chore: publish production-equivalent final Preview [final-preview-built]'
+          git push origin "HEAD:preview-final-start-stop-circuit-basic-20260929"
 
       - name: Upload artifact
         # The deploy step is unreachable unless the standalone artifact passes.

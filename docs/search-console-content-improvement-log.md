@@ -11,6 +11,33 @@ This log tracks lightweight content reinforcements added to existing articles in
 - Add context that prioritizes manufacturer documentation, drawings/spec sheets, and local site rules.
 - Avoid absolute wording, unsafe assumptions, and one-size-fits-all claims.
 
+## 2026-09-29 Japanese article refresh — solenoid-valve-troubleshooting-basic
+
+- Target: `articles/solenoid-valve-troubleshooting-basic.html`
+- PR: [#1621](https://github.com/Syasu-pixel/my-site/pull/1621)
+- Search intent used for the refresh:
+  - 電磁弁 故障 原因
+  - 電磁弁 故障 症状
+  - 電磁弁が動かない時の確認
+- Search-data snapshot used before editing:
+  - Google 2026-08-28〜2026-09-24: 55 clicks / 1,429 impressions / CTR 3.85% / average position 6.84
+  - Prior Google period 2026-07-31〜2026-08-27: 11 clicks / 326 impressions / CTR 3.37% / average position 6.01
+  - Bing available range 2026-08-28〜2026-09-18: 46 clicks / 710 impressions / CTR 6.48% / average position 5.00
+- Main reinforcement:
+  - Kept the existing title/H1 because the page was already gaining impressions and clicks.
+  - Reorganized the body around electrical/control, pneumatic, and load-side causes.
+  - Added adopted Hero / OGP / overview / comparison / check-flow visuals.
+  - Prioritized equipment drawings, target-model official documentation, and site safety rules over generic live-operation troubleshooting steps.
+- Official references: `docs/reference-notes/solenoid-valve-troubleshooting-basic.md`
+- Publication:
+  - Final production-equivalent Preview approved.
+  - GitHub Pages deployment succeeded.
+  - IndexNow accepted the updated article URL with HTTP 200.
+- Google status:
+  - URL Inspection / indexing request remains a separate Search Console action; do not mark it complete unless the request is actually submitted.
+
+---
+
 ## 2026-05-20 English article improvements
 
 | PR | Target article | Main search intent | Main reinforcement | Safety note |

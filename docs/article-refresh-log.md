@@ -47,7 +47,7 @@
   - `sitemap.xml` のURL構成
   - `assets/data/search-index.json` のURL構成
   - `/seo/sitemap.xml`
-- 状態: 最終Preview承認済み。本番PR #1629 をmainへ反映後、GitHub Pages / IndexNow / 本番URLを確認する。
+- 状態: 最終Preview承認済み。本番PR #1629 をmainへ反映後、GitHub Pages / IndexNow / 本番URLを確認する。重要更新のためGoogle Search Consoleでは本番反映後にURL検査・再クロール依頼候補とする。
 
 ---
 

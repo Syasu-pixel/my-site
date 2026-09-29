@@ -1,0 +1,70 @@
+name: Refresh solenoid hero binding
+
+on:
+  push:
+    branches:
+      - preview-solenoid-valve-troubleshooting-refresh-20260929
+    paths:
+      - '.github/workflows/solenoid-hero-binding-refresh.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Refresh only target hero CSS binding
+        run: |
+          python3 - <<'PY'
+          import importlib.util, json
+          from pathlib import Path
+
+          root=Path('.').resolve()
+          target='articles/solenoid-valve-troubleshooting-basic.html'
+          script=root/'scripts/prepare-article-heroes.py'
+          spec=importlib.util.spec_from_file_location('hero_prep',script)
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+
+          pkg=root/'.github/article-components/hero'
+          manifest=json.loads((pkg/'manifest.json').read_text(encoding='utf-8'))
+          bindings=json.loads((pkg/'css-bindings.json').read_text(encoding='utf-8'))
+          source=(root/target).read_text(encoding='utf-8')
+          styles=mod.css_slots(source,manifest.get('cssExceptions',{}).get(target))
+          expected=[]
+          import re
+          for style in styles:
+              for slot in style['slots']:
+                  raw=slot['raw']
+                  urls=[]
+                  def replace(m):
+                      urls.append(m.group(0))
+                      return '{{ urls['+str(len(urls)-1)+'] | safe }}'
+                  template=re.sub(r'url\(\s*(?:"[^"]*"|\x27[^\x27]*\x27|[^)]*)\s*\)',replace,raw)
+                  name='css/'+mod.sha(template)+'.css.njk'
+                  if not (pkg/name).exists():
+                      raise SystemExit(f'missing existing hero CSS template: {name}')
+                  expected.append({'sourceSha256':mod.sha(raw),'template':name,'urls':urls})
+
+          old=bindings[target]
+          bindings[target]=expected
+          (pkg/'css-bindings.json').write_text(json.dumps(bindings,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('old=',json.dumps(old,ensure_ascii=False))
+          print('new=',json.dumps(expected,ensure_ascii=False))
+          PY
+
+          git diff -- .github/article-components/hero/css-bindings.json
+          git diff --check
+
+      - name: Commit target binding update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/article-components/hero/css-bindings.json
+          git commit -m 'Update solenoid valve hero CSS binding'
+          git push

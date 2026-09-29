@@ -1,0 +1,113 @@
+name: Sync solenoid publish records
+
+on:
+  push:
+    branches:
+      - preview-publish-solenoid-valve-20260929
+    paths:
+      - '.github/workflows/solenoid-publish-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch approved source branch
+        run: git fetch origin preview-solenoid-valve-troubleshooting-refresh-20260929
+
+      - name: Transplant only target records onto latest main baseline
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/solenoid-publish-sync.yml
+
+          python3 - <<'PY'
+          import copy, json, subprocess
+          from pathlib import Path
+
+          source_ref='origin/preview-solenoid-valve-troubleshooting-refresh-20260929'
+          target='articles/solenoid-valve-troubleshooting-basic.html'
+          refnote='docs/reference-notes/solenoid-valve-troubleshooting-basic.md'
+
+          def source_text(path):
+              return subprocess.check_output(['git','show',f'{source_ref}:{path}']).decode('utf-8')
+
+          def find_by_field(obj, field, value):
+              if isinstance(obj, dict):
+                  if obj.get(field)==value:
+                      return obj
+                  for v in obj.values():
+                      hit=find_by_field(v,field,value)
+                      if hit is not None:
+                          return hit
+              elif isinstance(obj, list):
+                  for v in obj:
+                      hit=find_by_field(v,field,value)
+                      if hit is not None:
+                          return hit
+              return None
+
+          def replace_by_field(obj, field, value, replacement):
+              if isinstance(obj, dict):
+                  if obj.get(field)==value:
+                      return copy.deepcopy(replacement), 1
+                  count=0
+                  out={}
+                  for k,v in obj.items():
+                      nv,n=replace_by_field(v,field,value,replacement)
+                      out[k]=nv; count+=n
+                  return out,count
+              if isinstance(obj,list):
+                  count=0; out=[]
+                  for v in obj:
+                      nv,n=replace_by_field(v,field,value,replacement)
+                      out.append(nv); count+=n
+                  return out,count
+              return obj,0
+
+          specs=[
+              ('.github/article-components/end/all-preservation-oracle.json','path'),
+              ('.github/article-components/sidebar/all-pages.json','path'),
+              ('.github/article-components/site-inventory.json','path'),
+              ('.github/site-shells/manifest.json','output'),
+          ]
+          for path,field in specs:
+              current=json.loads(Path(path).read_text(encoding='utf-8'))
+              source=json.loads(source_text(path))
+              src_entry=find_by_field(source,field,target)
+              if src_entry is None:
+                  raise SystemExit(f'source entry missing: {path}')
+              merged,count=replace_by_field(current,field,target,src_entry)
+              if count < 1:
+                  raise SystemExit(f'current entry missing: {path}')
+              Path(path).write_text(json.dumps(merged,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              print(path,'replaced',count)
+
+          catalog_path=Path('docs/rules/catalog.json')
+          current=json.loads(catalog_path.read_text(encoding='utf-8'))
+          source=json.loads(source_text('docs/rules/catalog.json'))
+          src_doc=find_by_field(source,'path',refnote)
+          if src_doc is None:
+              raise SystemExit('source rule-catalog entry missing')
+          docs=current['documents']
+          if not any(x.get('path')==refnote for x in docs):
+              insert_at=next((i for i,x in enumerate(docs) if x.get('path')=='docs/reference-notes/sto-basic.md'),len(docs))
+              docs.insert(insert_at,copy.deepcopy(src_doc))
+          catalog_path.write_text(json.dumps(current,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+
+          python scripts/check-rule-catalog.py --write-index
+          git diff --check
+
+      - name: Commit synchronized publish records
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Sync solenoid valve publish records on latest main'
+          git push

@@ -11,6 +11,36 @@
 - `sitemap.xml` や `search-index.json` を触らなかった場合も、触っていないことを記録する。
 - 画像ファイルが存在しない状態でHTMLだけ差し替えない。
 - `/seo/sitemap.xml` は非運用なので触らない。
+- 四コマ漫画の追従確認では、このログの「本番公開完了」記事を起点に `docs/comic-scripts/` の正式採用記録と突合し、未四コマ化の記事を抽出する。
+
+---
+ 
+## 2026-09-29 — solenoid-valve-troubleshooting-basic 全面刷新・本番公開
+
+- 対象記事: `articles/solenoid-valve-troubleshooting-basic.html`
+- 公開PR: [#1621](https://github.com/Syasu-pixel/my-site/pull/1621)
+- 実施内容:
+  - 最新main基準で本文を再構成し、採用済みの最終Preview内容を本番へ反映
+  - Hero / OGP / 本文画像3枚（全体像／比較／確認フロー）を反映
+  - 公式参照メモ `docs/reference-notes/solenoid-valve-troubleshooting-basic.md` を追加
+  - article-components / site inventory / site-shell manifest を最終ソースへ同期
+  - `docs/existing-article-improvement-backlog.md` の状態を更新
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-28 — sto-basic 全面刷新・本番公開
+
+- 対象記事: `articles/sto-basic.html`
+- 公開PR: [#1599](https://github.com/Syasu-pixel/my-site/pull/1599)
+- 実施内容:
+  - STO記事本文・SEO・公式参照情報を刷新
+  - Hero / OGP を刷新
+  - 本文画像4枚（通常停止との違い／STOとSS1／安全フロー／確認フロー）を反映
+  - 共通ライトボックスを適用
+  - 公式参照メモ `docs/reference-notes/sto-basic.md` と作業ログを反映
+  - article-components / site inventory / site-shell manifest を最終ソースへ同期
+- 状態: 本番公開完了。
 
 ---
 
@@ -53,6 +83,84 @@
   - `assets/data/search-index.json` のURL構成
   - `/seo/sitemap.xml`
 - 状態: 本番公開完了。Google Search ConsoleはURL検査から再クロール依頼を行う運用。
+
+---
+
+## 2026-09-26 — npn-pnp-basic 全面刷新・本番公開
+
+- 対象記事: `articles/npn-pnp-basic.html`
+- 公開PR: [#1586](https://github.com/Syasu-pixel/my-site/pull/1586)
+- 実施内容:
+  - NPN / PNP基礎記事の本文・検索メタデータを刷新
+  - Hero / OGP / 全体像 / 比較 / 確認フロー画像を採用版へ更新
+  - search index と記事共通部品の整合を更新
+  - production-equivalent Preview承認後に本番反映
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-25 — servo-motor-basic 画像刷新・本番公開
+
+- 対象記事: `articles/servo-motor-basic.html`
+- 公開PR: [#1587](https://github.com/Syasu-pixel/my-site/pull/1587)
+- 実施内容:
+  - 最新main基準で採用済みHero / OGPへ刷新
+  - 本文図2枚（サーボシステム全体像／位置決め用途）を追加
+  - 記事HTMLと site inventory / site-shell manifest を更新
+  - 最終Preview承認後に本番反映
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-25 — sensor-basic 全面刷新・本番公開
+
+- 対象記事: `articles/sensor-basic.html`
+- 公開PR: [#1575](https://github.com/Syasu-pixel/my-site/pull/1575)
+- 実施内容:
+  - センサ基礎記事の本文・SEO・画像を全面刷新
+  - Hero / OGP と、種類／信号フロー／信号種類／選定ポイント／安全／トラブル確認フローの本文画像を反映
+  - search index と記事共通部品の整合を更新
+  - 後続で公式参照メモ `docs/reference-notes/sensor-basic.md` を整備
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-23 — no-nc-basic 公式資料・画像刷新・本番公開
+
+- 対象記事: `articles/no-nc-basic.html`
+- 公開PR: [#1568](https://github.com/Syasu-pixel/my-site/pull/1568)
+- 実施内容:
+  - NO / NCの本文を公式資料基準で整理
+  - Hero / OGP / 本文画像2枚を更新
+  - 公式参照メモ `docs/reference-notes/no-nc-basic.md` を追加
+  - article-components / site inventory / site-shell manifest を同期
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-23 — reed-switch-basic 公式資料・画像刷新・本番公開
+
+- 対象記事: `articles/reed-switch-basic.html`
+- 公開PR: [#1554](https://github.com/Syasu-pixel/my-site/pull/1554)
+- 実施内容:
+  - リードスイッチ記事を公式資料基準で更新
+  - Hero / OGP / 本文画像2枚を更新
+  - 公式参照メモ `docs/reference-notes/reed-switch-basic.md` を追加
+  - search index と記事共通部品の整合を更新
+- 状態: 本番公開完了。
+
+---
+
+## 2026-09-22 — air-cylinder-troubleshooting-basic 全面刷新・本番公開
+
+- 対象記事: `articles/air-cylinder-troubleshooting-basic.html`
+- 公開PR: [#1488](https://github.com/Syasu-pixel/my-site/pull/1488)
+- 実施内容:
+  - エアシリンダトラブル記事をメーカー公式資料と照合して刷新
+  - Hero / OGP と、確認順／空圧／手動操作／機械干渉／リードスイッチ／スピードコントローラの本文画像を更新
+  - 作業ログ `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` を反映
+  - 後続で公式参照メモ `docs/reference-notes/air-cylinder-troubleshooting-basic.md` を整備
+- 状態: 本番公開完了。
 
 ---
 

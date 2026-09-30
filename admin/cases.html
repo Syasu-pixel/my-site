@@ -404,8 +404,10 @@
       if(!list||!current)return;
       if(usingDemo){list.innerHTML='<div class="estimate-history-empty">Previewサンプルでは送信済みPDFはありません。</div>';return}
       list.innerHTML='<div class="estimate-history-empty">送信済みPDFを確認中…</div>';
+      const requestedCaseNumber=current.case_number;
       try{
-        const result=await api('/admin/cases/'+encodeURIComponent(current.case_number)+'/estimate-documents');
+        const result=await api('/admin/cases/'+encodeURIComponent(requestedCaseNumber)+'/estimate-documents');
+        if(!current||current.case_number!==requestedCaseNumber)return;
         const docs=result.documents||[];
         list.innerHTML=docs.length?docs.map(doc=>{
           const sent=doc.sentAt?fmt(doc.sentAt):'日時不明';
@@ -560,7 +562,7 @@
       }
     }
     function currentFormPayload(options={}){
-      const payload={status:options.preserveStatus&&current?current.status:document.getElementById('editStatus').value,due_date:document.getElementById('editDueDate').value,next_action:document.getElementById('editNextAction').value,handoff_note:document.getElementById('editHandoff').value,estimate_total:document.getElementById('editTotal').value,deposit_amount:document.getElementById('editDeposit').value,delivered_at:document.getElementById('editDelivered').value,followup_status:document.getElementById('editFollowupStatus').value,followup_sent_at:document.getElementById('editFollowupSent').value,followup_result:document.getElementById('editFollowupResult').value,customer_requests:document.getElementById('editRequests').value};
+      const payload={status:options.preserveStatus&&current?current.status:document.getElementById('editStatus').value,due_date:document.getElementById('editDueDate').value,next_action:document.getElementById('editNextAction').value,handoff_note:document.getElementById('editHandoff').value,delivered_at:document.getElementById('editDelivered').value,followup_status:document.getElementById('editFollowupStatus').value,followup_sent_at:document.getElementById('editFollowupSent').value,followup_result:document.getElementById('editFollowupResult').value,customer_requests:document.getElementById('editRequests').value};
       if(options.basicOnly){delete payload.delivered_at;delete payload.followup_status;delete payload.followup_sent_at}
       return payload;
     }

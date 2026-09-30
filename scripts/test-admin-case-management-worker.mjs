@@ -287,7 +287,13 @@ try{
   assert.equal(renamedListJson.cases[0].assignee,'中村 宏樹');
   assert.equal(env.DB.case.assignee,'中村 宏樹');
 
-  env.DB.case.estimate_total=null;env.DB.case.deposit_amount=null;env.DB.case.balance_amount=null;
+  const staleAmountPatch=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number,{
+    method:'PATCH',headers:{...authHeaders3,'Content-Type':'application/json'},body:JSON.stringify({next_action:'メモだけ更新',estimate_total:99999,deposit_amount:1}),
+  }),env);
+  assert.equal(staleAmountPatch.status,400);
+  assert.equal(env.DB.case.estimate_total,null);
+  assert.equal(env.DB.case.deposit_amount,null);
+
   const estimateSync=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sync',{
     method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:'{}',
   }),env);

@@ -31,6 +31,7 @@ function doPost(e) {
 
     const caseNumber = clean_(body.case_number, 80);
     if (!caseNumber) return json_({ok:false,error:'case_number is required'});
+    const action = clean_(body.action, 40) || 'open';
 
     const props = scriptProps;
     const propertyKey = CASE_PROPERTY_PREFIX + caseNumber;
@@ -44,6 +45,10 @@ function doPost(e) {
         fileId = '';
         props.deleteProperty(propertyKey);
       }
+    }
+
+    if (action === 'sync_estimate' && !fileId) {
+      return json_({ok:false,error:'estimate_sheet_not_found'});
     }
 
     if (!fileId) {
@@ -63,6 +68,22 @@ function doPost(e) {
     const settingsSheet = ss.getSheetByName('見積設定');
     if (!sheet) throw new Error('見積書シートが見つかりません');
     if (!settingsSheet) throw new Error('見積設定シートが見つかりません');
+
+    if (action === 'sync_estimate') {
+      SpreadsheetApp.flush();
+      return json_({
+        ok:true,
+        action,
+        caseNumber,
+        spreadsheetId:fileId,
+        url:ss.getUrl(),
+        estimateTotal:sheetAmount_(sheet.getRange('B12').getValue(), '見積総額'),
+        depositAmount:sheetAmount_(sheet.getRange('D12').getValue(), '着手金'),
+        balanceAmount:sheetAmount_(sheet.getRange('F12').getValue(), '残金'),
+        plan:clean_(settingsSheet.getRange('B3').getDisplayValue(), 40),
+        leadTime:clean_(settingsSheet.getRange('B8').getDisplayValue(), 80)
+      });
+    }
 
     const now = new Date();
     const estimateDate = Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy/MM/dd');
@@ -163,6 +184,15 @@ function nullableAmount_(value) {
   if (value === null || value === undefined || value === '') return null;
   const n = Number(value);
   if (!Number.isSafeInteger(n) || n < 0 || n > 999999999) return null;
+  return n;
+}
+
+function sheetAmount_(value, label) {
+  if (value === '' || value === null || value === undefined) return null;
+  const n = Number(value);
+  if (!Number.isSafeInteger(n) || n < 0 || n > 999999999) {
+    throw new Error((label || '金額') + 'が不正です');
+  }
   return n;
 }
 

@@ -28,6 +28,7 @@ for(const result of rendered){
   // One source career page lacks the shared search loader. The common header
   // requires it; the original feedback loader has its own duplicate guard.
   if(!/<script\b[^>]*src=["'][^"']*site-search\.js/i.test(html))html=html.replace('</body>','<script src="/assets/js/site-search.js" defer data-integration-added="search"></script></body>');
+  if(!html.includes('data-site-analytics="metricool"'))html=html.replace('</body>','<script src="/assets/js/site-analytics.js" defer data-site-analytics="metricool"></script></body>');
   html=html.replace('</head>','<link rel="stylesheet" href="/assets/css/article-end-related.css">'+(!path.startsWith('en/')?'<link rel="stylesheet" href="/assets/css/article-end-feedback.css">':'')+'<link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>').replace('</body>','<script src="/assets/js/article-integration-compat.js" defer></script></body>');
   if(!path.startsWith('en/')&&(html.match(/id="articleFeedbackCard"/g)||[]).length!==1)throw Error('Japanese feedback count invalid');
   if(path.startsWith('en/')&&html.includes('id="articleFeedbackCard"'))throw Error('English feedback forbidden');

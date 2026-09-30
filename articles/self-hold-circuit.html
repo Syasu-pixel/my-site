@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理</title>
-  <meta name="description" content="自己保持回路とは何かを初心者向けにやさしく整理。起動ボタンを離しても運転が続く理由、停止ボタンで保持が切れる流れ、簡略ラダー例、自己保持しない時の確認ポイントを現場目線で解説します。">
+  <meta name="description" content="自己保持回路の基本を公式資料ベースで整理。電磁開閉器・リレーの自己保持、起動a接点・停止b接点、PLCラダーでの考え方、自己保持しない時の確認、安全回路との違いまで初心者向けに解説します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/self-hold-circuit.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/self-hold-circuit.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理">
-  <meta property="og:description" content="自己保持回路の基本、起動ボタン・停止ボタン・自己保持接点のつながり、簡略ラダー例、確認ポイントを初心者向けに整理します。">
+  <meta property="og:description" content="自己保持回路の仕組みを公式資料ベースで整理。起動・保持・停止の流れ、リレー回路とPLCラダー、安全回路との違いまでやさしく解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/self-hold-circuit.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理">
-  <meta name="twitter:description" content="起動ボタンを離しても運転が続く理由、停止ボタンで保持が切れる流れを初心者向けに整理します。">
+  <meta name="twitter:description" content="自己保持回路の仕組みを公式資料ベースで整理。起動・保持・停止の流れとPLCラダーの基本までやさしく解説します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/self-hold-circuit/self-hold-circuit-ogp.png">
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -1319,10 +1319,10 @@
         <div class="article-hero-copy">
           <span class="hero-label">回路の基本</span>
           <h1>自己保持回路とは？起動ボタンを離しても動き続ける基本回路をやさしく整理</h1>
-          <p class="hero-lead">自己保持回路は、起動ボタンを一度押したあと、ボタンを離しても運転を続けるための基本回路です。停止ボタンで保持を切る流れまで、現場で追いやすい形で整理します。</p>
+          <p class="hero-lead">自己保持回路は、電磁開閉器やリレーが自分の接点を使って動作状態を保つ基本回路です。起動・保持・停止の流れを、公式資料を確認しながらリレー回路とPLCラダーの両方で整理します。</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#overview">全体像を見る</a>
-            <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
+            <a class="btn btn-secondary" href="#relay-circuit">基本回路を見る</a>
           </div>
         </div>
       </section>
@@ -1331,27 +1331,27 @@
         <article class="summary-card summary-card--fit">
           <h2>この記事が向いている人</h2>
           <ul>
-            <li>自己保持回路の基本を最初から整理したい人</li>
-            <li>起動ボタンを離しても動き続ける理由を知りたい人</li>
-            <li>ラダー図で保持が切れる流れを確認したい人</li>
+            <li>自己保持回路を基礎から理解したい人</li>
+            <li>起動ボタンを離しても運転が続く理由を整理したい人</li>
+            <li>リレー回路とPLCラダーのつながりを知りたい人</li>
           </ul>
         </article>
 
         <article class="summary-card summary-card--notyet">
-          <h2>まだ深掘りしなくてよい人</h2>
+          <h2>先に確認すると分かりやすいこと</h2>
           <ul>
-            <li>a接点・b接点の違いをまだ整理していない人</li>
-            <li>入力と出力の違いをまだ見分けにくい人</li>
-            <li>まずは起動・停止回路から見たい人</li>
+            <li>a接点・b接点の基本</li>
+            <li>押ボタンスイッチとリレー・電磁接触器の役割</li>
+            <li>PLCの入力X・出力Y・内部リレーMの基本</li>
           </ul>
         </article>
 
         <article class="summary-card summary-card--conclusion">
           <h2>先に結論</h2>
           <ul>
-            <li>自己保持は、出力自身の接点で運転を続ける考え方</li>
-            <li>起動ボタンは運転開始のきっかけ、保持接点が継続を担当する</li>
-            <li>停止ボタンや停止条件で保持を切って止める</li>
+            <li>自己保持は、自分の接点で動作状態を保つ考え方</li>
+            <li>起動ボタンは開始のきっかけ、保持接点が継続を担当する</li>
+            <li>停止b接点などで回路を開けば保持は解除される</li>
           </ul>
         </article>
       </section>
@@ -1359,143 +1359,165 @@
       <section class="mini-toc-card" aria-label="この記事で分かること">
         <h2>この記事で分かること</h2>
         <div class="mini-toc">
-          <a href="#overview">全体像</a>
+          <a href="#overview">自己保持とは</a>
+          <a href="#holding">何を保持する？</a>
+          <a href="#relay-circuit">リレー回路</a>
+          <a href="#plc-ladder">PLCラダー</a>
           <a href="#flow">動作の流れ</a>
-          <a href="#ladder">簡略ラダー</a>
-          <a href="#start-stop">起動停止との違い</a>
           <a href="#checkpoints">確認ポイント</a>
-          <a href="#related">関連記事</a>
+          <a href="#safety">安全回路との違い</a>
+          <a href="#references">公式資料</a>
         </div>
       </section>
 
       <div class="page-layout">
         <article class="main-column">
+          <section class="section-card" aria-label="更新情報">
+            <p><strong>最終内容更新：</strong><time datetime="2026-09-30">2026年9月30日</time></p>
+            <p><strong>公式資料確認日：</strong><time datetime="2026-09-30">2026年9月30日</time></p>
+          </section>
+
           <section class="section-card" id="overview">
-            <h2>自己保持回路の全体像</h2>
-            <p>自己保持回路は、<span class="mark">起動ボタンを一度押したあと、ボタンを離しても運転を続ける</span>ための回路です。</p>
-            <p>起動ボタンだけで出力を動かすと、ボタンを離した瞬間に出力も切れてしまいます。そこで、運転出力がONしたあと、自分自身の接点を使って回路をつなぎ続けます。</p>
-            <p>この「自分の出力で自分を保持する」考え方が、自己保持回路の基本です。</p>
+            <h2>自己保持回路とは</h2>
+            <p>自己保持回路は、<span class="mark">電磁開閉器（マグネットスイッチ）や継電器（リレー）が、自分自身の接点を利用して動作状態を保持する回路</span>です。</p>
+            <p>Panasonicの公式用語解説でも、自己保持回路は電磁開閉器やリレーが自己の接点を利用して動作状態を保持する回路として説明されています。起動のきっかけになる信号がなくなったあとも、自己保持用の接点を通して回路をつなぎ続けることで、運転状態を維持できます。</p>
+            <p>モーター運転、ポンプ運転、警報保持など、「一度起動したあと、停止操作をするまで状態を続けたい」ときに基本となる考え方です。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/self-hold-circuit/self-hold-circuit-basic-flow.png" alt="自己保持回路の基本動作。起動ボタン、自己保持接点、停止ボタン、運転出力の流れ" loading="lazy" decoding="async">
-              <figcaption>自己保持回路は、起動ボタンで運転出力をONし、その出力自身の接点で運転を保持し、停止ボタンで保持を切って止める流れです。</figcaption>
-            </figure>
+            <!-- IMAGE SLOT 1: 自己保持回路の全体像。起動ボタン・停止ボタン・コイル・自己保持接点の関係 -->
 
-            <div class="talk-thread">
-              <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>自己保持は、制御回路のかなり基本です。起動ボタンを離しても動く理由は、運転出力の接点が回路をつなぎ続けているからです。</p>
-                </div>
+            <div class="key-highlight">
+              <h3>自己保持は「押し続ける」のではなく「別の接点でつなぎ続ける」</h3>
+              <p>起動ボタンを押し続けているわけではありません。一度コイルや出力がONしたあと、その状態に連動する接点が起動ボタンの代わりに回路をつなぎ続けます。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="holding">
+            <h2>自己保持回路で何を「保持」しているのか</h2>
+            <p>自己保持回路を理解する時は、<strong>起動ボタン・コイル（出力）・自己保持接点</strong>を分けて考えると分かりやすくなります。</p>
+
+            <div class="check-grid">
+              <div class="check-item check-item--important">
+                <h3>起動ボタン</h3>
+                <p>最初に回路を成立させるきっかけです。一般的な基本回路ではa接点を使います。</p>
               </div>
-
-              <div class="talk-row talk-row--right">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人の案内キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">新人</span>起動ボタンがずっと押されているわけじゃなくて、別の接点で運転を続けているんですね。</p>
-                </div>
+              <div class="check-item check-item--field">
+                <h3>コイル・運転出力</h3>
+                <p>起動条件が成立するとONになり、接触器やリレー、PLC出力などの動作状態を作ります。</p>
+              </div>
+              <div class="check-item">
+                <h3>自己保持接点</h3>
+                <p>コイルや運転出力に連動してONし、起動ボタンを離した後も回路を成立させます。</p>
+              </div>
+              <div class="check-item check-item--warning">
+                <h3>停止ボタン</h3>
+                <p>基本回路ではb接点を使い、操作すると回路を開いて自己保持を解除します。</p>
               </div>
             </div>
 
-            <div class="key-highlight">
-              <h3>自己保持は「一度入った出力を、自分の接点で保持する」回路</h3>
-              <p>起動ボタンは運転開始のきっかけです。運転を続ける役割は、運転出力の自己保持接点が担当します。</p>
+            <!-- IMAGE SLOT 2: 起動ボタンを押す前 / 押した瞬間 / 離した後の3段階比較 -->
+          </section>
+
+          <section class="section-card" id="relay-circuit">
+            <h2>リレー回路で見る自己保持の基本</h2>
+            <p>基本的な自己保持回路では、停止用のb接点を直列に置き、その後ろで<strong>起動用a接点と自己保持用a接点を並列</strong>にします。その先にリレーや電磁接触器のコイルを接続します。</p>
+            <p>起動ボタンを押すとコイルが励磁され、コイルに連動した補助a接点が閉じます。起動ボタンを離しても補助a接点側の経路が残るため、コイルへの通電が続きます。</p>
+            <p>停止ボタンを押してb接点が開くと、起動側と自己保持側のどちらの経路も同時に切れます。コイルがOFFすると自己保持接点も元に戻り、停止状態になります。</p>
+
+            <!-- IMAGE SLOT 3: リレー・電磁接触器による自己保持回路の正しい回路図 -->
+
+            <div class="note-box">
+              <h3>補助接点はコイルと連動して動く</h3>
+              <p>自己保持用接点は、起動ボタンとは別の接点です。リレーや電磁接触器のコイルが励磁されることで、対応する補助接点が切り替わります。</p>
+            </div>
+          </section>
+
+          <section class="section-card" id="plc-ladder">
+            <h2>PLCラダーで見る自己保持の基本</h2>
+            <p>PLCでも考え方は同じです。物理的な補助接点の代わりに、出力Yや内部リレーMなどの接点をラダー上で使って保持回路を作ります。</p>
+            <p>下の例は特定メーカーのプログラミング画面を再現したものではなく、自己保持の考え方を理解するための概念例です。</p>
+
+            <div class="ladder-box" role="img" aria-label="PLCラダーで表した自己保持回路の概念例">
+              <div class="ladder-row">
+                <div class="ladder-label">停止条件</div>
+                <div class="ladder-line">[ X0 停止 b接点 ] ──┬── [ X1 起動 a接点 ] ──┬── ( Y0 運転出力 )</div>
+              </div>
+              <div class="ladder-row">
+                <div class="ladder-label">自己保持</div>
+                <div class="ladder-line">　　　　　　　　　　 └── [ Y0 自己保持接点 ] ──┘</div>
+              </div>
+            </div>
+
+            <p>起動入力X1が一度ONするとY0がONし、Y0のa接点が起動入力と並列の経路を作ります。その後X1がOFFになっても、Y0自身の接点が成立している間はY0がONを続けます。停止条件X0が動作すると直列側が切れ、Y0はOFFします。</p>
+
+            <!-- IMAGE SLOT 4: PLCラダーの自己保持を起動前・起動時・保持中・停止時で色分けした図 -->
+
+            <div class="field-highlight">
+              <h3>Yで直接保持する方法とMで状態を持つ方法がある</h3>
+              <p>実際のPLCプログラムでは、出力Yを直接自己保持に使う場合もあれば、内部リレーMなどに運転状態を持たせ、その結果としてYを出力する構成もあります。この記事ではまず自己保持そのものの考え方を理解するため、単純な例で整理しています。</p>
             </div>
           </section>
 
           <section class="section-card" id="flow">
-            <h2>自己保持回路の動作の流れ</h2>
-            <p>自己保持回路は、起動、保持、停止の3段階で見ると分かりやすいです。</p>
-            <p>起動ボタンを押すと運転出力がONし、その運転出力の接点が並列に入って回路を保持します。停止ボタンを押すと、その保持回路が切れて運転出力がOFFします。</p>
-
+            <h2>自己保持回路の動作を順番に見る</h2>
             <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>1. 起動ボタンを押す</h3>
-                <p>起動入力が入り、運転出力がONするきっかけになります。</p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>2. 運転出力がONする</h3>
-                <p>出力がONすると、運転状態を作ります。接触器やPLC出力などにつながります。</p>
-              </div>
-
               <div class="check-item">
-                <h3>3. 自己保持接点が入る</h3>
-                <p>運転出力自身の接点で回路をつなぎ、起動ボタンを離しても運転を続けます。</p>
+                <h3>1. 停止回路が成立している</h3>
+                <p>停止b接点が閉じており、起動できる状態になっています。</p>
               </div>
-
+              <div class="check-item check-item--important">
+                <h3>2. 起動ボタンを押す</h3>
+                <p>起動a接点が閉じ、コイルまたは運転出力がONします。</p>
+              </div>
+              <div class="check-item check-item--field">
+                <h3>3. 自己保持接点が閉じる</h3>
+                <p>出力に連動したa接点が閉じ、起動ボタンと並列の保持経路が成立します。</p>
+              </div>
+              <div class="check-item">
+                <h3>4. 起動ボタンを離す</h3>
+                <p>起動a接点は元に戻りますが、自己保持接点側から通電が続くため運転は継続します。</p>
+              </div>
               <div class="check-item check-item--warning">
-                <h3>4. 停止ボタンで保持を切る</h3>
-                <p>停止入力が入ると保持回路が切れ、運転出力がOFFします。</p>
+                <h3>5. 停止ボタンを押す</h3>
+                <p>停止b接点が開き、保持経路への通電が切れます。</p>
+              </div>
+              <div class="check-item">
+                <h3>6. 出力がOFFして初期状態へ戻る</h3>
+                <p>コイルがOFFし、自己保持接点も元に戻ります。再び起動ボタンを押すまで停止状態です。</p>
               </div>
             </div>
 
-            <div class="note-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="補足する先輩ちびキャラ">
-              </div>
-              <div>
-                <h3>保持しているのは起動ボタンではなく出力接点</h3>
-                <p>自己保持でよく混乱しやすいのは、起動ボタンが運転を続けているように見えてしまう点です。実際には、出力自身の接点が回路を保持しています。</p>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-card" id="ladder">
-            <h2>簡略ラダー例で見る自己保持回路</h2>
-            <p>自己保持回路をラダーで見ると、停止b接点の後に、起動a接点と自己保持接点が並列で入る形になります。</p>
-            <p>ここではメーカー画面を完全再現するのではなく、初心者が追いやすい概念図として整理します。</p>
-
-            <div class="ladder-box" role="img" aria-label="自己保持回路の簡略ラダー例">
-              <div class="ladder-row">
-                <div class="ladder-label">起動</div>
-                <div class="ladder-line">[ X0 停止 b接点 ] ── [ X1 起動 a接点 ] ── ( Y0 運転出力 )</div>
-              </div>
-              <div class="ladder-row">
-                <div class="ladder-label">保持</div>
-                <div class="ladder-line">[ X0 停止 b接点 ] ── [ Y0 自己保持接点 ] ── ( Y0 運転出力 )</div>
-              </div>
-            </div>
-
-            <div class="field-highlight">
-              <h3>現場では「起動入力」と「保持接点」を分けて見る</h3>
-              <p>一瞬だけ動いて止まる場合は、起動入力は入っていても、自己保持接点や保持条件が成立していない可能性があります。</p>
-            </div>
+            <!-- IMAGE SLOT 5: 起動→保持→停止を時系列で見せる6ステップ図 -->
           </section>
 
           <section class="section-card" id="start-stop">
-            <h2>起動・停止回路との違い</h2>
-            <p>起動・停止回路は、起動ボタンで動かし、停止ボタンで止める基本の考え方です。</p>
-            <p>自己保持回路は、その起動・停止回路に「起動ボタンを離しても運転を続ける仕組み」を加えたものとして見ると分かりやすいです。</p>
+            <h2>自己保持回路と起動・停止操作の関係</h2>
+            <p>「起動」と「停止」は操作の役割を表し、「自己保持」は起動後の状態をどう継続するかという回路の仕組みを表します。</p>
+            <p>そのため、実際には起動・停止用の押ボタンと自己保持回路を組み合わせて使う形が基本になります。</p>
 
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>項目</th>
-                    <th>起動・停止回路</th>
-                    <th>自己保持回路</th>
+                    <th>要素</th>
+                    <th>基本的な役割</th>
+                    <th>自己保持回路での見方</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="cell-blue">見るポイント</td>
-                    <td>起動と停止の条件</td>
-                    <td>起動後に運転を続ける保持条件</td>
+                    <td class="cell-blue">起動a接点</td>
+                    <td>運転開始のきっかけを作る</td>
+                    <td>最初にコイル・出力をONする</td>
                   </tr>
                   <tr>
-                    <td class="cell-green">起動ボタンを離した後</td>
-                    <td>構成によっては止まる</td>
-                    <td>自己保持接点で運転を続ける</td>
+                    <td class="cell-green">自己保持a接点</td>
+                    <td>ONした状態を継続する</td>
+                    <td>起動接点と並列に入り、起動ボタンを離した後の経路になる</td>
                   </tr>
                   <tr>
-                    <td class="cell-orange">停止方法</td>
-                    <td>停止ボタンや停止条件で切る</td>
-                    <td>停止ボタンで保持を切って止める</td>
+                    <td class="cell-orange">停止b接点</td>
+                    <td>通電経路を開く</td>
+                    <td>起動側と保持側の両方を切って出力をOFFする</td>
                   </tr>
                 </tbody>
               </table>
@@ -1504,81 +1526,101 @@
 
           <section class="section-card" id="checkpoints">
             <h2>自己保持しない時の確認ポイント</h2>
-            <p>自己保持回路でよくあるトラブルは、起動ボタンを押している間だけ動き、離すと止まってしまう状態です。</p>
-            <p>この場合は、起動入力だけでなく、自己保持接点、停止条件、出力状態を順番に確認します。</p>
+            <p>「起動ボタンを押している間は動くが、離すと止まる」という場合は、起動そのものよりも<strong>保持経路が成立しているか</strong>を見ると原因を追いやすくなります。</p>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>起動入力は入っているか</h3>
-                <p>起動ボタンを押した時に、PLC入力やリレー入力がONしているか確認します。</p>
+                <h3>起動時に出力がONするか</h3>
+                <p>まず起動ボタンを押した時に、リレーコイルやPLC出力がONしているか確認します。ここがONしない場合は、自己保持より前の起動条件を確認します。</p>
               </div>
-
               <div class="check-item check-item--field">
-                <h3>運転出力はONしているか</h3>
-                <p>起動条件が成立した時に、Y出力やリレー出力がONしているか確認します。</p>
+                <h3>自己保持接点が切り替わるか</h3>
+                <p>コイルや出力がONした後、補助a接点またはラダー上の保持接点が成立しているか確認します。</p>
               </div>
-
               <div class="check-item">
-                <h3>自己保持接点が入っているか</h3>
-                <p>運転出力がONした後、その補助接点やラダー上の自己保持接点がONしているか確認します。</p>
+                <h3>保持経路の配線・分岐は正しいか</h3>
+                <p>起動a接点と自己保持a接点が意図した並列経路になっているか、途中で回路が切れていないか確認します。</p>
               </div>
-
               <div class="check-item check-item--warning">
-                <h3>停止条件が入ったままではないか</h3>
-                <p>停止ボタン、非常停止系の接点、異常停止条件などで保持が切れていないか確認します。</p>
+                <h3>停止条件が成立したままではないか</h3>
+                <p>停止入力や異常条件など、保持を解除する条件が入ったままになっていないか確認します。</p>
               </div>
             </div>
 
-            <div class="danger-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="注意点を案内する先輩ちびキャラ">
-              </div>
-              <div>
-                <h3>安全回路とは分けて考える</h3>
-                <p>自己保持回路は運転を続けるための基本回路ですが、非常停止や安全リレーの代わりにはなりません。安全に関わる停止は、安全回路として別に考えます。</p>
-              </div>
+            <!-- IMAGE SLOT 6: 自己保持しないときの確認順フローチャート -->
+          </section>
+
+          <section class="section-card" id="common-mistakes">
+            <h2>自己保持回路でよく混同しやすいポイント</h2>
+
+            <h3>起動ボタンが運転を保持しているわけではない</h3>
+            <p>起動ボタンは最初のきっかけです。起動後の継続を担当するのは、リレー・電磁接触器の補助接点やPLCラダー上の自己保持接点です。</p>
+
+            <h3>a接点・b接点は部品の色ではなく接点の動作で考える</h3>
+            <p>一般的な基本回路では起動側にa接点、停止側にb接点を使います。図を見る時は「通常状態で開いているか・閉じているか」を意識すると理解しやすくなります。</p>
+
+            <h3>PLCのSET命令と自己保持回路は同じものではない</h3>
+            <p>SET/RESET命令でも状態を保持できますが、接点を並列にして出力自身で条件を維持する自己保持回路とは表現方法が異なります。まずは接点による自己保持を理解してから、保持命令との違いを見ると整理しやすくなります。</p>
+          </section>
+
+          <section class="section-card" id="safety">
+            <h2>通常の自己保持回路と安全回路は分けて考える</h2>
+            <p>通常の自己保持回路は、運転状態を継続するための制御回路です。非常停止などの安全機能を、通常の自己保持回路だけで代用するものではありません。</p>
+            <p>OMRONの公式解説では、非常停止機器にはISO 13850に基づく要求事項として、直接開路動作機構や、操作後に手動復帰するまで保持される機械的保持機能などが示されています。IDECの公式解説でも、非常停止用押ボタンスイッチはNC接点を開いて電流を遮断し、ラッチング機構によって遮断状態を維持する構造が説明されています。</p>
+            <p>ここでいう非常停止スイッチの「保持」は、通常運転を継続する自己保持回路とは目的が異なります。安全に関わる設計では、対象機械のリスクアセスメント、適用規格、使用する安全機器の仕様を確認してください。</p>
+
+            <div class="danger-box">
+              <h3>安全機能は一般の自己保持回路と同じ扱いにしない</h3>
+              <p>非常停止、安全扉、セーフティリレーなどを扱う場合は、通常制御のラダー例だけで安全性を判断せず、メーカーの安全機器資料や適用規格を確認する必要があります。</p>
             </div>
+          </section>
+
+          <section class="section-card" id="references">
+            <h2>参考にした公式資料</h2>
+            <p>この記事は、自己保持回路の定義と安全上の切り分けを確認するため、以下のメーカー公式情報を参照して内容を整理しています。</p>
+            <ul>
+              <li><a href="https://www2.panasonic.biz/jp/terasu/skill/dictionary/self-holdingcircuit.html" target="_blank" rel="noopener noreferrer">Panasonic TERASU辞書「自己保持回路」</a> — 自己保持回路の定義、自己の接点による動作保持、b接点による停止の基本を確認。</li>
+              <li><a href="https://www.fa.omron.co.jp/product/special/safetynavi/feature/safety_switch/emergency_stop/" target="_blank" rel="noopener noreferrer">OMRON「非常停止スイッチ / 安全機器の特徴」</a> — 非常停止機器の要求事項、直接開路動作、機械的保持について確認。</li>
+              <li><a href="https://www.idec.com/ja-jp/solutions/safety/guide/safety02" target="_blank" rel="noopener noreferrer">IDEC「非常停止用押ボタンスイッチとは」</a> — 非常停止用押ボタンのラッチング機構と意図しない再起動防止について確認。</li>
+            </ul>
+            <p><strong>公式資料確認日：2026年9月30日</strong></p>
+            <p>本記事の回路図・ラダー図は、特定メーカーの製品画面や回路図を再現するものではなく、基本原理を理解するための概念図として作成します。</p>
           </section>
 
           <section class="section-card" id="related">
             <h2>あわせて読みたい記事</h2>
-            <p>自己保持回路は、起動・停止回路、インターロック、正転・逆転、タイマー回路などにつながる基本です。関連する回路を順番に見ると、ラダーの流れを追いやすくなります。</p>
+            <p>自己保持回路を理解したら、a接点・b接点、起動・停止回路、インターロック、正転・逆転回路へ進むと、制御回路のつながりを整理しやすくなります。</p>
 
             <div class="related-grid">
-              <a class="related-card" href="start-stop-circuit-basic.html">
-                <h3>起動・停止回路の基本</h3>
-                <p>起動ボタンと停止ボタンの基本的な考え方を整理できます。</p>
-              </a>
-
-              <a class="related-card" href="interlock-basic.html">
-                <h3>インターロック回路の基本</h3>
-                <p>同時に動かしてはいけない回路の考え方につながります。</p>
-              </a>
-
-              <a class="related-card" href="forward-reverse-circuit-basic.html">
-                <h3>正転・逆転回路の基本</h3>
-                <p>自己保持とインターロックを組み合わせる代表例として見やすいです。</p>
-              </a>
-
-              <a class="related-card" href="reset-circuit-basic.html">
-                <h3>リセット回路の基本</h3>
-                <p>保持した状態を戻す考え方を整理できます。</p>
-              </a>
-
-              <a class="related-card" href="timer-circuit-basic.html">
-                <h3>タイマー回路の基本</h3>
-                <p>自己保持した後に時間条件を加える考え方へつながります。</p>
-              </a>
-
               <a class="related-card" href="a-contact-b-contact-basic.html">
                 <h3>a接点・b接点の基本</h3>
-                <p>停止b接点、起動a接点の前提を確認できます。</p>
+                <p>起動a接点と停止b接点を読むための基本を整理できます。</p>
+              </a>
+              <a class="related-card" href="start-stop-circuit-basic.html">
+                <h3>起動・停止回路の基本</h3>
+                <p>押ボタンで運転を開始・停止する基本回路を確認できます。</p>
+              </a>
+              <a class="related-card" href="interlock-basic.html">
+                <h3>インターロック回路の基本</h3>
+                <p>同時動作を防ぐための条件回路へつながります。</p>
+              </a>
+              <a class="related-card" href="forward-reverse-circuit-basic.html">
+                <h3>正転・逆転回路の基本</h3>
+                <p>自己保持とインターロックを組み合わせる代表例です。</p>
+              </a>
+              <a class="related-card" href="reset-circuit-basic.html">
+                <h3>リセット回路の基本</h3>
+                <p>保持した状態を解除・復帰する考え方を整理できます。</p>
+              </a>
+              <a class="related-card" href="timer-circuit-basic.html">
+                <h3>タイマー回路の基本</h3>
+                <p>運転状態に時間条件を組み合わせる基本へ進めます。</p>
               </a>
             </div>
 
             <div class="article-footer-nav">
               <a class="btn btn-secondary" href="../index.html#category">カテゴリ一覧へ戻る</a>
-              <a class="btn btn-primary" href="interlock-basic.html">インターロック回路を見る</a>
+              <a class="btn btn-primary" href="start-stop-circuit-basic.html">起動・停止回路を見る</a>
             </div>
           </section>
         </article>
@@ -1587,30 +1629,34 @@
           <section class="side-card">
             <h3>目次</h3>
             <ul>
-              <li><a href="#overview">全体像</a></li>
+              <li><a href="#overview">自己保持とは</a></li>
+              <li><a href="#holding">何を保持する？</a></li>
+              <li><a href="#relay-circuit">リレー回路</a></li>
+              <li><a href="#plc-ladder">PLCラダー</a></li>
               <li><a href="#flow">動作の流れ</a></li>
-              <li><a href="#ladder">簡略ラダー</a></li>
-              <li><a href="#start-stop">起動停止との違い</a></li>
               <li><a href="#checkpoints">確認ポイント</a></li>
+              <li><a href="#safety">安全回路との違い</a></li>
+              <li><a href="#references">公式資料</a></li>
             </ul>
           </section>
 
           <section class="side-card">
             <h3>この記事の要点</h3>
             <ul>
-              <li>自己保持は出力自身の接点で運転を続ける考え方</li>
-              <li>起動ボタンは運転開始のきっかけ</li>
-              <li>停止ボタンや停止条件で保持を切る</li>
-              <li>安全回路とは役割を分けて考える</li>
+              <li>自己の接点で動作状態を保持する</li>
+              <li>起動a接点は開始のきっかけ</li>
+              <li>自己保持a接点が継続を担当する</li>
+              <li>停止b接点で保持回路を切る</li>
+              <li>安全機能とは役割を分ける</li>
             </ul>
           </section>
 
           <section class="side-card">
             <h3>次に見る</h3>
             <ul>
+              <li><a href="a-contact-b-contact-basic.html">a接点・b接点</a></li>
               <li><a href="start-stop-circuit-basic.html">起動・停止回路</a></li>
               <li><a href="interlock-basic.html">インターロック回路</a></li>
-              <li><a href="forward-reverse-circuit-basic.html">正転・逆転回路</a></li>
             </ul>
           </section>
         

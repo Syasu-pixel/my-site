@@ -58,3 +58,55 @@
   if(figure&&!figure.querySelector('.dc-image-zoom-hint')){const hint=document.createElement('p');hint.className='dc-image-zoom-hint';hint.textContent=hintText;const caption=figure.querySelector('figcaption');if(caption)figure.insertBefore(hint,caption);else figure.append(hint);}
  }
 })();
+
+(() => {
+ const selector='.table-wrap,.ladder-box,[data-horizontal-scroll]';
+ const targets=[...document.querySelectorAll(selector)];
+ if(!targets.length)return;
+ const isJa=(document.documentElement.lang||'').toLowerCase().startsWith('ja');
+ const text=isJa?'横にスクロールできます':'Scroll horizontally';
+ const states=new WeakMap();
+ let frame=0;
+
+ function getState(target){
+  let state=states.get(target);
+  if(state)return state;
+  const hint=document.createElement('p');
+  hint.className='dc-horizontal-scroll-hint';
+  hint.hidden=true;
+  hint.setAttribute('role','status');
+  hint.setAttribute('aria-live','polite');
+  hint.innerHTML='<span class="dc-horizontal-scroll-hint__icon" aria-hidden="true">↔</span><span></span>';
+  hint.querySelector('span:last-child').textContent=text;
+  target.parentNode.insertBefore(hint,target);
+  state={hint,used:false};
+  states.set(target,state);
+  target.addEventListener('scroll',()=>{
+   if(target.scrollLeft<=0)return;
+   state.used=true;
+   state.hint.hidden=true;
+  },{passive:true});
+  return state;
+ }
+
+ function needsScroll(target){return target.scrollWidth>target.clientWidth+2;}
+
+ function refresh(){
+  frame=0;
+  for(const target of targets){
+   const state=getState(target);
+   const needed=needsScroll(target);
+   state.hint.hidden=!needed||state.used;
+   state.hint.setAttribute('aria-hidden',state.hint.hidden?'true':'false');
+  }
+ }
+
+ function schedule(){if(!frame)frame=requestAnimationFrame(refresh);}
+ const observer=new ResizeObserver(schedule);
+ for(const target of targets){observer.observe(target);for(const child of target.children)observer.observe(child);}
+ window.addEventListener('resize',schedule,{passive:true});
+ window.addEventListener('orientationchange',schedule,{passive:true});
+ if(document.fonts?.ready)document.fonts.ready.then(schedule).catch(()=>{});
+ schedule();
+})();
+

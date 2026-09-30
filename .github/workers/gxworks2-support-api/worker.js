@@ -1031,6 +1031,16 @@ async function handleAdminRequest(request, env, origin, url) {
     return syncAdminEstimateFromSheet(env, decodeURIComponent(estimateSyncMatch[1]), admin, origin);
   }
 
+  const estimateDocumentsMatch = /^\/admin\/cases\/([^/]+)\/estimate-documents$/.exec(url.pathname);
+  if (estimateDocumentsMatch && request.method === 'GET') {
+    return listAdminEstimateDocuments(env, decodeURIComponent(estimateDocumentsMatch[1]), admin, origin);
+  }
+
+  const estimateDocumentPdfMatch = /^\/admin\/cases\/([^/]+)\/estimate-documents\/(\d{10,16})\/pdf$/.exec(url.pathname);
+  if (estimateDocumentPdfMatch && request.method === 'GET') {
+    return openAdminEstimateDocumentPdf(env, decodeURIComponent(estimateDocumentPdfMatch[1]), estimateDocumentPdfMatch[2], admin, origin);
+  }
+
   const estimateEmailMatch = /^\/admin\/cases\/([^/]+)\/estimate-email$/.exec(url.pathname);
   if (estimateEmailMatch && request.method === 'POST') {
     return sendAdminEstimateEmail(request, env, decodeURIComponent(estimateEmailMatch[1]), admin, origin);
@@ -1505,6 +1515,70 @@ async function syncAdminEstimateFromSheet(env, caseNumber, admin, origin) {
 }
 
 
+async function listAdminEstimateDocuments(env, caseNumber, admin, origin) {
+  const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!row) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!env.GXW_FILES) return json({ ok:true, documents:[] }, 200, origin);
+
+  const prefix = 'admin-estimates/' + caseNumber + '/';
+  try {
+    const listed = await env.GXW_FILES.list({ prefix, limit:1000, include:['customMetadata'] });
+    const documents = (listed.objects || []).map(object => {
+      const name = String(object.key || '').slice(prefix.length);
+      const match = /^(\d{10,16})-(.+)$/.exec(name);
+      if (!match) return null;
+      const meta = object.customMetadata || {};
+      const filename = clean(meta.filename || match[2] || 'estimate.pdf',255);
+      return {
+        id:match[1],
+        filename,
+        size:Number(object.size || 0),
+        sentAt:clean(meta.sentAt || (object.uploaded && new Date(object.uploaded).toISOString()) || '',80),
+        recipient:clean(meta.recipient || '',254),
+        sentBy:clean(meta.sentBy || '',254),
+        providerId:clean(meta.providerId || '',200),
+        subject:clean(meta.subject || '',300),
+        estimateTotal:meta.estimateTotal === undefined ? null : Number(meta.estimateTotal),
+        depositAmount:meta.depositAmount === undefined ? null : Number(meta.depositAmount),
+        balanceAmount:meta.balanceAmount === undefined ? null : Number(meta.balanceAmount),
+      };
+    }).filter(Boolean).sort((a,b)=>String(b.sentAt || b.id).localeCompare(String(a.sentAt || a.id)));
+    return json({ ok:true, documents }, 200, origin);
+  } catch (error) {
+    console.error('Estimate PDF list failed', error);
+    return json({ ok:false, error:'Estimate PDF history could not be loaded' }, 502, origin);
+  }
+}
+
+async function openAdminEstimateDocumentPdf(env, caseNumber, documentId, admin, origin) {
+  const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!row) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!env.GXW_FILES) return json({ ok:false, error:'Estimate PDF storage is not configured' }, 503, origin);
+  if (!/^\d{10,16}$/.test(documentId)) return json({ ok:false, error:'Invalid estimate document id' }, 400, origin);
+
+  const prefix = 'admin-estimates/' + caseNumber + '/' + documentId + '-';
+  try {
+    const listed = await env.GXW_FILES.list({ prefix, limit:2, include:['customMetadata'] });
+    const objectInfo = (listed.objects || [])[0];
+    if (!objectInfo) return json({ ok:false, error:'Estimate PDF not found' }, 404, origin);
+    const object = await env.GXW_FILES.get(objectInfo.key);
+    if (!object) return json({ ok:false, error:'Estimate PDF not found' }, 404, origin);
+    const meta = objectInfo.customMetadata || object.customMetadata || {};
+    const fallbackName = String(objectInfo.key || '').slice(prefix.length) || 'estimate.pdf';
+    const filename = clean(meta.filename || fallbackName,255) || 'estimate.pdf';
+    const headers = {
+      'Content-Type':'application/pdf',
+      'Content-Disposition':"inline; filename*=UTF-8''" + encodeURIComponent(filename),
+      ...corsHeaders(origin),
+    };
+    return new Response(object.body,{status:200,headers});
+  } catch (error) {
+    console.error('Estimate PDF read failed', error);
+    return json({ ok:false, error:'Estimate PDF could not be opened' }, 502, origin);
+  }
+}
+
+
 async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
   if (!env.RESEND_API_KEY) return json({ ok:false, error:'Email service is not configured' }, 503, origin);
 
@@ -1571,9 +1645,22 @@ async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
     try {
       const safeName = filename.replace(/[^A-Za-z0-9._-]+/g,'_').slice(-160) || 'estimate.pdf';
       archiveKey = 'admin-estimates/' + caseNumber + '/' + Date.now() + '-' + safeName;
+      const providerIdForArchive = clean((result.body && result.body.id) || '',200);
+      const sentAtForArchive = new Date().toISOString();
       await env.GXW_FILES.put(archiveKey,bytes,{
         httpMetadata:{ contentType:'application/pdf' },
-        customMetadata:{ caseNumber, recipient:to, sentBy:actor },
+        customMetadata:{
+          caseNumber,
+          filename,
+          recipient:to,
+          sentBy:actor,
+          sentAt:sentAtForArchive,
+          subject,
+          providerId:providerIdForArchive,
+          estimateTotal:String(before.estimate_total ?? ''),
+          depositAmount:String(before.deposit_amount ?? ''),
+          balanceAmount:String(before.balance_amount ?? ''),
+        },
       });
     } catch (error) {
       archiveKey = '';

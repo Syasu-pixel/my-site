@@ -1,0 +1,99 @@
+name: Refresh single sidebar registration
+
+on:
+  push:
+    branches:
+      - preview-while-pressed-final-20261001
+    paths:
+      - '.github/workflows/refresh-single-sidebar.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Refresh only this article sidebar registration
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, sys
+          from pathlib import Path
+          root = Path('.')
+          sys.path.insert(0, str(root / '.github/article-components/sidebar'))
+          from html_spans import Parser, text
+
+          target = 'articles/while-pressed-circuit-basic.html'
+          source = (root / target).read_text(encoding='utf-8')
+          p = Parser(source)
+          toc = []
+          ids = {n.attrs['id'] for n in p.nodes if 'id' in n.attrs}
+          for n in p.nodes:
+              if n.tag != 'h2' or not n.ancestor(lambda x: x.tag == 'main'):
+                  continue
+              if n.ancestor(lambda x: x.tag == 'aside' or x.has('summary-card') or x.has('mini-toc-card') or x.has('article-hero') or x.has('article-feedback')):
+                  continue
+              label = text(source[n.open_end:source.rfind('</h2', n.start, n.end)])
+              if any(s in label for s in ['あわせて読みたい','関連記事','この記事は役に','Related articles','Was this article','キャリアを考える前後']):
+                  continue
+              target_id = n.attrs.get('id')
+              parent = n.ancestor(lambda x: x.tag == 'section' and bool(x.attrs.get('id')))
+              if not target_id and parent:
+                  target_id = parent.attrs['id']
+              if not target_id:
+                  raise SystemExit('unexpected missing section id while refreshing sidebar')
+              toc.append({'id': target_id, 'label': label})
+
+          asides = [n for n in p.nodes if n.tag == 'aside']
+          if len(asides) != 1:
+              raise SystemExit(f'unexpected aside count: {len(asides)}')
+          raw = [source[n.start:n.end] for n in asides[0].children]
+
+          path = root / '.github/article-components/sidebar/all-pages.json'
+          data = json.loads(path.read_text(encoding='utf-8'))
+          matches = [x for x in data['pages'] if x['path'] == target]
+          if len(matches) != 1:
+              raise SystemExit(f'target sidebar entry count: {len(matches)}')
+          entry = matches[0]
+          if len(raw) != len(entry['cardsBefore']):
+              raise SystemExit(f'card count changed: {len(raw)} != {len(entry["cardsBefore"])}')
+          entry['tocReference'] = toc
+          for current, expected in zip(raw, entry['cardsBefore']):
+              expected['sha256'] = hashlib.sha256(current.encode()).hexdigest()
+
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print('toc:', json.dumps(toc, ensure_ascii=False))
+          print('card hashes:', [x['sha256'] for x in entry['cardsBefore']])
+          print('retained order:', entry['retainedCardOrder'])
+          print('removed toc cards:', entry['removedTocCardIndices'])
+          PY
+          changed_files="$(git diff --name-only)"
+          printf '%s\n' "$changed_files"
+          unexpected="$(printf '%s\n' "$changed_files" | grep -v '^\.github/article-components/sidebar/all-pages\.json$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected changes:" >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+      - name: Commit registration and remove temporary workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name 'denkicontrol-preview-maintenance'
+          git config user.email 'actions@users.noreply.github.com'
+          git add .github/article-components/sidebar/all-pages.json
+          git rm .github/workflows/refresh-single-sidebar.yml
+          git commit -m 'Refresh while-pressed sidebar registration'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          gh workflow run pages.yml --ref "${GITHUB_REF_NAME}"
+          gh workflow run article-components-integration.yml --ref "${GITHUB_REF_NAME}"

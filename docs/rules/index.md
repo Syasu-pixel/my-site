@@ -121,6 +121,8 @@
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-preview-provider.md](../decisions/2026-09-06-preview-provider.md) — Decision: Preview provider v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

@@ -102,6 +102,31 @@ class FakeDB {
   }
 }
 
+class FakeR2 {
+  constructor(){this.objects=new Map()}
+  async put(key,bytes,options={}){
+    const data=bytes instanceof Uint8Array?new Uint8Array(bytes):new Uint8Array(bytes);
+    this.objects.set(key,{key,data,size:data.byteLength,uploaded:new Date(),customMetadata:{...(options.customMetadata||{})},httpMetadata:{...(options.httpMetadata||{})}});
+  }
+  async list(options={}){
+    const prefix=String(options.prefix||'');
+    const limit=Number(options.limit||1000);
+    const objects=[...this.objects.values()].filter(o=>o.key.startsWith(prefix)).slice(0,limit).map(o=>({
+      key:o.key,size:o.size,uploaded:o.uploaded,customMetadata:{...o.customMetadata},httpMetadata:{...o.httpMetadata}
+    }));
+    return {objects,truncated:false};
+  }
+  async get(key){
+    const o=this.objects.get(key);
+    if(!o)return null;
+    return {
+      key:o.key,size:o.size,uploaded:o.uploaded,customMetadata:{...o.customMetadata},httpMetadata:{...o.httpMetadata},
+      body:o.data,
+      async arrayBuffer(){return o.data.buffer.slice(o.data.byteOffset,o.data.byteOffset+o.data.byteLength)}
+    };
+  }
+}
+
 const payload=Buffer.from(JSON.stringify({email:'admin@example.com',user_metadata:{full_name:'担当A'}})).toString('base64url');
 const token='eyJhbGciOiJub25lIn0.'+payload+'.x';
 const payload2=Buffer.from(JSON.stringify({email:'admin2@example.com',user_metadata:{full_name:'担当B'}})).toString('base64url');
@@ -149,7 +174,7 @@ globalThis.fetch=async (url,init={})=>{
 };
 
 try{
-  const env={DB:new FakeDB(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com',ADMIN_CONTACT_EMAIL_MAP:JSON.stringify({'admin@example.com':'contact@example.com'}),ESTIMATE_SHEET_WEBHOOK_SECRET:'test-estimate-secret'};
+  const env={DB:new FakeDB(),GXW_FILES:new FakeR2(),RESEND_API_KEY:'test-resend-key',NOTIFY_TO_EMAIL:'owner@example.com',ADMIN_CONTACT_EMAIL_MAP:JSON.stringify({'admin@example.com':'contact@example.com'}),ESTIMATE_SHEET_WEBHOOK_SECRET:'test-estimate-secret'};
 
   const preflight=await worker.fetch(new Request('https://worker.example/admin/cases',{
     method:'OPTIONS',
@@ -304,6 +329,27 @@ try{
   assert.equal(sentEmails[0].payload.reply_to,'contact@example.com');
   assert.equal(sentEmails[0].headers.get('Idempotency-Key'),'estimate-send-'+env.DB.case.case_number);
   assert.ok(env.DB.events.some(e=>e.event_type==='estimate_email_sent'));
+  assert.equal(estimateEmailJson.email.archived,true);
+
+  const estimateDocs=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-documents',{
+    method:'GET',headers:authHeaders3,
+  }),env);
+  assert.equal(estimateDocs.status,200);
+  const estimateDocsJson=await estimateDocs.json();
+  assert.equal(estimateDocsJson.documents.length,1);
+  assert.equal(estimateDocsJson.documents[0].filename,'estimate.pdf');
+  assert.equal(estimateDocsJson.documents[0].recipient,'customer@example.com');
+  assert.equal(estimateDocsJson.documents[0].estimateTotal,22000);
+  assert.equal(estimateDocsJson.documents[0].depositAmount,11000);
+  assert.equal(estimateDocsJson.documents[0].balanceAmount,11000);
+
+  const estimatePdf=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-documents/'+estimateDocsJson.documents[0].id+'/pdf',{
+    method:'GET',headers:authHeaders3,
+  }),env);
+  assert.equal(estimatePdf.status,200);
+  assert.equal(estimatePdf.headers.get('Content-Type'),'application/pdf');
+  assert.match(estimatePdf.headers.get('Content-Disposition')||'',/estimate\.pdf/);
+  assert.match(await estimatePdf.text(),/^%PDF-/);
 
   env.DB.case.status='estimating';
   const estimateSent=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
@@ -403,7 +449,8 @@ try{
       'start estimate action',
       'assignee display-name profile sync',
       'estimate sheet amount sync before email review',
-      'estimate PDF email validation and send',
+      'estimate PDF email validation, send, private archive history and reopen',
+
       'estimate email auto-transition and audit',
       'estimate sent manual fallback action',
       'estimate acceptance action',

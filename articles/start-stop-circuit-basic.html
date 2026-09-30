@@ -269,6 +269,13 @@
     }
 
 
+    html[data-dc-theme="dark"] .horizontal-scroll-hint{
+      border-color:#315f91;
+      background:#112b47;
+      color:#dbeafe;
+      box-shadow:none;
+    }
+
     @media (max-width:1100px){
       .language-menu-current{
         display:none;
@@ -901,11 +908,41 @@
       border-color:#f7dba2;
     }
 
+    .horizontal-scroll-hint{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      width:max-content;
+      max-width:100%;
+      margin:10px 0 6px;
+      padding:6px 10px;
+      border:1px solid #bfdbfe;
+      border-radius:999px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.4;
+      box-shadow:0 5px 14px rgba(37,99,235,.08);
+    }
+
+    .horizontal-scroll-hint[hidden]{
+      display:none!important;
+    }
+
+    .horizontal-scroll-hint::before{
+      content:"↔";
+      font-size:14px;
+      line-height:1;
+    }
+
     .table-wrap{
       overflow:auto;
       margin:18px 0 6px;
       border:1px solid var(--line);
       border-radius:18px;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-inline:contain;
     }
 
     table{
@@ -1673,6 +1710,76 @@
         button.focus();
       }
     });
+  })();
+</script>
+  <script>
+  (function(){
+    const targets = Array.from(document.querySelectorAll(".table-wrap, .ladder-box"));
+    if(!targets.length){
+      return;
+    }
+
+    const hintFor = new WeakMap();
+
+    function ensureHint(target){
+      let hint = hintFor.get(target);
+      if(hint){
+        return hint;
+      }
+
+      hint = document.createElement("div");
+      hint.className = "horizontal-scroll-hint";
+      hint.setAttribute("role", "note");
+      hint.textContent = "横にスクロールできます";
+      hint.hidden = true;
+      target.parentNode.insertBefore(hint, target);
+      hintFor.set(target, hint);
+      return hint;
+    }
+
+    function updateHint(target){
+      const hint = ensureHint(target);
+      const needsHorizontalScroll = target.scrollWidth > target.clientWidth + 2;
+      const dismissed = target.dataset.scrollHintDismissed === "true";
+
+      hint.hidden = !needsHorizontalScroll || dismissed;
+      if(needsHorizontalScroll){
+        target.setAttribute("tabindex", "0");
+        target.setAttribute("aria-label", target.getAttribute("aria-label") || "横にスクロールできる内容");
+      }else{
+        target.removeAttribute("tabindex");
+      }
+    }
+
+    function dismissHint(target){
+      if(Math.abs(target.scrollLeft) < 2){
+        return;
+      }
+      target.dataset.scrollHintDismissed = "true";
+      const hint = hintFor.get(target);
+      if(hint){
+        hint.hidden = true;
+      }
+    }
+
+    targets.forEach(function(target){
+      ensureHint(target);
+      updateHint(target);
+      target.addEventListener("scroll", function(){
+        dismissHint(target);
+      }, {passive:true});
+    });
+
+    if("ResizeObserver" in window){
+      const observer = new ResizeObserver(function(){
+        targets.forEach(updateHint);
+      });
+      targets.forEach(function(target){ observer.observe(target); });
+    }else{
+      window.addEventListener("resize", function(){
+        targets.forEach(updateHint);
+      });
+    }
   })();
 </script>
   <script src="../assets/js/site-search.js" defer></script>

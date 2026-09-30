@@ -1175,6 +1175,9 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   if (Object.prototype.hasOwnProperty.call(body,'assignee') || Object.prototype.hasOwnProperty.call(body,'assignee_email')) {
     return json({ ok:false, error:'Use the reassignment action to change the assignee' }, 400, origin);
   }
+  if (Object.prototype.hasOwnProperty.call(body,'estimate_total') || Object.prototype.hasOwnProperty.call(body,'deposit_amount') || Object.prototype.hasOwnProperty.call(body,'balance_amount')) {
+    return json({ ok:false, error:'Estimate amounts are managed by estimate-sync' }, 400, origin);
+  }
   const values = {};
 
   if (Object.prototype.hasOwnProperty.call(body,'status')) {
@@ -1191,24 +1194,6 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   const textFields = {due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
   for (const field of Object.keys(textFields)) if (Object.prototype.hasOwnProperty.call(body,field)) values[field] = clean(body[field],textFields[field]);
 
-  for (const field of ['estimate_total','deposit_amount']) {
-    if (!Object.prototype.hasOwnProperty.call(body,field)) continue;
-    if (body[field] === '' || body[field] === null) values[field] = null;
-    else {
-      const amount = Number(body[field]);
-      if (!Number.isSafeInteger(amount) || amount < 0 || amount > 999999999) return json({ ok:false, error:'Invalid amount: ' + field }, 400, origin);
-      values[field] = amount;
-    }
-  }
-
-  const total = Object.prototype.hasOwnProperty.call(values,'estimate_total') ? values.estimate_total : before.estimate_total;
-  const deposit = Object.prototype.hasOwnProperty.call(values,'deposit_amount') ? values.deposit_amount : before.deposit_amount;
-  if (total !== null && total !== undefined && deposit !== null && deposit !== undefined) {
-    if (deposit > total) return json({ ok:false, error:'Deposit exceeds estimate total' }, 400, origin);
-    values.balance_amount = total - deposit;
-  } else if (Object.prototype.hasOwnProperty.call(values,'estimate_total') || Object.prototype.hasOwnProperty.call(values,'deposit_amount')) {
-    values.balance_amount = null;
-  }
 
   const deliveredChanged = Object.prototype.hasOwnProperty.call(values,'delivered_at') && clean(before.delivered_at || '',40) !== values.delivered_at;
   if (deliveredChanged && values.delivered_at) {

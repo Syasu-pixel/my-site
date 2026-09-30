@@ -1026,6 +1026,21 @@ async function handleAdminRequest(request, env, origin, url) {
     return openAdminEstimateSheet(env, decodeURIComponent(estimateSheetMatch[1]), admin, origin);
   }
 
+  const estimateSyncMatch = /^\/admin\/cases\/([^/]+)\/estimate-sync$/.exec(url.pathname);
+  if (estimateSyncMatch && request.method === 'POST') {
+    return syncAdminEstimateFromSheet(env, decodeURIComponent(estimateSyncMatch[1]), admin, origin);
+  }
+
+  const estimateDocumentsMatch = /^\/admin\/cases\/([^/]+)\/estimate-documents$/.exec(url.pathname);
+  if (estimateDocumentsMatch && request.method === 'GET') {
+    return listAdminEstimateDocuments(env, decodeURIComponent(estimateDocumentsMatch[1]), admin, origin);
+  }
+
+  const estimateDocumentPdfMatch = /^\/admin\/cases\/([^/]+)\/estimate-documents\/(\d{10,16})\/pdf$/.exec(url.pathname);
+  if (estimateDocumentPdfMatch && request.method === 'GET') {
+    return openAdminEstimateDocumentPdf(env, decodeURIComponent(estimateDocumentPdfMatch[1]), estimateDocumentPdfMatch[2], admin, origin);
+  }
+
   const estimateEmailMatch = /^\/admin\/cases\/([^/]+)\/estimate-email$/.exec(url.pathname);
   if (estimateEmailMatch && request.method === 'POST') {
     return sendAdminEstimateEmail(request, env, decodeURIComponent(estimateEmailMatch[1]), admin, origin);
@@ -1160,6 +1175,9 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   if (Object.prototype.hasOwnProperty.call(body,'assignee') || Object.prototype.hasOwnProperty.call(body,'assignee_email')) {
     return json({ ok:false, error:'Use the reassignment action to change the assignee' }, 400, origin);
   }
+  if (Object.prototype.hasOwnProperty.call(body,'estimate_total') || Object.prototype.hasOwnProperty.call(body,'deposit_amount') || Object.prototype.hasOwnProperty.call(body,'balance_amount')) {
+    return json({ ok:false, error:'Estimate amounts are managed by estimate-sync' }, 400, origin);
+  }
   const values = {};
 
   if (Object.prototype.hasOwnProperty.call(body,'status')) {
@@ -1176,24 +1194,6 @@ async function updateAdminCase(request, db, caseNumber, admin, origin) {
   const textFields = {due_date:40,next_action:1000,delivered_at:40,followup_sent_at:40,followup_result:4000,customer_requests:4000,handoff_note:8000};
   for (const field of Object.keys(textFields)) if (Object.prototype.hasOwnProperty.call(body,field)) values[field] = clean(body[field],textFields[field]);
 
-  for (const field of ['estimate_total','deposit_amount']) {
-    if (!Object.prototype.hasOwnProperty.call(body,field)) continue;
-    if (body[field] === '' || body[field] === null) values[field] = null;
-    else {
-      const amount = Number(body[field]);
-      if (!Number.isSafeInteger(amount) || amount < 0 || amount > 999999999) return json({ ok:false, error:'Invalid amount: ' + field }, 400, origin);
-      values[field] = amount;
-    }
-  }
-
-  const total = Object.prototype.hasOwnProperty.call(values,'estimate_total') ? values.estimate_total : before.estimate_total;
-  const deposit = Object.prototype.hasOwnProperty.call(values,'deposit_amount') ? values.deposit_amount : before.deposit_amount;
-  if (total !== null && total !== undefined && deposit !== null && deposit !== undefined) {
-    if (deposit > total) return json({ ok:false, error:'Deposit exceeds estimate total' }, 400, origin);
-    values.balance_amount = total - deposit;
-  } else if (Object.prototype.hasOwnProperty.call(values,'estimate_total') || Object.prototype.hasOwnProperty.call(values,'deposit_amount')) {
-    values.balance_amount = null;
-  }
 
   const deliveredChanged = Object.prototype.hasOwnProperty.call(values,'delivered_at') && clean(before.delivered_at || '',40) !== values.delivered_at;
   if (deliveredChanged && values.delivered_at) {
@@ -1398,6 +1398,172 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
 }
 
 
+async function syncAdminEstimateFromSheet(env, caseNumber, admin, origin) {
+  const webAppUrl = clean(env.ESTIMATE_SHEET_WEBAPP_URL || ESTIMATE_SHEET_WEBAPP_URL,1000);
+  if (!webAppUrl || !env.ESTIMATE_SHEET_WEBHOOK_SECRET) {
+    return json({ ok:false, error:'Estimate sheet integration is not configured' }, 503, origin);
+  }
+
+  const before = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
+  if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot sync estimate sheets' }, 409, origin);
+
+  let response;
+  try {
+    response = await fetch(webAppUrl, {
+      method:'POST',
+      redirect:'follow',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        secret:env.ESTIMATE_SHEET_WEBHOOK_SECRET,
+        action:'sync_estimate',
+        case_number:clean(before.case_number || '',80),
+      }),
+    });
+  } catch (error) {
+    console.error('Estimate sheet sync request failed', error);
+    return json({ ok:false, error:'Estimate sheet service is unavailable' }, 502, origin);
+  }
+
+  const raw = await response.text();
+  let body = {};
+  try { body = raw ? JSON.parse(raw) : {}; } catch {}
+  if (!response.ok || !body.ok) {
+    console.error('Estimate sheet sync service error', response.status, raw.slice(0,1000));
+    const code = clean(body.error || '',120);
+    return json({ ok:false, error:code === 'estimate_sheet_not_found' ? 'Estimate sheet has not been created yet' : 'Estimate sheet values could not be read' }, code === 'estimate_sheet_not_found' ? 409 : 502, origin);
+  }
+
+  const parseAmount = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const n = Number(value);
+    return Number.isSafeInteger(n) && n >= 0 && n <= 999999999 ? n : null;
+  };
+  const estimateTotal = parseAmount(body.estimateTotal);
+  const depositAmount = parseAmount(body.depositAmount);
+  const balanceAmount = parseAmount(body.balanceAmount);
+  if (estimateTotal === null || depositAmount === null || balanceAmount === null) {
+    return json({ ok:false, error:'Estimate sheet amounts are incomplete' }, 409, origin);
+  }
+  if (depositAmount > estimateTotal || balanceAmount !== estimateTotal - depositAmount) {
+    return json({ ok:false, error:'Estimate sheet amounts are inconsistent' }, 409, origin);
+  }
+
+  const actor = admin.email || 'admin';
+  const assignment = autoAdminAssignment(before,admin);
+  const updates = {
+    estimate_total:estimateTotal,
+    deposit_amount:depositAmount,
+    balance_amount:balanceAmount,
+    ...assignment,
+  };
+  const changed = Object.entries(updates).filter(([key,value]) => (before[key] ?? null) !== (value ?? null));
+  if (changed.length) {
+    const now = new Date().toISOString();
+    const set = changed.map(([key],index)=>key+'=?'+(index+2));
+    set.push('updated_at=?'+(changed.length+2));
+    set.push('updated_by=?'+(changed.length+3));
+    const params=[caseNumber].concat(changed.map(([,value])=>value),[now,actor]);
+    await env.DB.prepare('UPDATE admin_cases SET '+set.join(', ')+' WHERE case_number=?1').bind(...params).run();
+  }
+
+  if (assignment.assignee_email) {
+    await addAdminCaseEvent(env.DB,caseNumber,'assignee_assigned','','','最初の進行操作で '+assignment.assignee+' を担当者に設定',actor);
+  }
+
+  const plan = clean(body.plan || '',40);
+  const leadTime = clean(body.leadTime || '',80);
+  const detail = [
+    '見積Sheetから金額を同期',
+    '見積総額: '+estimateTotal+'円',
+    '着手金: '+depositAmount+'円',
+    '残金: '+balanceAmount+'円',
+    plan ? '料金区分: '+plan : '',
+    leadTime ? '納期目安: '+leadTime : '',
+  ].filter(Boolean).join(' / ');
+  await addAdminCaseEvent(env.DB,caseNumber,'estimate_sheet_synced',before.status,before.status,detail,actor);
+
+  const after = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  return json({
+    ok:true,
+    case:after,
+    estimate:{
+      total:estimateTotal,
+      deposit:depositAmount,
+      balance:balanceAmount,
+      plan,
+      leadTime,
+      spreadsheetUrl:clean(body.url || '',1000),
+    },
+  },200,origin);
+}
+
+
+async function listAdminEstimateDocuments(env, caseNumber, admin, origin) {
+  const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!row) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!env.GXW_FILES) return json({ ok:true, documents:[] }, 200, origin);
+
+  const prefix = 'admin-estimates/' + caseNumber + '/';
+  try {
+    const listed = await env.GXW_FILES.list({ prefix, limit:1000, include:['customMetadata'] });
+    const documents = (listed.objects || []).map(object => {
+      const name = String(object.key || '').slice(prefix.length);
+      const match = /^(\d{10,16})-(.+)$/.exec(name);
+      if (!match) return null;
+      const meta = object.customMetadata || {};
+      const filename = clean(meta.filename || match[2] || 'estimate.pdf',255);
+      return {
+        id:match[1],
+        filename,
+        size:Number(object.size || 0),
+        sentAt:clean(meta.sentAt || (object.uploaded && new Date(object.uploaded).toISOString()) || '',80),
+        recipient:clean(meta.recipient || '',254),
+        sentBy:clean(meta.sentBy || '',254),
+        providerId:clean(meta.providerId || '',200),
+        subject:clean(meta.subject || '',300),
+        estimateTotal:meta.estimateTotal === undefined ? null : Number(meta.estimateTotal),
+        depositAmount:meta.depositAmount === undefined ? null : Number(meta.depositAmount),
+        balanceAmount:meta.balanceAmount === undefined ? null : Number(meta.balanceAmount),
+      };
+    }).filter(Boolean).sort((a,b)=>String(b.sentAt || b.id).localeCompare(String(a.sentAt || a.id)));
+    return json({ ok:true, documents }, 200, origin);
+  } catch (error) {
+    console.error('Estimate PDF list failed', error);
+    return json({ ok:false, error:'Estimate PDF history could not be loaded' }, 502, origin);
+  }
+}
+
+async function openAdminEstimateDocumentPdf(env, caseNumber, documentId, admin, origin) {
+  const row = await env.DB.prepare('SELECT * FROM admin_cases WHERE case_number=?1 LIMIT 1').bind(caseNumber).first();
+  if (!row) return json({ ok:false, error:'Case not found' }, 404, origin);
+  if (!env.GXW_FILES) return json({ ok:false, error:'Estimate PDF storage is not configured' }, 503, origin);
+  if (!/^\d{10,16}$/.test(documentId)) return json({ ok:false, error:'Invalid estimate document id' }, 400, origin);
+
+  const prefix = 'admin-estimates/' + caseNumber + '/' + documentId + '-';
+  try {
+    const listed = await env.GXW_FILES.list({ prefix, limit:2, include:['customMetadata'] });
+    const objectInfo = (listed.objects || [])[0];
+    if (!objectInfo) return json({ ok:false, error:'Estimate PDF not found' }, 404, origin);
+    const object = await env.GXW_FILES.get(objectInfo.key);
+    if (!object) return json({ ok:false, error:'Estimate PDF not found' }, 404, origin);
+    const meta = objectInfo.customMetadata || object.customMetadata || {};
+    const fallbackName = String(objectInfo.key || '').slice(prefix.length) || 'estimate.pdf';
+    const filename = clean(meta.filename || fallbackName,255) || 'estimate.pdf';
+    const headers = {
+      'Content-Type':'application/pdf',
+      'Content-Disposition':"inline; filename*=UTF-8''" + encodeURIComponent(filename),
+      ...corsHeaders(origin),
+    };
+    return new Response(object.body,{status:200,headers});
+  } catch (error) {
+    console.error('Estimate PDF read failed', error);
+    return json({ ok:false, error:'Estimate PDF could not be opened' }, 502, origin);
+  }
+}
+
+
 async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
   if (!env.RESEND_API_KEY) return json({ ok:false, error:'Email service is not configured' }, 503, origin);
 
@@ -1464,9 +1630,22 @@ async function sendAdminEstimateEmail(request, env, caseNumber, admin, origin) {
     try {
       const safeName = filename.replace(/[^A-Za-z0-9._-]+/g,'_').slice(-160) || 'estimate.pdf';
       archiveKey = 'admin-estimates/' + caseNumber + '/' + Date.now() + '-' + safeName;
+      const providerIdForArchive = clean((result.body && result.body.id) || '',200);
+      const sentAtForArchive = new Date().toISOString();
       await env.GXW_FILES.put(archiveKey,bytes,{
         httpMetadata:{ contentType:'application/pdf' },
-        customMetadata:{ caseNumber, recipient:to, sentBy:actor },
+        customMetadata:{
+          caseNumber,
+          filename,
+          recipient:to,
+          sentBy:actor,
+          sentAt:sentAtForArchive,
+          subject,
+          providerId:providerIdForArchive,
+          estimateTotal:String(before.estimate_total ?? ''),
+          depositAmount:String(before.deposit_amount ?? ''),
+          balanceAmount:String(before.balance_amount ?? ''),
+        },
       });
     } catch (error) {
       archiveKey = '';

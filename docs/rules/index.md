@@ -62,6 +62,7 @@
 | [docs/codex-update-rules.md](../codex-update-rules.md) — CODEX反映ルール（codex update rules） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
 | [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
+| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/dashboard-progress-status-v066.md](../dashboard-progress-status-v066.md) — AI編集部 進行状況表示 v0.6.6 | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
@@ -123,7 +124,6 @@
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

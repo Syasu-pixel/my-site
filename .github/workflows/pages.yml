@@ -28,7 +28,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pages-${{ github.event.pull_request.number || 'production' }}
@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: preview-final-start-stop-scroll-hint-20260930
 
       - name: Setup Node for shared shell verification
         uses: actions/setup-node@v4
@@ -208,6 +210,65 @@ jobs:
 
       - name: Verify final standalone publication
         run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Verify horizontal-scroll hint behavior
+        run: |
+          pnpm exec playwright install chromium --with-deps
+          python -m http.server 8765 --directory _site >/tmp/start-stop-preview-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          sleep 2
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const widths = [390, 768, 1024, 1440];
+          for (const width of widths) {
+            const page = await browser.newPage({viewport:{width,height:900}});
+            await page.goto('http://127.0.0.1:8765/articles/start-stop-circuit-basic.html',{waitUntil:'networkidle'});
+            const state = await page.locator('.table-wrap').evaluate(el => {
+              const hint = el.previousElementSibling;
+              return {
+                overflow: el.scrollWidth > el.clientWidth + 2,
+                hintText: hint?.classList.contains('horizontal-scroll-hint') ? hint.textContent.trim() : '',
+                hintVisible: !!hint && !hint.hidden && getComputedStyle(hint).display !== 'none'
+              };
+            });
+            if (state.overflow !== state.hintVisible) {
+              throw new Error('scroll hint visibility mismatch at '+width+': '+JSON.stringify(state));
+            }
+            if (state.overflow && state.hintText !== '横にスクロールできます') {
+              throw new Error('scroll hint text mismatch at '+width);
+            }
+            if (state.overflow) {
+              await page.locator('.table-wrap').evaluate(el => {
+                el.scrollLeft = Math.min(80, el.scrollWidth - el.clientWidth);
+              });
+              await page.waitForTimeout(100);
+              const dismissed = await page.locator('.table-wrap').evaluate(el => {
+                const hint = el.previousElementSibling;
+                return el.scrollLeft > 0 && !!hint && hint.hidden === true;
+              });
+              if (!dismissed) {
+                throw new Error('scroll hint did not dismiss after horizontal scroll at '+width);
+              }
+            }
+            await page.close();
+          }
+          await browser.close();
+          NODE
+
+      - name: Publish verified artifact to temporary final Preview branch
+        run: |
+          final_site="${RUNNER_TEMP}/start-stop-final-preview-site"
+          rm -rf "$final_site"
+          cp -a _site "$final_site"
+          git config user.name 'denkicontrol-final-preview'
+          git config user.email 'actions@users.noreply.github.com'
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$final_site"/. .
+          git add -A
+          git commit -m 'chore: publish start-stop final Preview with scroll hint [final-preview-built]'
+          git push origin "HEAD:preview-final-start-stop-scroll-hint-20260930"
 
       - name: Save publication verification
         if: always()

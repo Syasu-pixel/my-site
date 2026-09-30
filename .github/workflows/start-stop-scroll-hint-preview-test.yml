@@ -1,0 +1,98 @@
+name: Start-stop horizontal scroll hint Preview test
+
+on:
+  push:
+    branches:
+      - preview-final-start-stop-circuit-basic-20260929
+    paths:
+      - 'articles/start-stop-circuit-basic.html'
+      - 'assets/css/article-integration-compat.css'
+      - 'assets/js/article-integration-compat.js'
+      - '.github/workflows/start-stop-scroll-hint-preview-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - name: Install browser dependencies
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+
+      - name: Start local Preview server
+        run: |
+          python3 -m http.server 8765 >/tmp/start-stop-preview.log 2>&1 &
+          echo $! > /tmp/start-stop-preview.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:8765/articles/start-stop-circuit-basic.html >/dev/null && exit 0
+            sleep 1
+          done
+          exit 1
+
+      - name: Verify horizontal-scroll hint behavior
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+
+          const browser=await chromium.launch({headless:true});
+          const widths=[390,768,1440];
+          const url='http://127.0.0.1:8765/articles/start-stop-circuit-basic.html';
+
+          for(const width of widths){
+            const page=await browser.newPage({viewport:{width,height:1000}});
+            await page.goto(url,{waitUntil:'networkidle'});
+
+            const table=page.locator('.table-wrap').first();
+            if(await table.count()!==1)throw new Error('table-wrap not found');
+
+            await page.waitForFunction(()=>{
+              const table=document.querySelector('.table-wrap');
+              if(!table)return false;
+              const hint=table.previousElementSibling;
+              return hint?.classList.contains('dc-horizontal-scroll-hint');
+            });
+
+            const state=await table.evaluate(el=>{
+              const hint=el.previousElementSibling;
+              return {
+                needs:el.scrollWidth>el.clientWidth+2,
+                hintHidden:hint.hidden,
+                text:hint.textContent.trim(),
+                scrollWidth:el.scrollWidth,
+                clientWidth:el.clientWidth
+              };
+            });
+
+            if(state.text!=='↔横にスクロールできます' && state.text!=='↔ 横にスクロールできます'){
+              throw new Error('unexpected hint text at '+width+': '+state.text);
+            }
+            if(state.needs===state.hintHidden){
+              throw new Error('visibility mismatch at '+width+': '+JSON.stringify(state));
+            }
+
+            if(state.needs){
+              await table.evaluate(el=>{el.scrollLeft=Math.min(80,el.scrollWidth-el.clientWidth);});
+              await page.waitForTimeout(100);
+              const hidden=await table.evaluate(el=>el.previousElementSibling.hidden);
+              if(!hidden)throw new Error('hint did not disappear after horizontal scroll at '+width);
+            }
+
+            console.log('PASS',width,state);
+            await page.close();
+          }
+
+          await browser.close();
+          NODE

@@ -1,6 +1,6 @@
 # ルール・参照対象の正式一覧
 
-この一覧は catalog.json から生成する。読む順序と完了条件は [確認の入口](README.md)。登録は読了・理解・採用・稼働の証明ではない。
+この一覧は catalog.json から生成する。読む順序と完了条件は [確認の入口](README.md)。登録は読了・理解・採用・稼働の証明ではない.
 
 ## 開始時必須
 
@@ -167,6 +167,7 @@
 | [.github/workflows/editorial-discussion-auto.yml](../../.github/workflows/editorial-discussion-auto.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/external-challenger.yml](../../.github/workflows/external-challenger.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/final-publication-preview.yml](../../.github/workflows/final-publication-preview.yml) | Metricool導入の最終承認Previewを本番公開生成物と同じ工程で作成・検査する間だけ。 Preview専用の一時Workflow。mainへマージせず、作業完了前に削除する。 |
 | [.github/workflows/indexnow.yml](../../.github/workflows/indexnow.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/orchestrator-pilot.yml](../../.github/workflows/orchestrator-pilot.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/orchestrator-state-tests.yml](../../.github/workflows/orchestrator-state-tests.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |

@@ -15,14 +15,14 @@
   <meta property="og:title" content="ロードセルとは？役割・使い方をやさしく整理">
   <meta property="og:description" content="ロードセルの役割、どこで使うか、指示計や変換器とセットで見る考え方を現場目線でやさしく整理。">
   <meta property="og:url" content="https://denkicontrol.com/articles/load-cell-basic.html">
-  <meta property="og:image" content="https://denkicontrol.com/assets/images/load-cell-basic/load-cell-basic-hero.png">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/load-cell-basic/load-cell-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
   <meta property="og:locale" content="ja_JP">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ロードセルとは？役割・使い方をやさしく整理">
   <meta name="twitter:description" content="ロードセルの基本、計量や荷重確認での使い方、指示計やPLCとのつながりを初心者向けに整理。">
-  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/load-cell-basic/load-cell-basic-hero.png">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/load-cell-basic/load-cell-basic-ogp.png">
 
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -1530,7 +1530,7 @@
           <span class="hero-label">計量・荷重確認の基礎</span>
           <h1>ロードセルとは？<br>役割・使い方をやさしく整理</h1>
           <p class="hero-lead">
-            ロードセルは、力や重さを電気信号に変える部品です。タンク計量、ホッパー計量、押し付け荷重確認、指示計やPLCとのつながりを現場目線で整理します。
+            ロードセルは、力や重さを電気信号に変えるセンサです。仕組み、mV/V、指示計・アンプ／変換器とPLCのつながり、使い方、取付・校正の基本を現場目線で整理します。
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#what-is">基本の役割を見る</a>
@@ -1569,13 +1569,10 @@
       <section class="mini-toc-card" aria-label="記事内メニュー">
         <h2>この記事でわかること</h2>
         <div class="mini-toc">
-          <a href="#what-is">ロードセルとは？</a>
-          <a href="#flow">電気信号になる流れ</a>
-          <a href="#usage">どこで使う？</a>
-          <a href="#together">指示計や変換器との関係</a>
-          <a href="#field-view">現場で見るポイント</a>
-          <a href="#mistakes">見落としやすい点</a>
-          <a href="#summary">まとめ</a>
+          <a href="#what-is">ロードセルとは？</a><a href="#principle">測定の仕組み</a><a href="#mv-v">mV/Vとは？</a>
+          <a href="#signal-flow">アンプ・PLCとの流れ</a><a href="#usage">代表的な使用例</a><a href="#selection">選ぶ時に見るところ</a>
+          <a href="#installation">取付時の注意</a><a href="#calibration">ゼロ・スパン</a><a href="#troubleshooting">トラブル時の確認</a>
+          <a href="#official-sources">公式参照元</a><a href="#summary">まとめ</a>
         </div>
       </section>
 
@@ -1583,258 +1580,99 @@
         <article class="main-column">
           <section class="section-card" id="what-is">
             <h2>ロードセルとは？</h2>
-            <p>
-              ロードセルとは、物が載った時の重さや、押した時の力を<span class="mark">電気信号に変えるための部品</span>です。
-            </p>
-            <p>
-              見た目は金属ブロックのようなものが多いですが、中ではわずかな変形を利用して信号に変えています。そのため、見た目以上に「測るための部品」という性格が強いです。
-            </p>
-            <p>
-              現場では、タンクの中身の重さを見る、ホッパーへの投入量を管理する、プレスや押し付けの力を確認する、といった用途で使われます。
-            </p>
-
-            <div class="key-highlight">
-              <h3>まずは「重さや押す力を電気で見られるようにする部品」と覚える</h3>
-              <p>
-                ロードセルは、重量だけでなく荷重を見るための部品です。重さや力を、指示計やPLCで扱える信号にする役割があります。
-              </p>
-            </div>
+            <p>ロードセルは、<span class="mark">力や荷重を電気信号へ変換するセンサ</span>です。設備では重さを量るだけでなく、圧入・圧着・押付けなどの荷重確認にも使われます。</p>
+            <p>タンクやホッパーの内容量管理、コンベア上の重量チェック、加工時の荷重判定など用途はさまざまです。現場では本体だけでなく、その先の指示計・アンプ／変換器やPLCまで追うと役割が見えやすくなります。</p>
+            <div class="key-highlight"><h3>「見えない力を、制御で扱える情報へ変えるセンサ」</h3><p>ロードセル単体の出力は非常に小さいため、実際の設備では周辺機器と組み合わせて表示・判定・制御へ利用します。</p></div>
           </section>
 
-          <section class="section-card" id="flow">
-            <h2>重さや力が電気信号になる流れ</h2>
-            <p>
-              ひずみゲージやブリッジ回路の細かい理論まで、最初から全部覚える必要はありません。まずは、重さや力が電気信号になって設備側へ伝わる流れを押さえると分かりやすいです。
-            </p>
+          <section class="section-card" id="principle">
+            <h2>ロードセルはどうやって力を測る？</h2>
+            <p>広く使われるひずみゲージ式では、荷重によって金属の<span class="term">起歪体（きわいたい）</span>がわずかに変形します。その変化を<span class="term">ひずみゲージ</span>の抵抗変化として検出します。</p>
+            <p>ひずみゲージはホイートストンブリッジ回路を構成し、抵抗変化を微小な電圧変化として取り出します。基本の流れは「荷重 → わずかな変形 → 抵抗変化 → 微小な電圧信号」です。</p>
+            <!-- ADOPTED_FIGURE_PRINCIPLE -->
+            <div class="note-box"><h3>目で分かるほど大きく変形するわけではない</h3><p>わずかなひずみを電気的に検出して荷重を測ります。</p></div>
+          </section>
 
-            <figure class="article-figure">
-              <img src="../assets/images/load-cell-basic/load-cell-basic-structure.png" alt="力や重さがロードセルを通って電気信号になり、指示計やPLC入力につながる流れをまとめた図。">
-              <figcaption>
-                力や重さ → ロードセル → 指示計 / PLC入力の流れで見ると、装置の中で何をしている部品か追いやすくなります。
-              </figcaption>
-            </figure>
+          <section class="section-card" id="mv-v">
+            <h2>mV/Vとは？仕様表でよく見る定格出力</h2>
+            <p>定格出力の <strong>mV/V</strong> は、ロードセルへ与える励起電圧1Vあたり、定格荷重時にどれくらいの出力電圧が得られるかを表す考え方です。</p>
+            <p>たとえば定格出力1mV/Vへ10Vを印加する理想的な例では、定格荷重時の出力差は約10mVです。実際の定格出力、使用できる励起電圧、許容過負荷などは製品ごとに仕様書を確認します。</p>
+            <div class="key-highlight"><h3>mV/Vは固定の出力電圧ではない</h3><p>定格出力と励起電圧の関係で実際の出力電圧が決まります。</p></div>
+          </section>
 
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>重さや力がかかる</h3>
-                <p>
-                  タンク、ホッパー、押し付け部などで、ロードセルに荷重がかかります。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>わずかに変形する</h3>
-                <p>
-                  ロードセル本体がわずかに変形し、その変化を内部で検出します。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>小さな電気信号になる</h3>
-                <p>
-                  変形に応じた小さな信号が出ます。そのままでは扱いにくいことが多いです。
-                </p>
-              </div>
-              <div class="check-item">
-                <h3>指示計やPLCへつなぐ</h3>
-                <p>
-                  指示計、変換器、アンプなどを通して、表示やPLC入力へつなげます。
-                </p>
-              </div>
-            </div>
+          <section class="section-card" id="signal-flow">
+            <h2>ロードセル → アンプ／変換器 → PLCの流れ</h2>
+            <p>ロードセルから得られる信号は非常に小さいため、ロードセル用の指示計・アンプ／変換器などで処理してから利用する構成がよくあります。</p>
+            <p>周辺機器側で増幅・フィルタ処理や表示、出力レンジなどを設定し、設備に合ったアナログ信号や通信などでPLCへ渡します。PLCでは重量・荷重値を読み取り、判定やインターロック、搬送・排出などの制御条件として利用できます。</p>
+            <!-- ADOPTED_FIGURE_SIGNAL_FLOW -->
+            <div class="note-box"><h3>生のロードセル信号を一般的なPLC入力へ直接入れるとは限らない</h3><p>4-20mA、0-10V、通信などは代表例です。接続する各機器の仕様を優先してください。</p></div>
           </section>
 
           <section class="section-card" id="usage">
-            <h2>ロードセルはどこで使う？</h2>
-            <p>
-              現場では、計量だけでなく荷重確認でもよく使われます。特にタンク計量、ホッパー計量、押し付け荷重確認などで見かけやすいです。
-            </p>
-
-            <figure class="article-figure">
-              <img src="../assets/images/load-cell-basic/load-cell-basic-usage.png" alt="タンク計量、ホッパー計量、押し付け荷重確認でのロードセル使用例をまとめた図。">
-              <figcaption>
-                タンク計量・ホッパー計量・押し付け荷重確認のように、重さだけでなく力の確認にも使えるのがロードセルの特徴です。
-              </figcaption>
-            </figure>
-
+            <h2>ロードセルはどこで使う？代表的な使用例</h2>
+            <p>ロードセルは「はかり」だけの部品ではありません。重量や荷重を数値化し、材料管理、検査、品質判定、自動制御などに利用できます。</p>
+            <!-- ADOPTED_FIGURE_APPLICATIONS -->
             <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>タンク計量</h3>
-                <p>
-                  タンク脚の下にロードセルを入れて、中身の重さを見ます。液体や粉体の残量確認でも使われます。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>ホッパー計量</h3>
-                <p>
-                  材料を投入するホッパーの下で重さを見て、投入量や供給量を管理します。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>押し付け荷重</h3>
-                <p>
-                  ワークを押す工程や圧着・加圧の工程で、どれくらいの力がかかっているかを見ます。
-                </p>
-              </div>
-              <div class="check-item">
-                <h3>装置の判定</h3>
-                <p>
-                  設定値に対して重さや力が足りているかを確認し、OK / NG判定や制御条件に使うことがあります。
-                </p>
-              </div>
+              <div class="check-item check-item--important"><h3>タンク・ホッパー</h3><p>原料、粉体、液体などの重量を見て残量や投入量を管理します。</p></div>
+              <div class="check-item check-item--field"><h3>重量検査</h3><p>ワークの重量を測り、過不足や欠品などの判定に利用します。</p></div>
+              <div class="check-item check-item--warning"><h3>圧入・圧着・押付け</h3><p>加工時の荷重が規定範囲に入っているかを確認します。</p></div>
+              <div class="check-item"><h3>試験・計測装置</h3><p>引張・圧縮などの力を測り、試験・工程データに利用します。</p></div>
             </div>
           </section>
 
-          <section class="section-card" id="together">
-            <h2>指示計や変換器とセットで見る</h2>
-            <p>
-              初心者がつまずきやすいポイントですが、ロードセルは単体で大きく分かりやすい信号を出す部品ではありません。実際の設備では、指示計、変換器、アンプ、PLC入力ユニットなどと一緒に使われることが多いです。
-            </p>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>機器</th>
-                    <th>役割</th>
-                    <th>現場で見るポイント</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell-blue">ロードセル</td>
-                    <td>力や重さを小さな電気信号に変える</td>
-                    <td>どこに取り付いているか、どの方向の荷重を見るか</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">指示計・変換器</td>
-                    <td>信号を見やすい数値や扱いやすい信号にする</td>
-                    <td>表示値、ゼロ点、スパン、設定値</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">PLC入力</td>
-                    <td>重量や荷重の信号を制御側で扱う</td>
-                    <td>アナログ値、判定信号、異常信号</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="note-box">
-              <h3>ロードセル本体だけで判断しない</h3>
-              <p>
-                ロードセルだけ見ても、そのまま数字が読めるとは限りません。指示計や変換器まで含めて見ると、装置全体の意味が分かりやすくなります。
-              </p>
+          <section class="section-card" id="selection">
+            <h2>ロードセルを選ぶ時に見るところ</h2>
+            <p>最初に「何を、どの方向から、どのくらいの力で測るか」を整理します。定格容量だけでなく、取付条件、必要な分解能、使用環境、接続する指示計・アンプ／変換器との組み合わせまで確認します。</p>
+            <div class="check-grid">
+              <div class="check-item"><h3>荷重の種類・方向</h3><p>圧縮、引張など測りたい力と仕様を合わせます。</p></div>
+              <div class="check-item"><h3>定格容量</h3><p>設備で想定される荷重条件を踏まえて選びます。</p></div>
+              <div class="check-item"><h3>分解能・精度</h3><p>何kg・何N単位まで見たいかを整理します。</p></div>
+              <div class="check-item"><h3>設置環境</h3><p>温度、水、粉じん、振動など実際の条件を確認します。</p></div>
             </div>
           </section>
 
-          <section class="section-card" id="field-view">
-            <h2>現場で見るポイント</h2>
-            <p>
-              ロードセルが出てきた時は、何を測りたいのか、どこに取り付いているのか、後ろに何がつながっているのかを順番に見ると整理しやすいです。
-            </p>
-
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>何を測りたいか</h3>
-                <p>
-                  重さなのか、押す力なのかで見方が変わります。まず装置の目的を見ます。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>どこに取り付いているか</h3>
-                <p>
-                  タンク脚、ホッパー下、押し機構の途中など、取付位置で役割が見えやすくなります。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>指示計や変換器があるか</h3>
-                <p>
-                  ロードセルの信号をどう扱っているかを見ると、システム全体が追いやすいです。
-                </p>
-              </div>
-              <div class="check-item">
-                <h3>荷重のかかり方</h3>
-                <p>
-                  変な方向から力が入ると、正しく測りにくくなることがあります。
-                </p>
-              </div>
-            </div>
-
-            <div class="talk-thread">
-              <div class="talk-row">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>ロードセルは本体だけじゃなくて、指示計や変換器までセットで見ると追いやすいよ。</p>
-                </div>
-              </div>
-              <div class="talk-row talk-row--right">
-                <div class="talk-avatar">
-                  <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター">
-                </div>
-                <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>重さを見ているのか、押し付け力を見ているのかも先に確認した方がいいんですね。</p>
-                </div>
-              </div>
-            </div>
+          <section class="section-card" id="installation">
+            <h2>取付で値が変わる？荷重方向・偏荷重に注意</h2>
+            <p>ロードセルは機械的に力を受けるセンサです。配線が正しくても、荷重のかかり方や取付構造が悪いと測定値が安定しないことがあります。</p>
+            <!-- ADOPTED_FIGURE_INSTALLATION -->
+            <p>正しい荷重方向や取付方法は種類によって異なります。横荷重や偏荷重、取付部のたわみ・ガタ、周辺部品との干渉、過負荷・衝撃などを避け、メーカーの仕様・取付要領を優先します。</p>
           </section>
 
-          <section class="section-card" id="mistakes">
-            <h2>見落としやすいポイント</h2>
-            <p>
-              ロードセルは「重さを測る部品」と覚えやすいですが、実際には取付方法、荷重の向き、周辺機器とのつながりがかなり大事です。
-            </p>
+          <section class="section-card" id="calibration">
+            <h2>ゼロとスパンとは？ロードセル交換後も確認する</h2>
+            <p>計量システムでは、基準となる状態を「ゼロ」として合わせ、既知の荷重との関係を使って表示値を合わせるスパン調整・校正を行います。</p>
+            <p>ロードセルを交換しただけで以前と同じ値になるとは限りません。ロードセル、指示計・アンプ／変換器、機械構造を一つの計測系として考えます。</p>
+            <div class="note-box"><h3>具体的な校正操作は機器ごとに違う</h3><p>ゼロ・スパンの名称や手順、基準荷重、設定方法は対象機器の取扱説明書を確認してください。</p></div>
+          </section>
 
+          <section class="section-card" id="troubleshooting">
+            <h2>値がおかしい時は「機械 → センサ → 変換 → PLC」の順で見る</h2>
+            <p>いきなりPLCプログラムだけを見るのではなく、機械側から順番に切り分けると整理しやすくなります。</p>
             <div class="check-grid">
-              <div class="check-item check-item--warning">
-                <h3>単体で完結すると思う</h3>
-                <p>
-                  ロードセルだけ見ても、数字はそのまま分からないことが多いです。指示計や変換器とセットで見ます。
-                </p>
-              </div>
-              <div class="check-item check-item--warning">
-                <h3>取付方法を見ない</h3>
-                <p>
-                  同じロードセルでも、取り付け方が悪いと測りにくくなります。
-                </p>
-              </div>
-              <div class="check-item">
-                <h3>力の向きを見ない</h3>
-                <p>
-                  どの方向の荷重を見たいのかが合っていないと、期待した値になりにくいです。
-                </p>
-              </div>
-              <div class="check-item check-item--field">
-                <h3>重さだけと思い込む</h3>
-                <p>
-                  名前の印象で重量測定だけを想像しやすいですが、押し付け力の確認にも使われます。
-                </p>
-              </div>
+              <div class="check-item"><h3>1. 機械側</h3><p>荷重方向、偏荷重、干渉、ガタ、異物、過負荷の形跡を確認。</p></div>
+              <div class="check-item"><h3>2. ロードセル・ケーブル</h3><p>破損、断線、コネクタ、ケーブルの引張りを確認。</p></div>
+              <div class="check-item"><h3>3. 指示計・アンプ／変換器</h3><p>表示、ゼロ点、設定、アラーム、出力値を確認。</p></div>
+              <div class="check-item"><h3>4. PLC側</h3><p>入力値、スケーリング、判定値、制御条件を確認。</p></div>
             </div>
+            <div class="field-highlight"><h3>ロードセルは機械と電気の境目にあるセンサ</h3><p>荷重のかかり方と信号の流れを一続きで見ると原因を追いやすくなります。</p></div>
+          </section>
 
-            <div class="danger-box">
-              <h3>荷重部まわりの作業は挟まれ・落下に注意</h3>
-              <p>
-                ロードセルまわりはタンク、ホッパー、押し付け機構など重い物や力がかかる場所に付いていることがあります。確認時は落下、挟まれ、急な動作に注意してください。
-              </p>
-            </div>
+          <section class="section-card" id="official-sources">
+            <h2>メーカー公式資料を確認して作成しています</h2>
+            <p class="source-checked-date">公式資料確認日：2026-10-01</p>
+            <ul class="simple-list">
+              <li><a href="https://www.aandd.co.jp/products/loadcell/introduction/cell_intro01.html" target="_blank" rel="noopener noreferrer">A&amp;D「ロードセル入門」</a> — 基本、原理、仕様用語、選定</li>
+              <li><a href="https://product.kyowa-ei.com/learn/transducers/loadcell_basic" target="_blank" rel="noopener noreferrer">共和電業「ロードセルの基礎」</a> — 基本原理・荷重測定</li>
+              <li><a href="https://product.minebeamitsumi.com/product/category/mcd/loadcell/lc_accry/index.html" target="_blank" rel="noopener noreferrer">ミネベアミツミ ロードセル関連公式情報</a> — 周辺機器・校正の考え方</li>
+            </ul>
+            <p>機種固有の定格、配線、校正手順、取付方法は必ず対象製品の仕様書・取扱説明書を優先してください。</p>
           </section>
 
           <section class="section-card" id="summary">
-            <h2>まとめ：ロードセルは重さや力を電気信号に変える部品</h2>
-            <p>
-              ロードセルは、力や重さを電気信号に変える部品です。タンク計量、ホッパー計量、押し付け荷重の確認などでよく使われます。
-            </p>
-            <p>
-              最初は細かい理論よりも、何を測っているか、どこに付いているか、指示計や変換器とどうつながっているかを追うと分かりやすいです。
-            </p>
-
-            <div class="field-highlight">
-              <h3>この記事の要点</h3>
-              <p>
-                ロードセルは単体ではなく周辺機器とセットで見る部品です。ロードセル本体、指示計、変換器、PLC入力までの流れを見ていくと、現場でも役割を追いやすくなります。
-              </p>
-            </div>
+            <h2>まとめ：ロードセルは力を「使える情報」に変える入口</h2>
+            <p>ロードセルは、力や重さを電気信号へ変えるセンサです。ひずみゲージ式では、起歪体のわずかな変形を抵抗変化として検出し、微小な電圧信号として取り出します。</p>
+            <p>現場ではロードセル単体で考えず、<strong>ロードセル → 指示計・アンプ／変換器 → PLC → 表示・判定・制御</strong>まで一続きで見ることが大切です。</p>
+            <div class="field-highlight"><h3>現場で迷ったら4つを見る</h3><p>何を測っているか、荷重が正しくかかっているか、アンプ側でどう処理しているか、PLCでどう使っているか。この順で追うと設備の役割を整理しやすくなります。</p></div>
           </section>
 
           <section class="section-card" aria-labelledby="related-title">

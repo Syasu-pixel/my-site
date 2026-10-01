@@ -307,6 +307,20 @@ try{
   assert.equal(sheetSyncCalls,1);
   assert.ok(env.DB.events.some(e=>e.event_type==='estimate_sheet_synced'));
 
+  env.DB.case.status='estimate_sent';
+  const blockedSync=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/estimate-sync',{
+    method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:'{}',
+  }),env);
+  assert.equal(blockedSync.status,409);
+
+  const startReestimate=await worker.fetch(new Request('https://worker.example/admin/cases/'+env.DB.case.case_number+'/action',{
+    method:'POST',headers:{...authHeaders3,'Content-Type':'application/json'},body:JSON.stringify({action:'start_reestimate'}),
+  }),env);
+  assert.equal(startReestimate.status,200);
+  const startReestimateJson=await startReestimate.json();
+  assert.equal(startReestimateJson.case.status,'estimating');
+  assert.ok(env.DB.events.some(e=>e.event_type==='estimate_revision_started'));
+
   const badEstimateForm=new FormData();
   badEstimateForm.append('to','customer@example.com');
   badEstimateForm.append('subject','見積書送付テスト');

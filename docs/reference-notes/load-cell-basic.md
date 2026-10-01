@@ -75,3 +75,18 @@
 ## メモ
 - 今回は既存記事の全面刷新。本文確定後に OGP 1枚、Hero 1枚、本文図4枚を管理者確認のうえ採用。
 - 本文図は「基本原理」「信号の流れ」「代表的な使用例」「取付時の注意」の4用途。
+
+## 採用画像・転送検証記録
+
+| 用途 | ファイル | bytes | SHA-256 | Git blob SHA |
+|---|---|---:|---|---|
+| OGP | load-cell-basic-ogp.png | 1834233 | 309c2277ecefa8ed838f484857a308b41ed89555c0fc50986d5a91015be80887 | f42d83cb3c78e3a559aad40b09a822caaf83147c |
+| Hero | load-cell-basic-hero.png | 1676220 | 5a6128c5834646e8071a6dcacea6222440b2654c8907fcbd48749b59950339d4 | 4d01496b220dea9e9bae5116a085ead36c2a93ab |
+| 本文1 基本原理 | load-cell-basic-principle.png | 2036584 | bfcc4cd20afafa104666d13304a2001dac3311ec63790e2186a6614d60a26ff5 | 61be5278ff4dec5650a2becf6b24bb9cfc74fe4f |
+| 本文2 信号の流れ | load-cell-basic-signal-flow.png | 2074855 | 621aa28dffd03f61dcc280b0c5e8d75e4f2d32274491623d819c6e7623588e70 | 53ce4aa82978667eeaf500e70d90f90f65c66dae |
+| 本文3 使用例 | load-cell-basic-applications.png | 2161382 | 81d6d0f4f1864c104d0de5fa1c5f6f11bd0fc9cf64f3b1995e6e7e2dbd88f4bf | 0e1d4127a7ecf04b96ea2de0722b9264e1245045 |
+| 本文4 取付注意 | load-cell-basic-installation.png | 2089993 | 621783331a791c4e83f73ed6c72ff2ba9831d3360a4f8bf9ae9f36941dfbdd38 | a618172fa0da03bc99aa47eed329b4a0f11ef462 |
+
+- 正式な恒久 Workflow `.github/workflows/binary-image-transfer.yml` を使用。
+- Preview branch への保存後、6ファイルすべてで byte size 一致を確認。
+- OGP / Hero / 本文図の用途を分離し、本文4枚にはライトボックス対象クラスを付与。

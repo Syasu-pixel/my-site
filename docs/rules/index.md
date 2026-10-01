@@ -1,6 +1,6 @@
 # ルール・参照対象の正式一覧
 
-この一覧は catalog.json から生成する。読む順序と完了条件は [確認の入口](README.md)。登録は読了・理解・採用・稼働の証明ではない.
+この一覧は catalog.json から生成する。読む順序と完了条件は [確認の入口](README.md)。登録は読了・理解・採用・稼働の証明ではない。
 
 ## 開始時必須
 
@@ -370,4 +370,3 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
-

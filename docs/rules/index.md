@@ -368,3 +368,4 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
+| [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

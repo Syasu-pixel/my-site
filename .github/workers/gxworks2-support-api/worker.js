@@ -1278,6 +1278,7 @@ async function runAdminCaseAction(request, db, caseNumber, admin, origin) {
 
   const transitions = {
     start_estimate:{from:['received','estimating'],to:'estimating',event:'estimate_started',detail:'見積作成を開始'},
+    start_reestimate:{from:['estimate_sent','deposit_wait','working','delivered','completed','on_hold'],to:'estimating',event:'estimate_revision_started',detail:'再見積を開始（過去の送信済みPDFは保持）'},
     record_estimate_sent:{from:['estimating','estimate_sent'],to:'estimate_sent',event:'estimate_sent',detail:'見積送付を記録'},
     record_acceptance:{from:['estimate_sent','deposit_wait'],to:'deposit_wait',event:'estimate_accepted',detail:'見積了承を記録'},
     record_delivery:{from:['working','delivered'],to:'delivered',event:'delivered',detail:'納品を記録'},
@@ -1337,6 +1338,7 @@ async function openAdminEstimateSheet(env, caseNumber, admin, origin) {
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
   if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
   if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot create estimate sheets' }, 409, origin);
+  if (before.status !== 'estimating') return json({ ok:false, error:'Start or restart estimate editing before opening the estimate sheet' }, 409, origin);
 
   const customerHistory = await getAdminCustomerHistory(env.DB, before);
   const payload = {
@@ -1408,6 +1410,7 @@ async function syncAdminEstimateFromSheet(env, caseNumber, admin, origin) {
   if (!before) return json({ ok:false, error:'Case not found' }, 404, origin);
   if (!canAdminEditCase(before, admin)) return json({ ok:false, error:'This case is assigned to another administrator' }, 403, origin);
   if (before.status === 'cancelled') return json({ ok:false, error:'Cancelled cases cannot sync estimate sheets' }, 409, origin);
+  if (before.status !== 'estimating') return json({ ok:false, error:'Start or restart estimate editing before syncing the estimate sheet' }, 409, origin);
 
   let response;
   try {

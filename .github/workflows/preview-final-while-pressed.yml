@@ -1,0 +1,228 @@
+name: Materialize final while-pressed article preview
+
+on:
+  push:
+    branches:
+      - preview-while-pressed-final-20261001
+    paths:
+      - '.github/workflows/preview-final-while-pressed.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: preview-while-pressed-final-20261001-materialize
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.head_commit.message != 'Materialize final while-pressed article preview'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Build integrated publication
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm check:shells
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+
+          rsync -a ./ _site/ \
+            --exclude '_site/' \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '/docs/rules/catalog.json' \
+            --exclude 'node_modules/' \
+            --exclude '.netlify/' \
+            --exclude '.wrangler/' \
+            --exclude '.cache/' \
+            --exclude 'tmp/' \
+            --exclude 'temp/' \
+            --exclude '*.zip' \
+            --exclude '*.tar' \
+            --exclude '*.tar.gz' \
+            --exclude '*.7z' \
+            --exclude '*.psd' \
+            --exclude '*.ai'
+
+          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
+          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Optimize publication images
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
+
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
+            | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+                dst="${src%.*}.webp"
+                [ -e "$dst" ] && exit 0
+                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+              ' _ {}
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json, os
+
+          root = Path('_site')
+          image_root = root / 'assets' / 'images'
+          mapping = {}
+          build = Path(os.environ['RUNNER_TEMP']) / 'integration-build'
+          keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
+          for src in image_root.rglob('*'):
+              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
+                  continue
+              if src.relative_to(root).as_posix() in keep_originals:
+                  continue
+              dst = src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size > 0:
+                  rel_src = src.relative_to(root).as_posix()
+                  rel_dst = dst.relative_to(root).as_posix()
+                  mapping[rel_src] = rel_dst
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')
+
+          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              new = text
+              for old, replacement in mapping.items():
+                  new = new.replace('/' + old, '/' + replacement)
+                  new = new.replace(old, replacement)
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+
+          for old in mapping:
+              src = root / old
+              if src.exists():
+                  src.unlink()
+
+          stale = []
+          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for match in pattern.findall(text):
+                  candidate = root / match.lstrip('/')
+                  if not candidate.exists():
+                      stale.append(f'{path}: {match}')
+          if stale:
+              print('\n'.join(stale[:100]))
+              raise SystemExit(1)
+          PY
+
+          python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+
+      - name: Materialize only the approved article preview
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import re, shutil, posixpath
+
+          site = Path('_site')
+          repo = Path('.')
+          target = Path('articles/while-pressed-circuit-basic.html')
+          source = site / target
+          if not source.exists():
+              raise SystemExit('integrated target missing')
+
+          shutil.copy2(source, repo / target)
+
+          asset_exts = {'.css','.js','.png','.jpg','.jpeg','.webp','.svg','.gif','.ico','.json','.woff','.woff2'}
+          seen = set()
+          queue = [target]
+
+          def resolve(base, ref):
+              ref = ref.strip().strip('"\'')
+              if not ref or ref.startswith(('http://','https://','//','data:','mailto:','tel:','#','javascript:')):
+                  return None
+              ref = urlsplit(ref).path
+              if not ref:
+                  return None
+              if ref.startswith('/'):
+                  rel = Path(ref.lstrip('/'))
+              else:
+                  rel = Path(posixpath.normpath((base.parent.as_posix() + '/' + ref)))
+              if '..' in rel.parts:
+                  return None
+              return rel
+
+          while queue:
+              current = queue.pop()
+              if current in seen:
+                  continue
+              seen.add(current)
+              p = site / current
+              if not p.exists() or not p.is_file():
+                  continue
+              if p.suffix.lower() not in {'.html','.css','.js'}:
+                  continue
+              try:
+                  text = p.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              refs = re.findall(r'(?:src|href)\s*=\s*["\']([^"\']+)["\']', text, flags=re.I)
+              refs += re.findall(r'url\(\s*["\']?([^)"\']+)["\']?\s*\)', text, flags=re.I)
+              refs += re.findall(r'@import\s+(?:url\()?\s*["\']([^"\']+)["\']', text, flags=re.I)
+              for ref in refs:
+                  rel = resolve(current, ref)
+                  if rel is None or rel.suffix.lower() not in asset_exts:
+                      continue
+                  src = site / rel
+                  if not src.exists() or not src.is_file():
+                      continue
+                  dst = repo / rel
+                  dst.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(src, dst)
+                  if rel.suffix.lower() in {'.css','.js'}:
+                      queue.append(rel)
+
+          (repo / 'while-pressed-preview.html').write_text(
+              '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=articles/while-pressed-circuit-basic.html"><title>Preview</title>',
+              encoding='utf-8'
+          )
+          PY
+
+          rm -f .github/workflows/preview-final-while-pressed.yml
+          git config user.name "denkicontrol-preview-writer"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles/while-pressed-circuit-basic.html assets while-pressed-preview.html .github/workflows/preview-final-while-pressed.yml
+          git commit -m "Materialize final while-pressed article preview"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

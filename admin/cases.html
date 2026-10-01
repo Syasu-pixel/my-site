@@ -481,7 +481,13 @@
       if(!current)return '';
       const customer=[current.company||'',current.customer_name?(current.customer_name+' 様'):''].filter(Boolean).join('\n');
       const sender=current.assignee||'中村 宏樹';
-      return [customer,'','お世話になっております。','株式会社ケイディエスの'+sender+'です。','', 'ご相談いただいております「'+(current.subject||'オンライン相談')+'」につきまして、見積書を添付いたします。','内容をご確認いただき、ご不明点や修正希望がございましたら本メールへご返信ください。','', '相談番号：'+current.case_number,'','よろしくお願いいたします。','', '株式会社ケイディエス',sender].join('\n');
+      const contactEmail=estimateEmailDefaults?.contact_email||estimateEmailDefaults?.reply_to||'';
+      const contactPhone=estimateEmailDefaults?.contact_phone||'';
+      const signature=['────────────────────','株式会社ケイディエス','担当：'+sender];
+      if(contactEmail)signature.push('E-mail：'+contactEmail);
+      if(contactPhone)signature.push('TEL：'+contactPhone);
+      signature.push('Web：電気と制御の実務メモ','────────────────────','','※ support@denkicontrol.com は送信専用アドレスです。','　ご返信は本メールの「返信」ボタンをご利用ください。');
+      return [customer,'','お世話になっております。','株式会社ケイディエスの'+sender+'です。','', 'ご相談いただいております「'+(current.subject||'オンライン相談')+'」につきまして、見積書を添付いたします。','内容をご確認いただき、ご不明点や修正希望がございましたら本メールへご返信ください。','', '相談番号：'+current.case_number,'','よろしくお願いいたします。',''].concat(signature).join('\n');
     }
     function prepareEstimateMailDraft(){
       if(!current)return;

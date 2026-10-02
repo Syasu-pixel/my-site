@@ -12,7 +12,7 @@ def outer_content(s):
  for n in nodes:
   if n.tag=='header' or n.tag=='aside' or end_grid(n) or n.attrs.get('id')=='articleFeedbackCard':ranges.append((n.start,n.end))
   elif n.tag=='style' and n.attrs.get('data-ui-proposal')=='header':ranges.append((n.start,n.end))
-  elif n.tag=='script' and (n.attrs.get('data-ui-proposal')=='header' or n.attrs.get('id')=='dc-toc-data' or n.attrs.get('data-integration-added')=='search' or n.attrs.get('src') in ['/assets/js/article-toc-v2.js','/assets/js/article-integration-compat.js']):ranges.append((n.start,n.end))
+  elif n.tag=='script' and (n.attrs.get('data-ui-proposal')=='header' or n.attrs.get('id')=='dc-toc-data' or n.attrs.get('data-integration-added')=='search' or n.attrs.get('data-site-analytics')=='metricool' or n.attrs.get('src') in ['/assets/js/article-toc-v2.js','/assets/js/article-integration-compat.js']):ranges.append((n.start,n.end))
   elif n.tag=='link' and n.attrs.get('href') in ['/assets/css/article-toc-v2.css','/assets/css/article-end-related.css','/assets/css/article-end-feedback.css','/assets/css/article-integration-compat.css']:ranges.append((n.start,n.end))
  ranges=[r for r in ranges if not any(q[0]<=r[0] and q[1]>=r[1] and q!=r for q in ranges)]
  for a,b in sorted(ranges,reverse=True):s=s[:a]+s[b:]

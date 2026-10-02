@@ -68,7 +68,7 @@
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
 | [docs/denkicontrol-site-strategy.md](../denkicontrol-site-strategy.md) — Denkicontrol サイト方針 | サイト方針、企画、読者対象、収益化、言語展開を判断する。 |
 | [docs/denkicontrol-strategy-whitepaper.md](../denkicontrol-strategy-whitepaper.md) — Denkicontrol Strategy Whitepaper | サイト方針、企画、読者対象、収益化、言語展開を判断する。 |
-| [docs/digital-content-production-rules.md](../digital-content-production-rules.md) — KDS デジタルコンテンツ制作・販売ルール v0.1 | LINEスタンプ・絵文字・アニメーション素材等のデジタルコンテンツを企画・制作・権利確認・申請・販売・量産する場合。 |
+| [docs/digital-content-production-rules.md](../digital-content-production-rules.md) — 株式会社KDS デジタルコンテンツ制作・販売ルール v0.1 | LINEスタンプ・絵文字・アニメーション素材等のデジタルコンテンツを企画・制作・権利確認・申請・販売・量産する場合。 |
 | [docs/en-article-backlog.md](../en-article-backlog.md) — English Article Backlog | 新規記事候補や英語展開、既存候補との重複・公開済み状態を確認する。 |
 | [docs/existing-article-improvement-backlog.md](../existing-article-improvement-backlog.md) — 既存記事改善バックログ | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/external-challenger.md](../external-challenger.md) — External CHALLENGER pilot | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |

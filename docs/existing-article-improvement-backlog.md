@@ -48,6 +48,7 @@
 - [ ] `articles/signal-tower-light-basic.html` — タワーライト
 - [ ] `articles/dc24v-power-supply-basic.html` — DC24V電源
 - [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
+- [x] `articles/load-cell-basic.html` — ロードセル — 2026-10-02 本番公開完了（PR #1650 / 画像6枚刷新 / 公式資料監査済み / 統合最終Preview承認済み / GitHub Pages・IndexNow確認済み / Google Search Console登録リクエスト実施済み）
 
 ## 次回の改善対象の決め方
 
@@ -60,4 +61,4 @@
 
 候補選定後は、対象記事の検索queryとメーカー公式資料・一次情報を確認してから本文・meta・画像の刷新範囲を決定する。
 
-最終更新: 2026-09-29
+最終更新: 2026-10-02

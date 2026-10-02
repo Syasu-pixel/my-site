@@ -1,0 +1,25 @@
+name: GSC AI appearance probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
+      GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
+      GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+      GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+          sparse-checkout-cone-mode: true
+      - name: Probe Search Appearance
+        run: PYTHONPATH=scripts python scripts/gsc_ai_appearance_probe.py

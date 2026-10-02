@@ -159,4 +159,10 @@ jobs:
             export BING_DATA_LOOKBACK_DAYS="$backfill_days"
           fi
 
+          if [[ "$GITHUB_REF_NAME" == "preview-gsc-ai-appearance-probe-20261002" && "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$provider" == "google" && "${INPUT_DRY_RUN:-true}" == "true" ]]; then
+            echo "Running read-only GSC searchAppearance probe"
+            PYTHONPATH=scripts python scripts/gsc_ai_appearance_probe.py
+            exit 0
+          fi
+
           python scripts/search_data_entrypoint.py "${args[@]}"

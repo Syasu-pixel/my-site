@@ -178,6 +178,7 @@
 | [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [assets/js/site-analytics.js](../../assets/js/site-analytics.js) | サイト横断のアクセス解析、Metricool tracker、SNS流入計測、または解析タグの公開・停止・検査を扱う場合。 本番ホスト限定でMetricool trackerを起動する共通解析ローダー。Previewでは外部送信しない。 |
 | [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
@@ -187,9 +188,9 @@
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
+| [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
 | [scripts/check-article-hero-browser.mjs](../../scripts/check-article-hero-browser.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
 | [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
-| [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

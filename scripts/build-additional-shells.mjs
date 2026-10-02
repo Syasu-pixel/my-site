@@ -29,7 +29,7 @@ for(const path of paths){
  const footer=njk.renderString(footerTemplate,{footerClass,footerInner}).replace('</footer>',disclosure+'</footer>');
  let candidate=original.replace(headers[0][0],header).replace(oldFooter,footer);
  const addedStyle=`<style data-shell-extension="header">${headerCss}</style><style data-shell-extension="frame">${frameCss}</style>`+(contactPage?`<style data-shell-extension="contact">${contactCss}</style>`:'')+(privacyPage?`<style data-shell-extension="privacy">${privacyCss}</style>`:'')+(categoryPage?`<style data-shell-extension="category">${categoryCss}</style>`:'');
- const addSearch=!/src=["'][^"']*site-search\.js/.test(original),addedScript=`<script data-shell-extension="header">${headerJs}</script><script data-shell-extension="offset">${offsetJs}</script>`+(addSearch?'<script src="/assets/js/site-search.js" defer data-shell-extension="search"></script>':'');
+ const addSearch=!/src=["'][^"']*site-search\.js/.test(original),addedScript=`<script data-shell-extension="header">${headerJs}</script><script data-shell-extension="offset">${offsetJs}</script>`+(addSearch?'<script src="/assets/js/site-search.js" defer data-shell-extension="search"></script>':'')+'<script src="/assets/js/site-analytics.js" defer data-site-analytics="metricool"></script>';
  candidate=candidate.replace('</head>',addedStyle+'</head>').replace('</body>',addedScript+'</body>');
  const restored=candidate.replace(addedStyle,'').replace(addedScript,'').replace(header,headers[0][0]).replace(footer,oldFooter);
  if(restored!==original)throw Error('Non-shell bytes changed '+path);

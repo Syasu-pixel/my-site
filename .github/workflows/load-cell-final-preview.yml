@@ -1,0 +1,56 @@
+name: Load cell final publication preview
+
+on:
+  push:
+    branches:
+      - preview-load-cell-final-publication-20261002
+    paths:
+      - '.github/workflows/load-cell-final-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-load-cell-final-publication-20261002
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Build integrated publication source
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          cp "${RUNNER_TEMP}/integration-build/candidate/articles/load-cell-basic.html" articles/load-cell-basic.html
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-toc-v2.css" assets/css/article-toc-v2.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-related.css" assets/css/article-end-related.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-end-feedback.css" assets/css/article-end-feedback.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/css/article-integration-compat.css" assets/css/article-integration-compat.css
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-toc-v2.js" assets/js/article-toc-v2.js
+          cp "${RUNNER_TEMP}/integration-build/candidate/assets/js/article-integration-compat.js" assets/js/article-integration-compat.js
+      - name: Verify final preview markers
+        run: |
+          grep -q 'class="site-header dc-shell"' articles/load-cell-basic.html
+          grep -q 'article-toc-v2.css' articles/load-cell-basic.html
+          grep -q 'article-integration-compat.js' articles/load-cell-basic.html
+          grep -q 'load-cell-basic-principle.png' articles/load-cell-basic.html
+      - name: Commit generated final-preview files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add articles/load-cell-basic.html assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js
+          git diff --cached --quiet && exit 0
+          git commit -m "preview: materialize integrated load cell final preview"
+          git push origin HEAD:preview-load-cell-final-publication-20261002

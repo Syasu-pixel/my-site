@@ -1,0 +1,182 @@
+name: Safety control final Preview deployment audit (DO NOT MERGE)
+on:
+  push:
+    branches: [preview-final-safety-control-publication-20261002]
+    paths:
+      - .github/workflows/safety-control-resume-publication.yml
+permissions:
+  contents: write
+  checks: read
+concurrency:
+  group: safety-control-final-publication
+  cancel-in-progress: false
+jobs:
+  publication:
+    if: github.ref == 'refs/heads/preview-final-safety-control-publication-20261002'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SOURCE_BRANCH: preview-safety-control-refresh-20261001
+      FINAL_BRANCH: preview-final-safety-control-publication-20261002
+      VERIFIED_SOURCE_SHA: 88ab925b3285bfd86fa61f6e75361bc9e48f1d45
+      ORIGINAL_SOURCE_SHA: d1b56273fe8370b8963922b1a6cd6ddfa5a764d0
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Freeze audit implementation and inspect the already committed source maintenance
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/safety-final-evidence"
+          cp .github/workflows/safety-control-finalize.yml "$RUNNER_TEMP/safety-finalizer-frozen.yml"
+          test "$(git rev-parse origin/$SOURCE_BRANCH)" = "$VERIFIED_SOURCE_SHA"
+          git rev-parse origin/main > "$RUNNER_TEMP/safety-final-evidence/main-before.txt"
+          git checkout --detach "$VERIFIED_SOURCE_SHA"
+          python - <<'PY'
+          from pathlib import Path
+          import os,json,hashlib,subprocess
+          out=Path(os.environ['RUNNER_TEMP'])/'safety-final-evidence'
+          old=os.environ['ORIGINAL_SOURCE_SHA'];new=os.environ['VERIFIED_SOURCE_SHA']
+          changed=set(subprocess.check_output(['git','diff','--name-only',old,new]).decode().splitlines())
+          allowed={'articles/safety-control-basic.html','.github/site-shells/manifest.json','.github/article-components/site-inventory.json','.github/article-components/end/all-preservation-oracle.json'}
+          assert changed==allowed,changed
+          assert not subprocess.check_output(['git','diff',old,new,'--','assets/images'])
+          article=Path('articles/safety-control-basic.html').read_bytes()
+          assert hashlib.sha256(article).hexdigest()=='ed5c8e44ef32b6ea6b6c73a1c7b923540565e8c2ad89f5c7fea5d9b3186d9ab9'
+          text=article.decode()
+          for phrase in ['非常停止は、安全制御のすべてではありません','安全リレーを付けるだけで、安全になるわけではありません','ライトカーテンは、単に機械を止めるだけの部品ではありません','STOと非常停止は、同じ意味ではありません']:
+            assert text.count(phrase)==1,phrase
+          assert 'ではない、ではありません' not in text
+          images={}
+          for image in Path('assets/images/safety-control-basic').glob('*.webp'):
+            data=image.read_bytes();assert data==subprocess.check_output(['git','show',old+':'+str(image)])
+            images[str(image)]=hashlib.sha256(data).hexdigest()
+          assert len(images)==4
+          report={'originalSource':old,'sourceCommit':new,'adoptedImagesSha256':images,'sourceArticleSha256':hashlib.sha256(article).hexdigest(),'sourceChangedFiles':sorted(changed),'sourceChangedDuringResume':False,'scope':'Only previously committed article wording/emphasis and matching preservation hashes; image bytes unchanged'}
+          (out/'maintenance.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          (out/'source.diff').write_bytes(subprocess.check_output(['git','diff',old,new,'--']))
+          PY
+      - name: Install locked dependencies and verify rules
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1 PyYAML==6.0.2
+          python scripts/check-rule-catalog.py --report "$RUNNER_TEMP/safety-final-evidence/rule-catalog.json"
+          pnpm check:shells
+      - name: Rebuild and verify with the unchanged production and browser-audit stages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os,yaml,subprocess
+          steps=yaml.safe_load((Path(os.environ['RUNNER_TEMP'])/'safety-finalizer-frozen.yml').read_text())['jobs']['finalize']['steps']
+          for name in ['Execute the existing production generation and publication validation stages','Prepare the four-condition browser audit']:
+            step=next(s for s in steps if s.get('name')==name)
+            subprocess.run(['bash','-e','-o','pipefail','-c',step['run']],check=True)
+          PY
+      - name: Verify four local browser conditions before deployment
+        run: |
+          python -m http.server 18765 --directory _site > "$RUNNER_TEMP/safety-http.log" 2>&1 &
+          REVIEW_URL=http://127.0.0.1:18765/articles/safety-control-basic.html REVIEW_OUTPUT="$RUNNER_TEMP/safety-final-evidence/local" node .safety-final-review.mjs
+      - name: Snapshot the validated publication and its complete runtime closure outside the checkout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urljoin,urlsplit,unquote
+          from lxml import html
+          import re,json,hashlib,os
+          root=Path(os.environ['RUNNER_TEMP']);out=root/'safety-final-evidence';stage=root/'safety-validated-publication';stage.mkdir()
+          site=Path('_site');article='articles/safety-control-basic.html'
+          runtime=['assets/css/article-toc-v2.css','assets/js/article-toc-v2.js','assets/css/article-end-related.css','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js']
+          todo=[article,*runtime];seen=set();hashes={}
+          while todo:
+            name=todo.pop()
+            if name in seen:continue
+            assert '..' not in Path(name).parts and not Path(name).is_absolute()
+            src=site/name;assert src.is_file(),name
+            data=src.read_bytes();dest=stage/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(data)
+            seen.add(name);hashes[name]=hashlib.sha256(data).hexdigest()
+            if src.suffix not in {'.html','.css'}:continue
+            text=data.decode();values=re.findall(r'url\(["\']?([^\)"\']+)',text)
+            if src.suffix=='.html':
+              doc=html.fromstring(text)
+              values+=doc.xpath('//img/@src | //script/@src | //source/@src | //link[@rel="stylesheet" or @rel="icon" or @rel="preload" or @rel="apple-touch-icon"]/@href | //meta[@property="og:image"]/@content')
+            for value in values:
+              u=urlsplit(urljoin('https://denkicontrol.com/'+name,value.strip()))
+              if u.netloc in {'denkicontrol.com','www.denkicontrol.com'} and u.path.startswith('/assets/'):
+                todo.append(unquote(u.path).lstrip('/'))
+          assert (stage/article).read_bytes()==(out/'verified-publication.html').read_bytes()
+          assert hashes[article]=='40c62b7e1ac427836949489d6fb8e95ddb85bf01dc5d417dfc70380e3b601506'
+          maintenance=json.loads((out/'maintenance.json').read_text())
+          for name,sha in maintenance['adoptedImagesSha256'].items():assert hashes[name]==sha,name
+          report={'sourceCommit':os.environ['VERIFIED_SOURCE_SHA'],'articleSha256':hashes[article],'materializedFiles':sorted(seen),'fileSha256':hashes,'kind':'validated production publication and complete static runtime snapshot','doNotMerge':True}
+          (out/'materialization.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-control-resume-local-evidence
+          path: ${{ runner.temp }}/safety-final-evidence/
+          retention-days: 7
+      - name: Commit only the staged publication to the Preview-only branch
+        run: |
+          set -eu
+          test "$(git ls-remote origin refs/heads/$SOURCE_BRANCH | cut -f1)" = "$VERIFIED_SOURCE_SHA"
+          test "$(git ls-remote origin refs/heads/$FINAL_BRANCH | cut -f1)" = "$GITHUB_SHA"
+          git checkout --detach "$GITHUB_SHA"
+          python - <<'PY'
+          from pathlib import Path
+          import os,json,hashlib,subprocess
+          root=Path(os.environ['RUNNER_TEMP']);stage=root/'safety-validated-publication';out=root/'safety-final-evidence'
+          report=json.loads((out/'materialization.json').read_text())
+          for name in report['materializedFiles']:
+            data=(stage/name).read_bytes();assert hashlib.sha256(data).hexdigest()==report['fileSha256'][name]
+            dest=Path(name);dest.parent.mkdir(parents=True,exist_ok=True)
+            if dest.is_symlink():dest.unlink()
+            dest.write_bytes(data)
+          Path('_headers').write_text('/*\n  X-Robots-Tag: noindex, noarchive\n')
+          Path('robots.txt').write_text('User-agent: *\nDisallow: /\n')
+          Path('.github/safety-control-final-state.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          paths=[*report['materializedFiles'],'_headers','robots.txt','.github/safety-control-final-state.json']
+          subprocess.run(['git','add','--',*paths],check=True)
+          changed=set(subprocess.check_output(['git','diff','--cached','--name-only']).decode().splitlines())
+          assert changed and changed<=set(paths),changed
+          assert not subprocess.check_output(['git','diff','--cached','--','assets/images/safety-control-basic'])
+          (out/'materialization.diff').write_bytes(subprocess.check_output(['git','diff','--cached','--']))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m '[final-preview-materialized] Safety control restrained emphasis and verified runtime assets; DO NOT MERGE'
+          git push origin "HEAD:refs/heads/$FINAL_BRANCH"
+          echo "FINAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git rev-parse HEAD > "$RUNNER_TEMP/safety-final-evidence/final-commit.txt"
+          git ls-remote origin refs/heads/main | cut -f1 > "$RUNNER_TEMP/safety-final-evidence/main-after.txt"
+          cmp "$RUNNER_TEMP/safety-final-evidence/main-before.txt" "$RUNNER_TEMP/safety-final-evidence/main-after.txt"
+      - name: Confirm Cloudflare serves the exact validated publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os,yaml,subprocess
+          steps=yaml.safe_load((Path(os.environ['RUNNER_TEMP'])/'safety-finalizer-frozen.yml').read_text())['jobs']['finalize']['steps']
+          step=next(s for s in steps if s.get('name')=='Wait until Cloudflare actually serves the validated publication')
+          subprocess.run(['bash','-e','-o','pipefail','-c',step['run']],check=True)
+          PY
+      - name: Recheck the deployed Preview in all four browser conditions
+        run: |
+          REVIEW_URL="https://preview-final-safety-control.denkicontrol-preview.pages.dev/articles/safety-control-basic.html?review=$FINAL_SHA" REVIEW_OUTPUT="$RUNNER_TEMP/safety-final-evidence/deployed" node .safety-final-review.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-control-deployed-final-evidence
+          path: ${{ runner.temp }}/safety-final-evidence/
+          retention-days: 14

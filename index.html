@@ -3846,6 +3846,24 @@
       }
     }
 
+  
+    .instagram-comic-feed{overflow:hidden}
+    .instagram-comic-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+    .instagram-comic-head h3{margin:2px 0 0}
+    .instagram-comic-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e1306c}
+    .instagram-comic-profile{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+    .instagram-comic-intro{margin:0 0 12px;font-size:12px;line-height:1.65;color:var(--muted)}
+    .instagram-comic-viewport{position:relative;overflow:hidden;border-radius:14px;outline:none;overscroll-behavior:contain}
+    .instagram-comic-track{display:flex;transition:transform .45s ease;will-change:transform}
+    .instagram-comic-slide{flex:0 0 100%;display:block;color:inherit;text-decoration:none}
+    .instagram-comic-slide img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#eef3f8}
+    .instagram-comic-slide span{display:block;padding:10px 2px 2px;font-size:13px;font-weight:800;line-height:1.5}
+    .instagram-comic-dots{display:flex;justify-content:center;gap:6px;margin:10px 0}
+    .instagram-comic-dots i{width:6px;height:6px;border-radius:50%;background:#cbd5e1;transition:.2s}
+    .instagram-comic-dots i.is-active{width:18px;border-radius:99px;background:var(--accent)}
+    .instagram-comic-more{display:flex;justify-content:center;align-items:center;min-height:38px;border:1px solid var(--line);border-radius:10px;font-size:12px;font-weight:800;text-decoration:none}
+    @media (prefers-reduced-motion:reduce){.instagram-comic-track{transition:none}}
+
   </style>
 
   <script type="text/javascript">
@@ -4156,6 +4174,43 @@
               </ol>
             </section>
 
+            <section class="info-box instagram-comic-feed" aria-labelledby="instagram-comic-title">
+              <div class="instagram-comic-head">
+                <div>
+                  <span class="instagram-comic-kicker">Instagram</span>
+                  <h3 id="instagram-comic-title">4コマで電気制御</h3>
+                </div>
+                <a class="instagram-comic-profile" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">@denkicontrol ↗</a>
+              </div>
+              <p class="instagram-comic-intro">記事のポイントを4コマで紹介しています。枠の上でマウスホイール／スワイプすると次の投稿へ送れます。</p>
+              <div class="instagram-comic-viewport" tabindex="0" aria-label="Instagram 4コマ投稿">
+                <div class="instagram-comic-track">
+                  <a class="instagram-comic-slide" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/comics/sensor-basic/sensor-basic-yonkoma-01-pilot.png" alt="センサって何をしてるの？ 4コマ漫画" loading="lazy" decoding="async">
+                    <span>センサって何をしてるの？</span>
+                  </a>
+                  <a class="instagram-comic-slide" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/comics/reed-switch-basic/reed-switch-basic-yonkoma-01.png" alt="リードスイッチの役割 4コマ漫画" loading="lazy" decoding="async">
+                    <span>リードスイッチの役割</span>
+                  </a>
+                  <a class="instagram-comic-slide" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/comics/no-nc-basic/no-nc-basic-yonkoma-01.png" alt="NO・NCのNormalって？ 4コマ漫画" loading="lazy" decoding="async">
+                    <span>NO・NCの「Normal」って？</span>
+                  </a>
+                  <a class="instagram-comic-slide" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/comics/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-yonkoma-01.jpg" alt="エアシリンダが動かないとき 4コマ漫画" loading="lazy" decoding="async">
+                    <span>エアシリンダが動かないとき</span>
+                  </a>
+                  <a class="instagram-comic-slide" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/images/comics/servo-motor-basic/servo-motor-basic-yonkoma-01.png" alt="サーボモータは何が違う？ 4コマ漫画" loading="lazy" decoding="async">
+                    <span>サーボモータは何が違う？</span>
+                  </a>
+                </div>
+              </div>
+              <div class="instagram-comic-dots" aria-hidden="true"></div>
+              <a class="instagram-comic-more" href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">Instagramでもっと見る ↗</a>
+            </section>
+
             <section class="info-box info-box--latest" id="new">
               <h3>新着記事</h3>
               <ul>
@@ -4433,5 +4488,27 @@
     applyCategoryFilter('all');
   </script>
   <script src="assets/js/site-search.js"></script>
+<script>
+(() => {
+  const root=document.querySelector('.instagram-comic-feed');
+  if(!root)return;
+  const viewport=root.querySelector('.instagram-comic-viewport');
+  const track=root.querySelector('.instagram-comic-track');
+  const slides=[...root.querySelectorAll('.instagram-comic-slide')];
+  const dots=root.querySelector('.instagram-comic-dots');
+  let index=0,timer=null,touchY=null,wheelLock=false;
+  slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.classList.add('is-active');dots.appendChild(d)});
+  const paint=()=>{track.style.transform=`translateX(-${index*100}%)`;[...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index))};
+  const move=(dir)=>{index=(index+dir+slides.length)%slides.length;paint();restart()};
+  const restart=()=>{clearInterval(timer);if(!matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>move(1),6500)};
+  viewport.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<8||wheelLock)return;e.preventDefault();wheelLock=true;move(e.deltaY>0?1:-1);setTimeout(()=>wheelLock=false,500)},{passive:false});
+  viewport.addEventListener('touchstart',e=>touchY=e.touches[0].clientY,{passive:true});
+  viewport.addEventListener('touchend',e=>{if(touchY==null)return;const dy=e.changedTouches[0].clientY-touchY;if(Math.abs(dy)>35)move(dy<0?1:-1);touchY=null},{passive:true});
+  viewport.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();move(1)}if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();move(-1)}});
+  root.addEventListener('mouseenter',()=>clearInterval(timer));root.addEventListener('mouseleave',restart);
+  restart();
+})();
+</script>
+
 </body>
 </html>

@@ -50,7 +50,7 @@ jobs:
           merge_status=$?
           set -e
           if [ "$merge_status" -ne 0 ]; then
-            allowed='docs/rules/catalog.json docs/rules/index.md .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/sidebar/all-source-verification.json .github/article-components/end/all-preservation-oracle.json .github/article-components/hero/css-bindings.json'
+            allowed='docs/rules/catalog.json docs/rules/index.md .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/sidebar/all-source-verification.json .github/article-components/sidebar/all-pages.json .github/article-components/end/all-preservation-oracle.json .github/article-components/hero/css-bindings.json'
             unresolved="$(git diff --name-only --diff-filter=U)"
             for f in $unresolved; do
               case " $allowed " in
@@ -145,6 +145,41 @@ jobs:
           update_by_key('.github/article-components/site-inventory.json','path',target,{'gitBlob':blob})
           update_by_key('.github/article-components/sidebar/all-source-verification.json','path',target,{'sha256':sha,'gitBlob':blob})
 
+          # Refresh the target sidebar/TOC ledger from the current authored source.
+          sidebar_dir=Path('.github/article-components/sidebar')
+          import sys
+          sys.path.insert(0,str(sidebar_dir))
+          from html_spans import Parser, text as span_text
+          source_text=data.decode('utf-8')
+          parser=Parser(source_text)
+          toc=[]; ids={n.attrs['id'] for n in parser.nodes if 'id' in n.attrs}
+          for n in parser.nodes:
+            if n.tag!='h2' or not n.ancestor(lambda x:x.tag=='main'): continue
+            if n.ancestor(lambda x:x.tag=='aside' or x.has('summary-card') or x.has('mini-toc-card') or x.has('article-hero') or x.has('article-feedback')): continue
+            label=span_text(source_text[n.open_end:source_text.rfind('</h2',n.start,n.end)])
+            if any(s in label for s in ['あわせて読みたい','関連記事','この記事は役に','Related articles','Was this article','キャリアを考える前後']): continue
+            target_id=n.attrs.get('id')
+            parent=n.ancestor(lambda x:x.tag=='section' and bool(x.attrs.get('id')))
+            if not target_id and parent: target_id=parent.attrs['id']
+            if not target_id:
+              target_id='dc-section-'+str(len(toc)+1)
+              if target_id in ids: raise SystemExit('Sidebar anchor collision: '+target_id)
+              ids.add(target_id)
+            toc.append({'id':target_id,'label':label})
+          asides=[n for n in parser.nodes if n.tag=='aside']
+          if len(asides)!=1: raise SystemExit(f'Expected one sidebar, found {len(asides)}')
+          raw_cards=[source_text[n.start:n.end] for n in asides[0].children]
+          sp=sidebar_dir/'all-pages.json'; sidebar=json.loads(sp.read_text(encoding='utf-8'))
+          spec=next((x for x in sidebar['pages'] if x.get('path')==target),None)
+          if spec is None: raise SystemExit('Missing sidebar target')
+          if len(raw_cards)!=len(spec['cardsBefore']): raise SystemExit('Sidebar card count changed; manual role review required')
+          spec['tocReference']=toc
+          spec['asideCount']=len(asides)
+          for i,raw in enumerate(raw_cards):
+            spec['cardsBefore'][i]['index']=i
+            spec['cardsBefore'][i]['sha256']=hashlib.sha256(raw.encode()).hexdigest()
+          sp.write_text(json.dumps(sidebar,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
           ep=Path('.github/article-components/end/all-preservation-oracle.json')
           eo=json.loads(ep.read_text(encoding='utf-8'))
           hits=[0]
@@ -192,6 +227,7 @@ jobs:
             .github/site-shells/manifest.json \
             .github/article-components/site-inventory.json \
             .github/article-components/sidebar/all-source-verification.json \
+            .github/article-components/sidebar/all-pages.json \
             .github/article-components/end/all-preservation-oracle.json \
             .github/article-components/hero/css-bindings.json
           git config user.name "github-actions[bot]"

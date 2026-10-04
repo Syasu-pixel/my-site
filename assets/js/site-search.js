@@ -387,7 +387,7 @@
   style.id = 'career-preview-home-style';
   style.textContent = `
     .support-category-card--career{border-color:#c4b5fd;background:linear-gradient(135deg,#faf7ff 0%,#fff 100%)}
-    .support-category-card--career .support-category-card__image{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ede9fe,#f8f7ff);font-size:48px}
+    .support-category-card--career .support-category-card__image{display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f7ff}.support-category-card--career .support-category-card__image img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
     .support-category-card--career .support-category-card__title{color:#5b21b6}
     .support-category-card--career .support-category-card__description{color:#64748b}
   `;
@@ -400,7 +400,7 @@
   card.dataset.categoryShelf = 'career';
   card.setAttribute('aria-label', 'キャリア・転職の記事一覧へ');
   card.innerHTML = `
-    <span class="support-category-card__image" aria-hidden="true">🧭</span>
+    <span class="support-category-card__image"><img src="assets/images/career/career-hero-v2.jpg" alt="電気・FAエンジニアのキャリア・転職" loading="lazy" decoding="async"></span>
     <span class="support-category-card__body">
       <span class="support-category-card__title">キャリア・転職</span>
       <span class="support-category-card__description">電気・FAの仕事、必要なスキル、キャリア、転職先の考え方を技術者目線で整理します。</span>

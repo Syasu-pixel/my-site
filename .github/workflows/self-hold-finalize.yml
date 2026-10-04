@@ -182,21 +182,60 @@ jobs:
 
           ep=Path('.github/article-components/end/all-preservation-oracle.json')
           eo=json.loads(ep.read_text(encoding='utf-8'))
-          hits=[0]
-          def ew(x):
-            if isinstance(x,dict):
-              if x.get('path')==target and 'sourceSha256' in x:
-                x['sourceSha256']=sha; hits[0]+=1
-              for v in x.values(): ew(v)
-            elif isinstance(x,list):
-              for v in x: ew(v)
-          ew(eo)
-          if hits[0]:
-            ep.write_text(json.dumps(eo,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          else:
-            raw=ep.read_text(encoding='utf-8')
-            if raw.count(old_sha)!=1: raise SystemExit('Cannot identify end oracle source hash')
-            ep.write_text(raw.replace(old_sha,sha),encoding='utf-8')
+          page_oracle=next((x for x in eo['pages'] if x.get('path')==target),None)
+          if page_oracle is None: raise SystemExit('Missing end oracle target')
+          old_cards={x.get('target'):x for x in page_oracle.get('cards',[]) if x.get('kind')=='article'}
+
+          # Refresh only the target article-ending expectations from the authored source.
+          nodes=Parser(source_text).nodes
+          grids=[n for n in nodes if n.has('related-grid') and not n.ancestor(lambda a:a.tag=='aside')]
+          if len(grids)!=1: raise SystemExit(f'Expected one related grid, found {len(grids)}')
+          grid=grids[0]
+          new_cards=[]
+          for idx,a in enumerate(grid.children):
+            if a.tag!='a' or not a.attrs.get('href'): raise SystemExit('Unexpected related card structure')
+            href=a.attrs['href']
+            from urllib.parse import urljoin,urlsplit,unquote
+            resolved=unquote(urlsplit(urljoin('https://denkicontrol.com/'+target,href)).path).lstrip('/')
+            old_card=old_cards.get(resolved)
+            if old_card is None: raise SystemExit('Related target not present in reviewed oracle: '+resolved)
+            descendants=[n for n in nodes if n.ancestor(lambda x:x is a)]
+            title=next((n for n in descendants if n.tag in ['h3','strong']),None)
+            if title is None: raise SystemExit('Missing related card title')
+            close=source_text.rfind('</'+title.tag,title.start,title.end)
+            title_html=source_text[title.start:title.end]
+            card_text=span_text(source_text[a.open_end:source_text.rfind('</a',a.start,a.end)])
+            item=dict(old_card)
+            item.update({
+              'index':idx,
+              'href':href,
+              'target':resolved,
+              'text':card_text,
+              'class':a.attrs.get('class',''),
+              'attributes':dict(a.attrs),
+              'titleTags':[title.tag],
+              'titleHtml':[title_html],
+              'innerMarkup':source_text[a.open_end:source_text.rfind('</a',a.start,a.end)],
+              'existingImages':[n.attrs.get('src') for n in descendants if n.tag=='img'],
+              'hasPicture':any(n.tag=='picture' for n in descendants),
+              'nonWhitespaceTail':''
+            })
+            new_cards.append(item)
+
+          block_node=next((x for x in nodes if x.tag=='section' and x.attrs.get('id')=='related'),None)
+          if block_node is None: raise SystemExit('Missing related section')
+          outside=[]
+          for a in nodes:
+            if a.tag!='a' or not a.attrs.get('href'): continue
+            if not a.ancestor(lambda x:x is block_node): continue
+            if a.ancestor(lambda x:x is grid): continue
+            outside.append({'href':a.attrs['href'],'text':span_text(source_text[a.open_end:source_text.rfind('</a',a.start,a.end)])})
+
+          page_oracle['sourceSha256']=sha
+          page_oracle['directChildren']=[n.tag for n in grid.children]
+          page_oracle['cards']=new_cards
+          page_oracle['outsideGridArticleLinks']=outside
+          ep.write_text(json.dumps(eo,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 
           script=Path('scripts/prepare-article-heroes.py')
           spec=importlib.util.spec_from_file_location('hero_prepare',script)

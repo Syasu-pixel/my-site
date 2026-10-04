@@ -270,7 +270,10 @@ jobs:
                 urls.append(match.group(0)); return '{{ urls['+str(len(urls)-1)+'] | safe }}'
               template=re.sub(r'url\(\s*(?:"[^"]*"|\x27[^\x27]*\x27|[^)]*)\s*\)',repl,raw)
               name='css/'+m.sha(template)+'.css.njk'
-              if not (m.PKG/name).is_file(): raise SystemExit('Unexpected new hero CSS template '+name)
+              css_file=m.PKG/name
+              if not css_file.is_file():
+                css_file.parent.mkdir(parents=True,exist_ok=True)
+                css_file.write_text(template,encoding='utf-8')
               expected.append({'sourceSha256':m.sha(raw),'template':name,'urls':urls})
           bp=m.PKG/'css-bindings.json'; bindings=json.loads(m.read(bp))
           if target not in bindings: raise SystemExit('Missing hero binding target')
@@ -287,7 +290,8 @@ jobs:
             .github/article-components/sidebar/all-source-verification.json \
             .github/article-components/sidebar/all-pages.json \
             .github/article-components/end/all-preservation-oracle.json \
-            .github/article-components/hero/css-bindings.json
+            .github/article-components/hero/css-bindings.json \
+            .github/article-components/hero/css
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "[self-hold-final-prep] sync latest main and refresh target ledgers"

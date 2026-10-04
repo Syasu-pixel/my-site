@@ -129,6 +129,7 @@
 
 - 中心ハブ: `safety-control-basic.html`
 - 既存資産: `emergency-stop-switch-basic.html`、`safety-relay-control-basic.html`、`safety-door-switch-interlock-basic.html`、`light-curtain-basic.html`、`sto-basic.html`
+- **2026-10-04 刷新完了**: `safety-control-basic.html` を全面監査・刷新。危険源 → リスクアセスメント → リスク低減 → 安全機能を起点に、安全入力 → 安全判断 → 安全出力 → 危険源の流れへ再構成。ISO / IEC一次参照、採用済みOGP・Hero・本文2図、共通ひな形、追従目次、関連記事、記事評価、ライトボックス、スマホ横スクロール案内、ダークモード、本文強調まで最終Previewで確認・採用済み。本番反映後は `https://denkicontrol.com/articles/safety-control-basic.html` をGoogle Search Consoleで再登録する。
 - 非常停止と停止ボタン、安全回路と制御回路、解除・復旧・手動操作時の注意などは、まず既存記事の範囲と導線を確認する。当面は量産対象にせず、明確な不足と検索意図が判明した場合だけ再開する。
 
 ## 横断的な中級・実務候補

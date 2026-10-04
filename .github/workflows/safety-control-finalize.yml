@@ -102,6 +102,7 @@ jobs:
           cp "$RUNNER_TEMP/integration-build/publication-checks.json" "$RUNNER_TEMP/safety-final-evidence/"
           cp "$RUNNER_TEMP/integration-build/source-verification.json" "$RUNNER_TEMP/safety-final-evidence/" 2>/dev/null || true
           cp _site/articles/safety-control-basic.html "$RUNNER_TEMP/safety-final-evidence/verified-publication.html"
+          tar -czf "$RUNNER_TEMP/safety-final-evidence/publication-runtime.tar.gz" -C _site articles/safety-control-basic.html assets/css assets/js assets/images/common assets/images/safety-control-basic assets/images/guide-characters assets/images/emergency-stop-switch-basic assets/images/safety-relay-basic assets/images/sto-basic
           pnpm exec playwright install --with-deps chromium
       - name: Prepare the four-condition browser audit
         run: |
@@ -130,8 +131,17 @@ jobs:
                 assert.equal(entry.status,200);assert.equal(entry.htmlSha256,result.expectedHtmlSha256,'Deployed HTML differs from validated publication');
                 await page.evaluate(()=>document.fonts.ready);
                 assert.equal(await page.locator('html').getAttribute('data-dc-theme'),theme);
-                for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=600){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(70);}
-                await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(400);
+                await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';});
+                for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=600){await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),y);await page.waitForTimeout(100);}
+                const contentImages=page.locator('img[src]:not(.dc-image-lightbox__image)');
+                for(let i=0;i<await contentImages.count();i++){
+                  const image=contentImages.nth(i);
+                  if(!await image.isVisible())continue;
+                  await image.scrollIntoViewIfNeeded();
+                  await page.waitForFunction(el=>el.complete&&el.naturalWidth>0,await image.elementHandle(),{timeout:20000});
+                  await image.evaluate(el=>el.decode());
+                }
+                await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(400);
                 entry.info=await page.evaluate(()=>({
                   width:innerWidth,documentWidth:document.documentElement.scrollWidth,theme:document.documentElement.dataset.dcTheme,
                   images:[...document.images].filter(x=>x.getAttribute('src')).map(x=>({src:x.currentSrc,alt:x.alt,loaded:x.complete&&x.naturalWidth>0,width:x.naturalWidth})),
@@ -162,6 +172,7 @@ jobs:
                   for(const close of ['button','backdrop','escape']){
                     await figures.nth(i).scrollIntoViewIfNeeded();const original=await figures.nth(i).getAttribute('src');await click(figures.nth(i));
                     const overlay=page.locator('.dc-image-lightbox');await overlay.waitFor({state:'visible'});
+                    await overlay.locator('img').evaluate(el=>el.decode());
                     const state=await overlay.evaluate(x=>({background:getComputedStyle(x).backgroundColor,overflow:getComputedStyle(document.body).overflow,src:x.querySelector('img').src,width:x.querySelector('img').getBoundingClientRect().width,height:x.querySelector('img').getBoundingClientRect().height}));
                     assert.ok(state.background.includes('0.9'));assert.equal(state.overflow,'hidden');assert.ok(state.src.endsWith(original.replace('../','/')));assert.ok(state.width>0&&state.height>0);
                     if(close==='button'){await page.screenshot({path:`${out}/${label}-lightbox-${i+1}.png`});await click(page.locator('.dc-image-lightbox__close'));}
@@ -177,9 +188,13 @@ jobs:
                 if(mobile){await table.evaluate(x=>{x.scrollLeft=150;});await page.waitForTimeout(200);assert.equal(await hint.isVisible(),false);entry.table.hintHiddenAfterScroll=true;}
                 await page.locator('.dc-toc-button').click();await page.locator('#dc-toc-dialog').waitFor({state:'visible'});
                 await page.locator('#dc-toc-dialog a[href="#sto"]').click();await page.waitForTimeout(300);assert.ok(page.url().endsWith('#sto'));entry.tocJump=true;
-                await page.evaluate(()=>scrollTo(0,900));await page.waitForTimeout(200);
+                await page.evaluate(()=>scrollTo({top:900,behavior:'instant'}));await page.waitForTimeout(200);
                 entry.header=await page.locator('header.dc-shell').evaluate(x=>({position:getComputedStyle(x).position,top:x.getBoundingClientRect().top,height:x.getBoundingClientRect().height}));
                 assert.ok(['fixed','sticky'].includes(entry.header.position));assert.ok(Math.abs(entry.header.top)<2);
+                await page.locator('#dc-menu-toggle').click();await page.locator('#dc-theme-toggle').click();
+                await page.waitForFunction(t=>document.documentElement.dataset.dcTheme===t,theme==='dark'?'light':'dark');
+                await page.reload({waitUntil:'networkidle'});
+                assert.equal(await page.locator('html').getAttribute('data-dc-theme'),theme==='dark'?'light':'dark');entry.themeTogglePersistence=true;
                 assert.equal(errors.length,0);assert.equal(failed.length,0);
                 entry.passed=true;
               }catch(e){entry.error=e.stack;result.failures.push(label+': '+e.message);await page.screenshot({path:`${out}/${label}-failure.png`,fullPage:true}).catch(()=>{});}
@@ -188,6 +203,7 @@ jobs:
           }finally{await browser.close();fs.writeFileSync(`${out}/browser-results.json`,JSON.stringify(result,null,2));}
           if(result.failures.length)throw Error(result.failures.join('\n'));
           JS
+          cp .safety-final-review.mjs "$RUNNER_TEMP/safety-final-evidence/browser-audit.mjs"
       - name: Check publication locally before changing either branch
         run: |
           python -m http.server 18765 --directory _site > "$RUNNER_TEMP/safety-http.log" 2>&1 &

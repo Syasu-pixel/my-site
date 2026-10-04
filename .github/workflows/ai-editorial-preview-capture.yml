@@ -1,31 +1,177 @@
-# Temporary final-preview preparation. DO NOT MERGE this workflow into main.
-name: Light curtain final preview preparation
+# Temporary final-preview builder. DO NOT MERGE into main.
+name: Light curtain production-equivalent Preview
 on:
   push:
     branches: [preview-final-light-curtain-current-20261004]
     paths: [.github/workflows/ai-editorial-preview-capture.yml]
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: light-curtain-final-preview-20261004
+  cancel-in-progress: false
 jobs:
-  source-evidence:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Record source and collect rules and official build implementation
+      - name: Guard source and record target-only registrations
+        shell: bash
         run: |
           set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/preview-final-light-curtain-current-20261004
           test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
-          mkdir -p /tmp/light-curtain-evidence
-          git rev-parse HEAD > /tmp/light-curtain-evidence/source-sha.txt
-          git diff --stat origin/main...HEAD > /tmp/light-curtain-evidence/source-diff.txt
-          git archive --format=tar.gz -o /tmp/light-curtain-evidence/source.tar.gz HEAD docs scripts .github tests package.json pnpm-lock.yaml articles en/articles assets/css assets/js assets/data assets/images/light-curtain-basic
-      - name: Upload source evidence
+          mkdir -p "$RUNNER_TEMP/lc-evidence"
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil,subprocess,tempfile,sys,os
+          root=Path.cwd(); target='articles/light-curtain-basic.html'
+          raw=(root/target).read_bytes(); digest=hashlib.sha256(raw).hexdigest()
+          assert digest=='893e60d8f29c2a447400142dceda8a99255662f37e0e0f30a2ed01b914419c81'
+          pkg=root/'.github/article-components/hero'
+          original=json.loads((pkg/'css-bindings.json').read_text()); before=json.loads(json.dumps(original))
+          manifest=json.loads((pkg/'manifest.json').read_text())
+          with tempfile.TemporaryDirectory(prefix='lc-hero-rebind-') as tmp:
+              base=Path(tmp); isolated=base/'source'
+              for rel in ['scripts/prepare-article-heroes.py','.github/article-components/sidebar/html_spans.py',target]:
+                  dst=isolated/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(root/rel,dst)
+              part=dict(manifest); part['targets']=[target]; part['pageVariants']={target:manifest['pageVariants'][target]}
+              part['cssExceptions']={k:v for k,v in manifest.get('cssExceptions',{}).items() if k==target}
+              ipkg=isolated/'.github/article-components/hero'; ipkg.mkdir(parents=True,exist_ok=True)
+              (ipkg/'manifest.json').write_text(json.dumps(part,ensure_ascii=False,indent=2)+'\n')
+              subprocess.run([sys.executable,str(isolated/'scripts/prepare-article-heroes.py'),'--initialize-css','--out',str(base/'hero-pages.json')],check=True)
+              fresh=json.loads((ipkg/'css-bindings.json').read_text()); assert set(fresh)=={target}
+              for entry in fresh[target]:
+                  dst=pkg/entry['template']; src=ipkg/entry['template']
+                  assert dst.exists() and dst.read_bytes()==src.read_bytes(), 'Shared CSS profile would change'
+              original[target]=fresh[target]
+          assert all(before[k]==original[k] for k in before if k!=target)
+          (pkg/'css-bindings.json').write_text(json.dumps(original,ensure_ascii=False,indent=2)+'\n')
+          mp=root/'.github/site-shells/manifest.json'; shell=json.loads(mp.read_text()); old_shell=json.loads(json.dumps(shell))
+          entries=[p for p in shell['pages'] if p['output']==target]; assert len(entries)==1
+          old_baseline=entries[0]['baselineSha256']; entries[0]['baselineSha256']=digest
+          assert all(a==b for a,b in zip(old_shell['pages'],shell['pages']) if a['output']!=target)
+          mp.write_text(json.dumps(shell,ensure_ascii=False,indent=2)+'\n')
+          inventory=json.loads((root/'.github/article-components/site-inventory.json').read_text())
+          blob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert [p['gitBlob'] for p in inventory['files'] if p['path']==target]==[blob]
+          assert (root/target).read_bytes()==raw
+          changed=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
+          assert set(changed).issubset({'.github/site-shells/manifest.json','.github/article-components/hero/css-bindings.json'}),changed
+          report={'article':target,'sourceSha256':digest,'gitBlob':blob,'oldBaseline':old_baseline,'newBaseline':digest,'oldBinding':before[target],'newBinding':original[target],'otherBindingsUnchanged':True,'sharedCssUnchanged':True,'articleBytesUnchanged':True}
+          (Path(os.environ['RUNNER_TEMP'])/'lc-evidence/registrations.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+          python scripts/prepare-article-heroes.py --out "$RUNNER_TEMP/lc-evidence/hero-pages.json"
+          python scripts/check-rule-catalog.py --report "$RUNNER_TEMP/lc-evidence/rule-catalog-report.json"
+          python scripts/test-rule-catalog.py
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/site-shells/manifest.json .github/article-components/hero/css-bindings.json
+          if ! git diff --cached --quiet; then
+            git commit -m '[CF-Pages-Skip] Align only adopted light-curtain Hero bindings and source baseline'
+            git fetch origin main preview-final-light-curtain-current-20261004
+            test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
+            test "$(git rev-parse origin/preview-final-light-curtain-current-20261004)" = "$GITHUB_SHA"
+            git push origin HEAD:refs/heads/preview-final-light-curtain-current-20261004
+          fi
+          git rev-parse HEAD > "$RUNNER_TEMP/lc-evidence/source-sha.txt"
+          git diff origin/main -- .github/site-shells/manifest.json .github/article-components/hero/css-bindings.json > "$RUNNER_TEMP/lc-evidence/registrations.diff"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Execute unchanged production build and final validation blocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install PyYAML==6.0.2
+          python - <<'PY'
+          import yaml,subprocess,os
+          from pathlib import Path
+          workflow=Path('.github/workflows/pages.yml').read_bytes()
+          baseline=subprocess.check_output(['git','show','b354aba6dc92b995499b11292630686d010e4d5b:.github/workflows/pages.yml'])
+          assert workflow==baseline,'Production workflow was altered'
+          wanted=['Refuse stale generated headers and footers','Generate and verify approved article components','Prepare Pages artifact','Optimize published images to WebP','Verify final standalone publication']
+          steps=yaml.safe_load(workflow)['jobs']['build']['steps']
+          for name in wanted:
+              found=[s for s in steps if s.get('name')==name]; assert len(found)==1
+              step=found[0]; assert 'run' in step and 'uses' not in step
+              env=os.environ.copy(); env.update({k:str(v) for k,v in step.get('env',{}).items()})
+              env['GITHUB_SHA']=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+              print('::group::'+name,flush=True)
+              subprocess.run(['bash','-e','-o','pipefail','-c',step['run']],env=env,check=True)
+              print('::endgroup::',flush=True)
+          PY
+      - name: Materialize verified target and every runtime dependency on output-only branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_sha="$(git rev-parse HEAD)"
+          git fetch origin main preview-final-light-curtain-current-20261004
+          test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
+          test "$(git rev-parse origin/preview-final-light-curtain-current-20261004)" = "$source_sha"
+          git worktree add -b preview-lc-final-20261004 "$RUNNER_TEMP/lc-publication" "$source_sha"
+          export LC_SOURCE_SHA="$source_sha"
+          python - <<'PY'
+          from pathlib import Path
+          import re,json,shutil,hashlib,os
+          root=Path.cwd(); site=root/'_site'; out=Path(os.environ['RUNNER_TEMP'])/'lc-publication'; evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
+          target='articles/light-curtain-basic.html'
+          required={target,'assets/css/article-toc-v2.css','assets/js/article-toc-v2.js','assets/css/article-end-related.css','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js'}
+          for image in ['ogp','hero','structure','connection','stop-flow','installation']:
+              required.add('assets/images/light-curtain-basic/light-curtain-basic-'+image+'.webp')
+          pattern=re.compile(r'assets/[a-zA-Z0-9_./%+\-]+\.(?:webp|png|jpe?g|svg|ico|css|js|json|woff2?|ttf)')
+          scanned=set()
+          while required-scanned:
+              for rel in list(required-scanned):
+                  p=site/rel; assert p.is_file(),'Missing runtime dependency: '+rel
+                  scanned.add(rel)
+                  if p.suffix in {'.html','.css','.js'}:
+                      for match in pattern.findall(p.read_text()):
+                          if (site/match).is_file(): required.add(match)
+          html=(site/target).read_text()
+          for marker in ['dc-shell','dc-toc-data','articleFeedbackCard','article-integration-compat.js','article-end-related.css']:
+              assert marker in html,marker
+          assert 'data-preview-isolation' not in html and 'data-review-only' not in html
+          records=[]
+          for rel in sorted(required):
+              dst=out/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(site/rel,dst)
+              raw=dst.read_bytes(); assert raw==(site/rel).read_bytes()
+              records.append({'path':rel,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)})
+          report={'kind':'production-equivalent-final-preview','sourceBranch':'preview-final-light-curtain-current-20261004','sourceCommit':os.environ['LC_SOURCE_SHA'],'baseMain':'b354aba6dc92b995499b11292630686d010e4d5b','target':target,'doNotMerge':True,'artifacts':records}
+          payload=json.dumps(report,ensure_ascii=False,indent=2)+'\n'
+          (out/'light-curtain-preview-manifest.json').write_text(payload)
+          (evidence/'materialized-manifest.json').write_text(payload)
+          shutil.copy2(site/target,evidence/'light-curtain-final.html')
+          print('Materialized',len(records),'exact publication files; authored source branch preserved')
+          PY
+          git -C "$RUNNER_TEMP/lc-publication" config user.name 'github-actions[bot]'
+          git -C "$RUNNER_TEMP/lc-publication" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$RUNNER_TEMP/lc-publication" add articles/light-curtain-basic.html assets light-curtain-preview-manifest.json
+          git -C "$RUNNER_TEMP/lc-publication" diff --cached --check
+          git -C "$RUNNER_TEMP/lc-publication" commit -m 'DO NOT MERGE: verified light-curtain publication with runtime assets for final Preview'
+          git -C "$RUNNER_TEMP/lc-publication" push origin HEAD:refs/heads/preview-lc-final-20261004
+          git -C "$RUNNER_TEMP/lc-publication" rev-parse HEAD > "$RUNNER_TEMP/lc-evidence/preview-sha.txt"
+          git -C "$RUNNER_TEMP/lc-publication" diff --stat "$source_sha" HEAD > "$RUNNER_TEMP/lc-evidence/materialized-diff.txt"
+      - name: Upload registration and publication proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: light-curtain-final-preview-sources
-          path: /tmp/light-curtain-evidence/
+          name: light-curtain-final-publication-proof
+          path: |
+            ${{ runner.temp }}/lc-evidence/
+            ${{ runner.temp }}/integration-build/publication-checks.json
+            ${{ runner.temp }}/integration-build/publication-final-checks.json
+            ${{ runner.temp }}/integration-build/end-independent-checks.json
+            ${{ runner.temp }}/integration-build/source-verification.json
+            ${{ runner.temp }}/integration-build/link-audit.json
           retention-days: 14
           if-no-files-found: error

@@ -56,6 +56,13 @@ jobs:
             const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
             await page.evaluate(()=>document.fonts.ready);
             for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=650){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(80);}
+            const related=page.locator('.article-end-related-grid .related-card img');
+            if(await related.count()!==3) throw new Error('Expected 3 related-card images');
+            for(let i=0;i<await related.count();i++){
+              await related.nth(i).scrollIntoViewIfNeeded();
+              await page.waitForFunction(el=>el.complete&&el.naturalWidth>0,await related.nth(i).elementHandle(),{timeout:20000});
+              await related.nth(i).evaluate(el=>el.decode());
+            }
             await page.evaluate(()=>scrollTo(0,0)); await page.waitForTimeout(800);
             fs.writeFileSync(`review-evidence/${label}.html`,await page.content());
             const info=await page.evaluate(()=>({
@@ -80,6 +87,12 @@ jobs:
               await page.screenshot({path:`review-evidence/${label}-lightbox-${i+1}.png`});
               await page.keyboard.press('Escape'); await page.waitForTimeout(200);
             }
+            if(response.status()!==200) throw new Error(label+': HTTP '+response.status());
+            if(info.viewport!==info.documentWidth) throw new Error(label+': horizontal overflow');
+            if(errors.length) throw new Error(label+': page errors '+errors.join(' | '));
+            if(failed.length) throw new Error(label+': failed responses '+JSON.stringify(failed));
+            const relatedLoaded=info.images.filter(x=>/非常停止スイッチ|安全リレーとは|STOとは/.test(x.alt||''));
+            if(relatedLoaded.length!==3||relatedLoaded.some(x=>!x.complete||x.width===0||!x.src)) throw new Error(label+': related images not loaded '+JSON.stringify(relatedLoaded));
             result.conditions.push({label,status:response.status(),headers:await response.allHeaders(),info,errors,failed,lightbox});
             await context.close();
           }

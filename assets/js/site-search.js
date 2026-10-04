@@ -449,7 +449,7 @@
   const style = document.createElement('style');
   style.id = 'project-series-entry-style';
   style.textContent = `
-    .project-series-entry{margin:2px 0 12px;padding:0 20px;border-top:none!important}
+    .project-series-entry{margin:10px 0 12px;padding:0 20px;border-top:none!important}
     .project-series-entry__link{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;align-items:center;padding:14px 16px;border:1px solid #bfdbfe;border-radius:18px;background:linear-gradient(135deg,#eff6ff 0%,#fff 62%);box-shadow:0 6px 16px rgba(15,23,42,.05);color:#0f172a;text-decoration:none}
     .project-series-entry__link:hover,.project-series-entry__link:focus-visible{border-color:#60a5fa;background:#f8fbff;box-shadow:0 12px 24px rgba(15,23,42,.09);transform:translateY(-1px);text-decoration:none}
     .project-series-entry__media{width:180px;height:112px;overflow:hidden;border-radius:14px;border:1px solid #dbeafe;background:#fff}

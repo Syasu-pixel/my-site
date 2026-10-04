@@ -3874,6 +3874,8 @@
     .comic-lightbox__actions{display:flex;justify-content:center;margin-top:14px}
     .comic-lightbox__article{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 18px;border-radius:999px;background:#1d4ed8;color:#fff!important;font-size:14px;font-weight:900;text-decoration:none!important;box-shadow:0 8px 18px rgba(37,99,235,.2)}
     .comic-lightbox__hint{margin:8px 0 0;text-align:center;color:#64748b;font-size:11px;line-height:1.5}
+    .comic-lightbox__counter{margin:0 0 10px;text-align:center;color:#64748b;font-size:12px;font-weight:900;letter-spacing:.04em}
+    html[data-dc-theme=dark] .comic-lightbox__counter{color:#a8b5c4}
     html[data-dc-theme=dark] .comic-lightbox__panel{background:#152334;border-color:#40566f}
     html[data-dc-theme=dark] .comic-lightbox__close{background:#1b2d40;border-color:#526a84;color:#eef4fa}
     html[data-dc-theme=dark] .comic-lightbox__title{color:#eef4fa}
@@ -3967,6 +3969,14 @@
         min-height:106px !important;
         max-height:106px !important;
         padding:8px 10px !important;
+      }
+      /* OGP artwork should remain fully visible in all three featured cards. */
+      #featured .feature-main-media img,
+      #featured .mini-card-thumb img,
+      #featured .featured-mini-card img{
+        object-fit:contain !important;
+        object-position:center center !important;
+        background:#fff !important;
       }
 
       /* Separate the category filter tabs from the first shelf. */
@@ -4372,6 +4382,7 @@
       <div class="comic-lightbox__panel" role="document">
         <button class="comic-lightbox__close" id="comicLightboxClose" type="button" aria-label="4コマ漫画を閉じる">×</button>
         <h2 class="comic-lightbox__title" id="comicLightboxTitle">4コマ漫画</h2>
+        <p class="comic-lightbox__counter" id="comicLightboxCounter" aria-live="polite">1 / 5</p>
         <div class="comic-lightbox__image-wrap">
           <img class="comic-lightbox__image" id="comicLightboxImage" src="" alt="">
           <a class="comic-lightbox__hotspot" id="comicLightboxHotspot" href="#" aria-label="詳しくは記事で">詳しくは記事で</a>
@@ -4379,7 +4390,7 @@
         <div class="comic-lightbox__actions">
           <a class="comic-lightbox__article" id="comicLightboxArticle" href="#">この記事を詳しく読む</a>
         </div>
-        <p class="comic-lightbox__hint">画像外のグレー部分、右上の×、Escキーで閉じられます。</p>
+        <p class="comic-lightbox__hint">上下スワイプ・マウスホイール・↑↓キーで次の4コマへ。グレー部分、右上の×、Escキーで閉じられます。</p>
       </div>
     </div>
 
@@ -4620,73 +4631,33 @@
 <script>
 (() => {
   const root=document.querySelector('.instagram-comic-feed');
-  const lightbox=document.getElementById('comicLightbox');
-  if(!root||!lightbox)return;
-
-  const image=document.getElementById('comicLightboxImage');
-  const title=document.getElementById('comicLightboxTitle');
-  const article=document.getElementById('comicLightboxArticle');
-  const hotspot=document.getElementById('comicLightboxHotspot');
-  const close=document.getElementById('comicLightboxClose');
-  let opener=null;
-
-  const openLightbox=(slide)=>{
-    const img=slide.querySelector('img');
-    const caption=slide.querySelector('span');
-    if(!img)return;
-    opener=slide;
-    image.src=img.currentSrc||img.src;
-    image.alt=img.alt||'4コマ漫画';
-    title.textContent=caption?.textContent?.trim()||'4コマ漫画';
-    article.href=slide.href;
-    hotspot.href=slide.href;
-    lightbox.hidden=false;
-    document.body.classList.add('modal-open');
-    close.focus();
-  };
-
-  const closeLightbox=()=>{
-    if(lightbox.hidden)return;
-    lightbox.hidden=true;
-    image.src='';
-    document.body.classList.remove('modal-open');
-    opener?.focus();
-  };
-
-  root.querySelectorAll('.instagram-comic-slide').forEach(slide=>{
-    slide.setAttribute('aria-haspopup','dialog');
-    slide.addEventListener('click',e=>{
-      e.preventDefault();
-      openLightbox(slide);
-    });
-  });
-
-  close.addEventListener('click',closeLightbox);
-  lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'&&!lightbox.hidden){
-      e.preventDefault();
-      closeLightbox();
-    }
-  });
-})();
-</script>
-
-<script>
-(() => {
-  const root=document.querySelector('.instagram-comic-feed');
   if(!root)return;
+
   const viewport=root.querySelector('.instagram-comic-viewport');
   const track=root.querySelector('.instagram-comic-track');
   const slides=[...root.querySelectorAll('.instagram-comic-slide')];
   const dots=root.querySelector('.instagram-comic-dots');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let index=0,timer=null,resumeTimer=null,touchY=null,wheelLock=false,pageHeight=0;
+  const lightbox=document.getElementById('comicLightbox');
+  const lbImage=document.getElementById('comicLightboxImage');
+  const lbTitle=document.getElementById('comicLightboxTitle');
+  const lbArticle=document.getElementById('comicLightboxArticle');
+  const lbHotspot=document.getElementById('comicLightboxHotspot');
+  const lbClose=document.getElementById('comicLightboxClose');
+  const lbCounter=document.getElementById('comicLightboxCounter');
 
-  slides.forEach((_,i)=>{
+  let index=0,timer=null,resumeTimer=null,touchY=null,wheelLock=false,pageHeight=0;
+  let lbIndex=0,lbTouchY=null,lbWheelLock=false,opener=null;
+
+  slides.forEach((slide,i)=>{
     const d=document.createElement('i');
     if(i===0)d.classList.add('is-active');
     dots.appendChild(d);
+    slide.setAttribute('aria-haspopup','dialog');
+    slide.addEventListener('click',e=>{
+      e.preventDefault();
+      openLightbox(i,slide);
+    });
   });
 
   const measure=()=>{
@@ -4694,29 +4665,34 @@
       slide.style.height='auto';
       slide.style.flex='0 0 auto';
     });
-    pageHeight=Math.ceil(Math.max(...slides.map(slide=>slide.scrollHeight)));
+    pageHeight=Math.ceil(Math.max(1,...slides.map(slide=>slide.scrollHeight)));
     viewport.style.height=pageHeight+'px';
     slides.forEach(slide=>{
       slide.style.height=pageHeight+'px';
       slide.style.flex='0 0 '+pageHeight+'px';
     });
   };
-  const paint=()=>{
+
+  const paint=(instant=false)=>{
+    if(instant)track.style.transition='none';
     track.style.transform='translateY(-'+(index*pageHeight)+'px)';
     [...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index));
+    if(instant)requestAnimationFrame(()=>requestAnimationFrame(()=>{track.style.transition='';}));
   };
-  const layout=()=>{measure();paint();};
+
+  const layout=()=>{measure();paint(true);};
+
   const step=(dir)=>{
-    index=(index+dir+slides.length)%slides.length;
-    paint();
+    const next=(index+dir+slides.length)%slides.length;
+    const wraps=(dir>0&&index===slides.length-1)||(dir<0&&index===0);
+    index=next;
+    paint(wraps);
   };
-  const stopAuto=()=>{
-    clearInterval(timer);
-    timer=null;
-  };
+
+  const stopAuto=()=>{clearInterval(timer);timer=null;};
   const startAuto=()=>{
     stopAuto();
-    if(!reduced.matches)timer=setInterval(()=>step(1),7000);
+    if(!reduced.matches&&!document.hidden&&lightbox.hidden)timer=setInterval(()=>step(1),7000);
   };
   const userStep=(dir)=>{
     step(dir);
@@ -4733,15 +4709,11 @@
     setTimeout(()=>wheelLock=false,550);
   },{passive:false});
 
-  viewport.addEventListener('touchstart',e=>{
-    touchY=e.touches[0].clientY;
-    stopAuto();
-  },{passive:true});
+  viewport.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY;stopAuto();},{passive:true});
   viewport.addEventListener('touchend',e=>{
     if(touchY==null)return;
     const dy=e.changedTouches[0].clientY-touchY;
-    if(Math.abs(dy)>35)userStep(dy<0?1:-1);
-    else startAuto();
+    if(Math.abs(dy)>35)userStep(dy<0?1:-1);else startAuto();
     touchY=null;
   },{passive:true});
 
@@ -4750,14 +4722,83 @@
     if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();userStep(-1);}
   });
 
+  const renderLightbox=()=>{
+    const slide=slides[lbIndex],img=slide?.querySelector('img'),caption=slide?.querySelector('span');
+    if(!slide||!img)return;
+    lbImage.src=img.currentSrc||img.src;
+    lbImage.alt=img.alt||'4コマ漫画';
+    lbTitle.textContent=caption?.textContent?.trim()||'4コマ漫画';
+    lbArticle.href=slide.href;
+    lbHotspot.href=slide.href;
+    lbCounter.textContent=(lbIndex+1)+' / '+slides.length;
+  };
+
+  const openLightbox=(i,slide)=>{
+    opener=slide;
+    lbIndex=i;
+    renderLightbox();
+    lightbox.hidden=false;
+    document.body.classList.add('modal-open');
+    stopAuto();
+    lbClose.focus();
+  };
+
+  const closeLightbox=()=>{
+    if(lightbox.hidden)return;
+    lightbox.hidden=true;
+    lbImage.src='';
+    document.body.classList.remove('modal-open');
+    opener?.focus();
+    startAuto();
+  };
+
+  const lightboxStep=(dir)=>{
+    lbIndex=(lbIndex+dir+slides.length)%slides.length;
+    index=lbIndex;
+    paint(true);
+    renderLightbox();
+  };
+
+  lbClose.addEventListener('click',closeLightbox);
+  lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
+  lightbox.addEventListener('wheel',e=>{
+    if(lightbox.hidden||Math.abs(e.deltaY)<12||lbWheelLock)return;
+    e.preventDefault();
+    lbWheelLock=true;
+    lightboxStep(e.deltaY>0?1:-1);
+    setTimeout(()=>lbWheelLock=false,500);
+  },{passive:false});
+  lightbox.addEventListener('touchstart',e=>{lbTouchY=e.touches[0].clientY;},{passive:true});
+  lightbox.addEventListener('touchend',e=>{
+    if(lbTouchY==null)return;
+    const dy=e.changedTouches[0].clientY-lbTouchY;
+    if(Math.abs(dy)>42)lightboxStep(dy<0?1:-1);
+    lbTouchY=null;
+  },{passive:true});
+
+  document.addEventListener('keydown',e=>{
+    if(!lightbox.hidden){
+      if(e.key==='Escape'){e.preventDefault();closeLightbox();return;}
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();lightboxStep(1);return;}
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();lightboxStep(-1);return;}
+    }
+  });
+
   root.addEventListener('mouseenter',stopAuto);
-  root.addEventListener('mouseleave',startAuto);
+  root.addEventListener('mouseleave',()=>{if(lightbox.hidden)startAuto();});
   root.addEventListener('focusin',stopAuto);
-  root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))startAuto();});
+  root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)&&lightbox.hidden)startAuto();});
   reduced.addEventListener?.('change',()=>{if(reduced.matches)stopAuto();else startAuto();});
-  window.addEventListener('resize',layout);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto();else startAuto();});
+
+  const resizeObserver=new ResizeObserver(()=>layout());
+  resizeObserver.observe(viewport);
+  Promise.all(slides.map(slide=>{
+    const img=slide.querySelector('img');
+    if(!img||img.complete)return Promise.resolve();
+    return img.decode?.().catch(()=>{})||Promise.resolve();
+  })).finally(()=>{layout();startAuto();});
   layout();
-  startAuto();
 })();
 </script>
 

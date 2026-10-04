@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 45
     env:
       FINAL_BRANCH: preview-self-hold-circuit-final-20261004
+      SOURCE_COMMIT: 1c00b9adb636024261b30483d7b7beadb772fe92
       TARGET: articles/self-hold-circuit.html
       REVIEW_URL: https://preview-self-hold-circuit-fi.denkicontrol-preview.pages.dev/articles/self-hold-circuit.html
       REVIEW_COPY_ASSETS: '0'
@@ -45,6 +46,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
+          # Always restore the authored article before regeneration. The same Preview branch
+          # is later materialized with publication HTML, so a rerun must not treat that
+          # generated HTML as the editable source.
+          git show "$SOURCE_COMMIT:$TARGET" > "$TARGET"
+          git add "$TARGET"
           set +e
           git merge --no-ff --no-commit origin/main
           merge_status=$?

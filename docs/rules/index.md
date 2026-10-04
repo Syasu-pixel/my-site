@@ -125,6 +125,8 @@
 | [docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md](../ai-editorial-tuesday-hard-stop-audit-2026-09-09.md) — AI編集部 火曜日フロー hard-stop 先回り監査 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/air-pneumatic-troubleshooting-hub-design.md](../air-pneumatic-troubleshooting-hub-design.md) — Air Pneumatic Troubleshooting Hub Design | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |
+| [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
+| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |

@@ -62,9 +62,6 @@
 | [docs/codex-update-rules.md](../codex-update-rules.md) — CODEX反映ルール（codex update rules） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
 | [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
-| [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/dashboard-progress-status-v066.md](../dashboard-progress-status-v066.md) — AI編集部 進行状況表示 v0.6.6 | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
@@ -126,6 +123,8 @@
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
@@ -178,7 +177,6 @@
 | [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
-| [assets/js/site-analytics.js](../../assets/js/site-analytics.js) | サイト横断のアクセス解析、Metricool tracker、SNS流入計測、または解析タグの公開・停止・検査を扱う場合。 本番ホスト限定でMetricool trackerを起動する共通解析ローダー。Previewでは外部送信しない。 |
 | [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
@@ -188,9 +186,9 @@
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
-| [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
 | [scripts/check-article-hero-browser.mjs](../../scripts/check-article-hero-browser.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
 | [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

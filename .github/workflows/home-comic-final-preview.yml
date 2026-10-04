@@ -90,14 +90,14 @@ jobs:
           const beforeCount=await page.locator('.instagram-comic-slide.is-current').count();
           const beforeCounter=(await page.locator('.instagram-comic-dots').innerText()).trim();
           assert(beforeCount===1,'comic must render exactly one current slide: '+beforeCount);
-          assert(/^1 \/ \\d+$/.test(beforeCounter),'comic initial counter mismatch: '+beforeCounter);
+          assert(beforeCounter.startsWith('1 / '),'comic initial counter mismatch: '+beforeCounter);
           await page.waitForTimeout(7600);
           const after=await current().getAttribute('href');
           const afterCount=await page.locator('.instagram-comic-slide.is-current').count();
           const afterCounter=(await page.locator('.instagram-comic-dots').innerText()).trim();
           assert(before!==after,'comic auto advance did not change the rendered item');
           assert(afterCount===1,'comic must keep exactly one current slide: '+afterCount);
-          assert(/^2 \/ \\d+$/.test(afterCounter),'comic counter did not advance: '+afterCounter);
+          assert(afterCounter.startsWith('2 / '),'comic counter did not advance: '+afterCounter);
           const currentImage=await current().locator('img').evaluate(img=>({complete:img.complete,naturalWidth:img.naturalWidth}));
           assert(currentImage.complete&&currentImage.naturalWidth>0,'comic next image is not loaded before display');
           results.comicAuto={before,after,beforeCounter,afterCounter,currentImage};

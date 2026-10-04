@@ -17,6 +17,7 @@
 | [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 
 ## 条件付き
+| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 | 文書 | 適用条件・扱い |
 |---|---|

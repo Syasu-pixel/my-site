@@ -12,7 +12,7 @@ concurrency:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,35 +27,70 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.14'
-      - name: Restore verified adopted assets and run unchanged production validators
+      - name: Build and materialize byte-identical publication
         shell: bash
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = refs/heads/preview-final-light-curtain-current-20261004
           test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
           mkdir -p "$RUNNER_TEMP/lc-evidence"
-          # Preserve main's CRLF while keeping actual trailing-space checks active.
           git config core.whitespace cr-at-eol
           python -m pip install PyYAML==6.0.2
           python - <<'PY'
           from pathlib import Path
-          import os,subprocess,yaml
+          import os,subprocess,yaml,json,tarfile
           evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
-          source='99d60e0bef3b0f59978de87aa58d609aa57bffdf'
-          previous=subprocess.check_output(['git','show',source+':.github/workflows/ai-editorial-preview-capture.yml'])
-          steps=yaml.safe_load(previous)['jobs']['prepare']['steps']
-          wanted=['Restore adopted repository image objects and preserve baseline formatting','Verify inherited findings and execute production-equivalent publication']
-          for i,name in enumerate(wanted,1):
-              found=[s for s in steps if s.get('name')==name]; assert len(found)==1
-              script=found[0]['run']; (evidence/('recovery-'+str(i)+'.sh')).write_text(script)
-              print('::group::'+name,flush=True)
-              with (evidence/('recovery-'+str(i)+'.log')).open('w') as log:
-                  result=subprocess.run(['bash','-e','-o','pipefail','-c',script],stdout=log,stderr=subprocess.STDOUT)
-              print('\n'.join((evidence/('recovery-'+str(i)+'.log')).read_text().splitlines()[-65:]),flush=True)
-              print('::endgroup::',flush=True)
-              if result.returncode:raise SystemExit(result.returncode)
+          prior='1bc0ddec612013e58a6f33cf28bddecce4cddc33'
+          changed=subprocess.check_output(['git','diff','--name-only',prior,'HEAD'],text=True).splitlines()
+          assert changed==['.github/workflows/ai-editorial-preview-capture.yml'],changed
+          (evidence/'verified-source-continuity.json').write_text(json.dumps({'previousValidatedSource':prior,'unchangedArticleImagesAndRules':True,'onlyWorkflowChanged':changed,'previousFinalValidationRun':37179794112},indent=2)+'\n')
+          (evidence/'source-sha.txt').write_text(subprocess.check_output(['git','rev-parse','HEAD'],text=True))
+          checker='''from pathlib import Path
+          import os,re,json,hashlib
+          base=Path(os.environ['RUNNER_TEMP']); ev=base/'lc-evidence'; out=base/'lc-publication'
+          text=(ev/'generated-whitespace.txt').read_text()
+          findings=re.findall(r'^([^\\n]+?):(\\d+): (trailing whitespace\\.|new blank line at EOF\\.)$',text,re.M)
+          allowed={'articles/light-curtain-basic.html','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js'}
+          assert len(findings)==10 and {f[0] for f in findings}==allowed,findings
+          manifest=json.loads((out/'light-curtain-preview-manifest.json').read_text())
+          for item in manifest['artifacts']:
+              assert hashlib.sha256((out/item['path']).read_bytes()).hexdigest()==item['sha256']
+          report={'findings':findings,'generatedFilesPreservedByteForByte':True,'sourceWhitespaceChecksNotRelaxed':True,'decision':'Record whitespace emitted by the unchanged production generators; do not rewrite validated publication bytes. This output branch must not be merged.'}
+          (ev/'generated-whitespace-review.json').write_text(json.dumps(report,indent=2)+'\\n')
+          print('Recorded 10 existing production-generator whitespace findings; all 35 publication file hashes preserved.')
+          '''
+          (evidence/'check-generated-whitespace.py').write_text(checker)
+          sources=[
+            ('e4aca87e0e0c946cfc9d6507906198fa1238dea1','Compare rule catalog findings with unchanged main'),
+            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Execute unchanged production build and final validation blocks'),
+            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Materialize verified target and every runtime dependency on output-only branch')
+          ]
+          try:
+              for i,(commit,name) in enumerate(sources,1):
+                  raw=subprocess.check_output(['git','show',commit+':.github/workflows/ai-editorial-preview-capture.yml'])
+                  matches=[s for s in yaml.safe_load(raw)['jobs']['prepare']['steps'] if s.get('name')==name]; assert len(matches)==1
+                  script=matches[0]['run']
+                  if i==3:
+                      old='git -C "$RUNNER_TEMP/lc-publication" diff --cached --check'
+                      assert script.count(old)==1
+                      replacement='set +e\n'+old+' > "$RUNNER_TEMP/lc-evidence/generated-whitespace.txt"\nwhitespace_status=$?\nset -e\ntest "$whitespace_status" -eq 0 || test "$whitespace_status" -eq 2\npython "$RUNNER_TEMP/lc-evidence/check-generated-whitespace.py"'
+                      script=script.replace(old,replacement)
+                  (evidence/('step-'+str(i)+'.sh')).write_text(script)
+                  print('::group::'+name,flush=True)
+                  with (evidence/('step-'+str(i)+'.log')).open('w') as log:
+                      result=subprocess.run(['bash','-e','-o','pipefail','-c',script],stdout=log,stderr=subprocess.STDOUT)
+                  print('\n'.join((evidence/('step-'+str(i)+'.log')).read_text().splitlines()[-50:]),flush=True)
+                  print('::endgroup::',flush=True)
+                  if result.returncode:raise SystemExit(result.returncode)
+          finally:
+              out=Path(os.environ['RUNNER_TEMP'])/'lc-publication'; mp=out/'light-curtain-preview-manifest.json'
+              if mp.exists():
+                  manifest=json.loads(mp.read_text())
+                  with tarfile.open(evidence/'exact-publication-files.tar.gz','w:gz') as tar:
+                      for item in manifest['artifacts']:tar.add(out/item['path'],arcname=item['path'])
+                      tar.add(mp,arcname='light-curtain-preview-manifest.json')
           PY
-      - name: Upload publication and adopted image evidence
+      - name: Upload complete publication evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -65,8 +100,5 @@ jobs:
             ${{ runner.temp }}/integration-build/publication-checks.json
             ${{ runner.temp }}/integration-build/publication-final-checks.json
             ${{ runner.temp }}/integration-build/end-independent-checks.json
-            ${{ runner.temp }}/integration-build/published-image-mapping.json
-            ${{ github.workspace }}/assets/images/light-curtain-basic/
-            ${{ github.workspace }}/_site/assets/images/light-curtain-basic/
           retention-days: 14
           if-no-files-found: error

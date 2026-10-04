@@ -125,8 +125,6 @@
 | [docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md](../ai-editorial-tuesday-hard-stop-audit-2026-09-09.md) — AI編集部 火曜日フロー hard-stop 先回り監査 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/air-pneumatic-troubleshooting-hub-design.md](../air-pneumatic-troubleshooting-hub-design.md) — Air Pneumatic Troubleshooting Hub Design | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |
-| [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
-| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
@@ -144,6 +142,8 @@
 | [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
+| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・保存状態を確認する場合。 |
 
 ## 実装・設定の参照先
 
@@ -375,3 +375,5 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
+- `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `a_colorful_japanese_manga_style_infographic_comic.png`：2026-10-02に正式採用した画像生成セッションの一時ファイル名。GitHub常設正本への転送完了前の採用記録として保持する。
+- `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `assets/images/comics/npn-pnp-basic/npn-pnp-basic-yonkoma-01.png`：正式採用画像の想定配置先。現時点ではGitHubバイナリ正本への転送前のため未実在。

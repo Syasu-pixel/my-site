@@ -1,22 +1,20 @@
-# Temporary Preview-only builder. DO NOT MERGE into main.
-name: Light curtain production-equivalent Preview
+# Output-only Preview verification. DO NOT MERGE this branch into main.
+name: Light curtain external final Preview verification
 on:
   push:
-    branches: [preview-final-light-curtain-current-20261004]
+    branches: [preview-lc-final-20261004]
     paths: [.github/workflows/ai-editorial-preview-capture.yml]
 permissions:
-  contents: write
-concurrency:
-  group: light-curtain-final-preview-20261004
-  cancel-in-progress: false
+  contents: read
+  checks: read
 jobs:
-  prepare:
+  verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           show-progress: false
       - uses: actions/setup-node@v4
         with:
@@ -24,81 +22,115 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.14'
-      - name: Build and materialize byte-identical publication
-        shell: bash
+      - name: Install locked browser tooling and Japanese fonts
         run: |
-          set -euo pipefail
-          test "$GITHUB_REF" = refs/heads/preview-final-light-curtain-current-20261004
-          test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
-          mkdir -p "$RUNNER_TEMP/lc-evidence"
-          git config core.whitespace cr-at-eol
-          python -m pip install PyYAML==6.0.2
-          python - <<'PY'
-          from pathlib import Path
-          import os,subprocess,yaml,json,tarfile
-          evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
-          prior='1bc0ddec612013e58a6f33cf28bddecce4cddc33'
-          changed=subprocess.check_output(['git','diff','--name-only',prior,'HEAD'],text=True).splitlines()
-          assert changed==['.github/workflows/ai-editorial-preview-capture.yml'],changed
-          (evidence/'verified-source-continuity.json').write_text(json.dumps({'previousValidatedSource':prior,'unchangedArticleImagesAndRules':True,'onlyWorkflowChanged':changed,'previousFinalValidationRun':37179794112},indent=2)+'\n')
-          (evidence/'source-sha.txt').write_text(subprocess.check_output(['git','rev-parse','HEAD'],text=True))
-          checker='''from pathlib import Path
-          import os,re,json,hashlib
-          base=Path(os.environ['RUNNER_TEMP']); ev=base/'lc-evidence'; out=base/'lc-publication'
-          text=(ev/'generated-whitespace.txt').read_text()
-          findings=re.findall(r'^([^\\n]+?):(\\d+): (trailing whitespace\\.|new blank line at EOF\\.)$',text,re.M)
-          allowed={'articles/light-curtain-basic.html','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js'}
-          assert len(findings)==10 and {f[0] for f in findings}==allowed,findings
-          manifest=json.loads((out/'light-curtain-preview-manifest.json').read_text())
-          for item in manifest['artifacts']:
-              assert hashlib.sha256((out/item['path']).read_bytes()).hexdigest()==item['sha256']
-          report={'findings':findings,'generatedFilesPreservedByteForByte':True,'sourceWhitespaceChecksNotRelaxed':True,'decision':'Record whitespace emitted by the unchanged production generators; do not rewrite validated publication bytes. This output branch must not be merged.'}
-          (ev/'generated-whitespace-review.json').write_text(json.dumps(report,indent=2)+'\\n')
-          print('Recorded 10 existing production-generator whitespace findings; all 35 publication file hashes preserved.')
-          '''
-          (evidence/'check-generated-whitespace.py').write_text(checker)
-          sources=[
-            ('e4aca87e0e0c946cfc9d6507906198fa1238dea1','Compare rule catalog findings with unchanged main'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Execute unchanged production build and final validation blocks'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Materialize verified target and every runtime dependency on output-only branch')
-          ]
-          try:
-              for i,(commit,name) in enumerate(sources,1):
-                  raw=subprocess.check_output(['git','show',commit+':.github/workflows/ai-editorial-preview-capture.yml'])
-                  matches=[s for s in yaml.safe_load(raw)['jobs']['prepare']['steps'] if s.get('name')==name]; assert len(matches)==1
-                  script=matches[0]['run']
-                  if i==3:
-                      old='git -C "$RUNNER_TEMP/lc-publication" diff --cached --check'
-                      assert script.count(old)==1
-                      replacement='set +e\n'+old+' > "$RUNNER_TEMP/lc-evidence/generated-whitespace.txt"\nwhitespace_status=$?\nset -e\ntest "$whitespace_status" -eq 0 || test "$whitespace_status" -eq 2\npython "$RUNNER_TEMP/lc-evidence/check-generated-whitespace.py"'
-                      script=script.replace(old,replacement)
-                  (evidence/('step-'+str(i)+'.sh')).write_text(script)
-                  print('::group::'+name,flush=True)
-                  with (evidence/('step-'+str(i)+'.log')).open('w') as log:
-                      result=subprocess.run(['bash','-e','-o','pipefail','-c',script],stdout=log,stderr=subprocess.STDOUT)
-                  print('\n'.join((evidence/('step-'+str(i)+'.log')).read_text().splitlines()[-50:]),flush=True)
-                  print('::endgroup::',flush=True)
-                  if result.returncode:raise SystemExit(result.returncode)
-          finally:
-              out=Path(os.environ['RUNNER_TEMP'])/'lc-publication'; mp=out/'light-curtain-preview-manifest.json'
-              if mp.exists():
-                  manifest=json.loads(mp.read_text())
-                  with tarfile.open(evidence/'exact-publication-files.tar.gz','w:gz') as tar:
-                      for item in manifest['artifacts']:tar.add(out/item['path'],arcname=item['path'])
-                      tar.add(mp,arcname='light-curtain-preview-manifest.json')
-          PY
-      - name: Upload complete publication evidence
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify external URL and four browser modes without sending user data
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          cat > .lc-external-verify.mjs <<'JS'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import crypto from 'node:crypto';
+          import assert from 'node:assert/strict';
+          const out=path.join(process.env.RUNNER_TEMP||'/tmp','lc-browser-proof');
+          await fs.mkdir(out,{recursive:true});
+          const manifest=JSON.parse(await fs.readFile('light-curtain-preview-manifest.json','utf8'));
+          assert.equal(manifest.kind,'production-equivalent-final-preview');assert.equal(manifest.doNotMerge,true);
+          const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+          const save=(name,value)=>fs.writeFile(path.join(out,name),JSON.stringify(value,null,2)+'\n');
+          const pause=ms=>new Promise(r=>setTimeout(r,ms));
+          const report={sourceCommit:manifest.sourceCommit,previewCommit:process.env.GITHUB_SHA,startedAt:new Date().toISOString(),http:[],views:[],errors:[]};
+          let browser;
+          try {
+            const checksURL=`https://api.github.com/repos/Syasu-pixel/my-site/commits/${process.env.GITHUB_SHA}/check-runs?per_page=30`;
+            let provider;
+            for(let attempt=0;attempt<72;attempt++) {
+              const response=await fetch(checksURL,{headers:{Authorization:`Bearer ${process.env.GITHUB_TOKEN}`,Accept:'application/vnd.github+json'},signal:AbortSignal.timeout(25000)});
+              assert.equal(response.status,200,'GitHub check-run lookup');
+              const data=await response.json();const cf=data.check_runs?.find(x=>x.name==='Cloudflare Pages');
+              if(cf?.conclusion==='success'){provider=cf;break;}
+              if(cf?.status==='completed' && !['success',null].includes(cf.conclusion))throw new Error('Cloudflare deployment: '+cf.conclusion);
+              if(attempt%6===0)console.log('Cloudflare check:',cf?.status||'not yet reported');
+              await pause(10000);
+            }
+            assert(provider,'Cloudflare did not report a successful deployment');
+            const urls=[...(provider.output?.summary||'').matchAll(/href=['"](https:\/\/[^'"/]+\.denkicontrol-preview\.pages\.dev)\/?['"]/g)].map(x=>x[1]);
+            assert(urls.length>=1,'Provider did not return a Preview URL');
+            report.provider={id:provider.id,headSha:provider.head_sha,conclusion:provider.conclusion,urls,detailsURL:provider.details_url};
+            const origin=urls.at(-1);const targetURL=origin+'/'+manifest.target;report.previewURL=targetURL;
+            const localManifest=await fs.readFile('light-curtain-preview-manifest.json');let deployed=false;
+            for(let i=0;i<18;i++){
+              try{const r=await fetch(origin+'/light-curtain-preview-manifest.json',{signal:AbortSignal.timeout(15000)});if(r.ok && hash(Buffer.from(await r.arrayBuffer()))===hash(localManifest)){deployed=true;break;}}catch{}
+              await pause(5000);
+            }
+            assert(deployed,'Deployed manifest differs from verified local artifact');
+            for(let i=0;i<manifest.artifacts.length;i+=6){
+              await Promise.all(manifest.artifacts.slice(i,i+6).map(async file=>{
+                const response=await fetch(origin+'/'+file.path,{signal:AbortSignal.timeout(30000)});const bytes=Buffer.from(await response.arrayBuffer());
+                const item={path:file.path,status:response.status,finalURL:response.url,sha256:hash(bytes),expectedSha256:file.sha256};report.http.push(item);
+                assert.equal(item.status,200,file.path);assert.equal(item.sha256,item.expectedSha256,'Deployed bytes differ: '+file.path);
+                if(file.path===manifest.target){report.robotsHeader=response.headers.get('x-robots-tag');assert(report.robotsHeader?.includes('noindex'),'External Preview must be noindex');assert.notEqual(file.sha256,'893e60d8f29c2a447400142dceda8a99255662f37e0e0f30a2ed01b914419c81','Raw authoring HTML cannot be final Preview');await fs.writeFile(path.join(out,'external-article.html'),bytes);report.finalURL=response.url;}
+              }));
+            }
+            await save('external-http.json',report);console.log('Verified exact publication bytes over HTTP:',report.http.length);
+            browser=await chromium.launch();
+            for(const viewport of [{name:'desktop',width:1440,height:1000,mobile:false},{name:'mobile',width:390,height:844,mobile:true}]){
+              for(const theme of ['light','dark']){
+                const label=viewport.name+'-'+theme;const view={label,theme,width:viewport.width,height:viewport.height,checks:{},pageErrors:[],badResponses:[],blocked:[],contrastWarnings:[]};report.views.push(view);
+                const ctx=await browser.newContext({viewport:{width:viewport.width,height:viewport.height},deviceScaleFactor:1,isMobile:viewport.mobile,hasTouch:viewport.mobile,colorScheme:theme,reducedMotion:'reduce'});
+                await ctx.addInitScript(value=>{localStorage.setItem('dc-theme',value);localStorage.setItem('dc-theme-explicit-v2','1');},theme);
+                await ctx.route('**/*',async route=>{const req=route.request(),u=new URL(req.url());if(!['GET','HEAD'].includes(req.method()) || (u.origin!==origin && !['data:','blob:'].includes(u.protocol))){view.blocked.push({url:req.url(),method:req.method()});return route.abort();}return route.continue();});
+                const page=await ctx.newPage();page.setDefaultTimeout(12000);
+                page.on('pageerror',error=>view.pageErrors.push(error.message));page.on('response',r=>{if(r.url().startsWith(origin)&&r.status()>=400)view.badResponses.push({url:r.url(),status:r.status()});});
+                const check=(key,value)=>{view.checks[key]=Boolean(value);};const screenshot=async name=>page.screenshot({path:path.join(out,label+'-'+name+'.png'),animations:'disabled'});
+                try{
+                  const response=await page.goto(targetURL,{waitUntil:'domcontentloaded',timeout:60000});assert.equal(response.status(),200);
+                  await page.waitForSelector('.dc-toc-button');await page.waitForFunction(()=>document.querySelectorAll('.article-figure img[data-dc-lightbox-ready="true"]').length===4);
+                  await page.evaluate(async()=>{document.querySelectorAll('img[src]').forEach(img=>img.loading='eager');await Promise.allSettled([...document.images].filter(img=>img.getAttribute('src')).map(img=>img.decode()));});
+                  await page.evaluate(()=>document.fonts.ready);await pause(500);
+                  check('expectedTheme',await page.getAttribute('html','data-dc-theme')===theme);check('commonHeader',await page.locator('header.dc-shell').count()===1);
+                  check('bodyFourImages',await page.locator('.article-figure img').count()===4);check('singleFeedbackCard',await page.locator('#articleFeedbackCard').count()===1);check('feedbackButtons',await page.locator('#articleFeedbackCard [data-feedback-vote]').count()===2);
+                  check('relatedCards',await page.locator('.related-grid a').count()>=2);check('oneLightbox',await page.locator('.dc-image-lightbox').count()===1);
+                  view.heroBackground=await page.locator('.article-hero').evaluate(e=>[getComputedStyle(e).backgroundImage,getComputedStyle(e,'::before').backgroundImage,getComputedStyle(e,'::after').backgroundImage].join(' '));check('adoptedHero',view.heroBackground.includes('light-curtain-basic-hero.webp'));
+                  view.missingImages=await page.locator('img[src]').evaluateAll(imgs=>imgs.filter(img=>!img.complete||img.naturalWidth===0).map(img=>img.currentSrc||img.src));check('allImagesLoaded',view.missingImages.length===0);
+                  view.overflow=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('main *')].filter(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.position!=='fixed'&&r.width>0&&(r.left < -2 ||r.right>innerWidth+2)&&!e.closest('.table-wrap');}).slice(0,15).map(e=>({tag:e.tagName,className:e.className,width:e.getBoundingClientRect().width}))}));check('noPageHorizontalOverflow',view.overflow.scrollWidth<=view.overflow.width+2);
+                  await page.screenshot({path:path.join(out,label+'-full.png'),fullPage:true,animations:'disabled'});await page.evaluate(()=>window.scrollTo(0,0));await pause(150);await screenshot('top');
+                  await page.locator('#dc-menu-toggle').click();await page.locator('#dc-theme-toggle').click();check('themeToggle',await page.getAttribute('html','data-dc-theme')!==theme);await page.locator('#dc-theme-toggle').click();await page.locator('#dc-menu-toggle').click();check('themeRestored',await page.getAttribute('html','data-dc-theme')===theme);
+                  await page.evaluate(()=>window.scrollTo(0,1000));await pause(150);view.header=await page.locator('header.dc-shell').evaluate(e=>({position:getComputedStyle(e).position,top:e.getBoundingClientRect().top,bottom:e.getBoundingClientRect().bottom}));check('fixedHeader',view.header.position==='fixed'&&Math.abs(view.header.top)<2);
+                  await page.locator('.dc-toc-button').click();check('tocOpens',await page.locator('#dc-toc-dialog').evaluate(e=>e.open));await screenshot('toc');
+                  const tocHref=await page.locator('.dc-toc-list a').nth(1).getAttribute('href');await page.locator('.dc-toc-list a').nth(1).click();await pause(200);check('tocCloses',await page.locator('#dc-toc-dialog').evaluate(e=>!e.open));check('tocJump',new URL(page.url()).hash===tocHref);
+                  view.tocClearance=await page.evaluate(href=>{const target=document.getElementById(decodeURIComponent(href.slice(1)));const h=target?.matches('h2,h3')?target:target?.querySelector('h2,h3')||target;return {headingTop:h?.getBoundingClientRect().top,headerBottom:document.querySelector('header.dc-shell').getBoundingClientRect().bottom};},tocHref);check('tocHeadingNotHidden',view.tocClearance.headingTop>=view.tocClearance.headerBottom-2);
+                  for(let i=0;i<4;i++){
+                    const image=page.locator('.article-figure img').nth(i);await image.evaluate(e=>window.scrollTo(0,window.scrollY+e.closest('figure').getBoundingClientRect().top-100));await pause(120);await screenshot('body-'+(i+1));
+                    const src=await image.evaluate(e=>e.currentSrc);if(viewport.mobile)await image.tap();else await image.click();await page.waitForSelector('.dc-image-lightbox:not([hidden])');check('image'+(i+1)+'Enlarges',await page.locator('.dc-image-lightbox__image').evaluate((e,src)=>e.src===src&&e.alt.length>0,src));await page.locator('.dc-image-lightbox__image').evaluate(img=>img.decode());if(i===1)await screenshot('zoom');
+                    if(viewport.mobile)await page.locator('.dc-image-lightbox__close').tap();else await page.keyboard.press('Escape');check('image'+(i+1)+'Closes',await page.locator('.dc-image-lightbox').evaluate(e=>e.hidden));
+                  }
+                  const table=page.locator('.table-wrap').first();if(await table.count()){
+                    await table.evaluate(e=>window.scrollTo(0,window.scrollY+e.getBoundingClientRect().top-140));await pause(150);view.table=await table.evaluate(e=>({scrollWidth:e.scrollWidth,clientWidth:e.clientWidth,hasHint:e.previousElementSibling?.classList.contains('dc-horizontal-scroll-hint'),hintHidden:e.previousElementSibling?.hidden,hintText:e.previousElementSibling?.textContent}));const needed=view.table.scrollWidth>view.table.clientWidth+2;check('scrollHintMatchesOverflow',view.table.hasHint && view.table.hintHidden===!needed);await screenshot('table');if(needed){await table.evaluate(e=>e.scrollLeft=100);await pause(100);check('scrollHintHidesAfterScroll',await table.evaluate(e=>e.previousElementSibling.hidden&&e.scrollLeft>0));}
+                  }
+                  for(const [name,selector] of [['feedback','#articleFeedbackCard'],['related','.related-grid']]){const e=page.locator(selector).first();await e.evaluate(e=>window.scrollTo(0,window.scrollY+e.getBoundingClientRect().top-100));await pause(100);await screenshot(name);}
+                  view.contrastWarnings=await page.evaluate(()=>{
+                    const color=s=>{const m=s.match(/[\d.]+/g);return m?.length>=3?[+m[0],+m[1],+m[2],m[3]===undefined?1:+m[3]]:[0,0,0,0];};const blend=(fg,bg)=>[0,1,2].map(i=>fg[i]*fg[3]+bg[i]*(1-fg[3]));const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);const result=[];
+                    for(const e of document.querySelectorAll('main p,main li,main th,main td,main h2,main h3,main strong,main figcaption')){if(!e.textContent.trim()||!e.getClientRects().length||e.closest('.article-hero'))continue;const st=getComputedStyle(e);if(st.visibility==='hidden'||+st.opacity<.95)continue;let bg=[255,255,255];const chain=[];let gradient=false;for(let x=e;x;x=x.parentElement){const xs=getComputedStyle(x);if(xs.backgroundImage!=='none')gradient=true;chain.unshift(color(xs.backgroundColor));}for(const c of chain)bg=blend(c,bg);const fg=blend(color(st.color),bg),a=lum(fg),b=lum(bg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05),size=parseFloat(st.fontSize),weight=+st.fontWeight||400;const needed=size>=24||(size>=18.66&&weight>=700)?3:4.5;if(ratio+0.1<needed)result.push({tag:e.tagName,className:e.className,text:e.textContent.trim().slice(0,80),ratio:+ratio.toFixed(2),needed,gradient,color:st.color,background:bg});}return result.sort((a,b)=>a.ratio-b.ratio);
+                  });check('noPageErrors',view.pageErrors.length===0);check('noLocalAssetErrors',view.badResponses.length===0);
+                }catch(error){view.error=error.stack;report.errors.push(label+': '+error.message);try{await screenshot('ERROR');}catch{}}
+                await save(label+'.json',view);await ctx.close();console.log(label,JSON.stringify({checks:view.checks,error:view.error,contrastWarnings:view.contrastWarnings.length}));
+              }
+            }
+            report.completedAt=new Date().toISOString();report.functionalPass=report.errors.length===0&&report.views.every(v=>Object.values(v.checks).every(Boolean));await save('verification.json',report);assert(report.functionalPass,'Functional checks require review; see verification.json and screenshots');
+          }catch(error){report.fatal=error.stack;await save('verification.json',report);console.error(error);process.exitCode=1;}finally{await browser?.close();}
+          JS
+          node .lc-external-verify.mjs
+      - name: Upload external Preview evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: light-curtain-final-publication-proof
-          path: |
-            ${{ runner.temp }}/lc-evidence/
-            ${{ runner.temp }}/integration-build/publication-checks.json
-            ${{ runner.temp }}/integration-build/publication-final-checks.json
-            ${{ runner.temp }}/integration-build/end-independent-checks.json
-          retention-days: 14
+          name: light-curtain-external-preview-proof
+          path: ${{ runner.temp }}/lc-browser-proof/
           if-no-files-found: error
+          retention-days: 14

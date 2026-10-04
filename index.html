@@ -3859,8 +3859,8 @@
     .instagram-comic-slide.is-current{display:block;height:100%}
     .instagram-comic-slide img{display:block;width:100%;height:auto;max-height:calc(100% - 40px);object-fit:contain;background:#fff}
     .instagram-comic-slide span{min-height:40px}
-    .instagram-comic-track.is-switching{opacity:.72}
-    .instagram-comic-track{transition:opacity .16s ease}
+    .instagram-comic-track.is-switching{opacity:1}
+    .instagram-comic-track{transition:none}
     .instagram-comic-slide span{display:block;padding:10px 2px 2px;font-size:13px;font-weight:800;line-height:1.5}
     .instagram-comic-dots{display:flex;justify-content:center;align-items:center;min-height:22px;margin:8px 0;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.04em}
     .instagram-comic-more{display:flex;justify-content:center;align-items:center;min-height:38px;border:1px solid var(--line);border-radius:10px;font-size:12px;font-weight:800;text-decoration:none}
@@ -4694,34 +4694,29 @@
 
   const preload=(i)=>{
     const slide=slides[(i+slides.length)%slides.length],img=slide?.querySelector('img');
-    if(!img)return Promise.resolve();
-    if(img.complete&&img.naturalWidth)return Promise.resolve();
-    return img.decode?.().catch(()=>{})||new Promise(resolve=>{
-      img.addEventListener('load',resolve,{once:true});
-      img.addEventListener('error',resolve,{once:true});
-    });
+    if(!img)return;
+    const src=img.currentSrc||img.src;
+    if(!src)return;
+    const warm=new Image();
+    warm.decoding='async';
+    warm.src=src;
   };
 
   const updateCounter=()=>{dots.textContent=(index+1)+' / '+slides.length;};
 
   const show=(next,{instant=false}={})=>{
     next=(next+slides.length)%slides.length;
-    const token=++switchToken;
-    track.classList.add('is-switching');
-    return preload(next).then(()=>{
-      if(token!==switchToken)return;
-      slides.forEach((slide,i)=>{
-        const current=i===next;
-        slide.classList.toggle('is-current',current);
-        slide.setAttribute('aria-hidden',String(!current));
-        slide.tabIndex=current?0:-1;
-      });
-      index=next;
-      updateCounter();
-      track.classList.remove('is-switching');
-      preload(index+1);
-      preload(index-1);
+    slides.forEach((slide,i)=>{
+      const current=i===next;
+      slide.classList.toggle('is-current',current);
+      slide.setAttribute('aria-hidden',String(!current));
+      slide.tabIndex=current?0:-1;
     });
+    index=next;
+    updateCounter();
+    preload(index+1);
+    preload(index-1);
+    return Promise.resolve();
   };
 
   slides.forEach((slide,i)=>{
@@ -4811,10 +4806,6 @@
     }
   });
 
-  root.addEventListener('mouseenter',stopAuto);
-  root.addEventListener('mouseleave',()=>{if(lightbox.hidden)startAuto();});
-  root.addEventListener('focusin',stopAuto);
-  root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)&&lightbox.hidden)startAuto();});
   reduced.addEventListener?.('change',()=>{if(reduced.matches)stopAuto();else startAuto();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto();else startAuto();});
 

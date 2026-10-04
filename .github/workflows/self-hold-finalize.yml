@@ -46,11 +46,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          # Always restore the authored article before regeneration. The same Preview branch
-          # is later materialized with publication HTML, so a rerun must not treat that
-          # generated HTML as the editable source.
-          git show "$SOURCE_COMMIT:$TARGET" > "$TARGET"
-          git add "$TARGET"
+          # Always restore the authored source state before regeneration. The Preview branch
+          # is later materialized with publication-only HTML/runtime assets, so a rerun must
+          # remove those generated files before rule/catalog and source-preservation checks.
+          restore_from_source() {
+            p="$1"
+            if git cat-file -e "$SOURCE_COMMIT:$p" 2>/dev/null; then
+              mkdir -p "$(dirname "$p")"
+              git show "$SOURCE_COMMIT:$p" > "$p"
+              git add "$p"
+            else
+              rm -f "$p"
+              git add -A -- "$p" 2>/dev/null || true
+            fi
+          }
+          for p in             "$TARGET"             assets/css/article-toc-v2.css             assets/js/article-toc-v2.js             assets/css/article-end-related.css             assets/css/article-end-feedback.css             assets/css/article-integration-compat.css             assets/js/article-integration-compat.js             .github/self-hold-final-state.json             _headers robots.txt
+          do
+            restore_from_source "$p"
+          done
           set +e
           git merge --no-ff --no-commit origin/main
           merge_status=$?

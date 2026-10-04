@@ -1,7 +1,7 @@
 # air-cylinder-troubleshooting-basic 四コマ漫画 01
 
 更新日: 2026-09-30  
-状態: **正式採用済み**
+状態: **要修正・再制作バックログ**
 
 ## 1. 元記事
 - `articles/air-cylinder-troubleshooting-basic.html`
@@ -16,12 +16,13 @@
 - `docs/comic-production-checklist.md`
 - `docs/image-generation-rules.md`
 
-## 4. 採用画像
+## 4. 旧採用画像（再採用不可・要修正）
 - `assets/images/comics/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-yonkoma-01.jpg`
 
-ユーザー確認により 2026-09-30 に正式採用。
+2026-09-30 に一度正式採用したが、2026-10-05 の再確認で先輩キャラクターの目の崩れを確認したため、正式採用を取り消して再制作バックログへ戻した。
+Instagram予約投稿も停止済み。修正版を再確認して正式採用するまで、この画像をSNS投稿用・シリーズ採用画像として扱わない。
 
-## 5. 採用内容
+## 5. 再制作時に維持する採用内容
 - 第1〜3号と同じ、ちびキャラ先輩・後輩の2×2四コマ構成
 - 青系のDenkicontrol四コマ世界観を維持
 - 「エアシリンダが動かない＝シリンダ本体故障」と即断せず、上流から順番に切り分ける考え方を主題にする
@@ -44,7 +45,8 @@
 2. `assets/images/comics/sensor-basic/sensor-basic-yonkoma-01-pilot.png`
 3. 本作品はエアシリンダトラブル回の採用例として参照する
 
-本作品を新しい最優先アンカーへ昇格させるものではなく、第1号パイロットの世界観を継承した第4号として保存する。
+本作品を新しい最優先アンカーへ昇格させるものではない。
+2026-10-05 時点ではキャラクター表現の修正待ちのため、第4号の正式採用扱いは一時解除する。修正版のユーザー確認後に再度正式採用へ戻す。
 
 ## 8. 転送確認
 - 元ファイル SHA-256: `74eeadf9adb78704d0d1b7299e678e02d843dbb22b2c3104e42cb9d5b5d12c65`

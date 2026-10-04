@@ -3864,7 +3864,34 @@
     .instagram-comic-more{display:flex;justify-content:center;align-items:center;min-height:38px;border:1px solid var(--line);border-radius:10px;font-size:12px;font-weight:800;text-decoration:none}
     @media (prefers-reduced-motion:reduce){.instagram-comic-track{transition:none}}
 
-  </style>
+  
+    /* Preview: home-only wide right rail + vertical comic reel */
+    @media (min-width:1280px){
+      .container{max-width:1300px !important;}
+      .top-main-layout{
+        grid-template-columns:840px 400px !important;
+        column-gap:18px !important;
+        justify-content:center !important;
+      }
+      .top-right-rail{
+        width:400px !important;
+        min-width:400px !important;
+        max-width:400px !important;
+        transform:none !important;
+      }
+      .top-right-rail > *,
+      .top-right-rail .info-box,
+      .top-right-rail .bookmark-help,
+      .top-right-rail .bookmark-help-button,
+      .top-right-rail .support-card{
+        width:100% !important;
+        min-width:0 !important;
+        max-width:100% !important;
+      }
+    }
+    .instagram-comic-viewport{height:auto !important;aspect-ratio:auto !important;}
+    .instagram-comic-slide{height:auto !important;flex:0 0 auto !important;}
+</style>
 
   <script type="text/javascript">
   (function(c,l,a,r,i,t,y){
@@ -4337,7 +4364,7 @@
 
     <footer>
       現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
-      <a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a>
+      <a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a> | <a href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">Instagram @denkicontrol</a>
     </footer>
   </main>
 
@@ -4496,16 +4523,64 @@
   const track=root.querySelector('.instagram-comic-track');
   const slides=[...root.querySelectorAll('.instagram-comic-slide')];
   const dots=root.querySelector('.instagram-comic-dots');
-  let index=0,timer=null,touchY=null,wheelLock=false;
-  slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.classList.add('is-active');dots.appendChild(d)});
-  const paint=()=>{track.style.transform=`translateY(-${index*viewport.clientHeight}px)`;[...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index))};
-  const move=(dir)=>{index=(index+dir+slides.length)%slides.length;paint();restart()};
-  const restart=()=>{clearInterval(timer);if(!matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>move(1),6500)};
-  viewport.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<8||wheelLock)return;e.preventDefault();wheelLock=true;move(e.deltaY>0?1:-1);setTimeout(()=>wheelLock=false,500)},{passive:false});
+  let index=0,timer=null,touchY=null,wheelLock=false,pageHeight=0;
+
+  slides.forEach((_,i)=>{
+    const d=document.createElement('i');
+    if(i===0)d.classList.add('is-active');
+    dots.appendChild(d);
+  });
+
+  const measure=()=>{
+    pageHeight=Math.round(viewport.clientWidth + 50);
+    viewport.style.height=pageHeight+'px';
+    slides.forEach(slide=>{
+      slide.style.height=pageHeight+'px';
+      slide.style.flex='0 0 '+pageHeight+'px';
+    });
+  };
+  const paint=()=>{
+    track.style.transform='translateY(-'+(index*pageHeight)+'px)';
+    [...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index));
+  };
+  const layout=()=>{measure();paint();};
+  const move=(dir)=>{
+    index=(index+dir+slides.length)%slides.length;
+    paint();
+    restart();
+  };
+  const restart=()=>{
+    clearInterval(timer);
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      timer=setInterval(()=>move(1),6500);
+    }
+  };
+
+  viewport.addEventListener('wheel',e=>{
+    if(Math.abs(e.deltaY)<8||wheelLock)return;
+    e.preventDefault();
+    wheelLock=true;
+    move(e.deltaY>0?1:-1);
+    setTimeout(()=>wheelLock=false,500);
+  },{passive:false});
+
   viewport.addEventListener('touchstart',e=>touchY=e.touches[0].clientY,{passive:true});
-  viewport.addEventListener('touchend',e=>{if(touchY==null)return;const dy=e.changedTouches[0].clientY-touchY;if(Math.abs(dy)>35)move(dy<0?1:-1);touchY=null},{passive:true});
-  viewport.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();move(1)}if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();move(-1)}});
-  root.addEventListener('mouseenter',()=>clearInterval(timer));root.addEventListener('mouseleave',restart);window.addEventListener('resize',paint);
+  viewport.addEventListener('touchend',e=>{
+    if(touchY==null)return;
+    const dy=e.changedTouches[0].clientY-touchY;
+    if(Math.abs(dy)>35)move(dy<0?1:-1);
+    touchY=null;
+  },{passive:true});
+
+  viewport.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();move(1);}
+    if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();move(-1);}
+  });
+
+  root.addEventListener('mouseenter',()=>clearInterval(timer));
+  root.addEventListener('mouseleave',restart);
+  window.addEventListener('resize',layout);
+  layout();
   restart();
 })();
 </script>

@@ -1,0 +1,474 @@
+name: Self-hold final publication Preview (DO NOT MERGE)
+
+on:
+  push:
+    branches:
+      - preview-self-hold-circuit-final-20261004
+    paths:
+      - .github/workflows/self-hold-finalize.yml
+
+permissions:
+  contents: write
+  checks: read
+
+concurrency:
+  group: self-hold-final-publication
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FINAL_BRANCH: preview-self-hold-circuit-final-20261004
+      SOURCE_COMMIT: 449fb36befe9abf76ca2ddbc9ad836ab640ed5c6
+      TARGET: articles/self-hold-circuit.html
+      REVIEW_URL: https://preview-self-hold-circuit-fi.denkicontrol-preview.pages.dev/articles/self-hold-circuit.html
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Sync latest main and refresh only target ledgers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          # Always restore the authored source state before regeneration. The Preview branch
+          # is later materialized with publication-only HTML/runtime assets, so a rerun must
+          # remove those generated files before rule/catalog and source-preservation checks.
+          restore_from_source() {
+            p="$1"
+            if git cat-file -e "$SOURCE_COMMIT:$p" 2>/dev/null; then
+              mkdir -p "$(dirname "$p")"
+              git show "$SOURCE_COMMIT:$p" > "$p"
+              git add "$p"
+            else
+              rm -f "$p"
+              git add -A -- "$p" 2>/dev/null || true
+            fi
+          }
+          for p in             "$TARGET"             assets/css/article-toc-v2.css             assets/js/article-toc-v2.js             assets/css/article-end-related.css             assets/css/article-end-feedback.css             assets/css/article-integration-compat.css             assets/js/article-integration-compat.js             .github/self-hold-final-state.json             _headers robots.txt
+          do
+            restore_from_source "$p"
+          done
+          set +e
+          git merge --no-ff --no-commit origin/main
+          merge_status=$?
+          set -e
+          if [ "$merge_status" -ne 0 ]; then
+            allowed='docs/rules/catalog.json docs/rules/index.md .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/sidebar/all-source-verification.json .github/article-components/sidebar/all-pages.json .github/article-components/end/all-preservation-oracle.json .github/article-components/hero/css-bindings.json'
+            unresolved="$(git diff --name-only --diff-filter=U)"
+            for f in $unresolved; do
+              case " $allowed " in
+                *" $f "*) git checkout --theirs -- "$f"; git add "$f" ;;
+                *) echo "Unexpected merge conflict: $f"; exit 1 ;;
+              esac
+            done
+          fi
+
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, re, subprocess, importlib.util
+
+          target='articles/self-hold-circuit.html'
+          data=Path(target).read_bytes()
+          sha=hashlib.sha256(data).hexdigest()
+          blob=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          old=subprocess.check_output(['git','show','origin/main:'+target])
+          old_sha=hashlib.sha256(old).hexdigest()
+          old_blob=hashlib.sha1(b'blob '+str(len(old)).encode()+b'\0'+old).hexdigest()
+
+          p=Path('docs/rules/catalog.json'); cat=json.loads(p.read_text(encoding='utf-8'))
+          note={
+            'path':'docs/reference-notes/self-hold-circuit.md',
+            'title':'self-hold-circuit 公式参照メモ',
+            'category':'conditional',
+            'when':'articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。'
+          }
+          for extra in [
+            note,
+            {
+              'path':'docs/comic-scripts/interlock-basic-yonkoma-01.md',
+              'title':'interlock-basic 四コマ漫画 01',
+              'category':'reference',
+              'when':'インターロック記事の四コマ採用内容・技術ガード・保存状態を確認する場合。'
+            },
+            {
+              'path':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'title':'npn-pnp-basic 四コマ漫画 01',
+              'category':'reference',
+              'when':'NPN / PNP記事の四コマ採用内容・技術ガード・保存状態を確認する場合。'
+            }
+          ]:
+            if not any(x.get('path')==extra['path'] for x in cat['documents']):
+              cat['documents'].append(extra)
+
+          support={
+            'path':'.github/workflows/self-hold-finalize.yml',
+            'when':'自己保持回路の最終承認用Previewで、本番同等の統合生成・公開候補検証・4条件表示監査を実行する場合。',
+            'role':'最終Preview専用の一時Workflow。mainへマージしない。'
+          }
+          if not any(x.get('path')==support['path'] for x in cat['supporting']):
+            cat['supporting'].append(support)
+
+          for ex in [
+            {
+              'source':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'raw':'a_colorful_japanese_manga_style_infographic_comic.png',
+              'type':'unavailable',
+              'reason':'2026-10-02に正式採用した画像生成セッションの一時ファイル名。GitHub常設正本への転送完了前の採用記録として保持する。'
+            },
+            {
+              'source':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'raw':'assets/images/comics/npn-pnp-basic/npn-pnp-basic-yonkoma-01.png',
+              'type':'unavailable',
+              'reason':'正式採用画像の想定配置先。現時点ではGitHubバイナリ正本への転送前のため未実在。'
+            }
+          ]:
+            if not any(x.get('source')==ex['source'] and x.get('raw')==ex['raw'] for x in cat['reference_exceptions']):
+              cat['reference_exceptions'].append(ex)
+
+          p.write_text(json.dumps(cat,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          def update_by_key(path,key,value,updates):
+            obj=json.loads(Path(path).read_text(encoding='utf-8'))
+            count=0
+            def walk(x):
+              nonlocal count
+              if isinstance(x,dict):
+                if x.get(key)==value:
+                  for k,v in updates.items():
+                    if k in x: x[k]=v
+                  count+=1
+                for v in x.values(): walk(v)
+              elif isinstance(x,list):
+                for v in x: walk(v)
+            walk(obj)
+            if count<1: raise SystemExit(f'No target entry in {path}')
+            Path(path).write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          update_by_key('.github/site-shells/manifest.json','output',target,{'baselineSha256':sha})
+          update_by_key('.github/article-components/site-inventory.json','path',target,{'gitBlob':blob})
+          update_by_key('.github/article-components/sidebar/all-source-verification.json','path',target,{'sha256':sha,'gitBlob':blob})
+
+          # Refresh the target sidebar/TOC ledger from the current authored source.
+          sidebar_dir=Path('.github/article-components/sidebar')
+          import sys
+          sys.path.insert(0,str(sidebar_dir))
+          from html_spans import Parser, text as span_text
+          source_text=data.decode('utf-8')
+          parser=Parser(source_text)
+          toc=[]; ids={n.attrs['id'] for n in parser.nodes if 'id' in n.attrs}
+          for n in parser.nodes:
+            if n.tag!='h2' or not n.ancestor(lambda x:x.tag=='main'): continue
+            if n.ancestor(lambda x:x.tag=='aside' or x.has('summary-card') or x.has('mini-toc-card') or x.has('article-hero') or x.has('article-feedback')): continue
+            label=span_text(source_text[n.open_end:source_text.rfind('</h2',n.start,n.end)])
+            if any(s in label for s in ['あわせて読みたい','関連記事','この記事は役に','Related articles','Was this article','キャリアを考える前後']): continue
+            target_id=n.attrs.get('id')
+            parent=n.ancestor(lambda x:x.tag=='section' and bool(x.attrs.get('id')))
+            if not target_id and parent: target_id=parent.attrs['id']
+            if not target_id:
+              target_id='dc-section-'+str(len(toc)+1)
+              if target_id in ids: raise SystemExit('Sidebar anchor collision: '+target_id)
+              ids.add(target_id)
+            toc.append({'id':target_id,'label':label})
+          asides=[n for n in parser.nodes if n.tag=='aside']
+          if len(asides)!=1: raise SystemExit(f'Expected one sidebar, found {len(asides)}')
+          raw_cards=[source_text[n.start:n.end] for n in asides[0].children]
+          sp=sidebar_dir/'all-pages.json'; sidebar=json.loads(sp.read_text(encoding='utf-8'))
+          spec=next((x for x in sidebar['pages'] if x.get('path')==target),None)
+          if spec is None: raise SystemExit('Missing sidebar target')
+          if len(raw_cards)!=len(spec['cardsBefore']): raise SystemExit('Sidebar card count changed; manual role review required')
+          spec['tocReference']=toc
+          spec['asideCount']=len(asides)
+          for i,raw in enumerate(raw_cards):
+            spec['cardsBefore'][i]['index']=i
+            spec['cardsBefore'][i]['sha256']=hashlib.sha256(raw.encode()).hexdigest()
+          sp.write_text(json.dumps(sidebar,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          ep=Path('.github/article-components/end/all-preservation-oracle.json')
+          eo=json.loads(ep.read_text(encoding='utf-8'))
+          page_oracle=next((x for x in eo['pages'] if x.get('path')==target),None)
+          if page_oracle is None: raise SystemExit('Missing end oracle target')
+          old_cards={x.get('target'):x for x in page_oracle.get('cards',[]) if x.get('kind')=='article'}
+
+          # Refresh only the target article-ending expectations from the authored source.
+          nodes=Parser(source_text).nodes
+          grids=[n for n in nodes if n.has('related-grid') and not n.ancestor(lambda a:a.tag=='aside')]
+          if len(grids)!=1: raise SystemExit(f'Expected one related grid, found {len(grids)}')
+          grid=grids[0]
+          new_cards=[]
+          for idx,a in enumerate(grid.children):
+            if a.tag!='a' or not a.attrs.get('href'): raise SystemExit('Unexpected related card structure')
+            href=a.attrs['href']
+            from urllib.parse import urljoin,urlsplit,unquote
+            resolved=unquote(urlsplit(urljoin('https://denkicontrol.com/'+target,href)).path).lstrip('/')
+            old_card=old_cards.get(resolved)
+            if old_card is None: raise SystemExit('Related target not present in reviewed oracle: '+resolved)
+            descendants=[n for n in nodes if n.ancestor(lambda x:x is a)]
+            title=next((n for n in descendants if n.tag in ['h3','strong']),None)
+            if title is None: raise SystemExit('Missing related card title')
+            close=source_text.rfind('</'+title.tag,title.start,title.end)
+            title_html=source_text[title.start:title.end]
+            card_text=span_text(source_text[a.open_end:source_text.rfind('</a',a.start,a.end)])
+            item=dict(old_card)
+            item.update({
+              'index':idx,
+              'href':href,
+              'target':resolved,
+              'text':card_text,
+              'class':a.attrs.get('class',''),
+              'attributes':dict(a.attrs),
+              'titleTags':[title.tag],
+              'titleHtml':[title_html],
+              'innerMarkup':source_text[a.open_end:source_text.rfind('</a',a.start,a.end)],
+              'existingImages':[n.attrs.get('src') for n in descendants if n.tag=='img'],
+              'hasPicture':any(n.tag=='picture' for n in descendants),
+              'nonWhitespaceTail':''
+            })
+            new_cards.append(item)
+
+          block_node=next((x for x in nodes if x.tag=='section' and x.attrs.get('id')=='related'),None)
+          if block_node is None: raise SystemExit('Missing related section')
+          outside=[]
+          for a in nodes:
+            if a.tag!='a' or not a.attrs.get('href'): continue
+            if not a.ancestor(lambda x:x is block_node): continue
+            if a.ancestor(lambda x:x is grid): continue
+            outside.append({'href':a.attrs['href'],'text':span_text(source_text[a.open_end:source_text.rfind('</a',a.start,a.end)])})
+
+          page_oracle['sourceSha256']=sha
+          page_oracle['directChildren']=[n.tag for n in grid.children]
+          page_oracle['cards']=new_cards
+          page_oracle['outsideGridArticleLinks']=outside
+          ep.write_text(json.dumps(eo,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          script=Path('scripts/prepare-article-heroes.py')
+          spec=importlib.util.spec_from_file_location('hero_prepare',script)
+          m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+          config=json.loads(m.read(m.PKG/'manifest.json'))
+          source=m.read(m.ROOT/target)
+          styles=m.css_slots(source,config.get('cssExceptions',{}).get(target))
+          expected=[]
+          for style in styles:
+            for slot in style['slots']:
+              raw=slot['raw']; urls=[]
+              def repl(match):
+                urls.append(match.group(0)); return '{{ urls['+str(len(urls)-1)+'] | safe }}'
+              template=re.sub(r'url\(\s*(?:"[^"]*"|\x27[^\x27]*\x27|[^)]*)\s*\)',repl,raw)
+              name='css/'+m.sha(template)+'.css.njk'
+              css_file=m.PKG/name
+              if not css_file.is_file():
+                css_file.parent.mkdir(parents=True,exist_ok=True)
+                css_file.write_text(template,encoding='utf-8')
+              expected.append({'sourceSha256':m.sha(raw),'template':name,'urls':urls})
+          bp=m.PKG/'css-bindings.json'; bindings=json.loads(m.read(bp))
+          if target not in bindings: raise SystemExit('Missing hero binding target')
+          bindings[target]=expected
+          m.dump(bp,bindings)
+
+          print(json.dumps({'target':target,'oldSha256':old_sha,'newSha256':sha,'oldBlob':old_blob,'newBlob':blob,'heroSlots':len(expected)},ensure_ascii=False))
+          PY
+
+          python scripts/check-rule-catalog.py --write-index
+          git add docs/rules/catalog.json docs/rules/index.md \
+            .github/site-shells/manifest.json \
+            .github/article-components/site-inventory.json \
+            .github/article-components/sidebar/all-source-verification.json \
+            .github/article-components/sidebar/all-pages.json \
+            .github/article-components/end/all-preservation-oracle.json \
+            .github/article-components/hero/css-bindings.json \
+            .github/article-components/hero/css
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then
+            echo "No target-ledger changes to commit"
+          else
+            git commit -m "[self-hold-final-prep] sync latest main and refresh target ledgers"
+            git push origin "HEAD:refs/heads/$FINAL_BRANCH"
+          fi
+          echo "PREP_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies and verify rules
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1 PyYAML==6.0.2
+          python scripts/check-rule-catalog.py --report "$RUNNER_TEMP/rule-catalog.json"
+          pnpm check:shells
+
+      - name: Execute production-equivalent generation and final publication validation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os,yaml,subprocess
+          steps=yaml.safe_load(Path('.github/workflows/pages.yml').read_text())['jobs']['build']['steps']
+          selected=['Generate and verify approved article components','Prepare Pages artifact','Optimize published images to WebP','Verify final standalone publication']
+          for name in selected:
+            step=next(s for s in steps if s.get('name')==name)
+            env=os.environ.copy();env.update({str(k):str(v) for k,v in step.get('env',{}).items()})
+            print('Running production stage: '+name,flush=True)
+            subprocess.run(['bash','-e','-o','pipefail','-c',step['run']],env=env,check=True)
+          PY
+
+      - name: Materialize validated target publication and runtime closure
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urljoin,urlsplit,unquote
+          from lxml import html
+          import hashlib,json,os,re,subprocess
+
+          site=Path('_site')
+          stage=Path(os.environ['RUNNER_TEMP'])/'self-hold-materialized'
+          stage.mkdir(parents=True,exist_ok=True)
+          target='articles/self-hold-circuit.html'
+          todo=[target,'assets/data/search-index.json']
+          seen=set(); hashes={}
+
+          def local_name(base,value):
+            if not value or value.startswith(('data:','mailto:','tel:','javascript:','#')): return None
+            u=urlsplit(urljoin('https://denkicontrol.com/'+base,value.strip()))
+            if u.netloc not in {'denkicontrol.com','www.denkicontrol.com'}: return None
+            name=unquote(u.path).lstrip('/')
+            return name or None
+
+          while todo:
+            name=todo.pop()
+            if name in seen: continue
+            src=site/name
+            if not src.is_file(): continue
+            data=src.read_bytes(); seen.add(name); hashes[name]=hashlib.sha256(data).hexdigest()
+            dst=stage/name; dst.parent.mkdir(parents=True,exist_ok=True); dst.write_bytes(data)
+            if src.suffix.lower()=='.html':
+              doc=html.fromstring(data.decode('utf-8'))
+              vals=doc.xpath('//img/@src | //script/@src | //source/@src | //link[@rel="stylesheet" or @rel="icon" or @rel="preload" or @rel="apple-touch-icon"]/@href | //meta[@property="og:image"]/@content | //meta[@name="twitter:image"]/@content')
+              for style_text in doc.xpath('//style/text()'):
+                for raw_url in re.findall(r'url\(([^)]+)\)',style_text):
+                  vals.append(raw_url.strip().strip('"').strip("'"))
+              for v in vals:
+                n=local_name(name,v)
+                if n and n.startswith('assets/'): todo.append(n)
+            elif src.suffix.lower()=='.css':
+              text=data.decode('utf-8')
+              for v in re.findall(r'url\(["\x27]?([^\)"\x27]+)',text):
+                n=local_name(name,v)
+                if n and n.startswith('assets/'): todo.append(n)
+
+          article=(stage/target).read_bytes()
+          report={'sourceCommit':os.environ['PREP_SHA'],'articleSha256':hashlib.sha256(article).hexdigest(),'materializedFiles':sorted(seen),'fileSha256':hashes,'kind':'validated production publication and static runtime closure','doNotMerge':True}
+          Path('.github/self-hold-final-state.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          for name in sorted(seen):
+            src=stage/name; dst=Path(name); dst.parent.mkdir(parents=True,exist_ok=True)
+            if dst.is_symlink(): dst.unlink()
+            dst.write_bytes(src.read_bytes())
+          Path('_headers').write_text('/*\n  X-Robots-Tag: noindex, noarchive\n',encoding='utf-8')
+          Path('robots.txt').write_text('User-agent: *\nDisallow: /\n',encoding='utf-8')
+          paths=[*sorted(seen),'_headers','robots.txt','.github/self-hold-final-state.json']
+          subprocess.run(['git','add','--',*paths],check=True)
+          changed=set(subprocess.check_output(['git','diff','--cached','--name-only']).decode().splitlines())
+          if not changed: raise SystemExit('No materialized publication changes')
+          print(json.dumps({'changed':len(changed),'articleSha256':report['articleSha256'],'files':len(seen)},ensure_ascii=False))
+          PY
+          git commit -m "[final-preview-materialized] self-hold production-equivalent publication; DO NOT MERGE"
+          git push origin "HEAD:refs/heads/$FINAL_BRANCH"
+          echo "FINAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait until Cloudflare serves the validated publication
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,os,time,urllib.request,json
+          state=json.loads(Path('.github/self-hold-final-state.json').read_text())
+          expected=state['articleSha256']
+          url=os.environ['REVIEW_URL']+'?review='+os.environ['FINAL_SHA']
+          last=None
+          for i in range(48):
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'self-hold-final-preview-audit'})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                body=r.read(); last=hashlib.sha256(body).hexdigest()
+                print(i,r.status,last,flush=True)
+                if r.status==200 and last==expected:
+                  Path(os.environ['RUNNER_TEMP']+'/deployed-url.txt').write_text(url+'\n')
+                  break
+            except Exception as e:
+              print(i,repr(e),flush=True)
+            time.sleep(5)
+          else:
+            raise SystemExit(f'Cloudflare did not serve validated publication; last={last}, expected={expected}')
+          PY
+
+      - name: Verify PC/mobile light/dark and image lightbox
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          const out=process.env.RUNNER_TEMP+'/self-hold-final-evidence';fs.mkdirSync(out,{recursive:true});
+          const base=process.env.REVIEW_URL+'?review='+process.env.FINAL_SHA;
+          const browser=await chromium.launch({headless:true});
+          const results=[];
+          for(const mobile of [false,true]) for(const theme of ['light','dark']){
+            const label=(mobile?'mobile':'pc')+'-'+theme;
+            const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},deviceScaleFactor:1,isMobile:mobile,hasTouch:mobile,colorScheme:theme});
+            const page=await context.newPage();const errors=[],failed=[];
+            page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push({url:r.url(),status:r.status()})});
+            const response=await page.goto(base,{waitUntil:'networkidle',timeout:90000});
+            if(!response||response.status()!==200)throw new Error(label+': bad HTTP');
+            await page.evaluate(()=>document.fonts.ready);
+            const pageHeight=await page.evaluate(()=>document.body.scrollHeight);
+            for(let y=0;y<pageHeight;y+=600){await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),y);await page.waitForTimeout(100);}
+            const imgs=page.locator('img[src]');
+            for(let i=0;i<await imgs.count();i++){
+              const img=imgs.nth(i);
+              await img.scrollIntoViewIfNeeded();
+              await page.waitForFunction(el=>el.complete,await img.elementHandle(),{timeout:20000});
+              if(await img.evaluate(el=>el.naturalWidth>0)) await img.evaluate(el=>el.decode());
+            }
+            await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(300);
+            const info=await page.evaluate(()=>({width:innerWidth,docWidth:document.documentElement.scrollWidth,images:[...document.images].filter(x=>x.getAttribute('src')).map(x=>({src:x.currentSrc,ok:x.complete&&x.naturalWidth>0,alt:x.alt})),figures:document.querySelectorAll('article .article-lightbox-target').length,hints:[...document.querySelectorAll('.dc-image-zoom-hint')].map(x=>x.textContent.trim()),sideRail:!!document.querySelector('.side-rail'),feedback:document.querySelectorAll('#articleFeedbackCard').length}));
+            if(info.width!==info.docWidth)throw new Error(label+': horizontal overflow');
+            if(info.images.some(x=>!x.ok))throw new Error(label+': broken image');
+            if(info.figures!==4)throw new Error(label+': expected 4 lightbox targets, got '+info.figures);
+            if(info.feedback!==1)throw new Error(label+': feedback missing');
+            const fig=page.locator('article .article-lightbox-target').first();
+            await fig.scrollIntoViewIfNeeded(); if(mobile)await fig.tap(); else await fig.click();
+            const overlay=page.locator('.dc-image-lightbox');await overlay.waitFor({state:'visible',timeout:10000});
+            await overlay.locator('img').evaluate(el=>el.decode());
+            await page.screenshot({path:out+'/'+label+'-lightbox.png'});
+            await page.keyboard.press('Escape');await overlay.waitFor({state:'hidden'});
+            await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:out+'/'+label+'-top.png',fullPage:true});
+            results.push({label,info,errors,failed});
+            if(errors.length||failed.length)throw new Error(label+': runtime errors '+JSON.stringify({errors,failed}));
+            await context.close();
+          }
+          await browser.close();fs.writeFileSync(out+'/results.json',JSON.stringify({url:base,results},null,2));
+          JS
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: self-hold-final-preview-evidence
+          path: |
+            ${{ runner.temp }}/self-hold-final-evidence/
+            ${{ runner.temp }}/integration-build/publication-checks.json
+            ${{ runner.temp }}/integration-build/publication-final-checks.json
+            ${{ runner.temp }}/integration-build/published-image-mapping.json
+            ${{ runner.temp }}/rule-catalog.json
+            ${{ runner.temp }}/deployed-url.txt
+          retention-days: 14

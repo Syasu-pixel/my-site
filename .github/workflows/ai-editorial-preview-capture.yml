@@ -27,102 +27,35 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.14'
-      - name: Restore adopted repository image objects and preserve baseline formatting
+      - name: Restore verified adopted assets and run unchanged production validators
         shell: bash
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = refs/heads/preview-final-light-curtain-current-20261004
           test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
           mkdir -p "$RUNNER_TEMP/lc-evidence"
+          # Preserve main's CRLF while keeping actual trailing-space checks active.
+          git config core.whitespace cr-at-eol
           python -m pip install PyYAML==6.0.2
-          python - <<'PY'
-          import subprocess,json,hashlib,os,struct,zlib
-          from pathlib import Path
-          root=Path.cwd(); evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
-          adopted='b4c73f4398e2f5dcfb2ee115400d662df0da8c4e'
-          target='articles/light-curtain-basic.html'; source=(root/target).read_bytes()
-          digest=hashlib.sha256(source).hexdigest()
-          assert digest=='893e60d8f29c2a447400142dceda8a99255662f37e0e0f30a2ed01b914419c81'
-          expected={
-           'connection':('2e8e1fe177d17cebd93370d69749e4e6add6d8f1',1957922),
-           'hero':('cd8b6084b070c54b9a733ab19573522671c526da',1799001),
-           'installation':('6f9cb5dac55e3ba68a205e1ae564393396a0707e',1979401),
-           'ogp':('c753ec1674e0a2c5aa004a00b9e950283d8f28e1',1953832),
-           'stop-flow':('f3a191ae0f7d818eb4528ff122f82dde3aacc601',1981534),
-           'structure':('7e4ed58338b3e8800f4811b3c79fe525284b81e9',2037822)
-          }
-          records=[]; allowed={'.github/site-shells/manifest.json'}
-          for name,(expected_blob,expected_size) in expected.items():
-              rel='assets/images/light-curtain-basic/light-curtain-basic-'+name+'.png'; allowed.add(rel)
-              raw=subprocess.check_output(['git','show',adopted+':'+rel])
-              blob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
-              assert len(raw)==expected_size and blob==expected_blob,(rel,len(raw),blob)
-              assert raw[:8]==b'\x89PNG\r\n\x1a\n'
-              width,height=struct.unpack('>II',raw[16:24]); assert width>=1000 and height>=500
-              pos=8; idat=b''; ended=False
-              while pos<len(raw):
-                  length=struct.unpack('>I',raw[pos:pos+4])[0]; kind=raw[pos+4:pos+8]; data=raw[pos+8:pos+8+length]
-                  crc=struct.unpack('>I',raw[pos+8+length:pos+12+length])[0]
-                  assert zlib.crc32(kind+data)&0xffffffff==crc,(rel,kind)
-                  if kind==b'IDAT':idat+=data
-                  pos+=length+12
-                  if kind==b'IEND':ended=True;break
-              assert ended and len(zlib.decompress(idat))>width*height
-              previous=(root/rel).read_bytes(); (root/rel).write_bytes(raw)
-              assert (root/rel).read_bytes()==raw
-              records.append({'path':rel,'sourceCommit':adopted,'gitBlob':blob,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw),'width':width,'height':height,'previousBytes':len(previous),'byteIdenticalToAdopted':True})
-          rel='.github/site-shells/manifest.json'
-          original=subprocess.check_output(['git','show','origin/main:'+rel]); old=json.loads(original)
-          entry=[p for p in old['pages'] if p['output']==target]; assert len(entry)==1
-          old_hash=entry[0]['baselineSha256'].encode(); assert original.count(old_hash)==1
-          patched=original.replace(old_hash,digest.encode()); entry[0]['baselineSha256']=digest
-          assert json.loads(patched)==old
-          (root/rel).write_bytes(patched)
-          assert (root/target).read_bytes()==source
-          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
-          assert changed.issubset(allowed),changed
-          (evidence/'adopted-image-restoration.json').write_text(json.dumps({'restoredFromExistingGitObjects':True,'images':records,'articleUnchanged':True,'baselineFormattingPreserved':True},ensure_ascii=False,indent=2)+'\n')
-          PY
-          python scripts/prepare-article-heroes.py --out "$RUNNER_TEMP/lc-evidence/hero-pages.json"
-          git diff --check
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/images/light-curtain-basic/light-curtain-basic-{connection,hero,installation,ogp,stop-flow,structure}.png .github/site-shells/manifest.json
-          if ! git diff --cached --quiet; then
-            git commit -m '[CF-Pages-Skip] Restore six adopted light-curtain image blobs; preserve shell manifest line endings'
-            git fetch origin main preview-final-light-curtain-current-20261004
-            test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
-            test "$(git rev-parse origin/preview-final-light-curtain-current-20261004)" = "$GITHUB_SHA"
-            git push origin HEAD:refs/heads/preview-final-light-curtain-current-20261004
-          fi
-          git rev-parse HEAD > "$RUNNER_TEMP/lc-evidence/source-sha.txt"
-          git diff origin/main -- .github/site-shells/manifest.json .github/article-components/hero/css-bindings.json > "$RUNNER_TEMP/lc-evidence/registrations.diff"
-      - name: Verify inherited findings and execute production-equivalent publication
-        shell: bash
-        run: |
-          set -euo pipefail
           python - <<'PY'
           from pathlib import Path
           import os,subprocess,yaml
           evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
-          sources=[
-            ('e4aca87e0e0c946cfc9d6507906198fa1238dea1','Compare rule catalog findings with unchanged main'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Execute unchanged production build and final validation blocks'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Materialize verified target and every runtime dependency on output-only branch')
-          ]
-          for i,(commit,name) in enumerate(sources,1):
-              previous=subprocess.check_output(['git','show',commit+':.github/workflows/ai-editorial-preview-capture.yml'])
-              steps=yaml.safe_load(previous)['jobs']['prepare']['steps']
-              matches=[s for s in steps if s.get('name')==name]; assert len(matches)==1
-              script=matches[0]['run']; (evidence/('step-'+str(i)+'.sh')).write_text(script)
+          source='99d60e0bef3b0f59978de87aa58d609aa57bffdf'
+          previous=subprocess.check_output(['git','show',source+':.github/workflows/ai-editorial-preview-capture.yml'])
+          steps=yaml.safe_load(previous)['jobs']['prepare']['steps']
+          wanted=['Restore adopted repository image objects and preserve baseline formatting','Verify inherited findings and execute production-equivalent publication']
+          for i,name in enumerate(wanted,1):
+              found=[s for s in steps if s.get('name')==name]; assert len(found)==1
+              script=found[0]['run']; (evidence/('recovery-'+str(i)+'.sh')).write_text(script)
               print('::group::'+name,flush=True)
-              with (evidence/('step-'+str(i)+'.log')).open('w') as log:
+              with (evidence/('recovery-'+str(i)+'.log')).open('w') as log:
                   result=subprocess.run(['bash','-e','-o','pipefail','-c',script],stdout=log,stderr=subprocess.STDOUT)
-              print('\n'.join((evidence/('step-'+str(i)+'.log')).read_text().splitlines()[-60:]),flush=True)
+              print('\n'.join((evidence/('recovery-'+str(i)+'.log')).read_text().splitlines()[-65:]),flush=True)
               print('::endgroup::',flush=True)
               if result.returncode:raise SystemExit(result.returncode)
           PY
-      - name: Upload complete publication proof and target image originals
+      - name: Upload publication and adopted image evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:

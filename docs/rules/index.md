@@ -114,6 +114,7 @@
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 

@@ -1252,6 +1252,15 @@
     }
 
   @media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
+
+    .article-hero-media{display:flex;align-items:center;justify-content:center;min-width:0}
+    .article-hero-media img{width:100%;height:auto;max-height:430px;object-fit:contain;border-radius:18px;box-shadow:var(--shadow)}
+    .article-lightbox-target{cursor:zoom-in}
+    .dc-image-lightbox{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,.88)}
+    .dc-image-lightbox.is-open{display:flex}
+    .dc-image-lightbox img{max-width:min(96vw,1600px);max-height:90vh;object-fit:contain;border-radius:10px;background:#fff}
+    .dc-image-lightbox-close{position:fixed;top:14px;right:18px;border:0;border-radius:999px;width:44px;height:44px;font-size:28px;line-height:1;background:#fff;color:#0f172a;cursor:pointer}
+    @media(max-width:760px){.article-hero-media{margin-top:12px}.article-hero-media img{max-height:none}.dc-image-lightbox{padding:10px}.dc-image-lightbox img{max-width:98vw;max-height:88vh}}
 </style>
 </head>
 
@@ -1325,6 +1334,9 @@
             <a class="btn btn-secondary" href="#relay-circuit">基本回路を見る</a>
           </div>
         </div>
+        <div class="article-hero-media">
+          <img src="../assets/images/self-hold-circuit/self-hold-circuit-hero.png" alt="自己保持回路の起動・保持・停止を制御盤と先輩後輩のキャラクターで表したヒーロー画像" decoding="async">
+        </div>
       </section>
 
       <section class="top-summary" aria-label="この記事の要約">
@@ -1384,7 +1396,10 @@
             <p>モーター運転、ポンプ運転、警報保持など、「一度起動したあと、停止操作をするまで状態を続けたい」ときに基本となる考え方です。</p>
             <p>まずは回路全体を一度に覚えようとせず、<strong>起動時は起動a接点を通り、起動ボタンを離した後は自己保持a接点側へ通電経路が切り替わる</strong>、という2つの状態を見ると理解しやすくなります。</p>
 
-            <!-- IMAGE SLOT 1: リレー・電磁接触器の基本自己保持回路。大きな基本回路＋「起動時」「自己保持中」の2状態だけを比較。停止b接点・起動a接点・自己保持a接点・コイルの記号は全図で固定し、通電経路のみ赤色で示す。 -->
+            <figure class="article-figure">
+              <img class="article-lightbox-target" src="../assets/images/self-hold-circuit/self-hold-circuit-figure-01.png" alt="停止b接点、起動a接点、M補助a接点、Mコイルで構成する自己保持回路の基本と、起動時・自己保持中の通電経路を示した図" loading="lazy" decoding="async" tabindex="0" role="button" aria-label="自己保持回路の基本構成図を拡大表示">
+              <figcaption>起動時は起動a接点を通り、起動ボタンを離した後はM補助a接点側へ通電経路が切り替わります。</figcaption>
+            </figure>
 
             <div class="key-highlight">
               <h3>自己保持は「押し続ける」のではなく「通電経路が切り替わる」</h3>
@@ -1415,7 +1430,10 @@
               </div>
             </div>
 
-            <!-- IMAGE SLOT 2: 押しボタン → コイル励磁 → 補助a接点が閉じて自己保持が成立する実機イメージ。画像1と同じ説明を繰り返さず、機器の対応関係を主役にする。 -->
+            <figure class="article-figure">
+              <img class="article-lightbox-target" src="../assets/images/self-hold-circuit/self-hold-circuit-figure-02.png" alt="起動押しボタンからコイルが励磁され、補助a接点が閉じて自己保持が成立する流れを機器イメージとともに示した図" loading="lazy" decoding="async" tabindex="0" role="button" aria-label="自己保持が成立する動作ステップ図を拡大表示">
+              <figcaption>押しボタン、コイル、補助a接点の対応関係を追うと、自己保持が成立する仕組みを整理しやすくなります。</figcaption>
+            </figure>
           </section>
 
           <section class="section-card" id="relay-circuit">
@@ -1454,7 +1472,10 @@
             <p>起動ボタンを押してX1がONすると、X0の運転許可条件が成立している間にM0がONします。M0がONすると、X1と並列に置いたM0の自己保持接点が成立するため、起動ボタンを離してX1がOFFになってもM0はONを維持します。</p>
             <p>別RungではM0の接点を条件にY0を出力します。停止ボタンを押すと物理b接点が開いてPLC入力X0がOFFになり、Rung 1が不成立となるためM0がOFFし、自己保持が解除されます。その結果、Rung 2のM0接点も不成立になり、Y0もOFFします。</p>
 
-            <!-- IMAGE SLOT 3: PLC自己保持の基本回路だけを大きく表示。Rung 1 = X0運転許可 ─ [X1起動 || M0自己保持] ─ (M0)、Rung 2 = [M0] ─ (Y0)。状態差分やキャラクターは入れず、回路記号の正確さを最優先する。 -->
+            <figure class="article-figure">
+              <img class="article-lightbox-target" src="../assets/images/self-hold-circuit/self-hold-circuit-figure-03.png" alt="PLCでX0を運転許可、X1を起動入力としてM0を自己保持し、別RungのM0接点からY0を出力する基本ラダー図" loading="lazy" decoding="async" tabindex="0" role="button" aria-label="PLC自己保持の基本ラダー図を拡大表示">
+              <figcaption>PLCではM0に運転状態を保持させ、M0の別接点からY0を出力する構成として整理しています。</figcaption>
+            </figure>
 
             <h3>動作は4段階に分けて読む</h3>
             <ol class="step-list">
@@ -1560,7 +1581,10 @@
               </div>
             </div>
 
-            <!-- IMAGE SLOT 4: X1入力 → M0 ON → M0自己保持接点 → Y0出力の順に確認するシンプルなフローチャート。キャラクターなし。 -->
+            <figure class="article-figure">
+              <img class="article-lightbox-target" src="../assets/images/self-hold-circuit/self-hold-circuit-figure-04.png" alt="自己保持しない時にX1入力、M0、M0自己保持接点、Y0出力の順で確認するトラブルシュートのフローチャート" loading="lazy" decoding="async" tabindex="0" role="button" aria-label="自己保持しない時の確認手順図を拡大表示">
+              <figcaption>X1入力からY0出力まで上流から順番に確認し、どこで条件が途切れているかを切り分けます。</figcaption>
+            </figure>
           </section>
 
           <section class="section-card" id="common-mistakes">
@@ -1733,6 +1757,21 @@
       }
     });
   })();
+</script>
+
+<script>
+(function(){
+  const targets=[...document.querySelectorAll('.article-lightbox-target')];
+  if(!targets.length) return;
+  const box=document.createElement('div'); box.className='dc-image-lightbox'; box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','画像拡大表示');
+  const close=document.createElement('button'); close.className='dc-image-lightbox-close'; close.type='button'; close.setAttribute('aria-label','閉じる'); close.textContent='×';
+  const image=document.createElement('img'); box.append(close,image); document.body.appendChild(box);
+  let last=null;
+  function open(target){last=target;image.src=target.currentSrc||target.src;image.alt=target.alt||'';box.classList.add('is-open');document.body.style.overflow='hidden';close.focus();}
+  function shut(){box.classList.remove('is-open');image.removeAttribute('src');document.body.style.overflow='';if(last)last.focus();}
+  targets.forEach(target=>{target.addEventListener('click',()=>open(target));target.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(target);}});});
+  close.addEventListener('click',shut);box.addEventListener('click',e=>{if(e.target===box)shut();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&box.classList.contains('is-open'))shut();});
+})();
 </script>
   <script src="../assets/js/site-search.js" defer></script>
 </body>

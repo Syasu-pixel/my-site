@@ -1,0 +1,356 @@
+name: Materialize home comic final publication Preview
+
+on:
+  push:
+    branches:
+      - preview-final-home-comic-publication-20261004
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: home-comic-final-publication-preview
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    if: "!contains(github.event.head_commit.message, '[final-home-preview-materialized]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Install locked build dependencies
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1 PyYAML==6.0.2
+
+      - name: Execute production generation and publication stages
+        run: |
+          python - <<'PY'
+          import os
+          import subprocess
+          import yaml
+          from pathlib import Path
+
+          steps = yaml.safe_load(Path('.github/workflows/pages.yml').read_text())['jobs']['build']['steps']
+          selected = [
+              'Generate and verify approved article components',
+              'Prepare Pages artifact',
+              'Optimize published images to WebP',
+              'Verify final standalone publication',
+          ]
+          for name in selected:
+              step = next(s for s in steps if s.get('name') == name)
+              env = os.environ.copy()
+              env.update({str(k): str(v) for k, v in step.get('env', {}).items()})
+              print('Running production stage: ' + name, flush=True)
+              subprocess.run(
+                  ['bash', '-e', '-o', 'pipefail', '-c', step['run']],
+                  env=env,
+                  check=True,
+              )
+          PY
+
+      - name: Record source and accepted additional-shell hashes
+        run: |
+          mkdir -p "${RUNNER_TEMP}/home-final-evidence"
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const digest=b=>crypto.createHash('sha256').update(b).digest('hex');
+          const loader='<script src="/assets/js/site-analytics.js" defer data-site-analytics="metricool"></script>';
+          const source=fs.readFileSync('index.html');
+          const candidate=fs.readFileSync(process.env.RUNNER_TEMP+'/integration-build/additional-shells/candidate/index.html','utf8');
+          const publication=fs.readFileSync('_site/index.html');
+          const data={
+            sourceSha256:digest(source),
+            candidateSha256:digest(Buffer.from(candidate.replace(loader,''))),
+            publicationSha256:digest(publication),
+            sharedHeader:publication.includes('class="site-header dc-shell"'),
+            sharedFooter:publication.includes('dc-shared-footer')
+          };
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/home-final-evidence/hashes.json',JSON.stringify(data,null,2));
+          console.log(JSON.stringify(data));
+          if(!data.sharedHeader||!data.sharedFooter)process.exit(1);
+          JS
+
+      - name: Audit final publication in Chromium
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          python -m http.server 8777 --directory _site > "${RUNNER_TEMP}/home-final-evidence/server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:8777/ >/dev/null && break
+            sleep 1
+          done
+          cat > "${RUNNER_TEMP}/home-final-review.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+
+          const origin='http://127.0.0.1:8777';
+          const out=process.env.RUNNER_TEMP+'/home-final-evidence';
+          const browser=await chromium.launch({headless:true});
+          const result={origin,conditions:[],auto:null,wheel:null,swipe:null,reducedMotion:null,failures:[]};
+
+          const txy=async page=>page.locator('.instagram-comic-track').evaluate(el=>{
+            const m=new DOMMatrix(getComputedStyle(el).transform);
+            return {x:m.m41,y:m.m42};
+          });
+
+          const open=async({width,height,theme,mobile=false,reducedMotion='no-preference'})=>{
+            const context=await browser.newContext({
+              viewport:{width,height},
+              isMobile:mobile,
+              hasTouch:mobile,
+              deviceScaleFactor:1,
+              reducedMotion
+            });
+            await context.addInitScript(({theme})=>{
+              localStorage.setItem('dc-theme-explicit-v2','1');
+              localStorage.setItem('dc-theme',theme);
+            },{theme});
+            const page=await context.newPage();
+            const pageErrors=[];
+            page.on('pageerror',e=>pageErrors.push(String(e)));
+            await page.goto(origin+'/',{waitUntil:'networkidle'});
+            return {context,page,pageErrors};
+          };
+
+          try{
+            for(const spec of [
+              {width:1440,height:1000,theme:'light',mobile:false,label:'pc-light'},
+              {width:1440,height:1000,theme:'dark',mobile:false,label:'pc-dark'},
+              {width:390,height:844,theme:'light',mobile:true,label:'mobile-light'},
+              {width:390,height:844,theme:'dark',mobile:true,label:'mobile-dark'}
+            ]){
+              const {context,page,pageErrors}=await open(spec);
+              try{
+                assert.equal(await page.locator('.dc-shell').count(),1,'shared fixed header missing');
+                assert.equal(await page.locator('.dc-shared-footer').count(),1,'shared footer missing');
+                assert.equal(await page.locator('.instagram-comic-feed').count(),1,'comic feed missing');
+                assert.equal(await page.locator('html').getAttribute('data-dc-theme'),spec.theme,'theme mismatch');
+
+                const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+                assert.ok(overflow<=1,'horizontal overflow '+overflow);
+
+                const comic=page.locator('.instagram-comic-feed');
+                await comic.scrollIntoViewIfNeeded();
+                await page.waitForTimeout(700);
+
+                const resourceChecks=await page.locator('.instagram-comic-slide img').evaluateAll(async imgs=>{
+                  const values=[];
+                  for(const img of imgs){
+                    const response=await fetch(img.currentSrc||img.src,{cache:'no-store'});
+                    values.push({src:img.getAttribute('src'),ok:response.ok,status:response.status});
+                  }
+                  return values;
+                });
+                assert.ok(resourceChecks.every(x=>x.ok),'comic image resource missing');
+
+                const hrefs=await page.locator('.instagram-comic-slide').evaluateAll(as=>as.map(a=>new URL(a.href).pathname));
+                assert.deepEqual(hrefs,[
+                  '/articles/sensor-basic.html',
+                  '/articles/reed-switch-basic.html',
+                  '/articles/no-nc-basic.html',
+                  '/articles/air-cylinder-troubleshooting-basic.html',
+                  '/articles/servo-motor-basic.html'
+                ],'comic article links changed');
+
+                const overlap=await page.evaluate(()=>{
+                  const v=document.querySelector('.instagram-comic-viewport').getBoundingClientRect();
+                  return [...document.querySelectorAll('.instagram-comic-slide')].filter(el=>{
+                    const r=el.getBoundingClientRect();
+                    return Math.min(v.bottom,r.bottom)-Math.max(v.top,r.top)>4;
+                  }).length;
+                });
+                assert.equal(overlap,1,'more than one comic is exposed in the viewport');
+
+                let railWidth=null;
+                if(spec.width>=1101){
+                  railWidth=await page.locator('.top-right-rail').evaluate(el=>el.getBoundingClientRect().width);
+                  assert.ok(railWidth>=340&&railWidth<=405,'unexpected desktop right rail width '+railWidth);
+                }
+
+                const internal=await page.locator('a[href]').evaluateAll(as=>[...new Set(as.map(a=>a.getAttribute('href')).filter(h=>h&&!h.startsWith('#')&&!h.startsWith('mailto:')&&!h.startsWith('tel:')).map(h=>new URL(h,location.href)).filter(u=>u.origin===location.origin).map(u=>u.pathname+u.search))]);
+                const broken=[];
+                for(const path of internal){
+                  const response=await page.request.fetch(origin+path,{method:'HEAD'});
+                  if(response.status()>=400)broken.push({path,status:response.status()});
+                }
+                assert.deepEqual(broken,[],'broken internal links');
+
+                await page.screenshot({path:out+'/'+spec.label+'.png',fullPage:true,animations:'disabled'});
+                assert.deepEqual(pageErrors,[],'new page errors');
+                result.conditions.push({label:spec.label,railWidth,overlap,resources:resourceChecks.length,internalLinks:internal.length});
+              } finally {
+                await context.close();
+              }
+            }
+
+            {
+              const {context,page}=await open({width:1440,height:1000,theme:'light'});
+              try{
+                await page.locator('.instagram-comic-feed').scrollIntoViewIfNeeded();
+                const before=await txy(page);
+                await page.waitForTimeout(7600);
+                const after=await txy(page);
+                assert.ok(Math.abs(after.y-before.y)>100,'auto advance did not move vertically');
+                assert.ok(Math.abs(after.x-before.x)<1,'auto advance moved horizontally');
+                result.auto={before,after};
+
+                const viewport=page.locator('.instagram-comic-viewport');
+                await viewport.hover();
+                const wheelBefore=await txy(page);
+                await page.mouse.wheel(0,360);
+                await page.waitForTimeout(650);
+                const wheelAfter=await txy(page);
+                assert.ok(Math.abs(wheelAfter.y-wheelBefore.y)>100,'mouse wheel did not change comic');
+                assert.ok(Math.abs(wheelAfter.x-wheelBefore.x)<1,'mouse wheel moved horizontally');
+                result.wheel={before:wheelBefore,after:wheelAfter};
+                await page.screenshot({path:out+'/comic-after-auto-wheel.png',fullPage:false,animations:'disabled'});
+              } finally {
+                await context.close();
+              }
+            }
+
+            {
+              const {context,page}=await open({width:390,height:844,theme:'light',mobile:true});
+              try{
+                await page.locator('.instagram-comic-feed').scrollIntoViewIfNeeded();
+                const before=await txy(page);
+                await page.locator('.instagram-comic-viewport').evaluate(el=>{
+                  const mk=(y)=>new Touch({identifier:7,target:el,clientX:160,clientY:y,screenX:160,screenY:y,pageX:160,pageY:y});
+                  const start=mk(310);
+                  el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
+                  const end=mk(150);
+                  el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[end]}));
+                });
+                await page.waitForTimeout(650);
+                const after=await txy(page);
+                assert.ok(Math.abs(after.y-before.y)>100,'touch swipe did not change comic');
+                assert.ok(Math.abs(after.x-before.x)<1,'touch swipe moved horizontally');
+                result.swipe={before,after};
+              } finally {
+                await context.close();
+              }
+            }
+
+            {
+              const {context,page}=await open({width:1440,height:1000,theme:'light',reducedMotion:'reduce'});
+              try{
+                await page.locator('.instagram-comic-feed').scrollIntoViewIfNeeded();
+                const duration=await page.locator('.instagram-comic-track').evaluate(el=>getComputedStyle(el).transitionDuration);
+                const before=await txy(page);
+                await page.waitForTimeout(7600);
+                const after=await txy(page);
+                assert.equal(duration,'0s','reduced-motion transition is not disabled');
+                assert.ok(Math.abs(after.y-before.y)<1,'reduced-motion still auto advances');
+                result.reducedMotion={duration,before,after};
+              } finally {
+                await context.close();
+              }
+            }
+          }catch(error){
+            result.failures.push(String(error?.stack||error));
+            throw error;
+          }finally{
+            fs.writeFileSync(out+'/browser-audit.json',JSON.stringify(result,null,2));
+            await browser.close();
+          }
+          JS
+          RUNNER_TEMP="${RUNNER_TEMP}" node "${RUNNER_TEMP}/home-final-review.mjs"
+
+      - name: Materialize production-equivalent top and linked review pages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,re,shutil
+
+          site=Path('_site')
+          manifest=json.loads(Path('.github/site-shells/additional/manifest.json').read_text())
+          targets=[p['path'] for p in manifest['pages']]
+          targets += [
+              'articles/sensor-basic.html',
+              'articles/reed-switch-basic.html',
+              'articles/no-nc-basic.html',
+              'articles/air-cylinder-troubleshooting-basic.html',
+              'articles/servo-motor-basic.html',
+          ]
+          runtime=[
+              'assets/css/article-toc-v2.css',
+              'assets/js/article-toc-v2.js',
+              'assets/css/article-end-related.css',
+              'assets/css/article-end-feedback.css',
+              'assets/css/article-integration-compat.css',
+              'assets/js/article-integration-compat.js',
+          ]
+          copied=[]
+          for rel in targets+runtime:
+              src=site/rel
+              if not src.exists():
+                  raise SystemExit('Missing publication file: '+rel)
+              dst=Path(rel)
+              dst.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(src,dst)
+              copied.append(dst)
+
+          refs=set()
+          pat=re.compile(r'/?(assets/images/[^\s"\'<>?#)]+\.webp)',re.I)
+          for path in copied:
+              try:text=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:continue
+              refs.update(pat.findall(text))
+          for rel in sorted(refs):
+              src=site/rel
+              if src.exists():
+                  dst=Path(rel)
+                  dst.parent.mkdir(parents=True,exist_ok=True)
+                  shutil.copy2(src,dst)
+
+          evidence=Path(__import__('os').environ['RUNNER_TEMP'])/'home-final-evidence'
+          (evidence/'materialized-files.json').write_text(json.dumps({
+              'pages':targets,
+              'runtime':runtime,
+              'webpAssets':sorted(refs)
+          },ensure_ascii=False,indent=2))
+          PY
+
+          printf '/*\n  X-Robots-Tag: noindex, noarchive\n' > _headers
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html en/index.html services/gxworks2-online-support.html contact/index.html en/contact/index.html privacy-policy/index.html en/privacy-policy/index.html categories en/categories \
+            articles/sensor-basic.html articles/reed-switch-basic.html articles/no-nc-basic.html articles/air-cylinder-troubleshooting-basic.html articles/servo-motor-basic.html \
+            assets/css/article-toc-v2.css assets/js/article-toc-v2.js assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-integration-compat.js \
+            assets/images _headers robots.txt
+          git commit -m "[final-home-preview-materialized] production-equivalent home comic Preview"
+          git push
+
+      - name: Upload final Preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-comic-final-publication-preview
+          path: ${{ runner.temp }}/home-final-evidence
+          retention-days: 14

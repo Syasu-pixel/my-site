@@ -3850,7 +3850,7 @@
     .instagram-comic-feed{overflow:hidden}
     .instagram-comic-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
     .instagram-comic-head h3{margin:2px 0 0}
-    .instagram-comic-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e1306c}
+    .instagram-comic-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
     .instagram-comic-profile{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
     .instagram-comic-intro{margin:0 0 12px;font-size:12px;line-height:1.65;color:var(--muted)}
     .instagram-comic-viewport{position:relative;overflow:hidden;border-radius:14px;outline:none;overscroll-behavior:contain;height:390px}
@@ -3866,16 +3866,21 @@
 
   
     /* Preview: home-only wide right rail + vertical comic reel */
-    @media (min-width:1280px){
+    @media (min-width:1101px){
       .container{max-width:1300px !important;}
       .top-main-layout{
-        grid-template-columns:840px 400px !important;
-        column-gap:18px !important;
+        grid-template-columns:minmax(700px,840px) minmax(340px,400px) !important;
+        column-gap:12px !important;
         justify-content:center !important;
       }
+      .top-left-flow{
+        width:100% !important;
+        min-width:0 !important;
+        max-width:840px !important;
+      }
       .top-right-rail{
-        width:400px !important;
-        min-width:400px !important;
+        width:100% !important;
+        min-width:0 !important;
         max-width:400px !important;
         transform:none !important;
       }
@@ -3889,8 +3894,6 @@
         max-width:100% !important;
       }
     }
-    .instagram-comic-viewport{height:auto !important;aspect-ratio:auto !important;}
-    .instagram-comic-slide{height:auto !important;flex:0 0 auto !important;}
 </style>
 
   <script type="text/javascript">
@@ -4210,7 +4213,7 @@
                 
               </div>
               <p class="instagram-comic-intro">記事のポイントを4コマで紹介。自動で次の作品へ切り替わります。気になる4コマをタップすると関連記事を開きます。</p>
-              <div class="instagram-comic-viewport" tabindex="0" aria-label="Instagram 4コマ投稿">
+              <div class="instagram-comic-viewport" tabindex="0" aria-label="4コマ漫画">
                 <div class="instagram-comic-track">
                   <a class="instagram-comic-slide" href="articles/sensor-basic.html">
                     <img src="assets/images/comics/sensor-basic/sensor-basic-yonkoma-01-pilot.png" alt="センサって何をしてるの？ 4コマ漫画" loading="lazy" decoding="async">
@@ -4364,7 +4367,7 @@
 
     <footer>
       現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
-      <a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a> | <a href="https://www.instagram.com/denkicontrol/" target="_blank" rel="noopener noreferrer">Instagram @denkicontrol</a>
+      <a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a>
     </footer>
   </main>
 
@@ -4523,7 +4526,8 @@
   const track=root.querySelector('.instagram-comic-track');
   const slides=[...root.querySelectorAll('.instagram-comic-slide')];
   const dots=root.querySelector('.instagram-comic-dots');
-  let index=0,timer=null,touchY=null,wheelLock=false,pageHeight=0;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let index=0,timer=null,resumeTimer=null,touchY=null,wheelLock=false,pageHeight=0;
 
   slides.forEach((_,i)=>{
     const d=document.createElement('i');
@@ -4532,7 +4536,11 @@
   });
 
   const measure=()=>{
-    pageHeight=Math.round(viewport.clientWidth + 50);
+    slides.forEach(slide=>{
+      slide.style.height='auto';
+      slide.style.flex='0 0 auto';
+    });
+    pageHeight=Math.ceil(Math.max(...slides.map(slide=>slide.scrollHeight)));
     viewport.style.height=pageHeight+'px';
     slides.forEach(slide=>{
       slide.style.height=pageHeight+'px';
@@ -4544,44 +4552,58 @@
     [...dots.children].forEach((d,i)=>d.classList.toggle('is-active',i===index));
   };
   const layout=()=>{measure();paint();};
-  const move=(dir)=>{
+  const step=(dir)=>{
     index=(index+dir+slides.length)%slides.length;
     paint();
-    restart();
   };
-  const restart=()=>{
+  const stopAuto=()=>{
     clearInterval(timer);
-    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
-      timer=setInterval(()=>move(1),6500);
-    }
+    timer=null;
+  };
+  const startAuto=()=>{
+    stopAuto();
+    if(!reduced.matches)timer=setInterval(()=>step(1),7000);
+  };
+  const userStep=(dir)=>{
+    step(dir);
+    stopAuto();
+    clearTimeout(resumeTimer);
+    resumeTimer=setTimeout(startAuto,9000);
   };
 
   viewport.addEventListener('wheel',e=>{
-    if(Math.abs(e.deltaY)<8||wheelLock)return;
+    if(Math.abs(e.deltaY)<12||wheelLock)return;
     e.preventDefault();
     wheelLock=true;
-    move(e.deltaY>0?1:-1);
-    setTimeout(()=>wheelLock=false,500);
+    userStep(e.deltaY>0?1:-1);
+    setTimeout(()=>wheelLock=false,550);
   },{passive:false});
 
-  viewport.addEventListener('touchstart',e=>touchY=e.touches[0].clientY,{passive:true});
+  viewport.addEventListener('touchstart',e=>{
+    touchY=e.touches[0].clientY;
+    stopAuto();
+  },{passive:true});
   viewport.addEventListener('touchend',e=>{
     if(touchY==null)return;
     const dy=e.changedTouches[0].clientY-touchY;
-    if(Math.abs(dy)>35)move(dy<0?1:-1);
+    if(Math.abs(dy)>35)userStep(dy<0?1:-1);
+    else startAuto();
     touchY=null;
   },{passive:true});
 
   viewport.addEventListener('keydown',e=>{
-    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();move(1);}
-    if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();move(-1);}
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();userStep(1);}
+    if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();userStep(-1);}
   });
 
-  root.addEventListener('mouseenter',()=>clearInterval(timer));
-  root.addEventListener('mouseleave',restart);
+  root.addEventListener('mouseenter',stopAuto);
+  root.addEventListener('mouseleave',startAuto);
+  root.addEventListener('focusin',stopAuto);
+  root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))startAuto();});
+  reduced.addEventListener?.('change',()=>{if(reduced.matches)stopAuto();else startAuto();});
   window.addEventListener('resize',layout);
   layout();
-  restart();
+  startAuto();
 })();
 </script>
 

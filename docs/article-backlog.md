@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 自己保持回路記事刷新: `articles/self-hold-circuit.html` — 既存タイトルを維持しつつ、本文構成・公式資料・OGP・専用Hero・本文画像4枚・PLCラダー説明・スマホ表示・ダークモード・本文画像拡大表示を全面刷新。Panasonic / OMRON / IDEC の公式資料で自己保持と安全回路の役割を再確認し、最終内容更新日を2026-10-04へ更新。最終承認用publication PreviewでPC/スマホ×ライト/ダーク、Hero、OGP、本文画像、ライトボックス、横はみ出しを確認済み。Google Search ConsoleのURL検査から再クロール依頼対象。
+
 - [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新して公開（#1606）。続けて日本語メーカー公式資料（三菱電機FA／富士電機）で「電磁接触器」「電磁開閉器」「サーマルリレー」の正式な役割区分を再確認し、本文の用語説明・公式資料欄・最終内容更新日／公式資料確認日を追補して公開（#1614）。公式参照正本は `docs/reference-notes/magnetic-switch-basic.md`。Google Search ConsoleのURL検査から再クロール依頼対象。
 
 - [x] PLC設備設計シリーズ 第3回: `articles/plc-drilling-line-design-project-03.html` — 搬送制御編の本文完成・本番公開・主要導線追加まで完了。

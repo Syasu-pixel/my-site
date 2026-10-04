@@ -42,6 +42,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           set +e
           git merge --no-ff --no-commit origin/main
@@ -77,8 +79,49 @@ jobs:
             'category':'conditional',
             'when':'articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。'
           }
-          if not any(x.get('path')==note['path'] for x in cat['documents']):
-            cat['documents'].append(note)
+          for extra in [
+            note,
+            {
+              'path':'docs/comic-scripts/interlock-basic-yonkoma-01.md',
+              'title':'interlock-basic 四コマ漫画 01',
+              'category':'reference',
+              'when':'インターロック記事の四コマ採用内容・技術ガード・保存状態を確認する場合。'
+            },
+            {
+              'path':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'title':'npn-pnp-basic 四コマ漫画 01',
+              'category':'reference',
+              'when':'NPN / PNP記事の四コマ採用内容・技術ガード・保存状態を確認する場合。'
+            }
+          ]:
+            if not any(x.get('path')==extra['path'] for x in cat['documents']):
+              cat['documents'].append(extra)
+
+          support={
+            'path':'.github/workflows/self-hold-finalize.yml',
+            'when':'自己保持回路の最終承認用Previewで、本番同等の統合生成・公開候補検証・4条件表示監査を実行する場合。',
+            'role':'最終Preview専用の一時Workflow。mainへマージしない。'
+          }
+          if not any(x.get('path')==support['path'] for x in cat['supporting']):
+            cat['supporting'].append(support)
+
+          for ex in [
+            {
+              'source':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'raw':'a_colorful_japanese_manga_style_infographic_comic.png',
+              'type':'unavailable',
+              'reason':'2026-10-02に正式採用した画像生成セッションの一時ファイル名。GitHub常設正本への転送完了前の採用記録として保持する。'
+            },
+            {
+              'source':'docs/comic-scripts/npn-pnp-basic-yonkoma-01.md',
+              'raw':'assets/images/comics/npn-pnp-basic/npn-pnp-basic-yonkoma-01.png',
+              'type':'unavailable',
+              'reason':'正式採用画像の想定配置先。現時点ではGitHubバイナリ正本への転送前のため未実在。'
+            }
+          ]:
+            if not any(x.get('source')==ex['source'] and x.get('raw')==ex['raw'] for x in cat['reference_exceptions']):
+              cat['reference_exceptions'].append(ex)
+
           p.write_text(json.dumps(cat,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 
           def update_by_key(path,key,value,updates):

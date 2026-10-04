@@ -1,104 +1,181 @@
-# Temporary Preview-only builder. DO NOT MERGE into main.
-name: Light curtain production-equivalent Preview
+name: AI Editorial Preview Capture
+run-name: AI Editorial Preview PR #${{ github.event.pull_request.number }}
+
 on:
-  push:
-    branches: [preview-final-light-curtain-current-20261004]
-    paths: [.github/workflows/ai-editorial-preview-capture.yml]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 permissions:
-  contents: write
-concurrency:
-  group: light-curtain-final-preview-20261004
-  cancel-in-progress: false
+  contents: read
+
 jobs:
-  prepare:
+  capture:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 12
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR head
+        uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          show-progress: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.16.0'
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.19.0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.14'
-      - name: Build and materialize byte-identical publication
-        shell: bash
+
+      - name: Resolve Preview URL
+        id: target
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          PAGES_PROJECT: denkicontrol-preview
         run: |
-          set -euo pipefail
-          test "$GITHUB_REF" = refs/heads/preview-final-light-curtain-current-20261004
-          test "$(git rev-parse origin/main)" = b354aba6dc92b995499b11292630686d010e4d5b
-          mkdir -p "$RUNNER_TEMP/lc-evidence"
-          git config core.whitespace cr-at-eol
-          python -m pip install PyYAML==6.0.2
-          python - <<'PY'
-          from pathlib import Path
-          import os,subprocess,yaml,json,tarfile
-          evidence=Path(os.environ['RUNNER_TEMP'])/'lc-evidence'
-          prior='1bc0ddec612013e58a6f33cf28bddecce4cddc33'
-          changed=subprocess.check_output(['git','diff','--name-only',prior,'HEAD'],text=True).splitlines()
-          assert changed==['.github/workflows/ai-editorial-preview-capture.yml'],changed
-          (evidence/'verified-source-continuity.json').write_text(json.dumps({'previousValidatedSource':prior,'unchangedArticleImagesAndRules':True,'onlyWorkflowChanged':changed,'previousFinalValidationRun':37179794112},indent=2)+'\n')
-          (evidence/'source-sha.txt').write_text(subprocess.check_output(['git','rev-parse','HEAD'],text=True))
-          checker='''from pathlib import Path
-          import os,re,json,hashlib
-          base=Path(os.environ['RUNNER_TEMP']); ev=base/'lc-evidence'; out=base/'lc-publication'
-          text=(ev/'generated-whitespace.txt').read_text()
-          findings=re.findall(r'^([^\\n]+?):(\\d+): (trailing whitespace\\.|new blank line at EOF\\.)$',text,re.M)
-          allowed={'articles/light-curtain-basic.html','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js'}
-          assert len(findings)==10 and {f[0] for f in findings}==allowed,findings
-          manifest=json.loads((out/'light-curtain-preview-manifest.json').read_text())
-          for item in manifest['artifacts']:
-              assert hashlib.sha256((out/item['path']).read_bytes()).hexdigest()==item['sha256']
-          report={'findings':findings,'generatedFilesPreservedByteForByte':True,'sourceWhitespaceChecksNotRelaxed':True,'decision':'Record whitespace emitted by the unchanged production generators; do not rewrite validated publication bytes. This output branch must not be merged.'}
-          (ev/'generated-whitespace-review.json').write_text(json.dumps(report,indent=2)+'\\n')
-          print('Recorded 10 existing production-generator whitespace findings; all 35 publication file hashes preserved.')
-          '''
-          (evidence/'check-generated-whitespace.py').write_text(checker)
-          sources=[
-            ('e4aca87e0e0c946cfc9d6507906198fa1238dea1','Compare rule catalog findings with unchanged main'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Execute unchanged production build and final validation blocks'),
-            ('481ca8e30a23b9898408e6dbb9a10cfd46d44ccf','Materialize verified target and every runtime dependency on output-only branch')
-          ]
-          try:
-              for i,(commit,name) in enumerate(sources,1):
-                  raw=subprocess.check_output(['git','show',commit+':.github/workflows/ai-editorial-preview-capture.yml'])
-                  matches=[s for s in yaml.safe_load(raw)['jobs']['prepare']['steps'] if s.get('name')==name]; assert len(matches)==1
-                  script=matches[0]['run']
-                  if i==3:
-                      old='git -C "$RUNNER_TEMP/lc-publication" diff --cached --check'
-                      assert script.count(old)==1
-                      replacement='set +e\n'+old+' > "$RUNNER_TEMP/lc-evidence/generated-whitespace.txt"\nwhitespace_status=$?\nset -e\ntest "$whitespace_status" -eq 0 || test "$whitespace_status" -eq 2\npython "$RUNNER_TEMP/lc-evidence/check-generated-whitespace.py"'
-                      script=script.replace(old,replacement)
-                  (evidence/('step-'+str(i)+'.sh')).write_text(script)
-                  print('::group::'+name,flush=True)
-                  with (evidence/('step-'+str(i)+'.log')).open('w') as log:
-                      result=subprocess.run(['bash','-e','-o','pipefail','-c',script],stdout=log,stderr=subprocess.STDOUT)
-                  print('\n'.join((evidence/('step-'+str(i)+'.log')).read_text().splitlines()[-50:]),flush=True)
-                  print('::endgroup::',flush=True)
-                  if result.returncode:raise SystemExit(result.returncode)
-          finally:
-              out=Path(os.environ['RUNNER_TEMP'])/'lc-publication'; mp=out/'light-curtain-preview-manifest.json'
-              if mp.exists():
-                  manifest=json.loads(mp.read_text())
-                  with tarfile.open(evidence/'exact-publication-files.tar.gz','w:gz') as tar:
-                      for item in manifest['artifacts']:tar.add(out/item['path'],arcname=item['path'])
-                      tar.add(mp,arcname='light-curtain-preview-manifest.json')
-          PY
-      - name: Upload complete publication evidence
-        if: always()
+          mapfile -t CHANGED_FILES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          mapfile -t ARTICLE_CANDIDATES < <(printf '%s\n' "${CHANGED_FILES[@]}" | grep -E '^articles/.*\.html$' || true)
+          TARGET_PATH=""
+
+          # If an article HTML changed, preview the article first even when shared
+          # assets such as site-search.js changed in the same PR.
+          for candidate in "${ARTICLE_CANDIDATES[@]}"; do
+            slug="$(basename "$candidate" .html)"
+            if [ -d "assets/images/$slug" ]; then
+              TARGET_PATH="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$TARGET_PATH" ] && [ "${#ARTICLE_CANDIDATES[@]}" -gt 0 ]; then
+            TARGET_PATH="${ARTICLE_CANDIDATES[0]}"
+          fi
+
+          # Only fall back to the home page when no article HTML changed.
+          if [ -z "$TARGET_PATH" ] && printf '%s\n' "${CHANGED_FILES[@]}" | grep -Eq '^(index\.html|assets/js/site-search\.js)$'; then
+            TARGET_PATH="index.html"
+          fi
+
+          if [ -z "$TARGET_PATH" ]; then
+            echo "No supported Preview target changed; skip capture."
+            echo "has_article=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BRANCH_ALIAS="$(printf '%s' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          LOCAL_URL="http://127.0.0.1:4173/${TARGET_PATH}"
+
+          case "$BRANCH_NAME" in
+            ai-editorial/*|preview-*|pilot-*)
+              PREVIEW_URL="https://${BRANCH_ALIAS}.${PAGES_PROJECT}.pages.dev/${TARGET_PATH}"
+              PREVIEW_PROVIDER="cloudflare-pages"
+              ;;
+            *)
+              PREVIEW_URL=""
+              PREVIEW_PROVIDER="local-only"
+              ;;
+          esac
+
+          echo "Resolved Preview target: $TARGET_PATH"
+          echo "has_article=true" >> "$GITHUB_OUTPUT"
+          echo "article_path=$TARGET_PATH" >> "$GITHUB_OUTPUT"
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "preview_provider=$PREVIEW_PROVIDER" >> "$GITHUB_OUTPUT"
+          echo "local_url=$LOCAL_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        if: steps.target.outputs.has_article == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        if: steps.target.outputs.has_article == 'true'
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local PR render server
+        if: steps.target.outputs.has_article == 'true'
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/preview-server.log 2>&1 &
+          echo $! >/tmp/preview-server.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              echo "Local PR render server ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/preview-server.log || true
+          echo "Local PR render server did not start" >&2
+          exit 1
+
+      - name: Capture desktop and mobile Preview
+        if: steps.target.outputs.has_article == 'true'
+        env:
+          PREVIEW_URL: ${{ steps.target.outputs.preview_url }}
+          PREVIEW_PROVIDER: ${{ steps.target.outputs.preview_provider }}
+          LOCAL_URL: ${{ steps.target.outputs.local_url }}
+          ARTICLE_PATH: ${{ steps.target.outputs.article_path }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          OUT="preview-capture/pr-${PR_NUMBER}"
+          mkdir -p "$OUT"
+          cat > .ai-editorial-capture.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const renderUrl = process.env.LOCAL_URL;
+          const previewUrl = process.env.PREVIEW_URL;
+          const previewProvider = process.env.PREVIEW_PROVIDER || 'local-only';
+          const pr = process.env.PR_NUMBER;
+          const out = `preview-capture/pr-${pr}`;
+          const browser = await chromium.launch({ headless: true });
+
+          async function capture(name, viewport) {
+            const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+            const response = await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 90000 });
+            if (!response || !response.ok()) throw new Error(`local render failed: ${response?.status() ?? 'no response'} ${renderUrl}`);
+            await page.evaluate(async () => {
+              if (document.fonts?.ready) await document.fonts.ready;
+              await new Promise(r => setTimeout(r, 1200));
+            });
+            await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
+            if (name === 'desktop') fs.writeFileSync(`${out}/rendered.html`, await page.content(), 'utf8');
+            await page.close();
+          }
+
+          await capture('desktop', { width: 1440, height: 1000 });
+          await capture('mobile', { width: 390, height: 844 });
+          await browser.close();
+
+          fs.writeFileSync(`${out}/manifest.json`, JSON.stringify({
+            pr_number: Number(pr),
+            preview_url: previewUrl || null,
+            preview_provider: previewProvider,
+            render_source: 'local-pr-head',
+            article_path: process.env.ARTICLE_PATH,
+            head_sha: process.env.HEAD_SHA,
+            captured_at: new Date().toISOString(),
+            desktop: 'desktop.png',
+            mobile: 'mobile.png',
+            html: 'rendered.html'
+          }, null, 2));
+          JS
+          node .ai-editorial-capture.mjs
+          rm -f .ai-editorial-capture.mjs
+
+      - name: Stop local PR render server
+        if: always() && steps.target.outputs.has_article == 'true'
+        run: |
+          if [ -f /tmp/preview-server.pid ]; then
+            kill "$(cat /tmp/preview-server.pid)" || true
+          fi
+
+      - name: Upload Preview evidence
+        if: steps.target.outputs.has_article == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: light-curtain-final-publication-proof
-          path: |
-            ${{ runner.temp }}/lc-evidence/
-            ${{ runner.temp }}/integration-build/publication-checks.json
-            ${{ runner.temp }}/integration-build/publication-final-checks.json
-            ${{ runner.temp }}/integration-build/end-independent-checks.json
-          retention-days: 14
+          name: ai-editorial-preview-pr-${{ github.event.pull_request.number }}
+          path: preview-capture/pr-${{ github.event.pull_request.number }}/
           if-no-files-found: error
+          retention-days: 14

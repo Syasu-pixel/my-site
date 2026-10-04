@@ -1,0 +1,278 @@
+name: Safety control final publication audit (DO NOT MERGE)
+on:
+  push:
+    branches: [preview-final-safety-control-publication-20261002]
+    paths:
+      - .github/workflows/safety-control-finalize.yml
+      - .github/safety-control-finalize-trigger.txt
+permissions:
+  contents: write
+  checks: read
+concurrency:
+  group: safety-control-final-publication
+  cancel-in-progress: false
+jobs:
+  finalize:
+    if: github.ref == 'refs/heads/preview-final-safety-control-publication-20261002'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SOURCE_BRANCH: preview-safety-control-refresh-20261001
+      FINAL_BRANCH: preview-final-safety-control-publication-20261002
+      EXPECTED_SOURCE: d1b56273fe8370b8963922b1a6cd6ddfa5a764d0
+      REVIEW_COPY_ASSETS: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Apply only the recorded article maintenance and three target hashes
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/safety-final-evidence"
+          test "$(git rev-parse origin/$SOURCE_BRANCH)" = "$EXPECTED_SOURCE"
+          git rev-parse origin/main > "$RUNNER_TEMP/safety-final-evidence/main-before.txt"
+          git checkout -B "$SOURCE_BRANCH" "origin/$SOURCE_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,re,subprocess
+          p=Path('articles/safety-control-basic.html'); before=p.read_bytes(); text=before.decode('utf-8')
+          edits=[
+            ('<span class="marker-blue">危険源を確認する → リスクを評価する → 必要なリスク低減方策を決める → 必要な安全機能を設計する</span>','<strong>危険源を確認する → リスクを評価する → 必要なリスク低減方策を決める → 必要な安全機能を設計する</strong>'),
+            ('<span class="term">STO（Safe Torque Off／安全トルク遮断）</span>','<span class="term">STO</span>（Safe Torque Off／安全トルク遮断）'),
+            ('また、STO自体は主電源を遮断する機能や、機械を物理的に直ちに停止させるブレーキではありません。','また、<strong>STO自体は主電源を遮断する機能や、機械を物理的に直ちに停止させるブレーキではありません</strong>。'),
+            ('<span class="marker-blue">非常停止＝安全制御の全部、ではありません</span>','<span class="marker-blue">非常停止は、安全制御のすべてではありません</span>'),
+            ('<span class="marker-blue">安全リレーを付ければ安全、ではありません</span>','<strong>安全リレーを付けるだけで、安全になるわけではありません</strong>'),
+            ('<span class="marker-blue">ライトカーテン＝機械を止める部品、だけではありません</span>','ライトカーテンは、単に機械を止めるだけの部品ではありません'),
+            ('<span class="marker-blue">STO＝非常停止、ではありません</span>','<span class="marker-blue">STOと非常停止は、同じ意味ではありません</span>')
+          ]
+          for old,new in edits:
+            assert text.count(old)==1,old
+            text=text.replace(old,new)
+          after=text.encode('utf-8');p.write_bytes(after)
+          oldsha=hashlib.sha256(before).hexdigest();newsha=hashlib.sha256(after).hexdigest()
+          blob=lambda b:hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          records=[]
+          for name,old,new in [('.github/site-shells/manifest.json',oldsha,newsha),('.github/article-components/site-inventory.json',blob(before),blob(after)),('.github/article-components/end/all-preservation-oracle.json',oldsha,newsha)]:
+            f=Path(name);raw=f.read_bytes();assert raw.count(old.encode())==1,name
+            f.write_bytes(raw.replace(old.encode(),new.encode()));json.loads(f.read_text())
+            records.append({'path':name,'old':old,'new':new})
+          images={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in Path('assets/images/safety-control-basic').glob('*.webp')}
+          assert len(images)==4
+          report={'expectedSource':os.environ['EXPECTED_SOURCE'],'edits':edits,'hashUpdates':records,'adoptedImagesSha256':images,'scope':'Japanese grammar and restrained emphasis; no technical, SEO, date, image or shared-template changes'}
+          out=Path(os.environ['RUNNER_TEMP'])/'safety-final-evidence';(out/'maintenance.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          (out/'source.diff').write_bytes(subprocess.check_output(['git','diff','--']))
+          changed=set(subprocess.check_output(['git','diff','--name-only']).decode().splitlines())
+          assert changed=={'articles/safety-control-basic.html',*(r['path'] for r in records)},changed
+          assert not subprocess.check_output(['git','diff','--','assets/images'])
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/safety-control-basic.html .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/end/all-preservation-oracle.json
+          git commit -m 'Polish safety-control emphasis and Japanese wording; preserve adopted images'
+          echo "VERIFIED_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Install locked build dependencies and verify rule structure
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1 PyYAML==6.0.2
+          python scripts/check-rule-catalog.py --report "$RUNNER_TEMP/safety-final-evidence/rule-catalog.json"
+          pnpm check:shells
+      - name: Execute the existing production generation and publication validation stages
+        run: |
+          python - <<'PY'
+          import yaml,subprocess,os
+          from pathlib import Path
+          steps=yaml.safe_load(Path('.github/workflows/pages.yml').read_text())['jobs']['build']['steps']
+          selected=['Generate and verify approved article components','Prepare Pages artifact','Optimize published images to WebP','Verify final standalone publication']
+          for name in selected:
+            step=next(s for s in steps if s.get('name')==name)
+            env=os.environ.copy();env.update({str(k):str(v) for k,v in step.get('env',{}).items()})
+            print('Running production stage: '+name,flush=True)
+            subprocess.run(['bash','-e','-o','pipefail','-c',step['run']],env=env,check=True)
+          PY
+          cp "$RUNNER_TEMP/integration-build/publication-final-checks.json" "$RUNNER_TEMP/safety-final-evidence/"
+          cp "$RUNNER_TEMP/integration-build/publication-checks.json" "$RUNNER_TEMP/safety-final-evidence/"
+          cp "$RUNNER_TEMP/integration-build/source-verification.json" "$RUNNER_TEMP/safety-final-evidence/" 2>/dev/null || true
+          cp _site/articles/safety-control-basic.html "$RUNNER_TEMP/safety-final-evidence/verified-publication.html"
+          pnpm exec playwright install --with-deps chromium
+      - name: Prepare the four-condition browser audit
+        run: |
+          cat > .safety-final-review.mjs <<'JS'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          const out=process.env.REVIEW_OUTPUT;fs.mkdirSync(out,{recursive:true});
+          const url=process.env.REVIEW_URL;
+          const expected=fs.readFileSync(`${process.env.RUNNER_TEMP}/safety-final-evidence/verified-publication.html`);
+          const digest=b=>crypto.createHash('sha256').update(b).digest('hex');
+          const browser=await chromium.launch({headless:true});
+          const result={url,at:new Date().toISOString(),source:process.env.VERIFIED_SOURCE_SHA,expectedHtmlSha256:digest(expected),conditions:[],failures:[]};
+          try {
+            for(const mobile of [false,true])for(const theme of ['light','dark']){
+              const label=`${mobile?'mobile':'pc'}-${theme}`;
+              const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},deviceScaleFactor:1,isMobile:mobile,hasTouch:mobile,colorScheme:theme});
+              await context.route('**/*',async route=>{const r=route.request();if(!['GET','HEAD'].includes(r.method()))return route.abort();const u=new URL(r.url());if(u.origin!==new URL(url).origin)return route.abort();return route.continue();});
+              const page=await context.newPage();const errors=[],failed=[];
+              page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push({url:r.url(),status:r.status()});});
+              const entry={label,errors,failed};result.conditions.push(entry);
+              try{
+                const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+                entry.status=response.status();entry.headers=await response.allHeaders();entry.htmlSha256=digest(await response.body());
+                assert.equal(entry.status,200);assert.equal(entry.htmlSha256,result.expectedHtmlSha256,'Deployed HTML differs from validated publication');
+                await page.evaluate(()=>document.fonts.ready);
+                assert.equal(await page.locator('html').getAttribute('data-dc-theme'),theme);
+                for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=600){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(70);}
+                await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(400);
+                entry.info=await page.evaluate(()=>({
+                  width:innerWidth,documentWidth:document.documentElement.scrollWidth,theme:document.documentElement.dataset.dcTheme,
+                  images:[...document.images].filter(x=>x.getAttribute('src')).map(x=>({src:x.currentSrc,alt:x.alt,loaded:x.complete&&x.naturalWidth>0,width:x.naturalWidth})),
+                  emphasis:[...document.querySelectorAll('.main-column .marker-blue,.main-column .term,.main-column p strong,.main-column li strong')].map(x=>({tag:x.tagName,class:x.className,text:x.textContent,color:getComputedStyle(x).color,background:getComputedStyle(x).background,weight:getComputedStyle(x).fontWeight})),
+                  flow:[...document.querySelectorAll('.flow-stage')].map(x=>({text:x.querySelector('strong')?.textContent,x:x.getBoundingClientRect().x,y:x.getBoundingClientRect().y})),
+                  standards:[...document.querySelectorAll('#standards a')].map(x=>({text:x.textContent,href:x.href,rel:x.rel})),
+                  viewportMeta:document.querySelector('meta[name=viewport]')?.content,
+                  runtime:[...document.querySelectorAll('script[src],link[rel=stylesheet]')].map(x=>x.src||x.href),
+                  feedbackCount:document.querySelectorAll('#articleFeedbackCard').length,
+                  relatedImages:document.querySelectorAll('.article-end-related-grid .related-card img').length,
+                  zoomHints:[...document.querySelectorAll('.dc-image-zoom-hint')].map(x=>x.textContent),
+                  toc:JSON.parse(document.querySelector('#dc-toc-data').textContent)
+                }));
+                assert.equal(entry.info.width,entry.info.documentWidth,'Horizontal page overflow');
+                assert.ok(entry.info.images.every(x=>x.loaded),'Broken image');assert.equal(entry.info.feedbackCount,1);assert.equal(entry.info.relatedImages,3);assert.equal(entry.info.zoomHints.length,2);
+                const markers=entry.info.emphasis.filter(x=>x.class==='marker-blue'),terms=entry.info.emphasis.filter(x=>x.class==='term');
+                assert.ok(markers.length>=8);assert.ok(markers.every(x=>x.background.includes('linear-gradient')),'Blue marker absent');assert.equal(terms.length,5);assert.ok(terms.every(x=>!x.background.startsWith('rgba(0, 0, 0, 0)')),'Term highlighting absent');
+                assert.deepEqual(entry.info.flow.map(x=>x.text),['安全入力','安全判断','安全出力','危険源']);
+                assert.ok(entry.info.flow.slice(1).every((x,i)=>mobile?x.y>entry.info.flow[i].y:x.x>entry.info.flow[i].x));
+                assert.equal(entry.info.standards.length,5);
+                assert.ok(!/user-scalable\s*=\s*no|maximum-scale\s*=\s*1(?:[,; ]|$)/i.test(entry.info.viewportMeta||''));
+                await page.screenshot({path:`${out}/${label}-full.png`,fullPage:true});
+                for(const id of ['overview','flow','logic','sto','standards','mistakes','final-summary'])await page.locator(`#${id}`).screenshot({path:`${out}/${label}-${id}.png`});
+                const click=async loc=>mobile?loc.tap():loc.click();
+                const figures=page.locator('article .article-figure img');assert.equal(await figures.count(),2);
+                entry.lightbox=[];
+                for(let i=0;i<2;i++){
+                  for(const close of ['button','backdrop','escape']){
+                    await figures.nth(i).scrollIntoViewIfNeeded();const original=await figures.nth(i).getAttribute('src');await click(figures.nth(i));
+                    const overlay=page.locator('.dc-image-lightbox');await overlay.waitFor({state:'visible'});
+                    const state=await overlay.evaluate(x=>({background:getComputedStyle(x).backgroundColor,overflow:getComputedStyle(document.body).overflow,src:x.querySelector('img').src,width:x.querySelector('img').getBoundingClientRect().width,height:x.querySelector('img').getBoundingClientRect().height}));
+                    assert.ok(state.background.includes('0.9'));assert.equal(state.overflow,'hidden');assert.ok(state.src.endsWith(original.replace('../','/')));assert.ok(state.width>0&&state.height>0);
+                    if(close==='button'){await page.screenshot({path:`${out}/${label}-lightbox-${i+1}.png`});await click(page.locator('.dc-image-lightbox__close'));}
+                    if(close==='backdrop'){if(mobile)await page.touchscreen.tap(2,90);else await page.mouse.click(2,90);}
+                    if(close==='escape')await page.keyboard.press('Escape');
+                    await overlay.waitFor({state:'hidden'});entry.lightbox.push({image:i+1,close,passed:true,...state});
+                  }
+                }
+                await page.locator('#standards').scrollIntoViewIfNeeded();
+                const table=page.locator('#standards .table-wrap'),hint=page.locator('#standards .dc-horizontal-scroll-hint');
+                entry.table=await table.evaluate(x=>({width:x.clientWidth,scrollWidth:x.scrollWidth}));entry.table.hintVisible=await hint.isVisible();
+                assert.equal(entry.table.hintVisible,mobile);
+                if(mobile){await table.evaluate(x=>{x.scrollLeft=150;});await page.waitForTimeout(200);assert.equal(await hint.isVisible(),false);entry.table.hintHiddenAfterScroll=true;}
+                await page.locator('.dc-toc-button').click();await page.locator('#dc-toc-dialog').waitFor({state:'visible'});
+                await page.locator('#dc-toc-dialog a[href="#sto"]').click();await page.waitForTimeout(300);assert.ok(page.url().endsWith('#sto'));entry.tocJump=true;
+                await page.evaluate(()=>scrollTo(0,900));await page.waitForTimeout(200);
+                entry.header=await page.locator('header.dc-shell').evaluate(x=>({position:getComputedStyle(x).position,top:x.getBoundingClientRect().top,height:x.getBoundingClientRect().height}));
+                assert.ok(['fixed','sticky'].includes(entry.header.position));assert.ok(Math.abs(entry.header.top)<2);
+                assert.equal(errors.length,0);assert.equal(failed.length,0);
+                entry.passed=true;
+              }catch(e){entry.error=e.stack;result.failures.push(label+': '+e.message);await page.screenshot({path:`${out}/${label}-failure.png`,fullPage:true}).catch(()=>{});}
+              await context.close();
+            }
+          }finally{await browser.close();fs.writeFileSync(`${out}/browser-results.json`,JSON.stringify(result,null,2));}
+          if(result.failures.length)throw Error(result.failures.join('\n'));
+          JS
+      - name: Check publication locally before changing either branch
+        run: |
+          python -m http.server 18765 --directory _site > "$RUNNER_TEMP/safety-http.log" 2>&1 &
+          REVIEW_URL=http://127.0.0.1:18765/articles/safety-control-basic.html REVIEW_OUTPUT="$RUNNER_TEMP/safety-final-evidence/local" node .safety-final-review.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-control-local-publication-audit
+          path: ${{ runner.temp }}/safety-final-evidence/
+          retention-days: 7
+      - name: Publish source maintenance and materialize the validated target with all its runtime assets
+        run: |
+          set -eu
+          test "$(git ls-remote origin refs/heads/$SOURCE_BRANCH | cut -f1)" = "$EXPECTED_SOURCE"
+          git push origin "HEAD:refs/heads/$SOURCE_BRANCH"
+          git checkout --detach "$GITHUB_SHA"
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urljoin,urlsplit,unquote
+          from lxml import html
+          import re,shutil,json,hashlib,os,subprocess
+          site=Path('_site');article='articles/safety-control-basic.html';todo=[article];seen=set()
+          todo += ['assets/css/article-toc-v2.css','assets/js/article-toc-v2.js','assets/css/article-end-related.css','assets/css/article-end-feedback.css','assets/css/article-integration-compat.css','assets/js/article-integration-compat.js']
+          while todo:
+            name=todo.pop()
+            if name in seen:continue
+            assert '..' not in Path(name).parts
+            src=site/name;assert src.is_file(),name
+            seen.add(name);dest=Path(name);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dest)
+            if src.suffix not in {'.html','.css'}:continue
+            text=src.read_text();values=re.findall(r'url\(["\']?([^\)"\']+)',text)
+            if src.suffix=='.html':
+              doc=html.fromstring(text)
+              values+=doc.xpath('//img/@src | //script/@src | //source/@src | //link[@rel="stylesheet" or @rel="icon" or @rel="preload" or @rel="apple-touch-icon"]/@href | //meta[@property="og:image"]/@content')
+            for value in values:
+              u=urlsplit(urljoin('https://denkicontrol.com/'+name,value.strip()))
+              if u.netloc in {'denkicontrol.com','www.denkicontrol.com'} and u.path.startswith('/assets/'):
+                todo.append(unquote(u.path).lstrip('/'))
+          Path('_headers').write_text('/*\n  X-Robots-Tag: noindex, noarchive\n')
+          Path('robots.txt').write_text('User-agent: *\nDisallow: /\n')
+          report={'sourceCommit':os.environ['VERIFIED_SOURCE_SHA'],'articleSha256':hashlib.sha256(Path(article).read_bytes()).hexdigest(),'materializedFiles':sorted(seen),'kind':'production-validated target and complete static runtime dependency closure','doNotMerge':True}
+          Path('.github/safety-control-final-state.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          subprocess.run(['git','add','--',*sorted(seen),'_headers','robots.txt','.github/safety-control-final-state.json'],check=True)
+          sourceReport=json.loads((Path(os.environ['RUNNER_TEMP'])/'safety-final-evidence/maintenance.json').read_text())
+          for name,sha in sourceReport['adoptedImagesSha256'].items():assert hashlib.sha256(Path(name).read_bytes()).hexdigest()==sha,name
+          PY
+          git commit -m '[final-preview-materialized] Validated safety-control publication and runtime assets; DO NOT MERGE'
+          test "$(git ls-remote origin refs/heads/$FINAL_BRANCH | cut -f1)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$FINAL_BRANCH"
+          echo "FINAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git rev-parse HEAD > "$RUNNER_TEMP/safety-final-evidence/final-commit.txt"
+          git ls-remote origin refs/heads/main | cut -f1 > "$RUNNER_TEMP/safety-final-evidence/main-after.txt"
+          cmp "$RUNNER_TEMP/safety-final-evidence/main-before.txt" "$RUNNER_TEMP/safety-final-evidence/main-after.txt"
+      - name: Wait until Cloudflare actually serves the validated publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os,time,urllib.request,json,hashlib
+          out=Path(os.environ['RUNNER_TEMP'])/'safety-final-evidence';expected=hashlib.sha256((out/'verified-publication.html').read_bytes()).hexdigest()
+          base='https://preview-final-safety-control.denkicontrol-preview.pages.dev/articles/safety-control-basic.html'
+          for attempt in range(40):
+            try:
+              req=urllib.request.Request(base+'?review='+os.environ['FINAL_SHA'],headers={'Cache-Control':'no-cache','User-Agent':'Denkicontrol-publication-audit'})
+              with urllib.request.urlopen(req,timeout=60) as r:
+                body=r.read();actual=hashlib.sha256(body).hexdigest();headers=dict(r.headers)
+              if actual==expected:
+                assert 'noindex' in next((v for k,v in headers.items() if k.lower()=='x-robots-tag'),'')
+                (out/'cloudflare-serving.json').write_text(json.dumps({'url':base,'commit':os.environ['FINAL_SHA'],'htmlSha256':actual,'attempt':attempt+1,'headers':headers},indent=2));break
+              print('Waiting for validated deployment, attempt',attempt+1,flush=True)
+            except Exception as e:print(type(e).__name__,str(e)[:180],flush=True)
+            time.sleep(30)
+          else:raise SystemExit('Validated publication is not yet served; no final approval claim permitted')
+          req=urllib.request.Request('https://api.github.com/repos/Syasu-pixel/my-site/commits/'+os.environ['FINAL_SHA']+'/check-runs',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','User-Agent':'Denkicontrol-publication-audit'})
+          with urllib.request.urlopen(req,timeout=60) as r:data=json.load(r)
+          cf=[{'name':x['name'],'status':x['status'],'conclusion':x['conclusion'],'details_url':x.get('details_url'),'output':x.get('output')} for x in data['check_runs'] if x['name']=='Cloudflare Pages']
+          (out/'cloudflare-checks.json').write_text(json.dumps(cf,ensure_ascii=False,indent=2))
+          PY
+      - name: Recheck the deployed publication in all four browser conditions
+        run: |
+          REVIEW_URL="https://preview-final-safety-control.denkicontrol-preview.pages.dev/articles/safety-control-basic.html?review=$FINAL_SHA" REVIEW_OUTPUT="$RUNNER_TEMP/safety-final-evidence/deployed" node .safety-final-review.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-control-final-publication-evidence
+          path: ${{ runner.temp }}/safety-final-evidence/
+          retention-days: 14

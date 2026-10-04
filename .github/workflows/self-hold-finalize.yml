@@ -351,7 +351,9 @@ jobs:
             dst=stage/name; dst.parent.mkdir(parents=True,exist_ok=True); dst.write_bytes(data)
             if src.suffix.lower()=='.html':
               doc=html.fromstring(data.decode('utf-8'))
-              vals=doc.xpath('//img/@src | //script/@src | //source/@src | //link[@rel="stylesheet" or @rel="icon" or @rel="preload" or @rel="apple-touch-icon"]/@href')
+              vals=doc.xpath('//img/@src | //script/@src | //source/@src | //link[@rel="stylesheet" or @rel="icon" or @rel="preload" or @rel="apple-touch-icon"]/@href | //meta[@property="og:image"]/@content | //meta[@name="twitter:image"]/@content')
+              for style_text in doc.xpath('//style/text()'):
+                vals.extend(re.findall(r'url\\(["\\x27]?([^\\)"\\x27]+)',style_text))
               for v in vals:
                 n=local_name(name,v)
                 if n and n.startswith('assets/'): todo.append(n)

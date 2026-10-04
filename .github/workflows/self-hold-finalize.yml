@@ -401,6 +401,16 @@ jobs:
             const response=await page.goto(base,{waitUntil:'networkidle',timeout:90000});
             if(!response||response.status()!==200)throw new Error(label+': bad HTTP');
             await page.evaluate(()=>document.fonts.ready);
+            const pageHeight=await page.evaluate(()=>document.body.scrollHeight);
+            for(let y=0;y<pageHeight;y+=600){await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),y);await page.waitForTimeout(100);}
+            const imgs=page.locator('img[src]');
+            for(let i=0;i<await imgs.count();i++){
+              const img=imgs.nth(i);
+              await img.scrollIntoViewIfNeeded();
+              await page.waitForFunction(el=>el.complete,await img.elementHandle(),{timeout:20000});
+              if(await img.evaluate(el=>el.naturalWidth>0)) await img.evaluate(el=>el.decode());
+            }
+            await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(300);
             const info=await page.evaluate(()=>({width:innerWidth,docWidth:document.documentElement.scrollWidth,images:[...document.images].filter(x=>x.getAttribute('src')).map(x=>({src:x.currentSrc,ok:x.complete&&x.naturalWidth>0,alt:x.alt})),figures:document.querySelectorAll('article .article-lightbox-target').length,hints:[...document.querySelectorAll('.dc-image-zoom-hint')].map(x=>x.textContent.trim()),sideRail:!!document.querySelector('.side-rail'),feedback:document.querySelectorAll('#articleFeedbackCard').length}));
             if(info.width!==info.docWidth)throw new Error(label+': horizontal overflow');
             if(info.images.some(x=>!x.ok))throw new Error(label+': broken image');

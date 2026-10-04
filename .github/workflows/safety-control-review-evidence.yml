@@ -1,0 +1,93 @@
+name: Safety control review evidence (preview only)
+on:
+  push:
+    branches: [preview-final-safety-control-publication-20261002]
+    paths:
+      - .github/workflows/safety-control-review-evidence.yml
+      - .github/safety-control-review-trigger.txt
+permissions:
+  contents: read
+jobs:
+  evidence:
+    if: github.ref == 'refs/heads/preview-final-safety-control-publication-20261002'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Snapshot current rules and article sources for review
+        run: |
+          mkdir -p review-evidence
+          git rev-parse origin/main > review-evidence/main-sha.txt
+          git rev-parse origin/preview-safety-control-refresh-20261001 > review-evidence/source-sha.txt
+          git rev-parse HEAD > review-evidence/preview-sha.txt
+          git archive --format=tar.gz -o review-evidence/main-rules.tar.gz origin/main AGENTS.md docs .github scripts package.json pnpm-lock.yaml
+          git archive --format=tar.gz -o review-evidence/source-review.tar.gz origin/preview-safety-control-refresh-20261001 AGENTS.md docs .github scripts package.json pnpm-lock.yaml articles/safety-control-basic.html assets/css assets/js assets/images/safety-control-basic assets/images/common assets/images/guide-characters
+          git archive --format=tar.gz -o review-evidence/publication-review.tar.gz HEAD articles/safety-control-basic.html assets/css assets/js assets/images/safety-control-basic assets/images/common assets/images/guide-characters
+          git ls-tree -r --name-only origin/main > review-evidence/main-tracked-files.txt
+          git diff --name-status origin/main...origin/preview-safety-control-refresh-20261001 > review-evidence/source-changed-files.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - name: Install browser from existing lockfile
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+      - name: Capture deployed publication in four viewport and theme conditions
+        run: |
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const url='https://preview-final-safety-control.denkicontrol-preview.pages.dev/articles/safety-control-basic.html';
+          const result={url,at:new Date().toISOString(),conditions:[]};
+          for(const mobile of [false,true]) for(const theme of ['light','dark']) {
+            const label=`${mobile?'mobile':'pc'}-${theme}`;
+            const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},deviceScaleFactor:1,isMobile:mobile,hasTouch:mobile,colorScheme:theme});
+            const page=await context.newPage();
+            const errors=[]; const failed=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            page.on('response',r=>{if(r.status()>=400)failed.push({url:r.url(),status:r.status()});});
+            const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+            await page.evaluate(()=>document.fonts.ready);
+            for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=650){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(80);}
+            await page.evaluate(()=>scrollTo(0,0)); await page.waitForTimeout(800);
+            fs.writeFileSync(`review-evidence/${label}.html`,await page.content());
+            const info=await page.evaluate(()=>({
+              title:document.title,htmlClass:document.documentElement.className,bodyClass:document.body.className,htmlTheme:document.documentElement.dataset.theme,
+              viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+              buttons:[...document.querySelectorAll('button')].map(x=>({text:x.textContent.trim(),label:x.getAttribute('aria-label'),id:x.id,class:x.className})),
+              images:[...document.images].map(x=>({src:x.currentSrc,alt:x.alt,complete:x.complete,width:x.naturalWidth})),
+              emphasis:[...document.querySelectorAll('.main-column .marker-blue,.main-column .term,.main-column p strong')].map(x=>({text:x.textContent,color:getComputedStyle(x).color,background:getComputedStyle(x).background,weight:getComputedStyle(x).fontWeight})),
+              styles:[...document.styleSheets].map(x=>x.href),scripts:[...document.scripts].map(x=>x.src).filter(Boolean),
+              header:[...document.querySelectorAll('header')].map(x=>({class:x.className,position:getComputedStyle(x).position,top:x.getBoundingClientRect().top})),
+              horizontal:[...document.querySelectorAll('.table-wrap')].map(x=>({width:x.clientWidth,scrollWidth:x.scrollWidth,text:x.innerText}))
+            }));
+            await page.screenshot({path:`review-evidence/${label}-full.png`,fullPage:true});
+            for(const id of ['overview','flow','logic','sto','standards','mistakes','final-summary']) {
+              const loc=page.locator(`#${id}`); if(await loc.count()) await loc.screenshot({path:`review-evidence/${label}-${id}.png`});
+            }
+            const figures=page.locator('article .article-figure img');
+            const lightbox=[];
+            for(let i=0;i<await figures.count();i++) {
+              await figures.nth(i).scrollIntoViewIfNeeded(); await figures.nth(i).click(); await page.waitForTimeout(350);
+              lightbox.push(await page.evaluate(()=>({dialogs:[...document.querySelectorAll('dialog,[role="dialog"],.image-lightbox,.dc-image-lightbox')].map(x=>({html:x.outerHTML.slice(0,4000),display:getComputedStyle(x).display,background:getComputedStyle(x).backgroundColor})),bodyOverflow:getComputedStyle(document.body).overflow})));
+              await page.screenshot({path:`review-evidence/${label}-lightbox-${i+1}.png`});
+              await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+            }
+            result.conditions.push({label,status:response.status(),headers:await response.allHeaders(),info,errors,failed,lightbox});
+            await context.close();
+          }
+          await browser.close(); fs.writeFileSync('review-evidence/browser-results.json',JSON.stringify(result,null,2));
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-control-review-evidence
+          path: review-evidence/
+          retention-days: 7

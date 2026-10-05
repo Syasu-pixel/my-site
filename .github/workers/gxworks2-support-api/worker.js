@@ -995,9 +995,12 @@ async function handleAdminRequest(request, env, origin, url) {
       try { source = await env.DB.prepare('SELECT case_number,state,accepted_at,updated_at,name,email,company,plc,problem,desired,photo,gxdata,zip_name,zip_size,zip_storage_mode,admin_mail_status,customer_mail_status FROM consultations WHERE case_number=?1 LIMIT 1').bind(caseNumber).first(); } catch {}
     }
     const customerHistory = await getAdminCustomerHistory(env.DB, row);
+    const contactLogin = row.assignee_email || admin.email || '';
     const estimateEmailDefaults = {
       from:'株式会社ケイディエス <support@denkicontrol.com>',
-      reply_to:adminContactEmail(env, row.assignee_email || admin.email || ''),
+      reply_to:adminContactEmail(env, contactLogin),
+      contact_email:adminContactEmail(env, contactLogin),
+      contact_phone:adminContactPhone(env, contactLogin),
     };
     return json({ ok:true, case:row, source, events:events.results || [], customer_history:customerHistory, estimate_email_defaults:estimateEmailDefaults, permissions:adminCasePermissions(row, admin), viewer:{ email:admin.email, name:admin.name } }, 200, origin);
   }
@@ -1752,6 +1755,18 @@ function adminContactEmail(env, loginEmail) {
   } catch {
     return login;
   }
+}
+
+function adminContactPhone(env, loginEmail) {
+  const login = normalizeAdminEmail(loginEmail);
+  if (!login) return '';
+  const raw = clean((env && env.ADMIN_CONTACT_PHONE_MAP) || '',4000);
+  if (!raw) return '';
+  try {
+    const parsed = JSON.parse(raw);
+    const mapped = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? clean(parsed[login] || '',60) : '';
+    return /^[0-9+() -]{8,30}$/.test(mapped) ? mapped : '';
+  } catch { return ''; }
 }
 
 function adminCustomerIdentity(row) {

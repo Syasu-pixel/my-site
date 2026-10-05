@@ -387,7 +387,7 @@
   style.id = 'career-preview-home-style';
   style.textContent = `
     .support-category-card--career{border-color:#c4b5fd;background:linear-gradient(135deg,#faf7ff 0%,#fff 100%)}
-    .support-category-card--career .support-category-card__image{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ede9fe,#f8f7ff);font-size:48px}
+    .support-category-card--career .support-category-card__image{background:#f8f7ff}
     .support-category-card--career .support-category-card__title{color:#5b21b6}
     .support-category-card--career .support-category-card__description{color:#64748b}
   `;
@@ -400,7 +400,7 @@
   card.dataset.categoryShelf = 'career';
   card.setAttribute('aria-label', 'キャリア・転職の記事一覧へ');
   card.innerHTML = `
-    <span class="support-category-card__image" aria-hidden="true">🧭</span>
+    <span class="support-category-card__image"><img src="assets/images/career/career-hero-v2.jpg" alt="電気・FAエンジニアのキャリア・転職" loading="lazy" decoding="async"></span>
     <span class="support-category-card__body">
       <span class="support-category-card__title">キャリア・転職</span>
       <span class="support-category-card__description">電気・FAの仕事、必要なスキル、キャリア、転職先の考え方を技術者目線で整理します。</span>
@@ -449,11 +449,11 @@
   const style = document.createElement('style');
   style.id = 'project-series-entry-style';
   style.textContent = `
-    .project-series-entry{margin:2px 0 12px;padding:0 20px;border-top:none!important}
+    .project-series-entry{margin:10px 0 12px;padding:0 20px;border-top:none!important}
     .project-series-entry__link{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;align-items:center;padding:14px 16px;border:1px solid #bfdbfe;border-radius:18px;background:linear-gradient(135deg,#eff6ff 0%,#fff 62%);box-shadow:0 6px 16px rgba(15,23,42,.05);color:#0f172a;text-decoration:none}
     .project-series-entry__link:hover,.project-series-entry__link:focus-visible{border-color:#60a5fa;background:#f8fbff;box-shadow:0 12px 24px rgba(15,23,42,.09);transform:translateY(-1px);text-decoration:none}
-    .project-series-entry__media{width:180px;height:112px;overflow:hidden;border-radius:14px;border:1px solid #dbeafe;background:#fff}
-    .project-series-entry__media img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+    .project-series-entry__media{width:180px;height:112px;overflow:hidden;border-radius:16px;border:1px solid #dbeafe;background:#fff}
+    .project-series-entry__media img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;border-radius:inherit}
     .project-series-entry__body{min-width:0}
     .project-series-entry__kicker{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;margin-bottom:6px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:900}
     .project-series-entry__title{display:block;margin:0;color:#0f172a;font-size:19px;line-height:1.4;font-weight:900}

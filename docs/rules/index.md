@@ -17,7 +17,6 @@
 | [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 
 ## 条件付き
-| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 | 文書 | 適用条件・扱い |
 |---|---|
@@ -116,6 +115,7 @@
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 
@@ -128,6 +128,8 @@
 | [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
+| [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
 | [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
@@ -373,3 +375,5 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `recovery-manifest.json`：過去のローカル回収コンテナで生成した検証manifest。GitHub常設ファイルではなく、履歴上のローカル成果物を示す。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/character-master.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
+- `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `a_colorful_japanese_manga_style_infographic_comic.png`：画像生成セッション上の採用ファイル名。GitHub常設ファイルではなく、採用画像の転送が完了するまで未取得として扱う。
+- `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `assets/images/comics/npn-pnp-basic/npn-pnp-basic-yonkoma-01.png`：正式採用画像の想定配置先だが、2026-10-05時点ではGitHubへのバイナリ転送未完了。転送完了後にこの例外を削除する。

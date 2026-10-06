@@ -1,0 +1,159 @@
+name: ELB registry finalization
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.event.pull_request.head.ref == 'preview-earth-leakage-breaker-final-20261006'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Avoid registry commit recursion
+        id: guard
+        run: |
+          msg="$(git log -1 --pretty=%s)"
+          echo "head_message=$msg"
+          if [ "$msg" = "Update ELB registry baselines" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          node-version: '22.16.0'
+
+      - uses: pnpm/action-setup@v4
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          python-version: '3.12.14'
+
+      - name: Install build dependencies
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1
+
+      - name: Recalculate target Hero binding only
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          TARGET='articles/earth-leakage-breaker-basic.html'
+          SCRATCH="${RUNNER_TEMP}/elb-hero-scratch"
+          mkdir -p "$SCRATCH"
+          rsync -a ./ "$SCRATCH/" --exclude '.git/' --exclude 'node_modules/'
+          (
+            cd "$SCRATCH"
+            python scripts/prepare-article-heroes.py --initialize-css --out "${RUNNER_TEMP}/elb-hero-pages.json"
+          )
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          target='articles/earth-leakage-breaker-basic.html'
+          root=Path('.')
+          scratch=Path(__import__('os').environ['RUNNER_TEMP'])/'elb-hero-scratch'
+          cur_path=root/'.github/article-components/hero/css-bindings.json'
+          new_path=scratch/'.github/article-components/hero/css-bindings.json'
+          cur=json.loads(cur_path.read_text(encoding='utf-8'))
+          new=json.loads(new_path.read_text(encoding='utf-8'))
+          assert set(cur)==set(new), 'binding target set changed'
+          diffs=[k for k in cur if cur[k]!=new[k]]
+          assert diffs==[target], f'unexpected binding diffs: {diffs}'
+          for item in new[target]:
+              rel=Path('.github/article-components/hero')/item['template']
+              a=root/rel; b=scratch/rel
+              assert a.exists(), f'new template would be required: {rel}'
+              assert a.read_bytes()==b.read_bytes(), f'template bytes changed: {rel}'
+          raw=cur_path.read_text(encoding='utf-8')
+          canonical=json.dumps(cur,ensure_ascii=False,indent=2)+'\n'
+          assert raw==canonical, 'css-bindings formatting is not canonical'
+          cur[target]=new[target]
+          cur_path.write_text(json.dumps(cur,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('target hero binding:', json.dumps(new[target],ensure_ascii=False))
+          PY
+          python scripts/prepare-article-heroes.py --out "${RUNNER_TEMP}/elb-hero-check.json"
+
+      - name: Calculate target shell baseline and inventory blob
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          node --input-type=module <<'JS'
+          import { renderShells } from './scripts/build-site-shells.mjs';
+          import { readFile, writeFile } from 'node:fs/promises';
+          import { createHash } from 'node:crypto';
+          const target='articles/earth-leakage-breaker-basic.html';
+          const {results}=await renderShells(process.cwd());
+          const rendered=results.get(target);
+          const authored=await readFile(target);
+          if(!rendered || !rendered.equals(authored)) throw new Error('Target header/footer is stale or rendered shell differs');
+          const baseline=createHash('sha256').update(rendered).digest('hex');
+          const gitBlob=createHash('sha1').update(Buffer.concat([Buffer.from(`blob ${authored.length}\0`),authored])).digest('hex');
+          await writeFile(process.env.RUNNER_TEMP+'/elb-registry-values.json',JSON.stringify({baseline,gitBlob},null,2));
+          console.log({baseline,gitBlob});
+          JS
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          target='articles/earth-leakage-breaker-basic.html'
+          vals=json.loads((Path(os.environ['RUNNER_TEMP'])/'elb-registry-values.json').read_text())
+          # Preserve manifest bytes/line endings: replace only the target's current unique hash.
+          mpath=Path('.github/site-shells/manifest.json')
+          raw=mpath.read_text(encoding='utf-8',newline='')
+          obj=json.loads(raw)
+          page=next(p for p in obj['pages'] if p['output']==target)
+          old=page['baselineSha256']; new=vals['baseline']
+          assert raw.count(old)==1, 'old shell baseline is not unique'
+          raw=raw.replace(old,new,1)
+          mpath.write_text(raw,encoding='utf-8',newline='')
+          # Site inventory target gitBlob only.
+          ipath=Path('.github/article-components/site-inventory.json')
+          iraw=ipath.read_text(encoding='utf-8',newline='')
+          inv=json.loads(iraw)
+          row=next(p for p in inv['files'] if p['path']==target)
+          oldb=row['gitBlob']; newb=vals['gitBlob']
+          assert iraw.count(oldb)==1, 'old inventory blob is not unique'
+          iraw=iraw.replace(oldb,newb,1)
+          ipath.write_text(iraw,encoding='utf-8',newline='')
+          print('shell',old,'->',new)
+          print('inventory',oldb,'->',newb)
+          PY
+          pnpm check:shells
+
+      - name: Verify registry diff is target-scoped
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          git diff --check
+          python3 - <<'PY'
+          import subprocess
+          allowed={
+            '.github/article-components/hero/css-bindings.json',
+            '.github/article-components/site-inventory.json',
+            '.github/site-shells/manifest.json',
+          }
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          assert changed==allowed, f'unexpected registry diff: {changed}'
+          print('\n'.join(sorted(changed)))
+          PY
+
+      - name: Commit target registry updates
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/article-components/hero/css-bindings.json .github/article-components/site-inventory.json .github/site-shells/manifest.json
+          git commit -m "Update ELB registry baselines"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

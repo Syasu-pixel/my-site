@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>管理者ログイン｜電気と制御の実務メモ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;color:#172033;background:#eef3f8}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top,#f8fbff 0,#eef3f8 58%,#e8eef5 100%)}
+    .wrap{width:min(460px,100%)}
+    .brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px;color:#172033;text-decoration:none}
+    .brand img{width:52px;height:auto}.brand strong{font-size:17px}.brand small{display:block;color:#64748b;margin-top:2px;font-size:11px}
+    .card{background:#fff;border:1px solid #d8e3f0;border-radius:24px;padding:28px;box-shadow:0 18px 48px rgba(15,23,42,.10)}
+    .eyebrow{display:inline-flex;padding:5px 9px;border-radius:999px;background:#eef4ff;color:#1d4ed8;font-size:11px;font-weight:900}
+    h1{margin:13px 0 8px;font-size:25px;line-height:1.35}.lead{margin:0 0 20px;color:#64748b;font-size:13px;line-height:1.7}
+    label{display:block;margin:14px 0 6px;font-size:12px;font-weight:800;color:#334155}
+    input{width:100%;min-height:46px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:#172033;font:inherit;outline:none}
+    input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.15)}
+    button{width:100%;min-height:48px;margin-top:18px;border:0;border-radius:13px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.22)}
+    button:disabled{cursor:wait;opacity:.65}
+    .msg{min-height:22px;margin:12px 0 0;font-size:12px;font-weight:700;color:#b42318}.msg.ok{color:#16794f}
+    .note{margin:18px 0 0;padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;color:#64748b;font-size:11px;line-height:1.6}
+    .back{display:block;margin-top:14px;text-align:center;font-size:12px;color:#64748b;text-decoration:none}.back:hover{color:#1d4ed8}
+    @media (prefers-color-scheme:dark){
+      :root{color:#e7edf4;background:#0d1621;color-scheme:dark}
+      body{background:radial-gradient(circle at top,#172433 0,#101b27 58%,#0d1621 100%)}
+      .brand{color:#eef4fa}.brand small{color:#a8b5c4}
+      .card{background:#172433;border-color:#40566f;box-shadow:0 18px 48px rgba(0,0,0,.28)}
+      .eyebrow{background:#183052;color:#b9d6ff}
+      h1{color:#f3f7fb}.lead{color:#c2ceda}
+      label{color:#dce7f2}
+      input{background:#101c29;color:#eef4fa;border-color:#40566f}
+      input:focus{border-color:#5b8fca;box-shadow:0 0 0 3px rgba(91,143,202,.18)}
+      .msg{color:#ffb4bd}.msg.ok{color:#b6edc9}
+      .note{background:#1b2a3a;color:#c2ceda;border-color:#40566f}
+      .back{color:#a8b5c4}.back:hover{color:#9dc8ff}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="brand" href="../" aria-label="サイトトップへ戻る">
+      <img src="../assets/images/common/site-logo-dcl.webp" alt="電気と制御の実務メモ ロゴ">
+      <span><strong>電気と制御の実務メモ</strong><small>運営ダッシュボード</small></span>
+    </a>
+
+    <section class="card" aria-labelledby="loginTitle">
+      <span class="eyebrow">ADMIN ONLY</span>
+      <h1 id="loginTitle">管理者ログイン</h1>
+      <p class="lead">記事評価や運営状況を確認する管理者専用ページです。AI編集部と同じ登録済み管理者アカウントでログインできます。</p>
+
+      <form id="loginForm">
+        <label for="email">メールアドレス</label>
+        <input id="email" name="email" type="email" autocomplete="username" required>
+        <label for="password">パスワード</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button id="loginButton" type="submit">ログイン</button>
+        <p id="loginMessage" class="msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="note">このページは検索エンジンへ掲載しない設定です。集計データはログインだけでなく、管理者許可リストでも確認してから表示します。</p>
+    </section>
+    <a class="back" href="../">← サイトへ戻る</a>
+  </main>
+
+  <script>
+    const SUPABASE_URL='https://pavitnsnmoaiospswiys.supabase.co';
+    const SUPABASE_KEY='sb_publishable_J3Muz4RVr7sqDsSTen1LNA_y_mgKAyG';
+    const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    const form=document.getElementById('loginForm');
+    const button=document.getElementById('loginButton');
+    const message=document.getElementById('loginMessage');
+
+    async function verifyAdmin(){
+      const {error}=await sb.rpc('admin_article_feedback_dashboard');
+      return !error;
+    }
+
+    async function redirectIfAlreadySignedIn(){
+      const {data,error}=await sb.auth.getUser();
+      if(error||!data?.user)return;
+      if(await verifyAdmin()) location.replace('./');
+    }
+
+    form.addEventListener('submit',async(event)=>{
+      event.preventDefault();
+      button.disabled=true;
+      message.className='msg';
+      message.textContent='ログイン確認中…';
+      try{
+        const email=document.getElementById('email').value.trim();
+        const password=document.getElementById('password').value;
+        const {error}=await sb.auth.signInWithPassword({email,password});
+        if(error) throw error;
+        if(!(await verifyAdmin())){
+          await sb.auth.signOut();
+          message.textContent='このアカウントには管理者権限がありません。';
+          return;
+        }
+        message.className='msg ok';
+        message.textContent='ログインしました。管理画面へ移動します…';
+        location.replace('./');
+      }catch(error){
+        console.error('[admin login]',error);
+        message.textContent='ログインできませんでした。メールアドレスとパスワードを確認してください。';
+      }finally{
+        button.disabled=false;
+      }
+    });
+
+    redirectIfAlreadySignedIn();
+  </script>
+</body>
+</html>

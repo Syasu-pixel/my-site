@@ -62,10 +62,40 @@ jobs:
           pnpm install --frozen-lockfile --ignore-scripts
           pnpm check:shells
 
+      - name: Detect consultation worker changes
+        id: consultation-scope
+        shell: bash
+        run: |
+          run_tests=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            run_tests=true
+          else
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              base="${{ github.event.pull_request.base.sha }}"
+            else
+              base="${{ github.event.before }}"
+            fi
+            if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+              run_tests=true
+            else
+              while IFS= read -r file; do
+                case "$file" in
+                  .github/workers/gxworks2-support-api/worker.js|scripts/test-general-consultation-worker.mjs|scripts/test-admin-case-management-worker.mjs|contact/index.html|services/gxworks2-online-support.html)
+                    run_tests=true
+                    break
+                    ;;
+                esac
+              done < <(git diff --name-only "$base" HEAD)
+            fi
+          fi
+          echo "run_worker_tests=$run_tests" >> "$GITHUB_OUTPUT"
+
       - name: Verify online consultation mail flow
+        if: steps.consultation-scope.outputs.run_worker_tests == 'true'
         run: node scripts/test-general-consultation-worker.mjs
 
       - name: Verify admin case management API
+        if: steps.consultation-scope.outputs.run_worker_tests == 'true'
         run: node scripts/test-admin-case-management-worker.mjs
 
       - name: Generate and verify approved article components

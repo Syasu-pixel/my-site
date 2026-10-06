@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 四コマ追従: `articles/air-cylinder-troubleshooting-basic.html` — 2026-10-06 再制作版を正式採用。画像は `assets/images/comics/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-yonkoma-01.png`。旧JPG版は目崩れで採用解除済み。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
 - [x] 四コマ追従: `articles/magnetic-switch-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/magnetic-switch-basic/magnetic-switch-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
 
 - [x] 四コマ追従: `articles/sto-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/sto-basic/sto-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。

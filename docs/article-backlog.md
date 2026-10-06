@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 四コマ追従: `articles/load-cell-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/load-cell-basic/load-cell-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
 - [x] 四コマ追従: `articles/earth-leakage-breaker-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/earth-leakage-breaker-basic/earth-leakage-breaker-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
 
 - [x] 四コマ追従: `articles/air-cylinder-troubleshooting-basic.html` — 2026-10-06 再制作版を正式採用。画像は `assets/images/comics/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-yonkoma-01.png`。旧JPG版は目崩れで採用解除済み。トップページ4コマ導線・Instagram投稿予約まで追従対象。

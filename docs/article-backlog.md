@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 四コマ追従: `articles/solenoid-valve-troubleshooting-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
 - [x] 自己保持回路記事刷新: `articles/self-hold-circuit.html` — 本文を「定義→保持対象→リレー回路→PLCラダー→動作順→起動停止→トラブル確認→安全回路との違い」の流れへ全面刷新。採用済みOGP・専用Hero・本文画像4枚を反映し、スマホのPLC説明は横スクロール不要の構造へ変更。青マーカー・太字・注意強調・ダークモード・画像拡大を確認。公式参照正本は `docs/reference-notes/self-hold-circuit.md`。最終Previewで本番同等publication、WebP最適化、PC/スマホ×ライト/ダーク、Hero/OGP実体を確認して本番採用。Google Search Console再クロール対象: `https://denkicontrol.com/articles/self-hold-circuit.html`。
 
 - [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新して公開（#1606）。続けて日本語メーカー公式資料（三菱電機FA／富士電機）で「電磁接触器」「電磁開閉器」「サーマルリレー」の正式な役割区分を再確認し、本文の用語説明・公式資料欄・最終内容更新日／公式資料確認日を追補して公開（#1614）。公式参照正本は `docs/reference-notes/magnetic-switch-basic.md`。Google Search ConsoleのURL検査から再クロール依頼対象。

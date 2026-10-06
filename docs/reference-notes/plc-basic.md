@@ -53,4 +53,7 @@
 ## 転送検証記録
 - 採用画像は前チャットで1枚ずつ管理者確認済み。再生成しない。
 - GitHub配置は .github/workflows/binary-image-transfer.yml の検証付き転送のみを使用する。
-- bytes / SHA-256 / Git blob SHA は6枚すべての正規転送完了後に追記する。
+- 旧検証ブランチ preview-plc-basic-refresh-20261006 では、OGP / Hero / 本文1 / 本文2 が正規Workflow経由で配置済み。ただし同ブランチは記事HTML削除検証を含むため最終成果物には使用しない。
+- 最終ブランチ preview-plc-basic-final-20261006 へは、正式原本6枚を改めて正規Workflowで配置してからpublicationを生成する。
+- 本文3 / 本文4を含む最終採用原本はProject Libraryで確認済み。本文4は「PLCラダー図で学ぶ入力・制御・出力.png」（2026-10-06 10:55 UTC、1,943,116 bytes）。
+- bytes / SHA-256 / Git blob SHA は最終ブランチへの6枚の正規転送完了後に追記する。

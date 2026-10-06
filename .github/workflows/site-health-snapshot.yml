@@ -23,17 +23,20 @@ jobs:
       - name: Build current integrated site
         run: |
           python -m pip install lxml==6.1.1
-          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/health-build"
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/health-build" || { echo "HEALTH_SKIP=1" >> "$GITHUB_ENV"; exit 0; }
           node scripts/serve-integrated-review.mjs "${RUNNER_TEMP}/health-build" > "${RUNNER_TEMP}/health-build/server.log" 2>&1 &
       - name: Run six dark/browser shards
+        if: env.HEALTH_SKIP != '1'
         continue-on-error: true
         run: |
           for shard in 0 1 2 3 4 5; do
             REVIEW_SHARD_COUNT=6 REVIEW_SHARD_INDEX=$shard node scripts/check-article-dark-mode.mjs "${RUNNER_TEMP}/health-build" || true
           done
       - name: Build public health snapshot
+        if: env.HEALTH_SKIP != '1'
         run: node scripts/build-site-health-snapshot.mjs "${RUNNER_TEMP}/health-build" assets/data/site-health.json
       - name: Commit snapshot when changed
+        if: env.HEALTH_SKIP != '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

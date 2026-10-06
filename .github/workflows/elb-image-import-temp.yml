@@ -24,8 +24,8 @@ jobs:
         env:
           SHARE_URL: https://firestorage.ai/ja/f/0t5zL9M0txAC
         run: |
-          mkdir -p /tmp/elb-probe
-          cat > /tmp/elb-probe/probe.mjs <<'JS'
+          mkdir -p elb-probe
+          cat > elb-probe/probe.mjs <<'JS'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
           const browser = await chromium.launch({headless:true});
@@ -38,14 +38,14 @@ jobs:
             links: [...document.querySelectorAll('a')].map(a=>({text:(a.innerText||'').trim(),href:a.href,download:a.getAttribute('download')})),
             buttons: [...document.querySelectorAll('button')].map(b=>({text:(b.innerText||'').trim(),aria:b.getAttribute('aria-label')}))
           }));
-          fs.writeFileSync('/tmp/elb-probe/dom.json',JSON.stringify(data,null,2));
-          fs.writeFileSync('/tmp/elb-probe/page.html',await page.content());
-          await page.screenshot({path:'/tmp/elb-probe/page.png',fullPage:true});
+          fs.writeFileSync('elb-probe/dom.json',JSON.stringify(data,null,2));
+          fs.writeFileSync('elb-probe/page.html',await page.content());
+          await page.screenshot({path:'elb-probe/page.png',fullPage:true});
           await browser.close();
           JS
-          node /tmp/elb-probe/probe.mjs
+          node elb-probe/probe.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: elb-firestorage-probe
-          path: /tmp/elb-probe/
+          path: elb-probe/
           retention-days: 1

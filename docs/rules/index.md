@@ -131,6 +131,7 @@
 | [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
 | [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
 | [docs/comic-scripts/solenoid-valve-troubleshooting-basic-yonkoma-01.md](../comic-scripts/solenoid-valve-troubleshooting-basic-yonkoma-01.md) — solenoid-valve-troubleshooting-basic 四コマ漫画 01 | 電磁弁トラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/sto-basic-yonkoma-01.md](../comic-scripts/sto-basic-yonkoma-01.md) — sto-basic 四コマ漫画 01 | STO記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

@@ -325,6 +325,11 @@ catalog.json の reference_aliases に、文脈を確認した省略表記と実
 - `docs/new-article-checklist.md` の `../../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png` → `assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png`：英語記事en/articlesからの標準参照の例。画像の実在先を登録。
 - `docs/new-article-checklist.md` の `../../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png` → `assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png`：英語記事en/articlesからの標準参照の例。画像の実在先を登録。
 
+## サイト異常監視の補助制御
+
+- `.github/workflows/site-health-snapshot.yml`：main更新時にサイト健全性検査を実行し、管理画面用スナップショットを生成する自動監視Workflow。
+- `scripts/build-site-health-snapshot.mjs`：CI検査結果を `assets/data/site-health.json` へ集約する管理画面用生成器。
+
 ## 解決していない参照・例示の記録
 
 catalog.json の reference_exceptions に参照元・元表記・理由を個別登録する。例外は参照先が実在することを意味しない。作業に必要なら未取得として扱う。

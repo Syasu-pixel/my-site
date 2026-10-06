@@ -1,0 +1,54 @@
+name: ELB adopted image import probe
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.event.pull_request.head.ref == 'preview-earth-leakage-breaker-final-20261006'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Inspect temporary share
+        env:
+          SHARE_URL: https://firestorage.ai/ja/f/0t5zL9M0txAC
+        run: |
+          mkdir -p /tmp/elb-probe
+          cat > /tmp/elb-probe/probe.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:1440,height:1000}, acceptDownloads:true});
+          await page.goto(process.env.SHARE_URL,{waitUntil:'networkidle',timeout:90000});
+          await page.waitForTimeout(2000);
+          const data = await page.evaluate(() => ({
+            title: document.title,
+            text: document.body.innerText,
+            links: [...document.querySelectorAll('a')].map(a=>({text:(a.innerText||'').trim(),href:a.href,download:a.getAttribute('download')})),
+            buttons: [...document.querySelectorAll('button')].map(b=>({text:(b.innerText||'').trim(),aria:b.getAttribute('aria-label')}))
+          }));
+          fs.writeFileSync('/tmp/elb-probe/dom.json',JSON.stringify(data,null,2));
+          fs.writeFileSync('/tmp/elb-probe/page.html',await page.content());
+          await page.screenshot({path:'/tmp/elb-probe/page.png',fullPage:true});
+          await browser.close();
+          JS
+          node /tmp/elb-probe/probe.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: elb-firestorage-probe
+          path: /tmp/elb-probe/
+          retention-days: 1

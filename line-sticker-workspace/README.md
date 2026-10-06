@@ -146,3 +146,59 @@
 
 - 本番サイト公開用の領域ではない。mainへ混入させない。
 - ルール変更は、この専用ルール正本の内容と矛盾しないように行う。
+
+
+## 制作・登録完了台帳（2026-10-06 Creators Market確認）
+
+運用ルール：
+- LINE Creators Marketへ登録し、審査リクエストを出した時点で「制作終了」とする。
+- 申請後のZIP・一時マスターは長期保管せず整理対象とし、GitHubには文字履歴を残す。
+- Creators Market上の状態が「審査待ち」「審査処理中」「販売中」のいずれでも、制作工程としてはクローズ扱いとする。
+- 下記は2026-10-06にユーザー共有のCreators Market一覧画面で確認したもの。画面上でタイトルが省略表示されているものは、表示どおり省略記号付きで記録する。
+
+### 釣り・魚シリーズ
+- アジ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- ハゼ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- シーバス釣りあるある Vol.1：制作終了／Creators Market登録済み
+- カワハギ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- カワハギ釣りあるある Vol.2：制作終了／Creators Market登録済み
+- 真鯛釣りあるある Vol.2：制作終了／Creators Market登録済み
+- ヒラメ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- サバ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- ブリ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- タチウオ釣りあるある Vol.1：制作終了／Creators Market登録済み
+- アオリイカのエギ…ある Vol.1：制作終了／Creators Market登録済み（画面省略表示）
+- 釣り人の日常スタンプ Vol.1：制作終了／Creators Market登録済み
+- 限界釣り人 Vol.1：制作終了／Creators Market登録済み
+- 限界釣り人 Vol.2：制作終了／Creators Market登録済み
+- 限界釣り人 Vol.3：制作終了／Creators Market登録済み
+
+### 日常・ネタ・動物シリーズ
+- くそあおり白猫 Vol.1：制作終了／Creators Market登録済み
+- くそあおり白犬 Vol.1：制作終了／Creators Market登録済み
+- メンタル終わってる白犬 Vol.1：制作終了／Creators Market登録済み
+- ゆるシュール白犬 Vol.1：制作終了／Creators Market登録済み
+- 社畜わんこ Vol.1：制作終了／Creators Market登録済み
+- 限界わんこ Vol.1：制作終了／Creators Market登録済み
+- 意味わからん宇宙猫 Vol.1：制作終了／Creators Market登録済み
+- ちょいウザ柴犬 Vol.1：制作終了／Creators Market登録済み
+- 狂気の煽りパンダ Vol.1：制作終了／Creators Market登録済み
+- 無表情カエル Vol.1：制作終了／Creators Market登録済み
+- 温泉カピバラの冬 Vol.1：制作終了／Creators Market登録済み
+- まんまるハムスターの冬 Vol.1：制作終了／Creators Market登録済み
+- まんまるペンギン…ンプ Vol.1：制作終了／Creators Market登録済み（画面省略表示）
+- こたつから出ない三毛猫 Vol.1：制作終了／Creators Market登録済み
+- まったり三毛猫の…ンプ Vol.1（冬特集表示）：制作終了／Creators Market登録済み（画面省略表示）
+- まったり三毛猫の…ンプ Vol.1（秋特集表示）：制作終了／Creators Market登録済み（画面省略表示）
+- 秋のコーギースタンプ Vol.1：制作終了／Creators Market登録済み
+- やさしい柴…気づかいスタンプ：制作終了／Creators Market登録済み（画面省略表示）
+- かわいい柴犬の毎…ンプ Vol.1：制作終了／Creators Market登録済み（画面省略表示）
+
+### 買い物お願いシリーズ
+- 買い物お願いスタンプ Vol.1：制作終了／Creators Market登録済み
+- 買い物お願いスタンプ Vol.2：制作終了／Creators Market登録済み
+- 買い物お願いスタンプ Vol.3：制作終了／Creators Market登録済み
+
+### 備考
+- 上記台帳を今後の重複防止・シリーズ管理の正本とする。
+- 新作をCreators Marketへ登録・審査リクエストしたら、その場で本台帳へ「制作終了／Creators Market登録済み」と追記する。

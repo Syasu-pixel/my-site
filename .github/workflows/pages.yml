@@ -31,8 +31,11 @@ permissions:
   contents: read
 
 concurrency:
+  # Production must always converge on the newest main commit. If a runner outage
+  # leaves an older production run queued, a newer main push must be able to
+  # replace it instead of waiting behind a stale deployment indefinitely.
   group: pages-${{ github.event.pull_request.number || 'production' }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   build:

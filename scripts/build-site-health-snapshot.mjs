@@ -1,0 +1,4 @@
+import {readFile,mkdir,writeFile} from 'node:fs/promises';import {resolve,dirname} from 'node:path';
+const build=resolve(process.argv[2]),out=resolve(process.argv[3]);const failures=[];let cases=0,passed=0;
+for(let i=0;i<6;i++){try{const r=JSON.parse(await readFile(resolve(build,'article-dark-checks-shard-'+i+'.json'),'utf8'));cases+=r.results.length+r.failures.length;passed+=r.results.length;for(const f of r.failures)failures.push({type:'dark-mode',path:f.path,width:f.width,problems:f.problems||[],screenshot:f.screenshot||null});}catch{}}
+const snapshot={generatedAt:new Date().toISOString(),status:failures.length?'warning':'ok',summary:{browserCases:cases,browserPassed:passed,darkModeIssues:failures.length},issues:failures};await mkdir(dirname(out),{recursive:true});await writeFile(out,JSON.stringify(snapshot,null,2)+'\n');console.log(JSON.stringify(snapshot.summary));

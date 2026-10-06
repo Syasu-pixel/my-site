@@ -136,6 +136,7 @@
 | [docs/comic-scripts/magnetic-switch-basic-yonkoma-01.md](../comic-scripts/magnetic-switch-basic-yonkoma-01.md) — magnetic-switch-basic 四コマ漫画 01 | マグネットスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md](../comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md) — earth-leakage-breaker-basic 四コマ漫画 01 | 漏電ブレーカ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/load-cell-basic-yonkoma-01.md](../comic-scripts/load-cell-basic-yonkoma-01.md) — load-cell-basic 四コマ漫画 01 | ロードセル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/light-curtain-basic-yonkoma-01.md](../comic-scripts/light-curtain-basic-yonkoma-01.md) — light-curtain-basic 四コマ漫画 01 | ライトカーテン記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

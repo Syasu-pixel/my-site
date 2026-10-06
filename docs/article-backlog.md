@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 四コマ追従: `articles/magnetic-switch-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/magnetic-switch-basic/magnetic-switch-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
 - [x] 四コマ追従: `articles/sto-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/sto-basic/sto-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
 
 - [x] 四コマ追従: `articles/solenoid-valve-troubleshooting-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。

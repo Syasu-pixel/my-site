@@ -51,33 +51,77 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re, json, os
-          root=Path('_final_preview'); image_root=root/'assets'/'images'; build=Path(os.environ['RUNNER_TEMP'])/'integration-build'
-          keep=set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals']); mapping={}
+
+          root = Path('_final_preview')
+          image_root = root / 'assets' / 'images'
+          mapping = {}
+          build = Path(os.environ['RUNNER_TEMP']) / 'integration-build'
+          keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
           for src in image_root.rglob('*'):
-              if not src.is_file() or src.suffix.lower() not in {'.png','.jpg','.jpeg'}: continue
-              if src.relative_to(root).as_posix() in keep: continue
-              dst=src.with_suffix('.webp')
-              if dst.exists() and dst.stat().st_size>0: mapping[src.relative_to(root).as_posix()]=dst.relative_to(root).as_posix()
-          (build/'published-image-mapping.json').write_text(json.dumps(mapping),encoding='utf-8')
+              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
+                  continue
+              if src.relative_to(root).as_posix() in keep_originals:
+                  continue
+              dst = src.with_suffix('.webp')
+              if dst.exists() and dst.stat().st_size > 0:
+                  rel_src = src.relative_to(root).as_posix()
+                  rel_dst = dst.relative_to(root).as_posix()
+                  mapping[rel_src] = rel_dst
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')
+
+          # Only rewrite files that can affect the published site. Internal Markdown/TXT
+          # docs contain example placeholders such as {slug} and must not be treated as
+          # live asset references.
+          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
+          changed = 0
           for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in {'.html','.css','.js','.json','.xml'}: continue
-              try: text=path.read_text(encoding='utf-8')
-              except UnicodeDecodeError: continue
-              new=text
-              for old,replacement in mapping.items(): new=new.replace('/'+old,'/'+replacement).replace(old,replacement)
-              if new!=text: path.write_text(new,encoding='utf-8')
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              new = text
+              for old, replacement in mapping.items():
+                  new = new.replace('/' + old, '/' + replacement)
+                  new = new.replace(old, replacement)
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+                  changed += 1
+
+          # Remove originals only from the generated publish copy and only when a
+          # valid WebP counterpart exists.
+          removed = 0
           for old in mapping:
-              src=root/old
-              if src.exists(): src.unlink()
-          stale=[]; pattern=re.compile(r'assets/images/[^\\s"\\'<>?#]+\\.(?:png|jpe?g)',re.I)
+              src = root / old
+              if src.exists():
+                  src.unlink()
+                  removed += 1
+
+          # Guard against stale references in actual published web files only.
+          stale = []
+          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
           for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in {'.html','.css','.js','.json','.xml'}: continue
-              try: text=path.read_text(encoding='utf-8')
-              except UnicodeDecodeError: continue
-              for m in pattern.findall(text):
-                  if not (root/m.lstrip('/')).exists(): stale.append(f'{path}: {m}')
-          if stale: raise SystemExit('stale image references: '+str(stale[:20]))
+              if not path.is_file() or path.suffix.lower() not in text_exts:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for match in pattern.findall(text):
+                  candidate = root / match.lstrip('/')
+                  if not candidate.exists():
+                      stale.append(f'{path}: {match}')
+
+          print(f'Converted images: {len(mapping)}')
+          print(f'Updated published files: {changed}')
+          print(f'Removed publish-copy originals: {removed}')
+          if stale:
+              print('Stale image references detected in published files:')
+              print('\n'.join(stale[:100]))
+              raise SystemExit(1)
           PY
+
           python scripts/verify-publication-artifact.py verify _final_preview "${RUNNER_TEMP}/integration-build"
       - name: Commit publication Preview artifact
         run: |

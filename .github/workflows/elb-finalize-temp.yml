@@ -48,7 +48,7 @@ jobs:
           entries=[]
           for path in paths:
               cur=api(f'/repos/{repo}/contents/{path}?ref={branch}')
-              raw=base64.b64decode(cur['content']).decode('utf-8')
+              if cur.get('content'):\n                  raw=base64.b64decode(cur['content']).decode('utf-8')\n              else:\n                  blobcur=api(f\"/repos/{repo}/git/blobs/{cur['sha']}\")\n                  raw=base64.b64decode(blobcur['content']).decode('utf-8')
               obj=json.loads(raw)
               if path.endswith('css-bindings.json'):
                   obj[target]=new_hero

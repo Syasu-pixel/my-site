@@ -1,17 +1,22 @@
-name: ELB adopted image transfer probe
+name: ELB adopted image import
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [synchronize, reopened]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  probe:
+  import:
     if: github.event.pull_request.head.ref == 'preview-earth-leakage-breaker-final-20261006'
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -20,32 +25,74 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Inspect temporary share
+      - name: Download adopted images without modification
         env:
           SHARE_URL: https://firestorage.ai/ja/f/0t5zL9M0txAC
         run: |
-          mkdir -p elb-probe
-          cat > elb-probe/probe.mjs <<'JS'
+          mkdir -p assets/images/earth-leakage-breaker-basic
+          cat > .elb-import.mjs <<'JS'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
+
+          const names = [
+            'earth-leakage-breaker-hero.png',
+            'earth-leakage-breaker-ogp.png',
+            'earth-leakage-breaker-overview.png',
+            'earth-leakage-breaker-trip-flow.png',
+            'earth-leakage-breaker-selection.png',
+            'earth-leakage-breaker-field-check.png'
+          ];
           const browser = await chromium.launch({headless:true});
-          const page = await browser.newPage({viewport:{width:1440,height:1000}, acceptDownloads:true});
+          const page = await browser.newPage({acceptDownloads:true});
           await page.goto(process.env.SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
-          await page.waitForTimeout(5000);
-          const data = await page.evaluate(() => ({
-            title: document.title,
-            text: document.body.innerText,
-            links: [...document.querySelectorAll('a')].map(a=>({text:(a.innerText||'').trim(),href:a.href,download:a.getAttribute('download')})),
-            buttons: [...document.querySelectorAll('button')].map(b=>({text:(b.innerText||'').trim(),aria:b.getAttribute('aria-label')}))
-          }));
-          fs.writeFileSync('elb-probe/dom.json',JSON.stringify(data,null,2));
-          fs.writeFileSync('elb-probe/page.html',await page.content());
-          await page.screenshot({path:'elb-probe/page.png',fullPage:true});
+          await page.waitForTimeout(3000);
+
+          for (const name of names) {
+            const row = page.locator('li').filter({hasText:name}).first();
+            if (await row.count() !== 1) throw new Error('row not found: '+name);
+            const button = row.getByRole('button',{name:'ダウンロード'});
+            const [download] = await Promise.all([
+              page.waitForEvent('download',{timeout:30000}),
+              button.click()
+            ]);
+            const target = 'assets/images/earth-leakage-breaker-basic/'+name;
+            await download.saveAs(target);
+            if (!fs.existsSync(target) || fs.statSync(target).size < 100000) {
+              throw new Error('invalid downloaded file: '+name);
+            }
+          }
           await browser.close();
           JS
-          node elb-probe/probe.mjs
-      - uses: actions/upload-artifact@v4
-        with:
-          name: elb-firestorage-probe
-          path: elb-probe/
-          retention-days: 1
+          node .elb-import.mjs
+          rm -f .elb-import.mjs package.json package-lock.json
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          root=Path('assets/images/earth-leakage-breaker-basic')
+          names=[
+            'earth-leakage-breaker-hero.png',
+            'earth-leakage-breaker-ogp.png',
+            'earth-leakage-breaker-overview.png',
+            'earth-leakage-breaker-trip-flow.png',
+            'earth-leakage-breaker-selection.png',
+            'earth-leakage-breaker-field-check.png',
+          ]
+          for name in names:
+              p=root/name
+              data=p.read_bytes()
+              assert data[:8] == b'\x89PNG\r\n\x1a\n', name
+              w,h=struct.unpack('>II',data[16:24])
+              assert w >= 1600 and h >= 900, (name,w,h)
+              print(name, len(data), w, h)
+          PY
+      - name: Commit adopted images to Preview branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/earth-leakage-breaker-basic/
+          if git diff --cached --quiet; then
+            echo "No image changes to commit."
+            exit 0
+          fi
+          git commit -m "Add adopted earth leakage breaker images"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

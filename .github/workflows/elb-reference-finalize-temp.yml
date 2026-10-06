@@ -1,0 +1,92 @@
+name: ELB reference registry finalization
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.event.pull_request.head.ref == 'preview-earth-leakage-breaker-final2-20261006'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Refresh only ELB article registrations
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+
+          root=Path('.')
+          target='articles/earth-leakage-breaker-basic.html'
+          s=(root/target).read_text(encoding='utf-8')
+          data=(root/target).read_bytes()
+          baseline=hashlib.sha256(data).hexdigest()
+          gitblob=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+
+          sys.path.insert(0,str(root/'.github/article-components/sidebar'))
+          from html_spans import Parser,text
+
+          p=Parser(s);toc=[]
+          for n in p.nodes:
+              if n.tag!='h2' or not n.ancestor(lambda x:x.tag=='main'): continue
+              if n.ancestor(lambda x:x.tag=='aside' or x.has('summary-card') or x.has('mini-toc-card') or x.has('article-hero') or x.has('article-feedback')): continue
+              label=text(s[n.open_end:s.rfind('</h2',n.start,n.end)])
+              if any(x in label for x in ['あわせて読みたい','関連記事','この記事は役に','Related articles','Was this article','キャリアを考える前後']): continue
+              target_id=n.attrs.get('id'); parent=n.ancestor(lambda x:x.tag=='section' and bool(x.attrs.get('id')))
+              if not target_id and parent: target_id=parent.attrs['id']
+              if not target_id: raise SystemExit('Unexpected heading without stable id')
+              toc.append({'id':target_id,'label':label})
+
+          asides=[n for n in p.nodes if n.tag=='aside']
+          assert len(asides)==1
+          raw_cards=[s[n.start:n.end] for n in asides[0].children]
+          assert raw_cards and '記事内メニュー' in raw_cards[0]
+          menu_hash=hashlib.sha256(raw_cards[0].encode()).hexdigest()
+
+          spath=root/'.github/article-components/sidebar/all-pages.json'
+          sobj=json.loads(spath.read_text(encoding='utf-8'))
+          row=next(x for x in sobj['pages'] if x['path']==target)
+          row['tocReference']=toc
+          row['cardsBefore'][0]['sha256']=menu_hash
+          spath.write_text(json.dumps(sobj,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          mpath=root/'.github/site-shells/manifest.json'
+          with open(mpath,'r',encoding='utf-8',newline='') as fh: raw=fh.read()
+          obj=json.loads(raw); row=next(x for x in obj['pages'] if x['output']==target)
+          old=row['baselineSha256']; assert raw.count(old)==1
+          raw=raw.replace(old,baseline,1)
+          with open(mpath,'w',encoding='utf-8',newline='') as fh: fh.write(raw)
+
+          ipath=root/'.github/article-components/site-inventory.json'
+          with open(ipath,'r',encoding='utf-8',newline='') as fh: iraw=fh.read()
+          inv=json.loads(iraw); row=next(x for x in inv['files'] if x['path']==target)
+          oldb=row['gitBlob']; assert iraw.count(oldb)==1
+          iraw=iraw.replace(oldb,gitblob,1)
+          with open(ipath,'w',encoding='utf-8',newline='') as fh: fh.write(iraw)
+
+          print(json.dumps({'baseline':baseline,'gitBlob':gitblob,'menuSha256':menu_hash,'toc':toc},ensure_ascii=False))
+          PY
+
+          git diff --check
+          git diff --name-only
+      - name: Commit target registrations
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/article-components/sidebar/all-pages.json .github/site-shells/manifest.json .github/article-components/site-inventory.json
+          if git diff --cached --quiet; then
+            echo "No registry changes."
+            exit 0
+          fi
+          git commit -m "Refresh ELB registrations after source section"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

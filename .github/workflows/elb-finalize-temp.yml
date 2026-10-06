@@ -112,22 +112,22 @@ jobs:
           vals=json.loads((Path(os.environ['RUNNER_TEMP'])/'elb-registry-values.json').read_text())
           # Preserve manifest bytes/line endings: replace only the target's current unique hash.
           mpath=Path('.github/site-shells/manifest.json')
-          raw=mpath.read_text(encoding='utf-8',newline='')
+          with open(mpath,'r',encoding='utf-8',newline='') as fh: raw=fh.read()
           obj=json.loads(raw)
           page=next(p for p in obj['pages'] if p['output']==target)
           old=page['baselineSha256']; new=vals['baseline']
           assert raw.count(old)==1, 'old shell baseline is not unique'
           raw=raw.replace(old,new,1)
-          mpath.write_text(raw,encoding='utf-8',newline='')
+          with open(mpath,'w',encoding='utf-8',newline='') as fh: fh.write(raw)
           # Site inventory target gitBlob only.
           ipath=Path('.github/article-components/site-inventory.json')
-          iraw=ipath.read_text(encoding='utf-8',newline='')
+          with open(ipath,'r',encoding='utf-8',newline='') as fh: iraw=fh.read()
           inv=json.loads(iraw)
           row=next(p for p in inv['files'] if p['path']==target)
           oldb=row['gitBlob']; newb=vals['gitBlob']
           assert iraw.count(oldb)==1, 'old inventory blob is not unique'
           iraw=iraw.replace(oldb,newb,1)
-          ipath.write_text(iraw,encoding='utf-8',newline='')
+          with open(ipath,'w',encoding='utf-8',newline='') as fh: fh.write(iraw)
           print('shell',old,'->',new)
           print('inventory',oldb,'->',newb)
           PY

@@ -200,6 +200,8 @@
 
 ## 公開反映メモ
 
+- [x] 四コマ追従: `articles/area-sensor-basic.html` — 2026-10-07 正式採用。画像は `assets/images/comics/area-sensor-basic/area-sensor-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
 - [x] 四コマ追従: `articles/light-curtain-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/light-curtain-basic/light-curtain-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
 
 - [x] 四コマ追従: `articles/load-cell-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/load-cell-basic/load-cell-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。

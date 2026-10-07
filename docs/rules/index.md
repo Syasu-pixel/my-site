@@ -62,10 +62,6 @@
 | [docs/codex-update-rules.md](../codex-update-rules.md) — CODEX反映ルール（codex update rules） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
 | [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
-| [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/dashboard-progress-status-v066.md](../dashboard-progress-status-v066.md) — AI編集部 進行状況表示 v0.6.6 | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
@@ -95,14 +91,23 @@
 | [docs/popular-articles-maintenance.md](../popular-articles-maintenance.md) — 人気記事 週次更新ルール | 人気記事のランキング・週次更新を扱う。 |
 | [docs/post-approval-publish-pipeline.md](../post-approval-publish-pipeline.md) — 管理者Preview承認後の公開・インデックス工程 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
-| [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sensor-basic.md](../reference-notes/sensor-basic.md) — sensor-basic 公式参照メモ | articles/sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/rule-alignment-v1.md](../rule-alignment-v1.md) — AI編集部ルール整合メモ v1 | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/search-console-content-improvement-log.md](../search-console-content-improvement-log.md) — Search Console Content Improvement Log | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/search-data-acquisition-rules.md](../search-data-acquisition-rules.md) — 検索データ取得・保存ルール（正本） | 検索データ取得・保存・認証・検索に基づく企画改善を扱う。 |
@@ -113,11 +118,6 @@
 | [docs/site-template-policy.md](../site-template-policy.md) — サイト共通ひな形・構造分離方針 v1（採用済み） | サイト構造・レイアウト・共通部品・記事制作・生成方式・移行状況を扱う。 |
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
-| [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 
@@ -126,19 +126,20 @@
 | [articles/audit-product-image-links-2026-04-12.md](../../articles/audit-product-image-links-2026-04-12.md) — 商品画像クリック導線 監査結果 (2026-04-12) | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md](../ai-editorial-tuesday-hard-stop-audit-2026-09-09.md) — AI編集部 火曜日フロー hard-stop 先回り監査 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/air-pneumatic-troubleshooting-hub-design.md](../air-pneumatic-troubleshooting-hub-design.md) — Air Pneumatic Troubleshooting Hub Design | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |
-| [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md](../comic-scripts/air-cylinder-troubleshooting-basic-yonkoma-01.md) — air-cylinder-troubleshooting-basic 四コマ漫画 01 | エアシリンダトラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
+| [docs/comic-scripts/area-sensor-basic-yonkoma-01.md](../comic-scripts/area-sensor-basic-yonkoma-01.md) — area-sensor-basic 四コマ漫画 01 | エリアセンサ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md](../comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md) — earth-leakage-breaker-basic 四コマ漫画 01 | 漏電ブレーカ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/interlock-basic-yonkoma-01.md](../comic-scripts/interlock-basic-yonkoma-01.md) — interlock-basic 四コマ漫画 01 | インターロック記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
+| [docs/comic-scripts/light-curtain-basic-yonkoma-01.md](../comic-scripts/light-curtain-basic-yonkoma-01.md) — light-curtain-basic 四コマ漫画 01 | ライトカーテン記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/load-cell-basic-yonkoma-01.md](../comic-scripts/load-cell-basic-yonkoma-01.md) — load-cell-basic 四コマ漫画 01 | ロードセル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/magnetic-switch-basic-yonkoma-01.md](../comic-scripts/magnetic-switch-basic-yonkoma-01.md) — magnetic-switch-basic 四コマ漫画 01 | マグネットスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/no-nc-basic-yonkoma-01.md](../comic-scripts/no-nc-basic-yonkoma-01.md) — no-nc-basic 四コマ漫画 01 | NO / NC記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/npn-pnp-basic-yonkoma-01.md](../comic-scripts/npn-pnp-basic-yonkoma-01.md) — npn-pnp-basic 四コマ漫画 01 | NPN / PNP記事の四コマ採用内容・技術ガード・画像転送状態を確認する場合。 |
+| [docs/comic-scripts/reed-switch-basic-yonkoma-01.md](../comic-scripts/reed-switch-basic-yonkoma-01.md) — reed-switch-basic 四コマ漫画 01 | リードスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/sensor-basic-yonkoma-01.md](../comic-scripts/sensor-basic-yonkoma-01.md) — sensor-basic 四コマ漫画 パイロット仕様書 01 | センサ基礎記事の四コマパイロット制作・レビュー・採用判断・後続シリーズの世界観参照に使う。 |
+| [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/solenoid-valve-troubleshooting-basic-yonkoma-01.md](../comic-scripts/solenoid-valve-troubleshooting-basic-yonkoma-01.md) — solenoid-valve-troubleshooting-basic 四コマ漫画 01 | 電磁弁トラブル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/sto-basic-yonkoma-01.md](../comic-scripts/sto-basic-yonkoma-01.md) — sto-basic 四コマ漫画 01 | STO記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/magnetic-switch-basic-yonkoma-01.md](../comic-scripts/magnetic-switch-basic-yonkoma-01.md) — magnetic-switch-basic 四コマ漫画 01 | マグネットスイッチ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md](../comic-scripts/earth-leakage-breaker-basic-yonkoma-01.md) — earth-leakage-breaker-basic 四コマ漫画 01 | 漏電ブレーカ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/load-cell-basic-yonkoma-01.md](../comic-scripts/load-cell-basic-yonkoma-01.md) — load-cell-basic 四コマ漫画 01 | ロードセル記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/light-curtain-basic-yonkoma-01.md](../comic-scripts/light-curtain-basic-yonkoma-01.md) — light-curtain-basic 四コマ漫画 01 | ライトカーテン記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
-| [docs/comic-scripts/servo-motor-basic-yonkoma-01.md](../comic-scripts/servo-motor-basic-yonkoma-01.md) — servo-motor-basic 四コマ漫画 01 | サーボモータ記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/control-to-air-pneumatic-category-audit.md](../control-to-air-pneumatic-category-audit.md) — control-basics / air-pneumatic カテゴリ重複 棚卸しレポート | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-multi-ai-runtime.md](../decisions/2026-09-06-multi-ai-runtime.md) — Decision: multi-AI runtime v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-06-preview-provider.md](../decisions/2026-09-06-preview-provider.md) — Decision: Preview provider v0.1 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
@@ -150,8 +151,8 @@
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
-| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 
 ## 実装・設定の参照先
 

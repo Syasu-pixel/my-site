@@ -117,6 +117,7 @@
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 

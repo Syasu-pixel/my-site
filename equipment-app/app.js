@@ -13,9 +13,24 @@ const WIDGETS=[
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
 const storageKey=()=> 'dc-eq-layout:'+device();
+const sizeKey=()=> 'dc-eq-widget-sizes:'+device();
 const getLayout=()=>{try{return JSON.parse(localStorage.getItem(storageKey()))||DEFAULT}catch{return DEFAULT}};
 const setLayout=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
-let layout=getLayout(),dragId=null,currentFilter='all';
+const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}catch{return {}}};
+const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
+let layout=getLayout(),sizes=getSizes(),dragId=null,currentFilter='all',editMode=false,pointerDrag=null,longPressTimer=null;
+const SIZE_ORDER=['small','medium','wide','full'];
+function defaultSizeFor(w){return w.size==='wide'?'wide':'small'}
+function widgetSize(w){return sizes[w.id]||defaultSizeFor(w)}
+function sizeLabel(size){return size==='small'?'S':size==='medium'?'M':size==='wide'?'L':'XL'}
+function setWidgetSize(id,size){sizes[id]=size;setSizes(sizes);render()}
+function setEditMode(on){
+ editMode=!!on;document.body.classList.toggle('widget-edit-mode',editMode);
+ let done=document.querySelector('#widgetEditDone');
+ if(editMode&&!done){done=document.createElement('button');done.id='widgetEditDone';done.className='widget-edit-done';done.textContent='完了';done.onclick=()=>setEditMode(false);document.body.appendChild(done)}
+ if(!editMode&&done)done.remove();
+ document.querySelector('#editWidgets')?.classList.toggle('active',editMode);
+}
 
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function widgetBody(id){
@@ -40,21 +55,56 @@ function render(){
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
-   const locked=w.tier==='paid';
-   html+='<section class="widget '+w.size+'" draggable="true" data-id="'+w.id+'"><div class="widget-head"><span class="drag">⠿</span><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:9px">×</button></div><div class="widget-body">'+widgetBody(w.id)+'</div>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   const locked=w.tier==='paid',sz=widgetSize(w);
+   html+='<section class="widget size-'+sz+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3><div class="spacer"></div><div class="widget-size-controls" aria-label="ウィジェットサイズ"><button data-size="'+w.id+':small" class="'+(sz==='small'?'active':'')+'">S</button><button data-size="'+w.id+':medium" class="'+(sz==='medium'?'active':'')+'">M</button><button data-size="'+w.id+':wide" class="'+(sz==='wide'?'active':'')+'">L</button><button data-size="'+w.id+':full" class="'+(sz==='full'?'active':'')+'">XL</button></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:9px">×</button></div><div class="widget-body">'+widgetBody(w.id)+'</div>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
+ document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
+}
+function moveWidget(fromId,toId){
+ if(!fromId||!toId||fromId===toId)return;
+ const a=layout.indexOf(fromId),b=layout.indexOf(toId);if(a<0||b<0)return;
+ layout.splice(a,1);layout.splice(b,0,fromId);setLayout(layout);render();
 }
 function bindDrag(){
  document.querySelectorAll('.widget').forEach(el=>{
-  el.addEventListener('dragstart',()=>{dragId=el.dataset.id;el.classList.add('dragging')});
+  el.addEventListener('dragstart',e=>{if(!editMode){e.preventDefault();return}dragId=el.dataset.id;el.classList.add('dragging')});
   el.addEventListener('dragend',()=>{el.classList.remove('dragging');dragId=null});
-  el.addEventListener('dragover',e=>e.preventDefault());
-  el.addEventListener('drop',e=>{e.preventDefault();const to=el.dataset.id;if(!dragId||dragId===to)return;const a=layout.indexOf(dragId),b=layout.indexOf(to);layout.splice(a,1);layout.splice(b,0,dragId);setLayout(layout);render()});
+  el.addEventListener('dragover',e=>{if(editMode)e.preventDefault()});
+  el.addEventListener('drop',e=>{if(!editMode)return;e.preventDefault();moveWidget(dragId,el.dataset.id)});
+
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!=null&&e.button!==0)return;
+    if(e.target.closest('button,a,input,select,textarea,label'))return;
+    const startX=e.clientX,startY=e.clientY,id=el.dataset.id;
+    clearTimeout(longPressTimer);
+    longPressTimer=setTimeout(()=>{
+      setEditMode(true);
+      pointerDrag={id,startX,startY,lastTarget:id,pointerId:e.pointerId};
+      try{el.setPointerCapture(e.pointerId)}catch{}
+      el.classList.add('pointer-dragging');
+      navigator.vibrate?.(18);
+    },520);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!pointerDrag||pointerDrag.pointerId!==e.pointerId)return;
+    const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget');
+    if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
+      pointerDrag.lastTarget=hit.dataset.id;
+      moveWidget(pointerDrag.id,hit.dataset.id);
+      const fresh=document.querySelector('.widget[data-id="'+pointerDrag.id+'"]');fresh?.classList.add('pointer-dragging');
+    }
+  });
+  const stopPointer=e=>{
+    clearTimeout(longPressTimer);
+    if(pointerDrag&&pointerDrag.pointerId===e.pointerId){document.querySelectorAll('.pointer-dragging').forEach(x=>x.classList.remove('pointer-dragging'));pointerDrag=null}
+  };
+  el.addEventListener('pointerup',stopPointer);el.addEventListener('pointercancel',stopPointer);
  });
  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{layout=layout.filter(x=>x!==b.dataset.remove);setLayout(layout);render()});
+ document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{const [id,size]=b.dataset.size.split(':');setWidgetSize(id,size)});
 }
 function openCatalog(){document.querySelector('#widgetModal').classList.remove('hidden');renderCatalog()}
 function renderCatalog(){
@@ -72,7 +122,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('[data-open-widgets]').forEach(b=>b.addEventListener('click',openCatalog));
  document.querySelector('#closeWidgets')?.addEventListener('click',()=>document.querySelector('#widgetModal').classList.add('hidden'));
  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCatalog()});
- document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];setLayout(layout);render()});
+ document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];sizes={};setLayout(layout);setSizes(sizes);render()});
+ document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();render()}});
 });

@@ -179,6 +179,7 @@
 - 限界釣り人 Vol.3：制作終了／Creators Market登録済み
 
 ### 日常・ネタ・動物シリーズ
+- 限界キャンパー Vol.1 / English: Limit Camper Vol.1：制作完了・最終ZIP採用（2026-10-07）
 - 限界登山家 Vol.1 / English: Extreme Mountain Climber Vol.1：制作終了／Creators Market登録・審査リクエスト済み（2026-10-06）
 - ちび登山女子スタンプ Vol.1 / English: Cute Mountain Girl Stickers Vol.1：制作終了／Creators Market登録・審査リクエスト済み（2026-10-06）
 - 待ち合わせ連絡スタンプ Vol.1 / English: Cute Meet-Up Message Stickers Vol.1：制作終了／Creators Market登録・審査リクエスト済み（2026-10-06）

@@ -205,6 +205,34 @@ Operating concept:
 
 The detailed production rules live in `docs/comic-style-guide.md`, `docs/comic-character-sheet.md`, and `docs/comic-production-checklist.md`. These are conditional GitHub rules for four-panel/SNS comic work and should be evaluated whenever the task involves comic production, character consistency, or comic-based article distribution.
 
+## 8.5 AI Citation & Machine-Readable Knowledge Strategy
+
+Denkicontrol should be developed not only as a collection of pages that earn search clicks, but also as a durable technical knowledge source that AI search and answer systems can cite when answering questions about electrical control, FA, PLCs, sensors, safety, pneumatics, and related field work.
+
+This is a long-term strategy, not a claim that any particular AI service currently rewards a domain because it has been cited before. Ranking and citation algorithms are not assumed or reverse-engineered. Instead, Denkicontrol should accumulate the qualities that remain valuable across human search and AI retrieval: technical accuracy, manufacturer-first sourcing, practitioner interpretation, topic coverage, clear answer structure, and coherent internal relationships.
+
+### Operating principles
+- Continue the current priority order: refresh existing Japanese articles first; after the Japanese refresh cycle, refresh existing English articles; only after those stages, resume planned new-article creation based on genuine knowledge gaps and topic coverage needs.
+- Do not restart quota-driven article production merely to increase AI citation opportunities.
+- Treat confirmed AI citations as an independent growth signal alongside search impressions, clicks, CTR, rankings, and PV.
+- When citation data is available, study which pages and themes are repeatedly useful, then strengthen adjacent knowledge, internal links, and missing coverage without mechanically copying wording.
+- Preserve the distinction between manufacturer primary information and Denkicontrol's own value. Official specifications, manuals, drawings, standards, and safety rules remain authoritative; Denkicontrol adds field interpretation, practical check order, cross-component context, and original explanation.
+- Build topic coverage so that related questions can be answered through a coherent set of Denkicontrol pages rather than isolated articles.
+
+### Important technical-information rule for images
+Important technical meaning must not exist only inside an image. If a body image communicates a technical fact, operating principle, causal relationship, configuration, decision criterion, or safety caution that is necessary to understand the topic, that meaning must also be represented in the surrounding HTML text at an appropriate level.
+
+The article does not need to repeat the image word-for-word. The preferred pattern is:
+- HTML text states the technical fact, relationship, reasoning, or caution.
+- The image visualizes and reinforces that information.
+- `alt` text remains concise and accurate, describing what the image shows primarily for accessibility rather than serving as an AI-keyword container.
+- Do not add hidden text, cloaked text, or AI-only invisible explanations for citation optimization.
+
+This keeps the article useful even when an image is not parsed, while also improving accessibility, search understanding, future machine retrieval, and content reuse.
+
+### Long-term measurement
+AI citation should be evaluated as a separate knowledge-distribution layer, not as a replacement for human readership. Where reliable data is available, useful measures may include citation count, number of cited pages, cited topic coverage, repeat citation patterns, and growth of newly cited pages. These measures should inform content decisions without overriding technical accuracy, reader value, or manufacturer-first verification.
+
 ## 9. Technical SEO Priorities
 Priority audit checklist:
 - JA/EN counterpart mapping quality.

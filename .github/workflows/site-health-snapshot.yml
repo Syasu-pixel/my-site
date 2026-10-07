@@ -19,6 +19,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: site-health-snapshot
   cancel-in-progress: true
@@ -57,3 +58,12 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "chore(health): refresh site health snapshot"
           git push
+      - name: Publish refreshed snapshot through Pages
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff HEAD^ --quiet -- assets/data/site-health.json; then
+            exit 0
+          fi
+          gh workflow run pages.yml --ref main

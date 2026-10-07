@@ -1,0 +1,27 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>初期設定 Preview｜設備管理Webアプリ</title><link rel="stylesheet" href="./app.css"></head><body>
+<div class="app-shell">
+  <aside class="sidebar"><a class="brand" href="./dashboard.html"><img src="./assets/dcl-logo-transparent.png" alt="DCLロゴ"><span><strong>設備管理</strong><small>Denkicontrol Workspace</small></span></a><nav class="nav"><a href="./dashboard.html"><span class="icon">◈</span>ダッシュボード</a><a href="#"><span class="icon">▦</span>設備</a><a href="#"><span class="icon">✓</span>点検</a><a href="#"><span class="icon">◫</span>カレンダー</a><a class="active" href="./onboarding.html"><span class="icon">◎</span>初期設定</a><a href="./settings.html"><span class="icon">⚙</span>組織・設定</a></nav><p class="side-meta">Preview / 実データはまだ保存しません。</p></aside>
+  <div class="main"><header class="topbar"><h1>初期設定</h1><div class="spacer"></div><span class="pill">STEP <span id="stepNo">1</span> / 4</span><a class="btn ghost" href="./dashboard.html" style="text-decoration:none">あとで設定</a></header>
+  <main class="content onboarding-content">
+    <div class="onboarding-head"><span class="kicker">QUICK START</span><h2>最初は最低限だけで始める。</h2><p>あとからいつでも変更できます。Previewでは入力内容をブラウザ内だけに仮保存します。</p></div>
+    <div class="onboarding-layout">
+      <section class="onboarding-card">
+        <div class="step-pane" data-step="1"><h3>利用形態を選択</h3><p>法人で複数人利用するか、個人で利用するかを選びます。</p><div class="choice-grid"><button class="choice is-selected" data-choice="company"><strong>法人利用</strong><span>メンバー・権限・社内通知を利用</span></button><button class="choice" data-choice="personal"><strong>個人利用</strong><span>自分用の設備管理として開始</span></button></div><div class="field"><label>会社名 / 組織名</label><input id="orgName" placeholder="株式会社○○"></div></div>
+        <div class="step-pane hidden" data-step="2"><h3>設備を1台登録</h3><p>最初から細かく入力しなくても構いません。</p><div class="field"><label>設備名</label><input id="machineName" placeholder="例：第1ライン 搬送コンベア"></div><div class="field"><label>設置場所</label><input placeholder="例：第1工場"></div><div class="field"><label>メーカー / 型式</label><input placeholder="任意・あとから追加"></div></div>
+        <div class="step-pane hidden" data-step="3"><h3>最初の点検を設定</h3><p>設備ごとの日常点検や定期点検を作成します。</p><div class="field"><label>点検名</label><input placeholder="例：月次点検"></div><div class="field"><label>周期</label><select><option>毎日</option><option>毎週</option><option selected>毎月</option><option>年次</option><option>自由設定</option></select></div><div class="field"><label>通知</label><select><option>当日</option><option selected>3日前</option><option>7日前</option><option>通知しない</option></select></div></div>
+        <div class="step-pane hidden" data-step="4"><h3>マイページを選ぶ</h3><p>必要なウィジェットだけを最初から表示します。</p><div class="setup-widget-grid"><label><input type="checkbox" checked> 今日の点検</label><label><input type="checkbox" checked> 保全カレンダー</label><label><input type="checkbox" checked> 設備ステータス</label><label><input type="checkbox"> 共有メモ</label><label><input type="checkbox"> 社内通知</label><label><input type="checkbox"> 制御機器バージョン</label></div></div>
+        <div class="onboarding-actions"><button class="btn ghost" id="prevStep" disabled>戻る</button><div class="spacer"></div><button class="btn primary" id="nextStep">次へ</button></div>
+      </section>
+      <aside class="onboarding-progress"><h3>セットアップ状況</h3><div class="progress-line"><i id="progressBar"></i></div><div class="progress-list"><div class="current" data-progress="1"><b>1</b><span>利用形態</span></div><div data-progress="2"><b>2</b><span>設備登録</span></div><div data-progress="3"><b>3</b><span>点検設定</span></div><div data-progress="4"><b>4</b><span>マイページ</span></div></div><div class="onboarding-tip"><strong>全部あとから変更可能</strong><p>入力を止めても、ダッシュボードから再開できます。</p></div></aside>
+    </div>
+  </main></div>
+</div>
+<nav class="mobile-nav"><a href="./dashboard.html">◈<br>ホーム</a><a href="#">▦<br>設備</a><a href="#">✓<br>点検</a><a class="active" href="./onboarding.html">◎<br>設定</a></nav>
+<script>
+let step=1;const panes=[...document.querySelectorAll('.step-pane')],progress=[...document.querySelectorAll('[data-progress]')];
+function render(){panes.forEach(x=>x.classList.toggle('hidden',Number(x.dataset.step)!==step));progress.forEach(x=>{const n=Number(x.dataset.progress);x.classList.toggle('current',n===step);x.classList.toggle('done',n<step)});stepNo.textContent=step;progressBar.style.width=(step*25)+'%';prevStep.disabled=step===1;nextStep.textContent=step===4?'ダッシュボードへ':'次へ'}
+document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{document.querySelectorAll('.choice').forEach(x=>x.classList.remove('is-selected'));b.classList.add('is-selected')});
+nextStep.onclick=()=>{if(step<4){step++;render()}else{localStorage.setItem('dc-eq-onboarding','complete');location.href='./dashboard.html'}};
+prevStep.onclick=()=>{if(step>1){step--;render()}};
+render();
+</script></body></html>

@@ -47,8 +47,8 @@
 - OGP: plc-basic-ogp.png
 - 本文1 基本構成: plc-basic-overview.png
 - 本文2 スキャン: plc-basic-scan.png
-- 本文3 リレー回路とPLC: plc-basic-relay-vs-plc.png
-- 本文4 ラダーを見る基本: plc-basic-ladder-basic.png
+- 本文3 リレー回路とPLC: plc-basic-relay-comparison.png
+- 本文4 ラダーを見る基本: plc-basic-ladder.png
 
 ## 転送検証記録
 - 採用画像は前チャットで1枚ずつ管理者確認済み。再生成しない。

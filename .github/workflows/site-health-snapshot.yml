@@ -43,6 +43,8 @@ jobs:
           for shard in 0 1 2 3 4 5; do
             REVIEW_SHARD_COUNT=6 REVIEW_SHARD_INDEX=$shard node scripts/check-article-dark-mode.mjs "${RUNNER_TEMP}/health-build" || true
           done
+      - name: Scan broken images and internal links
+        run: node scripts/check-site-static-integrity.mjs "${RUNNER_TEMP}/health-build/candidate" "${RUNNER_TEMP}/health-build/site-static-integrity.json"
       - name: Build public health snapshot
         run: node scripts/build-site-health-snapshot.mjs "${RUNNER_TEMP}/health-build" assets/data/site-health.json
       - name: Commit snapshot when changed

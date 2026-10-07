@@ -59,13 +59,16 @@ jobs:
           sudo apt-get install -y -qq webp
           export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
 
-          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0             | xargs -0 -r -P 4 -I{} bash -c '
-                src="$1"
-                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+          find _site/assets/images -type f -print0 | while IFS= read -r -d '' src; do
+            case "$src" in
+              *.png|*.PNG|*.jpg|*.JPG|*.jpeg|*.JPEG)
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && continue
                 dst="${src%.*}.webp"
-                [ -e "$dst" ] && exit 0
+                [ -e "$dst" ] && continue
                 cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
-              ' _ {}
+                ;;
+            esac
+          done
 
           python3 - <<'PY'
           from pathlib import Path
@@ -213,4 +216,4 @@ jobs:
           git commit -m 'Preview-only: materialize PLC basic production-equivalent Preview'
           git push origin "HEAD:refs/heads/$FINAL_BRANCH"
 
-# retrigger: PLC registrations complete; run final publication
+# retrigger: fix WebP shell syntax and run final publication

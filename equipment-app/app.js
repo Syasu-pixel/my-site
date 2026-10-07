@@ -19,11 +19,26 @@ const setLayout=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
 const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}catch{return {}}};
 const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
 let layout=getLayout(),sizes=getSizes(),dragId=null,currentFilter='all',editMode=false,pointerDrag=null,longPressTimer=null;
-const SIZE_ORDER=['small','medium','wide','full'];
-function defaultSizeFor(w){return w.size==='wide'?'wide':'small'}
-function widgetSize(w){return sizes[w.id]||defaultSizeFor(w)}
-function sizeLabel(size){return size==='small'?'S':size==='medium'?'M':size==='wide'?'L':'XL'}
-function setWidgetSize(id,size){sizes[id]=size;setSizes(sizes);render()}
+function defaultWidgetGeometry(w){
+ const d=device();
+ if(d==='mobile')return {span:12,minHeight:0};
+ if(d==='tablet')return {span:w.size==='wide'?12:6,minHeight:0};
+ return {span:w.size==='wide'?8:4,minHeight:0};
+}
+function widgetGeometry(w){
+ const base=defaultWidgetGeometry(w),saved=sizes[w.id]||{};
+ return {span:Number(saved.span)||base.span,minHeight:Number(saved.minHeight)||base.minHeight};
+}
+function clampSpan(span){
+ const d=device();
+ if(d==='mobile')return 12;
+ if(d==='tablet')return span<=6?6:12;
+ return Math.max(3,Math.min(12,Math.round(span)));
+}
+function saveGeometry(id,geom){
+ sizes[id]={span:clampSpan(geom.span),minHeight:Math.max(0,Math.round(geom.minHeight||0))};
+ setSizes(sizes);
+}
 function setEditMode(on){
  editMode=!!on;document.body.classList.toggle('widget-edit-mode',editMode);
  let done=document.querySelector('#widgetEditDone');
@@ -55,8 +70,8 @@ function render(){
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
-   const locked=w.tier==='paid',sz=widgetSize(w);
-   html+='<section class="widget size-'+sz+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3><div class="spacer"></div><div class="widget-size-controls" aria-label="ウィジェットサイズ"><button data-size="'+w.id+':small" class="'+(sz==='small'?'active':'')+'">S</button><button data-size="'+w.id+':medium" class="'+(sz==='medium'?'active':'')+'">M</button><button data-size="'+w.id+':wide" class="'+(sz==='wide'?'active':'')+'">L</button><button data-size="'+w.id+':full" class="'+(sz==='full'?'active':'')+'">XL</button></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:9px">×</button></div><div class="widget-body">'+widgetBody(w.id)+'</div>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   const locked=w.tier==='paid',geom=widgetGeometry(w);
+   html+='<section class="widget" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:9px">×</button></div><div class="widget-body">'+widgetBody(w.id)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -112,7 +127,72 @@ function bindDrag(){
   el.addEventListener('pointerup',stopPointer);el.addEventListener('pointercancel',stopPointer);
  });
  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{layout=layout.filter(x=>x!==b.dataset.remove);setLayout(layout);render()});
- document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{const [id,size]=b.dataset.size.split(':');setWidgetSize(id,size)});
+ bindResize();
+}
+
+function bindResize(){
+ const grid=document.querySelector('#widgetGrid'); if(!grid)return;
+ const gap=parseFloat(getComputedStyle(grid).gap)||14;
+ document.querySelectorAll('.widget').forEach(el=>{
+  const id=el.dataset.id;
+  const startResize=(e,mode)=>{
+   if(!editMode||device()==='mobile')return;
+   e.preventDefault();e.stopPropagation();
+   const rect=el.getBoundingClientRect(),gridRect=grid.getBoundingClientRect();
+   const colW=(gridRect.width-gap*11)/12;
+   const startX=e.clientX,startY=e.clientY,startW=rect.width,startH=rect.height;
+   const move=ev=>{
+    const dx=ev.clientX-startX,dy=ev.clientY-startY;
+    const geom=widgetGeometry(WIDGETS.find(w=>w.id===id));
+    if(mode==='right'||mode==='corner'){
+      const desired=Math.max(colW*3,startW+dx);
+      geom.span=clampSpan(Math.round((desired+gap)/(colW+gap)));
+      el.style.setProperty('--widget-span',geom.span);
+    }
+    if(mode==='bottom'||mode==='corner'){
+      geom.minHeight=Math.max(140,startH+dy);
+      el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
+    }
+    saveGeometry(id,geom);
+   };
+   const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)};
+   window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+  };
+  el.querySelectorAll('[data-resize]').forEach(h=>h.addEventListener('pointerdown',e=>startResize(e,h.dataset.resize)));
+
+  let pinch=null;
+  const active=new Map();
+  el.addEventListener('pointerdown',e=>{
+    if(!editMode||e.pointerType==='mouse')return;
+    active.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(active.size===2){
+      const pts=[...active.values()];
+      const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      const rect=el.getBoundingClientRect();
+      const w=WIDGETS.find(x=>x.id===id);
+      pinch={dist,startSpan:widgetGeometry(w).span,startHeight:rect.height};
+      try{el.setPointerCapture(e.pointerId)}catch{}
+    }
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!active.has(e.pointerId))return;
+    active.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(!pinch||active.size<2)return;
+    e.preventDefault();
+    const pts=[...active.values()];
+    const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+    const scale=Math.max(.7,Math.min(1.6,dist/pinch.dist));
+    const w=WIDGETS.find(x=>x.id===id);
+    const geom=widgetGeometry(w);
+    geom.span=clampSpan(pinch.startSpan*scale);
+    geom.minHeight=Math.max(140,pinch.startHeight*scale);
+    saveGeometry(id,geom);
+    el.style.setProperty('--widget-span',geom.span);
+    el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
+  },{passive:false});
+  const end=e=>{active.delete(e.pointerId);if(active.size<2)pinch=null};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+ });
 }
 function openCatalog(){document.querySelector('#widgetModal').classList.remove('hidden');renderCatalog()}
 function closeCatalog(){document.querySelector('#widgetModal')?.classList.add('hidden')}

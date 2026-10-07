@@ -163,24 +163,21 @@ Template:
 - Related PR:
 
 ## 8. Resource Allocation & Guardrails
-### 8.1 Next 3 months
-- New article creation: **5–10%**
-  - Only gap-filler pages required to complete hub navigation.
-  - Suspend unplanned quota-driven article creation.
-- Hub page creation: **30–35%**
-  - Build 1–2 highest-priority hubs first.
-- Existing article improvements: **30–35%**
-  - Search Console-linked 1–2 point reinforcement.
-- Technical SEO audit and internal link restructuring: **25–30%**
-  - JA/EN integrity, indexability, canonical/hreflang/sitemap/language-menu consistency, and hub-focused link concentration.
+### 8.1 Current operating sequence
+- First priority: refresh existing Japanese articles.
+  - Improve technical accuracy, manufacturer-source grounding, practical interpretation, article structure, images, HTML-readable technical meaning, internal links, and current template quality.
+  - Routine new-article production remains paused while this refresh cycle is the active priority.
+- Second priority: refresh existing English articles after the Japanese refresh cycle.
+  - Apply the established quality standard while adapting terminology and search intent for English-speaking practitioners rather than performing mechanical translation.
+- Third priority: resume planned new-article creation after the existing Japanese and English refresh stages.
+  - Select new topics from genuine knowledge gaps, missing hub/spoke coverage, search evidence, field needs, and confirmed AI-citation opportunities.
+  - Do not use article-count quotas as the reason to publish.
+- Hub design, internal-link improvements, technical SEO, SNS reuse, and operational tooling may continue where they support the active refresh stage without displacing it.
 
-### 8.2 Mid-term 6–12 months
-- New article creation: **20–25%**
-- Existing article improvements: **30%**
-- Internal link restructuring: **20%**
-- Technical SEO audits: **10%**
-- Hub page creation: **15–20%**
-
+### 8.2 Longer-term allocation principle
+- Do not lock future work to fixed article-count or percentage quotas before the current refresh stages are complete.
+- Reassess the balance among new articles, existing-article improvements, hub/internal-link work, and technical SEO using actual search performance, AI-citation evidence, topic coverage gaps, reader needs, and operational capacity.
+- New article creation should increase only when it fills a real knowledge gap or extends a validated technical cluster.
 ### 8.3 Explicit guardrails (do-not rules)
 - Do not drift into broad non-core general-interest content for short-term PV gain.
 - Do not overload one article with mixed and conflicting search intents.
@@ -204,6 +201,34 @@ Operating concept:
 - Prefer a repeatable, low-cost workflow over high-volume posting. The objective is qualified inflow to Denkicontrol and brand familiarity, not social reach by itself.
 
 The detailed production rules live in `docs/comic-style-guide.md`, `docs/comic-character-sheet.md`, and `docs/comic-production-checklist.md`. These are conditional GitHub rules for four-panel/SNS comic work and should be evaluated whenever the task involves comic production, character consistency, or comic-based article distribution.
+
+## 8.5 AI Citation & Machine-Readable Knowledge Strategy
+
+Denkicontrol should be developed not only as a collection of pages that earn search clicks, but also as a durable technical knowledge source that AI search and answer systems can cite when answering questions about electrical control, FA, PLCs, sensors, safety, pneumatics, and related field work.
+
+This is a long-term strategy, not a claim that any particular AI service currently rewards a domain because it has been cited before. Ranking and citation algorithms are not assumed or reverse-engineered. Instead, Denkicontrol should accumulate the qualities that remain valuable across human search and AI retrieval: technical accuracy, manufacturer-first sourcing, practitioner interpretation, topic coverage, clear answer structure, and coherent internal relationships.
+
+### Operating principles
+- Continue the current priority order: refresh existing Japanese articles first; after the Japanese refresh cycle, refresh existing English articles; only after those stages, resume planned new-article creation based on genuine knowledge gaps and topic coverage needs.
+- Do not restart quota-driven article production merely to increase AI citation opportunities.
+- Treat confirmed AI citations as an independent growth signal alongside search impressions, clicks, CTR, rankings, and PV.
+- When citation data is available, study which pages and themes are repeatedly useful, then strengthen adjacent knowledge, internal links, and missing coverage without mechanically copying wording.
+- Preserve the distinction between manufacturer primary information and Denkicontrol's own value. Official specifications, manuals, drawings, standards, and safety rules remain authoritative; Denkicontrol adds field interpretation, practical check order, cross-component context, and original explanation.
+- Build topic coverage so that related questions can be answered through a coherent set of Denkicontrol pages rather than isolated articles.
+
+### Important technical-information rule for images
+Important technical meaning must not exist only inside an image. If a body image communicates a technical fact, operating principle, causal relationship, configuration, decision criterion, or safety caution that is necessary to understand the topic, that meaning must also be represented in the surrounding HTML text at an appropriate level.
+
+The article does not need to repeat the image word-for-word. The preferred pattern is:
+- HTML text states the technical fact, relationship, reasoning, or caution.
+- The image visualizes and reinforces that information.
+- `alt` text remains concise and accurate, describing what the image shows primarily for accessibility rather than serving as an AI-keyword container.
+- Do not add hidden text, cloaked text, or AI-only invisible explanations for citation optimization.
+
+This keeps the article useful even when an image is not parsed, while also improving accessibility, search understanding, future machine retrieval, and content reuse.
+
+### Long-term measurement
+AI citation should be evaluated as a separate knowledge-distribution layer, not as a replacement for human readership. Where reliable data is available, useful measures may include citation count, number of cited pages, cited topic coverage, repeat citation patterns, and growth of newly cited pages. These measures should inform content decisions without overriding technical accuracy, reader value, or manufacturer-first verification.
 
 ## 9. Technical SEO Priorities
 Priority audit checklist:

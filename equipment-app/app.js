@@ -115,6 +115,7 @@ function bindDrag(){
  document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{const [id,size]=b.dataset.size.split(':');setWidgetSize(id,size)});
 }
 function openCatalog(){document.querySelector('#widgetModal').classList.remove('hidden');renderCatalog()}
+function closeCatalog(){document.querySelector('#widgetModal')?.classList.add('hidden')}
 function renderCatalog(){
  const area=document.querySelector('#catalog'); if(!area)return;
  const list=WIDGETS.filter(w=>currentFilter==='all'||currentFilter===w.tier||(currentFilter==='active'&&layout.includes(w.id)));
@@ -128,7 +129,10 @@ function renderCatalog(){
 document.addEventListener('DOMContentLoaded',()=>{
  render();
  document.querySelectorAll('[data-open-widgets]').forEach(b=>b.addEventListener('click',openCatalog));
- document.querySelector('#closeWidgets')?.addEventListener('click',()=>document.querySelector('#widgetModal').classList.add('hidden'));
+ document.querySelector('#closeWidgets')?.addEventListener('click',closeCatalog);
+ const modalOverlay=document.querySelector('#widgetModal');
+ modalOverlay?.addEventListener('click',e=>{if(e.target===modalOverlay)closeCatalog()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modalOverlay?.classList.contains('hidden'))closeCatalog()});
  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCatalog()});
  document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];sizes={};setLayout(layout);setSizes(sizes);render()});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));

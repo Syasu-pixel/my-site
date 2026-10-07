@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -42,6 +43,17 @@ jobs:
           rsync -a ./ "${RUNNER_TEMP}/publication/" --exclude '.git/' --exclude '.github/' --exclude 'node_modules/' --exclude '.netlify/' --exclude '.wrangler/' --exclude '.cache/' --exclude 'tmp/' --exclude 'temp/'
           node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" "${RUNNER_TEMP}/publication"
           python scripts/verify-publication-artifact.py snapshot "${RUNNER_TEMP}/publication" "${RUNNER_TEMP}/integration-build"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
+          find "${RUNNER_TEMP}/publication/assets/images" -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \\) -print0 | xargs -0 -r -P 4 -I{} bash -c '
+            src="$1"
+            grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
+            dst="${src%.*}.webp"
+            [ -e "$dst" ] && exit 0
+            cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
+          ' _ {}
+          python scripts/verify-publication-artifact.py verify "${RUNNER_TEMP}/publication" "${RUNNER_TEMP}/integration-build"
       - name: Materialize publication HTML and generated runtime assets
         run: |
           rsync -a --include='*/' --include='*.html' --exclude='*' "${RUNNER_TEMP}/publication/" ./
@@ -56,8 +68,8 @@ jobs:
             mkdir -p "$(dirname "$file")"
             cp "${RUNNER_TEMP}/publication/$file" "$file"
           done
-          printf '/*\\n  X-Robots-Tag: noindex, noarchive\\n' > _headers
-          printf 'User-agent: *\\nDisallow: /\\n' > robots.txt
+          printf '/*\n  X-Robots-Tag: noindex, noarchive\n' > _headers
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add '*.html' 'articles/*.html' 'en/**/*.html' \

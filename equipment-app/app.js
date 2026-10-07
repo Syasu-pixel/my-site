@@ -92,9 +92,17 @@ function bindDrag(){
     if(!pointerDrag||pointerDrag.pointerId!==e.pointerId)return;
     const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget');
     if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
-      pointerDrag.lastTarget=hit.dataset.id;
-      moveWidget(pointerDrag.id,hit.dataset.id);
-      const fresh=document.querySelector('.widget[data-id="'+pointerDrag.id+'"]');fresh?.classList.add('pointer-dragging');
+      const fromId=pointerDrag.id,toId=hit.dataset.id;
+      const a=layout.indexOf(fromId),b=layout.indexOf(toId);
+      if(a>=0&&b>=0){
+        layout.splice(a,1);layout.splice(b,0,fromId);setLayout(layout);
+        const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
+        const target=document.querySelector('.widget[data-id="'+toId+'"]');
+        if(moving&&target){
+          if(a<b)target.after(moving);else target.before(moving);
+        }
+      }
+      pointerDrag.lastTarget=toId;
     }
   });
   const stopPointer=e=>{

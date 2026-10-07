@@ -13,6 +13,7 @@ on:
       - 'scripts/check-site-static-integrity.mjs'
       - 'scripts/build-site-health-snapshot.mjs'
       - 'scripts/check-production-http.mjs'
+      - 'scripts/check-ogp-images.mjs'
       - '.github/workflows/pages.yml'
       - '.github/workflows/site-health-snapshot.yml'
   schedule:
@@ -51,6 +52,8 @@ jobs:
         run: node scripts/check-site-static-integrity.mjs "${RUNNER_TEMP}/health-build/candidate" "${RUNNER_TEMP}/health-build/site-static-integrity.json"
       - name: Check production HTTP reachability
         run: node scripts/check-production-http.mjs . "${RUNNER_TEMP}/health-build/site-production-http.json"
+      - name: Check OGP images
+        run: node scripts/check-ogp-images.mjs . "${RUNNER_TEMP}/health-build/site-ogp-health.json"
       - name: Build public health snapshot
         run: node scripts/build-site-health-snapshot.mjs "${RUNNER_TEMP}/health-build" assets/data/site-health.json
       - name: Commit snapshot when changed

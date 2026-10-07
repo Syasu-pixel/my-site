@@ -163,24 +163,21 @@ Template:
 - Related PR:
 
 ## 8. Resource Allocation & Guardrails
-### 8.1 Next 3 months
-- New article creation: **5–10%**
-  - Only gap-filler pages required to complete hub navigation.
-  - Suspend unplanned quota-driven article creation.
-- Hub page creation: **30–35%**
-  - Build 1–2 highest-priority hubs first.
-- Existing article improvements: **30–35%**
-  - Search Console-linked 1–2 point reinforcement.
-- Technical SEO audit and internal link restructuring: **25–30%**
-  - JA/EN integrity, indexability, canonical/hreflang/sitemap/language-menu consistency, and hub-focused link concentration.
+### 8.1 Current operating sequence
+- First priority: refresh existing Japanese articles.
+  - Improve technical accuracy, manufacturer-source grounding, practical interpretation, article structure, images, HTML-readable technical meaning, internal links, and current template quality.
+  - Routine new-article production remains paused while this refresh cycle is the active priority.
+- Second priority: refresh existing English articles after the Japanese refresh cycle.
+  - Apply the established quality standard while adapting terminology and search intent for English-speaking practitioners rather than performing mechanical translation.
+- Third priority: resume planned new-article creation after the existing Japanese and English refresh stages.
+  - Select new topics from genuine knowledge gaps, missing hub/spoke coverage, search evidence, field needs, and confirmed AI-citation opportunities.
+  - Do not use article-count quotas as the reason to publish.
+- Hub design, internal-link improvements, technical SEO, SNS reuse, and operational tooling may continue where they support the active refresh stage without displacing it.
 
-### 8.2 Mid-term 6–12 months
-- New article creation: **20–25%**
-- Existing article improvements: **30%**
-- Internal link restructuring: **20%**
-- Technical SEO audits: **10%**
-- Hub page creation: **15–20%**
-
+### 8.2 Longer-term allocation principle
+- Do not lock future work to fixed article-count or percentage quotas before the current refresh stages are complete.
+- Reassess the balance among new articles, existing-article improvements, hub/internal-link work, and technical SEO using actual search performance, AI-citation evidence, topic coverage gaps, reader needs, and operational capacity.
+- New article creation should increase only when it fills a real knowledge gap or extends a validated technical cluster.
 ### 8.3 Explicit guardrails (do-not rules)
 - Do not drift into broad non-core general-interest content for short-term PV gain.
 - Do not overload one article with mixed and conflicting search intents.

@@ -60,10 +60,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          snapshot="$(mktemp)"
+          cp assets/data/site-health.json "$snapshot"
+          git fetch origin main
+          git checkout -B main origin/main
+          cp "$snapshot" assets/data/site-health.json
           git add assets/data/site-health.json
           git diff --cached --quiet && exit 0
           git commit -m "chore(health): refresh site health snapshot"
-          git push
+          git push origin HEAD:main
       - name: Publish refreshed snapshot through Pages
         if: success()
         env:

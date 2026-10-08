@@ -34,13 +34,18 @@
     return v;
   };
   const ALERT_KEY='dc-eq-nav-alerts-read-v1';
-  const navAlerts={equipment:{count:3,match:'equipment.html'},inspection:{count:2,match:'inspection.html'},calendar:{count:1,match:'calendar.html'}};
+  const navAlerts={
+    equipment:{count:3,matches:['equipment','equipment.html']},
+    inspection:{count:2,matches:['inspection','inspection.html']},
+    calendar:{count:1,matches:['calendar','calendar.html']}
+  };
   const readAlerts=()=>{try{return JSON.parse(localStorage.getItem(ALERT_KEY))||{}}catch{return {}}};
   const writeAlerts=v=>{try{localStorage.setItem(ALERT_KEY,JSON.stringify(v))}catch{}};
-  const currentPath=()=>location.pathname.split('/').pop()||'';
+  const currentPath=()=>decodeURIComponent(location.pathname.split('/').filter(Boolean).pop()||'').toLowerCase();
+  const markAlertRead=key=>{const read=readAlerts();read[key]=true;writeAlerts(read)};
   const markCurrentSectionRead=()=>{
     const p=currentPath(),read=readAlerts();
-    for(const [key,meta] of Object.entries(navAlerts)){if(p===meta.match)read[key]=true}
+    for(const [key,meta] of Object.entries(navAlerts)){if(meta.matches.includes(p))read[key]=true}
     writeAlerts(read);
   };
   const decorateNavAlerts=()=>{
@@ -57,6 +62,10 @@
       const badge=document.createElement('span');
       if(a.closest('.mobile-nav')){badge.className='mobile-alert'+(key==='calendar'?' subtle':'');badge.textContent=meta.count;a.classList.add('has-alert');a.insertBefore(badge,a.querySelector('br'))}
       else{badge.className='nav-alert'+(key==='calendar'?' subtle':'');badge.textContent=meta.count;a.appendChild(badge)}
+      if(!a.dataset.alertClearBound){
+        a.dataset.alertClearBound='1';
+        a.addEventListener('click',()=>{markAlertRead(key);a.querySelectorAll('.nav-alert,.mobile-alert').forEach(x=>x.remove());a.classList.remove('has-alert')});
+      }
     });
   };
   const ensureAppMenu=()=>{

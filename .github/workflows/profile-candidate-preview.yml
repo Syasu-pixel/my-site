@@ -1,0 +1,48 @@
+name: Profile candidate Preview materialization
+on:
+  push:
+    branches: [preview-profile-candidate-review-20261008]
+    paths: ['.github/workflows/profile-candidate-preview.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-author-structured-data-20261007
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - name: Generate accepted additional-page candidate
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/additional-shells"
+          node scripts/check-additional-shell-regeneration.mjs "${RUNNER_TEMP}/additional-shells"
+          test -s "${RUNNER_TEMP}/additional-shells/candidate/profile/index.html"
+          grep -q 'dc-shell' "${RUNNER_TEMP}/additional-shells/candidate/profile/index.html"
+          grep -q 'dc-theme-toggle' "${RUNNER_TEMP}/additional-shells/candidate/profile/index.html"
+      - name: Publish only generated profile to isolated review branch
+        run: |
+          set -euo pipefail
+          cp "${RUNNER_TEMP}/additional-shells/candidate/profile/index.html" "${RUNNER_TEMP}/profile-candidate.html"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin preview-profile-candidate-review-20261008
+          git checkout -B preview-profile-candidate-review-20261008 origin/preview-profile-candidate-review-20261008
+          mkdir -p profile
+          cp "${RUNNER_TEMP}/profile-candidate.html" profile/index.html
+          printf '/*\n  X-Robots-Tag: noindex, noarchive\n' > _headers
+          printf 'User-agent: *\nDisallow: /\n' > robots.txt
+          git add profile/index.html _headers robots.txt
+          git diff --cached --quiet && exit 0
+          git commit -m "preview: materialize verified profile candidate"
+          git push origin HEAD:preview-profile-candidate-review-20261008

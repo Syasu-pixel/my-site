@@ -1,0 +1,17 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>時計・端末情報 Preview｜設備管理Webアプリ</title><link rel="stylesheet" href="./app.css"></head><body>
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="./dashboard.html"><img src="./assets/dcl-logo-transparent.png" alt="DCLロゴ"><span><strong>設備管理</strong><small>Denkicontrol Workspace</small></span></a><nav class="nav"><a href="./dashboard.html"><span class="icon">◈</span>ダッシュボード</a><a href="./equipment.html"><span class="icon">▦</span>設備</a><a href="./inspection.html"><span class="icon">✓</span>点検</a><a href="./calendar.html"><span class="icon">◫</span>カレンダー</a><a href="./settings.html"><span class="icon">⚙</span>組織・設定</a></nav></aside>
+<div class="main"><header class="topbar"><a class="btn ghost" href="./dashboard.html" style="text-decoration:none">← マイページ</a><h1>時計・端末情報</h1><div class="spacer"></div><span class="pill">端末</span></header>
+<main class="content module-content"><section class="module-hero"><div class="module-icon">◷</div><div><span class="asset-kicker">DEVICE UTILITY</span><h2>時計・端末情報</h2><p>現場タブレットやスマホで、現在時刻・日付・端末状態をすぐ確認するための補助ウィジェットです。</p></div></section>
+<section class="module-grid"><article class="module-panel"><h3>現在の端末情報</h3><div class="device-status-big"><strong id="fullClock">--:--</strong><span id="fullDate">----</span><div><b id="fullZone">Local time</b><b id="fullBattery">Battery --</b></div></div></article><article class="module-panel"><h3>対応について</h3><p>時計と日付はブラウザ上で表示できます。バッテリー残量はブラウザがBattery Status APIに対応している場合のみ取得します。</p><div class="module-note">iPhone / iPadなど一部ブラウザでは、プライバシーやブラウザ仕様によりバッテリー残量を取得できない場合があります。その場合は「非対応」と表示します。</div></article></section></main></div></div>
+<nav class="mobile-nav"><a href="./dashboard.html">◈<br>ホーム</a><a href="./equipment.html">▦<br>設備</a><a href="./inspection.html">✓<br>点検</a><a href="./calendar.html">◫<br>予定</a><a href="./settings.html">⚙<br>設定</a></nav>
+<script src="./ui-preferences.js"></script><script>
+let battery=null;
+function update(){
+ const n=new Date();
+ fullClock.textContent=n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+ fullDate.textContent=n.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+ fullZone.textContent=Intl.DateTimeFormat().resolvedOptions().timeZone||'Local time';
+ fullBattery.textContent=battery?'Battery '+Math.round(battery.level*100)+'%'+(battery.charging?' ⚡':''):'Battery 非対応';
+}
+(async()=>{try{if('getBattery' in navigator){battery=await navigator.getBattery();battery.addEventListener('levelchange',update);battery.addEventListener('chargingchange',update)}}catch{} update();setInterval(update,1000)})();
+</script></body></html>

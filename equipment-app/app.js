@@ -455,7 +455,16 @@ function bindResize(){
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
  });
 }
-function openCatalog(){document.querySelector('#widgetModal').classList.remove('hidden');renderCatalog()}
+function openCatalog(){
+ const modal=document.querySelector('#widgetModal');modal.classList.remove('hidden');
+ const cat=document.querySelector('#catalogCategory');
+ if(cat&&cat.options.length<=1){
+  [...new Set(WIDGETS.map(w=>w.cat))].sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{
+   const o=document.createElement('option');o.value=name;o.textContent=name;cat.appendChild(o);
+  });
+ }
+ renderCatalog()
+}
 function closeCatalog(){document.querySelector('#widgetModal')?.classList.add('hidden')}
 function renderCatalog(){
  const area=document.querySelector('#catalog'); if(!area)return;
@@ -471,6 +480,7 @@ function renderCatalog(){
    html+='<article class="catalog-card"><div class="row"><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><p>'+esc(w.desc)+'</p><div class="row"><span class="badge">'+esc(w.cat)+'</span><div class="spacer"></div><button class="btn '+(layout.includes(w.id)?'ghost':'primary')+'" data-add="'+w.id+'" '+(layout.includes(w.id)?'disabled':'')+'>'+(layout.includes(w.id)?'追加済み':'追加')+'</button></div></article>';
  });
  area.innerHTML=html;
+ document.querySelector('#catalogCount')?.replaceChildren(document.createTextNode(list.length+'件'));
  area.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{if(!layout.includes(b.dataset.add)){layout.push(b.dataset.add);setLayout(layout);render();renderCatalog()}});
 }
 let batteryManager=null,clockTimer=null;
@@ -523,6 +533,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  modalOverlay?.addEventListener('click',e=>{if(e.target===modalOverlay)closeCatalog()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modalOverlay?.classList.contains('hidden'))closeCatalog()});
  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCatalog()});
+ document.querySelector('#catalogSearch')?.addEventListener('input',e=>{catalogQuery=e.target.value;renderCatalog()});
+ document.querySelector('#catalogCategory')?.addEventListener('change',e=>{currentCategory=e.target.value;renderCatalog()});
  document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];sizes={};views={};setLayout(layout);setSizes(sizes);setViews(views);render()});
  const hardCleanup=()=>{clearTimeout(longPressTimer);if(pointerDrag)finishPointerWidgetDrag();else cleanupWidgetDragVisuals()};
  window.addEventListener('blur',hardCleanup);

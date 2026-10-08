@@ -224,8 +224,18 @@ function widgetMinGrid(id){
 }
 function autoDensityForBox(id,width,height){
  if(width<285||height<205)return 'micro';
- if(width<420||height<285)return 'compact';
+ if(width<430||height<285)return 'compact';
+ if(width>720&&height>360)return 'expanded';
  return 'standard';
+}
+function adaptiveWidgetBody(id,density){
+ const base=density==='micro'?'micro':density==='compact'?'compact':density==='expanded'?'standard':density;
+ let html=widgetBody(id,base);
+ if(density==='expanded'){
+   const w=WIDGETS.find(x=>x.id===id);
+   if(w)html+='<div class="expanded-widget-context"><strong>'+esc(w.name)+'</strong><span>'+esc(w.desc)+'</span><em>'+esc(widgetFilterLabel(id))+' / '+esc(widgetPeriodLabel(id))+'</em></div>';
+ }
+ return html;
 }
 function defaultWidgetGeometry(w){
  const d=device();
@@ -814,7 +824,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),renderView=view==='auto'?'standard':view,alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+widgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+adaptiveWidgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -842,7 +852,7 @@ function bindAutoDensity(){
      el.dataset.autoDensity=density;
      const body=el.querySelector('.widget-body');
      if(!body)continue;
-     body.innerHTML=widgetBody(id,density);
+     body.innerHTML=adaptiveWidgetBody(id,density);
    }
    updateLiveDeviceWidget();
    initTimerWidget();

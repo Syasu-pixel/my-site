@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: plc-basic-final-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-final-preview:
@@ -119,16 +119,14 @@ jobs:
           sudo apt-get install -y -qq webp
           export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
 
-          find _site/assets/images -type f -print0 | while IFS= read -r -d '' src; do
-            case "$src" in
-              *.png|*.PNG|*.jpg|*.JPG|*.jpeg|*.JPEG)
-                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && continue
+          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
+            | xargs -0 -r -P 4 -I{} bash -c '
+                src="$1"
+                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
                 dst="${src%.*}.webp"
-                [ -e "$dst" ] && continue
+                [ -e "$dst" ] && exit 0
                 cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
-                ;;
-            esac
-          done
+              ' _ {}
 
           python3 - <<'PY'
           from pathlib import Path

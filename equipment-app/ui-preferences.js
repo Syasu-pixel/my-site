@@ -156,5 +156,6 @@
   };
   apply(read());
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initControls,{once:true});else initControls();
+  window.addEventListener('pageshow',e=>{if(e.persisted){markCurrentSectionRead();decorateNavAlerts()}});
   window.addEventListener('storage',e=>{if(e.key===KEY)apply(read());if(e.key===THEME_KEY)applyTheme(readTheme())});
 })();

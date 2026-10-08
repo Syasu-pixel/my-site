@@ -1,4 +1,4 @@
-import {readFile,readdir,access,mkdir,writeFile} from 'node:fs/promises';
+import {readdir,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,relative,dirname} from 'node:path';
 
 const root=resolve(process.argv[2]||'.');
@@ -23,16 +23,15 @@ const issues=[];let pagesChecked=0,imagesChecked=0;
 for(const file of files){
   const path=pagePath(file);if(!publicPage(path))continue;
   pagesChecked++;
-  const html=await readFile(file,'utf8'),raw=meta(html,'og:image');
+  const liveUrl=origin+(path==='index.html'?'/':'/'+path);
+  let html;
+  try{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);try{const r=await fetch(liveUrl,{signal:controller.signal});if(!r.ok){issues.push({type:'ogp-page-http',path,source:liveUrl,status:r.status});continue}html=await r.text()}finally{clearTimeout(timer)}}catch(e){issues.push({type:'ogp-page-http',path,source:liveUrl,error:String(e?.message||e)});continue}
+  const raw=meta(html,'og:image');
   if(!raw){issues.push({type:'ogp-image-missing',path,source:null});continue}
   let url;
-  try{url=new URL(raw,origin+'/'+path)}catch{issues.push({type:'ogp-image-invalid',path,source:raw});continue}
+  try{url=new URL(raw,liveUrl)}catch{issues.push({type:'ogp-image-invalid',path,source:raw});continue}
   if(!/^https?:$/.test(url.protocol)){issues.push({type:'ogp-image-invalid',path,source:raw});continue}
   imagesChecked++;
-  if(url.origin===origin){
-    const local=decodeURIComponent(url.pathname).replace(/^\//,'');
-    try{await access(resolve(root,local))}catch{issues.push({type:'ogp-image-missing-file',path,source:raw,target:local});continue}
-  }
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
   try{
     const r=await fetch(url,{method:'GET',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Denkicontrol-Site-Health/1.0'}});

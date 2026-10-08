@@ -186,6 +186,7 @@
 | [.github/workflows/orchestrator-pilot.yml](../../.github/workflows/orchestrator-pilot.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/orchestrator-state-tests.yml](../../.github/workflows/orchestrator-state-tests.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/pages.yml](../../.github/workflows/pages.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/plc-basic-final-preview.yml](../../.github/workflows/plc-basic-final-preview.yml) | PLC基礎記事の最終publication Preview生成・検証を行う場合のみ。mainへのマージは禁止。 一時的なPreview専用生成Workflow。本番公開経路へ混入させない。 |
 | [.github/workflows/rule-catalog.yml](../../.github/workflows/rule-catalog.yml) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [.github/workflows/search-data-sync.yml](../../.github/workflows/search-data-sync.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/site-health-snapshot.yml](../../.github/workflows/site-health-snapshot.yml) | 運営ダッシュボードのサイト異常監視、自動CI検査、監視スナップショット生成・公開経路を変更または検査する場合。 main更新時にサイト健全性検査を実行し、管理画面用スナップショットを生成する自動監視Workflow。 |

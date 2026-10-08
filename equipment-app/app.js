@@ -867,6 +867,37 @@ document.addEventListener('DOMContentLoaded',()=>{
    alert('Preview: PDFスナップショットを生成し、選択した対象へ配布するフローです。確認状況は社内通知で追跡します。');
    shareModal?.classList.add('hidden');
  });
+ const tutorialModal=document.querySelector('#tutorialModal');
+ const tutorialSteps=[
+  {title:'長押しで編集モード',text:'ウィジェットを長押しすると、配置変更とサイズ変更ができる編集モードに切り替わります。',mode:'hold'},
+  {title:'ドラッグして並べ替え',text:'浮いたウィジェットをそのまま動かすと、周りのカードが滑らかに避けて新しい位置へ入れ替わります。',mode:'move'},
+  {title:'端をつかんでサイズ変更',text:'PCでは端や右下をドラッグ。タブレット・スマホでは編集モード中に2本指操作で大きさを調整できます。',mode:'resize'},
+  {title:'＋から必要な機能を追加',text:'ウィジェット一覧から必要な機能だけ追加できます。テーマや表示形式もあとから変更できます。',mode:'add'}
+ ];
+ let tutorialIndex=0;
+ const renderTutorial=()=>{
+   const s=tutorialSteps[tutorialIndex];
+   document.querySelector('#tutorialStepLabel').textContent='STEP '+(tutorialIndex+1)+' / '+tutorialSteps.length;
+   document.querySelector('#tutorialTitle').textContent=s.title;
+   document.querySelector('#tutorialText').textContent=s.text;
+   const demo=document.querySelector('#tutorialDemo');demo.dataset.mode=s.mode;
+   const dots=document.querySelector('#tutorialDots');dots.innerHTML=tutorialSteps.map((_,i)=>'<i class="'+(i===tutorialIndex?'active':'')+'"></i>').join('');
+   document.querySelector('#tutorialPrev').disabled=tutorialIndex===0;
+   document.querySelector('#tutorialNext').textContent=tutorialIndex===tutorialSteps.length-1?'完了':'次へ';
+ };
+ const openTutorial=()=>{
+   tutorialIndex=0;renderTutorial();tutorialModal?.classList.remove('hidden');
+ };
+ document.querySelector('#tutorialOpen')?.addEventListener('click',()=>{openTutorial();closeAppMenu()});
+ document.querySelector('#tutorialClose')?.addEventListener('click',()=>tutorialModal?.classList.add('hidden'));
+ document.querySelector('#tutorialPrev')?.addEventListener('click',()=>{if(tutorialIndex>0){tutorialIndex--;renderTutorial()}});
+ document.querySelector('#tutorialNext')?.addEventListener('click',()=>{if(tutorialIndex<tutorialSteps.length-1){tutorialIndex++;renderTutorial()}else tutorialModal?.classList.add('hidden')});
+ tutorialModal?.addEventListener('click',e=>{if(e.target===tutorialModal)tutorialModal.classList.add('hidden')});
+ try{
+   if(sessionStorage.getItem('dc-eq-tutorial-seen')!=='1'){
+     setTimeout(()=>{openTutorial();sessionStorage.setItem('dc-eq-tutorial-seen','1')},900);
+   }
+ }catch{}
  const greeting=document.querySelector('#topbarGreeting');
  if(greeting){
    let shouldShow=true;

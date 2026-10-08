@@ -164,10 +164,11 @@ const getWidgetDisplays=()=>{try{return JSON.parse(localStorage.getItem(displayK
 const setWidgetDisplays=v=>localStorage.setItem(displayKey(),JSON.stringify(v));
 const getGridPositions=()=>{try{return JSON.parse(localStorage.getItem(gridPosKey()))||{}}catch{return {}}};
 const setGridPositions=v=>localStorage.setItem(gridPosKey(),JSON.stringify(v));
-const GRID_COMPACT_MIGRATION='dc-eq-grid-compact-v1:'+currentWorkspace+':'+device();
+const gridCompactMigrationKey=()=> 'dc-eq-grid-compact-v1:'+currentWorkspace+':'+device();
 function migrateUtilityGridSizes(){
   if(device()!=='pc')return;
-  try{if(localStorage.getItem(GRID_COMPACT_MIGRATION)==='1')return}catch{}
+  const migrationKey=gridCompactMigrationKey();
+  try{if(localStorage.getItem(migrationKey)==='1')return}catch{}
   let changed=false;
   for(const id of ['device','favorites','portal-links','quick','weather','sync','contacts']){
     if(!gridPositions[id])continue;
@@ -177,7 +178,7 @@ function migrateUtilityGridSizes(){
     changed=true;
   }
   if(changed){setGridPositions(gridPositions);setSizes(sizes)}
-  try{localStorage.setItem(GRID_COMPACT_MIGRATION,'1')}catch{}
+  try{localStorage.setItem(migrationKey,'1')}catch{}
 }
 
 let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),widgetPeriods=getWidgetPeriods(),widgetDisplays=getWidgetDisplays(),gridPositions=getGridPositions(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
@@ -237,7 +238,22 @@ function saveGeometry(id,geom){
  setSizes(sizes);
 }
 function setEditMode(on){
- editMode=!!on;document.body.classList.toggle('widget-edit-mode',editMode);
+ editMode=!!on;
+ if(editMode&&document.body.classList.contains('widget-overview-mode')){
+   document.body.classList.remove('widget-overview-mode');
+   document.body.classList.add('overview-paused-for-edit');
+   document.body.classList.toggle('widget-2d-grid-mode',device()==='pc');
+   overviewRemoveHoverPreview?.(true);
+   render();
+ }
+ if(!editMode&&document.body.classList.contains('overview-paused-for-edit')){
+   document.body.classList.remove('overview-paused-for-edit');
+   let restore=false;try{restore=localStorage.getItem('dc-eq-overview-mode')==='1'}catch{}
+   document.body.classList.toggle('widget-overview-mode',restore&&device()==='pc');
+   document.body.classList.toggle('widget-2d-grid-mode',device()==='pc'&&!restore);
+   render();
+ }
+ document.body.classList.toggle('widget-edit-mode',editMode);
  let done=document.querySelector('#widgetEditDone');
  let trash=document.querySelector('#widgetTrashZone');
  if(editMode&&!done){done=document.createElement('button');done.id='widgetEditDone';done.className='widget-edit-done';done.textContent='完了';done.onclick=()=>setEditMode(false);document.body.appendChild(done)}
@@ -580,6 +596,7 @@ function switchWorkspace(id){
  try{localStorage.setItem('dc-eq-workspace',id)}catch{}
  try{const url=new URL(location.href);url.searchParams.set('view',id);history.replaceState(null,'',url)}catch{}
  layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();gridPositions=getGridPositions();
+ migrateUtilityGridSizes();
  render();renderDashboardNavigation();
 }
 function createCustomDashboard(){
@@ -1281,7 +1298,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();applyOverviewMode(overviewOn);document.body.classList.toggle('widget-2d-grid-mode',d==='pc');render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();applyOverviewMode(overviewOn);document.body.classList.toggle('widget-2d-grid-mode',d==='pc'&&!document.body.classList.contains('widget-overview-mode'));render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});
@@ -1294,6 +1311,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const applyOverviewMode=on=>{
    const enabled=!!on&&device()==='pc';
    document.body.classList.toggle('widget-overview-mode',enabled);
+   document.body.classList.toggle('widget-2d-grid-mode',device()==='pc'&&!enabled);
    try{localStorage.setItem(overviewKey,enabled?'1':'0')}catch{}
    const b=document.querySelector('#overviewModeToggle');
    if(b){const s=b.querySelector('span');if(s)s.textContent=enabled?'ON':'OFF';b.classList.toggle('active',enabled)}
@@ -1368,7 +1386,7 @@ document.addEventListener('DOMContentLoaded',()=>{
      }
    },35);
  }
- document.body.classList.toggle('widget-2d-grid-mode',device()==='pc');
+ document.body.classList.toggle('widget-2d-grid-mode',device()==='pc'&&!document.body.classList.contains('widget-overview-mode'));
  ensureGridPositions();
  setTimeout(()=>applyGridStyles(),0);
 

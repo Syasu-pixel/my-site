@@ -824,7 +824,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),renderView=view==='auto'?'standard':view,alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+adaptiveWidgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+adaptiveWidgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-left" data-resize="left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tl" data-resize="top-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tr" data-resize="top-right" aria-hidden="true"></span><span class="resize-handle resize-corner resize-bl" data-resize="bottom-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-br" data-resize="bottom-right" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -1127,23 +1127,34 @@ function bindResize(){
     if(gridModeEnabled()&&startPos){
       let next={...startPos};
       const mins=widgetMinGrid(id);
-      if(mode==='right'||mode==='corner'){
-        const delta=Math.round(dx/(colW+colGap));
-        next.w=Math.max(mins.w,Math.min(13-next.x,startPos.w+delta));
+      const leftEdge=startPos.x;
+      const rightEdge=startPos.x+startPos.w;
+      const topEdge=startPos.y;
+      const bottomEdge=startPos.y+startPos.h;
+      const colDelta=Math.round(dx/(colW+colGap));
+      const rowDelta=Math.round(dy/(rowH+rowGap));
+      const fromLeft=mode==='left'||mode==='top-left'||mode==='bottom-left';
+      const fromRight=mode==='right'||mode==='top-right'||mode==='bottom-right';
+      const fromTop=mode==='top'||mode==='top-left'||mode==='top-right';
+      const fromBottom=mode==='bottom'||mode==='bottom-left'||mode==='bottom-right';
+
+      if(fromRight){
+        next.w=Math.max(mins.w,Math.min(13-next.x,startPos.w+colDelta));
       }
-      if(mode==='bottom'||mode==='corner'){
-        const delta=Math.round(dy/(rowH+rowGap));
-        next.h=Math.max(mins.h,startPos.h+delta);
+      if(fromLeft){
+        const newX=Math.max(1,Math.min(rightEdge-mins.w,leftEdge+colDelta));
+        next.x=newX;
+        next.w=Math.max(mins.w,rightEdge-newX);
       }
-      if(mode==='top'){
-        const delta=Math.round(dy/(rowH+rowGap));
-        const newY=Math.max(1,startPos.y+delta);
-        const bottom=startPos.y+startPos.h;
-        next.y=Math.min(bottom-mins.h,newY);
-        next.h=Math.max(mins.h,bottom-next.y);
+      if(fromBottom){
+        next.h=Math.max(mins.h,startPos.h+rowDelta);
+      }
+      if(fromTop){
+        const newY=Math.max(1,Math.min(bottomEdge-mins.h,topEdge+rowDelta));
+        next.y=newY;
+        next.h=Math.max(mins.h,bottomEdge-newY);
         el.classList.add('resizing-from-top');
       }
-
       const resolved=resolveGridPositions(id,next);
       gridPositions=resolved;
       setGridPositions(gridPositions);
@@ -1166,16 +1177,26 @@ function bindResize(){
     }
 
     const geom=widgetGeometry(WIDGETS.find(w=>w.id===id));
-    if(mode==='right'||mode==='corner'){
+    const fromLeft=mode==='left'||mode==='top-left'||mode==='bottom-left';
+    const fromRight=mode==='right'||mode==='top-right'||mode==='bottom-right';
+    const fromTop=mode==='top'||mode==='top-left'||mode==='top-right';
+    const fromBottom=mode==='bottom'||mode==='bottom-left'||mode==='bottom-right';
+
+    if(fromRight){
       const desired=Math.max(colW*3,startW+dx);
       geom.span=clampSpan(Math.round((desired+colGap)/(colW+colGap)));
       el.style.setProperty('--widget-span',geom.span);
     }
-    if(mode==='bottom'||mode==='corner'){
+    if(fromLeft){
+      const desired=Math.max(colW*3,startW-dx);
+      geom.span=clampSpan(Math.round((desired+colGap)/(colW+colGap)));
+      el.style.setProperty('--widget-span',geom.span);
+    }
+    if(fromBottom){
       geom.minHeight=Math.max(140,startH+dy);
       el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
     }
-    if(mode==='top'){
+    if(fromTop){
       geom.minHeight=Math.max(140,startH-dy);
       el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
       el.classList.add('resizing-from-top');

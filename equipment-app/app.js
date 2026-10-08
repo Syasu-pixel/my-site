@@ -9,7 +9,14 @@ const WIDGETS=[
 {id:'iot',name:'IoTモニタ',desc:'温度・圧力・振動などの時系列収集・グラフ化',tier:'paid',cat:'IoT',size:'wide',href:'./iot.html'},
 {id:'parts',name:'予備品・在庫',desc:'予備品の在庫・保管場所・交換履歴を管理',tier:'paid',cat:'保全',size:'',href:'./parts.html'},
 {id:'approval',name:'承認待ち',desc:'点検報告や変更申請の承認フロー',tier:'paid',cat:'法人',size:'',href:'./approval.html'},
-{id:'device',name:'時計・端末情報',desc:'現在時刻・日付・端末状態・対応端末ではバッテリー残量を表示',tier:'free',cat:'端末',size:'',href:'./device-status.html'}
+{id:'device',name:'時計・端末情報',desc:'現在時刻・日付・端末状態・対応端末ではバッテリー残量を表示',tier:'free',cat:'端末',size:'',href:'./device-status.html'},
+{id:'deadline',name:'期限アラート',desc:'交換・点検・法定期限を近い順に表示',tier:'free',cat:'予定',size:'',href:'./calendar.html'},
+{id:'recent',name:'最近の作業',desc:'直近の点検・修理・変更履歴を表示',tier:'free',cat:'履歴',size:'',href:'./equipment.html'},
+{id:'assigned',name:'担当設備',desc:'自分の担当設備だけをすばやく確認',tier:'free',cat:'設備',size:'',href:'./equipment.html'},
+{id:'sync',name:'同期・接続状態',desc:'オンライン状態・最終同期・外部連携状態を確認',tier:'free',cat:'端末',size:'',href:'./settings.html'},
+{id:'quick',name:'クイック操作',desc:'点検開始・設備追加・メモ追加などをすぐ実行',tier:'free',cat:'操作',size:'',href:'./dashboard.html'},
+{id:'timer',name:'タイマー・ストップウォッチ',desc:'現場作業用の簡易タイマーと経過時間計測',tier:'free',cat:'端末',size:'',href:'./timer.html'},
+{id:'smart',name:'スマート提案',desc:'期限・担当・異常から今優先したい操作を提案',tier:'free',cat:'スマート',size:'wide',href:'./dashboard.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -105,6 +112,32 @@ function widgetBody(id,view='standard'){
   if(view==='summary')return '<div class="device-widget summary-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span><em data-live-battery>Battery --</em></div>';
   return '<div class="device-widget"><div class="device-time"><strong data-live-clock>--:--</strong><span data-live-seconds>:--</span></div><div class="device-date" data-live-date>----</div><div class="device-meta"><span data-live-zone>Local time</span><span data-live-battery>Battery --</span></div></div>';
  }
+ if(id==='deadline'){
+  if(view==='summary')return '<div class="summary-hero"><strong>5</strong><span>30日以内の期限</span><em>最短 あと3日</em></div>';
+  if(view==='compact')return '<div class="compact-line"><strong>サーボ電池交換</strong><span>あと3日</span></div><div class="compact-line"><strong>月次点検</strong><span>10/12</span></div>';
+  return '<div class="list"><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>設備A サーボ電池交換</strong><small>交換期限まで3日</small></div><div class="list-side">10/11</div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>CV-04 月次点検</strong><small>第1工場</small></div><div class="list-side">10/12</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>法定点検</strong><small>ホイスト01</small></div><div class="list-side">10/28</div></div></div>';
+ }
+ if(id==='recent'){
+  if(view==='summary')return '<div class="summary-hero"><strong>8</strong><span>今週の作業</span><em>点検 5 / 修理 2 / 変更 1</em></div>';
+  return '<div class="list"><div class="list-item"><div class="list-main"><strong>CV3 センサ位置調整</strong><small>10:24 / 保全班</small></div><div class="list-side">変更</div></div><div class="list-item"><div class="list-main"><strong>コンプレッサ 圧力確認</strong><small>09:10 / 中村</small></div><div class="list-side">完了</div></div><div class="list-item"><div class="list-main"><strong>MR-J4 電池確認</strong><small>昨日 / 保全班</small></div><div class="list-side">点検</div></div></div>';
+ }
+ if(id==='assigned'){
+  if(view==='summary')return '<div class="summary-hero"><strong>6</strong><span>担当設備</span><em>要確認 1件</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>CV-04 搬送コンベア</strong><small>第1工場</small></div><div class="list-side">正常</div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>設備A サーボ搬送軸</strong><small>加工ステーション</small></div><div class="list-side">要確認</div></div></div>';
+ }
+ if(id==='sync'){
+  return '<div class="sync-grid"><span><i class="dot green"></i><b>オンライン</b><small>接続中</small></span><span><i class="dot green"></i><b>データ同期</b><small>12:04</small></span><span><i class="dot yellow"></i><b>Calendar</b><small>未接続</small></span><span><i class="dot green"></i><b>通知</b><small>許可済み</small></span></div>';
+ }
+ if(id==='quick'){
+  return '<div class="quick-grid"><a href="./inspection.html">✓<span>点検開始</span></a><a href="./equipment.html">＋<span>設備追加</span></a><a href="./memo.html">≡<span>メモ追加</span></a><a href="./calendar.html">◫<span>予定追加</span></a></div>';
+ }
+ if(id==='timer'){
+  return '<div class="timer-widget"><strong data-timer-display>00:00:00</strong><div><button class="btn ghost" data-timer-start>開始</button><button class="btn ghost" data-timer-stop>停止</button><button class="btn ghost" data-timer-reset>リセット</button></div></div>';
+ }
+ if(id==='smart'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>今優先したいこと</span><em>期限 / 未実施 / 在庫</em></div>';
+  return '<div class="smart-list"><div><b>1</b><span><strong>サーボ電池交換を確認</strong><small>期限まで3日</small></span><a href="./equipment-detail.html">開く</a></div><div><b>2</b><span><strong>未実施点検が2件</strong><small>今日中の対応を推奨</small></span><a href="./inspection.html">開く</a></div><div><b>3</b><span><strong>MR-J4予備電池 残り2個</strong><small>最低在庫に近づいています</small></span><a href="./parts.html">開く</a></div></div>';
+ }
  return '';
 }
 function render(){
@@ -120,6 +153,7 @@ function render(){
  document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
  updateLiveDeviceWidget();
+ initTimerWidget();
 }
 function moveWidget(fromId,toId){
  if(!fromId||!toId||fromId===toId)return;
@@ -339,6 +373,19 @@ function updateLiveDeviceWidget(){
   batteryText='Battery '+Math.round(batteryManager.level*100)+'%'+(batteryManager.charging?' ⚡':'');
  }
  document.querySelectorAll('[data-live-battery]').forEach(x=>x.textContent=batteryText);
+}
+let timerSeconds=0,timerRunning=false,timerTick=null;
+function renderTimer(){
+ const h=String(Math.floor(timerSeconds/3600)).padStart(2,'0');
+ const m=String(Math.floor((timerSeconds%3600)/60)).padStart(2,'0');
+ const s=String(timerSeconds%60).padStart(2,'0');
+ document.querySelectorAll('[data-timer-display]').forEach(x=>x.textContent=h+':'+m+':'+s);
+}
+function initTimerWidget(){
+ document.querySelectorAll('[data-timer-start]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(timerRunning)return;timerRunning=true;timerTick=setInterval(()=>{timerSeconds++;renderTimer()},1000)});
+ document.querySelectorAll('[data-timer-stop]').forEach(b=>b.onclick=e=>{e.stopPropagation();timerRunning=false;clearInterval(timerTick)});
+ document.querySelectorAll('[data-timer-reset]').forEach(b=>b.onclick=e=>{e.stopPropagation();timerRunning=false;clearInterval(timerTick);timerSeconds=0;renderTimer()});
+ renderTimer();
 }
 async function initDeviceStatus(){
  try{

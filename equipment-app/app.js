@@ -80,6 +80,20 @@ const WIDGETS=[
 {id:'disposal',name:'廃棄・撤去予定',desc:'廃棄予定設備・撤去工事・データ退避状況を管理',tier:'free',cat:'設備',size:'',href:'./disposal.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
+const WIDGET_ALERTS={
+ today:{count:2,type:'danger',label:'未実施'},
+ calendar:{count:1,type:'info',label:'更新'},
+ equipment:{count:3,type:'danger',label:'要確認'},
+ notice:{count:2,type:'danger',label:'未確認'},
+ memo:{count:1,type:'info',label:'新着'},
+ deadline:{count:5,type:'warning',label:'期限'},
+ incident:{count:3,type:'danger',label:'未完了'},
+ workorders:{count:6,type:'warning',label:'未完了'},
+ reorder:{count:4,type:'warning',label:'補充'},
+ alarm-history:{count:1,type:'danger',label:'未復旧'},
+ permits:{count:1,type:'danger',label:'承認待ち'},
+ audit:{count:2,type:'danger',label:'重要'}
+};
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
 const storageKey=()=> 'dc-eq-layout:'+device();
 const sizeKey=()=> 'dc-eq-widget-sizes:'+device();
@@ -424,8 +438,8 @@ function render(){
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
-   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id);
-   html+='<section class="widget view-'+view+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3><div class="spacer"></div><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=WIDGET_ALERTS[w.id];
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();

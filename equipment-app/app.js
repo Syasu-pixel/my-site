@@ -82,12 +82,27 @@ const WIDGETS=[
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const WORKSPACE_PRESETS={
  personal:['today','calendar','equipment','notice','memo','device','favorites'],
+ equipment:['equipment','assigned','deadline','recent','versions','docs','alarm-history','downtime','spares-life','lubrication','network'],
+ inspection:['today','checklist','readings','safety','deadline','calendar','photos','handover','templates'],
  field:['today','assigned','handover','safety','quick','deadline','docs'],
- manager:['kpi','downtime','workorders','incident','reorder','annual-plan','notice'],
+ manager:['kpi','downtime','workorders','incident','reorder','annual-plan','notice','audit'],
  monitor:['equipment','alarm-history','iot','readings','network','deadline']
 };
-const WORKSPACE_LABELS={personal:'自分用',field:'現場用',manager:'管理者用',monitor:'大型モニタ'};
-let currentWorkspace=(()=>{try{return localStorage.getItem('dc-eq-workspace')||'personal'}catch{return 'personal'}})();
+const WORKSPACE_LABELS={personal:'マイページ',equipment:'設備',inspection:'点検',field:'現場用',manager:'管理者用',monitor:'大型モニタ'};
+const CUSTOM_DASHBOARD_KEY='dc-eq-custom-dashboards-v1';
+const getCustomDashboards=()=>{try{return JSON.parse(localStorage.getItem(CUSTOM_DASHBOARD_KEY))||{}}catch{return {}}};
+const setCustomDashboards=v=>{try{localStorage.setItem(CUSTOM_DASHBOARD_KEY,JSON.stringify(v))}catch{}};
+let customDashboards=getCustomDashboards();
+function workspaceLabel(id){return customDashboards[id]?.title||WORKSPACE_LABELS[id]||'ダッシュボード'}
+function workspacePreset(id){return customDashboards[id]?.layout||WORKSPACE_PRESETS[id]||DEFAULT}
+let currentWorkspace=(()=>{
+ try{
+  const url=new URL(location.href),q=url.searchParams.get('view');
+  if(q&&(WORKSPACE_PRESETS[q]||getCustomDashboards()[q]))return q;
+  const saved=localStorage.getItem('dc-eq-workspace')||'personal';
+  return WORKSPACE_PRESETS[saved]||getCustomDashboards()[saved]?saved:'personal';
+ }catch{return 'personal'}
+})();
 const WIDGET_ALERTS={
  today:{items:[{source:'widget',count:2}],type:'danger',label:'未実施'},
  calendar:{items:[{source:'widget',count:1}],type:'info',label:'更新'},
@@ -107,8 +122,9 @@ function visibleWidgetAlert(id){
  const read=getAlertReads();
  let count=0,mandatory=false;
  for(const item of a.items||[]){
+   if(read[id])continue;
    if(MANDATORY_NOTIFICATION_SOURCES.has(item.source)){count+=item.count;mandatory=true}
-   else if(widgetNotifyEnabled(id)&&!read[id])count+=item.count;
+   else if(widgetNotifyEnabled(id))count+=item.count;
  }
  return count>0?{...a,count,mandatory}:null;
 }
@@ -128,10 +144,10 @@ const getLayout=()=>{
     const legacy=localStorage.getItem('dc-eq-layout:'+device());
     if(legacy)return JSON.parse(legacy);
   }
-  return [...(WORKSPACE_PRESETS[currentWorkspace]||DEFAULT)];
- }catch{return [...(WORKSPACE_PRESETS[currentWorkspace]||DEFAULT)]}
+  return [...workspacePreset(currentWorkspace)];
+ }catch{return [...workspacePreset(currentWorkspace)]}
 };
-const setLayout=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
+const setLayout=v=>{localStorage.setItem(storageKey(),JSON.stringify(v));if(customDashboards[currentWorkspace]){customDashboards[currentWorkspace].layout=[...v];setCustomDashboards(customDashboards)}};
 const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}catch{return {}}};
 const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
 const getViews=()=>{try{return JSON.parse(localStorage.getItem(viewKey()))||{}}catch{return {}}};
@@ -160,8 +176,6 @@ const getAlertReads=()=>{try{return JSON.parse(localStorage.getItem(ALERT_READ_K
 const setAlertReads=v=>{try{localStorage.setItem(ALERT_READ_KEY,JSON.stringify(v))}catch{}};
 function markWidgetAlertRead(id){
  const a=WIDGET_ALERTS[id];if(!a)return;
- const hasMandatory=(a.items||[]).some(item=>MANDATORY_NOTIFICATION_SOURCES.has(item.source));
- if(hasMandatory)return;
  const read=getAlertReads();read[id]=true;setAlertReads(read);
 }
 function widgetNotifyEnabled(id){return notifyPrefs[id]!==false}
@@ -496,6 +510,61 @@ function widgetBody(id,view='standard'){
  }
  return '';
 }
+function dashboardAlertCount(id){
+ const items=workspacePreset(id);let total=0;
+ for(const wid of items){const a=visibleWidgetAlert(wid);if(a)total+=a.count}
+ return total;
+}
+function renderDashboardNavigation(){
+ const order=['personal','equipment','inspection','manager','monitor'];
+ const customIds=Object.keys(customDashboards);
+ const ids=[...order,...customIds];
+ const list=document.querySelector('#dashboardNavList');
+ const tabs=document.querySelector('#dashboardWorkspaceTabs');
+ const makeButton=(id,compact=false)=>{
+   const count=dashboardAlertCount(id),active=id===currentWorkspace;
+   const tag=compact?'button':'a';
+   if(compact)return '<button class="workspace-tab '+(active?'active':'')+'" data-workspace="'+id+'">'+esc(workspaceLabel(id))+(count?'<span class="workspace-alert">'+count+'</span>':'')+'</button>';
+   return '<a class="dashboard-nav-item '+(active?'active':'')+'" href="./dashboard.html?view='+encodeURIComponent(id)+'" data-workspace-link="'+id+'"><span class="icon">◈</span><span>'+esc(workspaceLabel(id))+'</span>'+(count?'<span class="nav-alert">'+count+'</span>':'')+'</a>';
+ };
+ if(list)list.innerHTML=ids.map(id=>makeButton(id,false)).join('');
+ if(tabs)tabs.innerHTML=ids.map(id=>makeButton(id,true)).join('')+'<button class="workspace-add" id="workspaceAdd" type="button">＋</button>';
+ const title=document.querySelector('#dashboardTitle');if(title)title.textContent=workspaceLabel(currentWorkspace);
+ const topTitle=document.querySelector('.topbar h1');if(topTitle)topTitle.textContent=workspaceLabel(currentWorkspace);
+ document.querySelectorAll('[data-workspace]').forEach(b=>b.onclick=()=>switchWorkspace(b.dataset.workspace));
+ document.querySelector('#workspaceAdd')?.addEventListener('click',createCustomDashboard);
+ document.querySelector('#dashboardNavAdd')?.addEventListener('click',createCustomDashboard);
+}
+function switchWorkspace(id){
+ if(!(WORKSPACE_PRESETS[id]||customDashboards[id]))return;
+ currentWorkspace=id;
+ try{localStorage.setItem('dc-eq-workspace',id)}catch{}
+ try{const url=new URL(location.href);url.searchParams.set('view',id);history.replaceState(null,'',url)}catch{}
+ layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();
+ render();renderDashboardNavigation();
+}
+function createCustomDashboard(){
+ const title=prompt('新しいダッシュボード名','日常点検');if(!title?.trim())return;
+ const id='custom-'+Date.now();
+ customDashboards[id]={title:title.trim(),layout:['today','calendar','equipment']};
+ setCustomDashboards(customDashboards);
+ switchWorkspace(id);
+}
+function renameCurrentDashboard(){
+ const old=workspaceLabel(currentWorkspace);
+ const title=prompt('ダッシュボード名を変更',old);if(!title?.trim())return;
+ if(!customDashboards[currentWorkspace]){
+   const id='custom-'+Date.now();
+   customDashboards[id]={title:title.trim(),layout:[...layout]};
+   setCustomDashboards(customDashboards);
+   currentWorkspace=id;
+   try{localStorage.setItem('dc-eq-workspace',id)}catch{}
+   setLayout(layout);
+ }else{
+   customDashboards[currentWorkspace].title=title.trim();customDashboards[currentWorkspace].layout=[...layout];setCustomDashboards(customDashboards);
+ }
+ renderDashboardNavigation();
+}
 function render(){
  const grid=document.querySelector('#widgetGrid'); if(!grid)return;
  let html='';
@@ -788,15 +857,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  initDeviceStatus();
  stampWidgetUpdates();
  setInterval(stampWidgetUpdates,60000);
- document.querySelectorAll('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===currentWorkspace));
- document.querySelectorAll('[data-workspace]').forEach(b=>b.addEventListener('click',()=>{
-   currentWorkspace=b.dataset.workspace;
-   try{localStorage.setItem('dc-eq-workspace',currentWorkspace)}catch{}
-   layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();
-   document.querySelectorAll('[data-workspace]').forEach(x=>x.classList.toggle('active',x===b));
-   render();
- }));
- document.querySelector('#workspaceAdd')?.addEventListener('click',()=>alert('Preview: カスタムダッシュボード作成は次段階で名前・共有範囲を設定できるようにします'));
+ renderDashboardNavigation();
+ document.querySelector('#renameDashboard')?.addEventListener('click',renameCurrentDashboard);
  const globalSearchData=[
   {type:'設備',title:'CV-04 搬送コンベア',meta:'第1工場 / FX5U-32MR',href:'./equipment-detail.html'},
   {type:'設備',title:'設備A サーボ搬送軸',meta:'MR-J4-70B',href:'./equipment-detail.html'},
@@ -857,7 +919,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const shareModal=document.querySelector('#dashboardShareModal');
  document.querySelector('#dashboardExport')?.addEventListener('click',()=>window.print());
  document.querySelector('#dashboardShare')?.addEventListener('click',()=>{
-   const label=WORKSPACE_LABELS[currentWorkspace]||'ダッシュボード';
+   const label=workspaceLabel(currentWorkspace);
    const n=document.querySelector('#shareWorkspaceName');if(n)n.textContent=label+'ダッシュボード';
    shareModal?.classList.remove('hidden');
  });

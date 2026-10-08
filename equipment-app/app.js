@@ -664,6 +664,29 @@ function ensureGridPositions(){
 function gridOverlap(a,b){
   return !(a.x+a.w<=b.x||b.x+b.w<=a.x||a.y+a.h<=b.y||b.y+b.h<=a.y);
 }
+function gridCandidateIsFree(id,cand){
+  return layout.every(otherId=>{
+    if(otherId===id)return true;
+    const p=gridPositions[otherId];return !p||!gridOverlap(cand,p);
+  });
+}
+function autoFitGridCandidate(id,cand){
+  if(gridCandidateIsFree(id,cand))return {...cand,autoFit:false};
+  const minW=3,minH=4;
+  const widths=[cand.w,cand.w-1,cand.w-2].filter((v,i,a)=>v>=minW&&a.indexOf(v)===i);
+  const heights=[cand.h,cand.h-1,cand.h-2].filter((v,i,a)=>v>=minH&&a.indexOf(v)===i);
+  let best=null,bestPenalty=Infinity;
+  for(const w of widths){
+    for(const h of heights){
+      const x=Math.max(1,Math.min(13-w,cand.x));
+      const test={x,y:cand.y,w,h};
+      if(!gridCandidateIsFree(id,test))continue;
+      const penalty=(cand.w-w)*2+(cand.h-h);
+      if(penalty<bestPenalty){best={...test,autoFit:true};bestPenalty=penalty}
+    }
+  }
+  return best||{...cand,autoFit:false};
+}
 function resolveGridPositions(movedId,candidate){
   const next=JSON.parse(JSON.stringify(gridPositions||{}));
   next[movedId]={...candidate};
@@ -714,11 +737,14 @@ function updateGridDropCandidate(clientX,clientY){
   const p0=gridPositions[pointerDrag.id]||{x:1,y:1,w:4,h:7};
   const col=Math.max(1,Math.min(13-p0.w,Math.round((clientX-gr.left)/(colW+gap))+1));
   const row=Math.max(1,Math.round((clientY-gr.top+scrollY*0)/(rowH+gap))+1);
-  const cand={x:col,y:row,w:p0.w,h:p0.h};
+  const raw={x:col,y:row,w:p0.w,h:p0.h};
+  const cand=autoFitGridCandidate(pointerDrag.id,raw);
   pointerDrag.gridCandidate=cand;
   const ph=ensureGridDropPlaceholder();
   ph.style.gridColumn=cand.x+' / span '+cand.w;
   ph.style.gridRow=cand.y+' / span '+cand.h;
+  ph.classList.toggle('auto-fit',!!cand.autoFit);
+  ph.dataset.label=cand.autoFit?'隙間に合わせて自動調整':'ここに配置';
   return true;
 }
 
@@ -813,8 +839,15 @@ function finishPointerWidgetDrag(){
    return;
  }
  if(gridModeEnabled()&&d.gridCandidate){
-   gridPositions=resolveGridPositions(d.id,d.gridCandidate);
+   const cand={...d.gridCandidate};delete cand.autoFit;
+   gridPositions=resolveGridPositions(d.id,cand);
    setGridPositions(gridPositions);
+   const grid=document.querySelector('#widgetGrid');
+   const cs=grid?getComputedStyle(grid):null;
+   const rowH=cs?parseFloat(cs.gridAutoRows)||34:34;
+   const rowGap=cs?parseFloat(cs.rowGap)||12:12;
+   sizes[d.id]={span:cand.w,minHeight:Math.max(140,cand.h*(rowH+rowGap)-rowGap)};
+   setSizes(sizes);
    clearGridDropPlaceholder();
    d.ghost?.remove();
    cleanupWidgetDragVisuals();
@@ -987,14 +1020,60 @@ function bindResize(){
    if(!editMode||device()==='mobile')return;
    e.preventDefault();e.stopPropagation();
    const rect=el.getBoundingClientRect(),gridRect=grid.getBoundingClientRect();
-   const colW=(gridRect.width-gap*11)/12;
+   const gridStyle=getComputedStyle(grid);
+   const colGap=parseFloat(gridStyle.columnGap)||gap;
+   const rowGap=parseFloat(gridStyle.rowGap)||gap;
+   const colW=(gridRect.width-colGap*11)/12;
+   const rowH=parseFloat(gridStyle.gridAutoRows)||34;
    const startX=e.clientX,startY=e.clientY,startW=rect.width,startH=rect.height;
+   const startPos=gridModeEnabled()?{...(gridPositions[id]||{x:1,y:1,w:4,h:7})}:null;
    const move=ev=>{
     const dx=ev.clientX-startX,dy=ev.clientY-startY;
+
+    if(gridModeEnabled()&&startPos){
+      let next={...startPos};
+      if(mode==='right'||mode==='corner'){
+        const delta=Math.round(dx/(colW+colGap));
+        next.w=Math.max(3,Math.min(13-next.x,startPos.w+delta));
+      }
+      if(mode==='bottom'||mode==='corner'){
+        const delta=Math.round(dy/(rowH+rowGap));
+        next.h=Math.max(4,startPos.h+delta);
+      }
+      if(mode==='top'){
+        const delta=Math.round(dy/(rowH+rowGap));
+        const newY=Math.max(1,startPos.y+delta);
+        const bottom=startPos.y+startPos.h;
+        next.y=Math.min(bottom-4,newY);
+        next.h=Math.max(4,bottom-next.y);
+        el.classList.add('resizing-from-top');
+      }
+
+      const resolved=resolveGridPositions(id,next);
+      gridPositions=resolved;
+      setGridPositions(gridPositions);
+      const p=gridPositions[id];
+      el.style.gridColumn=p.x+' / span '+p.w;
+      el.style.gridRow=p.y+' / span '+p.h;
+
+      sizes[id]={
+        span:p.w,
+        minHeight:Math.max(140,p.h*(rowH+rowGap)-rowGap)
+      };
+      setSizes(sizes);
+
+      document.querySelectorAll('#widgetGrid .widget').forEach(node=>{
+        const gp=gridPositions[node.dataset.id];if(!gp)return;
+        node.style.gridColumn=gp.x+' / span '+gp.w;
+        node.style.gridRow=gp.y+' / span '+gp.h;
+      });
+      return;
+    }
+
     const geom=widgetGeometry(WIDGETS.find(w=>w.id===id));
     if(mode==='right'||mode==='corner'){
       const desired=Math.max(colW*3,startW+dx);
-      geom.span=clampSpan(Math.round((desired+gap)/(colW+gap)));
+      geom.span=clampSpan(Math.round((desired+colGap)/(colW+colGap)));
       el.style.setProperty('--widget-span',geom.span);
     }
     if(mode==='bottom'||mode==='corner'){

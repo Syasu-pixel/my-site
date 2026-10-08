@@ -854,6 +854,19 @@ document.addEventListener('DOMContentLoaded',()=>{
  applyFocusMode(focusOn);
  document.querySelector('#focusModeToggle')?.addEventListener('click',()=>{focusOn=!focusOn;applyFocusMode(focusOn);closeAppMenu()});
 
+ const shareModal=document.querySelector('#dashboardShareModal');
+ document.querySelector('#dashboardExport')?.addEventListener('click',()=>window.print());
+ document.querySelector('#dashboardShare')?.addEventListener('click',()=>{
+   const label=WORKSPACE_LABELS[currentWorkspace]||'ダッシュボード';
+   const n=document.querySelector('#shareWorkspaceName');if(n)n.textContent=label+'ダッシュボード';
+   shareModal?.classList.remove('hidden');
+ });
+ document.querySelector('#dashboardShareClose')?.addEventListener('click',()=>shareModal?.classList.add('hidden'));
+ shareModal?.addEventListener('click',e=>{if(e.target===shareModal)shareModal.classList.add('hidden')});
+ document.querySelector('#dashboardShareSend')?.addEventListener('click',()=>{
+   alert('Preview: PDFスナップショットを生成し、選択した対象へ配布するフローです。確認状況は社内通知で追跡します。');
+   shareModal?.classList.add('hidden');
+ });
  const greeting=document.querySelector('#topbarGreeting');
  if(greeting){
    let shouldShow=true;

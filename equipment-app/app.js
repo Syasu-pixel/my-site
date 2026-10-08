@@ -77,7 +77,8 @@ const WIDGETS=[
 {id:'receiving',name:'検収待ち',desc:'購入部品・外注工事・設備の検収待ちを管理',tier:'free',cat:'購買',size:'',href:'./receiving.html'},
 {id:'purchase-history',name:'購入履歴',desc:'部品・工具・設備の購入履歴と単価を確認',tier:'paid',cat:'購買',size:'wide',href:'./purchase-history.html'},
 {id:'relocation',name:'設備移設履歴',desc:'設備の移設・ライン変更・設置場所変更を記録',tier:'free',cat:'設備',size:'',href:'./relocation.html'},
-{id:'disposal',name:'廃棄・撤去予定',desc:'廃棄予定設備・撤去工事・データ退避状況を管理',tier:'free',cat:'設備',size:'',href:'./disposal.html'}
+{id:'disposal',name:'廃棄・撤去予定',desc:'廃棄予定設備・撤去工事・データ退避状況を管理',tier:'free',cat:'設備',size:'',href:'./disposal.html'},
+{id:'portal-links',name:'ポータルリンク',desc:'検索・天気・ニュース・社内ページなど、よく使う外部サービスへのショートカット',tier:'free',cat:'操作',size:''}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const WORKSPACE_PRESETS={
@@ -163,6 +164,22 @@ const getWidgetDisplays=()=>{try{return JSON.parse(localStorage.getItem(displayK
 const setWidgetDisplays=v=>localStorage.setItem(displayKey(),JSON.stringify(v));
 const getGridPositions=()=>{try{return JSON.parse(localStorage.getItem(gridPosKey()))||{}}catch{return {}}};
 const setGridPositions=v=>localStorage.setItem(gridPosKey(),JSON.stringify(v));
+const GRID_COMPACT_MIGRATION='dc-eq-grid-compact-v1:'+currentWorkspace+':'+device();
+function migrateUtilityGridSizes(){
+  if(device()!=='pc')return;
+  try{if(localStorage.getItem(GRID_COMPACT_MIGRATION)==='1')return}catch{}
+  let changed=false;
+  for(const id of ['device','favorites','portal-links','quick','weather','sync','contacts']){
+    if(!gridPositions[id])continue;
+    gridPositions[id].w=Math.min(gridPositions[id].w||3,3);
+    gridPositions[id].h=Math.min(gridPositions[id].h||5,5);
+    sizes[id]={span:3,minHeight:220};
+    changed=true;
+  }
+  if(changed){setGridPositions(gridPositions);setSizes(sizes)}
+  try{localStorage.setItem(GRID_COMPACT_MIGRATION,'1')}catch{}
+}
+
 let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),widgetPeriods=getWidgetPeriods(),widgetDisplays=getWidgetDisplays(),gridPositions=getGridPositions(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
 const FILTER_CYCLE=['全設備','担当設備','第1工場','第2工場'];
 const PERIOD_CYCLE=['今日','7日','30日','90日','1年'];
@@ -527,6 +544,9 @@ function widgetBody(id,view='standard'){
   if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>撤去予定設備</span><em>データ退避待ち 1件</em></div>';
   return '<div class="workorder-list"><div><span class="dot yellow"></span><p><strong>旧制御盤 CP-OLD1</strong><small>撤去予定 11/05</small></p><em>退避待ち</em></div><div><span class="dot green"></span><p><strong>旧HMI GT15</strong><small>廃棄予定 11/20</small></p><em>準備済</em></div></div>';
  }
+ if(id==='portal-links'){
+  return '<div class="portal-link-grid"><a href="https://www.google.com/" target="_blank" rel="noopener"><b>G</b><span>Google検索</span></a><a href="https://www.google.com/search?q=weather" target="_blank" rel="noopener"><b>☁</b><span>天気</span></a><a href="https://news.google.com/" target="_blank" rel="noopener"><b>N</b><span>ニュース</span></a><a href="../"><b>DC</b><span>電気コントロール</span></a></div>';
+ }
  return '';
 }
 function dashboardAlertCount(id){
@@ -643,17 +663,24 @@ function overviewShowHoverPreview(el){
   },20);
 }
 
-function gridModeEnabled(){return document.body.classList.contains('widget-2d-grid-mode')&&device()==='pc'}
+function gridModeEnabled(){return device()==='pc'}
 function defaultGridRows(id){
   if(['calendar','today','iot','workorders','annual-plan','readings'].includes(id))return 9;
-  if(['notice','memo','equipment','versions','device','favorites'].includes(id))return 7;
+  if(['device','favorites','portal-links','quick','weather','sync','contacts'].includes(id))return 5;
+  if(['notice','memo','equipment','versions'].includes(id))return 7;
   return 7;
+}
+function defaultGridCols(id){
+  if(['device','favorites','portal-links','quick','weather','sync','contacts'].includes(id))return 3;
+  const w=WIDGETS.find(z=>z.id===id);
+  return w?.size==='wide'?8:4;
 }
 function ensureGridPositions(){
   let changed=false,x=1,y=1,rowH=0;
   for(const id of layout){
     if(gridPositions[id])continue;
-    const w=Math.max(3,Math.min(12,widgetGeometry(WIDGETS.find(z=>z.id===id)).span||4));
+    const savedSpan=widgetGeometry(WIDGETS.find(z=>z.id===id)).span;
+    const w=Math.max(3,Math.min(12,(sizes[id]?.span||defaultGridCols(id)||savedSpan||4)));
     const h=defaultGridRows(id);
     if(x+w-1>12){y+=rowH;x=1;rowH=0}
     gridPositions[id]={x,y,w,h};changed=true;
@@ -1205,6 +1232,7 @@ function stampWidgetUpdates(){
  document.querySelectorAll('[data-widget-updated]').forEach(x=>x.textContent='更新 '+t);
 }
 document.addEventListener('DOMContentLoaded',()=>{
+ migrateUtilityGridSizes();
  render();
  initDeviceStatus();
  stampWidgetUpdates();
@@ -1253,7 +1281,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();applyOverviewMode(overviewOn);applyGridMode(gridModeOn);render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();applyOverviewMode(overviewOn);document.body.classList.toggle('widget-2d-grid-mode',d==='pc');render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});
@@ -1339,18 +1367,9 @@ document.addEventListener('DOMContentLoaded',()=>{
      }
    },35);
  }
- const gridModeKey='dc-eq-2d-grid-mode';
- const applyGridMode=on=>{
-   const enabled=!!on&&device()==='pc';
-   document.body.classList.toggle('widget-2d-grid-mode',enabled);
-   try{localStorage.setItem(gridModeKey,enabled?'1':'0')}catch{}
-   const b=document.querySelector('#gridModeToggle');
-   if(b){const s=b.querySelector('span');if(s)s.textContent=enabled?'ON':'OFF';b.classList.toggle('active',enabled)}
-   if(enabled){ensureGridPositions();setTimeout(()=>{applyGridStyles()},0)}else{clearGridDropPlaceholder();render()}
- };
- let gridModeOn=false;try{gridModeOn=localStorage.getItem(gridModeKey)==='1'}catch{}
- applyGridMode(gridModeOn);
- document.querySelector('#gridModeToggle')?.addEventListener('click',()=>{gridModeOn=!gridModeOn;applyGridMode(gridModeOn);closeAppMenu()});
+ document.body.classList.toggle('widget-2d-grid-mode',device()==='pc');
+ ensureGridPositions();
+ setTimeout(()=>applyGridStyles(),0);
 
  const focusKey='dc-eq-focus-mode';
  const applyFocusMode=on=>{

@@ -55,7 +55,19 @@ const WIDGETS=[
 {id:'mtbf',name:'MTBF・MTTR',desc:'故障間隔と平均修復時間を設備別に分析',tier:'paid',cat:'分析',size:'wide',href:'./reliability.html'},
 {id:'checklist',name:'定型チェックリスト',desc:'清掃・締付・始業・終業など定型作業をすぐ実行',tier:'free',cat:'点検',size:'',href:'./checklists.html'},
 {id:'spare-location',name:'保管場所マップ',desc:'予備品・工具・消耗品の保管場所をすばやく確認',tier:'free',cat:'在庫',size:'',href:'./storage-map.html'},
-{id:'external-links',name:'外部リンク',desc:'メーカーサイト・社内システム・マニュアルへのショートカット',tier:'free',cat:'操作',size:'',href:'./links.html'}
+{id:'external-links',name:'外部リンク',desc:'メーカーサイト・社内システム・マニュアルへのショートカット',tier:'free',cat:'操作',size:'',href:'./links.html'},
+{id:'alarm-history',name:'アラーム履歴',desc:'設備アラーム・警報・復旧の履歴をまとめて確認',tier:'free',cat:'設備',size:'wide',href:'./alarm-history.html'},
+{id:'downtime-reason',name:'停止理由ランキング',desc:'設備停止理由を件数・時間で集計して表示',tier:'paid',cat:'分析',size:'wide',href:'./downtime-reasons.html'},
+{id:'compatibility',name:'部品互換・代替品',desc:'既存部品の互換候補・代替品・後継機種を管理',tier:'free',cat:'在庫',size:'wide',href:'./compatibility.html'},
+{id:'warranty',name:'保証・保守期限',desc:'設備・機器の保証期間や保守契約期限を管理',tier:'free',cat:'期限',size:'',href:'./warranty.html'},
+{id:'support',name:'メーカーサポート',desc:'メーカー窓口・受付時間・サポート情報への入口',tier:'free',cat:'共有',size:'',href:'./manufacturer-support.html'},
+{id:'approval-history',name:'承認履歴',desc:'点検・設定変更・設備削除などの承認履歴を確認',tier:'paid',cat:'法人',size:'',href:'./approval-history.html'},
+{id:'worktime',name:'作業時間',desc:'設備別・担当者別の作業時間や停止対応時間を集計',tier:'paid',cat:'分析',size:'wide',href:'./worktime.html'},
+{id:'templates',name:'点検テンプレート',desc:'日常・月次・法定点検のテンプレートをすぐ呼び出す',tier:'free',cat:'点検',size:'wide',href:'./templates.html'},
+{id:'consumables',name:'消耗品',desc:'フィルタ・ヒューズ・ランプ・電池など消耗品を管理',tier:'free',cat:'在庫',size:'',href:'./consumables.html'},
+{id:'service-contracts',name:'保守契約',desc:'メーカー・業者との保守契約内容と更新期限を管理',tier:'paid',cat:'期限',size:'',href:'./service-contracts.html'},
+{id:'audit',name:'監査ログ',desc:'ログイン・設定変更・削除・出力など重要操作を確認',tier:'paid',cat:'法人',size:'wide',href:'./audit-log.html'},
+{id:'bookmarks',name:'最近開いた項目',desc:'直近で見た設備・資料・点検画面をすぐ再表示',tier:'free',cat:'操作',size:'',href:'./recent-items.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -313,6 +325,48 @@ function widgetBody(id,view='standard'){
  }
  if(id==='external-links'){
   return '<div class="favorite-grid"><a href="#"><b>WEB</b><span>三菱FA</span></a><a href="#"><b>SYS</b><span>社内申請</span></a><a href="#"><b>PDF</b><span>標準手順書</span></a><a href="#"><b>HELP</b><span>サポート</span></a></div>';
+ }
+ if(id==='alarm-history'){
+  if(view==='summary')return '<div class="summary-hero"><strong>7</strong><span>24時間のアラーム</span><em>未復旧 1件</em></div>';
+  return '<div class="workorder-list"><div><span class="dot red"></span><p><strong>Servo AL.9F</strong><small>設備A / 12:42</small></p><em>未復旧</em></div><div><span class="dot yellow"></span><p><strong>INV 過負荷警報</strong><small>CV-04 / 10:18</small></p><em>復旧</em></div><div><span class="dot green"></span><p><strong>センサ検出異常</strong><small>CV3 / 08:05</small></p><em>復旧</em></div></div>';
+ }
+ if(id==='downtime-reason'){
+  if(view==='summary')return '<div class="summary-hero"><strong>42分</strong><span>今月の停止</span><em>最多：センサ調整</em></div>';
+  return '<div class="trend-bars"><span><small>センサ調整</small><i style="--v:76%"></i><b>18分</b></span><span><small>部品交換</small><i style="--v:50%"></i><b>12分</b></span><span><small>復旧確認</small><i style="--v:36%"></i><b>8分</b></span></div>';
+ }
+ if(id==='compatibility'){
+  return '<div class="doc-links"><a href="./compatibility.html"><b>ALT</b><span><strong>MR-J4BAT → 後継候補</strong><small>互換確認済み</small></span></a><a href="./compatibility.html"><b>ALT</b><span><strong>光電センサ E3Z系</strong><small>代替候補 2件</small></span></a></div>';
+ }
+ if(id==='warranty'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>90日以内の保証期限</span><em>最短 32日</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>設備A サーボ</strong><small>メーカー保証</small></div><div class="list-side">11/09</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>IoT Gateway-03</strong><small>保守契約</small></div><div class="list-side">12/20</div></div></div>';
+ }
+ if(id==='support'){
+  return '<div class="contact-mini"><a href="./manufacturer-support.html"><b>三菱電機</b><span>FAサポート</span></a><a href="./manufacturer-support.html"><b>OMRON</b><span>技術相談</span></a><a href="./manufacturer-support.html"><b>KEYENCE</b><span>担当窓口</span></a></div>';
+ }
+ if(id==='approval-history'){
+  return '<div class="report-list"><a href="./approval-history.html"><span>承認</span><strong>点検報告 #248</strong><em>10:14</em></a><a href="./approval-history.html"><span>変更</span><strong>通知設定変更</strong><em>昨日</em></a><a href="./approval-history.html"><span>設備</span><strong>設備削除申請</strong><em>10/05</em></a></div>';
+ }
+ if(id==='worktime'){
+  if(view==='summary')return '<div class="summary-hero"><strong>18.6h</strong><span>今週の保全作業</span><em>停止対応 4.2h</em></div>';
+  return '<div class="kpi-grid"><span><small>点検</small><b>8.4h</b><i><em style="width:75%"></em></i></span><span><small>修理</small><b>6.0h</b><i><em style="width:54%"></em></i></span><span><small>改善</small><b>4.2h</b><i><em style="width:38%"></em></i></span></div>';
+ }
+ if(id==='templates'){
+  return '<div class="favorite-grid"><a href="./templates.html"><b>日</b><span>日常点検</span></a><a href="./templates.html"><b>月</b><span>月次点検</span></a><a href="./templates.html"><b>法</b><span>法定点検</span></a><a href="./templates.html"><b>＋</b><span>新規作成</span></a></div>';
+ }
+ if(id==='consumables'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>補充対象の消耗品</span><em>電池 / フィルタ / ヒューズ</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>MR-J4 バッテリー</strong><small>現在2 / 最低3</small></div><div class="list-side">不足</div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>盤用フィルタ</strong><small>現在5 / 最低6</small></div><div class="list-side">補充</div></div></div>';
+ }
+ if(id==='service-contracts'){
+  return '<div class="compact-line"><strong>設備メーカー保守</strong><span>11/30</span></div><div class="compact-line"><strong>クレーン年次契約</strong><span>12/15</span></div><div class="compact-line"><strong>IoTクラウド</strong><span>01/31</span></div>';
+ }
+ if(id==='audit'){
+  if(view==='summary')return '<div class="summary-hero"><strong>24</strong><span>今日の監査イベント</span><em>重要 2件</em></div>';
+  return '<div class="report-list"><a href="./audit-log.html"><span>LOGIN</span><strong>管理者ログイン</strong><em>12:01</em></a><a href="./audit-log.html"><span>EDIT</span><strong>設備A 設定変更</strong><em>11:24</em></a><a href="./audit-log.html"><span>EXPORT</span><strong>設備台帳 CSV出力</strong><em>09:18</em></a></div>';
+ }
+ if(id==='bookmarks'){
+  return '<div class="doc-links"><a href="./equipment-detail.html"><b>EQ</b><span><strong>CV-04 搬送コンベア</strong><small>2分前</small></span></a><a href="./documents.html"><b>PDF</b><span><strong>運転仕様書</strong><small>14分前</small></span></a><a href="./inspection.html"><b>✓</b><span><strong>月次点検</strong><small>32分前</small></span></a></div>';
  }
  return '';
 }

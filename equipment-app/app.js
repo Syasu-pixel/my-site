@@ -578,6 +578,11 @@ function render(){
  });
  grid.innerHTML=html;
  bindDrag();
+ document.querySelectorAll('.widget').forEach(el=>{
+   let hoverTimer=null;
+   el.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('widget-overview-mode'))return;clearTimeout(hoverTimer);hoverTimer=setTimeout(()=>showHoverPreview(el),180)});
+   el.addEventListener('mouseleave',()=>{clearTimeout(hoverTimer);setTimeout(()=>{const p=document.querySelector('#widgetHoverPreview');if(p&&!p.matches(':hover'))removeHoverPreview()},100)});
+ });
  document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
  updateLiveDeviceWidget();
@@ -940,7 +945,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();applyOverviewMode(overviewOn);render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});
@@ -949,6 +954,41 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelector('#logoutMenu')?.addEventListener('click',()=>{location.href='./login.html'});
  document.querySelector('#languageMenu')?.addEventListener('click',()=>{alert('Preview: 多言語設定は今後ここから切り替えます')});
 
+ const overviewKey='dc-eq-overview-mode';
+ const applyOverviewMode=on=>{
+   const enabled=!!on&&device()==='pc';
+   document.body.classList.toggle('widget-overview-mode',enabled);
+   try{localStorage.setItem(overviewKey,enabled?'1':'0')}catch{}
+   const b=document.querySelector('#overviewModeToggle');
+   if(b){const s=b.querySelector('span');if(s)s.textContent=enabled?'ON':'OFF';b.classList.toggle('active',enabled)}
+   if(!enabled)document.querySelector('#widgetHoverPreview')?.remove();
+ };
+ let overviewOn=false;try{overviewOn=localStorage.getItem(overviewKey)==='1'}catch{}
+ applyOverviewMode(overviewOn);
+ document.querySelector('#overviewModeToggle')?.addEventListener('click',()=>{overviewOn=!overviewOn;applyOverviewMode(overviewOn);closeAppMenu()});
+
+ function removeHoverPreview(){document.querySelector('#widgetHoverPreview')?.remove()}
+ function showHoverPreview(el){
+   if(!document.body.classList.contains('widget-overview-mode')||editMode||device()!=='pc')return;
+   removeHoverPreview();
+   const w=WIDGETS.find(x=>x.id===el.dataset.id);if(!w)return;
+   const rect=el.getBoundingClientRect();
+   const preview=document.createElement('div');
+   preview.id='widgetHoverPreview';
+   preview.className='widget-hover-preview';
+   preview.dataset.id=w.id;
+   const view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
+   preview.innerHTML='<div class="widget-hover-head"><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'">'+alert.count+'</span>':'')+'<span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-hover-body">'+widgetBody(w.id,view)+'</div><div class="widget-hover-foot"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><strong>クリックで開く →</strong></div>';
+   document.body.appendChild(preview);
+   const pw=Math.min(520,Math.max(360,rect.width*1.7)),ph=preview.offsetHeight||300;
+   let left=rect.left+rect.width/2-pw/2,top=rect.top-18;
+   left=Math.max(16,Math.min(innerWidth-pw-16,left));
+   if(top+ph>innerHeight-16)top=Math.max(16,innerHeight-ph-16);
+   preview.style.width=pw+'px';preview.style.left=left+'px';preview.style.top=top+'px';
+   requestAnimationFrame(()=>preview.classList.add('show'));
+   preview.addEventListener('click',()=>{markWidgetAlertRead(w.id);if(w.href)location.href=w.href});
+   preview.addEventListener('mouseleave',()=>{setTimeout(()=>{if(!preview.matches(':hover'))removeHoverPreview()},90)});
+ }
  const focusKey='dc-eq-focus-mode';
  const applyFocusMode=on=>{
    document.body.classList.toggle('widget-focus-mode',!!on);

@@ -580,7 +580,7 @@ function render(){
  bindDrag();
  document.querySelectorAll('.widget').forEach(el=>{
    el.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('widget-overview-mode'))return;clearTimeout(hoverPreviewHideTimer);showHoverPreview(el)});
-   el.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(110));
+   el.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(45));
  });
  document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
@@ -976,7 +976,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    hoverPreview.style.width=Math.min(560,Math.max(400,innerWidth*.34))+'px';
    hoverPreview.style.left='50%';hoverPreview.style.top='50%';
    hoverPreview.addEventListener('mouseenter',()=>clearTimeout(hoverPreviewHideTimer));
-   hoverPreview.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(110));
+   hoverPreview.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(45));
    hoverPreview.addEventListener('click',()=>{
      const w=WIDGETS.find(x=>x.id===hoverPreviewCurrentId);if(!w)return;
      markWidgetAlertRead(w.id);if(w.href)location.href=w.href;
@@ -993,7 +993,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    const p=hoverPreview;
    setTimeout(()=>{if(p===hoverPreview&&!p.classList.contains('show')){p.remove();hoverPreview=null;hoverPreviewCurrentId=null}},170);
  }
- function scheduleHoverPreviewHide(delay=120){
+ function scheduleHoverPreviewHide(delay=45){
    clearTimeout(hoverPreviewHideTimer);
    hoverPreviewHideTimer=setTimeout(()=>{
      const active=document.querySelector('.widget-overview-mode .widget:hover');
@@ -1022,12 +1022,13 @@ document.addEventListener('DOMContentLoaded',()=>{
      preview.classList.remove('is-hiding');
      if(switching){
        preview.classList.add('is-switching');
-       setTimeout(()=>{updateHoverPreviewContent(preview,w);requestAnimationFrame(()=>preview.classList.remove('is-switching'))},80);
+       updateHoverPreviewContent(preview,w);
+       requestAnimationFrame(()=>preview.classList.remove('is-switching'));
      }else{
        updateHoverPreviewContent(preview,w);
-       requestAnimationFrame(()=>requestAnimationFrame(()=>preview.classList.add('show')));
+       requestAnimationFrame(()=>preview.classList.add('show'));
      }
-   },120);
+   },35);
  }
  const focusKey='dc-eq-focus-mode';
  const applyFocusMode=on=>{

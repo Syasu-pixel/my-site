@@ -1,9 +1,28 @@
 (()=> {
   const KEY='dc-eq-font-scale';
+  const THEME_KEY='dc-eq-theme';
+  const THEMES={
+    'control-dark':'Control Dark',
+    'clean-light':'Clean Light',
+    'industrial':'Industrial',
+    'blueprint':'Blueprint',
+    'paper':'Paper',
+    'neon':'Neon PRO'
+  };
   const root=document.documentElement;
   const BASE_SCALE=1.12;
   const clamp=v=>Math.max(80,Math.min(150,Math.round(Number(v)||100)));
   const read=()=>{try{return clamp(localStorage.getItem(KEY)||100)}catch{return 100}};
+  const readTheme=()=>{try{const t=localStorage.getItem(THEME_KEY)||'control-dark';return THEMES[t]?t:'control-dark'}catch{return 'control-dark'}};
+  const applyTheme=t=>{
+    const theme=THEMES[t]?t:'control-dark';
+    root.dataset.eqTheme=theme;
+    try{localStorage.setItem(THEME_KEY,theme)}catch{}
+    const name=document.querySelector('#themeName');if(name)name.textContent=THEMES[theme];
+    document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));
+    return theme;
+  };
+  applyTheme(readTheme());
   const apply=value=>{
     const v=clamp(value);
     root.style.setProperty('--dc-font-scale',String(BASE_SCALE*(v/100)));
@@ -67,6 +86,8 @@
     normalizeAppLinks();
     markCurrentSectionRead();
     decorateNavAlerts();
+    let currentTheme=applyTheme(readTheme());
+    document.querySelectorAll('[data-theme-choice]').forEach(b=>b.addEventListener('click',()=>{currentTheme=applyTheme(b.dataset.themeChoice)}));
     let current=read(); apply(current);
     const range=document.querySelector('#fontScaleRange');
     range?.addEventListener('input',e=>{current=apply(e.target.value)});
@@ -77,5 +98,5 @@
   };
   apply(read());
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initControls,{once:true});else initControls();
-  window.addEventListener('storage',e=>{if(e.key===KEY)apply(read())});
+  window.addEventListener('storage',e=>{if(e.key===KEY)apply(read());if(e.key===THEME_KEY)applyTheme(readTheme())});
 })();

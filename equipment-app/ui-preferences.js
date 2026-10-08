@@ -1,11 +1,12 @@
 (()=> {
   const KEY='dc-eq-font-scale';
   const root=document.documentElement;
+  const BASE_SCALE=1.12;
   const clamp=v=>Math.max(80,Math.min(150,Math.round(Number(v)||100)));
   const read=()=>{try{return clamp(localStorage.getItem(KEY)||100)}catch{return 100}};
   const apply=value=>{
     const v=clamp(value);
-    root.style.setProperty('--dc-font-scale',String(v/100));
+    root.style.setProperty('--dc-font-scale',String(BASE_SCALE*(v/100)));
     root.dataset.dcFontScale=String(v);
     try{localStorage.setItem(KEY,String(v))}catch{}
     const range=document.querySelector('#fontScaleRange');

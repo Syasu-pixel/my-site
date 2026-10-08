@@ -936,10 +936,13 @@ document.addEventListener('DOMContentLoaded',()=>{
  });
  const tutorialModal=document.querySelector('#tutorialModal');
  const tutorialSteps=[
+  {title:'左側からダッシュボードを切り替える',text:'マイページ・設備・点検など、目的別ダッシュボードを左側から切り替えます。自分専用のダッシュボードも追加できます。',mode:'sidebar'},
   {title:'長押しで編集モード',text:'ウィジェットを長押しすると、配置変更とサイズ変更ができる編集モードに切り替わります。',mode:'hold'},
   {title:'ドラッグして並べ替え',text:'浮いたウィジェットをそのまま動かすと、周りのカードが滑らかに避けて新しい位置へ入れ替わります。',mode:'move'},
   {title:'端をつかんでサイズ変更',text:'PCでは端や右下をドラッグ。タブレット・スマホでは編集モード中に2本指操作で大きさを調整できます。',mode:'resize'},
-  {title:'＋から必要な機能を追加',text:'ウィジェット一覧から必要な機能だけ追加できます。テーマや表示形式もあとから変更できます。',mode:'add'}
+  {title:'＋から必要な機能を追加',text:'ウィジェット一覧から必要な機能だけ追加できます。テーマや表示形式もあとから変更できます。',mode:'add'},
+  {title:'検索で設備・資料・作業を探す',text:'上部の検索から、設備・型式・部品・作業・資料・メモを横断して探せます。',mode:'search'},
+  {title:'メニューから表示を整える',text:'3本線メニューからテーマ、文字サイズ、組織設定、ログアウトなどを操作できます。',mode:'menu'}
  ];
  let tutorialIndex=0;
  const renderTutorial=()=>{

@@ -689,7 +689,7 @@ function beginPointerWidgetDrag(el,e,startX,startY,id){
  ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';
  document.body.appendChild(ghost);
  el.classList.add('drag-origin');
- pointerDrag={id,startX,startY,lastTarget:id,pointerId:e.pointerId,ghost,origin:el,targetX:0,targetY:0,currentX:0,currentY:0,raf:0,lastSwapAt:0,overTrash:false};
+ pointerDrag={id,startX,startY,lastTarget:id,pointerId:e.pointerId,ghost,origin:el,targetX:0,targetY:0,currentX:0,currentY:0,raf:0,lastSwapAt:0,overTrash:false,lastClientX:startX,lastClientY:startY,scrollRaf:0,autoScrollRaf:0};
  try{el.setPointerCapture(e.pointerId)}catch{}
  navigator.vibrate?.(18);
 }
@@ -716,6 +716,8 @@ function finishPointerWidgetDrag(){
  if(!pointerDrag){cleanupWidgetDragVisuals();return;}
  const d=pointerDrag;pointerDrag=null;
  if(d.raf)cancelAnimationFrame(d.raf);
+ if(d.autoScrollRaf)cancelAnimationFrame(d.autoScrollRaf);
+ if(d.scrollRaf)cancelAnimationFrame(d.scrollRaf);
  document.querySelector('#widgetTrashZone')?.classList.remove('is-over');
  if(d.overTrash){
    d.ghost?.remove();
@@ -737,6 +739,87 @@ function finishPointerWidgetDrag(){
   anim.onfinish=cleanup;anim.oncancel=cleanup;
  }else cleanup();
 }
+function processWidgetDragPoint(clientX,clientY){
+ if(!pointerDrag)return;
+ pointerDrag.lastClientX=clientX;pointerDrag.lastClientY=clientY;
+ const trash=document.querySelector('#widgetTrashZone');
+ if(trash){
+   const r=trash.getBoundingClientRect();
+   pointerDrag.overTrash=clientX>=r.left&&clientX<=r.right&&clientY>=r.top&&clientY<=r.bottom;
+   trash.classList.toggle('is-over',pointerDrag.overTrash);
+ }
+ let hit=document.elementFromPoint(clientX,clientY)?.closest('.widget:not(.widget-drag-ghost)');
+ const grid=document.querySelector('#widgetGrid');
+ let dropAtEnd=false;
+ if(!hit&&grid){
+   const gr=grid.getBoundingClientRect();
+   const inside=clientX>=gr.left&&clientX<=gr.right&&clientY>=gr.top&&clientY<=gr.bottom;
+   if(inside){
+     const others=[...document.querySelectorAll('#widgetGrid .widget:not(.drag-origin)')];
+     const maxBottom=others.length?Math.max(...others.map(w=>w.getBoundingClientRect().bottom)):gr.top;
+     if(clientY>maxBottom+18){
+       dropAtEnd=true;
+     }else{
+       let best=null,bestScore=Infinity;
+       others.forEach(w=>{
+         const r=w.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+         const score=Math.hypot((clientX-cx)*.78,(clientY-cy)*1.05);
+         if(score<bestScore){bestScore=score;best=w}
+       });
+       if(best&&bestScore<420)hit=best;
+     }
+   }
+ }
+ if(dropAtEnd&&pointerDrag.lastTarget!=='__end__'){
+   const fromId=pointerDrag.id,a=layout.indexOf(fromId);
+   if(a>=0){
+     layout.splice(a,1);layout.push(fromId);setLayout(layout);
+     const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
+     if(moving)grid.appendChild(moving);
+   }
+   pointerDrag.lastTarget='__end__';
+   pointerDrag.lastSwapAt=performance.now();
+ }
+ if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
+   const now=performance.now();
+   const r=hit.getBoundingClientRect();
+   const cx=r.left+r.width/2,cy=r.top+r.height/2;
+   const nx=Math.abs(clientX-cx)/(r.width/2),ny=Math.abs(clientY-cy)/(r.height/2);
+   const deepEnough=nx<.94&&ny<.94;
+   if(deepEnough&&now-pointerDrag.lastSwapAt>65){
+     const fromId=pointerDrag.id,toId=hit.dataset.id;
+     const a=layout.indexOf(fromId),b=layout.indexOf(toId);
+     if(a>=0&&b>=0){
+       layout.splice(a,1);layout.splice(b,0,fromId);setLayout(layout);
+       const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
+       const target=document.querySelector('.widget[data-id="'+toId+'"]');
+       if(moving&&target){
+         const placeAfter=clientY>cy || (Math.abs(clientY-cy)<r.height*.28 && clientX>cx);
+         animateWidgetReorder(moving,target,placeAfter);
+       }
+     }
+     pointerDrag.lastTarget=toId;
+     pointerDrag.lastSwapAt=now;
+   }
+ }
+}
+function runDragAutoScroll(){
+ if(!pointerDrag)return;
+ const y=pointerDrag.lastClientY;
+ const edge=Math.min(120,Math.max(72,innerHeight*.11));
+ let speed=0;
+ if(y<edge)speed=-Math.min(22,(edge-y)*.22);
+ else if(y>innerHeight-edge)speed=Math.min(22,(y-(innerHeight-edge))*.22);
+ if(speed){
+   scrollBy(0,speed);
+   processWidgetDragPoint(pointerDrag.lastClientX,pointerDrag.lastClientY);
+   pointerDrag.autoScrollRaf=requestAnimationFrame(runDragAutoScroll);
+ }else pointerDrag.autoScrollRaf=0;
+}
+function ensureDragAutoScroll(){
+ if(pointerDrag&&!pointerDrag.autoScrollRaf)pointerDrag.autoScrollRaf=requestAnimationFrame(runDragAutoScroll);
+}
+
 function bindDrag(){
  document.querySelectorAll('.widget').forEach(el=>{
   let downAt=null,dragStarted=false;
@@ -763,66 +846,8 @@ function bindDrag(){
     if(!pointerDrag||pointerDrag.pointerId!==e.pointerId)return;
     e.preventDefault();
     updateGhostPosition(e);
-    const trash=document.querySelector('#widgetTrashZone');
-    if(trash){
-      const r=trash.getBoundingClientRect();
-      pointerDrag.overTrash=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-      trash.classList.toggle('is-over',pointerDrag.overTrash);
-    }
-    let hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget:not(.widget-drag-ghost)');
-    const grid=document.querySelector('#widgetGrid');
-    let dropAtEnd=false;
-    if(!hit&&grid){
-      const gr=grid.getBoundingClientRect();
-      const inside=e.clientX>=gr.left&&e.clientX<=gr.right&&e.clientY>=gr.top&&e.clientY<=gr.bottom;
-      if(inside){
-        const others=[...document.querySelectorAll('#widgetGrid .widget:not(.drag-origin)')];
-        const maxBottom=others.length?Math.max(...others.map(w=>w.getBoundingClientRect().bottom)):gr.top;
-        if(e.clientY>maxBottom+18){
-          dropAtEnd=true;
-        }else{
-          let best=null,bestScore=Infinity;
-          others.forEach(w=>{
-            const r=w.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-            const score=Math.hypot((e.clientX-cx)*.85,e.clientY-cy);
-            if(score<bestScore){bestScore=score;best=w}
-          });
-          if(best&&bestScore<360)hit=best;
-        }
-      }
-    }
-    if(dropAtEnd&&pointerDrag.lastTarget!=='__end__'){
-      const fromId=pointerDrag.id,a=layout.indexOf(fromId);
-      if(a>=0){
-        layout.splice(a,1);layout.push(fromId);setLayout(layout);
-        const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
-        if(moving)grid.appendChild(moving);
-      }
-      pointerDrag.lastTarget='__end__';
-      pointerDrag.lastSwapAt=performance.now();
-    }
-    if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
-      const now=performance.now();
-      const r=hit.getBoundingClientRect();
-      const cx=r.left+r.width/2,cy=r.top+r.height/2;
-      const direct=hit.matches(':hover');
-      const deepEnough=direct?(Math.abs(e.clientX-cx)/(r.width/2)<.88&&Math.abs(e.clientY-cy)/(r.height/2)<.88):true;
-      if(deepEnough&&now-pointerDrag.lastSwapAt>90){
-        const fromId=pointerDrag.id,toId=hit.dataset.id;
-        const a=layout.indexOf(fromId),b=layout.indexOf(toId);
-        if(a>=0&&b>=0){
-          layout.splice(a,1);layout.splice(b,0,fromId);setLayout(layout);
-          const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
-          const target=document.querySelector('.widget[data-id="'+toId+'"]');
-          if(moving&&target){
-            const placeAfter=e.clientY>cy || (Math.abs(e.clientY-cy)<r.height*.28 && e.clientX>cx);
-            animateWidgetReorder(moving,target,placeAfter);
-          }
-        }
-        pointerDrag.lastTarget=toId;
-        pointerDrag.lastSwapAt=now;
-      }
-    }
+    processWidgetDragPoint(e.clientX,e.clientY);
+    ensureDragAutoScroll();
   },{passive:false});
   const stopPointer=e=>{
     clearTimeout(longPressTimer);
@@ -830,6 +855,23 @@ function bindDrag(){
   };
   el.addEventListener('pointerup',stopPointer);el.addEventListener('pointercancel',stopPointer);
  });
+ if(!document.body.dataset.dragWheelBound){
+   document.body.dataset.dragWheelBound='1';
+   window.addEventListener('wheel',()=>{
+     if(!pointerDrag)return;
+     cancelAnimationFrame(pointerDrag.scrollRaf);
+     pointerDrag.scrollRaf=requestAnimationFrame(()=>{
+       if(pointerDrag)processWidgetDragPoint(pointerDrag.lastClientX,pointerDrag.lastClientY);
+     });
+   },{passive:true});
+   window.addEventListener('scroll',()=>{
+     if(!pointerDrag)return;
+     cancelAnimationFrame(pointerDrag.scrollRaf);
+     pointerDrag.scrollRaf=requestAnimationFrame(()=>{
+       if(pointerDrag)processWidgetDragPoint(pointerDrag.lastClientX,pointerDrag.lastClientY);
+     });
+   },{passive:true});
+ }
  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetView(b.dataset.view)});
  document.querySelectorAll('[data-widget-filter]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetFilter(b.dataset.widgetFilter)});
  document.querySelectorAll('[data-widget-period]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetPeriod(b.dataset.widgetPeriod)});

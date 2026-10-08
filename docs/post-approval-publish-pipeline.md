@@ -3,7 +3,7 @@
 > 上位正本: `docs/ai-editorial-master-rules.md`
 
 ## 目的
-MEDIUM/HIGHの記事について、管理者がNetlify Deploy Previewを目視してOKした後の処理をAI編集部が一貫して進めるための標準工程を定義する。
+MEDIUM/HIGHの記事について、管理者が現行の本番相当生成物を表示するPreviewを目視してOKした後の処理をAI編集部が一貫して進めるための標準工程を定義する。
 
 ## HUMAN GATE解除
 管理者の明示OKをHUMAN GATE解除条件とする。OK前にStep 2の本番導線追加や本番公開を行わない。

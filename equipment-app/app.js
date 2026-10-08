@@ -663,7 +663,7 @@ function overviewShowHoverPreview(el){
   },20);
 }
 
-function gridModeEnabled(){return device()==='pc'}
+function gridModeEnabled(){return device()==='pc'&&!document.body.classList.contains('widget-overview-mode')}
 function defaultGridRows(id){
   if(['calendar','today','iot','workorders','annual-plan','readings'].includes(id))return 9;
   if(['device','favorites','portal-links','quick','weather','sync','contacts'].includes(id))return 5;
@@ -1298,6 +1298,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    const b=document.querySelector('#overviewModeToggle');
    if(b){const s=b.querySelector('span');if(s)s.textContent=enabled?'ON':'OFF';b.classList.toggle('active',enabled)}
    if(!enabled)document.querySelector('#widgetHoverPreview')?.remove();
+   if(document.querySelector('#widgetGrid'))render();
  };
  let overviewOn=false;try{overviewOn=localStorage.getItem(overviewKey)==='1'}catch{}
  applyOverviewMode(overviewOn);

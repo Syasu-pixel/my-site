@@ -546,7 +546,7 @@ function switchWorkspace(id){
 function createCustomDashboard(){
  const title=prompt('新しいダッシュボード名','日常点検');if(!title?.trim())return;
  const id='custom-'+Date.now();
- customDashboards[id]={title:title.trim(),layout:['today','calendar','equipment']};
+ customDashboards[id]={title:title.trim(),layout:['today','calendar','equipment'],initialLayout:['today','calendar','equipment']};
  setCustomDashboards(customDashboards);
  switchWorkspace(id);
 }
@@ -555,7 +555,7 @@ function renameCurrentDashboard(){
  const title=prompt('ダッシュボード名を変更',old);if(!title?.trim())return;
  if(!customDashboards[currentWorkspace]){
    const id='custom-'+Date.now();
-   customDashboards[id]={title:title.trim(),layout:[...layout]};
+   customDashboards[id]={title:title.trim(),layout:[...layout],initialLayout:[...layout]};
    setCustomDashboards(customDashboards);
    currentWorkspace=id;
    try{localStorage.setItem('dc-eq-workspace',id)}catch{}
@@ -886,7 +886,12 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCatalog()});
  document.querySelector('#catalogSearch')?.addEventListener('input',e=>{catalogQuery=e.target.value;renderCatalog()});
  document.querySelector('#catalogCategory')?.addEventListener('change',e=>{currentCategory=e.target.value;renderCatalog()});
- document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];sizes={};views={};setLayout(layout);setSizes(sizes);setViews(views);render()});
+ document.querySelector('#resetLayout')?.addEventListener('click',()=>{
+ const baseline=customDashboards[currentWorkspace]?.initialLayout||WORKSPACE_PRESETS[currentWorkspace]||DEFAULT;
+ layout=[...baseline];sizes={};views={};widgetFilters={};widgetPeriods={};widgetDisplays={};
+ setLayout(layout);setSizes(sizes);setViews(views);setWidgetFilters(widgetFilters);setWidgetPeriods(widgetPeriods);setWidgetDisplays(widgetDisplays);
+ render();renderDashboardNavigation();
+});
  const hardCleanup=()=>{clearTimeout(longPressTimer);if(pointerDrag)finishPointerWidgetDrag();else cleanupWidgetDragVisuals()};
  window.addEventListener('blur',hardCleanup);
  window.addEventListener('pagehide',hardCleanup);

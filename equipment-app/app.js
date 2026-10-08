@@ -81,30 +81,47 @@ const WIDGETS=[
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const WIDGET_ALERTS={
- today:{count:2,type:'danger',label:'未実施'},
- calendar:{count:1,type:'info',label:'更新'},
- equipment:{count:3,type:'danger',label:'要確認'},
- notice:{count:2,type:'danger',label:'未確認'},
- memo:{count:1,type:'info',label:'新着'},
- deadline:{count:5,type:'warning',label:'期限'},
- incident:{count:3,type:'danger',label:'未完了'},
- workorders:{count:6,type:'warning',label:'未完了'},
- reorder:{count:4,type:'warning',label:'補充'},
- alarm-history:{count:1,type:'danger',label:'未復旧'},
- permits:{count:1,type:'danger',label:'承認待ち'},
- audit:{count:2,type:'danger',label:'重要'}
+ today:{items:[{source:'widget',count:2}],type:'danger',label:'未実施'},
+ calendar:{items:[{source:'widget',count:1}],type:'info',label:'更新'},
+ equipment:{items:[{source:'widget',count:3}],type:'danger',label:'要確認'},
+ notice:{items:[{source:'admin',count:1},{source:'operations',count:1}],type:'danger',label:'未確認'},
+ memo:{items:[{source:'widget',count:1}],type:'info',label:'新着'},
+ deadline:{items:[{source:'widget',count:5}],type:'warning',label:'期限'},
+ incident:{items:[{source:'widget',count:3}],type:'danger',label:'未完了'},
+ workorders:{items:[{source:'widget',count:6}],type:'warning',label:'未完了'},
+ reorder:{items:[{source:'widget',count:4}],type:'warning',label:'補充'},
+ 'alarm-history':{items:[{source:'widget',count:1}],type:'danger',label:'未復旧'},
+ permits:{items:[{source:'admin',count:1}],type:'danger',label:'承認待ち'},
+ audit:{items:[{source:'operations',count:2}],type:'danger',label:'重要'}
 };
+function visibleWidgetAlert(id){
+ const a=WIDGET_ALERTS[id];if(!a)return null;
+ let count=0,mandatory=false;
+ for(const item of a.items||[]){
+   if(MANDATORY_NOTIFICATION_SOURCES.has(item.source)){count+=item.count;mandatory=true}
+   else if(widgetNotifyEnabled(id))count+=item.count;
+ }
+ return count>0?{...a,count,mandatory}:null;
+}
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
 const storageKey=()=> 'dc-eq-layout:'+device();
 const sizeKey=()=> 'dc-eq-widget-sizes:'+device();
 const viewKey=()=> 'dc-eq-widget-views:'+device();
+const notifyKey=()=> 'dc-eq-widget-notify:'+device();
 const getLayout=()=>{try{return JSON.parse(localStorage.getItem(storageKey()))||DEFAULT}catch{return DEFAULT}};
 const setLayout=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
 const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}catch{return {}}};
 const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
 const getViews=()=>{try{return JSON.parse(localStorage.getItem(viewKey()))||{}}catch{return {}}};
 const setViews=v=>localStorage.setItem(viewKey(),JSON.stringify(v));
-let layout=getLayout(),sizes=getSizes(),views=getViews(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
+const getNotifyPrefs=()=>{try{return JSON.parse(localStorage.getItem(notifyKey()))||{}}catch{return {}}};
+const setNotifyPrefs=v=>localStorage.setItem(notifyKey(),JSON.stringify(v));
+let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
+const MANDATORY_NOTIFICATION_SOURCES=new Set(['admin','operations']);
+function widgetNotifyEnabled(id){return notifyPrefs[id]!==false}
+function setWidgetNotify(id,on){notifyPrefs[id]=!!on;setNotifyPrefs(notifyPrefs);render();renderCatalog()}
+function canMuteWidget(id){return !['notice'].includes(id)}
+
 const VIEW_MODES=['standard','compact','summary'];
 function widgetView(id){return views[id]||'standard'}
 function nextWidgetView(id){
@@ -438,7 +455,7 @@ function render(){
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
-   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=WIDGET_ALERTS[w.id];
+   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
    html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
@@ -660,7 +677,8 @@ function renderCatalog(){
  });
  let html='';
  list.forEach(w=>{
-   html+='<article class="catalog-card"><div class="row"><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><p>'+esc(w.desc)+'</p><div class="row"><span class="badge">'+esc(w.cat)+'</span><div class="spacer"></div><button class="btn '+(layout.includes(w.id)?'ghost':'primary')+'" data-add="'+w.id+'" '+(layout.includes(w.id)?'disabled':'')+'>'+(layout.includes(w.id)?'追加済み':'追加')+'</button></div></article>';
+   const alert=visibleWidgetAlert(w.id),muteAllowed=canMuteWidget(w.id),notifyOn=widgetNotifyEnabled(w.id);
+   html+='<article class="catalog-card"><div class="row"><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><p>'+esc(w.desc)+'</p><div class="catalog-notify-row"><span>通知バッジ</span>'+(muteAllowed?'<button class="notify-toggle '+(notifyOn?'on':'off')+'" data-notify="'+w.id+'" aria-pressed="'+notifyOn+'">'+(notifyOn?'ON':'OFF')+'</button>':'<span class="notify-locked">必須</span>')+(alert?.mandatory?'<small>管理者/運営通知を含む</small>':'')+'</div><div class="row"><span class="badge">'+esc(w.cat)+'</span><div class="spacer"></div><button class="btn '+(layout.includes(w.id)?'ghost':'primary')+'" data-add="'+w.id+'" '+(layout.includes(w.id)?'disabled':'')+'>'+(layout.includes(w.id)?'追加済み':'追加')+'</button></div></article>';
  });
  if(!html){
    html='<div class="catalog-empty"><strong>該当するウィジェットはありません</strong><span>カテゴリや検索条件を変更してください。</span></div>';
@@ -668,6 +686,7 @@ function renderCatalog(){
  area.innerHTML=html;
  document.querySelector('#catalogCount')?.replaceChildren(document.createTextNode(list.length+'件'));
  area.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{if(!layout.includes(b.dataset.add)){layout.push(b.dataset.add);setLayout(layout);render();renderCatalog()}});
+ area.querySelectorAll('[data-notify]').forEach(b=>b.onclick=()=>setWidgetNotify(b.dataset.notify,!widgetNotifyEnabled(b.dataset.notify)));
 }
 let batteryManager=null,clockTimer=null;
 function updateLiveDeviceWidget(){
@@ -731,7 +750,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});

@@ -1320,6 +1320,43 @@ function stampWidgetUpdates(){
  const t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
  document.querySelectorAll('[data-widget-updated]').forEach(x=>x.textContent='更新 '+t);
 }
+const REFRESH_PREF_KEY='dc-eq-refresh-interval-v1';
+const REFRESH_INTERVALS={
+  off:0,
+  '15s':15000,
+  '60s':60000,
+  '10m':600000,
+  '1h':3600000,
+  '24h':86400000
+};
+let refreshTimer=null;
+function readRefreshMode(){try{return localStorage.getItem(REFRESH_PREF_KEY)||'smart'}catch{return 'smart'}}
+function refreshModeLabel(mode){
+  return mode==='smart'?'スマート':mode==='off'?'更新しない':mode==='15s'?'15秒':mode==='60s'?'1分':mode==='10m'?'10分':mode==='1h'?'1時間':mode==='24h'?'24時間':mode;
+}
+function smartRefreshMs(){
+  const hasFast=layout.some(id=>['iot','readings','environment','energy','network','equipment','today'].includes(id));
+  return hasFast?30000:600000;
+}
+function refreshVisibleWidgets(reason='timer'){
+  if(document.visibilityState!=='visible')return;
+  stampWidgetUpdates();
+  document.querySelectorAll('#widgetGrid .widget').forEach(el=>{
+    el.classList.add('widget-refresh-pulse');
+    setTimeout(()=>el.classList.remove('widget-refresh-pulse'),420);
+  });
+  // Preview: backend data fetch hooks will be connected here.
+}
+function scheduleRefresh(){
+  clearInterval(refreshTimer);refreshTimer=null;
+  const mode=readRefreshMode();
+  const ms=mode==='smart'?smartRefreshMs():(REFRESH_INTERVALS[mode]||0);
+  const select=document.querySelector('#refreshIntervalSelect');
+  const label=document.querySelector('#refreshModeLabel');
+  if(select)select.value=mode;if(label)label.textContent=refreshModeLabel(mode);
+  if(ms>0)refreshTimer=setInterval(()=>refreshVisibleWidgets('timer'),ms);
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
  migrateUtilityGridSizes();
  render();
@@ -1378,6 +1415,14 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAppMenu()});
  document.querySelector('#logoutMenu')?.addEventListener('click',()=>{location.href='./login.html'});
  document.querySelector('#languageMenu')?.addEventListener('click',()=>{alert('Preview: 多言語設定は今後ここから切り替えます')});
+ const refreshSelect=document.querySelector('#refreshIntervalSelect');
+ refreshSelect?.addEventListener('change',()=>{
+   try{localStorage.setItem(REFRESH_PREF_KEY,refreshSelect.value)}catch{}
+   scheduleRefresh();
+   refreshVisibleWidgets('setting-change');
+ });
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshVisibleWidgets('resume');scheduleRefresh()}});
+ scheduleRefresh();
 
  const overviewKey='dc-eq-overview-mode';
  const applyOverviewMode=on=>{

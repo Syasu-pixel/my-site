@@ -16,7 +16,17 @@ const WIDGETS=[
 {id:'sync',name:'同期・接続状態',desc:'オンライン状態・最終同期・外部連携状態を確認',tier:'free',cat:'端末',size:'',href:'./settings.html'},
 {id:'quick',name:'クイック操作',desc:'点検開始・設備追加・メモ追加などをすぐ実行',tier:'free',cat:'操作',size:'',href:'./dashboard.html'},
 {id:'timer',name:'タイマー・ストップウォッチ',desc:'現場作業用の簡易タイマーと経過時間計測',tier:'free',cat:'端末',size:'',href:'./timer.html'},
-{id:'smart',name:'スマート提案',desc:'期限・担当・異常から今優先したい操作を提案',tier:'free',cat:'スマート',size:'wide',href:'./dashboard.html'}
+{id:'smart',name:'スマート提案',desc:'期限・担当・異常から今優先したい操作を提案',tier:'free',cat:'スマート',size:'wide',href:'./dashboard.html'},
+{id:'handover',name:'引継ぎ',desc:'前勤務からの申し送り・未完了事項をまとめて確認',tier:'free',cat:'共有',size:'wide',href:'./handover.html'},
+{id:'workorders',name:'作業依頼',desc:'修理・点検・改善依頼を受付から完了まで管理',tier:'free',cat:'保全',size:'wide',href:'./work-orders.html'},
+{id:'downtime',name:'停止時間',desc:'設備停止の発生・復旧・累計時間を記録',tier:'free',cat:'設備',size:'',href:'./downtime.html'},
+{id:'docs',name:'図面・取説',desc:'設備ごとの図面・取説・仕様書への入口',tier:'free',cat:'資料',size:'',href:'./documents.html'},
+{id:'kpi',name:'保全KPI',desc:'点検実施率・未完了・平均対応時間などを可視化',tier:'paid',cat:'分析',size:'wide',href:'./kpi.html'},
+{id:'vehicle',name:'車両・法定期限',desc:'車検・法定点検・社用車の日常点検を管理',tier:'free',cat:'車両',size:'',href:'./vehicle.html'},
+{id:'favorites',name:'お気に入り',desc:'よく使う設備・画面・資料を固定してすぐ開く',tier:'free',cat:'操作',size:'',href:'./favorites.html'},
+{id:'safety',name:'安全チェック',desc:'始業前確認・ロックアウト・安全項目を簡単チェック',tier:'free',cat:'安全',size:'',href:'./safety-check.html'},
+{id:'trends',name:'異常トレンド',desc:'点検NG・故障・IoTしきい値超過の傾向を比較',tier:'paid',cat:'分析',size:'wide',href:'./trends.html'},
+{id:'reports',name:'レポート',desc:'期間別の保全実績や設備状況をレポート化',tier:'paid',cat:'分析',size:'',href:'./reports.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -137,6 +147,43 @@ function widgetBody(id,view='standard'){
  if(id==='smart'){
   if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>今優先したいこと</span><em>期限 / 未実施 / 在庫</em></div>';
   return '<div class="smart-list"><div><b>1</b><span><strong>サーボ電池交換を確認</strong><small>期限まで3日</small></span><a href="./equipment-detail.html">開く</a></div><div><b>2</b><span><strong>未実施点検が2件</strong><small>今日中の対応を推奨</small></span><a href="./inspection.html">開く</a></div><div><b>3</b><span><strong>MR-J4予備電池 残り2個</strong><small>最低在庫に近づいています</small></span><a href="./parts.html">開く</a></div></div>';
+ }
+ if(id==='handover'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>未確認の引継ぎ</span><em>重要 1件</em></div>';
+  return '<div class="handover-list"><div class="important"><b>重要</b><span><strong>CV4 搬出センサ再確認</strong><small>夜勤 → 日勤 / 未完了</small></span></div><div><b>共有</b><span><strong>第2ライン 異音なし</strong><small>夜勤 / 06:10</small></span></div><div><b>部品</b><span><strong>MR-J4予備電池 残り2</strong><small>発注確認待ち</small></span></div></div>';
+ }
+ if(id==='workorders'){
+  if(view==='summary')return '<div class="summary-hero"><strong>6</strong><span>未完了の作業依頼</span><em>緊急 1 / 通常 5</em></div>';
+  return '<div class="workorder-list"><div><span class="dot red"></span><p><strong>搬送コンベア 異音調査</strong><small>緊急 / 第1工場</small></p><em>対応中</em></div><div><span class="dot yellow"></span><p><strong>照明交換</strong><small>組立エリア</small></p><em>未着手</em></div><div><span class="dot green"></span><p><strong>センサ清掃</strong><small>CV3 / 本日</small></p><em>予定</em></div></div>';
+ }
+ if(id==='downtime'){
+  if(view==='summary')return '<div class="summary-hero"><strong>42分</strong><span>今月の停止時間</span><em>前月比 -18%</em></div>';
+  return '<div class="downtime-metrics"><span><small>今月</small><b>42分</b></span><span><small>件数</small><b>3件</b></span><span><small>最長</small><b>21分</b></span></div><div class="compact-next"><strong>直近：CV-04 センサ調整</strong><span>12分</span></div>';
+ }
+ if(id==='docs'){
+  return '<div class="doc-links"><a href="./documents.html"><b>PDF</b><span><strong>取扱説明書</strong><small>CV-04 / 最新版</small></span></a><a href="./documents.html"><b>DWG</b><span><strong>電気図面</strong><small>Rev.05</small></span></a><a href="./documents.html"><b>SPEC</b><span><strong>運転仕様書</strong><small>2026-10-07</small></span></a></div>';
+ }
+ if(id==='kpi'){
+  if(view==='summary')return '<div class="summary-hero"><strong>94%</strong><span>点検実施率</span><em>未完了 6件</em></div>';
+  return '<div class="kpi-grid"><span><small>点検実施率</small><b>94%</b><i><em style="width:94%"></em></i></span><span><small>平均対応時間</small><b>2.4h</b><i><em style="width:62%"></em></i></span><span><small>期限内完了</small><b>91%</b><i><em style="width:91%"></em></i></span></div>';
+ }
+ if(id==='vehicle'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>60日以内の期限</span><em>車検 1 / 点検 1</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>N-VAN 車検</strong><small>社用車01</small></div><div class="list-side">11/18</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>フォークリフト定期点検</strong><small>物流エリア</small></div><div class="list-side">12/02</div></div></div>';
+ }
+ if(id==='favorites'){
+  return '<div class="favorite-grid"><a href="./equipment-detail.html"><b>CV</b><span>CV-04</span></a><a href="./inspection.html"><b>✓</b><span>今日の点検</span></a><a href="./documents.html"><b>PDF</b><span>電気図面</span></a><a href="./parts.html"><b>▦</b><span>予備品</span></a></div>';
+ }
+ if(id==='safety'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2/3</strong><span>始業前チェック</span><em>残り1項目</em></div>';
+  return '<div class="safety-list"><label><input type="checkbox" checked> 保護具・工具確認</label><label><input type="checkbox" checked> 非常停止・安全装置確認</label><label><input type="checkbox"> 作業前KY・危険箇所確認</label></div>';
+ }
+ if(id==='trends'){
+  if(view==='summary')return '<div class="summary-hero"><strong>+12%</strong><span>要確認件数</span><em>過去30日比較</em></div>';
+  return '<div class="trend-bars"><span><small>点検NG</small><i style="--v:72%"></i><b>12</b></span><span><small>故障</small><i style="--v:38%"></i><b>4</b></span><span><small>IoT超過</small><i style="--v:54%"></i><b>7</b></span></div>';
+ }
+ if(id==='reports'){
+  return '<div class="report-list"><a href="./reports.html"><span>月次</span><strong>9月 保全レポート</strong><em>PDF</em></a><a href="./reports.html"><span>設備</span><strong>CV-04 履歴レポート</strong><em>PDF</em></a><a href="./reports.html"><span>点検</span><strong>未完了一覧</strong><em>CSV</em></a></div>';
  }
  return '';
 }

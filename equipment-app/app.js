@@ -96,10 +96,11 @@ const WIDGET_ALERTS={
 };
 function visibleWidgetAlert(id){
  const a=WIDGET_ALERTS[id];if(!a)return null;
+ const read=getAlertReads();
  let count=0,mandatory=false;
  for(const item of a.items||[]){
    if(MANDATORY_NOTIFICATION_SOURCES.has(item.source)){count+=item.count;mandatory=true}
-   else if(widgetNotifyEnabled(id))count+=item.count;
+   else if(widgetNotifyEnabled(id)&&!read[id])count+=item.count;
  }
  return count>0?{...a,count,mandatory}:null;
 }
@@ -118,6 +119,15 @@ const getNotifyPrefs=()=>{try{return JSON.parse(localStorage.getItem(notifyKey()
 const setNotifyPrefs=v=>localStorage.setItem(notifyKey(),JSON.stringify(v));
 let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
 const MANDATORY_NOTIFICATION_SOURCES=new Set(['admin','operations']);
+const ALERT_READ_KEY='dc-eq-widget-alerts-read-v1';
+const getAlertReads=()=>{try{return JSON.parse(localStorage.getItem(ALERT_READ_KEY))||{}}catch{return {}}};
+const setAlertReads=v=>{try{localStorage.setItem(ALERT_READ_KEY,JSON.stringify(v))}catch{}};
+function markWidgetAlertRead(id){
+ const a=WIDGET_ALERTS[id];if(!a)return;
+ const hasMandatory=(a.items||[]).some(item=>MANDATORY_NOTIFICATION_SOURCES.has(item.source));
+ if(hasMandatory)return;
+ const read=getAlertReads();read[id]=true;setAlertReads(read);
+}
 function widgetNotifyEnabled(id){return notifyPrefs[id]!==false}
 function setWidgetNotify(id,on){notifyPrefs[id]=!!on;setNotifyPrefs(notifyPrefs);render();renderCatalog()}
 function canMuteWidget(id){return !['notice'].includes(id)}
@@ -540,6 +550,7 @@ function bindDrag(){
   el.addEventListener('click',e=>{
     if(editMode||dragStarted||e.target.closest('button,a,input,select,textarea,label,[data-resize]'))return;
     const w=WIDGETS.find(x=>x.id===el.dataset.id);
+    markWidgetAlertRead(el.dataset.id);
     if(w?.href)location.href=w.href;
   });
   el.addEventListener('dragstart',e=>e.preventDefault());

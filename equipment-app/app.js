@@ -85,7 +85,7 @@ const WORKSPACE_PRESETS={
  equipment:['equipment','assigned','deadline','recent','versions','docs','alarm-history','downtime','spares-life','lubrication','network'],
  inspection:['today','checklist','readings','safety','deadline','calendar','photos','handover','templates'],
  field:['today','assigned','handover','safety','quick','deadline','docs'],
- manager:['kpi','downtime','workorders','incident','reorder','annual-plan','notice','audit'],
+ manager:['equipment','downtime','workorders','incident','reorder','annual-plan','notice','audit'],
  monitor:['equipment','alarm-history','iot','readings','network','deadline']
 };
 const WORKSPACE_LABELS={personal:'マイページ',equipment:'設備',inspection:'点検',field:'現場用',manager:'管理者用',monitor:'大型モニタ'};

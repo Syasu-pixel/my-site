@@ -127,12 +127,16 @@ function updateGhostPosition(e){
  pointerDrag.targetY=e.clientY-pointerDrag.startY;
  if(!pointerDrag.raf)pointerDrag.raf=requestAnimationFrame(runGhostFollow);
 }
+function cleanupWidgetDragVisuals(){
+ document.querySelectorAll('.widget-drag-ghost').forEach(x=>x.remove());
+ document.querySelectorAll('.drag-origin,.pointer-dragging,.dragging').forEach(x=>x.classList.remove('drag-origin','pointer-dragging','dragging'));
+}
 function finishPointerWidgetDrag(){
- if(!pointerDrag)return;
+ if(!pointerDrag){cleanupWidgetDragVisuals();return;}
  const d=pointerDrag;pointerDrag=null;
  if(d.raf)cancelAnimationFrame(d.raf);
  const finalEl=document.querySelector('.widget[data-id="'+d.id+'"]');
- const cleanup=()=>{d.ghost?.remove();finalEl?.classList.remove('drag-origin');};
+ const cleanup=()=>{d.ghost?.remove();finalEl?.classList.remove('drag-origin');cleanupWidgetDragVisuals();};
  if(finalEl&&d.ghost){
   const gr=d.ghost.getBoundingClientRect(),fr=finalEl.getBoundingClientRect();
   const tx=fr.left-gr.left,ty=fr.top-gr.top;
@@ -278,6 +282,13 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modalOverlay?.classList.contains('hidden'))closeCatalog()});
  document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCatalog()});
  document.querySelector('#resetLayout')?.addEventListener('click',()=>{layout=[...DEFAULT];sizes={};setLayout(layout);setSizes(sizes);render()});
+ const hardCleanup=()=>{clearTimeout(longPressTimer);if(pointerDrag)finishPointerWidgetDrag();else cleanupWidgetDragVisuals()};
+ window.addEventListener('blur',hardCleanup);
+ window.addEventListener('pagehide',hardCleanup);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')hardCleanup()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pointerDrag)hardCleanup()});
+ document.addEventListener('pointerup',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
+ document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
  addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();render()}});

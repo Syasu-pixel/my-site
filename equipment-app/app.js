@@ -972,7 +972,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    if(!document.body.classList.contains('widget-overview-mode')||editMode||device()!=='pc')return;
    removeHoverPreview();
    const w=WIDGETS.find(x=>x.id===el.dataset.id);if(!w)return;
-   const rect=el.getBoundingClientRect();
    const preview=document.createElement('div');
    preview.id='widgetHoverPreview';
    preview.className='widget-hover-preview';
@@ -980,11 +979,10 @@ document.addEventListener('DOMContentLoaded',()=>{
    const view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
    preview.innerHTML='<div class="widget-hover-head"><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'">'+alert.count+'</span>':'')+'<span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-hover-body">'+widgetBody(w.id,view)+'</div><div class="widget-hover-foot"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><strong>クリックで開く →</strong></div>';
    document.body.appendChild(preview);
-   const pw=Math.min(520,Math.max(360,rect.width*1.7)),ph=preview.offsetHeight||300;
-   let left=rect.left+rect.width/2-pw/2,top=rect.top-18;
-   left=Math.max(16,Math.min(innerWidth-pw-16,left));
-   if(top+ph>innerHeight-16)top=Math.max(16,innerHeight-ph-16);
-   preview.style.width=pw+'px';preview.style.left=left+'px';preview.style.top=top+'px';
+   const pw=Math.min(560,Math.max(400,innerWidth*.34));
+   preview.style.width=pw+'px';
+   preview.style.left='50%';
+   preview.style.top='50%';
    requestAnimationFrame(()=>preview.classList.add('show'));
    preview.addEventListener('click',()=>{markWidgetAlertRead(w.id);if(w.href)location.href=w.href});
    preview.addEventListener('mouseleave',()=>{setTimeout(()=>{if(!preview.matches(':hover'))removeHoverPreview()},90)});

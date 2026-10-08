@@ -40,6 +40,66 @@ jobs:
           REVIEW_COPY_ASSETS: '0'
         run: |
           set -euo pipefail
+
+          # Build from the latest main, then overlay only the adopted PLC source.
+          SOURCE_SHA="$GITHUB_SHA"
+          git fetch origin main
+          MAIN_SHA="$(git rev-parse origin/main)"
+          echo "SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
+          echo "MAIN_SHA=$MAIN_SHA" >> "$GITHUB_ENV"
+          echo "Building PLC final Preview from main $MAIN_SHA with adopted source $SOURCE_SHA"
+
+          git checkout --detach "$MAIN_SHA"
+
+          for p in \
+            articles/plc-basic.html \
+            assets/images/plc-basic/plc-basic-hero.png \
+            assets/images/plc-basic/plc-basic-ogp.png \
+            assets/images/plc-basic/plc-basic-overview.png \
+            assets/images/plc-basic/plc-basic-scan.png \
+            assets/images/plc-basic/plc-basic-relay-comparison.png \
+            assets/images/plc-basic/plc-basic-ladder.png \
+            .github/article-components/hero/css-bindings.json \
+            .github/article-components/sidebar/all-pages.json
+          do
+            mkdir -p "$(dirname "$p")"
+            git show "$SOURCE_SHA:$p" > "$p"
+          done
+
+          # Synchronize only PLC-specific source fingerprints on top of current main.
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, subprocess
+
+          article_path = Path('articles/plc-basic.html')
+          data = article_path.read_bytes()
+          sha256 = hashlib.sha256(data).hexdigest()
+          git_blob = subprocess.check_output(['git','hash-object',str(article_path)], text=True).strip()
+
+          inv_path = Path('.github/article-components/site-inventory.json')
+          inv = json.loads(inv_path.read_text(encoding='utf-8'))
+          item = next(x for x in inv['files'] if x['path'] == 'articles/plc-basic.html')
+          item['gitBlob'] = git_blob
+          inv_path.write_text(json.dumps(inv, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          shell_path = Path('.github/site-shells/manifest.json')
+          shell = json.loads(shell_path.read_text(encoding='utf-8'))
+          item = next(x for x in shell['pages'] if x['output'] == 'articles/plc-basic.html')
+          item['baselineSha256'] = sha256
+          shell_path.write_text(json.dumps(shell, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          verify_path = Path('.github/article-components/sidebar/all-source-verification.json')
+          verify = json.loads(verify_path.read_text(encoding='utf-8'))
+          item = next(x for x in verify if x['path'] == 'articles/plc-basic.html')
+          item['sha256'] = sha256
+          item['gitBlob'] = git_blob
+          item['snapshotEqual'] = True
+          item['manifestAndInventoryMatch'] = True
+          verify_path.write_text(json.dumps(verify, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          print(json.dumps({'plcSha256': sha256, 'plcGitBlob': git_blob}))
+          PY
+
           pnpm install --frozen-lockfile --ignore-scripts
           pnpm check:shells
           python -m pip install lxml==6.1.1
@@ -164,6 +224,19 @@ jobs:
             if(!expected.every(x=>state.figureSources.some(src=>src.includes(x)))) throw new Error(name+' adopted figures missing '+JSON.stringify(state));
             if(!state.heroBackground.includes('plc-basic-hero.webp')) throw new Error(name+' adopted hero missing '+JSON.stringify(state));
             if(!state.ogImage.includes('plc-basic-ogp.webp')) throw new Error(name+' adopted OGP missing '+JSON.stringify(state));
+
+            const firstFigure=page.locator('.article-figure img').first();
+            await firstFigure.click();
+            await page.waitForTimeout(120);
+            const lbCount=await page.locator('.dc-image-lightbox').count();
+            const lbHidden=lbCount===1?await page.locator('.dc-image-lightbox').getAttribute('hidden'):null;
+            if(lbCount!==1||lbHidden!==null) throw new Error(name+' common lightbox failed or duplicated: count='+lbCount+' hidden='+lbHidden);
+            await page.keyboard.press('Escape');
+
+            const scrollTargets=await page.locator('.table-wrap,.ladder-box,[data-horizontal-scroll]').count();
+            const scrollHints=await page.locator('.dc-horizontal-scroll-hint').count();
+            if(scrollTargets>0&&scrollHints===0) throw new Error(name+' horizontal-scroll hint was not initialized');
+
             await page.screenshot({path:'final-preview-audit/'+name+'.png',fullPage:true});
             report.push({name,...state});
             await page.close();
@@ -187,7 +260,11 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git checkout -b "$FINAL_BRANCH" "$GITHUB_SHA"
+          if git ls-remote --exit-code --heads origin "$FINAL_BRANCH" >/dev/null 2>&1; then
+            echo "ERROR: $FINAL_BRANCH already exists; refusing to overwrite a prior final Preview branch."
+            exit 1
+          fi
+          git checkout -b "$FINAL_BRANCH" "$MAIN_SHA"
           rm -f .github/workflows/plc-basic-final-preview.yml
 
           cp _site/articles/plc-basic.html articles/plc-basic.html

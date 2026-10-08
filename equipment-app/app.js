@@ -676,4 +676,29 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAppMenu()});
  document.querySelector('#logoutMenu')?.addEventListener('click',()=>{location.href='./login.html'});
  document.querySelector('#languageMenu')?.addEventListener('click',()=>{alert('Preview: 多言語設定は今後ここから切り替えます')});
+
+ const focusKey='dc-eq-focus-mode';
+ const applyFocusMode=on=>{
+   document.body.classList.toggle('widget-focus-mode',!!on);
+   try{localStorage.setItem(focusKey,on?'1':'0')}catch{}
+   const b=document.querySelector('#focusModeToggle');
+   if(b){const s=b.querySelector('span');if(s)s.textContent=on?'ON':'OFF';b.classList.toggle('active',!!on)}
+ };
+ let focusOn=false;try{focusOn=localStorage.getItem(focusKey)==='1'}catch{}
+ applyFocusMode(focusOn);
+ document.querySelector('#focusModeToggle')?.addEventListener('click',()=>{focusOn=!focusOn;applyFocusMode(focusOn);closeAppMenu()});
+
+ const greeting=document.querySelector('#topbarGreeting');
+ if(greeting){
+   let shouldShow=true;
+   try{shouldShow=sessionStorage.getItem('dc-eq-greeted')!=='1'}catch{}
+   if(shouldShow){
+     const hour=new Date().getHours();
+     const hello=hour<11?'おはようございます':hour<18?'こんにちは':'こんばんは';
+     greeting.textContent=hello+'、Preview User さん';
+     greeting.classList.add('show');
+     try{sessionStorage.setItem('dc-eq-greeted','1')}catch{}
+     greeting.addEventListener('animationend',()=>greeting.classList.remove('show'),{once:true});
+   }
+ }
 });

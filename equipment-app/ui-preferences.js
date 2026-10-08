@@ -73,6 +73,56 @@
     wrap.querySelector('#logoutMenu').onclick=()=>location.href='./login.html';
     wrap.querySelector('#languageMenu').onclick=()=>alert('Preview: 多言語設定は今後ここから切り替えます');
   };
+  const DASHBOARD_CUSTOM_KEY='dc-eq-custom-dashboards-v1';
+  const BUILTIN_DASHBOARDS=[
+    ['personal','マイページ'],
+    ['equipment','設備'],
+    ['inspection','点検'],
+    ['manager','管理者用'],
+    ['monitor','大型モニタ']
+  ];
+  const readCustomDashboards=()=>{try{return JSON.parse(localStorage.getItem(DASHBOARD_CUSTOM_KEY))||{}}catch{return {}}};
+  const ensureUnifiedSidebar=()=>{
+    const sidebar=document.querySelector('.sidebar');
+    if(!sidebar)return;
+    const nav=sidebar.querySelector('.nav');
+    if(!nav)return;
+    if(document.body.classList.contains('dashboard-page'))return;
+
+    const current=(location.pathname.split('/').pop()||'').toLowerCase();
+    const custom=readCustomDashboards();
+    const dashboards=[
+      ...BUILTIN_DASHBOARDS,
+      ...Object.entries(custom).map(([id,v])=>[id,v?.title||'カスタム'])
+    ];
+
+    const dashboardLinks=dashboards.map(([id,label])=>{
+      const href='./dashboard.html?view='+encodeURIComponent(id);
+      return '<a class="dashboard-nav-item" href="'+href+'"><span class="icon">◈</span><span>'+label+'</span></a>';
+    }).join('');
+
+    const appLinks=[
+      ['equipment.html','▦','設備一覧'],
+      ['inspection.html','✓','点検実行'],
+      ['calendar.html','◫','カレンダー'],
+      ['documents.html','▤','図面・取説'],
+      ['settings.html','⚙','組織・設定']
+    ].map(([href,icon,label])=>{
+      const active=current===href?' active':'';
+      return '<a class="'+active.trim()+'" href="./'+href+'"><span class="icon">'+icon+'</span>'+label+'</a>';
+    }).join('');
+
+    nav.className='nav dashboard-side-nav';
+    nav.innerHTML=
+      '<div class="nav-section-label">ダッシュボード</div>'+
+      '<div class="dashboard-nav-list">'+dashboardLinks+'</div>'+
+      '<a class="dashboard-nav-add" href="./dashboard.html?create=1"><span class="icon">＋</span>ダッシュボード追加</a>'+
+      '<div class="nav-section-label nav-section-label-app">アプリ</div>'+
+      appLinks+
+      '<button data-open-widgets type="button"><span class="icon">＋</span>ウィジェット</button>';
+
+    decorateNavAlerts();
+  };
   const normalizeAppLinks=()=>{
     document.querySelectorAll('a[href="#"]').forEach(a=>{
       const t=a.textContent.trim();
@@ -81,6 +131,7 @@
   };
   const initControls=()=>{
     ensureAppMenu();
+    ensureUnifiedSidebar();
     normalizeAppLinks();
     markCurrentSectionRead();
     decorateNavAlerts();

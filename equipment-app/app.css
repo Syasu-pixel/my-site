@@ -1129,3 +1129,35 @@ html[data-eq-theme="paper"] :is(.summary-hero strong,.device-time strong,.timer-
   background:radial-gradient(circle at center,rgba(73,216,255,.08),transparent 70%);
   pointer-events:none;
 }
+
+/* Hover preview motion polish: persistent compositor layer + soft content crossfade */
+.widget-hover-preview{
+  will-change:transform,opacity;
+  contain:layout paint style;
+  backface-visibility:hidden;
+  transform:translate3d(-50%,-50%,0) scale(.965)!important;
+  opacity:0;
+  transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1);
+}
+.widget-hover-preview.show{
+  opacity:1;
+  transform:translate3d(-50%,-50%,0) scale(1)!important;
+}
+.widget-hover-preview.is-hiding{
+  opacity:0;
+  transform:translate3d(-50%,-48%,0) scale(.985)!important;
+}
+.widget-hover-shell{will-change:opacity,transform}
+.widget-hover-preview.is-switching .widget-hover-shell{
+  opacity:.28;
+  transform:scale(.985);
+}
+.widget-hover-shell{
+  transition:opacity .12s ease,transform .14s cubic-bezier(.2,.8,.2,1);
+}
+body.widget-overview-mode .widget{
+  will-change:transform,border-color,box-shadow;
+}
+@media (prefers-reduced-motion: reduce){
+  .widget-hover-preview,.widget-hover-shell,body.widget-overview-mode .widget{transition:none!important;animation:none!important}
+}

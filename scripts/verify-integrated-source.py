@@ -63,6 +63,7 @@ for item in inventory:
   elif page.startswith('ai-editorial-dashboard/'):kind='停止中のAI編集部ダッシュボード';strategy='記事部品を適用せず停止中システムの状態を維持'
   elif '/categories/' in '/'+page:kind='カテゴリ一覧';strategy='一覧のナビゲーション/カードは記事本文用の統合対象外'
   elif 'privacy-policy/' in page:kind='プライバシーポリシー';strategy='法務ページの構造と本文を保持'
+  elif page=='profile/index.html':kind='運営者プロフィール・編集方針';strategy='独立した信頼主体ページとして本文と構造化データを保持'
   elif 'contact/' in page:kind='お問い合わせ';strategy='専用フォーム/連絡導線を保持'
   elif page in ['index.html','en/index.html']:kind='トップページ';strategy='記事とは異なるトップの情報構成を保持'
   elif page.startswith('preview/'):kind='既存の別Preview';strategy='公開記事でない別案を今回の統合対象にしない'

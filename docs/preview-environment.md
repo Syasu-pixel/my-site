@@ -17,7 +17,9 @@ Canonical ProductionはGitHub Pages / `main` / `https://denkicontrol.com/`。本
 - PLC記事の現在進行中の再制作・専用Previewブランチは本ルール整合の変更対象外とする。
 - 追加ページは `docs/additional-page-shells.md` の生成・検査を優先し、記事専用の目次・関連記事などを要求しない。外部Previewの配信実体確認と管理者承認という共通原則だけを適用する。
 
-以下のNetlify固有の説明は初期導入時の履歴であり、現在のCloudflare Previewや本番相当candidate配信を保証するものではない。
+以下は初期Netlify導入時の履歴であり、現在の作業手順として実行しない。現在の正規判断は上記の成功実績と `docs/article-editing-playbook.md`（記事）・`docs/additional-page-shells.md`（追加ページ）を優先する。
+
+## 以下は旧Netlify Pilotの記録（現行手順ではない）
 
 ## 採用理由
 - GitHub PRごとに固有のPreview URLを自動生成できる。

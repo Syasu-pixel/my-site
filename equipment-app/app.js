@@ -82,7 +82,7 @@ const WIDGETS=[
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const WORKSPACE_PRESETS={
- personal:['today','calendar','equipment','notice','memo','device','favorites'],
+ personal:['today','calendar','equipment','notice','memo','device','weather','portal-links','favorites'],
  equipment:['equipment','assigned','deadline','recent','versions','docs','alarm-history','downtime','spares-life','lubrication','network'],
  inspection:['today','checklist','readings','safety','deadline','calendar','photos','handover','templates'],
  field:['today','assigned','handover','safety','quick','deadline','docs'],

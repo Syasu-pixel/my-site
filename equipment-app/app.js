@@ -118,6 +118,8 @@ const sizeKey=()=> 'dc-eq-widget-sizes:'+currentWorkspace+':'+device();
 const viewKey=()=> 'dc-eq-widget-views:'+currentWorkspace+':'+device();
 const notifyKey=()=> 'dc-eq-widget-notify:'+currentWorkspace+':'+device();
 const filterKey=()=> 'dc-eq-widget-filters:'+currentWorkspace+':'+device();
+const periodKey=()=> 'dc-eq-widget-periods:'+currentWorkspace+':'+device();
+const displayKey=()=> 'dc-eq-widget-display:'+currentWorkspace+':'+device();
 const getLayout=()=>{
  try{
   const saved=localStorage.getItem(storageKey());
@@ -138,10 +140,20 @@ const getNotifyPrefs=()=>{try{return JSON.parse(localStorage.getItem(notifyKey()
 const setNotifyPrefs=v=>localStorage.setItem(notifyKey(),JSON.stringify(v));
 const getWidgetFilters=()=>{try{return JSON.parse(localStorage.getItem(filterKey()))||{}}catch{return {}}};
 const setWidgetFilters=v=>localStorage.setItem(filterKey(),JSON.stringify(v));
-let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
-const FILTER_CYCLE=['全設備','担当設備','第1工場'];
+const getWidgetPeriods=()=>{try{return JSON.parse(localStorage.getItem(periodKey()))||{}}catch{return {}}};
+const setWidgetPeriods=v=>localStorage.setItem(periodKey(),JSON.stringify(v));
+const getWidgetDisplays=()=>{try{return JSON.parse(localStorage.getItem(displayKey()))||{}}catch{return {}}};
+const setWidgetDisplays=v=>localStorage.setItem(displayKey(),JSON.stringify(v));
+let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),widgetPeriods=getWidgetPeriods(),widgetDisplays=getWidgetDisplays(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
+const FILTER_CYCLE=['全設備','担当設備','第1工場','第2工場'];
+const PERIOD_CYCLE=['今日','7日','30日','90日','1年'];
+const DISPLAY_CYCLE=['自動','リスト','タイル','グラフ','ゲージ'];
 function widgetFilterLabel(id){return widgetFilters[id]||'全設備'}
 function nextWidgetFilter(id){const cur=widgetFilterLabel(id),i=FILTER_CYCLE.indexOf(cur);widgetFilters[id]=FILTER_CYCLE[(i+1)%FILTER_CYCLE.length];setWidgetFilters(widgetFilters);render()}
+function widgetPeriodLabel(id){return widgetPeriods[id]||'30日'}
+function nextWidgetPeriod(id){const cur=widgetPeriodLabel(id),i=PERIOD_CYCLE.indexOf(cur);widgetPeriods[id]=PERIOD_CYCLE[(i+1)%PERIOD_CYCLE.length];setWidgetPeriods(widgetPeriods);render()}
+function widgetDisplayLabel(id){return widgetDisplays[id]||'自動'}
+function nextWidgetDisplay(id){const cur=widgetDisplayLabel(id),i=DISPLAY_CYCLE.indexOf(cur);widgetDisplays[id]=DISPLAY_CYCLE[(i+1)%DISPLAY_CYCLE.length];setWidgetDisplays(widgetDisplays);render()}
 const MANDATORY_NOTIFICATION_SOURCES=new Set(['admin','operations']);
 const ALERT_READ_KEY='dc-eq-widget-alerts-read-v1';
 const getAlertReads=()=>{try{return JSON.parse(localStorage.getItem(ALERT_READ_KEY))||{}}catch{return {}}};
@@ -490,7 +502,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -624,6 +636,8 @@ function bindDrag(){
  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{layout=layout.filter(x=>x!==b.dataset.remove);setLayout(layout);render()});
  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetView(b.dataset.view)});
  document.querySelectorAll('[data-widget-filter]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetFilter(b.dataset.widgetFilter)});
+ document.querySelectorAll('[data-widget-period]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetPeriod(b.dataset.widgetPeriod)});
+ document.querySelectorAll('[data-widget-display]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetDisplay(b.dataset.widgetDisplay)});
  bindResize();
 }
 
@@ -765,14 +779,20 @@ async function initDeviceStatus(){
  if(clockTimer)clearInterval(clockTimer);
  clockTimer=setInterval(updateLiveDeviceWidget,1000);
 }
+function stampWidgetUpdates(){
+ const t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+ document.querySelectorAll('[data-widget-updated]').forEach(x=>x.textContent='更新 '+t);
+}
 document.addEventListener('DOMContentLoaded',()=>{
  render();
  initDeviceStatus();
+ stampWidgetUpdates();
+ setInterval(stampWidgetUpdates,60000);
  document.querySelectorAll('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===currentWorkspace));
  document.querySelectorAll('[data-workspace]').forEach(b=>b.addEventListener('click',()=>{
    currentWorkspace=b.dataset.workspace;
    try{localStorage.setItem('dc-eq-workspace',currentWorkspace)}catch{}
-   layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();
+   layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();
    document.querySelectorAll('[data-workspace]').forEach(x=>x.classList.toggle('active',x===b));
    render();
  }));
@@ -814,7 +834,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();widgetPeriods=getWidgetPeriods();widgetDisplays=getWidgetDisplays();render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});

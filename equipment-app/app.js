@@ -574,7 +574,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -693,21 +693,38 @@ function bindDrag(){
       pointerDrag.overTrash=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
       trash.classList.toggle('is-over',pointerDrag.overTrash);
     }
-    const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget:not(.widget-drag-ghost)');
+    let hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget:not(.widget-drag-ghost)');
+    const grid=document.querySelector('#widgetGrid');
+    if(!hit&&grid){
+      const gr=grid.getBoundingClientRect();
+      const inside=e.clientX>=gr.left&&e.clientX<=gr.right&&e.clientY>=gr.top&&e.clientY<=gr.bottom;
+      if(inside){
+        let best=null,bestScore=Infinity;
+        document.querySelectorAll('#widgetGrid .widget:not(.drag-origin)').forEach(w=>{
+          const r=w.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+          const score=Math.hypot((e.clientX-cx)*.85,e.clientY-cy);
+          if(score<bestScore){bestScore=score;best=w}
+        });
+        if(best&&bestScore<360)hit=best;
+      }
+    }
     if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
       const now=performance.now();
       const r=hit.getBoundingClientRect();
       const cx=r.left+r.width/2,cy=r.top+r.height/2;
-      const nx=Math.abs(e.clientX-cx)/(r.width/2),ny=Math.abs(e.clientY-cy)/(r.height/2);
-      const deepEnough=nx<.82&&ny<.82;
-      if(deepEnough&&now-pointerDrag.lastSwapAt>80){
+      const direct=hit.matches(':hover');
+      const deepEnough=direct?(Math.abs(e.clientX-cx)/(r.width/2)<.88&&Math.abs(e.clientY-cy)/(r.height/2)<.88):true;
+      if(deepEnough&&now-pointerDrag.lastSwapAt>90){
         const fromId=pointerDrag.id,toId=hit.dataset.id;
         const a=layout.indexOf(fromId),b=layout.indexOf(toId);
         if(a>=0&&b>=0){
           layout.splice(a,1);layout.splice(b,0,fromId);setLayout(layout);
           const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
           const target=document.querySelector('.widget[data-id="'+toId+'"]');
-          if(moving&&target)animateWidgetReorder(moving,target,a<b);
+          if(moving&&target){
+            const placeAfter=e.clientY>cy || (Math.abs(e.clientY-cy)<r.height*.28 && e.clientX>cx);
+            animateWidgetReorder(moving,target,placeAfter);
+          }
         }
         pointerDrag.lastTarget=toId;
         pointerDrag.lastSwapAt=now;
@@ -750,9 +767,14 @@ function bindResize(){
       geom.minHeight=Math.max(140,startH+dy);
       el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
     }
+    if(mode==='top'){
+      geom.minHeight=Math.max(140,startH-dy);
+      el.style.setProperty('--widget-min-height',Math.round(geom.minHeight)+'px');
+      el.classList.add('resizing-from-top');
+    }
     saveGeometry(id,geom);
    };
-   const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)};
+   const up=()=>{el.classList.remove('resizing-from-top');window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up)};
    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
   };
   el.querySelectorAll('[data-resize]').forEach(h=>h.addEventListener('pointerdown',e=>startResize(e,h.dataset.resize)));

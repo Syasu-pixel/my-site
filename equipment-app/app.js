@@ -163,13 +163,19 @@ const setWidgetDisplays=v=>localStorage.setItem(displayKey(),JSON.stringify(v));
 let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),widgetPeriods=getWidgetPeriods(),widgetDisplays=getWidgetDisplays(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
 const FILTER_CYCLE=['全設備','担当設備','第1工場','第2工場'];
 const PERIOD_CYCLE=['今日','7日','30日','90日','1年'];
-const DISPLAY_CYCLE=['自動','リスト','タイル','グラフ','ゲージ'];
+const DEFAULT_DISPLAY_CYCLE=['自動','リスト','タイル','グラフ','ゲージ'];
+const DISPLAY_OPTIONS={
+ calendar:['月表示','予定一覧','週表示','タイムライン'],
+ today:['リスト','タイムライン','カード','サマリー'],
+ equipment:['一覧','タイル','ドーナツ','ゲージ']
+};
 function widgetFilterLabel(id){return widgetFilters[id]||'全設備'}
 function nextWidgetFilter(id){const cur=widgetFilterLabel(id),i=FILTER_CYCLE.indexOf(cur);widgetFilters[id]=FILTER_CYCLE[(i+1)%FILTER_CYCLE.length];setWidgetFilters(widgetFilters);render()}
 function widgetPeriodLabel(id){return widgetPeriods[id]||'30日'}
 function nextWidgetPeriod(id){const cur=widgetPeriodLabel(id),i=PERIOD_CYCLE.indexOf(cur);widgetPeriods[id]=PERIOD_CYCLE[(i+1)%PERIOD_CYCLE.length];setWidgetPeriods(widgetPeriods);render()}
-function widgetDisplayLabel(id){return widgetDisplays[id]||'自動'}
-function nextWidgetDisplay(id){const cur=widgetDisplayLabel(id),i=DISPLAY_CYCLE.indexOf(cur);widgetDisplays[id]=DISPLAY_CYCLE[(i+1)%DISPLAY_CYCLE.length];setWidgetDisplays(widgetDisplays);render()}
+function widgetDisplayOptions(id){return DISPLAY_OPTIONS[id]||DEFAULT_DISPLAY_CYCLE}
+function widgetDisplayLabel(id){const opts=widgetDisplayOptions(id);const saved=widgetDisplays[id];return opts.includes(saved)?saved:opts[0]}
+function nextWidgetDisplay(id){const opts=widgetDisplayOptions(id),cur=widgetDisplayLabel(id),i=opts.indexOf(cur);widgetDisplays[id]=opts[(i+1)%opts.length];setWidgetDisplays(widgetDisplays);render()}
 const MANDATORY_NOTIFICATION_SOURCES=new Set(['admin','operations']);
 const ALERT_READ_KEY='dc-eq-widget-alerts-read-v1';
 const getAlertReads=()=>{try{return JSON.parse(localStorage.getItem(ALERT_READ_KEY))||{}}catch{return {}}};
@@ -223,20 +229,27 @@ function setEditMode(on){
 
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function widgetBody(id,view='standard'){
+ const display=widgetDisplayLabel(id);
  if(id==='today'){
+  if(display==='タイムライン')return '<div class="today-timeline"><div><time>09:30</time><i class="yellow"></i><span><strong>CV-04 月次点検</strong><small>第1工場 / 搬送ライン</small></span></div><div><time>11:00</time><i class="green"></i><span><strong>ホイスト 日常点検</strong><small>組立エリア</small></span></div><div><time>14:00</time><i class="red"></i><span><strong>サーボバッテリー交換</strong><small>期限まで3日</small></span></div></div>';
+  if(display==='カード')return '<div class="today-card-grid"><article><small>09:30</small><strong>CV-04 月次点検</strong><span>予定</span></article><article><small>11:00</small><strong>ホイスト 日常点検</strong><span>未実施</span></article><article><small>14:00</small><strong>電池交換</strong><span>要対応</span></article></div>';
+  if(display==='サマリー'||view==='summary')return '<div class="summary-hero"><strong>3件</strong><span>今日の点検</span><em>未実施 2 / 要対応 1</em></div><div class="summary-progress"><i style="width:33%"></i></div>';
   if(view==='compact')return '<div class="compact-status-row"><span><b>3</b><small>今日</small></span><span><b>2</b><small>未実施</small></span><span><b>1</b><small>要対応</small></span></div><div class="compact-next"><strong>次：CV-04 月次点検</strong><span>09:30</span></div>';
-  if(view==='summary')return '<div class="summary-hero"><strong>3件</strong><span>今日の点検</span><em>未実施 2 / 要対応 1</em></div><div class="summary-progress"><i style="width:33%"></i></div>';
   return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>CV-04 月次点検</strong><small>第1工場 / 搬送ライン</small></div><div class="list-side">09:30</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>ホイスト 日常点検</strong><small>組立エリア / 担当: 自分</small></div><div class="list-side">未実施</div></div><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>サーボバッテリー交換</strong><small>設備A / 期限まで3日</small></div><div class="list-side">要対応</div></div></div>';
  }
  if(id==='calendar'){
-  if(view==='compact')return '<div class="compact-agenda"><div><b>10/08</b><span>CV-04 月次点検</span></div><div><b>10/11</b><span>サーボ電池交換</span></div><div><b>10/12</b><span>停電点検</span></div></div>';
+  if(display==='予定一覧'||view==='compact')return '<div class="compact-agenda"><div><b>10/08</b><span>CV-04 月次点検</span></div><div><b>10/11</b><span>サーボ電池交換</span></div><div><b>10/12</b><span>停電点検</span></div><div><b>10/18</b><span>CV-04 改造停止</span></div></div>';
+  if(display==='週表示')return '<div class="calendar-week"><div><small>月 7</small><span>点検2</span></div><div><small>火 8</small><b>月次点検</b></div><div><small>水 9</small><span>—</span></div><div><small>木 10</small><span>—</span></div><div><small>金 11</small><b>交換</b></div><div><small>土 12</small><b>停電点検</b></div><div><small>日 13</small><span>—</span></div></div>';
+  if(display==='タイムライン')return '<div class="calendar-timeline"><div><b>10/08</b><span><strong>CV-04 月次点検</strong><small>09:30 / 第1工場</small></span></div><div><b>10/11</b><span><strong>サーボ電池交換</strong><small>設備A</small></span></div><div><b>10/12</b><span><strong>停電点検</strong><small>09:00〜13:00</small></span></div><div><b>10/18</b><span><strong>CV-04 改造停止</strong><small>13:00〜15:00</small></span></div></div>';
   if(view==='summary')return '<div class="summary-hero"><strong>5件</strong><span>30日以内の予定</span><em>次回 10/08 月次点検</em></div>';
   let days='';for(let i=0;i<21;i++){days+='<div class="day '+(i===6?'today':'')+'"><b>'+(i+1)+'</b>'+(i===6?'<em>点検 2件</em>':i===10?'<em>交換予定</em>':'')+'</div>'}
   return '<div class="calendar"><div class="cal-head">月</div><div class="cal-head">火</div><div class="cal-head">水</div><div class="cal-head">木</div><div class="cal-head">金</div><div class="cal-head">土</div><div class="cal-head">日</div>'+days+'</div><div style="margin-top:9px;color:#708ca0;font-size:calc(9px * var(--dc-font-scale,1))">祝日表示・Google / Outlook同期はアカウント単位で設定予定</div>';
  }
  if(id==='equipment'){
+  if(display==='タイル')return '<div class="equipment-tile-grid"><article><i class="green"></i><strong>18</strong><span>稼働中</span></article><article><i class="yellow"></i><strong>2</strong><span>要確認</span></article><article><i class="red"></i><strong>1</strong><span>期限超過</span></article></div>';
+  if(display==='ドーナツ')return '<div class="equipment-donut-wrap"><div class="equipment-donut"><span><strong>20</strong><small>設備</small></span></div><div class="equipment-donut-legend"><span><i class="green"></i>稼働中 18</span><span><i class="yellow"></i>要確認 2</span><span><i class="red"></i>期限超過 1</span></div></div>';
+  if(display==='ゲージ'||view==='summary')return '<div class="equipment-gauge"><div class="gauge-ring"><span><strong>85%</strong><small>正常</small></span></div><div><b>正常 18</b><b>要確認 2</b><b>期限超過 1</b></div></div>';
   if(view==='compact')return '<div class="compact-status-row"><span><b>18</b><small>稼働中</small></span><span><b>2</b><small>要確認</small></span><span><b>1</b><small>期限超過</small></span></div>';
-  if(view==='summary')return '<div class="summary-hero"><strong>20</strong><span>登録設備</span><em>正常 85%</em></div><div class="summary-progress"><i style="width:85%"></i></div>';
   return '<div class="list"><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>稼働中</strong><small>18設備</small></div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>要確認</strong><small>2設備</small></div></div><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>期限超過</strong><small>1設備</small></div></div></div>';
  }
  if(id==='notice'){

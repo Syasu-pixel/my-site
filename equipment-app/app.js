@@ -80,6 +80,14 @@ const WIDGETS=[
 {id:'disposal',name:'廃棄・撤去予定',desc:'廃棄予定設備・撤去工事・データ退避状況を管理',tier:'free',cat:'設備',size:'',href:'./disposal.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
+const WORKSPACE_PRESETS={
+ personal:['today','calendar','equipment','notice','memo','device','favorites'],
+ field:['today','assigned','handover','safety','quick','deadline','docs'],
+ manager:['kpi','downtime','workorders','incident','reorder','annual-plan','notice'],
+ monitor:['equipment','alarm-history','iot','readings','network','deadline']
+};
+const WORKSPACE_LABELS={personal:'自分用',field:'現場用',manager:'管理者用',monitor:'大型モニタ'};
+let currentWorkspace=(()=>{try{return localStorage.getItem('dc-eq-workspace')||'personal'}catch{return 'personal'}})();
 const WIDGET_ALERTS={
  today:{items:[{source:'widget',count:2}],type:'danger',label:'未実施'},
  calendar:{items:[{source:'widget',count:1}],type:'info',label:'更新'},
@@ -105,11 +113,22 @@ function visibleWidgetAlert(id){
  return count>0?{...a,count,mandatory}:null;
 }
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
-const storageKey=()=> 'dc-eq-layout:'+device();
-const sizeKey=()=> 'dc-eq-widget-sizes:'+device();
-const viewKey=()=> 'dc-eq-widget-views:'+device();
-const notifyKey=()=> 'dc-eq-widget-notify:'+device();
-const getLayout=()=>{try{return JSON.parse(localStorage.getItem(storageKey()))||DEFAULT}catch{return DEFAULT}};
+const storageKey=()=> 'dc-eq-layout:'+currentWorkspace+':'+device();
+const sizeKey=()=> 'dc-eq-widget-sizes:'+currentWorkspace+':'+device();
+const viewKey=()=> 'dc-eq-widget-views:'+currentWorkspace+':'+device();
+const notifyKey=()=> 'dc-eq-widget-notify:'+currentWorkspace+':'+device();
+const filterKey=()=> 'dc-eq-widget-filters:'+currentWorkspace+':'+device();
+const getLayout=()=>{
+ try{
+  const saved=localStorage.getItem(storageKey());
+  if(saved)return JSON.parse(saved);
+  if(currentWorkspace==='personal'){
+    const legacy=localStorage.getItem('dc-eq-layout:'+device());
+    if(legacy)return JSON.parse(legacy);
+  }
+  return [...(WORKSPACE_PRESETS[currentWorkspace]||DEFAULT)];
+ }catch{return [...(WORKSPACE_PRESETS[currentWorkspace]||DEFAULT)]}
+};
 const setLayout=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
 const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}catch{return {}}};
 const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
@@ -117,7 +136,12 @@ const getViews=()=>{try{return JSON.parse(localStorage.getItem(viewKey()))||{}}c
 const setViews=v=>localStorage.setItem(viewKey(),JSON.stringify(v));
 const getNotifyPrefs=()=>{try{return JSON.parse(localStorage.getItem(notifyKey()))||{}}catch{return {}}};
 const setNotifyPrefs=v=>localStorage.setItem(notifyKey(),JSON.stringify(v));
-let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
+const getWidgetFilters=()=>{try{return JSON.parse(localStorage.getItem(filterKey()))||{}}catch{return {}}};
+const setWidgetFilters=v=>localStorage.setItem(filterKey(),JSON.stringify(v));
+let layout=getLayout(),sizes=getSizes(),views=getViews(),notifyPrefs=getNotifyPrefs(),widgetFilters=getWidgetFilters(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
+const FILTER_CYCLE=['全設備','担当設備','第1工場'];
+function widgetFilterLabel(id){return widgetFilters[id]||'全設備'}
+function nextWidgetFilter(id){const cur=widgetFilterLabel(id),i=FILTER_CYCLE.indexOf(cur);widgetFilters[id]=FILTER_CYCLE[(i+1)%FILTER_CYCLE.length];setWidgetFilters(widgetFilters);render()}
 const MANDATORY_NOTIFICATION_SOURCES=new Set(['admin','operations']);
 const ALERT_READ_KEY='dc-eq-widget-alerts-read-v1';
 const getAlertReads=()=>{try{return JSON.parse(localStorage.getItem(ALERT_READ_KEY))||{}}catch{return {}}};
@@ -466,7 +490,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="表示パターンを変更">表示 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -599,6 +623,7 @@ function bindDrag(){
  });
  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{layout=layout.filter(x=>x!==b.dataset.remove);setLayout(layout);render()});
  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetView(b.dataset.view)});
+ document.querySelectorAll('[data-widget-filter]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetFilter(b.dataset.widgetFilter)});
  bindResize();
 }
 
@@ -743,6 +768,34 @@ async function initDeviceStatus(){
 document.addEventListener('DOMContentLoaded',()=>{
  render();
  initDeviceStatus();
+ document.querySelectorAll('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===currentWorkspace));
+ document.querySelectorAll('[data-workspace]').forEach(b=>b.addEventListener('click',()=>{
+   currentWorkspace=b.dataset.workspace;
+   try{localStorage.setItem('dc-eq-workspace',currentWorkspace)}catch{}
+   layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();
+   document.querySelectorAll('[data-workspace]').forEach(x=>x.classList.toggle('active',x===b));
+   render();
+ }));
+ document.querySelector('#workspaceAdd')?.addEventListener('click',()=>alert('Preview: カスタムダッシュボード作成は次段階で名前・共有範囲を設定できるようにします'));
+ const globalSearchData=[
+  {type:'設備',title:'CV-04 搬送コンベア',meta:'第1工場 / FX5U-32MR',href:'./equipment-detail.html'},
+  {type:'設備',title:'設備A サーボ搬送軸',meta:'MR-J4-70B',href:'./equipment-detail.html'},
+  {type:'部品',title:'MR-J4 バッテリー',meta:'在庫 2 / A-03',href:'./parts.html'},
+  {type:'作業',title:'CV-04 月次点検',meta:'本日 09:30',href:'./inspection.html'},
+  {type:'資料',title:'CV-04 運転仕様書',meta:'最新版 2026-10-07',href:'./documents.html'},
+  {type:'メモ',title:'CV3 センサ位置調整',meta:'第2ライン共有メモ',href:'./memo.html'}
+ ];
+ const searchModal=document.querySelector('#globalSearchModal'),searchInput=document.querySelector('#globalSearchInput'),searchResults=document.querySelector('#globalSearchResults');
+ const renderGlobalSearch=q=>{
+   if(!searchResults)return;
+   const s=(q||'').trim().toLowerCase();
+   const list=globalSearchData.filter(x=>!s||(x.title+' '+x.meta+' '+x.type).toLowerCase().includes(s));
+   searchResults.innerHTML=list.length?list.map(x=>'<a href="'+x.href+'"><span>'+x.type+'</span><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.meta)+'</small></div><b>→</b></a>').join(''):'<div class="global-search-empty">該当する項目はありません</div>';
+ };
+ document.querySelector('#globalSearchOpen')?.addEventListener('click',()=>{searchModal?.classList.remove('hidden');renderGlobalSearch('');setTimeout(()=>searchInput?.focus(),0)});
+ document.querySelector('#globalSearchClose')?.addEventListener('click',()=>searchModal?.classList.add('hidden'));
+ searchModal?.addEventListener('click',e=>{if(e.target===searchModal)searchModal.classList.add('hidden')});
+ searchInput?.addEventListener('input',e=>renderGlobalSearch(e.target.value));
  document.querySelectorAll('[data-open-widgets]').forEach(b=>b.addEventListener('click',openCatalog));
  document.querySelector('#closeWidgets')?.addEventListener('click',closeCatalog);
  const modalOverlay=document.querySelector('#widgetModal');
@@ -761,7 +814,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.addEventListener('pointercancel',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});
  document.querySelector('#editWidgets')?.addEventListener('click',()=>setEditMode(!editMode));
  let lastDevice=device();
- addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();render()}});
+ addEventListener('resize',()=>{const d=device();if(d!==lastDevice){lastDevice=d;layout=getLayout();sizes=getSizes();views=getViews();notifyPrefs=getNotifyPrefs();widgetFilters=getWidgetFilters();render()}});
  const menuToggle=document.querySelector('#appMenuToggle'),menu=document.querySelector('#appMenu');
  const closeAppMenu=()=>{if(!menu)return;menu.hidden=true;menuToggle?.setAttribute('aria-expanded','false')};
  menuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;menuToggle.setAttribute('aria-expanded',String(open))});

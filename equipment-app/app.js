@@ -758,18 +758,35 @@ function bindDrag(){
     }
     let hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget:not(.widget-drag-ghost)');
     const grid=document.querySelector('#widgetGrid');
+    let dropAtEnd=false;
     if(!hit&&grid){
       const gr=grid.getBoundingClientRect();
       const inside=e.clientX>=gr.left&&e.clientX<=gr.right&&e.clientY>=gr.top&&e.clientY<=gr.bottom;
       if(inside){
-        let best=null,bestScore=Infinity;
-        document.querySelectorAll('#widgetGrid .widget:not(.drag-origin)').forEach(w=>{
-          const r=w.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-          const score=Math.hypot((e.clientX-cx)*.85,e.clientY-cy);
-          if(score<bestScore){bestScore=score;best=w}
-        });
-        if(best&&bestScore<360)hit=best;
+        const others=[...document.querySelectorAll('#widgetGrid .widget:not(.drag-origin)')];
+        const maxBottom=others.length?Math.max(...others.map(w=>w.getBoundingClientRect().bottom)):gr.top;
+        if(e.clientY>maxBottom+18){
+          dropAtEnd=true;
+        }else{
+          let best=null,bestScore=Infinity;
+          others.forEach(w=>{
+            const r=w.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+            const score=Math.hypot((e.clientX-cx)*.85,e.clientY-cy);
+            if(score<bestScore){bestScore=score;best=w}
+          });
+          if(best&&bestScore<360)hit=best;
+        }
       }
+    }
+    if(dropAtEnd&&pointerDrag.lastTarget!=='__end__'){
+      const fromId=pointerDrag.id,a=layout.indexOf(fromId);
+      if(a>=0){
+        layout.splice(a,1);layout.push(fromId);setLayout(layout);
+        const moving=document.querySelector('.widget[data-id="'+fromId+'"]');
+        if(moving)grid.appendChild(moving);
+      }
+      pointerDrag.lastTarget='__end__';
+      pointerDrag.lastSwapAt=performance.now();
     }
     if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
       const now=performance.now();

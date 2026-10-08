@@ -545,6 +545,9 @@ function renderCatalog(){
  list.forEach(w=>{
    html+='<article class="catalog-card"><div class="row"><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><p>'+esc(w.desc)+'</p><div class="row"><span class="badge">'+esc(w.cat)+'</span><div class="spacer"></div><button class="btn '+(layout.includes(w.id)?'ghost':'primary')+'" data-add="'+w.id+'" '+(layout.includes(w.id)?'disabled':'')+'>'+(layout.includes(w.id)?'追加済み':'追加')+'</button></div></article>';
  });
+ if(!html){
+   html='<div class="catalog-empty"><strong>該当するウィジェットはありません</strong><span>カテゴリや検索条件を変更してください。</span></div>';
+ }
  area.innerHTML=html;
  document.querySelector('#catalogCount')?.replaceChildren(document.createTextNode(list.length+'件'));
  area.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{if(!layout.includes(b.dataset.add)){layout.push(b.dataset.add);setLayout(layout);render();renderCatalog()}});

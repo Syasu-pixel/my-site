@@ -830,13 +830,14 @@ function updateGridDropCandidate(clientX,clientY){
   return true;
 }
 
+const widgetUpdateLabels={};
 function render(){
  const grid=document.querySelector('#widgetGrid'); if(!grid)return;
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),renderView=view==='auto'?'standard':view,alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+adaptiveWidgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-left" data-resize="left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tl" data-resize="top-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tr" data-resize="top-right" aria-hidden="true"></span><span class="resize-handle resize-corner resize-bl" data-resize="bottom-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-br" data-resize="bottom-right" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+adaptiveWidgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 '+(widgetUpdateLabels[w.id]||'--:--')+'</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-left" data-resize="left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tl" data-resize="top-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-tr" data-resize="top-right" aria-hidden="true"></span><span class="resize-handle resize-corner resize-bl" data-resize="bottom-left" aria-hidden="true"></span><span class="resize-handle resize-corner resize-br" data-resize="bottom-right" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -1330,7 +1331,7 @@ async function initDeviceStatus(){
 }
 function stampWidgetUpdates(){
  const t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
- document.querySelectorAll('[data-widget-updated]').forEach(x=>x.textContent='更新 '+t);
+ document.querySelectorAll('[data-widget-updated]').forEach(x=>{widgetUpdateLabels[x.dataset.widgetUpdated]=t;x.textContent='更新 '+t});
 }
 const REFRESH_PREF_KEY='dc-eq-refresh-interval-v1';
 const REFRESH_INTERVALS={
@@ -1374,7 +1375,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  render();
  initDeviceStatus();
  stampWidgetUpdates();
- setInterval(stampWidgetUpdates,60000);
+
  renderDashboardNavigation();
  document.querySelector('#renameDashboard')?.addEventListener('click',renameCurrentDashboard);
  const globalSearchData=[
@@ -1435,7 +1436,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    scheduleRefresh();
    refreshVisibleWidgets('setting-change');
  });
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshVisibleWidgets('resume');scheduleRefresh()}});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(readRefreshMode()!=='off')refreshVisibleWidgets('resume');scheduleRefresh()}});
  scheduleRefresh();
 
  const overviewKey='dc-eq-overview-mode';

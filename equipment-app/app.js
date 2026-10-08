@@ -579,9 +579,8 @@ function render(){
  grid.innerHTML=html;
  bindDrag();
  document.querySelectorAll('.widget').forEach(el=>{
-   let hoverTimer=null;
-   el.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('widget-overview-mode'))return;clearTimeout(hoverTimer);hoverTimer=setTimeout(()=>showHoverPreview(el),180)});
-   el.addEventListener('mouseleave',()=>{clearTimeout(hoverTimer);setTimeout(()=>{const p=document.querySelector('#widgetHoverPreview');if(p&&!p.matches(':hover'))removeHoverPreview()},100)});
+   el.addEventListener('mouseenter',()=>{if(!document.body.classList.contains('widget-overview-mode'))return;clearTimeout(hoverPreviewHideTimer);showHoverPreview(el)});
+   el.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(110));
  });
  document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
@@ -967,25 +966,68 @@ document.addEventListener('DOMContentLoaded',()=>{
  applyOverviewMode(overviewOn);
  document.querySelector('#overviewModeToggle')?.addEventListener('click',()=>{overviewOn=!overviewOn;applyOverviewMode(overviewOn);closeAppMenu()});
 
- function removeHoverPreview(){document.querySelector('#widgetHoverPreview')?.remove()}
+ let hoverPreview=null,hoverPreviewHideTimer=null,hoverPreviewSwitchTimer=null,hoverPreviewCurrentId=null;
+ function ensureHoverPreview(){
+   if(hoverPreview&&hoverPreview.isConnected)return hoverPreview;
+   hoverPreview=document.createElement('div');
+   hoverPreview.id='widgetHoverPreview';
+   hoverPreview.className='widget-hover-preview';
+   hoverPreview.innerHTML='<div class="widget-hover-shell"><div class="widget-hover-head"></div><div class="widget-hover-body"></div><div class="widget-hover-foot"></div></div>';
+   hoverPreview.style.width=Math.min(560,Math.max(400,innerWidth*.34))+'px';
+   hoverPreview.style.left='50%';hoverPreview.style.top='50%';
+   hoverPreview.addEventListener('mouseenter',()=>clearTimeout(hoverPreviewHideTimer));
+   hoverPreview.addEventListener('mouseleave',()=>scheduleHoverPreviewHide(110));
+   hoverPreview.addEventListener('click',()=>{
+     const w=WIDGETS.find(x=>x.id===hoverPreviewCurrentId);if(!w)return;
+     markWidgetAlertRead(w.id);if(w.href)location.href=w.href;
+   });
+   document.body.appendChild(hoverPreview);
+   return hoverPreview;
+ }
+ function removeHoverPreview(immediate=false){
+   clearTimeout(hoverPreviewHideTimer);clearTimeout(hoverPreviewSwitchTimer);
+   if(!hoverPreview||!hoverPreview.isConnected)return;
+   if(immediate){hoverPreview.remove();hoverPreview=null;hoverPreviewCurrentId=null;return}
+   hoverPreview.classList.remove('show');
+   hoverPreview.classList.add('is-hiding');
+   const p=hoverPreview;
+   setTimeout(()=>{if(p===hoverPreview&&!p.classList.contains('show')){p.remove();hoverPreview=null;hoverPreviewCurrentId=null}},170);
+ }
+ function scheduleHoverPreviewHide(delay=120){
+   clearTimeout(hoverPreviewHideTimer);
+   hoverPreviewHideTimer=setTimeout(()=>{
+     const active=document.querySelector('.widget-overview-mode .widget:hover');
+     if(!active&&!hoverPreview?.matches(':hover'))removeHoverPreview();
+   },delay);
+ }
+ function updateHoverPreviewContent(preview,w){
+   const view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
+   const head=preview.querySelector('.widget-hover-head');
+   const body=preview.querySelector('.widget-hover-body');
+   const foot=preview.querySelector('.widget-hover-foot');
+   head.innerHTML='<h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'">'+alert.count+'</span>':'')+'<span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span>';
+   body.innerHTML=widgetBody(w.id,view);
+   foot.innerHTML='<span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><strong>クリックで開く →</strong>';
+ }
  function showHoverPreview(el){
    if(!document.body.classList.contains('widget-overview-mode')||editMode||device()!=='pc')return;
-   removeHoverPreview();
    const w=WIDGETS.find(x=>x.id===el.dataset.id);if(!w)return;
-   const preview=document.createElement('div');
-   preview.id='widgetHoverPreview';
-   preview.className='widget-hover-preview';
-   preview.dataset.id=w.id;
-   const view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   preview.innerHTML='<div class="widget-hover-head"><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'">'+alert.count+'</span>':'')+'<span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-hover-body">'+widgetBody(w.id,view)+'</div><div class="widget-hover-foot"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><strong>クリックで開く →</strong></div>';
-   document.body.appendChild(preview);
-   const pw=Math.min(560,Math.max(400,innerWidth*.34));
-   preview.style.width=pw+'px';
-   preview.style.left='50%';
-   preview.style.top='50%';
-   requestAnimationFrame(()=>preview.classList.add('show'));
-   preview.addEventListener('click',()=>{markWidgetAlertRead(w.id);if(w.href)location.href=w.href});
-   preview.addEventListener('mouseleave',()=>{setTimeout(()=>{if(!preview.matches(':hover'))removeHoverPreview()},90)});
+   clearTimeout(hoverPreviewHideTimer);clearTimeout(hoverPreviewSwitchTimer);
+   if(hoverPreviewCurrentId===w.id&&hoverPreview?.classList.contains('show'))return;
+   hoverPreviewSwitchTimer=setTimeout(()=>{
+     const preview=ensureHoverPreview();
+     const switching=hoverPreviewCurrentId&&hoverPreviewCurrentId!==w.id&&preview.classList.contains('show');
+     hoverPreviewCurrentId=w.id;
+     preview.dataset.id=w.id;
+     preview.classList.remove('is-hiding');
+     if(switching){
+       preview.classList.add('is-switching');
+       setTimeout(()=>{updateHoverPreviewContent(preview,w);requestAnimationFrame(()=>preview.classList.remove('is-switching'))},80);
+     }else{
+       updateHoverPreviewContent(preview,w);
+       requestAnimationFrame(()=>requestAnimationFrame(()=>preview.classList.add('show')));
+     }
+   },120);
  }
  const focusKey='dc-eq-focus-mode';
  const applyFocusMode=on=>{

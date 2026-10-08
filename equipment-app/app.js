@@ -209,14 +209,24 @@ function widgetNotifyEnabled(id){return notifyPrefs[id]!==false}
 function setWidgetNotify(id,on){notifyPrefs[id]=!!on;setNotifyPrefs(notifyPrefs);render();renderCatalog()}
 function canMuteWidget(id){return !['notice'].includes(id)}
 
-const VIEW_MODES=['standard','compact','summary'];
-function widgetView(id){return views[id]||'standard'}
+const VIEW_MODES=['auto','compact','standard','summary'];
+function widgetView(id){return views[id]||'auto'}
 function nextWidgetView(id){
  const current=widgetView(id),i=VIEW_MODES.indexOf(current);
  views[id]=VIEW_MODES[(i+1)%VIEW_MODES.length];
  setViews(views);render();
 }
-function viewLabel(v){return v==='compact'?'コンパクト':v==='summary'?'サマリー':'標準'}
+function viewLabel(v){return v==='auto'?'自動':v==='compact'?'コンパクト':v==='summary'?'サマリー':'標準'}
+function widgetMinGrid(id){
+ if(['device','weather','portal-links','favorites','quick','sync','contacts'].includes(id))return {w:3,h:5};
+ if(['calendar','today','iot','workorders','annual-plan','readings'].includes(id))return {w:4,h:7};
+ return {w:3,h:6};
+}
+function autoDensityForBox(id,width,height){
+ if(width<285||height<205)return 'micro';
+ if(width<420||height<285)return 'compact';
+ return 'standard';
+}
 function defaultWidgetGeometry(w){
  const d=device();
  if(d==='mobile')return {span:12,minHeight:0};
@@ -267,6 +277,7 @@ function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&l
 function widgetBody(id,view='standard'){
  const display=widgetDisplayLabel(id);
  if(id==='today'){
+  if(view==='micro')return '<div class="micro-widget"><strong>次 09:30</strong><span>CV-04 月次点検</span><em>未実施 2 / 要対応 1</em></div>';
   if(display==='タイムライン')return '<div class="today-timeline"><div><time>09:30</time><i class="yellow"></i><span><strong>CV-04 月次点検</strong><small>第1工場 / 搬送ライン</small></span></div><div><time>11:00</time><i class="green"></i><span><strong>ホイスト 日常点検</strong><small>組立エリア</small></span></div><div><time>14:00</time><i class="red"></i><span><strong>サーボバッテリー交換</strong><small>期限まで3日</small></span></div></div>';
   if(display==='カード')return '<div class="today-card-grid"><article><small>09:30</small><strong>CV-04 月次点検</strong><span>予定</span></article><article><small>11:00</small><strong>ホイスト 日常点検</strong><span>未実施</span></article><article><small>14:00</small><strong>電池交換</strong><span>要対応</span></article></div>';
   if(display==='サマリー'||view==='summary')return '<div class="summary-hero"><strong>3件</strong><span>今日の点検</span><em>未実施 2 / 要対応 1</em></div><div class="summary-progress"><i style="width:33%"></i></div>';
@@ -274,6 +285,7 @@ function widgetBody(id,view='standard'){
   return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>CV-04 月次点検</strong><small>第1工場 / 搬送ライン</small></div><div class="list-side">09:30</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>ホイスト 日常点検</strong><small>組立エリア / 担当: 自分</small></div><div class="list-side">未実施</div></div><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>サーボバッテリー交換</strong><small>設備A / 期限まで3日</small></div><div class="list-side">要対応</div></div></div>';
  }
  if(id==='calendar'){
+  if(view==='micro')return '<div class="micro-agenda"><div><b>10/08</b><span>月次点検</span></div><div><b>10/11</b><span>電池交換</span></div></div>';
   if(display==='予定一覧'||view==='compact')return '<div class="compact-agenda"><div><b>10/08</b><span>CV-04 月次点検</span></div><div><b>10/11</b><span>サーボ電池交換</span></div><div><b>10/12</b><span>停電点検</span></div><div><b>10/18</b><span>CV-04 改造停止</span></div></div>';
   if(display==='週表示')return '<div class="calendar-week"><div><small>月 7</small><span>点検2</span></div><div><small>火 8</small><b>月次点検</b></div><div><small>水 9</small><span>—</span></div><div><small>木 10</small><span>—</span></div><div><small>金 11</small><b>交換</b></div><div><small>土 12</small><b>停電点検</b></div><div><small>日 13</small><span>—</span></div></div>';
   if(display==='タイムライン')return '<div class="calendar-timeline"><div><b>10/08</b><span><strong>CV-04 月次点検</strong><small>09:30 / 第1工場</small></span></div><div><b>10/11</b><span><strong>サーボ電池交換</strong><small>設備A</small></span></div><div><b>10/12</b><span><strong>停電点検</strong><small>09:00〜13:00</small></span></div><div><b>10/18</b><span><strong>CV-04 改造停止</strong><small>13:00〜15:00</small></span></div></div>';
@@ -282,6 +294,7 @@ function widgetBody(id,view='standard'){
   return '<div class="calendar"><div class="cal-head">月</div><div class="cal-head">火</div><div class="cal-head">水</div><div class="cal-head">木</div><div class="cal-head">金</div><div class="cal-head">土</div><div class="cal-head">日</div>'+days+'</div><div style="margin-top:9px;color:#708ca0;font-size:calc(9px * var(--dc-font-scale,1))">祝日表示・Google / Outlook同期はアカウント単位で設定予定</div>';
  }
  if(id==='equipment'){
+  if(view==='micro')return '<div class="micro-status"><span><b>18</b><small>正常</small></span><span><b>2</b><small>要確認</small></span><span><b>1</b><small>超過</small></span></div>';
   if(display==='タイル')return '<div class="equipment-tile-grid"><article><i class="green"></i><strong>18</strong><span>稼働中</span></article><article><i class="yellow"></i><strong>2</strong><span>要確認</span></article><article><i class="red"></i><strong>1</strong><span>期限超過</span></article></div>';
   if(display==='ドーナツ')return '<div class="equipment-donut-wrap"><div class="equipment-donut"><span><strong>20</strong><small>設備</small></span></div><div class="equipment-donut-legend"><span><i class="green"></i>稼働中 18</span><span><i class="yellow"></i>要確認 2</span><span><i class="red"></i>期限超過 1</span></div></div>';
   if(display==='ゲージ'||view==='summary')return '<div class="equipment-gauge"><div class="gauge-ring"><span><strong>85%</strong><small>正常</small></span></div><div><b>正常 18</b><b>要確認 2</b><b>期限超過 1</b></div></div>';
@@ -312,6 +325,7 @@ function widgetBody(id,view='standard'){
  if(id==='parts')return '<div class="widget-empty">予備品の残数、保管場所、最低在庫、使用履歴を設備と紐付けて管理します。</div>';
  if(id==='approval')return '<div class="widget-empty">点検報告・変更申請など、法人ごとの承認フローを管理します。</div>';
  if(id==='device'){
+  if(view==='micro')return '<div class="device-widget micro-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span></div>';
   if(view==='compact')return '<div class="device-widget compact-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span><span data-live-battery>Battery --</span></div>';
   if(view==='summary')return '<div class="device-widget summary-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span><em data-live-battery>Battery --</em></div>';
   return '<div class="device-widget"><div class="device-time"><strong data-live-clock>--:--</strong><span data-live-seconds>:--</span></div><div class="device-date" data-live-date>----</div><div class="device-meta"><span data-live-zone>Local time</span><span data-live-battery>Battery --</span></div></div>';
@@ -715,8 +729,10 @@ function gridCandidateIsFree(id,cand){
   });
 }
 function autoFitGridCandidate(id,cand){
+  const mins=widgetMinGrid(id);
+  cand={...cand,w:Math.max(mins.w,cand.w),h:Math.max(mins.h,cand.h)};
   if(gridCandidateIsFree(id,cand))return {...cand,autoFit:false};
-  const minW=3,minH=4;
+  const minW=mins.w,minH=mins.h;
   const widths=[cand.w,cand.w-1,cand.w-2].filter((v,i,a)=>v>=minW&&a.indexOf(v)===i);
   const heights=[cand.h,cand.h-1,cand.h-2].filter((v,i,a)=>v>=minH&&a.indexOf(v)===i);
   let best=null,bestPenalty=Infinity;
@@ -797,8 +813,8 @@ function render(){
  let html='';
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
-   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),renderView=view==='auto'?'standard':view,alert=visibleWidgetAlert(w.id);
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body" data-auto-density="'+(view==='auto'?'1':'0')+'">'+widgetBody(w.id,renderView)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-top" data-resize="top" aria-hidden="true"></span><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -811,7 +827,31 @@ function render(){
  updateLiveDeviceWidget();
  initTimerWidget();
  applyGridStyles();
+ bindAutoDensity();
 }
+let autoDensityObserver=null;
+function bindAutoDensity(){
+ if(autoDensityObserver)autoDensityObserver.disconnect();
+ autoDensityObserver=new ResizeObserver(entries=>{
+   for(const entry of entries){
+     const el=entry.target;
+     const id=el.dataset.id;
+     if(widgetView(id)!=='auto')continue;
+     const density=autoDensityForBox(id,entry.contentRect.width,entry.contentRect.height);
+     if(el.dataset.autoDensity===density)continue;
+     el.dataset.autoDensity=density;
+     const body=el.querySelector('.widget-body');
+     if(!body)continue;
+     body.innerHTML=widgetBody(id,density);
+   }
+   updateLiveDeviceWidget();
+   initTimerWidget();
+ });
+ document.querySelectorAll('#widgetGrid .widget').forEach(el=>{
+   if(widgetView(el.dataset.id)==='auto')autoDensityObserver.observe(el);
+ });
+}
+
 function moveWidget(fromId,toId){
  if(!fromId||!toId||fromId===toId)return;
  const a=layout.indexOf(fromId),b=layout.indexOf(toId);if(a<0||b<0)return;
@@ -1076,20 +1116,21 @@ function bindResize(){
 
     if(gridModeEnabled()&&startPos){
       let next={...startPos};
+      const mins=widgetMinGrid(id);
       if(mode==='right'||mode==='corner'){
         const delta=Math.round(dx/(colW+colGap));
-        next.w=Math.max(3,Math.min(13-next.x,startPos.w+delta));
+        next.w=Math.max(mins.w,Math.min(13-next.x,startPos.w+delta));
       }
       if(mode==='bottom'||mode==='corner'){
         const delta=Math.round(dy/(rowH+rowGap));
-        next.h=Math.max(4,startPos.h+delta);
+        next.h=Math.max(mins.h,startPos.h+delta);
       }
       if(mode==='top'){
         const delta=Math.round(dy/(rowH+rowGap));
         const newY=Math.max(1,startPos.y+delta);
         const bottom=startPos.y+startPos.h;
-        next.y=Math.min(bottom-4,newY);
-        next.h=Math.max(4,bottom-next.y);
+        next.y=Math.min(bottom-mins.h,newY);
+        next.h=Math.max(mins.h,bottom-next.y);
         el.classList.add('resizing-from-top');
       }
 

@@ -1402,6 +1402,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const hardCleanup=()=>{clearTimeout(longPressTimer);if(pointerDrag)finishPointerWidgetDrag();else cleanupWidgetDragVisuals()};
  window.addEventListener('blur',hardCleanup);
  window.addEventListener('pagehide',hardCleanup);
+ window.addEventListener('pageshow',e=>{if(e.persisted){render();renderDashboardNavigation()}});
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')hardCleanup()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pointerDrag)hardCleanup()});
  document.addEventListener('pointerup',e=>{if(pointerDrag&&pointerDrag.pointerId===e.pointerId)finishPointerWidgetDrag()},{capture:true});

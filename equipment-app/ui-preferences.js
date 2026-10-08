@@ -56,8 +56,10 @@
       if(href.includes('equipment.html'))key='equipment';
       else if(href.includes('inspection.html'))key='inspection';
       else if(href.includes('calendar.html'))key='calendar';
+      if(!key)return;
       a.querySelectorAll('.nav-alert,.mobile-alert').forEach(x=>x.remove());
-      if(!key||read[key])return;
+      a.classList.remove('has-alert');
+      if(read[key])return;
       const meta=navAlerts[key];
       const badge=document.createElement('span');
       if(a.closest('.mobile-nav')){badge.className='mobile-alert'+(key==='calendar'?' subtle':'');badge.textContent=meta.count;a.classList.add('has-alert');a.insertBefore(badge,a.querySelector('br'))}

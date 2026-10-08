@@ -8,7 +8,8 @@ const WIDGETS=[
 {id:'ai',name:'写真AIアシスタント',desc:'銘板写真からメーカー・型式候補を提案',tier:'paid',cat:'AI',size:'',href:'./ai-assist.html'},
 {id:'iot',name:'IoTモニタ',desc:'温度・圧力・振動などの時系列収集・グラフ化',tier:'paid',cat:'IoT',size:'wide',href:'./iot.html'},
 {id:'parts',name:'予備品・在庫',desc:'予備品の在庫・保管場所・交換履歴を管理',tier:'paid',cat:'保全',size:'',href:'./parts.html'},
-{id:'approval',name:'承認待ち',desc:'点検報告や変更申請の承認フロー',tier:'paid',cat:'法人',size:'',href:'./approval.html'}
+{id:'approval',name:'承認待ち',desc:'点検報告や変更申請の承認フロー',tier:'paid',cat:'法人',size:'',href:'./approval.html'},
+{id:'device',name:'時計・端末情報',desc:'現在時刻・日付・端末状態・対応端末ではバッテリー残量を表示',tier:'free',cat:'端末',size:'',href:'./device-status.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -99,6 +100,11 @@ function widgetBody(id,view='standard'){
  if(id==='ai')return '<div class="widget-empty">写真を撮影すると、メーカー・シリーズ・型式候補を照合して提案します。AIは確定せず、ユーザーが正式型式を選択します。</div>';
  if(id==='parts')return '<div class="widget-empty">予備品の残数、保管場所、最低在庫、使用履歴を設備と紐付けて管理します。</div>';
  if(id==='approval')return '<div class="widget-empty">点検報告・変更申請など、法人ごとの承認フローを管理します。</div>';
+ if(id==='device'){
+  if(view==='compact')return '<div class="device-widget compact-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span><span data-live-battery>Battery --</span></div>';
+  if(view==='summary')return '<div class="device-widget summary-device"><strong data-live-clock>--:--</strong><span data-live-date>----</span><em data-live-battery>Battery --</em></div>';
+  return '<div class="device-widget"><div class="device-time"><strong data-live-clock>--:--</strong><span data-live-seconds>:--</span></div><div class="device-date" data-live-date>----</div><div class="device-meta"><span data-live-zone>Local time</span><span data-live-battery>Battery --</span></div></div>';
+ }
  return '';
 }
 function render(){
@@ -113,6 +119,7 @@ function render(){
  bindDrag();
  document.body.classList.toggle('widget-edit-mode',editMode);
  const dl=document.querySelector('#deviceLabel'); if(dl)dl.textContent=device()==='pc'?'PCレイアウト':device()==='tablet'?'タブレットレイアウト':'スマホレイアウト';
+ updateLiveDeviceWidget();
 }
 function moveWidget(fromId,toId){
  if(!fromId||!toId||fromId===toId)return;
@@ -316,8 +323,37 @@ function renderCatalog(){
  area.innerHTML=html;
  area.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{if(!layout.includes(b.dataset.add)){layout.push(b.dataset.add);setLayout(layout);render();renderCatalog()}});
 }
+let batteryManager=null,clockTimer=null;
+function updateLiveDeviceWidget(){
+ const now=new Date();
+ const clock=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:false});
+ const sec=now.toLocaleTimeString([], {second:'2-digit'}).slice(-2);
+ const date=now.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric',weekday:'short'});
+ document.querySelectorAll('[data-live-clock]').forEach(x=>x.textContent=clock);
+ document.querySelectorAll('[data-live-seconds]').forEach(x=>x.textContent=':'+sec);
+ document.querySelectorAll('[data-live-date]').forEach(x=>x.textContent=date);
+ const zone=Intl.DateTimeFormat().resolvedOptions().timeZone||'Local time';
+ document.querySelectorAll('[data-live-zone]').forEach(x=>x.textContent=zone);
+ let batteryText='Battery: 非対応';
+ if(batteryManager){
+  batteryText='Battery '+Math.round(batteryManager.level*100)+'%'+(batteryManager.charging?' ⚡':'');
+ }
+ document.querySelectorAll('[data-live-battery]').forEach(x=>x.textContent=batteryText);
+}
+async function initDeviceStatus(){
+ try{
+  if('getBattery' in navigator){
+   batteryManager=await navigator.getBattery();
+   ['levelchange','chargingchange'].forEach(ev=>batteryManager.addEventListener(ev,updateLiveDeviceWidget));
+  }
+ }catch{}
+ updateLiveDeviceWidget();
+ if(clockTimer)clearInterval(clockTimer);
+ clockTimer=setInterval(updateLiveDeviceWidget,1000);
+}
 document.addEventListener('DOMContentLoaded',()=>{
  render();
+ initDeviceStatus();
  document.querySelectorAll('[data-open-widgets]').forEach(b=>b.addEventListener('click',openCatalog));
  document.querySelector('#closeWidgets')?.addEventListener('click',closeCatalog);
  const modalOverlay=document.querySelector('#widgetModal');

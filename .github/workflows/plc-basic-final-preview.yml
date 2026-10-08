@@ -80,6 +80,14 @@ jobs:
           inv = json.loads(inv_path.read_text(encoding='utf-8'))
           item = next(x for x in inv['files'] if x['path'] == 'articles/plc-basic.html')
           item['gitBlob'] = git_blob
+          # Reconcile inventory with the actual latest-main checkout.
+          # Do not alter source files or accepted PLC images.
+          for entry in inv['files']:
+              source = Path(entry['path'])
+              if source.is_file():
+                  entry['gitBlob'] = subprocess.check_output(
+                      ['git', 'hash-object', str(source)], text=True
+                  ).strip()
           inv_path.write_text(json.dumps(inv, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
           shell_path = Path('.github/site-shells/manifest.json')

@@ -213,8 +213,11 @@ function saveGeometry(id,geom){
 function setEditMode(on){
  editMode=!!on;document.body.classList.toggle('widget-edit-mode',editMode);
  let done=document.querySelector('#widgetEditDone');
+ let trash=document.querySelector('#widgetTrashZone');
  if(editMode&&!done){done=document.createElement('button');done.id='widgetEditDone';done.className='widget-edit-done';done.textContent='完了';done.onclick=()=>setEditMode(false);document.body.appendChild(done)}
+ if(editMode&&!trash){trash=document.createElement('div');trash.id='widgetTrashZone';trash.className='widget-trash-zone';trash.innerHTML='<span class="trash-icon">⌫</span><strong>ここに持ってきて外す</strong>';document.body.appendChild(trash)}
  if(!editMode&&done)done.remove();
+ if(!editMode&&trash)trash.remove();
  document.querySelector('#editWidgets')?.classList.toggle('active',editMode);
 }
 
@@ -571,7 +574,7 @@ function render(){
  layout.forEach(id=>{
    const w=WIDGETS.find(x=>x.id===id); if(!w)return;
    const locked=w.tier==='paid',geom=widgetGeometry(w),view=widgetView(w.id),alert=visibleWidgetAlert(w.id);
-   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span><button class="btn ghost remove-widget" data-remove="'+w.id+'" style="padding:5px 8px;font-size:calc(9px * var(--dc-font-scale,1))">×</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
+   html+='<section class="widget view-'+view+(alert?' has-widget-alert':'')+'" draggable="'+(editMode?'true':'false')+'" data-id="'+w.id+'" style="--widget-span:'+geom.span+';--widget-min-height:'+geom.minHeight+'px"><div class="widget-head"><span class="drag" title="長押しして移動">⠿</span><h3>'+esc(w.name)+'</h3>'+(alert?'<span class="widget-alert '+alert.type+'" title="'+esc(alert.label)+'">'+alert.count+'</span>':'')+'<div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><div class="widget-edit-tools"><button class="widget-filter-toggle" data-widget-filter="'+w.id+'" title="表示対象を切り替え">'+esc(widgetFilterLabel(w.id))+'</button><button class="widget-period-toggle" data-widget-period="'+w.id+'" title="期間を切り替え">'+esc(widgetPeriodLabel(w.id))+'</button><button class="widget-display-toggle" data-widget-display="'+w.id+'" title="表示形式を切り替え">'+esc(widgetDisplayLabel(w.id))+'</button><button class="widget-view-toggle" data-view="'+w.id+'" title="情報密度を変更">密度 '+viewLabel(view)+'</button></div><div class="widget-body">'+widgetBody(w.id,view)+'</div><div class="widget-meta"><span>'+esc(widgetFilterLabel(w.id))+' / '+esc(widgetPeriodLabel(w.id))+'</span><span data-widget-updated="'+w.id+'">更新 --:--</span></div><span class="resize-handle resize-right" data-resize="right" aria-hidden="true"></span><span class="resize-handle resize-bottom" data-resize="bottom" aria-hidden="true"></span><span class="resize-handle resize-corner" data-resize="corner" aria-hidden="true"></span>'+(locked?'<div class="locked"><div class="locked-card"><strong>PRO ウィジェット</strong><small>有料機能のPreviewです。現在はダミーデータ表示のみ。</small><button class="btn">詳細を見る</button></div></div>':'')+'</section>';
  });
  grid.innerHTML=html;
  bindDrag();
@@ -610,7 +613,7 @@ function beginPointerWidgetDrag(el,e,startX,startY,id){
  ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';
  document.body.appendChild(ghost);
  el.classList.add('drag-origin');
- pointerDrag={id,startX,startY,lastTarget:id,pointerId:e.pointerId,ghost,origin:el,targetX:0,targetY:0,currentX:0,currentY:0,raf:0,lastSwapAt:0};
+ pointerDrag={id,startX,startY,lastTarget:id,pointerId:e.pointerId,ghost,origin:el,targetX:0,targetY:0,currentX:0,currentY:0,raf:0,lastSwapAt:0,overTrash:false};
  try{el.setPointerCapture(e.pointerId)}catch{}
  navigator.vibrate?.(18);
 }
@@ -637,6 +640,15 @@ function finishPointerWidgetDrag(){
  if(!pointerDrag){cleanupWidgetDragVisuals();return;}
  const d=pointerDrag;pointerDrag=null;
  if(d.raf)cancelAnimationFrame(d.raf);
+ document.querySelector('#widgetTrashZone')?.classList.remove('is-over');
+ if(d.overTrash){
+   d.ghost?.remove();
+   layout=layout.filter(x=>x!==d.id);
+   setLayout(layout);
+   cleanupWidgetDragVisuals();
+   render();renderDashboardNavigation();
+   return;
+ }
  const finalEl=document.querySelector('.widget[data-id="'+d.id+'"]');
  const cleanup=()=>{d.ghost?.remove();finalEl?.classList.remove('drag-origin');cleanupWidgetDragVisuals();};
  if(finalEl&&d.ghost){
@@ -675,6 +687,12 @@ function bindDrag(){
     if(!pointerDrag||pointerDrag.pointerId!==e.pointerId)return;
     e.preventDefault();
     updateGhostPosition(e);
+    const trash=document.querySelector('#widgetTrashZone');
+    if(trash){
+      const r=trash.getBoundingClientRect();
+      pointerDrag.overTrash=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      trash.classList.toggle('is-over',pointerDrag.overTrash);
+    }
     const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest('.widget:not(.widget-drag-ghost)');
     if(hit&&hit.dataset.id!==pointerDrag.lastTarget&&hit.dataset.id!==pointerDrag.id){
       const now=performance.now();
@@ -702,7 +720,6 @@ function bindDrag(){
   };
   el.addEventListener('pointerup',stopPointer);el.addEventListener('pointercancel',stopPointer);
  });
- document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{layout=layout.filter(x=>x!==b.dataset.remove);setLayout(layout);render()});
  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetView(b.dataset.view)});
  document.querySelectorAll('[data-widget-filter]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetFilter(b.dataset.widgetFilter)});
  document.querySelectorAll('[data-widget-period]').forEach(b=>b.onclick=e=>{e.stopPropagation();nextWidgetPeriod(b.dataset.widgetPeriod)});

@@ -610,6 +610,7 @@ function renderDashboardNavigation(){
  if(tabs)tabs.innerHTML=ids.map(id=>makeButton(id,true)).join('')+'<button class="workspace-add" id="workspaceAdd" type="button">＋</button>';
  const title=document.querySelector('#dashboardTitle');if(title)title.textContent=workspaceLabel(currentWorkspace);
  const topTitle=document.querySelector('.topbar h1');if(topTitle)topTitle.textContent=workspaceLabel(currentWorkspace);
+ document.title=workspaceLabel(currentWorkspace)+' Preview｜設備管理Webアプリ';
  document.querySelectorAll('[data-workspace]').forEach(b=>b.onclick=()=>switchWorkspace(b.dataset.workspace));
  document.querySelector('#workspaceAdd')?.addEventListener('click',createCustomDashboard);
  document.querySelector('#dashboardNavAdd')?.addEventListener('click',createCustomDashboard);
@@ -717,18 +718,29 @@ function defaultGridCols(id){
   return w?.size==='wide'?8:4;
 }
 function ensureGridPositions(){
-  let changed=false,x=1,y=1,rowH=0;
+  let changed=false;
+  const placed=[];
   for(const id of layout){
-    if(gridPositions[id])continue;
-    const savedSpan=widgetGeometry(WIDGETS.find(z=>z.id===id)).span;
-    const w=Math.max(3,Math.min(12,(sizes[id]?.span||defaultGridCols(id)||savedSpan||4)));
-    const h=defaultGridRows(id);
-    if(x+w-1>12){y+=rowH;x=1;rowH=0}
-    gridPositions[id]={x,y,w,h};changed=true;
-    x+=w;rowH=Math.max(rowH,h);
+    const existing=gridPositions[id];
+    if(existing&&!placed.some(p=>gridOverlap(existing,p))){
+      placed.push(existing);continue;
+    }
+    const w=Math.max(3,Math.min(12,sizes[id]?.span||defaultGridCols(id)||4));
+    const h=existing?.h||defaultGridRows(id);
+    const maxRow=Math.max(1,...Object.values(gridPositions).map(p=>p.y+p.h));
+    let found=null;
+    for(let y=1;y<=maxRow&&!found;y++){
+      for(let x=1;x<=13-w;x++){
+        const candidate={x,y,w,h};
+        if(gridCandidateIsFree(id,candidate)){found=candidate;break}
+      }
+    }
+    gridPositions[id]=found||{x:1,y:maxRow,w,h};
+    placed.push(gridPositions[id]);changed=true;
   }
   if(changed)setGridPositions(gridPositions);
 }
+
 function gridOverlap(a,b){
   return !(a.x+a.w<=b.x||b.x+b.w<=a.x||a.y+a.h<=b.y||b.y+b.h<=a.y);
 }

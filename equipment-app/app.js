@@ -1394,7 +1394,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelector('#catalogCategory')?.addEventListener('change',e=>{currentCategory=e.target.value;renderCatalog()});
  document.querySelector('#resetLayout')?.addEventListener('click',()=>{
  const baseline=customDashboards[currentWorkspace]?.initialLayout||WORKSPACE_PRESETS[currentWorkspace]||DEFAULT;
- layout=[...baseline];sizes={};views={};widgetFilters={};widgetPeriods={};widgetDisplays={};
+ layout=[...baseline];sizes={};views={};widgetFilters={};widgetPeriods={};widgetDisplays={};gridPositions={};
+ setGridPositions(gridPositions);
  setLayout(layout);setSizes(sizes);setViews(views);setWidgetFilters(widgetFilters);setWidgetPeriods(widgetPeriods);setWidgetDisplays(widgetDisplays);
  render();renderDashboardNavigation();
 });

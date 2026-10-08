@@ -1,14 +1,14 @@
 const WIDGETS=[
-{id:'today',name:'今日の点検',desc:'今日の点検・期限・担当設備をまとめて確認',tier:'free',cat:'点検',size:'wide'},
-{id:'calendar',name:'保全カレンダー',desc:'設備点検・交換予定・祝日・外部カレンダー連携を想定',tier:'free',cat:'予定',size:'wide'},
-{id:'equipment',name:'設備ステータス',desc:'登録設備の状態と直近の対応予定',tier:'free',cat:'設備',size:''},
-{id:'notice',name:'社内通知',desc:'法人管理者からの周知と確認済みチェック',tier:'free',cat:'共有',size:''},
-{id:'memo',name:'共有メモ',desc:'法人内で自由に使える共有メモ',tier:'free',cat:'共有',size:''},
-{id:'versions',name:'制御機器バージョン',desc:'PLC・HMI・サーボ・インバータの版数管理',tier:'free',cat:'設備',size:''},
-{id:'ai',name:'写真AIアシスタント',desc:'銘板写真からメーカー・型式候補を提案',tier:'paid',cat:'AI',size:''},
-{id:'iot',name:'IoTモニタ',desc:'温度・圧力・振動などの時系列収集・グラフ化',tier:'paid',cat:'IoT',size:'wide'},
-{id:'parts',name:'予備品・在庫',desc:'予備品の在庫・保管場所・交換履歴を管理',tier:'paid',cat:'保全',size:''},
-{id:'approval',name:'承認待ち',desc:'点検報告や変更申請の承認フロー',tier:'paid',cat:'法人',size:''}
+{id:'today',name:'今日の点検',desc:'今日の点検・期限・担当設備をまとめて確認',tier:'free',cat:'点検',size:'wide',href:'./inspection.html'},
+{id:'calendar',name:'保全カレンダー',desc:'設備点検・交換予定・祝日・外部カレンダー連携を想定',tier:'free',cat:'予定',size:'wide',href:'./calendar.html'},
+{id:'equipment',name:'設備ステータス',desc:'登録設備の状態と直近の対応予定',tier:'free',cat:'設備',size:'',href:'./equipment.html'},
+{id:'notice',name:'社内通知',desc:'法人管理者からの周知と確認済みチェック',tier:'free',cat:'共有',size:'',href:'./notifications.html'},
+{id:'memo',name:'共有メモ',desc:'法人内で自由に使える共有メモ',tier:'free',cat:'共有',size:'',href:'./memo.html'},
+{id:'versions',name:'制御機器バージョン',desc:'PLC・HMI・サーボ・インバータの版数管理',tier:'free',cat:'設備',size:'',href:'./versions.html'},
+{id:'ai',name:'写真AIアシスタント',desc:'銘板写真からメーカー・型式候補を提案',tier:'paid',cat:'AI',size:'',href:'./ai-assist.html'},
+{id:'iot',name:'IoTモニタ',desc:'温度・圧力・振動などの時系列収集・グラフ化',tier:'paid',cat:'IoT',size:'wide',href:'./iot.html'},
+{id:'parts',name:'予備品・在庫',desc:'予備品の在庫・保管場所・交換履歴を管理',tier:'paid',cat:'保全',size:'',href:'./parts.html'},
+{id:'approval',name:'承認待ち',desc:'点検報告や変更申請の承認フロー',tier:'paid',cat:'法人',size:'',href:'./approval.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -185,17 +185,23 @@ function finishPointerWidgetDrag(){
 }
 function bindDrag(){
  document.querySelectorAll('.widget').forEach(el=>{
+  let downAt=null,dragStarted=false;
+  el.addEventListener('click',e=>{
+    if(editMode||dragStarted||e.target.closest('button,a,input,select,textarea,label,[data-resize]'))return;
+    const w=WIDGETS.find(x=>x.id===el.dataset.id);
+    if(w?.href)location.href=w.href;
+  });
   el.addEventListener('dragstart',e=>e.preventDefault());
 
   el.addEventListener('pointerdown',e=>{
     if(e.button!=null&&e.button!==0)return;
     if(e.target.closest('button,a,input,select,textarea,label,[data-resize]'))return;
-    const startX=e.clientX,startY=e.clientY,id=el.dataset.id;
+    const startX=e.clientX,startY=e.clientY,id=el.dataset.id;downAt={x:startX,y:startY,time:performance.now()};dragStarted=false;
     clearTimeout(longPressTimer);
     const delay=editMode&&e.pointerType==='mouse'?60:520;
     longPressTimer=setTimeout(()=>{
       if(!editMode)setEditMode(true);
-      beginPointerWidgetDrag(el,e,startX,startY,id);
+      dragStarted=true;beginPointerWidgetDrag(el,e,startX,startY,id);
     },delay);
   });
   el.addEventListener('pointermove',e=>{

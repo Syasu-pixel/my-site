@@ -67,7 +67,17 @@ const WIDGETS=[
 {id:'consumables',name:'消耗品',desc:'フィルタ・ヒューズ・ランプ・電池など消耗品を管理',tier:'free',cat:'在庫',size:'',href:'./consumables.html'},
 {id:'service-contracts',name:'保守契約',desc:'メーカー・業者との保守契約内容と更新期限を管理',tier:'paid',cat:'期限',size:'',href:'./service-contracts.html'},
 {id:'audit',name:'監査ログ',desc:'ログイン・設定変更・削除・出力など重要操作を確認',tier:'paid',cat:'法人',size:'wide',href:'./audit-log.html'},
-{id:'bookmarks',name:'最近開いた項目',desc:'直近で見た設備・資料・点検画面をすぐ再表示',tier:'free',cat:'操作',size:'',href:'./recent-items.html'}
+{id:'bookmarks',name:'最近開いた項目',desc:'直近で見た設備・資料・点検画面をすぐ再表示',tier:'free',cat:'操作',size:'',href:'./recent-items.html'},
+{id:'annual-plan',name:'年間保全計画',desc:'年間の点検・交換・法定検査・工事計画を俯瞰',tier:'free',cat:'予定',size:'wide',href:'./annual-plan.html'},
+{id:'renewal-plan',name:'設備更新計画',desc:'老朽設備・更新候補・更新予定年度を管理',tier:'paid',cat:'設備',size:'wide',href:'./renewal-plan.html'},
+{id:'preventive',name:'予防保全候補',desc:'故障履歴・期限・使用年数から予防保全候補を整理',tier:'paid',cat:'分析',size:'wide',href:'./preventive.html'},
+{id:'shutdown-plan',name:'停止予定',desc:'設備停止・停電・工事停止の予定を一覧化',tier:'free',cat:'予定',size:'wide',href:'./shutdown-plan.html'},
+{id:'project-progress',name:'工事進捗',desc:'改造・更新・工事案件の進捗と次工程を確認',tier:'free',cat:'工事',size:'wide',href:'./project-progress.html'},
+{id:'inventory-count',name:'棚卸',desc:'予備品・工具・資産の棚卸進捗と差異を確認',tier:'free',cat:'在庫',size:'',href:'./inventory-count.html'},
+{id:'receiving',name:'検収待ち',desc:'購入部品・外注工事・設備の検収待ちを管理',tier:'free',cat:'購買',size:'',href:'./receiving.html'},
+{id:'purchase-history',name:'購入履歴',desc:'部品・工具・設備の購入履歴と単価を確認',tier:'paid',cat:'購買',size:'wide',href:'./purchase-history.html'},
+{id:'relocation',name:'設備移設履歴',desc:'設備の移設・ライン変更・設置場所変更を記録',tier:'free',cat:'設備',size:'',href:'./relocation.html'},
+{id:'disposal',name:'廃棄・撤去予定',desc:'廃棄予定設備・撤去工事・データ退避状況を管理',tier:'free',cat:'設備',size:'',href:'./disposal.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -367,6 +377,45 @@ function widgetBody(id,view='standard'){
  }
  if(id==='bookmarks'){
   return '<div class="doc-links"><a href="./equipment-detail.html"><b>EQ</b><span><strong>CV-04 搬送コンベア</strong><small>2分前</small></span></a><a href="./documents.html"><b>PDF</b><span><strong>運転仕様書</strong><small>14分前</small></span></a><a href="./inspection.html"><b>✓</b><span><strong>月次点検</strong><small>32分前</small></span></a></div>';
+ }
+ if(id==='annual-plan'){
+  if(view==='summary')return '<div class="summary-hero"><strong>42</strong><span>年間予定</span><em>今月 6件</em></div>';
+  return '<div class="plan-months"><span><b>10月</b><small>点検 4 / 工事 2</small></span><span><b>11月</b><small>交換 3 / 法定 1</small></span><span><b>12月</b><small>停止 2 / 工事 1</small></span></div>';
+ }
+ if(id==='renewal-plan'){
+  if(view==='summary')return '<div class="summary-hero"><strong>5</strong><span>更新候補設備</span><em>優先度A 2件</em></div>';
+  return '<div class="workorder-list"><div><span class="dot red"></span><p><strong>制御盤 CP-01</strong><small>使用16年 / 優先度A</small></p><em>2027</em></div><div><span class="dot yellow"></span><p><strong>Servo設備B</strong><small>使用12年</small></p><em>2028</em></div></div>';
+ }
+ if(id==='preventive'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>予防保全候補</span><em>高優先 1件</em></div>';
+  return '<div class="smart-list"><div><b>1</b><span><strong>CV-04 軸受交換</strong><small>異音履歴 3回 / 使用時間増加</small></span><a href="./preventive.html">確認</a></div><div><b>2</b><span><strong>盤内ファン交換</strong><small>使用年数 6年</small></span><a href="./preventive.html">確認</a></div></div>';
+ }
+ if(id==='shutdown-plan'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>30日以内の停止予定</span><em>最長 4時間</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>第1工場 停電点検</strong><small>10/12 09:00〜13:00</small></div><div class="list-side">4h</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>CV-04 改造停止</strong><small>10/18 13:00〜15:00</small></div><div class="list-side">2h</div></div></div>';
+ }
+ if(id==='project-progress'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>進行中工事</span><em>遅延 1件</em></div>';
+  return '<div class="project-list"><div><span><strong>CV5 加工ステーション</strong><small>機械製作 → 電気配線</small></span><b>65%</b></div><div><span><strong>盤更新工事</strong><small>設計 → 部品手配</small></span><b>35%</b></div></div>';
+ }
+ if(id==='inventory-count'){
+  if(view==='summary')return '<div class="summary-hero"><strong>78%</strong><span>棚卸進捗</span><em>差異 3件</em></div>';
+  return '<div class="compact-status-row"><span><b>124</b><small>確認済</small></span><span><b>32</b><small>未確認</small></span><span><b>3</b><small>差異</small></span></div>';
+ }
+ if(id==='receiving'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>検収待ち</span><em>本日 2件</em></div>';
+  return '<div class="report-list"><a href="./receiving.html"><span>部品</span><strong>MR-J4 バッテリー ×10</strong><em>本日</em></a><a href="./receiving.html"><span>工事</span><strong>盤改造工事</strong><em>確認待ち</em></a></div>';
+ }
+ if(id==='purchase-history'){
+  if(view==='summary')return '<div class="summary-hero"><strong>¥428k</strong><span>今月の購入額</span><em>前月比 -8%</em></div>';
+  return '<div class="report-list"><a href="./purchase-history.html"><span>10/07</span><strong>光電センサ ×4</strong><em>¥48k</em></a><a href="./purchase-history.html"><span>10/04</span><strong>24V電源 ×2</strong><em>¥36k</em></a></div>';
+ }
+ if(id==='relocation'){
+  return '<div class="report-list"><a href="./relocation.html"><span>10/02</span><strong>設備A 第1→第2工場</strong><em>完了</em></a><a href="./relocation.html"><span>09/18</span><strong>CV-03 ライン番号変更</strong><em>記録</em></a></div>';
+ }
+ if(id==='disposal'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>撤去予定設備</span><em>データ退避待ち 1件</em></div>';
+  return '<div class="workorder-list"><div><span class="dot yellow"></span><p><strong>旧制御盤 CP-OLD1</strong><small>撤去予定 11/05</small></p><em>退避待ち</em></div><div><span class="dot green"></span><p><strong>旧HMI GT15</strong><small>廃棄予定 11/20</small></p><em>準備済</em></div></div>';
  }
  return '';
 }

@@ -40,7 +40,22 @@ const WIDGETS=[
 {id:'kaizen',name:'改善提案',desc:'現場の改善案・気づき・対策案を共有',tier:'free',cat:'共有',size:'',href:'./kaizen.html'},
 {id:'lending',name:'工具・鍵貸出',desc:'共用工具・測定器・鍵の持出しと返却を管理',tier:'free',cat:'資産',size:'',href:'./lending.html'},
 {id:'reorder',name:'発注・補充',desc:'最低在庫を下回った部品や発注待ちを確認',tier:'free',cat:'在庫',size:'',href:'./reorder.html'},
-{id:'environment',name:'温湿度・環境',desc:'温度・湿度・CO2など作業環境の状態を表示',tier:'paid',cat:'IoT',size:'',href:'./environment.html'}
+{id:'environment',name:'温湿度・環境',desc:'温度・湿度・CO2など作業環境の状態を表示',tier:'paid',cat:'IoT',size:'',href:'./environment.html'},
+{id:'spares-life',name:'寿命部品',desc:'電池・フィルタ・ベルト・ランプなどの交換寿命を管理',tier:'free',cat:'保全',size:'',href:'./life-parts.html'},
+{id:'lubrication',name:'給油・グリス',desc:'給油箇所・周期・次回予定を設備ごとに管理',tier:'free',cat:'保全',size:'',href:'./lubrication.html'},
+{id:'permits',name:'作業許可',desc:'火気・高所・停電などの作業許可と承認状況を確認',tier:'paid',cat:'安全',size:'',href:'./permits.html'},
+{id:'lockout',name:'LOTO',desc:'ロックアウト・タグアウトの実施状況を確認',tier:'paid',cat:'安全',size:'',href:'./lockout.html'},
+{id:'training',name:'教育・資格期限',desc:'技能講習・特別教育・資格更新期限を管理',tier:'free',cat:'人員',size:'',href:'./training.html'},
+{id:'attendance',name:'保全当番出勤',desc:'保全メンバーの出勤・当番・不在状況を確認',tier:'free',cat:'人員',size:'',href:'./attendance.html'},
+{id:'weather',name:'天候・外気',desc:'屋外作業や設備に関係する天候・外気情報の表示枠',tier:'free',cat:'環境',size:'',href:'./weather.html'},
+{id:'network',name:'ネットワーク機器',desc:'PLC・HMI・ゲートウェイ等の接続状態を一覧表示',tier:'paid',cat:'設備',size:'wide',href:'./network.html'},
+{id:'firmware',name:'ファーム更新',desc:'PLC・HMI・IoT機器の更新確認と対応状況を管理',tier:'paid',cat:'設備',size:'',href:'./firmware.html'},
+{id:'license',name:'ソフト・ライセンス',desc:'ソフトウェア契約・ライセンス・保守期限を管理',tier:'paid',cat:'期限',size:'',href:'./licenses.html'},
+{id:'cost',name:'保全コスト',desc:'部品費・外注費・修理費などの保全コストを可視化',tier:'paid',cat:'分析',size:'wide',href:'./costs.html'},
+{id:'mtbf',name:'MTBF・MTTR',desc:'故障間隔と平均修復時間を設備別に分析',tier:'paid',cat:'分析',size:'wide',href:'./reliability.html'},
+{id:'checklist',name:'定型チェックリスト',desc:'清掃・締付・始業・終業など定型作業をすぐ実行',tier:'free',cat:'点検',size:'',href:'./checklists.html'},
+{id:'spare-location',name:'保管場所マップ',desc:'予備品・工具・消耗品の保管場所をすばやく確認',tier:'free',cat:'在庫',size:'',href:'./storage-map.html'},
+{id:'external-links',name:'外部リンク',desc:'メーカーサイト・社内システム・マニュアルへのショートカット',tier:'free',cat:'操作',size:'',href:'./links.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -247,6 +262,57 @@ function widgetBody(id,view='standard'){
  if(id==='environment'){
   if(view==='summary')return '<div class="summary-hero"><strong>良好</strong><span>作業環境</span><em>異常なし</em></div>';
   return '<div class="reading-grid"><span><small>温度</small><b>24.8</b><em>℃</em></span><span><small>湿度</small><b>48</b><em>%</em></span><span><small>CO2</small><b>612</b><em>ppm</em></span><span><small>騒音</small><b>68</b><em>dB</em></span></div>';
+ }
+ if(id==='spares-life'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>90日以内の寿命部品</span><em>最短 12日</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>MR-J4 バッテリー</strong><small>設備A / 交換目安まで12日</small></div><div class="list-side">要準備</div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>制御盤フィルタ</strong><small>第2ライン</small></div><div class="list-side">35日</div></div></div>';
+ }
+ if(id==='lubrication'){
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>CV-04 軸受給脂</strong><small>次回 10/15</small></div><div class="list-side">7日</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>チェーン給油</strong><small>第1ライン</small></div><div class="list-side">10/28</div></div></div>';
+ }
+ if(id==='permits'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>有効な作業許可</span><em>承認待ち 1件</em></div>';
+  return '<div class="workorder-list"><div><span class="dot yellow"></span><p><strong>停電作業許可</strong><small>第1工場 / 13:00〜</small></p><em>承認済</em></div><div><span class="dot red"></span><p><strong>高所作業許可</strong><small>組立エリア</small></p><em>承認待ち</em></div></div>';
+ }
+ if(id==='lockout'){
+  return '<div class="compact-status-row"><span><b>3</b><small>LOTO中</small></span><span><b>2</b><small>確認済</small></span><span><b>1</b><small>解除待ち</small></span></div><div class="compact-next"><strong>設備A 電源遮断</strong><span>保全班</span></div>';
+ }
+ if(id==='training'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>90日以内の資格期限</span><em>最短 21日</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>高所作業車 特別教育</strong><small>田中 / 更新確認</small></div><div class="list-side">21日</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>低圧電気取扱</strong><small>佐藤</small></div><div class="list-side">12/08</div></div></div>';
+ }
+ if(id==='attendance'){
+  return '<div class="compact-status-row"><span><b>4</b><small>日勤</small></span><span><b>2</b><small>夜勤</small></span><span><b>1</b><small>不在</small></span></div><div class="compact-next"><strong>休日当番</strong><span>田中</span></div>';
+ }
+ if(id==='weather'){
+  return '<div class="weather-mini"><strong>24℃</strong><span>くもり</span><small>外気湿度 58% / 降水 20%</small></div>';
+ }
+ if(id==='network'){
+  if(view==='summary')return '<div class="summary-hero"><strong>18/19</strong><span>オンライン</span><em>1機器 要確認</em></div>';
+  return '<div class="sync-grid"><span><i class="dot green"></i><b>PLC-01</b><small>Online</small></span><span><i class="dot green"></i><b>HMI-01</b><small>Online</small></span><span><i class="dot red"></i><b>GW-03</b><small>Offline</small></span><span><i class="dot green"></i><b>Servo-04</b><small>Online</small></span></div>';
+ }
+ if(id==='firmware'){
+  return '<div class="compact-line"><strong>更新確認済み</strong><span>14機器</span></div><div class="compact-line"><strong>確認待ち</strong><span>3機器</span></div><div class="compact-line"><strong>更新候補</strong><span>1機器</span></div>';
+ }
+ if(id==='license'){
+  if(view==='summary')return '<div class="summary-hero"><strong>2</strong><span>60日以内の契約期限</span><em>GX系 / CAD</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>GX Works ライセンス</strong><small>保全部共有</small></div><div class="list-side">11/30</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>CAD保守</strong><small>電気設計</small></div><div class="list-side">12/20</div></div></div>';
+ }
+ if(id==='cost'){
+  if(view==='summary')return '<div class="summary-hero"><strong>¥184k</strong><span>今月の保全コスト</span><em>前月比 +4%</em></div>';
+  return '<div class="kpi-grid"><span><small>部品費</small><b>¥92k</b><i><em style="width:68%"></em></i></span><span><small>外注費</small><b>¥71k</b><i><em style="width:53%"></em></i></span><span><small>その他</small><b>¥21k</b><i><em style="width:25%"></em></i></span></div>';
+ }
+ if(id==='mtbf'){
+  return '<div class="reliability-grid"><span><small>MTBF</small><b>42.8日</b><em>+8%</em></span><span><small>MTTR</small><b>1.7h</b><em>-12%</em></span></div>';
+ }
+ if(id==='checklist'){
+  return '<div class="safety-list"><label><input type="checkbox" checked> 始業前清掃</label><label><input type="checkbox"> 増締め確認</label><label><input type="checkbox"> 終業時エア抜き</label></div>';
+ }
+ if(id==='spare-location'){
+  return '<div class="location-list"><div><b>A-03</b><span><strong>MR-J4 バッテリー</strong><small>電装品棚 / 上段</small></span></div><div><b>B-12</b><span><strong>光電センサ</strong><small>センサ棚 / 中段</small></span></div></div>';
+ }
+ if(id==='external-links'){
+  return '<div class="favorite-grid"><a href="#"><b>WEB</b><span>三菱FA</span></a><a href="#"><b>SYS</b><span>社内申請</span></a><a href="#"><b>PDF</b><span>標準手順書</span></a><a href="#"><b>HELP</b><span>サポート</span></a></div>';
  }
  return '';
 }

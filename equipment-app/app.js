@@ -26,7 +26,21 @@ const WIDGETS=[
 {id:'favorites',name:'お気に入り',desc:'よく使う設備・画面・資料を固定してすぐ開く',tier:'free',cat:'操作',size:'',href:'./favorites.html'},
 {id:'safety',name:'安全チェック',desc:'始業前確認・ロックアウト・安全項目を簡単チェック',tier:'free',cat:'安全',size:'',href:'./safety-check.html'},
 {id:'trends',name:'異常トレンド',desc:'点検NG・故障・IoTしきい値超過の傾向を比較',tier:'paid',cat:'分析',size:'wide',href:'./trends.html'},
-{id:'reports',name:'レポート',desc:'期間別の保全実績や設備状況をレポート化',tier:'paid',cat:'分析',size:'',href:'./reports.html'}
+{id:'reports',name:'レポート',desc:'期間別の保全実績や設備状況をレポート化',tier:'paid',cat:'分析',size:'',href:'./reports.html'},
+{id:'shift',name:'シフト・当番',desc:'保全当番・夜勤・休日当番を確認',tier:'free',cat:'予定',size:'',href:'./shift.html'},
+{id:'readings',name:'点検値・メーター',desc:'圧力・流量・温度・電流などの直近値を表示',tier:'free',cat:'点検',size:'wide',href:'./readings.html'},
+{id:'calibration',name:'校正期限',desc:'計測器・センサ・トルクレンチなどの校正期限を管理',tier:'free',cat:'期限',size:'',href:'./calibration.html'},
+{id:'energy',name:'電力・エネルギー',desc:'設備やラインの電力・使用量・ピークを確認',tier:'paid',cat:'IoT',size:'wide',href:'./energy.html'},
+{id:'qr',name:'QR・バーコード',desc:'QRやバーコードから設備・部品・資料をすぐ開く',tier:'free',cat:'操作',size:'',href:'./qr.html'},
+{id:'contacts',name:'緊急連絡先',desc:'保全・管理者・メーカー・協力会社の連絡先をすぐ確認',tier:'free',cat:'共有',size:'',href:'./contacts.html'},
+{id:'contractors',name:'業者・工事予定',desc:'外部業者の入場・工事・立会予定をまとめて表示',tier:'free',cat:'予定',size:'wide',href:'./contractors.html'},
+{id:'backup',name:'バックアップ状態',desc:'PLC・HMI・設定ファイルなどの最終バックアップ状況を確認',tier:'paid',cat:'設備',size:'',href:'./backup.html'},
+{id:'photos',name:'点検写真',desc:'最近の点検写真・異常写真・添付記録への入口',tier:'free',cat:'履歴',size:'wide',href:'./photos.html'},
+{id:'incident',name:'異常・故障報告',desc:'現場からの異常・故障報告を受付し進捗を管理',tier:'free',cat:'保全',size:'wide',href:'./incidents.html'},
+{id:'kaizen',name:'改善提案',desc:'現場の改善案・気づき・対策案を共有',tier:'free',cat:'共有',size:'',href:'./kaizen.html'},
+{id:'lending',name:'工具・鍵貸出',desc:'共用工具・測定器・鍵の持出しと返却を管理',tier:'free',cat:'資産',size:'',href:'./lending.html'},
+{id:'reorder',name:'発注・補充',desc:'最低在庫を下回った部品や発注待ちを確認',tier:'free',cat:'在庫',size:'',href:'./reorder.html'},
+{id:'environment',name:'温湿度・環境',desc:'温度・湿度・CO2など作業環境の状態を表示',tier:'paid',cat:'IoT',size:'',href:'./environment.html'}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
@@ -39,7 +53,7 @@ const getSizes=()=>{try{return JSON.parse(localStorage.getItem(sizeKey()))||{}}c
 const setSizes=v=>localStorage.setItem(sizeKey(),JSON.stringify(v));
 const getViews=()=>{try{return JSON.parse(localStorage.getItem(viewKey()))||{}}catch{return {}}};
 const setViews=v=>localStorage.setItem(viewKey(),JSON.stringify(v));
-let layout=getLayout(),sizes=getSizes(),views=getViews(),dragId=null,currentFilter='all',editMode=false,pointerDrag=null,longPressTimer=null;
+let layout=getLayout(),sizes=getSizes(),views=getViews(),dragId=null,currentFilter='all',currentCategory='all',catalogQuery='',editMode=false,pointerDrag=null,longPressTimer=null;
 const VIEW_MODES=['standard','compact','summary'];
 function widgetView(id){return views[id]||'standard'}
 function nextWidgetView(id){
@@ -184,6 +198,55 @@ function widgetBody(id,view='standard'){
  }
  if(id==='reports'){
   return '<div class="report-list"><a href="./reports.html"><span>月次</span><strong>9月 保全レポート</strong><em>PDF</em></a><a href="./reports.html"><span>設備</span><strong>CV-04 履歴レポート</strong><em>PDF</em></a><a href="./reports.html"><span>点検</span><strong>未完了一覧</strong><em>CSV</em></a></div>';
+ }
+ if(id==='shift'){
+  return '<div class="shift-grid"><span><small>今日</small><b>日勤</b><em>保全A</em></span><span><small>夜勤</small><b>保全B</b><em>18:00〜</em></span><span><small>休日当番</small><b>田中</b><em>10/11</em></span></div>';
+ }
+ if(id==='readings'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>監視中の点検値</span><em>全て基準内</em></div>';
+  return '<div class="reading-grid"><span><small>エア圧</small><b>0.52</b><em>MPa</em></span><span><small>温度</small><b>42.6</b><em>℃</em></span><span><small>電流</small><b>8.4</b><em>A</em></span><span><small>流量</small><b>18.2</b><em>L/min</em></span></div>';
+ }
+ if(id==='calibration'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>90日以内の校正期限</span><em>最短 18日</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>トルクレンチ TW-04</strong><small>校正期限まで18日</small></div><div class="list-side">10/26</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>圧力計 PG-12</strong><small>計測器室</small></div><div class="list-side">11/18</div></div></div>';
+ }
+ if(id==='energy'){
+  if(view==='summary')return '<div class="summary-hero"><strong>128kWh</strong><span>本日の使用量</span><em>昨日比 -6%</em></div>';
+  return '<div class="energy-grid"><span><small>現在</small><b>18.4kW</b></span><span><small>本日</small><b>128kWh</b></span><span><small>ピーク</small><b>24.1kW</b></span></div><div class="summary-progress"><i style="width:64%"></i></div>';
+ }
+ if(id==='qr'){
+  return '<div class="qr-widget"><div class="qr-mark">▦</div><div><strong>設備・部品をスキャン</strong><small>QR / Barcode</small></div><button class="btn primary">スキャン</button></div>';
+ }
+ if(id==='contacts'){
+  return '<div class="contact-mini"><a href="./contacts.html"><b>保全</b><span>内線 2301</span></a><a href="./contacts.html"><b>設備メーカー</b><span>サポート窓口</span></a><a href="./contacts.html"><b>緊急</b><span>管理責任者</span></a></div>';
+ }
+ if(id==='contractors'){
+  return '<div class="list"><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>10/09 電気工事</strong><small>第1工場 / 13:00〜</small></div><div class="list-side">立会</div></div><div class="list-item"><span class="dot green"></span><div class="list-main"><strong>10/12 法定点検</strong><small>クレーン業者</small></div><div class="list-side">予定</div></div></div>';
+ }
+ if(id==='backup'){
+  if(view==='summary')return '<div class="summary-hero"><strong>86%</strong><span>バックアップ確認済み</span><em>未確認 3設備</em></div>';
+  return '<div class="backup-list"><div><span class="dot green"></span><strong>CV-04 PLC</strong><small>2026/10/07 18:42</small></div><div><span class="dot green"></span><strong>設備A HMI</strong><small>2026/10/06 09:12</small></div><div><span class="dot yellow"></span><strong>設備B Servo</strong><small>90日以上未更新</small></div></div>';
+ }
+ if(id==='photos'){
+  return '<div class="photo-grid"><div><span>CV-04</span><b>点検写真</b></div><div><span>設備A</span><b>異常写真</b></div><div><span>コンプレッサ</span><b>メーター</b></div><div><span>第2ライン</span><b>修理後</b></div></div>';
+ }
+ if(id==='incident'){
+  if(view==='summary')return '<div class="summary-hero"><strong>3</strong><span>未完了の異常報告</span><em>緊急 1件</em></div>';
+  return '<div class="workorder-list"><div><span class="dot red"></span><p><strong>搬送ライン異音</strong><small>第1工場 / 12:20</small></p><em>調査中</em></div><div><span class="dot yellow"></span><p><strong>圧力低下</strong><small>コンプレッサ01</small></p><em>確認待ち</em></div></div>';
+ }
+ if(id==='kaizen'){
+  return '<div class="compact-line"><strong>改善案 12件</strong><span>今月 +3</span></div><div class="compact-line"><strong>採用済み</strong><span>5件</span></div><button class="btn ghost" style="width:100%;margin-top:8px">＋ 改善案を追加</button>';
+ }
+ if(id==='lending'){
+  return '<div class="lending-list"><div><strong>絶縁抵抗計</strong><span>貸出中 / 田中</span></div><div><strong>制御盤キー A</strong><span>貸出中 / 佐藤</span></div><div><strong>クランプメータ</strong><span>返却済み</span></div></div>';
+ }
+ if(id==='reorder'){
+  if(view==='summary')return '<div class="summary-hero"><strong>4</strong><span>補充が必要</span><em>発注待ち 2件</em></div>';
+  return '<div class="list"><div class="list-item"><span class="dot red"></span><div class="list-main"><strong>MR-J4 バッテリー</strong><small>最低在庫 3 / 現在 2</small></div><div class="list-side">発注</div></div><div class="list-item"><span class="dot yellow"></span><div class="list-main"><strong>光電センサ</strong><small>最低在庫 5 / 現在 4</small></div><div class="list-side">補充</div></div></div>';
+ }
+ if(id==='environment'){
+  if(view==='summary')return '<div class="summary-hero"><strong>良好</strong><span>作業環境</span><em>異常なし</em></div>';
+  return '<div class="reading-grid"><span><small>温度</small><b>24.8</b><em>℃</em></span><span><small>湿度</small><b>48</b><em>%</em></span><span><small>CO2</small><b>612</b><em>ppm</em></span><span><small>騒音</small><b>68</b><em>dB</em></span></div>';
  }
  return '';
 }
@@ -396,7 +459,13 @@ function openCatalog(){document.querySelector('#widgetModal').classList.remove('
 function closeCatalog(){document.querySelector('#widgetModal')?.classList.add('hidden')}
 function renderCatalog(){
  const area=document.querySelector('#catalog'); if(!area)return;
- const list=WIDGETS.filter(w=>currentFilter==='all'||currentFilter===w.tier||(currentFilter==='active'&&layout.includes(w.id)));
+ const q=catalogQuery.trim().toLowerCase();
+ const list=WIDGETS.filter(w=>{
+   const tierOk=currentFilter==='all'||currentFilter===w.tier||(currentFilter==='active'&&layout.includes(w.id));
+   const catOk=currentCategory==='all'||w.cat===currentCategory;
+   const queryOk=!q||(w.name+' '+w.desc+' '+w.cat).toLowerCase().includes(q);
+   return tierOk&&catOk&&queryOk;
+ });
  let html='';
  list.forEach(w=>{
    html+='<article class="catalog-card"><div class="row"><h3>'+esc(w.name)+'</h3><div class="spacer"></div><span class="badge '+w.tier+'">'+(w.tier==='free'?'FREE':'PRO')+'</span></div><p>'+esc(w.desc)+'</p><div class="row"><span class="badge">'+esc(w.cat)+'</span><div class="spacer"></div><button class="btn '+(layout.includes(w.id)?'ghost':'primary')+'" data-add="'+w.id+'" '+(layout.includes(w.id)?'disabled':'')+'>'+(layout.includes(w.id)?'追加済み':'追加')+'</button></div></article>';

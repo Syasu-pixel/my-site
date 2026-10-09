@@ -1,3 +1,47 @@
+// Shared Preview notification data: dashboard and specialist screens use one source.
+window.DCEquipmentAlerts=(()=>{
+ const presets={
+ personal:['today','calendar','equipment','notice','memo','device','weather','portal-links','favorites'],
+ equipment:['equipment','assigned','deadline','recent','versions','docs','alarm-history','downtime','spares-life','lubrication','network'],
+ inspection:['today','checklist','readings','safety','deadline','calendar','photos','handover','templates'],
+ field:['today','assigned','handover','safety','quick','deadline','docs'],
+ manager:['equipment','downtime','workorders','incident','reorder','annual-plan','notice','audit'],
+ monitor:['equipment','alarm-history','iot','readings','network','deadline']
+};
+ const alerts={
+ today:{items:[{source:'widget',count:2}],type:'danger',label:'未実施'},
+ calendar:{items:[{source:'widget',count:1}],type:'info',label:'更新'},
+ equipment:{items:[{source:'widget',count:3}],type:'danger',label:'要確認'},
+ notice:{items:[{source:'admin',count:1},{source:'operations',count:1}],type:'danger',label:'未確認'},
+ memo:{items:[{source:'widget',count:1}],type:'info',label:'新着'},
+ deadline:{items:[{source:'widget',count:5}],type:'warning',label:'期限'},
+ incident:{items:[{source:'widget',count:3}],type:'danger',label:'未完了'},
+ workorders:{items:[{source:'widget',count:6}],type:'warning',label:'未完了'},
+ reorder:{items:[{source:'widget',count:4}],type:'warning',label:'補充'},
+ 'alarm-history':{items:[{source:'widget',count:1}],type:'danger',label:'未復旧'},
+ permits:{items:[{source:'admin',count:1}],type:'danger',label:'承認待ち'},
+ audit:{items:[{source:'operations',count:2}],type:'danger',label:'重要'}
+};
+ const readKey='dc-eq-widget-alerts-read-v1';
+ const read=()=>{try{return JSON.parse(localStorage.getItem(readKey))||{}}catch{return {}}};
+ const visible=(id,prefs={})=>{
+   const a=alerts[id];if(!a||read()[id])return null;
+   let count=0,mandatory=false;
+   for(const item of a.items||[]){
+     if(item.source==='admin'||item.source==='operations'){count+=item.count;mandatory=true}
+     else if(prefs[id]!==false)count+=item.count;
+   }
+   return count>0?{...a,count,mandatory}:null;
+ };
+ const dashboardCount=(id)=>{
+   let custom={},prefs={};
+   const device=innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
+   try{custom=JSON.parse(localStorage.getItem('dc-eq-custom-dashboards-v1'))||{}}catch{}
+   try{prefs=JSON.parse(localStorage.getItem('dc-eq-widget-notify:'+id+':'+device))||{}}catch{}
+   return (custom[id]?.layout||presets[id]||[]).reduce((n,w)=>n+(visible(w,prefs)?.count||0),0);
+ };
+ return {presets,alerts,visible,dashboardCount,readKey};
+})();
 (()=> {
   const KEY='dc-eq-font-scale';
   const THEME_KEY='dc-eq-theme';
@@ -109,7 +153,9 @@
 
     const dashboardLinks=dashboards.map(([id,label])=>{
       const href='./dashboard.html?view='+encodeURIComponent(id);
-      return '<a class="dashboard-nav-item" href="'+href+'"><span class="icon">◈</span><span>'+label+'</span></a>';
+      const count=window.DCEquipmentAlerts.dashboardCount(id);
+      const safeLabel=String(label).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return '<a class="dashboard-nav-item" href="'+href+'"><span class="icon">◈</span><span>'+safeLabel+'</span>'+(count?'<span class="nav-alert">'+count+'</span>':'')+'</a>';
     }).join('');
 
     const appLinks=[
@@ -158,6 +204,6 @@
   };
   apply(read());
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initControls,{once:true});else initControls();
-  window.addEventListener('pageshow',e=>{if(e.persisted){markCurrentSectionRead();decorateNavAlerts()}});
-  window.addEventListener('storage',e=>{if(e.key===KEY)apply(read());if(e.key===THEME_KEY)applyTheme(readTheme())});
+  window.addEventListener('pageshow',e=>{if(e.persisted){ensureUnifiedSidebar();markCurrentSectionRead();decorateNavAlerts()}});
+  window.addEventListener('storage',e=>{if(e.key===KEY)apply(read());if(e.key===THEME_KEY)applyTheme(readTheme());if(e.key===window.DCEquipmentAlerts.readKey||e.key===DASHBOARD_CUSTOM_KEY||e.key?.startsWith('dc-eq-widget-notify:'))ensureUnifiedSidebar()});
 })();

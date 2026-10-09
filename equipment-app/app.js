@@ -81,14 +81,7 @@ const WIDGETS=[
 {id:'portal-links',name:'ポータルリンク',desc:'検索・天気・ニュース・社内ページなど、よく使う外部サービスへのショートカット',tier:'free',cat:'操作',size:''}
 ];
 const DEFAULT=['today','calendar','equipment','notice','memo','versions','iot'];
-const WORKSPACE_PRESETS={
- personal:['today','calendar','equipment','notice','memo','device','weather','portal-links','favorites'],
- equipment:['equipment','assigned','deadline','recent','versions','docs','alarm-history','downtime','spares-life','lubrication','network'],
- inspection:['today','checklist','readings','safety','deadline','calendar','photos','handover','templates'],
- field:['today','assigned','handover','safety','quick','deadline','docs'],
- manager:['equipment','downtime','workorders','incident','reorder','annual-plan','notice','audit'],
- monitor:['equipment','alarm-history','iot','readings','network','deadline']
-};
+const WORKSPACE_PRESETS=window.DCEquipmentAlerts.presets;
 const WORKSPACE_LABELS={personal:'マイページ',equipment:'設備',inspection:'点検',field:'現場用',manager:'管理者用',monitor:'大型モニタ'};
 const CUSTOM_DASHBOARD_KEY='dc-eq-custom-dashboards-v1';
 const getCustomDashboards=()=>{try{return JSON.parse(localStorage.getItem(CUSTOM_DASHBOARD_KEY))||{}}catch{return {}}};
@@ -104,31 +97,8 @@ let currentWorkspace=(()=>{
   return WORKSPACE_PRESETS[saved]||getCustomDashboards()[saved]?saved:'personal';
  }catch{return 'personal'}
 })();
-const WIDGET_ALERTS={
- today:{items:[{source:'widget',count:2}],type:'danger',label:'未実施'},
- calendar:{items:[{source:'widget',count:1}],type:'info',label:'更新'},
- equipment:{items:[{source:'widget',count:3}],type:'danger',label:'要確認'},
- notice:{items:[{source:'admin',count:1},{source:'operations',count:1}],type:'danger',label:'未確認'},
- memo:{items:[{source:'widget',count:1}],type:'info',label:'新着'},
- deadline:{items:[{source:'widget',count:5}],type:'warning',label:'期限'},
- incident:{items:[{source:'widget',count:3}],type:'danger',label:'未完了'},
- workorders:{items:[{source:'widget',count:6}],type:'warning',label:'未完了'},
- reorder:{items:[{source:'widget',count:4}],type:'warning',label:'補充'},
- 'alarm-history':{items:[{source:'widget',count:1}],type:'danger',label:'未復旧'},
- permits:{items:[{source:'admin',count:1}],type:'danger',label:'承認待ち'},
- audit:{items:[{source:'operations',count:2}],type:'danger',label:'重要'}
-};
-function visibleWidgetAlert(id){
- const a=WIDGET_ALERTS[id];if(!a)return null;
- const read=getAlertReads();
- let count=0,mandatory=false;
- for(const item of a.items||[]){
-   if(read[id])continue;
-   if(MANDATORY_NOTIFICATION_SOURCES.has(item.source)){count+=item.count;mandatory=true}
-   else if(widgetNotifyEnabled(id))count+=item.count;
- }
- return count>0?{...a,count,mandatory}:null;
-}
+const WIDGET_ALERTS=window.DCEquipmentAlerts.alerts;
+function visibleWidgetAlert(id){return window.DCEquipmentAlerts.visible(id,notifyPrefs)}
 const device=()=>innerWidth<700?'mobile':innerWidth<1050?'tablet':'pc';
 const storageKey=()=> 'dc-eq-layout:'+currentWorkspace+':'+device();
 const sizeKey=()=> 'dc-eq-widget-sizes:'+currentWorkspace+':'+device();
@@ -589,11 +559,7 @@ function widgetBody(id,view='standard'){
  }
  return '';
 }
-function dashboardAlertCount(id){
- const items=workspacePreset(id);let total=0;
- for(const wid of items){const a=visibleWidgetAlert(wid);if(a)total+=a.count}
- return total;
-}
+function dashboardAlertCount(id){return window.DCEquipmentAlerts.dashboardCount(id)}
 function renderDashboardNavigation(){
  const order=['personal','equipment','inspection','manager','monitor'];
  const customIds=Object.keys(customDashboards);

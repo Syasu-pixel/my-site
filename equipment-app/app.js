@@ -735,6 +735,22 @@ function autoFitGridCandidate(id,cand){
   }
   return best||{...cand,autoFit:false};
 }
+function compactGridAfterRemoval(){
+ const next={};
+ const ordered=layout.filter(id=>gridPositions[id]).sort((a,b)=>gridPositions[a].y-gridPositions[b].y||gridPositions[a].x-gridPositions[b].x);
+ for(const id of ordered){
+   const p={...gridPositions[id]};
+   // Keep each widget's columns and size; close vertical gaps without overlap.
+   p.y=1;
+   while(true){
+     const hits=Object.values(next).filter(q=>gridOverlap(p,q));
+     if(!hits.length)break;
+     p.y=Math.max(...hits.map(q=>q.y+q.h));
+   }
+   next[id]=p;
+ }
+ gridPositions=next;
+}
 function resolveGridPositions(movedId,candidate){
   const next=JSON.parse(JSON.stringify(gridPositions||{}));
   next[movedId]={...candidate};
@@ -904,7 +920,9 @@ function finishPointerWidgetDrag(){
  if(d.overTrash){
    d.ghost?.remove();
    layout=layout.filter(x=>x!==d.id);
-   delete gridPositions[d.id];setGridPositions(gridPositions);
+   delete gridPositions[d.id];
+   if(gridModeEnabled())compactGridAfterRemoval();
+   setGridPositions(gridPositions);
    setLayout(layout);
    clearGridDropPlaceholder();
    cleanupWidgetDragVisuals();

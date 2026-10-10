@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-10",
+  "repository": "Syasu-pixel/my-site",
+  "branch": "preview-equipment-management-webapp-ui-v1-20261007",
+  "startingHead": "3abdb5e9fe154301c86b289e7ccdeed99fea1f4c",
+  "previousAuditCommit": "3abdb5e9fe154301c86b289e7ccdeed99fea1f4c",
+  "history": "PR #1739先頭は前回記録と一致。前回後の追加変更なし。Draft/open/未マージ。監査記録本文を確認。",
+  "scope": [
+    13,
+    14,
+    15,
+    16
+  ],
+  "excluded": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "fixCommits": [
+    "f93c197f943a6a7407f9dd23e5be41c55dedc07e",
+    "d8d6c543ec38027e6fa330d01bce5ce0debddc9c",
+    "34af4cb821cc3c5b0df844575fbaf4565ba23146",
+    "fbcf74e8f81d60673e17408048c013ba3527ace8",
+    "992b8fd45b8163aef5dc29f141e35ec1e3e57e0e",
+    "677a0b020693e92c494218b9513e7dd3f42eb588"
+  ],
+  "results": [
+    {
+      "item": 13,
+      "initial": "要修正",
+      "status": "保留",
+      "change": "dashboard.htmlのrangeと専門画面用ui-preferences.jsのrangeを2%刻みから1%刻みに統一。115%プリセットの実適用と表示値に対し、スライダーが116へ丸められる問題を修正。",
+      "evidence": [
+        "修正前90/100/115%プリセット、スライダーArrowLeftとEnd（150%）を実操作。115%だけrange116に不一致。",
+        "150%でダッシュボードのサイドバー/ヘッダー/ウィジェット、検索/社内配布モーダル、設備一覧の文字を目視。折り返しや内側スクロールで内容にアクセスでき、横方向の見切れは観測なし。",
+        "修正後Previewを再読み込み。専門画面で115%のラベル/range/data-dc-font-scale一致、ArrowLeft114%→ArrowRight115%の1%操作を確認。",
+        "再読み込み後115%保持。ダッシュボードへ戻っても115%/step1/Blueprint一致。150%の再読み込み保持は修正前にも確認。"
+      ],
+      "limits": "PCブラウザ約1363x936。全ウィジェット/全モーダル/全viewportの網羅検査ではない。 追加モーダルは未解決なので、モーダル全般の合格は主張しない。",
+      "reason": "文字サイズスライダーの不一致は修正・再確認済み。ただしウィジェット追加モーダルで150%時のカード/追加ボタンの重なりが残存。item16と共通の未解決表示不具合。"
+    },
+    {
+      "item": 14,
+      "status": "OK",
+      "evidence": [
+        "スマート/更新しない/15秒/1分/10分/1時間/24時間の選択UIと表示名が一致。",
+        "24時間、15秒を選択して再読み込み保持。15秒設定中、設定前21:04だった更新表示が後の観測で21:06へ進んだ。",
+        "実装上smartは高速情報ウィジェットを含む場合30秒、それ以外10分。offはタイマー0。明示周期は15000/60000/600000/3600000/86400000ms。",
+        "refreshVisibleWidgetsはvisibilityState!==visibleで戻る。visible復帰時off以外は更新し、scheduleRefreshで古いタイマーを消して再設定。非表示中のUI更新を停止する設計と案内に矛盾なし。",
+        "バックエンド取得はコメントで未接続、更新処理は表示時刻/パルスのみ。終了時offへ戻した。"
+      ],
+      "limits": "非表示タブの実時間試験と長周期経過の待機試験は実施せず設計照合。420msの更新パルス待ちは操作APIの短いdeadlineで1回失敗し反復しなかった。更新時刻は分解像度で周期精度は計測していない。"
+    },
+    {
+      "item": 15,
+      "status": "保留",
+      "reason": "PDF印刷ダイアログ/PDF保存結果をクラウド監査ブラウザで観測できないため、PDF完成物の確認は監査環境制約による保留。",
+      "evidence": [
+        "社内配布モーダルは150%でも対象/期限/確認必須/閉じる/Preview配布を表示。",
+        "配布対象には全ユーザー/第1工場/第2工場/保全部/個別選択。保全部に変更、確認期限2026-10-20を入力、必須チェックOFF→閉じるで送らず中止。専用キャンセルボタンはなく閉じるで中止。",
+        "再度開き必須チェックON、Preview配布を1回クリック。alertが開きclick応答はタイムアウトしたが、getJsDialogでalert存在を確認・dismissするとモーダルhidden。",
+        "実装のPreview配布処理は案内alertと閉じるだけ。fetch/XMLHttpRequest/sendBeaconなし。PDF生成や実送信を完了扱いにしない。",
+        "PDFボタンは1回クリック。window.print()接続を確認したが、画面/AXはダッシュボードのまま、印刷UI/PDF完成物は確認できなかった。"
+      ],
+      "limits": "個別選択から実ユーザーを選ぶ機能・実配布・PDF生成はPreview未接続。未接続を製品完成と判定しない。"
+    },
+    {
+      "item": 16,
+      "initial": "要修正",
+      "status": "保留",
+      "change": "専門画面のウィジェットボタンからdashboard.html?widgets=1へ移動し、既存カタログを開く導線を修正。カタログ行高とカード最小高さも修正したが、2回のCSS修正後も文字拡大時の重なりは未解決。",
+      "evidence": [
+        "設備一覧→点検実行→保全カレンダー→図面・取説→組織・設定へ実リンクで遷移。",
+        "5画面でBlueprint/150%保持、共通sidebar/topbar/メニューを表示。document横幅超過なし、目視で主見出し/説明/操作部の重なり・見切れを観測しなかった。",
+        "組織・設定のウィジェットボタンは修正前1回クリックして無反応。設定画面はapp.jsを読まず、共通ui-preferences.jsにも遷移ハンドラーがなかった。",
+        "導線修正後、ウィジェット一覧は115%/Blueprint/更新offで開いた。だがカードclientHeight148pxに対してscrollHeight214px、下部ボタンが次のカードと重なり不可視。追加で一覧行高を修正。",
+        "初回CSS修正992b8fd反映→Preview再読み込み→150%で再確認。grid-auto-rowsはmax-contentへ変わったがカード高さ148/scrollHeight233で重なり残存。2ラウンド目にカードの固有最小高さを修正。3ラウンド目は行わない。",
+        "677a0b0のCloudflare Preview成功後に再読み込み。font150/Blueprint/refresh off、min-height:max-content反映。先頭カードclientHeight247/scrollHeight247、bottom503.59pxだが次行topは約415pxで重なり残存。最終スクリーンショットでも追加ボタンが次行に覆われる。"
+      ],
+      "reason": "専門画面5種の共通設定維持とウィジェット導線は確認済み。150%時のウィジェット一覧カード/追加ボタンが次の行に覆われるため保留。3回目の修正は実施しない。"
+    }
+  ],
+  "validation": [
+    "node --check ui-preferences-fixed.js PASS",
+    "node --check app-fixed.js PASS",
+    "修正後専門画面→ダッシュボード?widgets=1でカタログ80件が開く実挙動を確認（fbcf74e相当の反映証拠）。",
+    "992b8fd、677a0b0のPreview反映後、それぞれ再読み込み・同一カタログ表示の再確認を実施。最終CSS修正でも重なりは未解決。"
+  ],
+  "rulesReview": "AGENTS、ルール入口/カタログ、governance/master/runbook、設備アプリ専用正本、Preview文書、AI編集部一時閉鎖を参照。大きい文書の出力に一部省略あり。全ルール読了・参照確認・カタログ構造検査完了は主張しない。公開記事・全件監査・Supabase・本番方式変更は範囲外。作業ブランチの旧Netlify記述に依存せず、既存Cloudflare Previewを使う。",
+  "stop": "4項目終了時点でUI監査を停止し、証跡・監査記録だけ保存。",
+  "mainMerged": false,
+  "safeToMerge": "NO (ユーザー指示:mainマージ禁止)",
+  "testState": "終了時のPreview端末だけ文字サイズ150%・Blueprint・自動更新off。ウィジェット追加/削除や実データ・実配布は行わない。",
+  "remaining": [
+    "13・16:ウィジェット追加モーダルのカード行高と配置の不整合を解消し、文字拡大時の追加ボタンを再確認する。",
+    "15:印刷ダイアログとPDF保存結果を実PCブラウザで確認する。",
+    "4・7:前回から監査環境制約による保留を継承。今回は再監査していない。"
+  ],
+  "retryPolicy": "既知の環境制約は反復しない。同一失敗操作の3回以上の反復なし。文字サイズ修正1ラウンド、導線修正1ラウンド、一覧高さ修正は最大2ラウンド。各設定値・別画面の必須操作は別検査ケース。",
+  "sourceHeadAfterFix": "677a0b020693e92c494218b9513e7dd3f42eb588",
+  "evidence": {
+    "fileName": "equipment-audit-batch5-final-1791634738284.jpg",
+    "libraryFileId": "libfile_81001f92ab488191b64fef3d98f46b86",
+    "description": "最終修正677a0b0反映後、Blueprint/150%のウィジェット追加モーダル。カード重なりの残存証跡。"
+  }
+}

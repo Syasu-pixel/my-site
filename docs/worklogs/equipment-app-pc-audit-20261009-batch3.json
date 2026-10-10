@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-09",
+  "repository": "Syasu-pixel/my-site",
+  "branch": "preview-equipment-management-webapp-ui-v1-20261007",
+  "startingHead": "be9ca48e116607dbab8e8d5a936da78d5841a57d",
+  "previousAuditCommit": "be9ca48e116607dbab8e8d5a936da78d5841a57d",
+  "history": "PR #1739先頭は前回監査記録と一致。追加変更なし。Draft/open/未マージ。",
+  "scope": [
+    4,
+    7,
+    9,
+    11
+  ],
+  "excludedPreviouslyOK": [
+    1,
+    3,
+    5,
+    6,
+    8,
+    10
+  ],
+  "fixCommits": [
+    "de25ed7b8937df777d1dd6625bb886211e331f67"
+  ],
+  "previewReloadedAfterFix": true,
+  "results": [
+    {
+      "item": 4,
+      "status": "保留",
+      "attempts": 1,
+      "evidence": "8秒の長押し保持とホイール操作を組み合わせたが、保持前後の観測でghost/origin=0、scrollY=0。入力/観測が直列化され保持中ホイールを成立させられなかった。",
+      "reason": "利用可能APIは押下→移動→ホイール→別位置へ解放を一連操作として保持できない。実アプリ不具合と断定せず、誤リサイズ・グリッド座標・ゴースト後処理の要求シナリオは未確認。",
+      "change": "推測による修正なし。追加試行なし。"
+    },
+    {
+      "item": 7,
+      "status": "保留",
+      "initial": "要修正",
+      "change": "ゴミ箱削除時、残存ウィジェットの列・幅・高さを維持して上方向の空きを詰める。現在ダッシュボードのgridPositionsだけを保存。",
+      "evidence": [
+        "修正前:設備ステータスをゴミ箱へドラッグ。削除したが残存位置は変わらず空きが残る。",
+        "de25ed7をPreview反映→再読み込み。今日の点検をゴミ箱へドラッグし削除。calendar行11→1、notice18→8、memo25→15等へ詰め直し。ghost=0。",
+        "再読み込み後も7ウィジェットと詰め直し座標を維持。",
+        "設備ダッシュボードの11ウィジェット/2D座標は修正後削除の前後で完全一致。"
+      ],
+      "reason": "ゴミ箱ホバーのis-over反応は保持中観測できず未確認。削除・詰め直し・永続化・他ダッシュボード保持は確認済み。",
+      "trashDropAttempts": 2
+    },
+    {
+      "item": 9,
+      "status": "OK",
+      "evidence": [
+        "一覧ホバーモードON。表示中の全8種類(today/calendar/notice/memo/device/weather/portal-links/favorites)へポインタ移動。スクロール量0でホバーを操作。",
+        "各対象のidと中央プレビューid一致、プレビューDOMは常に1、ghost=0。中央位置x681.5/y468を維持し内容による高さだけ変更。観測範囲で残像/位置ズレ/重複なし。",
+        "calendar中央プレビューのフッタークリックでカレンダー専門アプリへ遷移。",
+        "戻り編集モードに切替、ウィジェット上にポインタを置いても中央プレビュー0、ghost=0。"
+      ],
+      "limits": "フレーム単位のちらつき計測・高速スイープの動画検査はしていない。"
+    },
+    {
+      "item": 11,
+      "status": "OK",
+      "evidence": [
+        "カスタム「PC監査用」を追加、3ウィジェットで初期配置。",
+        "「PC監査用・変更後」へ名前変更。",
+        "todayを行1列1高さ9幅8→行11列5へドラッグ、calendarを行20へ押し下げる配置変更。",
+        "初期配置に戻す:today行1列1(9x8), calendar行10列1(9x8), equipment行1列9(7x4)へ正しく復元。",
+        "再読み込み後も改名と初期2D座標を維持。",
+        "マイページはリセット前の8ウィジェットと座標を保持。カスタムだけがリセット。"
+      ],
+      "limits": "設備ダッシュボードの最初の比較用スナップショットはナビゲーション直後の旧DOMだったため比較根拠から除外。項目7の比較は見出し待ちを含めて正しいダッシュボードのDOMを取得。"
+    }
+  ],
+  "validation": [
+    "node --check app-fixed.js PASS",
+    "列/サイズ維持・空きの詰め直し・重なりなしの代表ケースをNode assertで検証しPASS",
+    "Cloudflare de25ed7 Deploy successful確認"
+  ],
+  "remaining": [
+    "4:実ボタン保持+ホイール+別位置ドロップの確認",
+    "7:ドラッグ保持中のゴミ箱ホバー反応の確認",
+    "今回範囲外の2:ヘッダー/検索/メニューは未監査"
+  ],
+  "testState": "Preview用ブラウザのマイページからequipment/todayを削除。カスタムPC監査用・変更後を追加して初期配置を維持。実データへの変更なし。",
+  "stop": "4項目処理後、監査UI操作停止。記録と画面証跡保存のみ。",
+  "mainMerged": false,
+  "safeToMerge": "NO (ユーザー指示:mainマージ禁止)",
+  "screenshot": {
+    "filename": "equipment-audit-batch3-1791532529788.jpg",
+    "libraryFileId": "libfile_a018c014ce648191bc275773b8cb6a82"
+  },
+  "rulesReview": "AGENTS・ルール入口/カタログ・governance/runbook・設備アプリ正本を参照。今回対象はequipment-app/app.jsと既存監査worklogs JSON。大規模文書表示は一部のみ、構造検査と全ルール確認完了は主張しない。"
+}

@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-09",
+  "branch": "preview-equipment-management-webapp-ui-v1-20261007",
+  "repository": "Syasu-pixel/my-site",
+  "previousAuditCommit": "81312d002caec4ed9aae5fd5b36ee3ff5d47f6ad",
+  "startingHead": "96047a2b4e81d8375207ff3368b30f44a23aaf15",
+  "historyReview": "81312d0以降から開始headまでの10コミットはルール文書追記のみ。前回OKの1・3・8は再監査しない。",
+  "fixCommits": [
+    "7fa2ca2b27482ab59b551d1e52753abc4c96fbf6",
+    "a611ef47a9c36726d1a6716596362b10818e1eb2",
+    "24a6d83ca26477192da3362b089a1fcc78e64f47"
+  ],
+  "preview": "https://preview-equipment-management-0qjq.denkicontrol-preview.pages.dev/equipment-app/dashboard",
+  "previewReloaded": true,
+  "scope": [
+    10,
+    4,
+    5,
+    6
+  ],
+  "excludedPreviouslyOK": [
+    1,
+    3,
+    8
+  ],
+  "results": [
+    {
+      "item": 10,
+      "status": "OK",
+      "initial": "要修正",
+      "change": "dashboard/module間で通知データ・既読・通知設定の集計を共通化。専門画面の統一左ナビへダッシュボードバッジを追加。",
+      "evidence": [
+        "Preview再読み込み。dashboardから設備一覧へ移動してマイページ9/管理者20表示を確認。",
+        "戻って社内通知ウィジェットを開く既存既読処理を実行。通知専門画面でマイページ7/管理者18を確認。",
+        "ブラウザで戻りマイページ7/管理者18、通知ウィジェットバッジ消去を確認。"
+      ],
+      "limits": "Previewではウィジェットを開く時点で既読。専門画面の独立した既読ボタンは未実装。"
+    },
+    {
+      "item": 4,
+      "status": "保留",
+      "evidence": [
+        "650ms長押しで編集モードへ移行。解放後の一時ゴーストは次の観測で0。",
+        "画面上部から下端へ長距離ドラッグしscrollY 0→31、todayを行16列5へ配置、終了時ghost=0。",
+        "スクロール後の移動テスト1回はtodayが行16列5のまま高さ9→14となり、移動でなくリサイズとして受け付けられた。ghost/origin=0。"
+      ],
+      "reason": "スクロール後の移動・ドロップ位置の実操作確認が成立しない。原因が入力位置かアプリ動作か切り分け未完了。保持したままホイール操作も未確認。3回目の同一試行を行わず停止。",
+      "change": "推測による修正なし"
+    },
+    {
+      "item": 5,
+      "status": "OK",
+      "evidence": [
+        "8方向を各1回実操作しgrid座標を比較。反対辺維持。",
+        "top: y1h9→y2h8; bottom:y2h8→y2h9; left:x1w8→x2w7; right:x2w7→x2w6",
+        "top-left:y2x2h9w6→y3x3h8w5; top-right→y2x3h9w6; bottom-left→y2x2h10w7; bottom-right→y2x2h9w8",
+        "追加の右辺/下辺最小化を各1回行いtodayは4列×7行で停止。autoDensity=compact、表示切替を確認。"
+      ],
+      "change": "修正不要"
+    },
+    {
+      "item": 6,
+      "status": "OK",
+      "evidence": [
+        "設備ステータスを行11列9から空きの行1列9へ移動。4列×7行を維持。",
+        "カレンダー8列×9行を行11列5へ移動。行18列9の社内通知に当たるため高さのみ7行へ自動縮小。",
+        "社内通知は行18列9で維持。全9ウィジェットのgrid座標の組合せ重なり0。ghost=0。"
+      ],
+      "change": "修正不要"
+    }
+  ],
+  "validation": [
+    "node --check app.js/ui-preferences.js成功",
+    "共通通知集計VMテスト:初期9/20、notice既読7/18、任意通知ミュート、管理・運用必須通知保持を確認"
+  ],
+  "remaining": [
+    "4:スクロール後の移動/ドロップ座標と保持中ホイール操作を次回限定確認",
+    "今回範囲外の監査項目は未実施"
+  ],
+  "stop": "4項目処理後に監査UI操作を停止。記録保存のみ。",
+  "mainMerged": false,
+  "pr": {
+    "number": 1739,
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "screenshot": "equipment-audit-batch2-1791528518068.jpg"
+}

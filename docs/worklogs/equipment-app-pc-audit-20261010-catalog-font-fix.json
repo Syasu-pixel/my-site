@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-10",
+  "timezone": "Asia/Tokyo",
+  "repository": "Syasu-pixel/my-site",
+  "branch": "preview-equipment-management-webapp-ui-v1-20261007",
+  "startingHead": "e7c02b1d0445093509dbc67017b74f1479a937e4",
+  "previousAuditCommit": "e7c02b1d0445093509dbc67017b74f1479a937e4",
+  "history": "PR #1739 headは前回監査記録コミットと一致。Draft/open/未マージ。過去992b8fd・677a0b0の未解決内容を監査記録本文と現CSS・実画面で照合。",
+  "scope": "150%文字サイズ時のウィジェット追加モーダルの表示崩れだけ。13・16の残件だけ再判定。新規監査項目なし。",
+  "excluded": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15
+  ],
+  "changedFiles": [
+    "equipment-app/app.css"
+  ],
+  "fixCommit": "a669409a3be92ba2eaac7a1cf722df5e68385d54",
+  "fixRoundsThisRequest": 1,
+  "diagnosis": {
+    "before": "minmax(150px,max-content)の各行が実際は150pxで配置され、min-height:max-contentのカードだけ248〜255pxに拡張。先頭行top255px、次行top416pxでカードが重なる。カード内要素は通常フローで、絶対配置/contain/inline styleによる固定高さではない。",
+    "fix": "grid-auto-rows:max-contentで内容高を行に確保し、冗長なheight:100%を削除。文字拡大に応じてauto-fit列幅を増やし列数を減らす。gap16px、flex-columnカード/min-height150px/内部gap12px、見出し・通知補足・各行の折り返し、通知ボタンの自動高さ、タグの縮小抑制を設定。ヘッダー/検索ツールも縮小・折り返し可能にし、スクロールは残りのgrid領域に限定。",
+    "font": "フォントサイズ定義・文字サイズ設定は変更なし。カード見出しの計測は100%時13.44px、150%時20.16pxで倍率1.5を維持。"
+  },
+  "preview": {
+    "url": "https://preview-equipment-management-0qjq.denkicontrol-preview.pages.dev/equipment-app/dashboard?widgets=1",
+    "deployment": "Cloudflare botがa669409のDeploy successfulを報告後、Preview再読み込みでgrid-auto-rows:max-content/列数2/gap16pxを確認。"
+  },
+  "cases": [
+    {
+      "scale": 90,
+      "viewport": [
+        1363,
+        936
+      ],
+      "columns": 3,
+      "cards": 80,
+      "overlaps": 0,
+      "contentOverflowIssues": 0,
+      "scrollportHeight": 619,
+      "titleFontPx": 12.096,
+      "visual": "目視で文字/タグ/追加ボタンの重なりなし"
+    },
+    {
+      "scale": 100,
+      "viewport": [
+        1363,
+        936
+      ],
+      "columns": 3,
+      "cards": 80,
+      "overlaps": 0,
+      "contentOverflowIssues": 0,
+      "scrollportHeight": 617,
+      "titleFontPx": 13.44,
+      "visual": "目視で文字/タグ/追加ボタンの重なりなし"
+    },
+    {
+      "scale": 115,
+      "viewport": [
+        1363,
+        936
+      ],
+      "columns": 2,
+      "cards": 80,
+      "overlaps": 0,
+      "contentOverflowIssues": 0,
+      "scrollportHeight": 614,
+      "titleFontPx": 15.456,
+      "visual": "目視で文字/タグ/追加ボタンの重なりなし"
+    },
+    {
+      "scale": 150,
+      "viewport": [
+        1363,
+        936
+      ],
+      "columns": 2,
+      "cards": 80,
+      "overlaps": 0,
+      "contentOverflowIssues": 0,
+      "scrollportHeight": 608,
+      "titleFontPx": 20.16,
+      "firstRow": {
+        "top": 255,
+        "bottom": 474.03125
+      },
+      "nextRow": {
+        "top": 490.03125,
+        "bottom": 735.0625
+      },
+      "visual": "目視で文字/タグ/追加ボタンの重なりなし。最終行の長いポータル説明も折り返し"
+    }
+  ],
+  "validation": [
+    "各設定はアプリメニューの小さめ/標準/大きめ/文字サイズrange Endで実操作。DOM data-dc-font-scaleと表示を照合。",
+    "各倍率で80枚のカードの矩形同士を全組比較し1px超の重なり0。見出し/説明/タグ/ボタン/通知欄/補足のカード外はみ出しと横方向scrollWidth超過0。画面の目視を併用。",
+    "150%でホイールスクロール、catalog.scrollTop936、その後最終行8851へ到達。scrollHeight9459/clientHeight608。ページscrollY0、見出し/検索ツール/閉じるは固定表示。",
+    "150%の期限アラートの追加ボタンを1回クリックし、追加済みへ変化を確認。再描画後も重なり0。無効な追加済みボタンは元の仕様どおり。",
+    "150%/Blueprint保持で設備一覧から共通サイドバーのウィジェットボタンを押し、dashboard?widgets=1へ遷移して修正後モーダルが開くことを再確認。",
+    "専門画面5種類の遷移/共通設定維持、スライダー1%調整は前回e7c02b1の確認済み証跡を継承。本修正と無関係な全項目の再監査は行わない。"
+  ],
+  "limits": [
+    "少し狭いPC幅は未確認。監査APIにviewport/windowリサイズがなく、ブラウザ拡大ショートカットを1回試したがviewport1363x936のまま変化なし。無理に反復せず停止。",
+    "全80カードの矩形検査は実施したが、目視は現在表示する代表行/スクロール末尾を確認。全カードの全文・全テーマ・全実機ブラウザの目視保証ではない。",
+    "GitHub Actionsの当時観測: Rule catalog structure/AI Editorial Preview成功、Additional page shared shells失敗、他は進行中。リポジトリ全CI成功とは主張せず、範囲外の共通shellを修正しない。"
+  ],
+  "results": [
+    {
+      "item": 13,
+      "status": "OK",
+      "reason": "今回保留原因だった150%追加モーダルの重なりを修正。90/100/115/150%・内部スクロール・文字保持・追加ボタンを確認。狭幅は上記制約あり。"
+    },
+    {
+      "item": 16,
+      "status": "OK",
+      "reason": "追加モーダル表示を修正し、150%の専門画面→ウィジェット導線で再確認。前回確認済みの専門画面5種類の結果を継承。"
+    }
+  ],
+  "retryPolicy": "本依頼では1修正ラウンドで解消。過去2修正を繰り返さず、行トラックとカード高さの不一致へ対処。狭幅操作は1回で断念。",
+  "evidence": {
+    "fileName": "equipment-catalog-150-fixed-1791635867210.jpg",
+    "libraryFileId": "libfile_816d51d777c8819189722866f030e3d4",
+    "description": "150%/Blueprint、モーダル内スクロール最終行。FREE/PRO/長い説明/追加ボタンが重ならない"
+  },
+  "testState": "監査ブラウザのみ150%/Blueprint/自動更新off。追加押下検査でマイページへ期限アラートを1件追加したローカルPreview状態が残る。実データ・実送信・課金なし。",
+  "remaining": [
+    "4・7:既存の監査環境制約による保留を継承。今回は再監査なし。",
+    "15:PDF印刷/保存結果の実PC確認は既存保留を継承。今回は再監査なし。",
+    "13・16:今回の通常PC幅で残存不具合なし。任意の狭いPC幅確認は未実施。"
+  ],
+  "rulesReview": "AGENTS/ルール入口/カタログ/開始時必須/設備アプリ正本/Preview移行文書・関連ひな形文書を取得・参照。大きい文書に部分表示・必要参照の未確認があり、全ルール読了・全参照確認・catalog構造検査の自身の実行完了は主張しない。設備アプリCSSと既存Preview以外へ範囲を拡大しない。",
+  "mainMerged": false,
+  "stop": "13・16の判定完了後、UI監査・修正を停止し証跡と本記録だけ保存。"
+}

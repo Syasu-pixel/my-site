@@ -178,6 +178,8 @@ window.DCEquipmentAlerts=(()=>{
       appLinks+
       '<button data-open-widgets type="button"><span class="icon">＋</span>ウィジェット</button>';
 
+    nav.querySelector('[data-open-widgets]')?.addEventListener('click',()=>{location.href='./dashboard.html?widgets=1'});
+
     decorateNavAlerts();
   };
   const normalizeAppLinks=()=>{

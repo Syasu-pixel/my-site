@@ -1382,6 +1382,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  searchModal?.addEventListener('click',e=>{if(e.target===searchModal)searchModal.classList.add('hidden')});
  searchInput?.addEventListener('input',e=>renderGlobalSearch(e.target.value));
  document.querySelectorAll('[data-open-widgets]').forEach(b=>b.addEventListener('click',openCatalog));
+ if(new URLSearchParams(location.search).get('widgets')==='1')openCatalog();
  document.querySelector('#closeWidgets')?.addEventListener('click',closeCatalog);
  const modalOverlay=document.querySelector('#widgetModal');
  modalOverlay?.addEventListener('click',e=>{if(e.target===modalOverlay)closeCatalog()});

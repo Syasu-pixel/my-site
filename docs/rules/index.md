@@ -215,6 +215,7 @@
 | [scripts/check-ogp-images.mjs](../../scripts/check-ogp-images.mjs) | 運営ダッシュボードのサイト異常監視で、公開HTMLのOGP画像設定・実在・本番取得可否を変更または検査する場合。 og:imageの未設定・不正URL・ローカル画像欠落・本番HTTP取得失敗・画像以外のContent-Typeを検出する監視。 |
 | [scripts/check-production-http.mjs](../../scripts/check-production-http.mjs) | 運営ダッシュボードのサイト異常監視で、本番公開URLのHTTP到達性・404・5xx・タイムアウト検査を変更または実行する場合。 公開HTMLを低並列・タイムアウト付きでdenkicontrol.comへ実アクセスし、本番配信の到達不能を検出する監視。 |
 | [scripts/check-rule-catalog.py](../../scripts/check-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
+| [scripts/check-search-index-integrity.mjs](../../scripts/check-search-index-integrity.mjs) | サイト異常で公開記事とサイト内検索インデックスの整合性を確認する場合。 記事の検索登録漏れ・削除済み参照・重複・不正URLを検出する静的監視。 |
 | [scripts/check-site-static-integrity.mjs](../../scripts/check-site-static-integrity.mjs) | 運営ダッシュボードのサイト異常監視で、統合生成candidate内の画像切れ・内部リンク切れ検査を変更または実行する場合。 ローカル画像参照と内部リンク先の実在性を全HTMLから検査し、site-static-integrity.jsonへ出力する静的整合性監視。 |
 | [scripts/check-sitemap-integrity.mjs](../../scripts/check-sitemap-integrity.mjs) | サイト異常のsitemap登録漏れ・余剰URL・重複を検査する場合。 公開対象HTMLとsitemap.xmlの整合性を監視する静的検査。 |
 | [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |

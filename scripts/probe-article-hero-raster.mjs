@@ -3,7 +3,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {PNG} from 'pngjs';
 const out=resolve(process.argv[2]),origin='http://127.0.0.1:'+(process.env.HERO_REVIEW_PORT||18876);
-const modes={default:[],fixed:['--disable-skia-runtime-opts','--disable-partial-raster','--run-all-compositor-stages-before-draw']};
+const modes={default:[],fixed:['--disable-skia-runtime-opts','--disable-partial-raster','--run-all-compositor-stages-before-draw','--force-color-profile=srgb','--disable-lcd-text','--disable-font-subpixel-positioning']};
 const rows=[];
 function difference(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);if(x.width!==y.width||x.height!==y.height)throw Error('Probe dimensions differ');let pixels=0,maxDelta=0;for(let n=0;n<x.data.length;n+=4){const d=Math.max(...[0,1,2,3].map(c=>Math.abs(x.data[n+c]-y.data[n+c])));pixels+=Number(d>0);maxDelta=Math.max(maxDelta,d);}return {pixels,maxDelta};}
 for(const [mode,args] of Object.entries(modes)){

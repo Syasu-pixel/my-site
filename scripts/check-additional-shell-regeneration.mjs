@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,copyFile,mkdtemp} from 'node:fs/promises';impor
 const build=resolve(process.argv[2]),source=await mkdtemp(resolve(tmpdir(),'additional-shell-source-')),out=source+'-build';
 const manifest=JSON.parse(await readFile(resolve(root,'.github/site-shells/additional/manifest.json'),'utf8'));
 const analyticsLoader='<script src="/assets/js/site-analytics.js" defer data-site-analytics="metricool"></script>';
+const donationPolicy='\n/* Donation card visibility: keep source markup and links reversible. */\n.support-card{display:none!important}\n';
 for(const p of manifest.pages){const digest=b=>createHash('sha256').update(b).digest('hex'),candidate=await readFile(resolve(build,'candidate',p.path),'utf8'),visualBaseline=Buffer.from(candidate.replace(analyticsLoader,''));if(digest(await readFile(resolve(root,p.path)))!==p.sourceSha256||digest(visualBaseline)!==p.candidateSha256)throw Error('Source/candidate differs from accepted preview except approved nonvisual analytics loader: '+p.path);}
 const files=['.github/site-shells/components/affiliate-disclosure.njk',...manifest.pages.map(p=>p.path),...['header.njk','header.css','header.js'].map(n=>'.github/site-shells/ui-proposal/'+n),...['manifest.json','footer.njk','frame.css','offset.js','contact.css','privacy.css','category.css'].map(n=>'.github/site-shells/additional/'+n)];
 for(const p of files){await mkdir(dirname(resolve(source,p)),{recursive:true});await copyFile(resolve(root,p),resolve(source,p));}

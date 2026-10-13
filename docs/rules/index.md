@@ -94,11 +94,11 @@
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

@@ -33,7 +33,7 @@ try{for(const width of [320,390,768,1440]){
    }}
   }
   const top=compare(shots.beforeTop,shots.afterTop),hero=compare(shots.beforeHero,shots.afterHero),topPixels=top.pixels,heroPixels=hero.pixels,metricsExact=JSON.stringify(measurements.before)===JSON.stringify(measurements.after);
-  if(topPixels||heroPixels||top.rawPixels>Math.ceil(shots.beforeTop.length*0+width*1000*0.01)||hero.rawPixels>Math.ceil(measurements.before.elements[0].rect[2]*measurements.before.elements[0].rect[3]*0.01)||!metricsExact)throw Error('Hero display changed: '+JSON.stringify({top,hero,metricsExact}));
+  if(topPixels||heroPixels||top.rawPixels>Math.ceil(width*1000*0.01)||hero.rawPixels>Math.ceil(measurements.before.elements[0].rect[2]*measurements.before.elements[0].rect[3]*0.01)||!metricsExact)throw Error('Hero display changed: '+JSON.stringify({top,hero,metricsExact}));
   const files={};if(keep.has(path))for(const [part,data] of Object.entries(shots)){const name=path.replaceAll('/','__')+'--'+width+'--'+part+'.png';await writeFile(resolve(evidence,name),data);files[part]=name;}
   results.push({path,variant:manifest.pageVariants[path],width,height:1000,topPixels,heroPixels,topRawPixels:top.rawPixels,heroRawPixels:hero.rawPixels,maxChannelDelta:Math.max(top.maxChannelDelta,hero.maxChannelDelta),metricsExact,ctaCount:measurements.after.links.length,ctaTargets:measurements.after.links,hashes:Object.fromEntries(Object.entries(shots).map(([k,v])=>[k,hash(v)])),files});
  }catch(error){

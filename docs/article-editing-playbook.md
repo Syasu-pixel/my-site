@@ -80,6 +80,8 @@
 - 公開前の目視確認は最低限 PCライト／PCダーク／スマホライト／スマホダークを確認する。専用レイアウトや境界条件がある場合はタブレット等を追加する。ダークモードでは白飛び、薄い文字、カード・表・会話・右欄・関連記事・評価・フッターのコントラストを確認する。
 - 最終確認のためだけに専用branch / PR / Workflow / triggerを作った場合は本番PRと分離し、mainへマージしない。公開成功後に閉じ、一時ファイルやWorkflowがmainへ混入していないことを確認する。
 - 必要な公開承認はマスターに従う。既に受けた対象範囲の承認を繰り返し求めない。マージとPages成功、実サイト反映を別々に確認し、公開後のURLと結果を報告する。
+- **本番用PRへの移植時の注意（PLC #1763で確認）**：承認済みPreviewの統合生成済みHTMLを編集元 `articles/*.html` に逆コピーしない。採用済み編集元と画像を移植し、最新mainの共有台帳は他記事entryを保持したまま、対象記事の `site-shells/manifest.json` のbaselineSha256（編集元の実バイトSHA-256）、`article-components/site-inventory.json` のgitBlob、Hero CSS bindings（採用済みHeroのURLとsourceSha256）、sidebar/TOC、関連記事oracleを差分に応じて同期する。旧ハッシュをコピーせず、失敗ログの対象slugを確かめて修正する。
+- **CI失敗の切り分け**：必須の統合・publication検証を成功させたうえで、全記事Hero比較や追加ページShell等の失敗はログの対象ページ・変更範囲・既存mainでの再現性を確認する。別ページの既存失敗を対象記事の改稿理由にしない。ただし未確認の失敗を「合格」とみなしてマージしない。Cloudflare配信操作の詳細は [Preview配信正本](preview-environment.md)、承認後の公開手順は [公開工程](post-approval-publish-pipeline.md) に一本化する。
 
 ### 本文画像の拡大表示（新規記事・既存記事更新共通）
 

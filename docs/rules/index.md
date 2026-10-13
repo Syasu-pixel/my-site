@@ -208,6 +208,7 @@
 | [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/check-canonical-integrity.mjs](../../scripts/check-canonical-integrity.mjs) | サイト異常で公開ページのcanonical設定を検査する場合。 正規URLの未設定・重複・不正・自己URL不一致を検出する静的監視。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-hreflang-integrity.mjs](../../scripts/check-hreflang-integrity.mjs) | サイト異常で日英の言語切替・hreflangを検査する場合。 リンク先の存在・言語指定・相互リンク・重複を検査する静的監視。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-boundaries.mjs](../../scripts/check-integration-boundaries.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

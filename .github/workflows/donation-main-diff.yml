@@ -1,0 +1,45 @@
+name: Donation visibility against current main
+on:
+  pull_request:
+    paths:
+      - '.github/article-components/integration-compat.css'
+      - '.github/site-shells/additional/category.css'
+      - 'scripts/check-donation-main-diff.mjs'
+      - '.github/workflows/donation-main-diff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: candidate
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline-main
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: candidate/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: candidate/pnpm-lock.yaml
+      - name: Install dependencies
+        run: cd candidate && pnpm install --frozen-lockfile
+      - name: Install browser
+        run: cd candidate && pnpm exec playwright install --with-deps chromium
+      - name: Compare donation visibility with current main
+        run: cd candidate && node scripts/check-donation-main-diff.mjs ../baseline-main . ../donation-diff
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: donation-main-diff-${{ github.run_id }}
+          path: donation-diff/
+          retention-days: 14

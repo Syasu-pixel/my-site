@@ -29,6 +29,8 @@ jobs:
       id: scope
       env:
         BEFORE_SHA: ${{ github.event.before }}
+        GH_TOKEN: ${{ github.token }}
+        SOURCE_BRANCH: ${{ github.ref_name }}
       run: |-
         set -euo pipefail
         FULL=true
@@ -39,11 +41,23 @@ jobs:
           printf '.github/workflows/validated-preview-publication.yml\n' > "$RUNNER_TEMP/preview-changed-paths.txt"
         fi
         python - <<'PYCODE'
-        import json,os
+        import json,os,base64,urllib.request,urllib.parse
         from pathlib import Path
         config=json.loads(Path('.github/article-components/integration.json').read_text())
         changed=Path(os.environ['RUNNER_TEMP']+'/preview-changed-paths.txt').read_text().splitlines()
-        full=any(p.startswith(('.github/article-components/','.github/site-shells/','scripts/','.github/workflows/')) or p in ('package.json','pnpm-lock.yaml') or p.startswith('assets/css/') or p.startswith('assets/js/') for p in changed)
+        # Narrow only against the last publication that actually passed the gates.
+        # A failed/interrupted shared change must not become an untested baseline.
+        previous_source=None
+        try:
+         branch=os.environ['SOURCE_BRANCH'];delivery='preview-publication-'+branch.removeprefix('preview-')
+         url='https://api.github.com/repos/Syasu-pixel/my-site/contents/preview-source.json?ref='+urllib.parse.quote(delivery,safe='')
+         request=urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+         with urllib.request.urlopen(request,timeout=20) as response:payload=json.load(response)
+         proof=json.loads(base64.b64decode(payload['content']))
+         if proof.get('sourceBranch')==branch:previous_source=proof.get('sourceCommit')
+        except Exception:
+         pass
+        full=previous_source!=os.environ.get('BEFORE_SHA') or any(p.startswith(('.github/article-components/','.github/site-shells/','scripts/','.github/workflows/','assets/images/')) or p in ('package.json','pnpm-lock.yaml') or p.startswith('assets/css/') or p.startswith('assets/js/') for p in changed)
         targets=config['targets'] if full else list(dict.fromkeys([p for p in changed if p in config['targets']]+config['representatives']))
         with open(os.environ['GITHUB_OUTPUT'],'a') as f:
          f.write('full='+str(full).lower()+'\n')

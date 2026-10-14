@@ -160,8 +160,6 @@
 
 | ファイル | 適用条件・扱い |
 |---|---|
-| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線の非表示変更を現行mainと比較して検証する場合。 寄付カード非表示の専用CI。既存の全記事視覚比較や最終Preview承認を置き換えない。 |
-| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線の非表示を日英ページ・PC/スマホ・ライト/ダークで検証する場合。 main基準の限定比較。実際の統合publicationの最終目視承認とは区別する。 |
 | [.github/article-components/end/adoption.json](../../.github/article-components/end/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/hero/css-bindings.json](../../.github/article-components/hero/css-bindings.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/article-components/hero/hero.njk](../../.github/article-components/hero/hero.njk) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
@@ -181,6 +179,7 @@
 | [.github/workflows/article-components-integration.yml](../../.github/workflows/article-components-integration.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/article-heroes.yml](../../.github/workflows/article-heroes.yml) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/workflows/binary-image-transfer.yml](../../.github/workflows/binary-image-transfer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線の非表示変更を現行mainと比較して検証する場合。 寄付カード非表示の専用CI。既存の全記事視覚比較や最終Preview承認を置き換えない。 |
 | [.github/workflows/editorial-discussion-auto.yml](../../.github/workflows/editorial-discussion-auto.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/external-challenger.yml](../../.github/workflows/external-challenger.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -195,7 +194,7 @@
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [assets/js/site-analytics.js](../../assets/js/site-analytics.js) | サイト横断のアクセス解析、Metricool tracker、SNS流入計測、または解析タグの公開・停止・検査を扱う場合。 本番ホスト限定でMetricool trackerを起動する共通解析ローダー。Previewでは外部送信しない。 |
-| [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
+| [docs/rules/catalog.json](../../docs/rules/catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [package.json](../../package.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/audit-integrated-links.py](../../scripts/audit-integrated-links.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
@@ -210,6 +209,7 @@
 | [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/check-canonical-integrity.mjs](../../scripts/check-canonical-integrity.mjs) | サイト異常で公開ページのcanonical設定を検査する場合。 正規URLの未設定・重複・不正・自己URL不一致を検出する静的監視。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線の非表示を日英ページ・PC/スマホ・ライト/ダークで検証する場合。 main基準の限定比較。実際の統合publicationの最終目視承認とは区別する。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-boundaries.mjs](../../scripts/check-integration-boundaries.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

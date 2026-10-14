@@ -6,7 +6,7 @@
 
 ## AI検索の実測CSVスナップショット（2026-10-14保存）
 
-AI検索を踏まえた記事制作・記事刷新では、正規検索APIの現行実績と併せて、保存済みの [Bing AI Performance原本CSV 3件の台帳](../.github/data/bing-ai-search/2026-10-14/manifest.json) を確認する。別チャット・Codexも、データ台帳から3ファイルを取得して対象記事のクエリを抽出する。最新取得分が別日に増えた場合はその保存場所・期間も照合する。
+AI検索を踏まえた記事制作・記事刷新では、正規検索APIの現行実績と併せて、保存済みの [Bing AI Performance原本CSV 3件の台帳](../.github/data/bing-ai-search/index.json) を確認する。別チャット・Codexも、データ台帳から3ファイルを取得して対象記事のクエリを抽出する。最新取得分が別日に増えた場合はその保存場所・期間も照合する。
 
 - `AISearchQueriesReport`: 電気コントロールの引用クエリ、AIによる引用数・引用シェア。Query＝引用元の情報取得に使われた語句であり、必ずしも検索ユーザーの入力そのままとは限らない。
 - `AITopicsOverallPortfolio`: Bingが分類したテーマと**市場全体の**Volume / Queries / Sitesレンジ。自サイトの引用数と取り違えない。

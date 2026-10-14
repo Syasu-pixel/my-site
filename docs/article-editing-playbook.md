@@ -4,7 +4,7 @@
 
 ## 2026-10-14 Bing AI検索CSV：記事制作・刷新の追加参照
 
-新規記事の企画および既存記事の**実質的な刷新**では、従来の[日付ガード](article-update-date-guard.md)と[検索データ事前確認](article-search-data-precheck-override.md)に加え、利用可能な最新のBing AI検索CSVスナップショットを参照する。初回保存分は [データ台帳](../.github/data/bing-ai-search/2026-10-14/manifest.json) と同階層の原本CSV3件。**日付付きの履歴資料**であり、Google/Bingの公式APIから得る現在の検索実績や一次資料の代わりにはならない。
+新規記事の企画および既存記事の**実質的な刷新**では、従来の[日付ガード](article-update-date-guard.md)と[検索データ事前確認](article-search-data-precheck-override.md)に加え、利用可能な最新のBing AI検索CSVスナップショットを参照する。初回保存分は [データ台帳](../.github/data/bing-ai-search/index.json) と同階層の原本CSV3件。**日付付きの履歴資料**であり、Google/Bingの公式APIから得る現在の検索実績や一次資料の代わりにはならない。
 
 1. 対象記事の主要用語・同義語に関連する `AISearchQueriesReport`（実際の引用クエリ・引用数・シェア）を抽出し、読者が求める説明を確認する。
 2. `AITopicsOverallPortfolio`（AI検索全体のテーマ規模）と `AITopicsTopOpportunityQueries`（他サイトが引用される未獲得テーマ）で、追加説明や新規記事の候補を検討する。全体の引用規模を自サイトの引用回数と混同しない。

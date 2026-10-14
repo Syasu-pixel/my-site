@@ -160,6 +160,8 @@
 
 | ファイル | 適用条件・扱い |
 |---|---|
+| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線の非表示変更を現行mainと比較して検証する場合。 寄付カード非表示の専用CI。既存の全記事視覚比較や最終Preview承認を置き換えない。 |
+| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線の非表示を日英ページ・PC/スマホ・ライト/ダークで検証する場合。 main基準の限定比較。実際の統合publicationの最終目視承認とは区別する。 |
 | [.github/article-components/end/adoption.json](../../.github/article-components/end/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/hero/css-bindings.json](../../.github/article-components/hero/css-bindings.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/article-components/hero/hero.njk](../../.github/article-components/hero/hero.njk) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |

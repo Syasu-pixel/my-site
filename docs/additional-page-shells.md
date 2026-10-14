@@ -55,3 +55,7 @@ Pagesで従来の288記事生成に続いて追加対象ページを同じ生成
 ## フッター広告表記の追加案（2026-09-19、未公開）
 
 記事と同じ `.github/site-shells/components/affiliate-disclosure.njk` を生成時に読み、既存のfooterInnerの後へ1段落だけ追加する。元の文言・リンクを置換せず、追加段落を除く候補は変更前と全バイト一致。原文4ページは変更しない。manifestのrevisionと候補ハッシュは今回の確認候補を示し、公開承認ではない。ブラウザ検査では元フッターの文言とリンクを照合し、追加段落の個数と言語を別途検査する。
+
+### 検証中のGitHub自動Preview経路
+
+[Preview配信正本](preview-environment.md) の「検証中：GitHub側での自動統合Preview」を参照。自動経路を使う場合も、rawソースブランチURLではなく検証済みpublicationの配信ブランチを確認し、source commit／ハッシュ一致とPCライト・PCダーク・スマホライト・スマホダークを記録する。追加ページは記事専用controlsを要求しない。検証中の実装を完了済みと扱わず、mainにはマージしない。

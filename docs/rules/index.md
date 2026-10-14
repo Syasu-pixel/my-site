@@ -234,6 +234,8 @@
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/workflows/validated-preview-publication.yml](../../.github/workflows/validated-preview-publication.yml) | Cloudflare Pagesの統合生成物自動Preview配信を実装・検査する場合。 Preview専用。検証成功時だけ隔離した配信ブランチへ保存。本番mainにはマージしない。 |
+| [scripts/check-preview-publication.mjs](../../scripts/check-preview-publication.mjs) | Cloudflare Pagesの統合生成物自動Preview配信を実装・検査する場合。 検証済みpublicationと外部配信のハッシュ一致、日英6ページ×PC/スマホ×ライト/ダーク、寄付非表示の確認。送信は禁止。 |
 
 ## 省略表記の参照先
 
@@ -396,3 +398,4 @@ catalog.json の reference_exceptions に参照元・元表記・理由を個別
 - `docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md` → `references/style-reference-only.png`：Library上のレビュー用ZIP内部パス。GitHubリポジトリの実在パスではなく、必要時は該当ZIPを取得して確認する。
 - `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `a_colorful_japanese_manga_style_infographic_comic.png`：画像生成セッション上の採用ファイル名。GitHub常設ファイルではなく、採用画像の転送が完了するまで未取得として扱う。
 - `docs/comic-scripts/npn-pnp-basic-yonkoma-01.md` → `assets/images/comics/npn-pnp-basic/npn-pnp-basic-yonkoma-01.png`：正式採用画像の想定配置先だが、2026-10-05時点ではGitHubへのバイナリ転送未完了。転送完了後にこの例外を削除する。
+- `docs/preview-environment.md` → `preview-source.json`：検証済みpublicationの配信コピーで生成するsource SHA／最適化後ハッシュの証拠。ソースrootには常設しない。

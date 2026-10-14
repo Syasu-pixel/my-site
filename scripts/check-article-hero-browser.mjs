@@ -29,7 +29,7 @@ try{for(const width of [320,390,768,1440]){
    if(width===390){const links=measurements[mode].links;for(let n=0;n<links.length;n++){
     await page.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(page);
     await page.locator('.hero-actions a').nth(n).click();const state=await page.evaluate(()=>({hash:location.hash,destination:(location.pathname+location.hash).replace(/^\/(before|after)\//,'/'),targetExists:location.hash?!!document.getElementById(decodeURIComponent(location.hash.slice(1))):!!document.querySelector('h1')}));
-    if(!state.targetExists||state.destination!==links[n].destination)throw Error('CTA target differs');actions.push({path,mode,n,...state});
+    if(!state.targetExists||state.destination!==links[n].destination)throw Error('CTA target differs: '+JSON.stringify({path,mode,n,expected:links[n],actual:state}));actions.push({path,mode,n,...state});
    }}
   }
   const top=compare(shots.beforeTop,shots.afterTop),hero=compare(shots.beforeHero,shots.afterHero),topPixels=top.pixels,heroPixels=hero.pixels,metricsExact=JSON.stringify(measurements.before)===JSON.stringify(measurements.after);

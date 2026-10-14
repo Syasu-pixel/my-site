@@ -22,6 +22,8 @@
 
 ## 記事作成・更新の実作業
 [実作業手順](docs/article-editing-playbook.md)から、登録・編集元・検査基準・生成・公開導線の順に進む。
+新規記事・既存記事の実質刷新では、[検索データ事前確認](docs/article-search-data-precheck-override.md)を通し、[Bing AI検索CSV保存台帳](.github/data/bing-ai-search/index.json)にある原本3件も記事テーマごとに確認する。AI引用を根拠にした改変は[引用ルール](docs/ai-search-citation-rules.md)に従う。保存CSVは履歴でありリアルタイム値ではない。
+[実作業手順](docs/article-editing-playbook.md)から、登録・編集元・検査基準・生成・公開導線の順に進む。
 
 ## 文書の更新
 移行の状態・採用記録・件数は移行状況文書だけで更新する。この入口には現在段階を重複記載しない。

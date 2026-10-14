@@ -1,0 +1,32 @@
+name: Live Cloudflare Preview verification
+'on':
+  push:
+    branches:
+    - audit-live-preview-1764-20261014
+    paths:
+    - .github/workflows/preview-live-verification.yml
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22.16.0
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 11.19.0
+    - run: pnpm install --frozen-lockfile --ignore-scripts
+    - run: pnpm exec playwright install --with-deps chromium
+    - name: Verify exact deployed HTML and four display conditions
+      run: node scripts/check-preview-publication.mjs https://92ad39ab.denkicontrol-preview.pages.dev
+        "${RUNNER_TEMP}/live-preview"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: live-preview-92ad39ab-${{ github.run_id }}
+        path: ${{ runner.temp }}/live-preview/
+        retention-days: 30

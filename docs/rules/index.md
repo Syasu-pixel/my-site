@@ -236,6 +236,7 @@
 | [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/workflows/validated-preview-publication.yml](../../.github/workflows/validated-preview-publication.yml) | Cloudflare Pagesの統合生成物自動Preview配信を実装・検査する場合。 Preview専用。検証成功時だけ隔離した配信ブランチへ保存。本番mainにはマージしない。 |
 | [scripts/check-preview-publication.mjs](../../scripts/check-preview-publication.mjs) | Cloudflare Pagesの統合生成物自動Preview配信を実装・検査する場合。 検証済みpublicationと外部配信のハッシュ一致、日英6ページ×PC/スマホ×ライト/ダーク、寄付非表示の確認。送信は禁止。 |
+| [.github/workflows/preview-live-verification.yml](../../.github/workflows/preview-live-verification.yml) | PR #1764の統合publicationのCloudflare実配信を最終確認する場合。 外部Previewの実レスポンスと検証済みハッシュを照合。日英6ページ×PC/スマホ×ライト/ダークを送信なしで検査。配信・mainマージはしない。 |
 
 ## 省略表記の参照先
 

@@ -106,3 +106,6 @@
 ## 7. 完了報告
 
 確認したcommitと適用ルール、対象URLと記事タイプ、編集元と登録先、意図した差分、生成・検査結果、未確認範囲、Preview、承認範囲、公開状態を短く残す。最終Previewではraw / integrated / publicationのどの成果物を表示したか、ライト／ダークと画面幅の確認条件、一時Preview資産の後片付け結果も必要に応じて残す。未登録・未検査・未公開を「完了」とまとめない。
+### 検証中のGitHub自動Preview経路
+
+[Preview配信正本](preview-environment.md) の「検証中：GitHub側での自動統合Preview」を参照。自動経路を使う場合も、rawソースブランチURLではなく検証済みpublicationの配信ブランチを確認し、source commit／ハッシュ一致とPCライト・PCダーク・スマホライト・スマホダークを記録する。追加ページは記事専用controlsを要求しない。検証中の実装を完了済みと扱わず、mainにはマージしない。

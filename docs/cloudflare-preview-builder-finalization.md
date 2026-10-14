@@ -16,3 +16,7 @@
 - 最終目視は最低限 PCライト／PCダーク／スマホライト／スマホダークを行う。必要に応じてタブレット幅を追加する。
 - 最終生成物を配信するための専用branch / PRを用意する場合はPreview専用と明示し、mainへマージしない。公開成功後に閉じ、一時Workflow・trigger・生成専用ファイルがmainへ混入していないことを確認する。
 
+
+### 検証中のGitHub自動Preview経路
+
+[Preview配信正本](preview-environment.md) の「検証中：GitHub側での自動統合Preview」を参照。自動経路を使う場合も、rawソースブランチURLではなく検証済みpublicationの配信ブランチを確認し、source commit／ハッシュ一致とPCライト・PCダーク・スマホライト・スマホダークを記録する。追加ページは記事専用controlsを要求しない。検証中の実装を完了済みと扱わず、mainにはマージしない。

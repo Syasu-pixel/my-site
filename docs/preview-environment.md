@@ -41,3 +41,15 @@ Canonical ProductionはGitHub Pages / `main` / `https://denkicontrol.com/`。本
 ## 旧運用記録の扱い
 
 2026-09-06のNetlify Pilotの具体的な設定手順・初回接続・旧PR #1292の記録はGit履歴で確認する。現行の作業手順として再掲しない。旧記録を参照する際も現在の配信・生成・検証実装を優先する。
+
+## 検証中：GitHub側での自動統合Preview（2026-10-14）
+
+Production設定を変えず、既存のGit連携・`exit 0`・repository root配信を利用する検証実装。2026-10-14の管理者画面でPreview includeは `ai-editorial/*` と `preview-*`、excludeは旧PLC専用 `preview-final-plc-basic-publication-v3-20261007`、Production自動配信OFFを確認。既存条件は編集しない。
+
+- 正本実装は `.github/workflows/validated-preview-publication.yml`。この実装を持つ `preview-*` ソースブランチへのpushで本番Pagesと同じ生成器・追加ページ生成・WebP最適化・publication最終検証を実行し、追加ページ再生成・4幅検査、全記事の6分割ブラウザ／ダーク検査を通す。失敗時は配信ブランチを更新しない。
+- 生成物は `preview-publication-{ソース名から先頭preview-を除いた名前}` へ保存する。配信ブランチにはWorkflowを含めない。mainもソースブランチのHTMLも上書きせず、古いsource SHAや既存の無関係な配信ブランチを拒否する。
+- `preview-source.json` にsource commit、source branch、run ID、最適化後HTML/CSS/JSハッシュを記録。`scripts/check-preview-publication.mjs` でローカルと実Cloudflare URLを確認する。外部URLはproviderの実成功記録から取得する。推定aliasだけを成功証拠にしない。
+- 検査済みcandidate/publicationのHTMLにreview隔離コードを入れず、配信コピーの `_headers` でnoindexを指定する。Metricoolの既存本番ホストガードを保持し、確認ブラウザは外部通信・POSTを遮断する。
+- 再利用には上記Workflowと検査スクリプトを新しいPreviewソースブランチへ最初に配置する。その後は通常チャットからソースを更新するだけで自動実行する。mainへの導入は今回の範囲外で禁止。すべての新規ブランチへ自動導入済みとは扱わない。
+- 今回の検証元はPR #1764の `dd9eab7f43f25f379e4f0e174c708ab1702c80bb` を引き継いだ `preview-auto-publication-1764-20261014`。本番用PR #1764は変更せず、専用実装を本番へ混入させない。
+- 状態は実装検証中。Cloudflare実配信・4条件目視確認・source hash照合の成功前に完了と記録しない。戻す場合はソース側Workflowを停止または削除する。Production設定の変更・mainマージ・既存Previewの削除は行わない。

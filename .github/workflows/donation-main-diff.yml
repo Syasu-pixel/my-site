@@ -37,7 +37,8 @@ jobs:
           git archive "$BASE_SHA" | tar -x -C "$RUNNER_TEMP/donation-main-root"
       - name: Build both sides with the same checked-out builder
         run: |
-          node scripts/build-additional-shells.mjs "$RUNNER_TEMP/donation-main-generated" "$RUNNER_TEMP/donation-main-root"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/donation-main-root/node_modules"
+          node "$RUNNER_TEMP/donation-main-root/scripts/build-additional-shells.mjs" "$RUNNER_TEMP/donation-main-generated" "$RUNNER_TEMP/donation-main-root"
           node scripts/build-additional-shells.mjs "$RUNNER_TEMP/donation-pr-generated" .
       - name: Reject all generated-page differences except approved donation CSS
         run: |

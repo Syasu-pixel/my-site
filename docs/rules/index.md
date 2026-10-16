@@ -174,13 +174,13 @@
 | [.github/site-shells/components/affiliate-disclosure.njk](../../.github/site-shells/components/affiliate-disclosure.njk) | 共通フッターの広告表記を編集・生成する場合。 全記事37variantと追加4ページが共有する文面・配置の正本。 |
 | [.github/site-shells/eleventy.config.cjs](../../.github/site-shells/eleventy.config.cjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/manifest.json](../../.github/site-shells/manifest.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 承認済み寄付非表示以外の生成HTML・CSS変更を禁止する独立CI。最終Preview目視承認を代替しない。 |
 | [.github/workflows/additional-shells.yml](../../.github/workflows/additional-shells.yml) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/ai-editorial-preview-capture.yml](../../.github/workflows/ai-editorial-preview-capture.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/article-components-integration.yml](../../.github/workflows/article-components-integration.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/article-heroes.yml](../../.github/workflows/article-heroes.yml) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/workflows/binary-image-transfer.yml](../../.github/workflows/binary-image-transfer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 承認済み寄付非表示以外の生成HTML・CSS変更を禁止する独立CI。最終Preview目視承認を代替しない。 |
 | [.github/workflows/editorial-discussion-auto.yml](../../.github/workflows/editorial-discussion-auto.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/external-challenger.yml](../../.github/workflows/external-challenger.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -194,6 +194,7 @@
 | [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/validated-preview-publication.yml](../../.github/workflows/validated-preview-publication.yml) | 検証済みpublicationをCloudflare Pagesの隔離Previewへ配信し、公開前にブラウザ確認する場合。Preview専用の公開境界を確認する。 本番mainへのマージを伴わないPreview配信の生成・検査。外部到達とsource SHA照合は別途必須。 |
 | [assets/js/site-analytics.js](../../assets/js/site-analytics.js) | サイト横断のアクセス解析、Metricool tracker、SNS流入計測、または解析タグの公開・停止・検査を扱う場合。 本番ホスト限定でMetricool trackerを起動する共通解析ローダー。Previewでは外部送信しない。 |
 | [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -203,7 +204,6 @@
 | [scripts/build-article-heroes.mjs](../../scripts/build-article-heroes.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/build-site-health-snapshot.mjs](../../scripts/build-site-health-snapshot.mjs) | 運営ダッシュボードのサイト異常監視結果の集約形式・表示データを変更または検査する場合。 CI検査結果をassets/data/site-health.jsonへ集約する管理画面用生成器。 |
-| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 追加ページと記事CSSの現行main対PR厳密差分検証。視覚比較や最終目視承認を代替しない。 |
 | [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
@@ -211,11 +211,13 @@
 | [scripts/check-article-hero-preservation.mjs](../../scripts/check-article-hero-preservation.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/check-canonical-integrity.mjs](../../scripts/check-canonical-integrity.mjs) | サイト異常で公開ページのcanonical設定を検査する場合。 正規URLの未設定・重複・不正・自己URL不一致を検出する静的監視。 |
 | [scripts/check-component-regeneration.mjs](../../scripts/check-component-regeneration.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 追加ページと記事CSSの現行main対PR厳密差分検証。視覚比較や最終目視承認を代替しない。 |
 | [scripts/check-integrated-publication.mjs](../../scripts/check-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integrated-review.mjs](../../scripts/check-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-boundaries.mjs](../../scripts/check-integration-boundaries.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-integration-risk-cases.mjs](../../scripts/check-integration-risk-cases.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/check-ogp-images.mjs](../../scripts/check-ogp-images.mjs) | 運営ダッシュボードのサイト異常監視で、公開HTMLのOGP画像設定・実在・本番取得可否を変更または検査する場合。 og:imageの未設定・不正URL・ローカル画像欠落・本番HTTP取得失敗・画像以外のContent-Typeを検出する監視。 |
+| [scripts/check-preview-publication.mjs](../../scripts/check-preview-publication.mjs) | 検証済みpublicationをCloudflare Pagesの隔離Previewへ配信し、公開前にブラウザ確認する場合。Preview専用の公開境界を確認する。 本番mainへのマージを伴わないPreview配信の生成・検査。外部到達とsource SHA照合は別途必須。 |
 | [scripts/check-production-http.mjs](../../scripts/check-production-http.mjs) | 運営ダッシュボードのサイト異常監視で、本番公開URLのHTTP到達性・404・5xx・タイムアウト検査を変更または実行する場合。 公開HTMLを低並列・タイムアウト付きでdenkicontrol.comへ実アクセスし、本番配信の到達不能を検出する監視。 |
 | [scripts/check-rule-catalog.py](../../scripts/check-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [scripts/check-search-index-integrity.mjs](../../scripts/check-search-index-integrity.mjs) | サイト異常で公開記事とサイト内検索インデックスの整合性を確認する場合。 記事の検索登録漏れ・削除済み参照・重複・不正URLを検出する静的監視。 |

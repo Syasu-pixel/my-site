@@ -14,7 +14,7 @@ if (!['baseline','compare'].includes(phase)) throw Error('Use --phase=baseline o
 const base = resolve(args['--root'] || '.');
 const out = resolve(args['--out'] || '.visual-evidence');
 const config = JSON.parse(await readFile(new URL('../.github/site-shell-visual.json', import.meta.url), 'utf8'));
-const baseSha = config.baselineCommit;
+const baseSha = process.env.BASE_SHA || config.baselineCommit; // CI must supply the PR base SHA; legacy pinned commit is only a manual fallback.
 if (!/^[a-f0-9]{40}$/.test(baseSha)) throw Error('Invalid pinned baseline');
 const scope = args['--scope'] || 'all';
 if (!['all','pilot'].includes(scope)) throw Error('Invalid scope');

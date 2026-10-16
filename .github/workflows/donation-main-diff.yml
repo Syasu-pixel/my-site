@@ -1,0 +1,49 @@
+name: Donation changes vs current main
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/article-components/integration-compat.css'
+      - '.github/site-shells/additional/**'
+      - 'scripts/build-additional-shells.mjs'
+      - 'scripts/check-additional-shell-regeneration.mjs'
+      - 'scripts/check-donation-main-diff.mjs'
+      - '.github/workflows/donation-main-diff.yml'
+permissions:
+  contents: read
+jobs:
+  strict-generated-diff:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Archive pinned PR base (not the old visual baseline)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --depth=1 origin "$BASE_SHA"
+          mkdir -p "$RUNNER_TEMP/donation-main-root"
+          git archive "$BASE_SHA" | tar -x -C "$RUNNER_TEMP/donation-main-root"
+      - name: Build both sides with the same checked-out builder
+        run: |
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/donation-main-root/node_modules"
+          node "$RUNNER_TEMP/donation-main-root/scripts/build-additional-shells.mjs" "$RUNNER_TEMP/donation-main-generated" "$RUNNER_TEMP/donation-main-root"
+          node scripts/build-additional-shells.mjs "$RUNNER_TEMP/donation-pr-generated" .
+      - name: Reject all generated-page differences except approved donation CSS
+        run: |
+          node scripts/check-donation-main-diff.mjs "$RUNNER_TEMP/donation-main-root" "$RUNNER_TEMP/donation-main-generated" . "$RUNNER_TEMP/donation-pr-generated"
+      - name: Summary
+        if: always()
+        run: |
+          echo 'This strict differential compares 16 production-style generated additional pages and article/category CSS against this PR base SHA. It does not bypass or replace the legacy screenshot check.' >> "$GITHUB_STEP_SUMMARY"

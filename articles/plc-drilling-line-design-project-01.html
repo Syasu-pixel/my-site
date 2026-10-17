@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <meta name="robots" content="noindex, nofollow">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>記事を一時公開停止中｜電気コントロール</title>
-  <meta name="description" content="この記事は現在、設備仕様と内容の見直しのため公開を一時停止しています。">
+  <title>PLCで設備を1から設計する｜穴あけ生産ライン設計プロジェクト 第1回</title>
+  <meta name="description" content="PLC・コンベヤ・エアシリンダ・加工ステーションを組み合わせた穴あけ生産ラインを、設備仕様からI/O、制御シーケンスまで1から設計していく実践プロジェクト。第1回は設備全体像と設計の進め方を整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/plc-drilling-line-design-project-01.html">
@@ -265,7 +266,7 @@
     }
   </style>
   <link rel="stylesheet" href="/assets/css/gxworks2-service-entry.css">
-  <meta name="robots" content="noindex,nofollow">
+<style>main.container > :not(#pause-message){display:none!important}</style>
 </head>
 <body>
 <header class="site-header">
@@ -305,15 +306,165 @@
   </div>
 </header>
 
-<main class="container" data-publication-state="temporarily-paused">
-  <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a></nav>
+<main class="container">
+  <section id="pause-message" aria-labelledby="pause-heading" style="max-width:760px;margin:8vh auto;padding:32px;border:1px solid #bfd5ff;border-radius:16px;background:#fff;color:#213047"><h1 id="pause-heading">この記事は現在、公開を一時停止しています</h1><p>「PLCで設備を1から設計する」シリーズは設備仕様と記事内容の見直しを行っています。再公開までしばらくお待ちください。</p><p><a href="../categories/control-basics.html">制御の基礎へ戻る</a></p></section>
+  <nav class="breadcrumb" aria-label="パンくず"><a href="../index.html">ホーム</a><span>›</span><span>実践・設備設計</span><span>›</span><span>穴あけ加工ライン設計 第1回</span></nav>
+
   <section class="article-hero" aria-labelledby="page-title">
     <div class="article-hero-copy">
-      <h1 id="page-title">この記事は現在、公開を一時停止しています</h1>
-      <p>「PLCで設備を1から設計する」シリーズは、設備仕様と記事内容の見直しを行っています。再公開までしばらくお待ちください。</p>
-      <p><a href="../categories/control-basics.html">制御の基礎へ戻る</a></p>
+      <span class="hero-label">実践・設備設計シリーズ #01</span>
+      <h1 id="page-title">PLCで設備を1から設計する<br>穴あけ加工ライン設計プロジェクト</h1>
+      <p class="hero-lead">仮想の穴あけ加工ラインを題材に、設備仕様・I/O・搬送・加工・制御設計を「1台の設備をつくる流れ」でつないでいきます。</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#machine">今回つくる設備を見る</a><a class="btn btn-secondary" href="#design-flow">設計の流れを見る</a></div>
     </div>
   </section>
+
+  <section class="top-summary" aria-label="記事の導入まとめ">
+    <section class="summary-card summary-card--fit"><h2>今回つくるもの</h2><ul><li>CV01〜CV04の独立搬送区間</li><li>穴あけ加工エリア</li><li>加工後はシンプルなシュート排出</li></ul></section>
+    <section class="summary-card summary-card--conclusion"><h2>この記事で決めること</h2><ul><li>設備全体の構成</li><li>PLCとI/Oの考え方</li><li>搬送・加工の基本シーケンス</li></ul></section>
+    <section class="summary-card summary-card--notyet"><h2>まだやらないこと</h2><ul><li>GX Works2への実入力</li><li>シミュレータでの動作確認</li><li>実機主回路・安全回路の詳細確定</li></ul></section>
+  </section>
+
+  <section class="mini-toc-card"><h2>第1回でわかること</h2><div class="mini-toc"><a href="#machine">設備全体像</a><a href="#conditions">設計条件</a><a href="#io">I/O構成</a><a href="#sequence">動作シーケンス</a><a href="#design-flow">設計の進め方</a><a href="#current">現在地</a></div></section>
+
+  <div class="page-layout">
+    <div class="main-column">
+      <section class="section-card" id="machine">
+        <h2>1. まずは「どんな設備をつくるのか」を決める</h2>
+        <p>題材にするのは、樹脂ワークを1個ずつ投入し、CV01〜CV04を通して加工エリアへ送り、穴あけ加工を行ったあとに排出する小型の仮想生産ラインです。</p>
+        <div class="project-flow" aria-label="設備工程の流れ">
+          <div class="project-step"><strong>CV01</strong><span>投入・搬送</span></div>
+          <div class="project-step"><strong>CV02</strong><span>搬送</span></div>
+          <div class="project-step"><strong>CV03</strong><span>搬送</span></div>
+          <div class="project-step"><strong>CV04</strong><span>加工前搬送</span></div>
+          <div class="project-step"><strong>加工エリア</strong><span>穴あけ・排出</span></div>
+        </div>
+        <div class="talk-thread">
+          <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>いきなりラダーを書くのではなく、まず設備がどう動くかを決めるところから始めます。</p></div></div>
+          <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="質問する後輩キャラクター"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>PLCより先に、機械の流れと完了条件を整理するんですね。</p></div></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="conditions">
+        <h2>2. ラダーより先に設計条件を固定する</h2>
+        <p>プログラムから考え始めると、途中でI/Oや動作条件が足りなくなりやすいので、まず設備として何を実現するかを整理します。</p>
+        <div class="table-wrap"><table><thead><tr><th>項目</th><th>今回の基準</th><th>設計で効いてくる部分</th></tr></thead><tbody>
+          <tr><td>ワーク</td><td>MCナイロン W100×D60×H20 mm</td><td>検出、位置決め、加工位置</td></tr>
+          <tr><td>加工</td><td>上面中央へφ8・深さ15 mmの止まり穴</td><td>加工開始・完了条件</td></tr>
+          <tr><td>搬送</td><td>CV01〜CV04を独立区間として扱う</td><td>在席管理、区間搬送</td></tr>
+          <tr><td>バッファ</td><td>CV02〜CV04で待機可能</td><td>下流空きと搬送許可</td></tr>
+          <tr><td>排出</td><td>加工完了後にストッパを解除しシュート側へ排出</td><td>加工完了と排出確認</td></tr>
+        </tbody></table></div>
+        <div class="key-highlight"><h3>設計の順番を守る</h3><p>「何を検出して、何を動かして、何を完了条件にするか」を先に決めると、あとでPLCロジックへ落とし込みやすくなります。</p></div>
+      </section>
+
+      <section class="section-card" id="io">
+        <h2>3. 設備全体とPLCのI/Oをつなげて見る</h2>
+        <p>設備構成が決まったら、次は「PLCが何を見て、何を動かすのか」を整理します。入力側と出力側を分けて考えるだけでも、設備全体の役割が見えやすくなります。</p>
+        <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-project-01-io.webp" alt="穴あけ加工ラインの全体図とPLC I/O構成イメージ" loading="lazy"><figcaption>穴あけ加工ライン全体と、入力機器 → PLC → 出力機器の関係。</figcaption></figure>
+        <div class="decision-grid">
+          <div class="decision-card"><strong>入力側で見るもの</strong><p>ワーク在席、区間通過、加工位置、運転モード、運転許可など。</p></div>
+          <div class="decision-card"><strong>出力側で動かすもの</strong><p>CV01〜CV04、ストッパ、加工ユニット、表示灯・ブザーなど。</p></div>
+        </div>
+        <div class="note-box"><h3>安全機能は通常PLCだけで完結させない</h3><p>このシリーズでは通常制御を中心に扱います。実機の安全機能や主回路・保護設計は、使用機器・リスク評価・メーカー資料に基づいて別途確認します。</p></div>
+      </section>
+
+      <section class="section-card" id="sequence">
+        <h2>4. 搬送と加工を「順番」で整理する</h2>
+        <p>I/Oを決めただけでは設備は動きません。どの条件で次の工程へ進むのかを、投入から加工・排出までの流れとして整理します。</p>
+        <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-project-01-sequence.webp" alt="搬送と穴あけ加工の動作シーケンス" loading="lazy"><figcaption>STEP1〜3とSTEP4〜6を分けて、投入・搬送・加工・メカシュート排出までを確認します。</figcaption></figure>
+        <div class="status-strip"><span class="status-chip">STEP1 投入</span><span class="status-chip">STEP2 CV01→CV02</span><span class="status-chip">STEP3 CV02→CV03</span><span class="status-chip">STEP4 CV03→CV04</span><span class="status-chip">STEP5 加工</span><span class="status-chip">STEP6 排出</span></div>
+        <div class="field-highlight"><h3>搬送完了は1つの信号だけで決めない</h3><p>搬送元・搬送先・通過確認などを組み合わせ、開始条件と完了条件を分けて考えると、後からラダーへ落とし込みやすくなります。</p></div>
+      </section>
+
+      <section class="section-card" id="design-flow">
+        <h2>5. 設備設計は6つの工程で進める</h2>
+        <p>今回のプロジェクトでは、要件整理から試運転までを6段階に分けます。完成コードよりも「何をどの順番で決めるか」を重視します。</p>
+        <figure class="article-figure"><img src="../assets/images/articles/plc-drilling-line-project-01-design-flow.webp" alt="穴あけ加工ライン設計の6ステップ" loading="lazy"><figcaption>要件整理 → 構想設計 → 電気設計 → プログラム設計 → 製作・配線 → 試運転・調整。</figcaption></figure>
+        <div class="decision-grid">
+          <div class="decision-card"><strong>1. 要件整理</strong><p>条件と仕様を整理する。</p></div>
+          <div class="decision-card"><strong>2. 構想設計</strong><p>コンベア・ストッパ・加工部の配置を決める。</p></div>
+          <div class="decision-card"><strong>3. 電気設計</strong><p>PLC、センサ、I/Oの構成を考える。</p></div>
+          <div class="decision-card"><strong>4. プログラム設計</strong><p>動作シーケンスを制御ロジックへ落とす。</p></div>
+          <div class="decision-card"><strong>5. 製作・配線</strong><p>図面と仕様に沿って設備を形にする。</p></div>
+          <div class="decision-card"><strong>6. 試運転・調整</strong><p>動作を確認し、問題を洗い出して改善する。</p></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="decisions">
+        <h2>6. このシリーズでは「なぜそう設計したか」も残す</h2>
+        <p>完成したI/O表だけでなく、設計途中の判断を残すと、あとから見返したときに設備の考え方が追いやすくなります。</p>
+        <div class="decision-grid">
+          <div class="decision-card"><strong>搬送はCV01〜CV04に分ける</strong><p>区間ごとに状態を見ながら、下流の空きに合わせて搬送できる構成にします。</p></div>
+          <div class="decision-card"><strong>隣接区間は同時搬送させない</strong><p>受け渡しの競合を避けつつ、離れた区間は並行動作できる考え方にします。</p></div>
+          <div class="decision-card"><strong>通過は「見た＋抜けた」で判断</strong><p>センサが一度ONになり、その後OFFへ戻ったことを通過確認として扱います。</p></div>
+          <div class="decision-card"><strong>待機と故障を分ける</strong><p>下流待ちや排出満杯は状態として扱い、指令に対する応答不成立とは分けて考えます。</p></div>
+        </div>
+      </section>
+
+      <section class="section-card" id="current">
+        <h2>7. 現在地：設計済みと動作確認済みを分ける</h2>
+        <div class="status-strip"><span class="status-chip">設備仕様：設計済み</span><span class="status-chip">I/O方針：設計済み</span><span class="status-chip">搬送・加工シーケンス：設計済み</span><span class="status-chip">GX Works2：未入力</span><span class="status-chip">Simulator：未試験</span></div>
+        <p>ここまでで設備仕様、I/Oの考え方、搬送・加工シーケンスは整理できました。一方で、GX Works2への実入力とシミュレーション確認はまだ行っていません。</p>
+        <div class="note-box"><h3>「設計できた」と「動いた」は別</h3><p>このシリーズでは、紙上設計・PLC入力・シミュレーション確認を同じ「完成」にまとめず、確認できた段階をそのまま表示します。</p></div>
+      </section>
+
+      <section class="section-card" id="roadmap">
+        <h2>この設備を、設計の順番でシリーズ化する</h2>
+        <p class="series-roadmap-lead">今読んでいる位置と、次に進む記事がすぐ分かるようにシリーズ全体を並べています。</p>
+        <ol class="series-roadmap">
+          <li class="is-current"><span class="series-step">第1回</span><span class="series-title">設備仕様と全体構想</span><span class="series-state">今ここ</span></li>
+          <li class="is-next"><span class="series-step">第2回</span><span class="series-title">PLC・I/O構成を決める</span><span class="series-state">次ここ</span></li>
+          <li><span class="series-step">第3回</span><span class="series-title">CV01〜CV04の搬送制御を考える</span></li>
+          <li><span class="series-step">第4回</span><span class="series-title">加工ステーションのシーケンスを作る</span></li>
+          <li><span class="series-step">第5回</span><span class="series-title">手動運転・異常処理・復旧を設計する</span></li>
+          <li><span class="series-step">第6回</span><span class="series-title">GOT画面と保守・生産情報を作る</span></li>
+          <li><span class="series-step">最終</span><span class="series-title">GX Works2へ実装してシミュレーションする</span></li>
+        </ol>
+      </section>
+
+      <section class="section-card next-article-card">
+        <span class="hero-label">NEXT｜第2回</span>
+        <h2>I/O設計編へ進む</h2>
+        <a class="next-series-link" href="./plc-drilling-line-design-project-02.html" aria-label="第2回 I/O設計編を読む">
+          <img src="../assets/images/articles/plc-drilling-line-design-project-02-ogp.webp" alt="PLCで設備を1から設計する 第2回 I/O設計編" loading="lazy" decoding="async">
+          <span class="next-series-copy">
+            <strong>第2回｜PLC・I/O構成を決める</strong>
+            <small>入力・出力を整理し、X/Y割付と予備点まで具体化します。</small>
+            <span class="btn btn-primary next-series-button">第2回へ進む</span>
+          </span>
+        </a>
+      </section>
+
+      <section class="section-card article-feedback-card" id="articleFeedbackCard" aria-labelledby="articleFeedbackTitle">
+        <h2 id="articleFeedbackTitle">この記事は役に立ちましたか？</h2>
+        <p class="article-feedback-lead">今後の記事づくりの参考にします。どちらかを選ぶだけで回答できます。</p>
+        <div class="article-feedback-actions" role="group" aria-label="記事の評価">
+          <button class="article-feedback-button" type="button" data-feedback-vote="helpful">👍 役に立った</button>
+          <button class="article-feedback-button" type="button" data-feedback-vote="not_helpful">👎 役に立たなかった</button>
+        </div>
+        <p class="article-feedback-status" id="articleFeedbackStatus" aria-live="polite"></p>
+        <p class="article-feedback-note">回答は匿名で集計し、個人情報の入力はありません。</p>
+      </section>
+
+      
+      <a class="gxw-service-entry" href="/services/gxworks2-online-support.html" aria-label="GX Works2 オンライン相談サービスを見る">
+        <img src="/assets/images/services/gxworks2-online-support-ogp.webp" width="1536" height="1024" alt="GX Works2 オンライン相談サービス" loading="lazy" decoding="async">
+        <div class="gxw-service-entry-copy">
+          <strong>実際のGX Works2変更でお困りなら</strong>
+          <p>既設設備のラダー変更・動作変更は、プロジェクトデータを確認してオンラインで対応します。</p>
+          <small>会員登録不要｜データ確認後にお見積り</small>
+        </div>
+        <span class="gxw-service-entry-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <section class="section-card" id="related"><h2>あわせて読みたい記事</h2><div class="related-grid">
+        <a class="related-card related-card--visual" href="./plc-io-unit-basic.html"><span class="related-card-media"><img src="../assets/images/input-output-basic/input-output-basic-ogp.png" alt="PLC入出力ユニットの基礎記事" loading="lazy" decoding="async"></span><span class="related-card-body"><span class="related-card-tag">PLC・I/O</span><h3>PLC I/Oユニットの基本</h3><p>入力と出力をPLCでどう扱うかを確認したい人向け。</p></span></a>
+        <a class="related-card related-card--visual" href="./sensor-2wire-3wire-basic.html"><span class="related-card-media"><img src="../assets/images/sensor-2wire-3wire-basic/sensor-2wire-3wire-basic-ogp.png" alt="センサ2線式・3線式の基本記事" loading="lazy" decoding="async"></span><span class="related-card-body"><span class="related-card-tag">センサ・入力</span><h3>センサ2線式・3線式の基本</h3><p>設備の入力信号を考える前にセンサ配線を整理します。</p></span></a>
+        <a class="related-card related-card--visual" href="./dc24v-common-basic.html"><span class="related-card-media"><img src="../assets/images/dc24v-common-basic/dc24v-common-basic-ogp.png" alt="DC24VとCOMの基本記事" loading="lazy" decoding="async"></span><span class="related-card-body"><span class="related-card-tag">DC24V・COM</span><h3>DC24VとCOMの基本</h3><p>PLC入出力回路の共通線と考え方を基礎から確認できます。</p></span></a>
+      </div></section>
+    </div>
+  </div>
 </main>
 
 <footer class="site-footer">

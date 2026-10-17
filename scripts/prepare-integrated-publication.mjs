@@ -32,10 +32,10 @@ for(const path of [...targets,...additionalPaths,...assets]){
       'articles/plc-drilling-line-design-project-02.html',
       'articles/plc-drilling-line-design-project-03.html'
     ]);
-    const hasNoindex = /<meta\\b[^>]*\\bnoindex\\b/i.test(html);
+    const hasNoindex = /<meta\b[^>]*\bnoindex\b/i.test(html);
     if (pausedArticles.has(path)) {
       const authored = await readFile(resolve(root,path),'utf8');
-      assert(hasNoindex && /<meta\\b[^>]*\\bnoindex\\b/i.test(authored), 'Paused article missing authored noindex: '+path);
+      assert(hasNoindex && /<meta\b[^>]*\bnoindex\b/i.test(authored), 'Paused article missing authored noindex: '+path);
       assert(html.includes('この記事は現在、公開を一時停止しています'), 'Paused article notice missing: '+path);
     } else {
       assert(!hasNoindex, 'Review noindex leaked into candidate: '+path);

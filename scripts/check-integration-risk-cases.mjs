@@ -11,7 +11,18 @@ try{
  }catch(e){failures.push({test:'additional-breakpoint',path:spec.path,width,error:e.message});}finally{await c?.close();}}
  const risks=new Map();for(const key of ['longestToc','generatedAnchorCases','fixedBottomControls','fixedSearchPanels'])for(const p of selection[key])risks.set(p.path,p);
  for(const spec of risks.values()){let c,p;try{
-  ({c,p}=await open(spec.path,320,568));await p.locator('#dc-search-toggle').click();await p.locator('#site-search-input').fill('PLC');await p.locator('#site-search-results li').first().waitFor();await p.waitForTimeout(80);assert(!overlap(await p.locator('.dc-toc-button').boundingBox(),await p.locator('#site-search-panel').boundingBox()),'small-screen search overlap');
+  ({c,p}=await open(spec.path,320,568));
+  // A paused article intentionally has no readable body or TOC destinations.
+  // Test the pause state explicitly; retain full TOC checks for every active article.
+  if(/^articles\/plc-drilling-line-design-project-0[123]\.html$/.test(spec.path)){
+   assert(await p.locator('#pause-message').count()===1,'paused article notice missing');
+   assert(await p.locator('#pause-message').isVisible(),'paused article notice hidden');
+   assert((await p.locator('meta[name="robots"]').getAttribute('content')||'').includes('noindex'),'paused article not noindex');
+   assert(await p.locator('.dc-toc-button:visible').count()===0,'paused article TOC visible');
+   checks.push({test:'paused-small-screen',path:spec.path,width:320,status:'passed'});
+   continue;
+  }
+  await p.locator('#dc-search-toggle').click();await p.locator('#site-search-input').fill('PLC');await p.locator('#site-search-results li').first().waitFor();await p.waitForTimeout(80);assert(!overlap(await p.locator('.dc-toc-button').boundingBox(),await p.locator('#site-search-panel').boundingBox()),'small-screen search overlap');
   await p.locator('#dc-menu-toggle').click();assert(await p.locator('#dc-search-drawer').isHidden(),'search/menu both open');await p.waitForTimeout(50);assert(!overlap(await p.locator('.dc-toc-button').boundingBox(),await p.locator('#dc-menu-drawer').boundingBox()),'small-screen menu overlap');await p.keyboard.press('Escape');
   await p.locator('.dc-toc-button').click();const links=p.locator('.dc-toc-list a'),n=await links.count();assert(n===spec.tocCount,'TOC items lost');
   const unresolved=await links.evaluateAll(es=>es.filter(a=>!document.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash));assert(!unresolved.length,'TOC target missing');

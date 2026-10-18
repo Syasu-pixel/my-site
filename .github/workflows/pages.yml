@@ -244,6 +244,20 @@ jobs:
       - name: Verify final standalone publication
         run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
 
+      # Preserve the source articles and their 288-page component baselines,
+      # but omit the three paused URLs from the deployed copy, yielding real 404s.
+      # Do this only after all full source/artifact integrity checks succeed.
+      - name: Exclude paused PLC series from public artifact
+        run: |
+          set -euo pipefail
+          for episode in 01 02 03; do
+            page="_site/articles/plc-drilling-line-design-project-${episode}.html"
+            test -f "$page" || { echo "Missing expected pre-exclusion article: $page"; exit 1; }
+            rm "$page"
+            test ! -e "$page"
+            echo "Excluded from public artifact: $page"
+          done
+
       - name: Save publication verification
         if: always()
         uses: actions/upload-artifact@v4

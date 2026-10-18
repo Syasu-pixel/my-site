@@ -11,7 +11,7 @@ function trial(changes) {
   const root=mkdtempSync(join(tmpdir(),'visual-scope-'));
   for(const p of ['.github/site-shell-visual.json','articles/first.html','articles/second.html']) {
     mkdirSync(dirname(join(root,p)),{recursive:true});
-    writeFileSync(join(root,p),'initial');
+    writeFileSync(join(root,p),p === '.github/site-shell-visual.json' ? '{}' : 'initial');
   }
   git(root,'init','-q');git(root,'config','user.email','ci@example.invalid');git(root,'config','user.name','CI');
   git(root,'add','.');git(root,'commit','-qm','base');

@@ -22,7 +22,11 @@ const pages = [];
 for (const dir of ['articles','en/articles']) for (const name of (await readdir(resolve(base,dir))).sort()) {
   if (name.endsWith('.html')) pages.push(`${dir}/${name}`);
 }
-const targets = scope === 'pilot' ? config.representatives : pages;
+const selection = args['--targets-file'] ? JSON.parse(await readFile(resolve(args['--targets-file']), 'utf8')) : null;
+const targets = selection?.mode === 'changed-articles'
+  ? selection.targets
+  : scope === 'pilot' ? config.representatives : pages;
+if (selection?.mode === 'changed-articles' && (!Array.isArray(targets) || !targets.length || targets.some(path => !pages.includes(path)))) throw Error('Invalid focused visual targets');
 if (scope==='all' && pages.length!==config.articleCount) throw Error(`Article inventory changed: ${pages.length}; review config explicitly`);
 const hash = value => createHash('sha256').update(value).digest('hex');
 const manifestFile = resolve(out, 'baseline.json');

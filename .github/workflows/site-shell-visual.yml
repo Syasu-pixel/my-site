@@ -41,11 +41,13 @@ jobs:
           git fetch --depth=1 origin "$BASE"
           mkdir .visual-base
           git archive "$BASE" | tar -x -C .visual-base
+      - name: Select visual audit scope
+        run: node scripts/select-shell-visual-targets.mjs "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" .visual-targets.json
       - name: Save baseline before generation
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: node scripts/site-shell-visual.mjs --phase=baseline --root=.visual-base --out=.visual-evidence
+        run: node scripts/site-shell-visual.mjs --phase=baseline --root=.visual-base --out=.visual-evidence --targets-file=.visual-targets.json
       - name: Upload immutable baseline evidence
         uses: actions/upload-artifact@v4
         with:
@@ -53,6 +55,7 @@ jobs:
           path: |
             .visual-evidence/before/
             .visual-evidence/baseline.json
+            .visual-targets.json
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error
@@ -67,7 +70,7 @@ jobs:
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: node scripts/site-shell-visual.mjs --phase=compare --root=. --out=.visual-evidence
+        run: node scripts/site-shell-visual.mjs --phase=compare --root=. --out=.visual-evidence --targets-file=.visual-targets.json
       - name: Upload browsable comparison evidence
         if: always()
         uses: actions/upload-artifact@v4

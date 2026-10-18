@@ -4,10 +4,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const [base, head, output = '.visual-targets.json'] = process.argv.slice(2);
 if (!base || !head) throw Error('Usage: select-shell-visual-targets.mjs BASE HEAD OUTPUT');
 const config = JSON.parse(readFileSync('.github/site-shell-visual.json', 'utf8'));
-const raw = execFileSync('git', ['diff', '--name-only', '--diff-filter=ACDMRTUXB', base, head], {encoding:'utf8'});
-const changed = [...new Set(raw.trim().split('\n').filter(Boolean))];
+const raw = execFileSync('git', ['diff', '--name-status', base, head], {encoding:'utf8'});
+const entries = raw.trim().split('\n').filter(Boolean).map(line => line.split('\t')); 
+const changed = [...new Set(entries.flatMap(parts => parts.slice(1)))];
 const article = /^(?:articles|en\/articles)\/[^/]+\.html$/;
-const onlyArticleHtml = changed.length > 0 && changed.every(file => article.test(file));
+const onlyArticleHtml = entries.length > 0 && entries.every(([status, file]) => status === 'M' && article.test(file));
 const targets = onlyArticleHtml ? changed.filter(file => {
   try { readFileSync(file); return true; } catch { return false; }
 }).sort() : [];

@@ -25,21 +25,7 @@ for(const path of [...targets,...additionalPaths,...assets]){
   const bytes=await readFile(source),html=bytes.toString('utf8');
   assert(!/data-review-only|data-preview-isolation|__reviewVotes|__reviewMode|review-isolation\.js/.test(html),'Review isolation leaked into candidate: '+path);
   if(path.endsWith('.html')){
-    // A deliberately paused public article keeps its robots noindex directive.
-    // This narrowly scoped exception is not permission to publish review-only HTML.
-    const pausedArticles = new Set([
-      'articles/plc-drilling-line-design-project-01.html',
-      'articles/plc-drilling-line-design-project-02.html',
-      'articles/plc-drilling-line-design-project-03.html'
-    ]);
-    const hasNoindex = /<meta\b[^>]*\bnoindex\b/i.test(html);
-    if (pausedArticles.has(path)) {
-      const authored = await readFile(resolve(root,path),'utf8');
-      assert(hasNoindex && /<meta\b[^>]*\bnoindex\b/i.test(authored), 'Paused article missing authored noindex: '+path);
-      assert(html.includes('この記事は現在、公開を一時停止しています'), 'Paused article notice missing: '+path);
-    } else {
-      assert(!hasNoindex, 'Review noindex leaked into candidate: '+path);
-    }
+    assert(!/<meta\b[^>]*\bnoindex\b/i.test(html),'Review noindex leaked into candidate: '+path);
     assert(!/<meta\b[^>]*http-equiv=["']Content-Security-Policy/i.test(html),'Review CSP leaked into candidate: '+path);
     if(additionalPaths.includes(path)){
       const proof=additionalProof.pages.find(p=>p.path===path);

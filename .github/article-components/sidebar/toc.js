@@ -1,6 +1,6 @@
 (()=>{'use strict';
  const config=JSON.parse(document.getElementById('dc-toc-data').textContent),en=config.lang==='en';
- const items=config.toc.filter(i=>document.getElementById(i.id));if(!items.length)return;
+ const items=config.toc.filter(i=>{const target=document.getElementById(i.id);return target&&target.getClientRects().length>0;});if(!items.length)return;
  const button=document.createElement('button');button.type='button';button.className='dc-toc-button';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','dc-toc-dialog');button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',en?'Open article contents':'この記事の目次を開く');
  button.innerHTML='<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h.1M3 10h.1M3 15h.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'+(en?'Contents':'目次');
  const dialog=document.createElement('dialog');dialog.id='dc-toc-dialog';dialog.className='dc-toc-dialog';dialog.setAttribute('aria-labelledby','dc-toc-title');dialog.setAttribute('aria-describedby','dc-toc-description');

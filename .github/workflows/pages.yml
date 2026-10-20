@@ -244,6 +244,23 @@ jobs:
       - name: Verify final standalone publication
         run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
 
+      # Apply only after all full-page generation and integrity verification passed.
+      # In PR runs this also exercises the exact same artifact removal as production.
+      - name: Exclude paused PLC design pages from the final publication artifact
+        run: |
+          set -euo pipefail
+          for episode in 01 02 03; do
+            page="_site/articles/plc-drilling-line-design-project-${episode}.html"
+            test -f "$page" || { echo "Missing expected source article: $page" >&2; exit 1; }
+            rm "$page"
+            test ! -e "$page"
+            echo "Paused from deployment: $page"
+          done
+          if grep -Eq 'plc-drilling-line-design-project-(01|02|03)\.html' _site/sitemap.xml _site/assets/data/search-index.json; then
+            echo 'Paused PLC article remains in sitemap or search index' >&2
+            exit 1
+          fi
+
       - name: Save publication verification
         if: always()
         uses: actions/upload-artifact@v4

@@ -45,6 +45,79 @@ try{
       });
       await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
 
+      // Issue #1780: verify the *opened* TOC in dark mode, not just the page behind it.
+      // Run on this affected article at both 390px and 1440px without changing production.
+      let darkToc=null;
+      if(path==='articles/plc-io-unit-basic.html'){
+        const trigger=page.locator('.dc-toc-button');
+        const dialog=page.locator('#dc-toc-dialog');
+        await trigger.click();
+        if(!await dialog.evaluate(node=>node.open))throw Error('Dark TOC did not open');
+        if(await trigger.getAttribute('aria-expanded')!=='true')throw Error('Dark TOC aria-expanded incorrect');
+        const auditToc=await page.evaluate(()=>{
+          const dialog=document.getElementById('dc-toc-dialog');
+          const panel=dialog.querySelector('.dc-toc-panel');
+          const box=panel.getBoundingClientRect();
+          const viewport={width:innerWidth,height:innerHeight};
+          const parse=color=>{
+            const matches=color.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\/\s]+([\d.]+))?\s*\)$/i);
+            return matches?{r:+matches[1],g:+matches[2],b:+matches[3],a:matches[4]===undefined?1:+matches[4]}:null;
+          };
+          const effectiveBackground=element=>{
+            const ancestors=[];
+            for(let node=element;node;node=node.parentElement)ancestors.unshift(node);
+            let color={r:255,g:255,b:255};
+            for(const node of ancestors){
+              const layer=parse(getComputedStyle(node).backgroundColor);
+              if(!layer)continue;
+              color={r:layer.r*layer.a+color.r*(1-layer.a),g:layer.g*layer.a+color.g*(1-layer.a),b:layer.b*layer.a+color.b*(1-layer.a)};
+            }
+            return color;
+          };
+          const channel=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)};
+          const brightness=c=>.2126*channel(c.r)+.7152*channel(c.g)+.0722*channel(c.b);
+          const contrast=(one,two)=>{const a=brightness(one),b=brightness(two);return(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+          const readings=[...dialog.querySelectorAll('.dc-toc-head h2,.dc-toc-head p,.dc-toc-close,.dc-toc-list a,.dc-toc-list a span')]
+            .filter(element=>{const b=element.getBoundingClientRect(),s=getComputedStyle(element);return b.width>0&&b.height>0&&s.visibility!=='hidden'})
+            .map(element=>({tag:element.tagName.toLowerCase(),text:element.textContent.trim().replace(/\s+/g,' ').slice(0,45),ratio:(()=>{
+              const fg=parse(getComputedStyle(element).color);
+              return fg?Number(contrast(fg,effectiveBackground(element)).toFixed(2)):0;
+            })()}));
+          return {viewport,inside:box.left>=-1&&box.top>=-1&&box.right<=innerWidth+1&&box.bottom<=innerHeight+1,
+            links:dialog.querySelectorAll('.dc-toc-list a').length,
+            horizontalOverflow:panel.scrollWidth>panel.clientWidth+1,
+            readings};
+        });
+        if(!auditToc.inside)throw Error('Dark TOC panel outside viewport');
+        if(auditToc.horizontalOverflow)throw Error('Dark TOC horizontal overflow');
+        if(!auditToc.links)throw Error('Dark TOC has no links');
+        const badContrast=auditToc.readings.filter(item=>item.ratio<4.5);
+        if(badContrast.length)throw Error('Dark TOC text contrast below 4.5: '+JSON.stringify(badContrast));
+        const image=path.replaceAll('/','__').replace('.html','')+'--'+width+'--dark-toc-open.png';
+        await page.screenshot({path:resolve(evidence,image),animations:'disabled'});
+        await page.keyboard.press('Escape');
+        if(await dialog.evaluate(node=>node.open))throw Error('Dark TOC did not close with Escape');
+        if(!await trigger.evaluate(node=>node===document.activeElement))throw Error('Dark TOC focus did not return after Escape');
+        await trigger.click();
+        await page.locator('.dc-toc-close').click();
+        if(await dialog.evaluate(node=>node.open))throw Error('Dark TOC close button failed');
+        await trigger.click();
+        const last=page.locator('.dc-toc-list a').last();
+        const id=decodeURIComponent((await last.getAttribute('href')).slice(1));
+        await last.click();
+        if(await dialog.evaluate(node=>node.open))throw Error('Dark TOC did not close after jump');
+        const jump=await page.evaluate(id=>{
+          const target=document.getElementById(id);
+          if(!target)return{focus:false,clearance:-1};
+          const heading=target.matches('h2,h3')?target:target.querySelector('h2,h3')||target;
+          const header=document.querySelector('header');
+          return{focus:document.activeElement===heading,clearance:heading.getBoundingClientRect().top-(header?.getBoundingClientRect().bottom||0)};
+        },id);
+        if(!jump.focus||jump.clearance<15)throw Error('Dark TOC heading hidden or not focused: '+JSON.stringify(jump));
+        darkToc={status:'passed',width,links:auditToc.links,image,minContrast:Math.min(...auditToc.readings.map(item=>item.ratio)),jumpClearance:jump.clearance};
+        console.log('DARK TOC PASS',path,width,JSON.stringify(darkToc));
+      }
+
       const audit=await page.evaluate(()=>{
         const parse=value=>{
           const match=value.match(/rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)/i);
@@ -125,7 +198,7 @@ try{
         failures.push({path,width,problems,...audit,screenshot:key});
         console.log('DARK FAIL',path,width,problems.join(' | '));
       }else{
-        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance});
+        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance,darkToc});
         console.log('DARK PASS',path,width);
       }
     }catch(error){

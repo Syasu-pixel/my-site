@@ -99,7 +99,16 @@ try{
         if(await dialog.evaluate(node=>node.open))throw Error('Dark TOC did not close with Escape');
         if(!await trigger.evaluate(node=>node===document.activeElement))throw Error('Dark TOC focus did not return after Escape');
         await trigger.click();
-        await page.locator('.dc-toc-close').click();
+        if(width===390){
+          // Compact TOC intentionally hides the desktop close control.
+          // The TOC toggle is moved inside the dialog and doubles as its close control.
+          if(await page.locator('.dc-toc-close').isVisible())throw Error('Compact TOC unexpectedly shows desktop close control');
+          if(!await trigger.evaluate(node=>node.parentElement?.id==='dc-toc-dialog'))throw Error('Compact TOC button not inside dialog');
+          await trigger.click();
+        }else{
+          if(!await page.locator('.dc-toc-close').isVisible())throw Error('Desktop TOC close control hidden');
+          await page.locator('.dc-toc-close').click();
+        }
         if(await dialog.evaluate(node=>node.open))throw Error('Dark TOC close button failed');
         await trigger.click();
         const last=page.locator('.dc-toc-list a').last();

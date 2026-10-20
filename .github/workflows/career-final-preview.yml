@@ -1,0 +1,58 @@
+name: Generate Career Final Preview (preview-only)
+on:
+  push:
+    branches:
+      - ai-editorial/career-four-final-publication-20261021
+    paths:
+      - .github/workflows/career-final-preview.yml
+permissions:
+  contents: write
+jobs:
+  integrate-preview:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1
+      - name: Build production-style integrated articles
+        run: |
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+      - name: Install integrated HTML and component assets on preview branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="${RUNNER_TEMP}/integration-build/candidate"
+          for file in equipment-maintenance-career fa-engineer-beginner-career plc-control-engineer-career production-engineering-career; do
+            test -s "$dir/articles/$file.html"
+            grep -q 'site-header dc-shell' "$dir/articles/$file.html"
+            ! grep -q 'data-review-only' "$dir/articles/$file.html"
+            cp "$dir/articles/$file.html" "articles/$file.html"
+          done
+          for file in article-toc-v2.css article-end-related.css article-end-feedback.css article-integration-compat.css; do
+            test -s "$dir/assets/css/$file"
+            cp "$dir/assets/css/$file" "assets/css/$file"
+          done
+          for file in article-toc-v2.js article-integration-compat.js; do
+            test -s "$dir/assets/js/$file"
+            cp "$dir/assets/js/$file" "assets/js/$file"
+          done
+          git add articles/equipment-maintenance-career.html articles/fa-engineer-beginner-career.html articles/plc-control-engineer-career.html articles/production-engineering-career.html assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "preview: deploy integrated career articles (not for main)"
+          git push origin HEAD:ai-editorial/career-four-final-publication-20261021

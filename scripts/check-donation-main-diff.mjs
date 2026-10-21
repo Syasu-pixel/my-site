@@ -27,7 +27,7 @@ for(const path of basePaths){
   // Preserve donation visibility exactly as rendered by the current main builder.
   assert.equal(after.includes(homeCss),before.includes(homeCss),'Home donation visibility changed: '+path);
   assert.equal(after.includes(categoryCss),before.includes(categoryCss),'Category donation visibility changed: '+path);
-  const profileLink='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'">\n    <a href="/profile/">'+(path.startsWith('en/')?'About the operator & editorial policy':'運営者・編集方針')+'</a>\n  </nav>\n  ';
+  const profileLink='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'">\n    <a href="/profile/">'+(path.startsWith('en/')?'About the operator &amp; editorial policy':'運営者・編集方針')+'</a>\n  </nav>\n  ';
   assert.equal(after.split(profileLink).length,2,'Expected exactly one profile footer link: '+path);
   assert.equal(after.replace(profileLink,''),before,'Unexpected generated HTML change beyond profile footer link: '+path);
 }

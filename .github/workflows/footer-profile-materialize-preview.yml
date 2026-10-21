@@ -1,0 +1,58 @@
+name: Materialize footer profile preview (isolated)
+on:
+  push:
+    branches:
+      - 'ai-editorial/footer-profile-generated-20261021'
+permissions:
+  contents: write
+jobs:
+  materialize:
+    if: "!contains(github.event.head_commit.message, '[preview materialized]')"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.19.0'
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Build isolated production-style additional-page candidates
+        run: |
+          node scripts/build-additional-shells.mjs "$RUNNER_TEMP/footer-candidates"
+          node scripts/check-additional-shell-regeneration.mjs "$RUNNER_TEMP/footer-candidates"
+      - name: Materialize only approved additional-page HTML
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFile,writeFile} from 'node:fs/promises';
+          import {resolve} from 'node:path';
+          const root=process.cwd();
+          const manifest=JSON.parse(await readFile('.github/site-shells/additional/manifest.json','utf8'));
+          if(manifest.pages.length!==16)throw Error('Expected exactly 16 approved pages');
+          for(const p of manifest.pages){
+            const candidate=await readFile(resolve(process.env.RUNNER_TEMP,'footer-candidates','candidate',p.path),'utf8');
+            if(!candidate.includes('href="/profile/"')||!candidate.includes('dc-footer-profile-link'))throw Error('Profile link missing: '+p.path);
+            const source=await readFile(p.path,'utf8');
+            if(source.includes('dc-footer-profile-link'))throw Error('Already materialized: '+p.path);
+            await writeFile(p.path,candidate);
+          }
+          NODE
+      - name: Commit materialized preview to isolated branch only
+        run: |
+          test "$GITHUB_REF_NAME" = "ai-editorial/footer-profile-generated-20261021"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          node --input-type=module <<'NODE'
+          import{readFile}from'node:fs/promises';
+          import{execFileSync}from'node:child_process';
+          const m=JSON.parse(await readFile('.github/site-shells/additional/manifest.json','utf8'));
+          execFileSync('git',['add','--',...m.pages.map(p=>p.path)],{stdio:'inherit'});
+          NODE
+          git diff --cached --quiet && exit 0
+          git commit -m "Preview: materialized 16 additional pages [preview materialized]"
+          git push origin HEAD:refs/heads/ai-editorial/footer-profile-generated-20261021

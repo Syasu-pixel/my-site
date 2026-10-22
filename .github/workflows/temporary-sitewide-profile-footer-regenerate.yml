@@ -38,7 +38,7 @@ jobs:
             if(!candidate)throw Error('Missing generated article: '+p.output);
             const lang=p.output.startsWith('en/')?'en':'ja';
             const expected='<nav class="dc-footer-profile-link" aria-label="'+(lang==='en'?'About this site':'サイト運営情報')+'"><a href="/profile/">'+(lang==='en'?'About the operator &amp; editorial policy':'運営者・編集方針')+'</a></nav>';
-            if(candidate.split(expected).length!==2 || candidate.replace(expected,'')!==original)throw Error('Unexpected difference beyond footer profile link: '+p.output);
+            if(candidate.split(expected).length!==2 || (candidate.replace(expected,'')!==original && candidate!==original))throw Error('Unexpected difference beyond footer profile link: '+p.output);
             await writeFile(p.output,candidate);
             p.baselineSha256=hash(Buffer.from(candidate));
             checked++;

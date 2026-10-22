@@ -23,14 +23,18 @@ for(const path of basePaths){
   if(home){assert.equal(after.split(homeCss).length,2,'Expected one home donation CSS block: '+path);homes++;}
   if(category){assert.equal(after.split(categoryCss).length,2,'Expected one category donation CSS block: '+path);categories++;}
   if(!home&&!category)other++;
-  const restored=after.replace(home?homeCss:'','').replace(category?categoryCss:'','');
-  assert.equal(restored,before,'Unexpected generated HTML change beyond donation CSS: '+path);
+  // This PR adds only one visible profile link to the shared additional-page footer.
+  // Preserve donation visibility exactly as rendered by the current main builder.
+  assert.equal(after.includes(homeCss),before.includes(homeCss),'Home donation visibility changed: '+path);
+  assert.equal(after.includes(categoryCss),before.includes(categoryCss),'Category donation visibility changed: '+path);
+  const profileLink='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'">\n    <a href="/profile/">'+(path.startsWith('en/')?'About the operator &amp; editorial policy':'運営者・編集方針')+'</a>\n  </nav>\n  ';
+  assert.equal(after.split(profileLink).length,2,'Expected exactly one profile footer link: '+path);
+  assert.equal(after.replace(profileLink,''),before,'Unexpected generated HTML change beyond profile footer link: '+path);
 }
 const articlePath='.github/article-components/integration-compat.css';
 const beforeArticle=await file(baseRoot,articlePath),afterArticle=await file(headRoot,articlePath);
-assert.ok(afterArticle.startsWith(beforeArticle),'Existing article compatibility CSS was changed');
-assert.match(afterArticle.slice(beforeArticle.length),/^\s*\/\* Donation visibility policy \(2026-10-13\): preserve markup for reversible restoration\. \*\/\s*\/\* Applies to both Japanese and English integrated articles\. \*\/\s*\.side-rail \.support-card,\s*aside \.support-card,\s*section\.side-card\.support-card\{display:none!important\}\s*$/,'Only reviewed article donation selector may be appended');
+assert.equal(afterArticle,beforeArticle,'Article donation visibility CSS must remain unchanged');
 const beforeCategory=await file(baseRoot,'.github/site-shells/additional/category.css');
 const afterCategory=await file(headRoot,'.github/site-shells/additional/category.css');
-assert.equal(afterCategory,beforeCategory+categoryCss,'Category CSS must contain only approved donation rule');
-console.log(JSON.stringify({result:'PASS',mainVsPr:'generated pages identical except approved donation hiding CSS',pages:basePaths.length,homes,categories,unchangedOtherPages:other,articleCss:'approved append only',categoryCss:'approved append only',screenshots:'not covered'},null,2));
+assert.equal(afterCategory,beforeCategory,'Category donation visibility CSS must remain unchanged');
+console.log(JSON.stringify({result:'PASS',mainVsPr:'generated pages identical except one approved profile link, donation policy preserved',pages:basePaths.length,homes,categories,unchangedOtherPages:other,articleCss:'approved append only',categoryCss:'approved append only',screenshots:'not covered'},null,2));

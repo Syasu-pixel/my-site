@@ -61,7 +61,17 @@ export async function buildShells({check=false,verifyBaseline=false,base=root}={
   const {results,manifest}=await renderShells(base);const stale=[];
   for(const [path,content]of results){
     if(!(await readFile(articlePath(base,path))).equals(content))stale.push(path);
-    if(verifyBaseline&&sha256(content)!==manifest.pages.find(p=>p.output===path).baselineSha256)throw Error(`Migration changes baseline HTML: ${path}`);
+    if(verifyBaseline){
+      const baseline=manifest.pages.find(p=>p.output===path).baselineSha256;
+      // A site-wide profile-link addition is approved for review, not a baseline promotion.
+      // Remove exactly one expected footer-only link and require byte-for-byte baseline identity.
+      const html=content.toString('utf8');
+      const label=path.startsWith('en/')?'About the operator &amp; editorial policy':'運営者・編集方針';
+      const nav='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'"><a href="/profile/">'+label+'</a></nav>';
+      const footer=html.match(/<footer\\b[^>]*>[\\s\\S]*?<\\/footer>/g)||[];
+      const valid=footer.length===1&&footer[0].split(nav).length===2&&html.split(nav).length===2;
+      if(!valid||sha256(Buffer.from(html.replace(nav,'')))!==baseline)throw Error(`Migration changes baseline HTML beyond approved footer link: ${path}`);
+    }
   }
   // Validate the entire plan before writing. CI and publishing use check mode.
   if(check&&stale.length)throw Error(`Generated header/footer is stale. Edit shared components, then run pnpm build:shells:\n${stale.join('\n')}`);

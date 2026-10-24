@@ -64,7 +64,7 @@ for item in inventory:
   label='About the operator &amp; editorial policy' if en else '運営者・編集方針'
   aria='About this site' if en else 'サイト運営情報'
   nav='<nav class="dc-footer-profile-link" aria-label="'+aria+'"><a href="/profile/">'+label+'</a></nav>'
-  footers=re.findall(r'<footer\\b[^>]*>[\\s\\S]*?</footer>',html)
+  footers=re.findall(r'<footer\b[^>]*>[\s\S]*?</footer>',html)
   if len(footers)!=1 or footers[0].count(nav)!=1 or html.count(nav)!=1:
    raise ValueError('Unapproved source change or profile footer link: '+page)
   prior=html.replace(nav,'').encode('utf-8')

@@ -140,10 +140,48 @@ if(phase==='baseline') {
   const differences=results.filter(x=>x.pixels>0);
   const interactionChanged=JSON.stringify(probes)!==JSON.stringify(baseline.probes);
   const newErrors=errors.filter(x=>!baseline.errors.some(y=>JSON.stringify(y)===JSON.stringify(x)));
-  const report={...common,results,differences: differences.length,interactionChanged,newErrors};
+  // Keep the original strict zero-pixel comparison as the default. A new footer
+  // link necessarily changes footer pixels and the link probe. Accept this one
+  // scoped change only when the full HTML, minus exactly that one link, hashes
+  // to the immutable base for ALL 288 registered articles. Do not mask images.
+  let approvedProfileFooterChange=false;
+  if(targets.length===config.articleCount && results.length===images.length && newErrors.length===0){
+    approvedProfileFooterChange=await (async()=>{
+      for(const target of targets){
+        const html=await readFile(resolve(base,target),'utf8');
+        const en=target.startsWith('en/');
+        const label=en?'About the operator &amp; editorial policy':'運営者・編集方針';
+        const aria=en?'About this site':'サイト運営情報';
+        const nav='<nav class="dc-footer-profile-link" aria-label="'+aria+'"><a href="/profile/">'+label+'</a></nav>';
+        const footers=html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/g)||[];
+        if(footers.length!==1 || html.split(nav).length!==2 || footers[0].split(nav).length!==2)return false;
+        if(hash(html.replace(nav,''))!==baseline.htmlHashes[target])return false;
+      }
+      const oldProbes=new Map(baseline.probes.map(p=>[p.target+'|'+p.device,p]));
+      if(probes.length!==oldProbes.size)return false;
+      for(const probe of probes){
+        const prior=oldProbes.get(probe.target+'|'+probe.device);
+        if(!prior)return false;
+        const expectedLabel=probe.target.startsWith('en/')?'About the operator & editorial policy':'運営者・編集方針';
+        const added=probe.links.filter(x=>x.href==='/profile/' && x.text===expectedLabel);
+        if(added.length!==1)return false;
+        const restored={...probe,links:probe.links.filter(x=>!(x.href==='/profile/' && x.text===expectedLabel))};
+        if(JSON.stringify(restored)!==JSON.stringify(prior))return false;
+      }
+      // Header captures must remain pixel-identical. Every footer must visibly
+      // contain the new link; differences are allowed only for footer/full shots.
+      if(results.some(x=>x.region==='header' && x.pixels>0))return false;
+      if(results.some(x=>!['header','footer','full'].includes(x.region)))return false;
+      if(results.filter(x=>x.region==='footer').length!==targets.length*Object.keys(config.viewports).length)return false;
+      if(results.some(x=>x.region==='footer' && x.pixels===0))return false;
+      return true;
+    })();
+  }
+  const report={...common,results,differences:differences.length,interactionChanged,newErrors,
+    approvedChange:approvedProfileFooterChange?'sitewide-profile-footer-link':null};
   await writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2));
   const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
   await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header/footer comparison</title><style>body{font:16px sans-serif;margin:24px}section{border-top:1px solid #999;padding:20px 0}figure{display:inline-block;width:30%;vertical-align:top;margin:1%}img{width:100%}summary{cursor:pointer}</style><h1>Header/footer comparison</h1><p>Base ${esc(baseSha)} / Head ${esc(common.headSha)}</p><p>${targets.length} pages; ${images.length} captures; ${differences.length} image differences. Before/after: same Chromium ${esc(environment.browser)}.</p><p>External requests are blocked identically; inspect report.json for existing console errors and excluded external resources. Do not treat this as a complete content/form/backend audit.</p>${results.map(r=>`<section><details ${r.pixels?'open':''}><summary>${esc(r.target)} — ${r.device} / ${r.region} — ${r.pixels} changed pixels</summary>${['before','after','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r[k]}"><img loading="lazy" src="${r[k]}"></a></figure>`).join('')}</details></section>`).join('')}`);
   console.log(JSON.stringify({pages:targets.length,images:images.length,differences:differences.length,interactionChanged,newErrors:newErrors.length,differenceDetails:differences.map(({target,device,region,pixels,exactPixels,width,height})=>({target,device,region,pixels,exactPixels,width,height}))}));
-  if(differences.length||interactionChanged||newErrors.length)process.exitCode=1;
+  if((differences.length||interactionChanged||newErrors.length)&&!approvedProfileFooterChange)process.exitCode=1;
 }

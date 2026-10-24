@@ -68,7 +68,7 @@ for item in inventory:
   if len(footers)!=1 or footers[0].count(nav)!=1 or html.count(nav)!=1:
    raise ValueError('Unapproved source change or profile footer link: '+page)
   prior=html.replace(nav,'').encode('utf-8')
-  prior_blob=hashlib.sha1(b'blob '+str(len(prior)).encode()+b'\\0'+prior).hexdigest()
+  prior_blob=hashlib.sha1(b'blob '+str(len(prior)).encode()+b'\0'+prior).hexdigest()
   if prior_blob!=item['gitBlob']:raise ValueError('Unapproved non-footer source change: '+page)
  if page==service:state='対象外（専用サービス例外・原文保持検査済み）';kind='GX Works2オンライン相談・受付フォーム';strategy='専用構成を保持。記事部品は適用しない'
  elif not article:

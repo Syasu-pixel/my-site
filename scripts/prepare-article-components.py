@@ -85,7 +85,7 @@ def main():
   label='About the operator &amp; editorial policy' if en else '運営者・編集方針'
   aria='About this site' if en else 'サイト運営情報'
   nav='<nav class="dc-footer-profile-link" aria-label="'+aria+'"><a href="/profile/">'+label+'</a></nav>'
-  footers=re.findall(r'<footer\\b[^>]*>[\\s\\S]*?</footer>',original)
+  footers=re.findall(r'<footer\b[^>]*>[\s\S]*?</footer>',original)
   if len(footers)!=1 or original.count(nav)!=1 or footers[0].count(nav)!=1 or sha(original.replace(nav,''))!=hashes[page]:
    raise ValueError('Current source changed beyond approved footer link: '+page)
   if page not in specs:raise ValueError('No reviewed sidebar role decisions: '+page)

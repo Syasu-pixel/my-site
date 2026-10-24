@@ -80,7 +80,14 @@ def main():
  pages=[];provenance=[]
  for page in config.get('targets',config['representatives']):
   original=read(ROOT/page)
-  if sha(original)!=hashes[page]:raise ValueError('Current source changed; review/rebase registration: '+page)
+  # Profile footer links are review-only additions. Historical HTML digests stay immutable.
+  en=page.startswith('en/')
+  label='About the operator &amp; editorial policy' if en else '運営者・編集方針'
+  aria='About this site' if en else 'サイト運営情報'
+  nav='<nav class="dc-footer-profile-link" aria-label="'+aria+'"><a href="/profile/">'+label+'</a></nav>'
+  footers=re.findall(r'<footer\\b[^>]*>[\\s\\S]*?</footer>',original)
+  if len(footers)!=1 or original.count(nav)!=1 or footers[0].count(nav)!=1 or sha(original.replace(nav,''))!=hashes[page]:
+   raise ValueError('Current source changed beyond approved footer link: '+page)
   if page not in specs:raise ValueError('No reviewed sidebar role decisions: '+page)
   header=read(args.headers/page);sidebar=transform(header,specs[page]);data=end_data(page,sidebar);pages.append(data)
   dest=out/'sidebar'/page;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(sidebar.encode())

@@ -68,7 +68,7 @@ export async function buildShells({check=false,verifyBaseline=false,base=root}={
       const html=content.toString('utf8');
       const label=path.startsWith('en/')?'About the operator &amp; editorial policy':'運営者・編集方針';
       const nav='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'"><a href="/profile/">'+label+'</a></nav>';
-      const footer=html.match(/<footer\\b[^>]*>[\\s\\S]*?<\\/footer>/g)||[];
+      const footer=html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/g)||[];
       const valid=footer.length===1&&footer[0].split(nav).length===2&&html.split(nav).length===2;
       if(!valid||sha256(Buffer.from(html.replace(nav,'')))!==baseline)throw Error(`Migration changes baseline HTML beyond approved footer link: ${path}`);
     }

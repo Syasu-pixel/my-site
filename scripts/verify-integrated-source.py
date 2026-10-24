@@ -55,7 +55,21 @@ for item in inventory:
  page=item['path'];article=bool(re.fullmatch(r'(en/)?articles/[^/]+\.html',page));spec=specs.get(page)
  source_bytes=(ROOT/page).read_bytes()
  git_blob=hashlib.sha1(b'blob '+str(len(source_bytes)).encode()+b'\0'+source_bytes).hexdigest()
- if git_blob!=item['gitBlob']:raise ValueError('Latest baseline/source mismatch: '+page)
+ if git_blob!=item['gitBlob']:
+  # Keep the historical inventory immutable. For articles only, verify that
+  # removing one exact footer-only profile link restores the recorded Git blob.
+  if not article:raise ValueError('Latest baseline/source mismatch: '+page)
+  html=source_bytes.decode('utf-8')
+  en=page.startswith('en/')
+  label='About the operator &amp; editorial policy' if en else '運営者・編集方針'
+  aria='About this site' if en else 'サイト運営情報'
+  nav='<nav class="dc-footer-profile-link" aria-label="'+aria+'"><a href="/profile/">'+label+'</a></nav>'
+  footers=re.findall(r'<footer\\b[^>]*>[\\s\\S]*?</footer>',html)
+  if len(footers)!=1 or footers[0].count(nav)!=1 or html.count(nav)!=1:
+   raise ValueError('Unapproved source change or profile footer link: '+page)
+  prior=html.replace(nav,'').encode('utf-8')
+  prior_blob=hashlib.sha1(b'blob '+str(len(prior)).encode()+b'\\0'+prior).hexdigest()
+  if prior_blob!=item['gitBlob']:raise ValueError('Unapproved non-footer source change: '+page)
  if page==service:state='対象外（専用サービス例外・原文保持検査済み）';kind='GX Works2オンライン相談・受付フォーム';strategy='専用構成を保持。記事部品は適用しない'
  elif not article:
   state='対象外'

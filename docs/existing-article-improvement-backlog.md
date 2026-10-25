@@ -46,7 +46,7 @@
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
 - [ ] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ
 - [ ] `articles/signal-tower-light-basic.html` — タワーライト
-- [ ] `articles/dc24v-power-supply-basic.html` — DC24V電源
+- [ ] `articles/dc24v-power-supply-basic.html` — DC24V電源 — 作業中（本文見直し / 安全表現整理 / 関連記事画像カード化 / 追加画像は保留）
 - [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
 - [x] `articles/load-cell-basic.html` — ロードセル — 2026-10-02 本番公開完了（PR #1650 / 画像6枚刷新 / 公式資料監査済み / 統合最終Preview承認済み / GitHub Pages・IndexNow確認済み / Google Search Console登録リクエスト実施済み）
 

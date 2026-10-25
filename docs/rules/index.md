@@ -12,6 +12,7 @@
 | [docs/ai-editorial-project-status.md](../ai-editorial-project-status.md) — AI編集部 プロジェクト状態 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/ai-governance.md](../ai-governance.md) — Denkicontrol AI Governance v0.1 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/editorial-department-status.md](../editorial-department-status.md) — AI編集部プロジェクト運用ステータス | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
+| [docs/security-baseline.md](../security-baseline.md) — Denkicontrol Security Baseline | すべての作業開始時。サイト・管理機能・API・Preview等の共通セキュリティ基準を確認する。 |
 | [docs/rules/conflicts.md](conflicts.md) — 既存不整合と今回の整理 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/index.md](index.md) — ルール・参照対象の正式一覧 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |

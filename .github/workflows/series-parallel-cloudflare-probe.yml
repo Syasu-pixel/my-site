@@ -99,8 +99,20 @@ jobs:
           JS
       - name: Save factual probe result to Preview branch only
         if: always()
+        env:
+          PREVIOUS_JOB_STATUS: ${{ job.status }}
         run: |
           set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('/tmp/series-parallel-cloudflare-evidence.json')
+          if p.exists():
+              data=json.loads(p.read_text(encoding='utf-8'))
+              data['jobStatusBeforeEvidence']=os.environ.get('PREVIOUS_JOB_STATUS','unknown')
+              data['browserVerificationOutcome']='completed' if 'browser' in data else 'not-completed'
+              p.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
+          PY
           mkdir -p .github/preview-evidence
           if [ -f /tmp/series-parallel-cloudflare-evidence.json ]; then
             cp /tmp/series-parallel-cloudflare-evidence.json .github/preview-evidence/series-parallel-final-20261028.json

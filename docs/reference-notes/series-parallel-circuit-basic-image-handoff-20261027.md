@@ -47,3 +47,11 @@
 - 本文編集元のGit blob SHA: `f8330102c8105a693e4bcbc918bd136fa9a4d2a8`。`site-inventory.json` の対象entryを同期。
 - **未完了**: 本番配信HTMLのバイトハッシュと対応デプロイの確定、shell baselineSha256・Hero css-bindings・end oracle等の台帳照合、独立画像技術監査、検索データ事前確認、publication検証、Cloudflare最終Preview配信。古い検査基準を新候補へ無検証で付け替えない。
 - Preview管理者目視承認前につき `main` マージ禁止。
+
+## 最終Preview専用publicationマテリアライズ（2026-10-28）
+
+- Preview専用Draft PR #1791、ブランチ `ai-editorial/series-parallel-final-publication-20261028`。mainへマージしない。
+- 成功Workflow `series-parallel-final-preview.yml` により、統合生成・公開候補生成・出版用WebP最適化・publication検証後の成果物をこのブランチへ反映。commit `c61c1818babb83bfc8b667bce756aedfb92d30b4`。
+- 生成記事に `site-header dc-shell`、採用画像のWebP参照、関連記事・評価、公式資料節を確認。review用隔離・noindex混入なし。
+- Cloudflare配信の成否・実URL・PC/スマホとライト/ダークは**未検証**。生成成功を配信成功と混同しない。
+- publication反映commitの `[skip ci]` がCloudflare自動配信に影響する可能性があるため、この記録更新commitは通常のpushとし、分離して検証する。

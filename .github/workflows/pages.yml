@@ -251,10 +251,11 @@ jobs:
           set -euo pipefail
           for episode in 01 02 03; do
             page="_site/articles/plc-drilling-line-design-project-${episode}.html"
-            test -f "$page" || { echo "Missing expected source article: $page" >&2; exit 1; }
-            rm "$page"
-            test ! -e "$page"
-            echo "Paused from deployment: $page"
+            if test -f "$page"; then
+              rm "$page"
+            fi
+            test ! -e "$page" || { echo "Paused article still present: $page" >&2; exit 1; }
+            echo "Confirmed unpublished: $page"
           done
           if grep -Eq 'plc-drilling-line-design-project-(01|02|03)\.html' _site/sitemap.xml _site/assets/data/search-index.json; then
             echo 'Paused PLC article remains in sitemap or search index' >&2

@@ -194,6 +194,7 @@
 | [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [assets/data/site-health-unpublished.json](../../assets/data/site-health-unpublished.json) | サイト異常の公開停止対象を追加・変更・再公開する場合。 意図的な公開停止記事の明示リスト。公開対象の自動判定と混同しない。 |
 | [assets/js/site-analytics.js](../../assets/js/site-analytics.js) | サイト横断のアクセス解析、Metricool tracker、SNS流入計測、または解析タグの公開・停止・検査を扱う場合。 本番ホスト限定でMetricool trackerを起動する共通解析ローダー。Previewでは外部送信しない。 |
 | [docs/rules/catalog.json](catalog.json) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [netlify.toml](../../netlify.toml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -228,6 +229,7 @@
 | [scripts/prepare-integrated-publication.mjs](../../scripts/prepare-integrated-publication.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/probe-article-hero-raster.mjs](../../scripts/probe-article-hero-raster.mjs) | ヒーロー画面比較の描画揺れを診断する場合。 同一文書の繰返し描画を標準・固定描画条件で対照実験。固定条件も画素差0を要求。 |
 | [scripts/serve-article-hero-review.mjs](../../scripts/serve-article-hero-review.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [scripts/site-health-publication-scope.mjs](../../scripts/site-health-publication-scope.mjs) | サイト異常の監視対象範囲を判定する場合。 複数監視に共通の公開停止リスト読み込みと検証。 |
 | [scripts/test-publication-artifact.py](../../scripts/test-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/test-rule-catalog.py](../../scripts/test-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [scripts/verify-publication-artifact.py](../../scripts/verify-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |

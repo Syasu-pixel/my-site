@@ -1,5 +1,6 @@
 import {readdir,access,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,relative,dirname} from 'node:path';
+import {unpublishedPaths} from './site-health-publication-scope.mjs';
 
 const sourceRoot=resolve(process.argv[2]||'.');
 const out=resolve(process.argv[3]||'site-production-http.json');
@@ -7,6 +8,7 @@ const origin=(process.env.SITE_HEALTH_ORIGIN||'https://denkicontrol.com').replac
 const concurrency=Math.max(1,Math.min(6,Number(process.env.SITE_HEALTH_HTTP_CONCURRENCY||3)));
 const timeoutMs=Math.max(3000,Number(process.env.SITE_HEALTH_HTTP_TIMEOUT_MS||10000));
 const files=[];
+const unpublished=await unpublishedPaths(sourceRoot);
 
 async function walk(dir){
   for(const e of await readdir(dir,{withFileTypes:true})){
@@ -20,7 +22,7 @@ await walk(sourceRoot);
 
 function publicPath(file){
   const p=relative(sourceRoot,file).replaceAll('\\','/');
-  if(p==='404.html'||p.startsWith('admin/'))return null;
+  if(p==='404.html'||p.startsWith('admin/')||unpublished.has(p))return null;
   if(p==='index.html')return '/';
   return '/'+p;
 }

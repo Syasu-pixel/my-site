@@ -124,6 +124,7 @@
 
 | 文書 | 適用条件・扱い |
 |---|---|
+| [docs/reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md](../reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md) — 直列・並列回路 記事刷新｜採用画像引き継ぎ（2026-10-27） | 対象記事の採用画像、ハッシュ検証、刷新作業の履歴を参照するとき。公開承認済みの証明ではない。 |
 | [articles/audit-product-image-links-2026-04-12.md](../../articles/audit-product-image-links-2026-04-12.md) — 商品画像クリック導線 監査結果 (2026-04-12) | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ai-editorial-tuesday-hard-stop-audit-2026-09-09.md](../ai-editorial-tuesday-hard-stop-audit-2026-09-09.md) — AI編集部 火曜日フロー hard-stop 先回り監査 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/air-pneumatic-troubleshooting-hub-design.md](../air-pneumatic-troubleshooting-hub-design.md) — Air Pneumatic Troubleshooting Hub Design | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

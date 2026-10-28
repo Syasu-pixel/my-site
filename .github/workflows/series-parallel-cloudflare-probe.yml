@@ -1,0 +1,110 @@
+name: Probe series-parallel Cloudflare publication Preview
+
+on:
+  push:
+    branches:
+      - ai-editorial/series-parallel-final-publication-20261028
+    paths:
+      - .github/workflows/series-parallel-cloudflare-probe.yml
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe actual Cloudflare HTTP and published resources
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request, urllib.error
+          from pathlib import Path
+          filename='articles/series-parallel-circuit-basic.html'
+          host='denkicontrol-preview.pages.dev'
+          aliases=['ai-editorial-series-parallel', 'ai-editorial-series-parallel-final-publication-20261028']
+          result={'provider':'Cloudflare Pages','project':'denkicontrol-preview','branch':'ai-editorial/series-parallel-final-publication-20261028','status':'not-verified','checks':[]}
+          def get(url):
+              req=urllib.request.Request(url,headers={'User-Agent':'Denkicontrol-Publication-Preview-Probe/1.0'})
+              try:
+                  with urllib.request.urlopen(req,timeout=15) as response:
+                      return response.status,response.read(2_000_000),None
+              except Exception as e:return None,b'',str(e)
+          for attempt in range(1,11):
+              for alias in aliases:
+                  url=f'https://{alias}.{host}/{filename}'
+                  status,body,error=get(url)
+                  valid=status==200 and b'site-header dc-shell' in body and b'series-parallel-circuit-basic-overview.webp' in body and b'articleFeedbackCard' in body and b'data-review-only' not in body
+                  result['checks'].append({'attempt':attempt,'url':url,'http':status,'validIntegratedPublication':valid,'error':error})
+                  if valid:
+                      result['status']='reachable-publication'
+                      result['verifiedArticleUrl']=url
+                      result['articleBytes']=len(body)
+                      base=f'https://{alias}.{host}/'
+                      for asset in ['assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-overview.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-series.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-parallel.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-resistance.webp','assets/css/article-toc-v2.css','assets/js/article-integration-compat.js']:
+                          code,data,err=get(base+asset)
+                          result.setdefault('assets',[]).append({'path':asset,'http':code,'bytes':len(data),'error':err})
+                      result['assetsValid']=all(x['http']==200 and x['bytes']>0 for x in result['assets'])
+                      break
+              if result['status']=='reachable-publication':break
+              time.sleep(8)
+          Path('/tmp/series-parallel-cloudflare-evidence.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps({'status':result['status'],'verifiedUrl':result.get('verifiedArticleUrl'),'assetsValid':result.get('assetsValid'),'checks':result['checks'][-2:]},ensure_ascii=False))
+          PY
+      - name: Browser verification of four viewport-theme combinations
+        run: |
+          set -euo pipefail
+          if ! grep -q '"status": "reachable-publication"' /tmp/series-parallel-cloudflare-evidence.json; then
+            echo 'Cloudflare URL not confirmed; skip browser assertions and retain evidence'
+            exit 0
+          fi
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {chromium} from 'playwright';
+          const path='/tmp/series-parallel-cloudflare-evidence.json';
+          const data=JSON.parse(fs.readFileSync(path,'utf8'));
+          const browser=await chromium.launch({headless:true});
+          data.browser=[];
+          for(const [label,width] of [['PC',1440],['mobile',390]]){
+            for(const mode of ['light','dark']){
+              const ctx=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:1});
+              const page=await ctx.newPage();
+              let check={device:label,theme:mode};
+              try{
+                await page.goto(data.verifiedArticleUrl,{waitUntil:'domcontentloaded',timeout:30000});
+                if(mode==='dark')await page.evaluate(()=>document.documentElement.setAttribute('data-dc-theme','dark'));
+                await page.waitForTimeout(400);
+                check= {...check,...await page.evaluate(()=>{
+                  const required=[...document.querySelectorAll('article .article-figure img')];
+                  return {title:document.title,theme:document.documentElement.getAttribute('data-dc-theme')||'light',width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,images:required.map(img=>({loaded:img.complete&&img.naturalWidth>0,width:img.naturalWidth})),header:!!document.querySelector('header.site-header.dc-shell'),feedback:!!document.querySelector('#articleFeedbackCard'),footer:!!document.querySelector('footer.site-footer'),bodyBackground:getComputedStyle(document.body).backgroundColor};
+                })};
+                check.passed=check.header&&check.feedback&&check.footer&&check.images.length===4&&check.images.every(x=>x.loaded)&&check.scrollWidth<=check.width+2&&(mode!=='dark'||check.theme==='dark');
+              }catch(e){check.passed=false;check.error=String(e)}
+              data.browser.push(check);
+              await ctx.close();
+            }
+          }
+          data.browserValid=data.browser.every(x=>x.passed);
+          await browser.close();
+          fs.writeFileSync(path,JSON.stringify(data,null,2));
+          console.log(JSON.stringify({browserValid:data.browserValid,browser:data.browser}));
+          JS
+      - name: Save factual probe result to Preview branch only
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p .github/preview-evidence
+          if [ -f /tmp/series-parallel-cloudflare-evidence.json ]; then
+            cp /tmp/series-parallel-cloudflare-evidence.json .github/preview-evidence/series-parallel-final-20261028.json
+          else
+            printf '{"status":"probe-failed-before-report"}\n' > .github/preview-evidence/series-parallel-final-20261028.json
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/preview-evidence/series-parallel-final-20261028.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'preview: record external Cloudflare and browser verification'
+            git push origin HEAD:ai-editorial/series-parallel-final-publication-20261028
+          fi

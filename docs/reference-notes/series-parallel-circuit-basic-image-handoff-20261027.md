@@ -40,3 +40,10 @@
 - 管理者Preview目視OK後にのみmainへ反映。
 
 公開・通知・インデックスはすべて未実施。
+## 2026-10-28 本文編集作業記録
+
+- 編集元 `articles/series-parallel-circuit-basic.html` を更新（commit `7be24f0431f5c12710eca5fb1b43b02fa8d284e8`）。旧本文画像 `-vi.png` と `-reading.png` の掲載を外し、採用済み本文4枚のみを参照。
+- 直列・並列の理想抵抗回路について12V・100Ω・200Ωの数値例を追加。Keysight Technologies公式技術解説 `https://www.keysight.com/used/ie/en/knowledge/guides/series-and-parallel-circuits` を2026-10-28に確認し、基本式を参照。抵抗の直列・並列の式に限る。設備固有仕様の根拠とはしない。
+- 本文編集元のGit blob SHA: `f8330102c8105a693e4bcbc918bd136fa9a4d2a8`。`site-inventory.json` の対象entryを同期。
+- **未完了**: 本番配信HTMLのバイトハッシュと対応デプロイの確定、shell baselineSha256・Hero css-bindings・end oracle等の台帳照合、独立画像技術監査、検索データ事前確認、publication検証、Cloudflare最終Preview配信。古い検査基準を新候補へ無検証で付け替えない。
+- Preview管理者目視承認前につき `main` マージ禁止。

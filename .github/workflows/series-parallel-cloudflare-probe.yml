@@ -89,9 +89,9 @@ jobs:
                 await page.waitForTimeout(400);
                 check= {...check,...await page.evaluate(()=>{
                   const required=[...document.querySelectorAll('article .article-figure img')];
-                  return {title:document.title,theme:document.documentElement.getAttribute('data-dc-theme')||'light',width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,images:required.map(img=>({loaded:img.complete&&img.naturalWidth>0,width:img.naturalWidth})),header:!!document.querySelector('header.site-header.dc-shell'),feedback:!!document.querySelector('#articleFeedbackCard'),footer:!!document.querySelector('footer.site-footer'),bodyBackground:getComputedStyle(document.body).backgroundColor};
+                  return {title:document.title,theme:document.documentElement.getAttribute('data-dc-theme')||'light',width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,images:required.map(img=>({loaded:img.complete&&img.naturalWidth>0,width:img.naturalWidth})),heroHeight:Math.round(document.querySelector('.article-hero')?.getBoundingClientRect().height||0),heroOpacity:getComputedStyle(document.querySelector('.article-hero'),'::before').opacity,heroCorrected:!!document.querySelector('#series-parallel-hero-responsive-preview'),header:!!document.querySelector('header.site-header.dc-shell'),feedback:!!document.querySelector('#articleFeedbackCard'),footer:!!document.querySelector('footer.site-footer'),bodyBackground:getComputedStyle(document.body).backgroundColor};
                 })};
-                check.passed=check.header&&check.feedback&&check.footer&&check.images.length===4&&check.images.every(x=>x.loaded)&&check.scrollWidth<=check.width+2&&(mode!=='dark'||check.theme==='dark');
+                check.passed=check.heroCorrected&&Number(check.heroOpacity)>=0.95&&check.heroHeight>400&&check.header&&check.feedback&&check.footer&&check.images.length===4&&check.images.every(x=>x.loaded)&&check.scrollWidth<=check.width+2&&(mode!=='dark'||check.theme==='dark');
               }catch(e){check.passed=false;check.error=String(e)}
               data.browser.push(check);
               await ctx.close();

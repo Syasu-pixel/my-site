@@ -64,9 +64,9 @@ jobs:
             echo 'Cloudflare URL not confirmed; skip browser assertions and retain evidence'
             exit 0
           fi
-          pnpm install --frozen-lockfile --ignore-scripts
-          pnpm exec playwright install --with-deps chromium
-          node --input-type=module <<'JS'
+          pnpm install --frozen-lockfile --ignore-scripts > /tmp/probe-install.log 2>&1 || { tail -n 30 /tmp/probe-install.log > /tmp/browser-failure; exit 1; }
+          pnpm exec playwright install --with-deps chromium > /tmp/probe-playwright.log 2>&1 || { tail -n 30 /tmp/probe-playwright.log > /tmp/browser-failure; exit 1; }
+          node --input-type=module > /tmp/probe-browser.log 2>&1 <<'JS'
           import fs from 'node:fs';
           import {chromium} from 'playwright';
           const path='/tmp/series-parallel-cloudflare-evidence.json';
@@ -111,6 +111,10 @@ jobs:
               data=json.loads(p.read_text(encoding='utf-8'))
               data['jobStatusBeforeEvidence']=os.environ.get('PREVIOUS_JOB_STATUS','unknown')
               data['browserVerificationOutcome']='completed' if 'browser' in data else 'not-completed'
+              failure=Path('/tmp/browser-failure')
+              if failure.exists():data['browserFailureLogTail']=failure.read_text(encoding='utf-8')[-3000:]
+              browser_log=Path('/tmp/probe-browser.log')
+              if browser_log.exists():data['browserLogTail']=browser_log.read_text(encoding='utf-8')[-3000:]
               p.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
           PY
           mkdir -p .github/preview-evidence

@@ -24,7 +24,7 @@ jobs:
       - name: Probe actual Cloudflare HTTP and published resources
         run: |
           python3 - <<'PY'
-          import json, time, urllib.request, urllib.error
+          import json, time, urllib.request, urllib.error, hashlib
           from pathlib import Path
           filename='articles/series-parallel-circuit-basic.html'
           host='denkicontrol-preview.pages.dev'
@@ -46,11 +46,16 @@ jobs:
                       result['status']='reachable-publication'
                       result['verifiedArticleUrl']=url
                       result['articleBytes']=len(body)
+                      expected_ogp=b'https://ai-editorial-series-parallel.denkicontrol-preview.pages.dev/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp'
+                      result['ogpMetaPreview']=body.count(expected_ogp)==2
                       base=f'https://{alias}.{host}/'
                       for asset in ['assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-overview.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-series.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-parallel.webp','assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-resistance.webp','assets/css/article-toc-v2.css','assets/js/article-integration-compat.js']:
                           code,data,err=get(base+asset)
-                          result.setdefault('assets',[]).append({'path':asset,'http':code,'bytes':len(data),'error':err})
+                          git_sha=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\\0'+data).hexdigest() if code==200 else None
+                          result.setdefault('assets',[]).append({'path':asset,'http':code,'bytes':len(data),'gitBlobSha':git_sha,'error':err})
                       result['assetsValid']=all(x['http']==200 and x['bytes']>0 for x in result['assets'])
+                      hero=next(x for x in result['assets'] if x['path'].endswith('series-parallel-circuit-basic-hero.webp'))
+                      result['heroMatchesVerifiedGitHubBlob']=hero['gitBlobSha']=='cb2b10bf1dd5b227dc58a276c22f74decab9fb3c'
                       break
               if result['status']=='reachable-publication':break
               time.sleep(8)

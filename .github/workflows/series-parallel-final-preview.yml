@@ -30,6 +30,9 @@ jobs:
         run: |
           set -euo pipefail
           pnpm install --frozen-lockfile --ignore-scripts
+          git fetch origin preview-refresh-series-parallel-circuit-20261025
+          git restore --source=FETCH_HEAD --worktree -- articles/series-parallel-circuit-basic.html .github/article-components/hero .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/sidebar/all-pages.json
+          pnpm check:shells
           python -m pip install lxml==6.1.1
           node scripts/build-integrated-review.mjs /tmp/series-parallel-integration
           node scripts/build-additional-shells.mjs /tmp/series-parallel-integration/additional-shells
@@ -84,6 +87,16 @@ jobs:
           set -euo pipefail
           target=articles/series-parallel-circuit-basic.html
           cp "_site/$target" "$target"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("articles/series-parallel-circuit-basic.html")
+          text=p.read_text(encoding="utf-8")
+          old="https://denkicontrol.com/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp"
+          new="https://ai-editorial-series-parallel.denkicontrol-preview.pages.dev/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp"
+          assert text.count(old)==2, text.count(old)
+          assert 'series-parallel-hero-responsive-preview' not in text
+          p.write_text(text.replace(old,new),encoding="utf-8")
+          PY
           for p in assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js; do
             cp "_site/$p" "$p"
           done
@@ -94,6 +107,7 @@ jobs:
           if grep -Eq 'data-review-only|data-preview-isolation|noindex,nofollow' "$target"; then exit 1; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git reset
           git add "$target" assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js assets/images/series-parallel-circuit-basic/*.webp
           if ! git diff --cached --quiet; then
             git commit -m 'preview: materialize verified series-parallel publication [skip ci]'

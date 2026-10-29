@@ -30,6 +30,38 @@
 - 旧一覧画像から生成した確認マスターを描き直して採用画像を失わない。ユーザーの明示許可なしに方式変更や採用画像の再生成をしない。
 - 横6列×縦4行の配置は**24枚完成後の確認用一覧のみ**の規則であり、生成時に12枚や24枚を並べる指示ではない。
 
+## 個別10枚生成：成功プロンプトの記録（2026-10-29 Vol.3）
+
+### 実績と限界
+
+- Vol.3の01〜10「今ひま？」「何時からやる？」「パーティー空いてる？」「VC入れる？」「聞こえてる？」「マイク切れてるよ」「準備できた？」「ロビーで待機中」「味方どこいった」「私に任せな」を、**独立した10画像として同じ生成依頼で出力できた**（2026-10-29、ユーザーの第一印象は「一発で成功」）。
+- これは**生成と見た目についての成功例**であり、370×320px／RGBA／余白／ZIPの全数機械検査が完了したという意味ではない。出力モードや生成AIの挙動によって再現性は変わり得る。
+- 失敗例：生成指示を「sticker sheet」「grid」「collage」「10種類を並べる」のように組み立て、**10コマの一覧画像**にしてしまった。キャラクター設定画の無視、余分な番号・説明文も発生した。
+
+### 再利用するプロンプト構造（意味・構造の記録。実際の内部送信文の完全再現ではない）
+
+次の形式で**個別画像を10件**生成する。生成システム側に複数画像の同時出力がある場合は10出力を指定し、ない場合は1件ずつ10回生成する。**1枚の画面内に10種類描かない。**
+
+```text
+Create ONE standalone LINE sticker image for exactly ONE phrase.
+Character reference: [ユーザーが採用したキャラクター設定画像を参照]
+Keep identical: [髪型・前髪・顔立ち・衣服・ヘッドセット・色・ちびキャラ比率]
+Text in image: 「[この1件のセリフだけ]」
+Pose and context: [このセリフで使う場面・表情・小物]
+A single isolated character composition on real transparent background,
+without any additional character, sticker, phrase, index, label or annotation.
+No sheet, no grid, no collage, no contact sheet.
+Include all lettering, accessories and effects inside safe margins.
+Output an individual RGBA PNG. Final posting canvas: 370x320 px,
+at least 12px transparent margin on every edge (prefer 14px).
+```
+
+- 10枚のバッチでは各番号の `Text in image` と `Pose and context` のみ差し替え、**別々の10枚**を出す。
+- 生成画像が高解像度の場合は**採用絵柄を再生成せず**、縦横比を維持して透明370×320pxに収める。
+- 文字化け・キャラずれ・非透過・余白不足を実ファイルで検査し、**NG番号だけ個別修正**する。10枚全部の再生成はしない。
+- 成功した実画像の所在を保存する場合、GitHubに画像本体を置かず、既存のGoogle Drive採用マスターフローに従う。
+- 10件をまとめて作ることと「画像内に10件描くこと」を混同しない。番号や制作上の注釈は**画像内に入れない**。
+
 ## 投稿用PNGの絶対条件
 
 - 各スタンプは **PNG / RGBA / 透明背景**。

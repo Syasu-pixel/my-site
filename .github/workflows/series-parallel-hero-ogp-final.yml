@@ -1,0 +1,66 @@
+name: Repair approved hero and OGP on isolated Preview
+
+on:
+  push:
+    branches:
+      - ai-editorial/series-parallel-final-publication-20261028
+    paths:
+      - .github/workflows/series-parallel-hero-ogp-final.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify user-approved source and regenerate only Preview hero
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          f=Path('assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.png')
+          data=f.read_bytes()
+          sha=hashlib.sha256(data).hexdigest()
+          expected='2dd417faf08a3ad810503ae51470606fc12eee3f069d21b57b86f36a4fb04854'
+          assert sha==expected and len(data)==2690703, (sha,len(data))
+          print('Approved Hero PNG verified:',sha)
+          PY
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          cwebp -quiet -mt -q 90 -m 4 assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.png -o assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp
+          test -s assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp
+      - name: Fix only Preview OGP meta to point at actual Preview asset
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('articles/series-parallel-circuit-basic.html')
+          html=p.read_text(encoding='utf-8')
+          expected='https://denkicontrol.com/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp'
+          preview='https://ai-editorial-series-parallel.denkicontrol-preview.pages.dev/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp'
+          assert html.count(expected)==2, html.count(expected)
+          assert html.count('property="og:image"')==1
+          assert html.count('name="twitter:image"')==1
+          html=html.replace(expected,preview)
+          assert html.count(preview)==2
+          assert 'series-parallel-circuit-basic-hero.webp' in html
+          assert 'class="site-header dc-shell"' in html
+          assert 'articleFeedbackCard' in html
+          assert 'data-review-only' not in html
+          p.write_text(html,encoding='utf-8')
+          print('Preview-only OGP meta updated; production branch metadata unchanged')
+          PY
+      - name: Commit isolated, verified Preview-only changes
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add articles/series-parallel-circuit-basic.html assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp
+          if ! git diff --cached --quiet; then
+            git commit -m 'preview: use user-approved Hero and actual Cloudflare OGP'
+            git push origin HEAD:ai-editorial/series-parallel-final-publication-20261028
+          fi

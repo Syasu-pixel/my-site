@@ -1,0 +1,115 @@
+name: Series parallel final publication preview
+
+on:
+  push:
+    branches:
+      - ai-editorial/series-parallel-final-publication-20261028
+    paths:
+      - .github/workflows/series-parallel-final-preview.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.19.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Build and verify integrated publication
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          git fetch origin preview-refresh-series-parallel-circuit-20261025
+          git restore --source=FETCH_HEAD --worktree -- articles/series-parallel-circuit-basic.html .github/article-components/hero .github/site-shells/manifest.json .github/article-components/site-inventory.json .github/article-components/sidebar/all-pages.json
+          pnpm check:shells
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs /tmp/series-parallel-integration
+          node scripts/build-additional-shells.mjs /tmp/series-parallel-integration/additional-shells
+          python scripts/verify-integrated-source.py /tmp/series-parallel-integration
+          python scripts/audit-integrated-links.py /tmp/series-parallel-integration
+          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate /tmp/series-parallel-integration/candidate --assets-source . --output /tmp/series-parallel-integration/end-independent-checks.json
+          python scripts/build-admin-article-catalog.py
+          rsync -a ./ _site/ --exclude '_site/' --exclude '.git/' --exclude '.github/' --exclude '/docs/rules/catalog.json' --exclude 'node_modules/' --exclude '.netlify/' --exclude '.wrangler/' --exclude '.cache/' --exclude 'tmp/' --exclude 'temp/' --exclude '*.zip' --exclude '*.tar' --exclude '*.tar.gz' --exclude '*.7z' --exclude '*.psd' --exclude '*.ai'
+          node scripts/prepare-integrated-publication.mjs /tmp/series-parallel-integration _site
+          python scripts/verify-publication-artifact.py snapshot _site /tmp/series-parallel-integration
+      - name: Optimize the six adopted images in the publication copy
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq webp
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          root=Path('_site')
+          build=Path('/tmp/series-parallel-integration')
+          names=['hero','ogp','overview','series','parallel','resistance']
+          directory=Path('assets/images/series-parallel-circuit-basic')
+          mapping={}
+          for name in names:
+              old=directory/f'series-parallel-circuit-basic-{name}.png'
+              new=old.with_suffix('.webp')
+              src=root/old
+              dst=root/new
+              if not src.is_file(): raise SystemExit(f'Adopted image missing: {old}')
+              subprocess.run(['cwebp','-quiet','-mt','-q','90','-m','4',str(src),'-o',str(dst)],check=True)
+              if not dst.is_file() or dst.stat().st_size==0: raise SystemExit(f'WebP optimization failed: {new}')
+              mapping[old.as_posix()]=new.as_posix()
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in {'.html','.css','.js','.json','.xml'}:continue
+              try: before=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:continue
+              after=before
+              for old,new in mapping.items():
+                  after=after.replace('/'+old,'/'+new).replace(old,new)
+              if after!=before:path.write_text(after,encoding='utf-8')
+          for old in mapping: (root/old).unlink()
+          (build/'published-image-mapping.json').write_text(json.dumps(mapping,indent=2),encoding='utf-8')
+          print('Optimized adopted publication images:',len(mapping))
+          PY
+          python scripts/verify-publication-artifact.py verify _site /tmp/series-parallel-integration
+          if grep -Eq 'plc-drilling-line-design-project-(01|02|03)\.html' _site/sitemap.xml _site/assets/data/search-index.json; then
+            echo 'Paused PLC design article leaked into search/index' >&2
+            exit 1
+          fi
+      - name: Materialize verified publication for this Preview branch only
+        run: |
+          set -euo pipefail
+          target=articles/series-parallel-circuit-basic.html
+          cp "_site/$target" "$target"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("articles/series-parallel-circuit-basic.html")
+          text=p.read_text(encoding="utf-8")
+          old="https://denkicontrol.com/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp"
+          new="https://ai-editorial-series-parallel.denkicontrol-preview.pages.dev/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-ogp.webp"
+          assert text.count(old)==2, text.count(old)
+          assert 'series-parallel-hero-responsive-preview' not in text
+          p.write_text(text.replace(old,new),encoding="utf-8")
+          PY
+          for p in assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js; do
+            cp "_site/$p" "$p"
+          done
+          cp _site/assets/images/series-parallel-circuit-basic/*.webp assets/images/series-parallel-circuit-basic/
+          grep -q 'class="site-header dc-shell"' "$target"
+          grep -q 'series-parallel-circuit-basic-overview.webp' "$target"
+          grep -q 'article-integration-compat.js' "$target"
+          if grep -Eq 'data-review-only|data-preview-isolation|noindex,nofollow' "$target"; then exit 1; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git reset
+          git add "$target" assets/css/article-toc-v2.css assets/css/article-end-related.css assets/css/article-end-feedback.css assets/css/article-integration-compat.css assets/js/article-toc-v2.js assets/js/article-integration-compat.js assets/images/series-parallel-circuit-basic/*.webp
+          if ! git diff --cached --quiet; then
+            git commit -m 'preview: materialize verified series-parallel publication [skip ci]'
+            git push origin HEAD:ai-editorial/series-parallel-final-publication-20261028
+          fi

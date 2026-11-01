@@ -25,7 +25,7 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  await page.evaluate(async()=>{await document.fonts.ready;for(const img of document.images)img.loading='eager';await Promise.all([...document.images].map(async img=>{if(!img.complete)await new Promise(r=>{img.addEventListener('load',r,{once:true});img.addEventListener('error',r,{once:true});setTimeout(r,5000);});await img.decode().catch(()=>{});}));});
  const key=p.output.replace(/\.html$/,'').replaceAll('/','__')+'--'+device;
  const r={target:p.output,device,counterpart:p.counterpart,images:{}};
- const shoot=async state=>{const name=`${key}--${state}.png`;await page.screenshot({path:resolve(out,name),animations:'disabled'});r.images[state]=name;};
+ const shoot=async state=>{const name=`${key}--${state}.png`;await page.locator('header.site-header').screenshot({path:resolve(out,name),animations:'disabled'});r.images[state]=name;};
  await shoot('closed');
  const original=base.images.find(i=>i.target===p.output&&i.device===device&&i.region==='header');if(!original)throw Error('Missing before evidence');
  const bytes=await readFile(resolve(baseline,original.path));if(hash(bytes)!==original.sha256)throw Error('Baseline changed');

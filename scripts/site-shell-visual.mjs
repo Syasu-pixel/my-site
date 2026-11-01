@@ -84,7 +84,11 @@ try {
       async function capture(region,fullPage=false){
         const rel=`${phase==='baseline'?'before':'after'}/${key}--${region}.png`;
         await mkdir(dirname(resolve(out,rel)),{recursive:true});
-        const bytes=await page.screenshot({path:resolve(out,rel),fullPage,animations:'disabled'});
+        const bytes=region==='header'
+          ? await page.locator('header.site-header').screenshot({path:resolve(out,rel),animations:'disabled'})
+          : region==='footer'
+            ? await page.locator('footer.site-footer').screenshot({path:resolve(out,rel),animations:'disabled'})
+            : await page.screenshot({path:resolve(out,rel),fullPage,animations:'disabled'});
         images.push({target,device,region,path:rel,sha256:hash(bytes)});
         if(phase==='compare') {
           const beforePath=rel.replace(/^after\//,'before/');

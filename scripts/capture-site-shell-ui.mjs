@@ -30,7 +30,15 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  const original=base.images.find(i=>i.target===p.output&&i.device===device&&i.region==='header');if(!original)throw Error('Missing before evidence');
  const bytes=await readFile(resolve(baseline,original.path));if(hash(bytes)!==original.sha256)throw Error('Baseline changed');
  const before=`${key}--before.png`;await writeFile(resolve(out,before),bytes);r.images.before=before;
- const a=PNG.sync.read(bytes),b=PNG.sync.read(await readFile(resolve(out,r.images.closed))),diff=new PNG({width:a.width,height:a.height});r.intentionalChangedPixels=pixelmatch(a.data,b.data,diff.data,a.width,a.height,{threshold:.1,includeAA:false});r.images.diff=`${key}--diff.png`;await writeFile(resolve(out,r.images.diff),PNG.sync.write(diff));
+ const a=PNG.sync.read(bytes),b=PNG.sync.read(await readFile(resolve(out,r.images.closed)));
+ const width=Math.max(a.width,b.width),height=Math.max(a.height,b.height);
+ const expand=img=>{const canvas=new PNG({width,height});canvas.data.fill(255);PNG.bitblt(img,canvas,0,0,img.width,img.height,0,0);return canvas;};
+ const baselineImage=expand(a),proposalImage=expand(b),diff=new PNG({width,height});
+ r.imageDimensions={baseline:{width:a.width,height:a.height},proposal:{width:b.width,height:b.height}};
+ r.imageSizeChanged=a.width!==b.width||a.height!==b.height;
+ r.intentionalChangedPixels=pixelmatch(baselineImage.data,proposalImage.data,diff.data,width,height,{threshold:.1,includeAA:false});
+ if(r.imageSizeChanged)r.intentionalChangedPixels=Math.max(r.intentionalChangedPixels,1);
+ r.images.diff=`${key}--diff.png`;await writeFile(resolve(out,r.images.diff),PNG.sync.write(diff));
  if(p.lang==='ja'&&!await page.locator('.dc-consult').isVisible())throw Error('Japanese consultation hidden');
  if(p.lang==='en'&&await page.locator('header a[href*="gxworks2-online-support"]').count())throw Error('English consultation link must be absent');
  await page.locator('#dc-search-toggle').click();await page.locator('#site-search-input').waitFor({state:'visible'});

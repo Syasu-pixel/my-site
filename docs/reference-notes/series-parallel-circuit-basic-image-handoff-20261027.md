@@ -47,3 +47,8 @@
 - 本文編集元のGit blob SHA: `f8330102c8105a693e4bcbc918bd136fa9a4d2a8`。`site-inventory.json` の対象entryを同期。
 - **未完了**: 本番配信HTMLのバイトハッシュと対応デプロイの確定、shell baselineSha256・Hero css-bindings・end oracle等の台帳照合、独立画像技術監査、検索データ事前確認、publication検証、Cloudflare最終Preview配信。古い検査基準を新候補へ無検証で付け替えない。
 - Preview管理者目視承認前につき `main` マージ禁止。
+
+## 2026-11-01 最新main基準の再検証
+
+- 停止中PLC設計シリーズ第1〜3回の検索インデックス除外は独立PR #1793がmainにマージ済み。最新mainの `assets/data/search-index.json` に当該3件のURLが存在しないことを確認。
+- 採用Hero・本文・CSSを変更せず、現在のmainをPR baseとして既存CIを再実行し、記事固有／サイト全体の失敗を区別する。CI未完了・失敗の状態でmainへマージしない。

@@ -200,6 +200,10 @@
 
 ## 公開反映メモ
 
+- [ ] **四コマ制作待ち**: `articles/series-parallel-circuit-basic.html` — 2026-11-02 記事刷新・採用Hero/OGP/本文画像4枚を本番反映済み。記事に対応する4コマは正式採用・登録を未確認のため、**新たに生成・公開しない**。制作・目視採用後に、既存4コマ一覧／右カラム導線／Instagram連携を既存の4コマルールに従って更新する。既存の記事公開は維持する。
+
+
+
 - [x] 四コマ追従: `articles/area-sensor-basic.html` — 2026-10-07 正式採用。画像は `assets/images/comics/area-sensor-basic/area-sensor-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
 
 - [x] 四コマ追従: `articles/light-curtain-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/light-curtain-basic/light-curtain-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。

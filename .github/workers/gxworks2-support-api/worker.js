@@ -50,6 +50,13 @@ export default {
       return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
     }
 
+    // Temporarily close only new public consultation intake and ZIP uploads.
+    // Preserve admin endpoints and existing consultation status/password completion.
+    if ((request.method === 'POST' && (url.pathname === '/consultations' || url.pathname === '/general-consultations'))
+        || (request.method === 'PUT' && url.pathname === '/consultations/zip')) {
+      return json({ ok: false, error: 'Online consultation is temporarily unavailable', code: 'CONSULTATION_PAUSED' }, 503, origin);
+    }
+
     if (url.pathname.startsWith('/admin/')) {
       return handleAdminRequest(request, env, origin, url);
     }

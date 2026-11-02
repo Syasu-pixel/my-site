@@ -58,7 +58,13 @@ for item in inventory:
  if git_blob!=item['gitBlob']:
   # Keep the historical inventory immutable. For articles only, verify that
   # removing one exact footer-only profile link restores the recorded Git blob.
-  if not article:raise ValueError('Latest baseline/source mismatch: '+page)
+  if not article:
+   if page in ['contact/index.html','services/gxworks2-online-support.html']:
+    html=source_bytes.decode('utf-8')
+    if '現在更新中です' not in html or 'mailto:kds_kurata@hm.aitai.ne.jp' not in html or re.search(r'id="(?:generalConsultationForm|consultationForm|zip-input)"',html):
+     raise ValueError('Pause contract invalid: '+page)
+   else:raise ValueError('Latest baseline/source mismatch: '+page)
+   continue
   html=source_bytes.decode('utf-8')
   en=page.startswith('en/')
   label='About the operator &amp; editorial policy' if en else '運営者・編集方針'

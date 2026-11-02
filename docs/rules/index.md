@@ -148,6 +148,7 @@
 | [docs/decisions/2026-09-07-dashboard-japanese-ui-v032.md](../decisions/2026-09-07-dashboard-japanese-ui-v032.md) — AI編集部 Dashboard 日本語UI v0.3.2 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-18-shared-site-templates.md](../decisions/2026-09-18-shared-site-templates.md) — Decision: ページ構造を共通ひな形へ分離する方針 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ja-en-technical-seo-audit.md](../ja-en-technical-seo-audit.md) — JA/EN Technical SEO Audit | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md](../reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md) — 直列・並列回路 記事刷新｜採用画像引き継ぎ（2026-10-27） | 対象記事の採用画像、ハッシュ検証、刷新作業の履歴を参照するとき。公開承認済みの証明ではない。 |
 | [docs/search-top-content-audit-2026-09-10.md](../search-top-content-audit-2026-09-10.md) — 検索流入上位記事 技術・テンプレート品質監査（2026-09-10） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

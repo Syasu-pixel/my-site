@@ -72,6 +72,46 @@ jobs:
           Path('/tmp/series-parallel-cloudflare-evidence.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps({'status':result['status'],'verifiedUrl':result.get('verifiedArticleUrl'),'assetsValid':result.get('assetsValid'),'checks':result['checks'][-2:]},ensure_ascii=False))
           PY
+      - name: Compare adopted PNG against live Cloudflare Hero pixels
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet Pillow==11.3.0
+          python3 - <<'PY'
+          import json, hashlib, io, urllib.request
+          from PIL import Image, ImageChops, ImageStat
+          from pathlib import Path
+          ev=Path('/tmp/series-parallel-cloudflare-evidence.json')
+          report=json.loads(ev.read_text(encoding='utf-8'))
+          src=Path('assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.png')
+          local=Path('assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp')
+          expected='2dd417faf08a3ad810503ae51470606fc12eee3f069d21b57b86f36a4fb04854'
+          result={'adoptedPngSha256':hashlib.sha256(src.read_bytes()).hexdigest(),'githubWebPBlobSha':'cb2b10bf1dd5b227dc58a276c22f74decab9fb3c'}
+          assert result['adoptedPngSha256']==expected,'Approved PNG source changed'
+          try:
+              url='https://ai-editorial-series-parallel.denkicontrol-preview.pages.dev/assets/images/series-parallel-circuit-basic/series-parallel-circuit-basic-hero.webp'
+              req=urllib.request.Request(url,headers={'User-Agent':'Denkicontrol-Hero-Content-Verification/1.0'})
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  assert response.status==200
+                  data=response.read(10000000)
+              sha=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\\0'+data).hexdigest()
+              result['liveWebPBlobSha']=sha
+              result['liveMatchesGitHubWebP']=sha==result['githubWebPBlobSha']
+              images=[Image.open(src).convert('RGB'),Image.open(local).convert('RGB'),Image.open(io.BytesIO(data)).convert('RGB')]
+              result['dimensions']=[list(im.size) for im in images]
+              for name,ia,ib in [('adoptedPNG_to_live',0,2),('githubWebP_to_live',1,2)]:
+                  a,b=images[ia],images[ib]
+                  if a.size!=b.size:
+                      result[name]={'sameDimensions':False}
+                  else:
+                      diff=ImageChops.difference(a,b)
+                      stat=ImageStat.Stat(diff)
+                      result[name]={'sameDimensions':True,'meanAbsoluteChannelDifference':round(sum(stat.mean)/3,5),'differentPixelsPct':round(100*sum(1 for p in diff.getdata() if p!=(0,0,0))/(a.width*a.height),4)}
+              result['artworkPixelEquivalent']=bool(result.get('adoptedPNG_to_live',{}).get('sameDimensions') and result['adoptedPNG_to_live']['meanAbsoluteChannelDifference']<3)
+          except Exception as e:result['error']=str(e)
+          report['adoptedHeroContentAudit']=result
+          ev.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False))
+          PY
       - name: Browser verification of four viewport-theme combinations
         run: |
           set -euo pipefail

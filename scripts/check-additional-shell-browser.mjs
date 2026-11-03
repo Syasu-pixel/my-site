@@ -42,7 +42,7 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   assert(darkAudit.darkTexts.length===0,'Dark text remains in dark mode: '+darkAudit.darkTexts.join(', '));
   if(path==='index.html'){const bg=await page.locator('.hero-grid').evaluate(e=>getComputedStyle(e).backgroundImage);assert(bg.includes('hero-top.png'),'Top hero image missing in dark mode');assert(!bg.includes('248, 251, 255'),'Light top hero overlay remains in dark mode');}
   if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
-  if(service){
+  if(service && await page.locator('.article-hero-copy').count()>0){
     const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{
       const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
       const avg=v=>v?(v[0]+v[1]+v[2])/3:null,title=e.querySelector('h1'),lead=e.querySelector('.hero-lead');

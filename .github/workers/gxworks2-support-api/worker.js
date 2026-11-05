@@ -50,9 +50,10 @@ export default {
       return json({ ok: false, error: 'Origin not allowed' }, 403, origin);
     }
 
-    // Temporarily close only new public consultation intake and ZIP uploads.
+    // Only the GX Works2 intake and ZIP upload are paused.
+    // The ordinary contact form (/general-consultations) remains available.
     // Preserve admin endpoints and existing consultation status/password completion.
-    if ((request.method === 'POST' && (url.pathname === '/consultations' || url.pathname === '/general-consultations'))
+    if ((request.method === 'POST' && url.pathname === '/consultations')
         || (request.method === 'PUT' && url.pathname === '/consultations/zip')) {
       return json({ ok: false, error: 'Online consultation is temporarily unavailable', code: 'CONSULTATION_PAUSED' }, 503, origin);
     }

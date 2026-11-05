@@ -107,7 +107,14 @@ def content_date(path):
         r"""class=["'][^"']*\barticle-updated\b[^"']*["'][\s\S]{0,450}?datetime=["'](\d{4}-\d{2}-\d{2})""",
         body, flags=re.I,
     )
-    return date.fromisoformat(match.group(1)) if match else None
+    if match:
+        return date.fromisoformat(match.group(1))
+    # Visible Japanese content-update dates are also valid.
+    # Do not confuse content changes with the official-source review date.
+    ja = re.search(r"最終内容更新\\s*[:：]\\s*(\\d{4})年(\\d{1,2})月(\\d{1,2})日", body)
+    if ja:
+        return date(int(ja.group(1)), int(ja.group(2)), int(ja.group(3)))
+    return None
 
 
 def classify(old, new):

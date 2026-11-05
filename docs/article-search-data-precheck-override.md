@@ -139,6 +139,13 @@ GSC Wizardや無料外部アプリを記事制作前チェックの標準ソー�
 毎回、作業開始時点の最新検索データを使ってサイト内の既存記事を再評価する。
 `docs/existing-article-improvement-backlog.md` は改善履歴・完了状態・未完了候補の記録として使い、固定の優先順位表として使わない。
 
+### 週次自動評価の参照（2026-11-05導入済み）
+
+- `scripts/search_backlog_report.py` と `.github/workflows/weekly-search-backlog.yml` により、Supabase保存の**Google確定ページ別データ**から直近28日と前28日の候補分類を毎週月曜日08:30 JSTに提案する仕組みをmainへ導入済み（PR #1798）。GitHub Actionsの実行開始が遅延する可能性はあり、定期実行が成功したかはWorkflowの履歴とDraft PRで別途確認する。
+- 候補は `docs/existing-article-improvement-backlog.md` の自動生成区画への**Draft PR提案**であり、`[x]` 凍結状態や記事本文を自動変更しない。初回の定期実行・Draft PR作成の実績は未確認のため、コードの導入だけを自動運用の成功としない。
+- Bingのページ・検索語データは週次スナップショットであり、Googleの日次データと混合して順位や増減を確定しない。検索クエリやGoogle/Bing差分は、別途Supabase上の最新実データと取得期間を確認する。
+- 自動候補の有無にかかわらず、**完成・凍結確認 → 最終内容更新日 → 公式資料確認日 → GitHub/PR履歴 → 最新検索データ**の順序と、28日クールダウン・一次資料確認を省略しない。
+
 優先候補の判断材料:
 
 - impressions が多い

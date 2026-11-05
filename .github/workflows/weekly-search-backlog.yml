@@ -31,7 +31,7 @@ jobs:
           python scripts/test_search_backlog_report.py
 
   propose:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: test
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -68,9 +68,10 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
           git fetch origin "$BRANCH:refs/remotes/origin/$BRANCH" || true
-          git switch -C "$BRANCH" origin/main
+          # Keep the original checked-out main commit: the report was produced from it.
+          # Fetching a newer main here could discard concurrent user changes.
+          git switch -C "$BRANCH"
           git add docs/existing-article-improvement-backlog.md
           if git diff --cached --quiet; then
             echo "No generated section change to propose."
@@ -78,8 +79,10 @@ jobs:
           fi
           git commit -m "chore(search): propose weekly article evaluation"
           git push --force-with-lease origin "HEAD:refs/heads/$BRANCH"
-          if gh pr view "$BRANCH" --json url --jq .url >/dev/null 2>&1; then
-            echo "Updated existing review PR."
+          # A CLOSED or MERGED PR must not suppress a new weekly proposal.
+          existing_pr="$(gh pr list --state open --head "$BRANCH" --base main --json url --jq '.[0].url // empty')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Updated existing open review PR: $existing_pr"
           else
             if ! gh pr create --draft --base main --head "$BRANCH" \
               --title "chore(search): weekly article improvement candidates" \

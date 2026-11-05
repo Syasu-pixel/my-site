@@ -66,6 +66,12 @@ jobs:
           BRANCH: automation/weekly-search-improvement-backlog
         run: |
           set -euo pipefail
+          # Never modify a PR already promoted from Draft to human review.
+          open_pr_state="$(gh pr list --state open --head "$BRANCH" --base main --json isDraft --jq '.[0].isDraft // empty')"
+          if [[ "$open_pr_state" == "false" ]]; then
+            echo "::warning::Existing review PR is no longer Draft. Proposal artifact saved; no branch update."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$BRANCH:refs/remotes/origin/$BRANCH" || true

@@ -27,6 +27,7 @@
 ## 記事作成・更新の実作業
 [実作業手順](docs/article-editing-playbook.md)から、登録・編集元・検査基準・生成・公開導線の順に進む。
 新規記事・既存記事の実質刷新では、[検索データ事前確認](docs/article-search-data-precheck-override.md)を通し、[Bing AI検索CSV保存台帳](.github/data/bing-ai-search/index.json)にある原本3件も記事テーマごとに確認する。AI引用を根拠にした改変は[引用ルール](docs/ai-search-citation-rules.md)に従う。保存CSVは履歴でありリアルタイム値ではない。
+既存記事の改善候補を選ぶときは、[既存記事改善バックログ](docs/existing-article-improvement-backlog.md)の「検索データの週次・自動評価」を確認する。この仕組みは2026-11-05にmainへ導入済み（PR #1798）。**毎週月曜日08:30 JSTのDraft PR提案であり、記事を自動更新・公開するものではない。** 初回実行を含め、稼働実績はGitHub Actionsの履歴とDraft PRで確認する。評価結果は候補であり、変更前には直近のSupabase公式API実データ、28日クールダウン、GitHub/PR履歴、メーカー公式資料を再確認する。
 [実作業手順](docs/article-editing-playbook.md)から、登録・編集元・検査基準・生成・公開導線の順に進む。
 
 ## 文書の更新

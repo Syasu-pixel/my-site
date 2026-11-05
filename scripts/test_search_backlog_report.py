@@ -86,6 +86,23 @@ class SearchBacklogTests(unittest.TestCase):
             article.write_text("<p>最終内容更新：2026年9月23日 ／ 公式資料確認日：2026年10月1日</p>", encoding="utf-8")
             self.assertEqual(module.content_date(article), date(2026, 9, 23))
 
+    def test_future_content_update_is_not_auto_released(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "articles").mkdir()
+            (root / "articles/fresh.html").write_text(
+                "<p>最終内容更新：2026年11月4日</p>", encoding="utf-8")
+            rows = [
+                dict(page="https://denkicontrol.com/articles/fresh.html",
+                     data_date="2026-10-02", clicks=50, impressions=1800, avg_position=6),
+                dict(page="https://denkicontrol.com/articles/fresh.html",
+                     data_date="2026-10-30", clicks=20, impressions=1600, avg_position=8),
+            ]
+            rendered = module.render(rows, "# backlog", 
+                                     {"https://denkicontrol.com/articles/fresh.html"},
+                                     date(2026, 11, 2), None, root)
+            self.assertIn("再編集禁止", rendered)
+
     def test_stale_data_does_not_modify_backlog(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

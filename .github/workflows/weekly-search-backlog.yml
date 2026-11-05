@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           # Never modify a PR already promoted from Draft to human review.
-          open_pr_state="$(gh pr list --state open --head "$BRANCH" --base main --json isDraft --jq '.[0].isDraft // empty')"
+          open_pr_state="$(gh pr list --state open --head "$BRANCH" --base main --json isDraft --jq 'if length == 0 then "none" else (.[0].isDraft | tostring) end')"
           if [[ "$open_pr_state" == "false" ]]; then
             echo "::warning::Existing review PR is no longer Draft. Proposal artifact saved; no branch update."
             exit 0

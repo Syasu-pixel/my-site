@@ -170,7 +170,9 @@ def render(rows, current, published, end_date, bing_date, root):
         else:
             status = "完成・凍結" if manual[slug] else "未完了"
         edited = content_date(root / "articles" / slug)
-        if edited and 0 <= (end_date - edited).days < 28:
+        if edited and edited > end_date:
+            status += "／更新内容が評価期間より新しい・再編集禁止"
+        elif edited and 0 <= (end_date - edited).days < 28:
             status += "／28日クールダウン"
         elif edited is None:
             status += "／更新日・PR履歴要確認"

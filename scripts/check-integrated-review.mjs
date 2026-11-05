@@ -69,7 +69,17 @@ for(const mode of (shardIndex===0?['duplicate','error','no-storage']:[])){const 
  votes.push({mode,status:'passed'});
  }catch(error){failures.push({test:'vote-'+mode,error:error.message});}finally{await c.close();}}
 for(const width of (shardIndex===0?[390,768,1440]:[])){const c=await context({width,height:1000}),page=await c.newPage();try{
- await page.goto(origin+'/services/gxworks2-online-support.html',{waitUntil:'networkidle'});await ready(page);assert(await page.locator('.dc-toc-button').count()===0,'service wrongly acquired article TOC');assert(await page.locator('#consultationForm').count()===1,'service form missing');assert(!await page.locator('#consultationForm').evaluate(e=>e.checkValidity()),'empty service validation');await page.locator('#email').fill('invalid');assert(!await page.locator('#email').evaluate(e=>e.checkValidity()),'email validation');assert(await page.locator('#case-number').getAttribute('readonly')!==null,'case number must stay readonly');await shot(page,'service--'+width,'header');await page.locator('#consultationForm').scrollIntoViewIfNeeded();await shot(page,'service--'+width,'form');assert(await page.evaluate(()=>window.__reviewVotes.length)===0,'service submitted vote');results.push({path:'services/gxworks2-online-support.html',width,status:'preserved-exception',liveSubmission:false});
+ await page.goto(origin+'/services/gxworks2-online-support.html',{waitUntil:'networkidle'});await ready(page);
+ assert(await page.locator('.dc-toc-button').count()===0,'service wrongly acquired article TOC');
+ assert(await page.locator('#consultation-paused-title').count()===1,'service pause notice missing');
+ assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'service pause notice text missing');
+ assert(await page.locator('a[href="mailto:kds_kurata@hm.aitai.ne.jp"]').count()>0,'ordinary contact missing');
+ assert(await page.locator('#consultationForm,#zip-input').count()===0,'paused service still accepts form/zip');
+ await shot(page,'service--'+width,'header');
+ await page.locator('#consultation-paused-title').scrollIntoViewIfNeeded();
+ await shot(page,'service--'+width,'pause');
+ assert(await page.evaluate(()=>window.__reviewVotes.length)===0,'service submitted vote');
+ results.push({path:'services/gxworks2-online-support.html',width,status:'paused-service',liveSubmission:false});
  }catch(error){failures.push({test:'service',width,error:error.message});}finally{await c.close();}}
 }finally{await browser.close();}
 await writeFile(resolve(build,'browser-checks'+suffix+'.json'),JSON.stringify({shardIndex,shardCount,targets,results,votes,failures,images,externalVotesSent:0,productionPublished:false},null,2));

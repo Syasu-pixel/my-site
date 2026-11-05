@@ -80,6 +80,12 @@ class SearchBacklogTests(unittest.TestCase):
             self.assertEqual(module.published_articles(f),
                              {"https://denkicontrol.com/articles/good.html"})
 
+    def test_japanese_visible_last_content_update(self):
+        with tempfile.TemporaryDirectory() as temp:
+            article = Path(temp) / "article.html"
+            article.write_text("<p>最終内容更新：2026年9月23日 ／ 公式資料確認日：2026年10月1日</p>", encoding="utf-8")
+            self.assertEqual(module.content_date(article), date(2026, 9, 23))
+
     def test_stale_data_does_not_modify_backlog(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

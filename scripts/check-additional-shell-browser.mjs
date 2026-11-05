@@ -22,7 +22,14 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   await page.locator('#dc-menu-toggle').click();assert(await page.locator('.dc-alternative').count()===(counterpart?1:0),'Invented/missing translation');if(counterpart)assert(await page.locator('.dc-alternative').getAttribute('href')===counterpart,'Translation target');await page.keyboard.press('Escape');
   await page.locator('#dc-search-toggle').click();await page.locator('#site-search-input').fill('PLC');await page.locator('#site-search-results li').first().waitFor({state:'visible'});await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--search.png'),animations:'disabled'});await page.keyboard.press('Escape');
   assert(await page.locator('#dc-search-toggle').evaluate(e=>e===document.activeElement),'Search focus return');
-  if(service||generalConsultationPage){assert(await page.locator('#consultation-paused-title').count()===1,'Pause notice missing');assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'Pause notice heading');assert(await page.locator('a[href="mailto:kds_kurata@hm.aitai.ne.jp"]').count()>0,'Ordinary email contact missing');assert(await page.locator('#consultationForm,#generalConsultationForm,#zip-input').count()===0,'Public consultation intake must be absent')}
+  if(service||generalConsultationPage){
+    assert(await page.locator('#consultation-paused-title').count()===1,'Pause notice missing');
+    assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'Pause notice heading');
+    assert(await page.locator('a[href="mailto:kds_kurata@hm.aitai.ne.jp"]').count()>0,'Ordinary email contact missing');
+    assert(await page.locator('#consultationForm,#generalConsultationForm,#zip-input').count()===0,'Public consultation intake must be absent');
+    assert(await page.evaluate(()=>document.documentElement.dataset.dcTheme!=='dark'),'Expected light preview before dark-mode switch');
+    await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--light.png'),animations:'disabled',fullPage:true});
+  }
   await page.evaluate(()=>localStorage.removeItem('dc-theme'));await page.emulateMedia({colorScheme:'dark'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
   await page.locator('#dc-menu-toggle').click();assert(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')==='true','System dark switch state');await page.keyboard.press('Escape');
   const darkAudit=await page.evaluate(()=>{

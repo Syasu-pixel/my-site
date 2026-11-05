@@ -236,6 +236,9 @@
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [.github/workflows/weekly-search-backlog.yml](../../.github/workflows/weekly-search-backlog.yml) | 検索順位・CTRの週次判定、バックログへの確認専用Draft PR提案を運用・変更する場合。 公式API取得済みデータを使い、記事本文や完了チェックを変更せず評価候補のみPRで提案する週次処理。 |
+| [scripts/search_backlog_report.py](../../scripts/search_backlog_report.py) | 既存記事改善バックログの検索データ自動評価を運用・変更する場合。 Supabase確定Google日次データに基づく候補抽出・公開URL限定・完成凍結/クールダウンガードを持つ提案生成器。 |
+| [scripts/test_search_backlog_report.py](../../scripts/test_search_backlog_report.py) | 検索データ自動評価器または週次提案処理を変更・検査する場合。 候補分類・限定更新・公開URL絞り込み・鮮度停止の回帰テスト。 |
 
 ## 省略表記の参照先
 

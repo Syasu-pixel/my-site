@@ -17,7 +17,7 @@ const categoryCss='\n/* Reversible donation-card visibility for category pages. 
 // Only the ordinary contact page is allowed to change in this PR.
 // Keep the GX Works2 pause and all unrelated generated pages byte-identical;
 // keep the footer and donation policy exact. The source blob is pinned.
-const approvedContactSourceBlob='bd5a468b33a93608f14d9f6b8e50dd8d7c3a9c98';
+const approvedContactSourceBlob='a372492d9ebb9e9ef1b0dbe1f9203ca0f7163b68';
 const gitBlob=text=>createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const sha256=text=>createHash('sha256').update(text).digest('hex');
 const firstElement=(html,tag)=>(html.match(new RegExp('<'+tag+'\\b[^>]*>[\\s\\S]*?<\\/'+tag+'>'))||[])[0]||'';

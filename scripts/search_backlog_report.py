@@ -111,7 +111,7 @@ def content_date(path):
         return date.fromisoformat(match.group(1))
     # Visible Japanese content-update dates are also valid.
     # Do not confuse content changes with the official-source review date.
-    ja = re.search(r"最終内容更新\\s*[:：]\\s*(\\d{4})年(\\d{1,2})月(\\d{1,2})日", body)
+    ja = re.search(r"最終内容更新\s*[:：]\s*(\d{4})年(\d{1,2})月(\d{1,2})日", body)
     if ja:
         return date(int(ja.group(1)), int(ja.group(2)), int(ja.group(3)))
     return None

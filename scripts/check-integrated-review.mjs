@@ -73,7 +73,7 @@ for(const width of (shardIndex===0?[390,768,1440]:[])){const c=await context({wi
  assert(await page.locator('.dc-toc-button').count()===0,'service wrongly acquired article TOC');
  assert(await page.locator('#consultation-paused-title').count()===1,'service pause notice missing');
  assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'service pause notice text missing');
- assert(await page.locator('a[href="mailto:kds_kurata@hm.aitai.ne.jp"]').count()>0,'ordinary contact missing');
+ assert(await page.locator('main a[href="/contact/"]').count()===1,'ordinary contact page link missing');
  assert(await page.locator('#consultationForm,#zip-input').count()===0,'paused service still accepts form/zip');
  await shot(page,'service--'+width,'header');
  await page.locator('#consultation-paused-title').scrollIntoViewIfNeeded();

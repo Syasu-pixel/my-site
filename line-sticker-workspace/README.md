@@ -203,6 +203,7 @@ at least 12px transparent margin on every edge (prefer 14px).
 - やさしい柴…気づかいスタンプ：制作終了／Creators Market登録済み（画面省略表示）
 - かわいい柴犬の毎…ンプ Vol.1：制作終了／Creators Market登録済み（画面省略表示）
 
+- 限界OLちゃん Vol.1 / English: Exhausted Office Girl Vol.1：制作終了／LINE Creators Market審査リクエスト済み（2026-11-06、ユーザー報告）。24スタンプ＋main＋tabの26 PNGで登録。01〜10および11〜20は10個一覧から個別切り出し、21〜24は個別生成。元設定画を正本とし、最終タブ画像を調整して申請。
 - 塩対応ゲーマー女子 Vol.1：制作終了／LINE審査リクエスト済み（2026-10-28）。
 - 塩対応ゲーマー女子 Vol.2 / English: Salty Gamer Girl Vol.2：制作終了／LINE審査リクエスト済み（2026-10-29）。24枚を独立して制作・採用し、投稿用26 PNG ZIPで登録。**1画像1スタンプ・10＋10＋4の制作方式**を新しい標準方式として採用。
 

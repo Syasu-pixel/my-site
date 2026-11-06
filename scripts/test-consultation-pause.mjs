@@ -26,5 +26,7 @@ assert.doesNotMatch(general,/id="zip-input"|name="file"/);
 assert.match(general,/お問い合わせを送信する/);
 const service=await readFile(new URL('services/gxworks2-online-support.html',root),'utf8');
 assert.match(service,/現在更新中です/);
+assert.match(service,/<a href="\/contact\/"[^>]*>通常のお問い合わせ<\/a>/);
+assert.doesNotMatch(service,/mailto:kds_kurata@hm\.aitai\.ne\.jp/);
 assert.doesNotMatch(service,/id="consultationForm"|id="zip-input"/);
 console.log('GX Works2 paused, ordinary contact enabled, existing status preserved.');

@@ -65,7 +65,7 @@ for item in inventory:
      raise ValueError('Ordinary contact contract invalid: '+page)
    elif page=='services/gxworks2-online-support.html':
     html=source_bytes.decode('utf-8')
-    if '現在更新中です' not in html or 'mailto:kds_kurata@hm.aitai.ne.jp' not in html or re.search(r'id="(?:generalConsultationForm|consultationForm|zip-input)"',html):
+    if '現在更新中です' not in html or 'href="/contact/"' not in html or 'mailto:kds_kurata@hm.aitai.ne.jp' in html or re.search(r'id="(?:generalConsultationForm|consultationForm|zip-input)"',html):
      raise ValueError('Paused service contract invalid: '+page)
    else:raise ValueError('Latest baseline/source mismatch: '+page)
   else:

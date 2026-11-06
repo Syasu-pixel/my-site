@@ -103,8 +103,8 @@
       showStatus('必須項目とプライバシーポリシーへの同意を確認してください。','error');
       return;
     }
-    if(p.message.length>8000){
-      showStatus('相談内容は8,000文字以内で入力してください。','error');
+    if(p.message.length>2000){
+      showStatus('お問い合わせ内容は2,000文字以内で入力してください。','error');
       return;
     }
     if(!turnstileToken){
@@ -138,7 +138,7 @@
           );
         }
         resetTurnstile();
-        button.textContent='オンライン相談を送信する';
+        button.textContent='お問い合わせを送信する';
         return;
       }
 
@@ -153,7 +153,7 @@
       console.error(error);
       showStatus('送信できませんでした。通信状態を確認して、もう一度お試しください。','error');
       resetTurnstile();
-      button.textContent='オンライン相談を送信する';
+      button.textContent='お問い合わせを送信する';
     }
   });
 

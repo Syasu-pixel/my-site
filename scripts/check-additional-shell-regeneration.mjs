@@ -11,7 +11,7 @@ for(const p of manifest.pages){const digest=b=>createHash('sha256').update(b).di
 }else if(p.path==='services/gxworks2-online-support.html'){
   const sourceHtml=await readFile(resolve(root,p.path),'utf8');
   for(const html of [sourceHtml,candidate]){
-    if(!html.includes('現在更新中です')||!html.includes('mailto:kds_kurata@hm.aitai.ne.jp')||/id="generalConsultationForm"|id="consultationForm"|id="zip-input"/.test(html))throw Error('Paused GX Works2 contract failed: '+p.path);
+    if(!html.includes('現在更新中です')||!html.includes('href="/contact/"')||html.includes('mailto:kds_kurata@hm.aitai.ne.jp')||/id="generalConsultationForm"|id="consultationForm"|id="zip-input"/.test(html))throw Error('Paused GX Works2 contract failed: '+p.path);
   }
 }else if(sourceHash!==p.sourceSha256||candidateHash!==p.candidateSha256)throw Error('Source/candidate differs from accepted preview: '+p.path+' source '+sourceHash+' expected '+p.sourceSha256+' candidate '+candidateHash+' expected '+p.candidateSha256);}
 const files=['.github/site-shells/components/affiliate-disclosure.njk',...manifest.pages.map(p=>p.path),...['header.njk','header.css','header.js'].map(n=>'.github/site-shells/ui-proposal/'+n),...['manifest.json','footer.njk','frame.css','offset.js','contact.css','privacy.css','category.css'].map(n=>'.github/site-shells/additional/'+n)];

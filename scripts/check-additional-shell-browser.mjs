@@ -23,10 +23,17 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   await page.locator('#dc-search-toggle').click();await page.locator('#site-search-input').fill('PLC');await page.locator('#site-search-results li').first().waitFor({state:'visible'});await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--search.png'),animations:'disabled'});await page.keyboard.press('Escape');
   assert(await page.locator('#dc-search-toggle').evaluate(e=>e===document.activeElement),'Search focus return');
   if(service||generalConsultationPage){
-    assert(await page.locator('#consultation-paused-title').count()===1,'Pause notice missing');
-    assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'Pause notice heading');
-    assert(await page.locator('a[href="mailto:kds_kurata@hm.aitai.ne.jp"]').count()>0,'Ordinary email contact missing');
-    assert(await page.locator('#consultationForm,#generalConsultationForm,#zip-input').count()===0,'Public consultation intake must be absent');
+    if(service){
+      assert(await page.locator('#consultation-paused-title').count()===1,'GX Works2 pause notice missing');
+      assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'GX Works2 pause heading');
+      assert(await page.locator('#consultationForm,#zip-input').count()===0,'GX Works2 upload form must be absent');
+    }else{
+      assert(await page.locator('#generalConsultationForm').count()===1,'Ordinary contact form missing');
+      assert(await page.locator('#contact-confidentiality-notice').count()===1,'Confidentiality warning missing');
+      assert(await page.locator('#generalConsultationForm').evaluate(e=>e.checkValidity())===false,'Empty contact form should not be valid');
+      assert(await page.locator('#consultationForm,#zip-input').count()===0,'GX Works2 upload must be absent from contact');
+      assert((await page.locator('footer a[href$="/contact/"]').count())===1,'Footer inquiry destination missing');
+    }
     assert(await page.evaluate(()=>document.documentElement.dataset.dcTheme!=='dark'),'Expected light preview before dark-mode switch');
     await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--light.png'),animations:'disabled',fullPage:true});
   }

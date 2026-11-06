@@ -27,6 +27,7 @@ for(const path of pages)for(const width of [320,390,768,1440]){
       assert(await page.locator('#consultation-paused-title').count()===1,'GX Works2 pause notice missing');
       assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'GX Works2 pause heading');
       assert(await page.locator('#consultationForm,#zip-input').count()===0,'GX Works2 upload form must be absent');
+      assert(await page.locator('main a[href="/contact/"').count()===1,'GX Works2 ordinary contact form link missing');
     }else{
       assert(await page.locator('#generalConsultationForm').count()===1,'Ordinary contact form missing');
       assert(await page.locator('#contact-confidentiality-notice').count()===1,'Confidentiality warning missing');

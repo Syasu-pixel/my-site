@@ -59,10 +59,14 @@ for item in inventory:
   # Keep the historical inventory immutable. For articles only, verify that
   # removing one exact footer-only profile link restores the recorded Git blob.
   if not article:
-   if page in ['contact/index.html','services/gxworks2-online-support.html']:
+   if page=='contact/index.html':
+    html=source_bytes.decode('utf-8')
+    if 'id="generalConsultationForm"' not in html or 'contact-confidentiality-notice' not in html or 'id="zip-input"' in html or 'id="consultation-paused-title"' in html:
+     raise ValueError('Ordinary contact contract invalid: '+page)
+   elif page=='services/gxworks2-online-support.html':
     html=source_bytes.decode('utf-8')
     if '現在更新中です' not in html or 'mailto:kds_kurata@hm.aitai.ne.jp' not in html or re.search(r'id="(?:generalConsultationForm|consultationForm|zip-input)"',html):
-     raise ValueError('Pause contract invalid: '+page)
+     raise ValueError('Paused service contract invalid: '+page)
    else:raise ValueError('Latest baseline/source mismatch: '+page)
   else:
    html=source_bytes.decode('utf-8')

@@ -1,0 +1,87 @@
+name: NFB final integrated Cloudflare Preview (review only)
+on:
+  push:
+    branches:
+      - ai-editorial/nfb-final-preview-20261107
+    paths:
+      - '.github/workflows/nfb-final-preview.yml'
+permissions:
+  contents: write
+jobs:
+  build-final-preview:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-editorial/nfb-final-preview-20261107
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Prepare integrated article and verify source preservation
+        env:
+          REVIEW_COPY_ASSETS: '0'
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          python -m pip install lxml==6.1.1
+          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+          node scripts/check-integrated-publication.mjs "${RUNNER_TEMP}/integration-build"
+      - name: Materialize exactly the refreshed NFB article and shared assets
+        run: |
+          set -euo pipefail
+          CANDIDATE="${RUNNER_TEMP}/integration-build/candidate"
+          PAGE="articles/no-fuse-breaker-basic.html"
+          cp "${CANDIDATE}/${PAGE}" "${PAGE}"
+          for file in \
+            assets/css/article-toc-v2.css \
+            assets/css/article-end-related.css \
+            assets/css/article-end-feedback.css \
+            assets/css/article-integration-compat.css \
+            assets/js/article-toc-v2.js \
+            assets/js/article-integration-compat.js; do
+            mkdir -p "$(dirname "${file}")"
+            cp "${CANDIDATE}/${file}" "${file}"
+          done
+          grep -q 'class="site-header dc-shell"' "${PAGE}"
+          grep -q 'article-toc-v2.css' "${PAGE}"
+          grep -q 'article-integration-compat.js' "${PAGE}"
+          grep -q 'no-fuse-breaker-basic-hero.png' "${PAGE}"
+          grep -q 'no-fuse-breaker-basic-ogp.png' "${PAGE}"
+          grep -q 'no-fuse-breaker-basic-overview.png' "${PAGE}"
+          grep -q 'no-fuse-breaker-basic-trip-flow.png' "${PAGE}"
+          grep -q 'no-fuse-breaker-basic-comparison.png' "${PAGE}"
+          for image in \
+            no-fuse-breaker-basic-hero.png \
+            no-fuse-breaker-basic-ogp.png \
+            no-fuse-breaker-basic-overview.png \
+            no-fuse-breaker-basic-trip-flow.png \
+            no-fuse-breaker-basic-comparison.png; do
+            test -s "assets/images/no-fuse-breaker-basic/${image}"
+          done
+          ! grep -q 'noindex' "${PAGE}"
+      - name: Save integrated files onto Preview-only branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- articles/no-fuse-breaker-basic.html \
+            assets/css/article-toc-v2.css assets/css/article-end-related.css \
+            assets/css/article-end-feedback.css assets/css/article-integration-compat.css \
+            assets/js/article-toc-v2.js assets/js/article-integration-compat.js
+          if git diff --cached --quiet; then
+            echo 'Integrated Preview is already materialized'
+            exit 0
+          fi
+          git commit -m 'preview: materialize verified NFB integrated article (never merge to main)'
+          git push origin HEAD:ai-editorial/nfb-final-preview-20261107

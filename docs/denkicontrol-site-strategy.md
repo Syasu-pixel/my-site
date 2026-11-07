@@ -298,7 +298,7 @@ Denkicontrol では、記事で蓄積した専門性を実務の相談へつな�
 
 **この判定は記事への掲載承認ではない。** 判定は「A=記事別の追補候補として検討できる（本文採用前に記事内容・日付ガード・検索データと確認）」「B=追加の出典/現場条件/該当記事メモが必要」「C=一般的な現場ノウハウとしての掲載を見送る」で区別する。メーカーの一般的注意事項も、対象型式の適用範囲を確認するまで実作業の手順にはしない。
 
-照合した既存の `docs/reference-notes/` ：`magnetic-switch-basic.md`、`no-nc-basic.md`、`npn-pnp-basic.md`、`area-sensor-basic.md`、`air-cylinder-troubleshooting-basic.md`、`solenoid-valve-troubleshooting-basic.md`。 `air-breaker-basic.md`、`pliers.md`、`plc-input-troubleshooting-basic.md` は指定名では確認できず、別名や未マージの可能性も残る（不存在の確定ではない）。
+照合した既存の `docs/reference-notes/` ：`magnetic-switch-basic.md`、`no-nc-basic.md`、`npn-pnp-basic.md`、`area-sensor-basic.md`、`air-cylinder-troubleshooting-basic.md`、`solenoid-valve-troubleshooting-basic.md`。 未確認slug（air-breaker-basic、pliers、plc-input-troubleshooting-basic）の参照メモは指定名では確認できず、別名や未マージの可能性も残る（不存在の確定ではない）。
 
 #### 対象記事別の優先マッピング
 
@@ -523,3 +523,7 @@ Denkicontrol では、記事で蓄積した専門性を実務の相談へつな�
 | 「リセットしたら直ったことにしてよい？」 | 一時的な復旧と故障原因の検証を区別する | モータ、設備保全、チョコ停 | A：説明構成の候補 |
 
 **記事への反映は別工程**。台帳Aは出典の有用性に関する一次判定で、記事の更新許可や公開承認ではない。検索需要・対象記事の既存内容・公式一次資料・凍結/更新日ガードを先に調べ、該当 `docs/reference-notes/{slug}.md` に最終採否を記録する。
+
+### 第10回：個人技術ブログの比較と一次資料照合（2026-11-07）
+
+詳細は[横断調査ノート](reference-notes/field-knowledge-research-2026-11-07.md)へ追記した。既存F/PB台帳・過去参照は保持する。FK10番号は今回の論点、R番号は記事、S番号は発信主体を区別する。21主体を予備調査し、重点5主体は各3記事を確認。33記事のうち本文全体18、一部15（全体確認のうち1件は同日再取得404）。判定24件はA6/B10/C8で、新しい論点は13件、重複3件と除外8件は新知識に数えない。Aも掲載承認ではなく、記事本文は変更していない。

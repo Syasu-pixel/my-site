@@ -349,7 +349,7 @@ catalog.json の reference_aliases に、文脈を確認した省略表記と実
 
 ## 解決していない参照・例示の記録
 
-catalog.json の reference_exceptions に参照元・元表記・理由を個別登録する。例外は参照先が実在することを意味しない。
+catalog.json の reference_exceptions に参照元・元表記・理由を個別登録する。例外は参照先が実在することを意味しない。作業に必要なら未取得として扱う。
 
 - `docs/adopted-image-github-placement-rule.md` → `.github/binary-transfer-request.json`：転送時に確認用ブランチへ置く一時依頼ファイル。mainに常設されていない。転送作業時に対象ブランチの内容・配置を確認する。
 - `docs/ai-artifact-writer.md` → `.github/binary-transfer-request.json`：転送時に確認用ブランチへ置く一時依頼ファイル。mainに常設されていない。転送作業時に対象ブランチの内容・配置を確認する。

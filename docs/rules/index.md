@@ -158,6 +158,7 @@
 | [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/reference-notes/overseas-field-knowledge-2026-11-07.md](../reference-notes/overseas-field-knowledge-2026-11-07.md) — 海外現場知識 第12回 — 日本仕様との適用比較 | 海外の現場知識を再利用・再検証するとき。A/B/CとJP判定、原典の確認範囲、既存知識との重複を確認する。掲載・規格適合の承認ではない。 |
+| [docs/reference-notes/field-knowledge-round13-2026-11-08.md](../reference-notes/field-knowledge-round13-2026-11-08.md) — 現場知識調査 第13回 — 故障事例・現場用語・測定と判断 | 第13回の原典・本文確認範囲・FK13判定・国内仕様照合・既存知識との重複を再利用する。4軸索引は既存調査台帳を参照。掲載承認や実機検証の証明ではない。 |
 
 ## 実装・設定の参照先
 

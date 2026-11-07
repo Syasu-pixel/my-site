@@ -150,6 +150,7 @@
 | [docs/ja-en-technical-seo-audit.md](../ja-en-technical-seo-audit.md) — JA/EN Technical SEO Audit | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/reference-notes/field-blog-watchlist.md](../reference-notes/field-blog-watchlist.md) — 現場知識｜技術ブログ更新チェック対象リスト | 現場知識に役立つ個人技術ブログ等の更新チェック対象・頻度・出典管理を確認するとき。登録だけで監視稼働とは見なさない。 |
 | [docs/reference-notes/field-knowledge-research-2026-11-07.md](../reference-notes/field-knowledge-research-2026-11-07.md) — 現場知識調査 第10回 — 個人技術ブログの比較と一次資料照合 | 現場知識の原典・確認範囲・一次資料照合・採否・既存slug対応を再利用するとき。掲載承認や実体験の独立実証とは見なさない。 |
+| [docs/reference-notes/overseas-field-knowledge-2026-11-07.md](../reference-notes/overseas-field-knowledge-2026-11-07.md) — 海外現場知識 第12回 — 日本仕様との適用比較 | 海外の現場知識を再利用・再検証するとき。A/B/CとJP判定、原典の確認範囲、既存知識との重複を確認する。掲載・規格適合の承認ではない。 |
 | [docs/reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md](../reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md) — 直列・並列回路 記事刷新｜採用画像引き継ぎ（2026-10-27） | 対象記事の採用画像、ハッシュ検証、刷新作業の履歴を参照するとき。公開承認済みの証明ではない。 |
 | [docs/search-top-content-audit-2026-09-10.md](../search-top-content-audit-2026-09-10.md) — 検索流入上位記事 技術・テンプレート品質監査（2026-09-10） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |

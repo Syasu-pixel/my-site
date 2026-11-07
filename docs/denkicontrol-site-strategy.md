@@ -212,3 +212,51 @@ Denkicontrol では、記事で蓄積した専門性を実務の相談へつな�
 **各候補の台帳項目：** 調査日、原文の所在URL、分類、現場表現（必要最小限）、正式名称、意味・地域/業種差、使われる状況、出典の種類、一次資料照合、危険・例外、対象記事slug、採用状態（未確認/検証中/採用候補/採用/見送り）、更新履歴。
 
 **採用ゲート：** 検証中の候補を記事へ自動反映しない。担当者の確認が必要な現場経験は本人確認が取れるまで未確認として扱い、メーカー公式資料・現場の安全ルールとの整合を確認し、article-specificな `docs/reference-notes/{slug}.md` に採否の理由を残す。公開記事の変更は従来のPreview承認を経る。
+
+### 第2回インターネット横断調査（2026-11-07：25件の追加候補）
+
+これは**記事本文ではなく、検証対象の出典付きインデックス**。原典の技術情報と現場経験談は別の証拠レベル。以下の「公式確認」はページ記載を確認した意味で、全製品への適合や掲載許可ではない。外部サイトの書きぶり・独自図表を複製しない。個人投稿の逸話はその人の経験としてのみ扱う。電気工事用語とFA工場用語を同じ頻度で使うとは推定しない。
+
+| No. | 分野 | 候補語・課題 | 記事で付加できる価値 | 出典属性 | URL | 判定 |
+|---:|---|---|---|---|---|---|
+| 01 | 呼称 | 絶縁抵抗計／「メガー」 | 俗称から正式名称につなぎ、対象機器との適合や安全上の制約を説明 | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/insulation.html | 候補・原典確認 |
+| 02 | 呼称 | ケーブル断面積／「スケ」「スケア」「SQ」 | 導体断面積と外径を混同しない | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/square.html | 候補・原典確認 |
+| 03 | 呼称 | 圧着工具／「アッペン」「ハンドプレス」 | 呼び名だけでなく適合端子・工具仕様を確認する | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/crimpingpliers.html | 候補・原典確認 |
+| 04 | 呼称 | 一次側／二次側、受け側／送り側 | 機器・設備のどこを基準に話しているか明確にする | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/ichijigawa.html | 候補・原典確認 |
+| 05 | 呼称 | 墨出し | 施工位置の基準線と、図面・現場の基準が一致しているか考える | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/sumidashi.html | 候補・原典確認 |
+| 06 | 呼称 | ヨンヨンボックス、呼び線、インパクト | 業界の略称を初学者向け正式語・用途へ橋渡しする | メーカー・業界用語リスト | https://www2.panasonic.biz/jp/terasu/skill/dictionary/listy/ | 候補・個別語の意味要照合 |
+| 07 | 呼称 | 「チョコ停」「ドカ停」 | 停止時間・設備範囲・復旧条件を定義してから分析する | 用語集・専門家 | https://www.safetyeng.co.jp/glossary/index_detail.html?id=5 | 候補・対象設備での意味要照合 |
+| 08 | 呼称 | 「アッペン」「アンギラ」などの職人用語 | 電気工事とFA現場での使用状況を区別する | メーカー・業界用語リスト | https://www2.panasonic.biz/jp/terasu/skill/dictionary/craflista/ | 候補・個別語の意味要照合 |
+| 09 | 計測・工具 | 汎用圧着工具と専用工具 | 便利さとメーカー保証する圧着品質を同一視しない | 工具メーカーFAQ | https://faq.hozan.co.jp/support/faq/detail?id=187 | 公式確認 |
+| 10 | 計測・工具 | 圧着工具の摩耗と点検 | 見た目だけで品質を判断せず、工具の検査・履歴が重要 | 工具メーカー技術情報 | https://www.hozan.co.jp/corp/solutionservice/pg/1Crimpers/ | 公式確認 |
+| 11 | 計測・工具 | 圧着のラチェット機構 | 工具の機構と適合端子を分けて確認する | 工具メーカーFAQ | https://faq.hozan.co.jp/support/mobile/detail?category=3&id=1702 | 公式確認 |
+| 12 | 計測・工具 | 絶縁抵抗計の呼称と測定の適用範囲 | 『メガーを使う』だけで対象機器に安全とは限らない | メーカー・業界情報 | https://www2.panasonic.biz/jp/terasu/skill/dictionary/insulation.html | 公式情報の照合候補 |
+| 13 | センサ | 検出部の汚れと誤検出 | センサ交換前に環境・汚れを原因候補として整理 | センサメーカー技術資料 | https://www.keyence.co.jp/ss/products/sensor/sensorbasics/lsr_r_trouble/measures3.jsp | 公式確認 |
+| 14 | センサ | ワーク姿勢と反射型センサ | 対象物の傾き・光沢で検出の安定性が変わりうる | センサメーカー技術資料 | https://www.keyence.co.jp/ss/products/sensor/sensorbasics/fb_trouble/measures7.jsp | 公式確認 |
+| 15 | センサ | 外乱光と信号不安定 | 周辺光源を含めた検出環境を見る | センサメーカー技術資料 | https://www.keyence.co.jp/ss/products/sensor/sensorbasics/fb_trouble/measures2.jsp | 公式確認 |
+| 16 | PLC・制御 | PLCのロジックか現場信号か | 一時的な入力変動を、図面・履歴・現場状態と照合するという調査視点 | 現場コミュニティ投稿 | https://www.reddit.com/r/PLC/comments/1tmz13y/do_you_check_logic_first_or_hardware/ | 個別体験談・一般化禁止 |
+| 17 | PLC・制御 | ラダー条件が成立して見えるのに動かない | 見かけのオンライン表示と機器の実際の状態が一致するかを疑問として整理 | 現場コミュニティ投稿 | https://www.reddit.com/r/instrumentation/comments/1warrbo/plc_troubleshooting_why_wont_this_bit_turn_on/ | 個別体験談・詳細未検証 |
+| 18 | PLC・制御 | PLCログだけで原因を決めない | 現物・ワーク・作業・環境の情報を組み合わせる | 実務企業の記事 | https://ilc.co.jp/insights/blog/equipment-trouble-cause-analysis/ | 実務事例・採用候補 |
+| 19 | インバータ | アラーム履歴と故障時の状態情報 | 停止理由を記録と機器仕様から読む考え方 | インバータメーカーFAQ | https://fa-faq.mitsubishielectric.co.jp/faq/show/11749 | 型式依存の公式情報・要確認 |
+| 20 | 空圧 | 動かない・速度不安定・外部漏れ | 同じ症状でも空気源・弁・配管・機構など原因候補を区別 | 空圧メーカーFAQ | https://www.smcworld.com/support/faq/ja-jp/guide.html | 公式確認 |
+| 21 | 空圧 | サイレンサ目詰まりと動作遅れ | 遅い=シリンダ故障と断定せず周辺要素を見る | 空圧メーカー技術情報 | https://www.smcworld.com/support/advice/get.do?id=43 | 公式確認・操作手順は記事採用前に安全審査 |
+| 22 | 保全 | 現象の明確化→再発防止 | 故障の現象、原因仮説、裏付け、恒久対策を分ける | 保全コンサルタント記事 | https://www.jmac.co.jp/column/detail/kokoga_hendayo_11.html | 専門記事・採用候補 |
+| 23 | 保全 | なぜなぜ分析と現地現物 | 推測だけで決めず、事実と仮説を別に記録 | 保全コンサルタント記事 | https://www.jmac.co.jp/column/detail/kokoga_hendayo_11.html | 専門記事・採用候補 |
+| 24 | 保全 | ベテランのノウハウが残らない | 故障時の判断過程と設備・部品情報を記録して引き継ぐ | 保全サービス提供企業 | https://fixey.fa-craft.co.jp/problems/ | 提供企業の主張・効果数値は非採用 |
+| 25 | 保全 | 症状・現象・状態、原因、恒久改善 | 故障記録の粒度と改善計画を区別する | 技術教育団体 | https://corp.nikkan.co.jp/seminars/view/6748 | 研修案内・教材本文未取得 |
+
+#### 記事化で優先したい小さなテーマ
+
+1. **呼び方と正式名の対応**：メガー、スケア、アッペン、一次側/二次側など。言葉の揺れは現場・工種・対象機器で異なると注記。
+2. **センサを疑う前の観察項目**：ワークの傾き、光沢、汚れ、外乱光など。個別の調整・改造指示は対象型式のメーカー資料が揃ってから判断。
+3. **PLC停止の原因を一つに決めない**：ソフト/電気/機械/ワークの観点と、見かけ上の状態・履歴の相違。Redditは『そういう体験談がある』までにとどめる。
+4. **圧着工具は適合と品質で評価**：汎用品と専用品の違い、定期点検の発想。非専門家向けに危険な施工手順を提供しない。
+5. **空圧と保全記録**：シリンダや弁単体だけでなく周辺要因を分類し、故障現象→確認記録→再発防止へつなげる。
+
+#### 出典採用ルール（追加）
+
+- 同一企業の複数記事は独立した複数ソースと数えない。現場での普及率・多数派・普遍性を裏付けなく断定しない。
+- Reddit等のコミュニティ投稿は、匿名の経験談/問いとして利用し、メーカー仕様、規格、設備の安全な復旧条件の根拠とはしない。
+- 記録内容に誤り、過度な一般化、設備条件の欠落が見つかれば採用せず「未検証/要訂正」を付す。元の問題を言い換えて独自説明を作成する。
+- 具体的な配線、通電測定、機械の動作や空圧の復旧については、作業許可・資格・ロックアウト等の安全前提を優先し、設備固有の検証なしに実行手順を載せない。
+- 記事改稿時は検索需要・既存記事の役割・対応する `docs/reference-notes/{slug}.md` を確認し、必要な項目だけ候補から採用する。**この調査だけを理由に記事を自動改稿しない**。

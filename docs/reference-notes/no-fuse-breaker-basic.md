@@ -63,3 +63,10 @@
 - 現行記事から新画像への差し替えと原本SHA-256保全。
 - 変更記事固有の統合・静的リンク・ライト/ダーク・PC/スマホ・画像拡大表示の検証。
 - `docs/article-editing-playbook.md` に基づく対象記事の共通台帳entry同期、最終Preview、管理者承認。
+
+## 最終Preview配信監査（2026-11-08、専用ブランチのみ）
+- 対象PR #1808 は Draft のまま。本番mainへのマージは禁止。
+- 本ブランチの記事HTMLは `site-header dc-shell` と `data-ui-proposal="header"` を含む統合済みcandidate（commit `7458f682251b4f04854d1e45bbf7ac2522c3ad0a`）。編集元のraw HTMLと混同しない。
+- 採用画像5点は `preview-no-fuse-breaker-refresh-20261107` のGit blob SHAと一致することを確認済み。画像は変更しない。
+- 既存Deployment `c99801e2` は本番相当の公開成果物と一致しておらず、最終Previewとして不採用。
+- この記録の更新は専用ブランチへの新規pushによるCloudflare再配信の確認を兼ねる。新Deploymentの成功と実URLでの統合HTML確認まで合格扱いにしない。

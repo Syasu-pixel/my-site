@@ -124,6 +124,118 @@
 | `thermal-relay-basic` | FK10-007 | サーマル |
 | 油圧・搬送の適切な既存slugなし | FK10-013, 014, 018, 022, 024 | 吸入、cavitation、drift、給脂 |
 
+<a id="cross-index"></a>
+### 第13回追補：症状・現場用語・工具・判断方法の横断索引
+
+2026-11-08追加。上のslug索引、第11回のslug/症状索引を保持し、この場所を4軸検索の入口とする。旧IDの判定・訂正履歴は各原記録が正本。[第13回台帳](field-knowledge-round13-2026-11-08.md)の各IDから原典URL・本文範囲・国内資料・採否へ進める。Cは掲載候補ではなく、重複先や不採用理由を調べるための参照。
+
+2026-11-08第14回追補：[第14回台帳](field-knowledge-round14-2026-11-08.md)への行を既存の4表に追加。用語8項目は出典別の用法であり全国共通の俗称登録ではない。旧判定は保持。
+
+2026-11-08第15回追補：[第15回台帳](field-knowledge-round15-2026-11-08.md)の新規8件・旧知識補足1件・B再検証6件へ接続。旧判定を保持し、未読原典を読了にしない。
+
+#### 症状索引
+
+| 症状・検索語 | 知識IDと原典への入口 | 対象slug／適用境界 |
+|---|---|---|
+| 芯が出ない／締結後に測定値が変わる | [FK13-001](field-knowledge-round13-2026-11-08.md#fk13-001)、F-045/047 | `three-phase-induction-motor-basic`：短い補足のみ |
+| ダイヤルとレーザーの値が合わない | [FK13-002](field-knowledge-round13-2026-11-08.md#fk13-002) | 専用slug未特定 |
+| 長期間正常だった振動が急増 | [FK13-003/004](field-knowledge-round13-2026-11-08.md#fk13-003)、FK11-008 | `equipment-maintenance-career`、給脂手順は別対象 |
+| 再現しない短時間漏電 | [FK13-010](field-knowledge-round13-2026-11-08.md#fk13-010)、[FK12-007](overseas-field-knowledge-2026-11-07.md#fk12-007-イベント時系列の前に時計と採取周期) | `tester` |
+| 主軸が弱くなって止まる | [FK13-009](field-knowledge-round13-2026-11-08.md#fk13-009) | `timer-relay-basic` |
+| 回転がガクッとなる／キー破断 | [FK13-011](field-knowledge-round13-2026-11-08.md#fk13-011) | `equipment-maintenance-career`：判断例のみ |
+| センサ表示とPLC／実機が一致しない | FK10-008、FK11-006、[FK12-011](overseas-field-knowledge-2026-11-07.md#fk12-011-もっともらしい値でも対象チャンネルは別確認) | `plc-output-troubleshooting-basic`／`analog-input-basic` |
+| ベルト蛇行／部品交換後も不調 | FK11-002/004、F-050 | 搬送専用slugは旧記録の未特定を保持 |
+| 交換しても軸受が再故障／電食 | [FK14-001](field-knowledge-round14-2026-11-08.md#fk14-001) | `three-phase-induction-motor-basic`、原典R14-01/22・V01 |
+| 増速後に振動／特定速度だけ異常 | [FK14-002](field-knowledge-round14-2026-11-08.md#fk14-002)、[FK14-009](field-knowledge-round14-2026-11-08.md#fk14-009) | `inverter-basic`、試験した運転域を区別 |
+| 地絡と機械接触／交換後に停止遅れ | [FK14-010](field-knowledge-round14-2026-11-08.md#fk14-010)、[FK14-011](field-knowledge-round14-2026-11-08.md#fk14-011) | `three-phase-induction-motor-basic`、故障連鎖と停止応答 |
+| 予備機が動かない／油汚染・混油 | [FK14-007](field-knowledge-round14-2026-11-08.md#fk14-007)、[FK14-012](field-knowledge-round14-2026-11-08.md#fk14-012) | `equipment-maintenance-career`、環境・試料比較 |
+| 運転時だけ芯ずれ／振れ表示が増加 | [FK14-008](field-knowledge-round14-2026-11-08.md#fk14-008)、[FK14-014](field-knowledge-round14-2026-11-08.md#fk14-014) | 専用slug未特定、計測方式と状態を照合 |
+| 指令値は一定なのに実出力が揺れる | [FK15-001](field-knowledge-round15-2026-11-08.md#fk15-001)、FK10-020の補足 | `plc-output-troubleshooting-basic`、同じ出力への全書込み元 |
+| 警報名から想定した部品が実構成と違う | [FK15-002](field-knowledge-round15-2026-11-08.md#fk15-002) | `servo-motor-basic`、当該検出器構成は未確認 |
+| 手動と早送りで位置誤差が違う | [FK15-003](field-knowledge-round15-2026-11-08.md#fk15-003) | `servo-motor-basic`、速度・方向・温度を分ける |
+| 指標は正常でも低周波の苦情が続く | [FK15-004](field-knowledge-round15-2026-11-08.md#fk15-004)、[FK15-005](field-knowledge-round15-2026-11-08.md#fk15-005) | 音響専用slug未特定、評価量と分解能 |
+| 外側で振動が小さい／冷えると表示が戻る | [FK15-006](field-knowledge-round15-2026-11-08.md#fk15-006)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008) | 専用slug未特定、伝達経路とセンサ状態 |
+| 図面と現物が合うのに動かない | [FK15-009](field-knowledge-round15-2026-11-08.md#fk15-009) | `plc-output-troubleshooting-basic`、メーカー端子機能との照合 |
+
+#### 現場用語索引
+
+以下10項目は使用例の索引で、正式な全国共通語10件を新規登録したものではない。短い語だけ引用し、外国語は日本の現場呼称と区別する。
+
+| 用語 | 実使用例・関連ID | 文脈上の意味／正式概念と誤解の境界 | slug |
+|---|---|---|---|
+| 猫脚／ソフトフット | [FK13-001 / V01](field-knowledge-round13-2026-11-08.md#fk13-001) | 国内取扱企業が使用する脚とベースの接触不良等。芯ずれそのものと同義ではない。地域/会社全体の普及率未確認 | `three-phase-induction-motor-basic` |
+| bolt bound | [FK13-001 / R13-04](field-knowledge-round13-2026-11-08.md#fk13-001) | ボルト穴等で横移動を制約される文脈。単なる締付トルク過大と訳さない。国内俗称未確認 | 専用なし |
+| bar sag | [FK13-002 / R13-05/06](field-knowledge-round13-2026-11-08.md#fk13-002) | 芯出し治具の自重たわみ。測定対象軸の曲がりと混同しない。日本語は説明訳 | 専用なし |
+| 手ルクレンチ | [FK13-006 / R13-13](field-knowledge-round13-2026-11-08.md#fk13-006) | 手加減の締付けを表す洒落。測定器名でも校正された締付け方法でもない | 専用なし |
+| かじり | [FK13-008 / R13-14](field-knowledge-round13-2026-11-08.md#fk13-008) | ねじ摩擦部の凝着等を扱う文脈。単なる緩まない症状だけで機構を確定しない | 専用なし |
+| 焼き付き | [FK13-008 / R13-14/15](field-knowledge-round13-2026-11-08.md#fk13-008) | ねじの固着を扱う原典。軸受・摺動部では別条件、火災や電気焼損と同一視しない | 専用なし |
+| ガクッ | [FK13-011 / R13-21](field-knowledge-round13-2026-11-08.md#fk13-011) | 使用者の動作違和感。回転伝達不良は仮説で、擬音だけでは原因名にならない | `equipment-maintenance-career` |
+| パラつき | [FK13-013 / R13-23](field-knowledge-round13-2026-11-08.md#fk13-013)、F-056 | 表示値のばらつき。ノイズ確定の意味にしない。工業分野すべての定義ではない | `analog-input-basic` |
+| パルス抜け | [FK13-013 / R13-24](field-knowledge-round13-2026-11-08.md#fk13-013)、FK12-009 | 本来のパルスを認識・計数できないという文脈。機械的滑り・絶対位置通信と分ける | `plc-input-troubleshooting-basic` |
+| スピコン | [FK13-018 / R13-22](field-knowledge-round13-2026-11-08.md#fk13-018)、PB-017 | 速度制御弁の呼称。メータイン/アウトを語の短縮だけで区別できない。既存語の再確認 | `air-cylinder-troubleshooting-basic` |
+| 電食 | [FK14-001](field-knowledge-round14-2026-11-08.md#fk14-001) / R14-22・V01 | 軸受を通る電流による表面損傷。一般の水分腐食と混同しない。国内公式使用語 | `three-phase-induction-motor-basic` |
+| 保持器ポケット | [FK14-005](field-knowledge-round14-2026-11-08.md#fk14-005) / V04・R14-17 | 転動体を保持する部分の呼称。軌道面だけでなく摩耗・破断を観察。地域的俗称ではない | 専用なし |
+| ランナウト／Run-out | [FK14-008](field-knowledge-round14-2026-11-08.md#fk14-008) / R14-25・V05 | 国内公式表記はランナウト。渦電流計測では材質・磁気による成分もあり、機械の偏心だけと訳さない | 専用なし |
+| 面開き／face | [FK14-014](field-knowledge-round14-2026-11-08.md#fk14-014)、[FK14-015](field-knowledge-round14-2026-11-08.md#fk14-015) / R14-31/33・V09 | カップリング面での読み値の文脈。測定直径・向き次第で角度表示と異なる | 専用なし |
+| 惰行時間 | [FK14-011](field-knowledge-round14-2026-11-08.md#fk14-011) / V07 | 電源OFFからブレーキ動作開始まで。制動時間と同じではなくメーカーの呼称も確認 | `three-phase-induction-motor-basic` |
+| スラッジ | [FK14-012](field-knowledge-round14-2026-11-08.md#fk14-012) / R14-39 | 油中の沈殿・粘着物の文脈。外観だけでOリングや混油由来と決めない | `equipment-maintenance-career` |
+| ダレ | [FK14-020](field-knowledge-round14-2026-11-08.md#fk14-020) / R14-35 | 芯出し測定バーの自重たわみ。旧bar sagの国内追加使用例で、新規原則ではない | 専用なし |
+| キシリ音 | [FK14-016](field-knowledge-round14-2026-11-08.md#fk14-016) / R14-36事例5 | 温度と共に増えた音の記述。擬音を単一故障名に置き換えない | 専用なし |
+| backlash／バックラッシ | [FK15-003](field-knowledge-round15-2026-11-08.md#fk15-003) / R15-09 | 機械の失われる動きと制御補正量を分ける | `servo-motor-basic` |
+| pulse coder | [FK15-002](field-knowledge-round15-2026-11-08.md#fk15-002) / R15-07 | 当該警報文脈の位置検出器。「パルスコーダ」は国内型式資料を再確認する説明訳 | `servo-motor-basic` |
+| ghost voltage | [FK15-010](field-knowledge-round15-2026-11-08.md#fk15-010) / R15-20 | 高入力抵抗計器の表示に関する語。国内用例は今回未確認、無害と断定しない | `tester` |
+| BOV／bias output voltage | [FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008) | センサのDC動作点。感度やAC振動量と別、国内通称未確認 | 専用なし |
+| ski-slope | [FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007) / R15-30 | スペクトル形状の英語表現。故障原因名ではなく国内用例未確認 | 専用なし |
+| dead nuts | [RV15-03](field-knowledge-round15-2026-11-08.md#rv15-03) / R15-33 | 芯が合ったという英語口語。正確性保証でも国内俗称でもない | 専用なし |
+
+#### 工具索引
+
+| 工具・測定器 | 適合確認の論点／ID | メーカー資料と関連記事への入口 |
+|---|---|---|
+| ダイヤルゲージ／レーザー芯出し | [FK13-002](field-knowledge-round13-2026-11-08.md#fk13-002)：測定系の再現性と正確さ、支持治具 | V07は姿勢注意のみ。専用slug未特定 |
+| トルクレンチ／交換ヘッド | [FK13-006/007/008](field-knowledge-round13-2026-11-08.md#fk13-006)：有効長、力点、摩擦と軸力 | V02 KTC適用表、V03 KTC、V04 NBK。専用slug未特定 |
+| クランプロガー／テスター | [FK13-010](field-knowledge-round13-2026-11-08.md#fk13-010)：記録周期と測定可能な変動 | V06 HIOKI（部分確認）、`tester` |
+| プーラー／ベアリング引抜工具 | [FK13-019](field-knowledge-round13-2026-11-08.md#fk13-019)：爪側と押す側の荷重経路 | V09スーパーツール。専用slug未特定 |
+| 圧着工具／フェルール | FK10-001/002、[FK12-008](overseas-field-knowledge-2026-11-07.md#fk12-008-フェルールのカラーと実接触) | 旧O01/JP05、`crimping-tools`／`crimping-tips` |
+| 給脂工具 | [FK13-004](field-knowledge-round13-2026-11-08.md#fk13-004)、FK11-008 | V08はモータ型式別の排出構造の裏付けに不足。専用slug未特定 |
+| 渦電流式変位センサ | [FK14-008](field-knowledge-round14-2026-11-08.md#fk14-008)：対象面の材質・磁気・低速成分 | V05/V06新川。専用slug未特定 |
+| 固定振動監視／携帯解析器 | [FK14-003](field-knowledge-round14-2026-11-08.md#fk14-003)、[FK14-009](field-knowledge-round14-2026-11-08.md#fk14-009)：周波数・方向・取付・試験範囲 | V03荏原、V06新川。単なる同値比較不可 |
+| 超音波給脂支援器／グリースガン | [FK14-004](field-knowledge-round14-2026-11-08.md#fk14-004)：給脂応答と傷・緩みを分離 | V02/V04は原理補助。型式別給脂量は未確認 |
+| ダイヤルゲージ／レーザーの表示換算 | [FK14-014](field-knowledge-round14-2026-11-08.md#fk14-014)、[FK14-015](field-knowledge-round14-2026-11-08.md#fk14-015)：基準面・単位・符号・温度・停止後時間 | V09椿本。国内アプリ換算の追試未実施 |
+| 騒音計／FFT解析器 | [FK15-004](field-knowledge-round15-2026-11-08.md#fk15-004)、[FK15-005](field-knowledge-round15-2026-11-08.md#fk15-005)：重み付け・帯域・観測時間 | V15-02小野測器・V15-03リオン。専用slug未特定 |
+| 振動センサ／増幅器 | [FK15-006](field-knowledge-round15-2026-11-08.md#fk15-006)、[FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008)：取付経路・飽和・DCとAC | V15-04小野測器、個別事例は独立実証なし |
+| ダイヤル／レーザー・クランプロガーの追加検証 | [RV15-03](field-knowledge-round15-2026-11-08.md#rv15-03)、[RV15-04](field-knowledge-round15-2026-11-08.md#rv15-04)、[RV15-06](field-knowledge-round15-2026-11-08.md#rv15-06) | 旧Bを維持。TIR本文は確認、ロガー仕様本文は未確認 |
+
+#### 判断方法索引
+
+| 判断の問い | ID／原典と理由への入口 | 再利用する範囲 |
+|---|---|---|
+| 同じ値が何度も出れば正しいか | [FK13-002](field-knowledge-round13-2026-11-08.md#fk13-002) | 治具由来の系統誤差と繰返しを分ける |
+| 交換計画があれば様子見してよいか | [FK13-003](field-knowledge-round13-2026-11-08.md#fk13-003) | 悪化傾向による対応予定の再評価。日数を一般基準にしない |
+| 交換後に直ったら原因確定か | [FK13-012](field-knowledge-round13-2026-11-08.md#fk13-012)、FK12-004、PB-027 | 復旧と内部故障機構の実証を区別。新規件数にしない |
+| 後継品なら差し替え可能か | [FK13-009](field-knowledge-round13-2026-11-08.md#fk13-009) | 無通電時の接点状態・内部接続の確認 |
+| 小さい破損部品だけ交換すればよいか | [FK13-011](field-knowledge-round13-2026-11-08.md#fk13-011)、FK11-002 | 相手側部品の摩耗を含む修理範囲の検討 |
+| 監視グラフにないから故障はないか | [FK13-010](field-knowledge-round13-2026-11-08.md#fk13-010)、FK12-007 | 測定方式、記録間隔、未検知範囲を明記 |
+| 専用工具なら壊れないか | [FK13-019](field-knowledge-round13-2026-11-08.md#fk13-019) | 能力・掛かり・母材の状態を別確認 |
+| 警報を消せれば復旧完了か | [FK13-015/018](field-knowledge-round13-2026-11-08.md#fk13-015) | 安全/品質条件未確認の設定変更や強制操作は不採用 |
+| 既設の対策部品があるなら有効か | [FK14-001](field-knowledge-round14-2026-11-08.md#fk14-001) | 装着と接触・機能成立を別確認 |
+| 給脂後に値が下がれば完治か | [FK14-004](field-knowledge-round14-2026-11-08.md#fk14-004) | 摩擦指標と残存損傷を分離 |
+| 壊れた部品だけ捨ててよいか | [FK14-005](field-knowledge-round14-2026-11-08.md#fk14-005)、[FK14-012](field-knowledge-round14-2026-11-08.md#fk14-012) | 保持器・残留物・試料の情報価値を残す |
+| 前回の修理は今回と無関係か | [FK14-006](field-knowledge-round14-2026-11-08.md#fk14-006) | 改造と負荷依存の発生時点を対応 |
+| 使っていない予備機は健全か | [FK14-007](field-knowledge-round14-2026-11-08.md#fk14-007) | 停止期間の腐食環境を記録 |
+| 止めて正常なら運転時も正常か | [FK14-014](field-knowledge-round14-2026-11-08.md#fk14-014) | 温度・配管圧力と測定時点の差 |
+| 測定器を換えて同じ数字を入力できるか | [FK14-008](field-knowledge-round14-2026-11-08.md#fk14-008)、[FK14-015](field-knowledge-round14-2026-11-08.md#fk14-015) | 測定原理と表示量・基準の意味 |
+| 一部速度で改善すれば全域合格か | [FK14-009](field-knowledge-round14-2026-11-08.md#fk14-009) | 実際の検証範囲だけを引き継ぐ |
+| 保護動作が最初の原因か | [FK14-010](field-knowledge-round14-2026-11-08.md#fk14-010)、[FK14-013](field-knowledge-round14-2026-11-08.md#fk14-013)、[FK14-016](field-knowledge-round14-2026-11-08.md#fk14-016) | 損傷連鎖・流体系統まで遡る |
+| 監視中の値が唯一の書込み元か | [FK15-001](field-knowledge-round15-2026-11-08.md#fk15-001) | FK10-020の追加原典。旧Cの再判定ではない |
+| 警報名と実際の検出器は同じ構成か | [FK15-002](field-knowledge-round15-2026-11-08.md#fk15-002) | 実機の信号経路へ戻る |
+| 手動と自動の測定条件は同じか | [FK15-003](field-knowledge-round15-2026-11-08.md#fk15-003) | 位置表示・実測・速度・方向を分ける |
+| 一つの山なら一つの発生源か | [FK15-005](field-knowledge-round15-2026-11-08.md#fk15-005) | 分解能で見える成分が変わる |
+| 低い値や正常表示で対象まで健全か | [FK15-004](field-knowledge-round15-2026-11-08.md#fk15-004)、[FK15-006](field-knowledge-round15-2026-11-08.md#fk15-006)、[FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008) | 評価量・伝達経路・飽和・一時復帰を区別 |
+| 図面と現物の一致は独立した二つの証拠か | [FK15-009](field-knowledge-round15-2026-11-08.md#fk15-009) | 共通の設計誤りをメーカー端子仕様と照合 |
+| 原典の数値同士が整合しているか | [RV15-05](field-knowledge-round15-2026-11-08.md#rv15-05) | FK14-003の周波数差と周期の留保を併読 |
+| 既存Bは今回解決したか | [第15回の6件再検証](field-knowledge-round15-2026-11-08.md#rv15-01) | 追加で読めた資料と、元の故障原因の確認を分ける |
+
 ## 知識・判定記録
 
 全レコードの記録日：2026-11-07。各R番号は上のブログ名・記事名・URL・表示日付・本文状態・著者属性を参照する正規化した出典キー。各O番号は公式URLと確認範囲を指す。Aは掲載の自動承認ではない。Bは追加検証が終わるまで断定しない。Cは採用見送り。安全注意は最低限の編集境界であり作業許可・安全手順ではない。

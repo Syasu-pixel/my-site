@@ -14,6 +14,26 @@ concurrency:
   group: article-heroes-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  impact-report:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Report affected Hero targets (informational; no bypass)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/report-hero-impact.mjs "$RUNNER_TEMP/hero-impact.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hero-impact-report
+          path: ${{ runner.temp }}/hero-impact.json
+          retention-days: 30
   preserve:
     runs-on: ubuntu-24.04
     timeout-minutes: 20

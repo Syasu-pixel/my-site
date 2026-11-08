@@ -96,6 +96,7 @@
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/no-fuse-breaker-basic.md](../reference-notes/no-fuse-breaker-basic.md) — ノーヒューズブレーカ記事 公式資料・用語参照メモ | articles/no-fuse-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

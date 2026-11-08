@@ -7,7 +7,11 @@ const out=resolve(process.argv[2]||'../hero-all-build');
 const manifest=JSON.parse(await readFile('.github/article-components/hero/manifest.json','utf8'));
 const count=Number(process.env.HERO_SHARD_COUNT||1),index=Number(process.env.HERO_SHARD_INDEX||0);
 if(!Number.isInteger(count)||count<1||!Number.isInteger(index)||index<0||index>=count)throw Error('Invalid shard');
-const targets=manifest.targets.filter((_,i)=>i%count===index),origin='http://127.0.0.1:'+(process.env.HERO_REVIEW_PORT||18876);
+const requested=(process.env.HERO_TARGETS||'').split(',').map(s=>s.trim()).filter(Boolean);
+const unknown=requested.filter(p=>!manifest.targets.includes(p));
+if(unknown.length)throw Error('Unknown HERO_TARGETS: '+unknown.join(', '));
+const selected=requested.length?manifest.targets.filter(p=>requested.includes(p)):manifest.targets;
+const targets=selected.filter((_,i)=>i%count===index),origin='http://127.0.0.1:'+(process.env.HERO_REVIEW_PORT||18876);
 const evidence=resolve(out,'hero-browser-'+index);await mkdir(evidence,{recursive:true});
 const keep=new Set([...manifest.pilotTargets,...Object.keys(manifest.cssExceptions),...manifest.targets.filter(p=>manifest.pageVariants[p]==='design-series')]);
 const browser=await chromium.launch({headless:true,args:['--disable-skia-runtime-opts','--disable-partial-raster','--run-all-compositor-stages-before-draw']}),results=[],actions=[],failures=[];
@@ -43,7 +47,8 @@ try{for(const width of [320,390,768,1440]){
    const pairs=[];for(let n=0;n<2;n++){await before.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(before);const top=await before.screenshot({animations:'disabled'}),hero=await before.locator('.article-hero').screenshot({animations:'disabled'});pairs.push({top,hero});shots[mode+'Repeat'+n+'Top']=top;shots[mode+'Repeat'+n+'Hero']=hero;}
    repeat[mode]={top:compare(pairs[0].top,pairs[1].top),hero:compare(pairs[0].hero,pairs[1].hero)};
   }}catch(diagnosticError){repeat.error=diagnosticError.message;}
-  failures.push({path,width,error:error.message,repeat});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
+  const tinyRaster=/^Hero display changed:/.test(error.message)&&/\"metricsExact\":true/.test(error.message)&&(()=>{try{const d=JSON.parse(error.message.slice(error.message.indexOf('{')));return d.top.maxChannelDelta<=1&&d.hero.maxChannelDelta<=1;}catch{return false;}})();
+  failures.push({path,width,error:error.message,repeat,triage:tinyRaster?'REVIEW_MICRO_RASTER':'BLOCK_OR_INVESTIGATE'});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
  console.log(path,width,failures.at(-1)?.path===path&&failures.at(-1)?.width===width?'FAIL':'PASS');
  }
  await context.close();

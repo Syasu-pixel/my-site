@@ -3,6 +3,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {PNG} from 'pngjs';
+import {checkHeroCta} from './article-hero-cta.mjs';
 const out=resolve(process.argv[2]||'../hero-all-build');
 const manifest=JSON.parse(await readFile('.github/article-components/hero/manifest.json','utf8'));
 const count=Number(process.env.HERO_SHARD_COUNT||1),index=Number(process.env.HERO_SHARD_INDEX||0);
@@ -32,12 +33,8 @@ try{for(const width of [320,390,768,1440]){
    shots[mode+'Top']=await stableScreenshot(page);shots[mode+'Hero']=await stableScreenshot(page.locator('.article-hero'));
    if(width===390){const links=measurements[mode].links;for(let n=0;n<links.length;n++){
     if(page.url().split('#')[0]!==origin+'/'+mode+'/'+path){await page.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(page);}
-    const link=page.locator('.hero-actions a').nth(n);
-    const expectedUrl=await link.evaluate(anchor=>anchor.href);
-    await link.click();
-    await page.waitForURL(url=>url.href===expectedUrl,{waitUntil:'domcontentloaded',timeout:5000});
-    const state=await page.evaluate(()=>({hash:location.hash,destination:(location.pathname+location.hash).replace(/^\/(before|after)\//,'/'),targetExists:location.hash?!!document.getElementById(decodeURIComponent(location.hash.slice(1))):!!document.querySelector('h1')}));
-    if(!state.targetExists||state.destination!==links[n].destination)throw Error('CTA target differs');actions.push({path,mode,n,...state});
+    const state=await checkHeroCta(page,page.locator('.hero-actions a').nth(n),links[n].destination);
+    actions.push({path,mode,n,...state});
    }}
   }
   const top=compare(shots.beforeTop,shots.afterTop),hero=compare(shots.beforeHero,shots.afterHero),topPixels=top.pixels,heroPixels=hero.pixels,metricsExact=JSON.stringify(measurements.before)===JSON.stringify(measurements.after);

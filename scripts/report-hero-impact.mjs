@@ -10,5 +10,5 @@ const shared=changed.some(p=>p.startsWith('.github/article-components/hero/')||p
 const affected=shared?manifest.targets:manifest.targets.filter(p=>changed.includes(p)||changed.some(f=>f.startsWith('assets/images/')&&p.includes(f.split('/').at(-1).replace(/\.(png|jpe?g|webp)$/i,''))));
 const result={base,head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sharedChange:shared,changedFiles:changed,affectedTargets:affected,unaffectedTargets:manifest.targets.length-affected.length,decision:'INFORMATIONAL_ONLY',note:'This report does not override required all-site CI or validate unrelated CTA failures.'};
 await writeFile(out,JSON.stringify(result,null,2)+'\n');
-if(process.env.GITHUB_OUTPUT){const {appendFile}=await import('node:fs/promises');await appendFile(process.env.GITHUB_OUTPUT,'targets='+affected.join(',')+'\n');}
+if(process.env.GITHUB_OUTPUT){const {appendFile}=await import('node:fs/promises');await appendFile(process.env.GITHUB_OUTPUT,'targets='+affected.join(',')+'\n'+'shards='+(shared?'[0,1,2,3,4,5]':'[0]')+'\n'+'shard_count='+(shared?'6':'1')+'\n');}
 console.log(JSON.stringify({affected:affected.length,shared,decision:result.decision}));

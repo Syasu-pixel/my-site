@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 5
     outputs:
       targets: ${{ steps.scope.outputs.targets }}
+      shards: ${{ steps.scope.outputs.shards }}
+      shard_count: ${{ steps.scope.outputs.shard_count }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -86,9 +88,9 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[0,1,2,3,4,5]' || '[0]') }}
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[0,1,2,3,4,5]' || needs.impact-report.outputs.shards) }}
     env:
-      HERO_SHARD_COUNT: ${{ github.event_name == 'workflow_dispatch' && '6' || '1' }}
+      HERO_SHARD_COUNT: ${{ github.event_name == 'workflow_dispatch' && '6' || needs.impact-report.outputs.shard_count }}
       HERO_TARGETS: ${{ github.event_name == 'workflow_dispatch' && '' || needs.impact-report.outputs.targets }}
       HERO_SHARD_INDEX: ${{ matrix.shard }}
     steps:
@@ -122,7 +124,7 @@ jobs:
             ${{ runner.temp }}/hero-build/hero-raster-control.json
           retention-days: 14
   reconcile:
-    needs: browser
+    needs: [browser, impact-report]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -135,7 +137,7 @@ jobs:
           pattern: hero-browser-shard-*
           path: ${{ runner.temp }}/hero-build
           merge-multiple: true
-      - run: node scripts/merge-article-hero-checks.mjs ${{ runner.temp }}/hero-build ${{ github.event_name == 'workflow_dispatch' && '6' || '1' }}
+      - run: node scripts/merge-article-hero-checks.mjs ${{ runner.temp }}/hero-build ${{ github.event_name == 'workflow_dispatch' && '6' || needs.impact-report.outputs.shard_count }}
       - uses: actions/upload-artifact@v4
         with:
           name: hero-all-articles-report

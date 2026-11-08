@@ -1,5 +1,6 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
+import {isDeepStrictEqual} from 'node:util';
 const out=process.argv[2];
 if(!out)throw Error('Usage: node scripts/report-hero-impact.mjs <output.json>');
 const manifest=JSON.parse(await readFile('.github/article-components/hero/manifest.json','utf8'));
@@ -7,7 +8,28 @@ const base=process.env.BASE_SHA;
 if(!/^[a-f0-9]{40}$/.test(base||''))throw Error('BASE_SHA must be a 40-character commit SHA');
 const changed=execFileSync('git',['diff','--name-only','--no-renames','-z',base,'HEAD'],{encoding:'utf8'}).split('\0').filter(Boolean);
 const changedTargets=manifest.targets.filter(path=>changed.includes(path));
-const shared=changed.some(path=>!manifest.targets.includes(path)&&!/^docs\/.+\.md$/.test(path));
+// An article edit may need to refresh its own source hashes. Keep full coverage
+// for any change to registry membership, shared settings or other articles.
+const sourceHashes=new Map([
+ ['.github/site-shells/manifest.json',['pages','output','baselineSha256']],
+ ['.github/article-components/site-inventory.json',['files','path','gitBlob']],
+ ['.github/article-components/end/all-preservation-oracle.json',['pages','path','sourceSha256']],
+]);
+function onlyChangedArticleHashes(path){
+ const [group,key,hash]=sourceHashes.get(path);
+ const before=JSON.parse(execFileSync('git',['show',base+':'+path],{encoding:'utf8'}));
+ const after=JSON.parse(execFileSync('git',['show','HEAD:'+path],{encoding:'utf8'}));
+ for(const data of [before,after]){
+  for(const entry of data[group]){
+   if(changedTargets.includes(entry[key])&&/^[a-f0-9]{40}(?:[a-f0-9]{24})?$/.test(entry[hash]))entry[hash]='source-hash';
+  }
+ }
+ return isDeepStrictEqual(before,after);
+}
+const shared=changed.some(path=>{
+ if(manifest.targets.includes(path)||/^docs\/.+\.md$/.test(path))return false;
+ return !sourceHashes.has(path)||!onlyChangedArticleHashes(path);
+});
 const full=process.env.FULL_HERO_AUDIT==='1'||shared||changedTargets.length===0;
 const affectedTargets=full?manifest.targets:changedTargets;
 const shards=full?[0,1,2,3,4,5]:[0];

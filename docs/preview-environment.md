@@ -108,7 +108,7 @@ Canonical ProductionはGitHub Pages / `main` / `https://denkicontrol.com/`。本
 
 ### 2026-11-08: PR時のHeroブラウザ検査を影響範囲に限定
 
-- 登録済み記事HTMLのみのPR（補足Markdownを含む場合も同様）は、`impact-report` が選んだ `HERO_TARGETS` をブラウザ検査と最終集計で共有し、1シャードで検査する。集計では対象記事の全4幅とCTA操作の結果を照合する。
+- 登録済み記事HTMLのみのPR（該当記事の保全台帳ハッシュと補足Markdownを含む場合も同様）は、`impact-report` が選んだ `HERO_TARGETS` をブラウザ検査と最終集計で共有し、1シャードで検査する。集計では対象記事の全4幅とCTA操作の結果を照合する。
 - 画像や登録台帳、共通CSS/JS・部品、検査器の変更、対象記事が0件の場合は全Heroを6シャードで検査する。画像参照を複数記事にまたがって解決する仕組みが整うまで、画像変更は全件検査とする。
 - `workflow_dispatch` は引き続き全Heroを6シャードで検査する。定期全サイト監査の追加は別案件で検討する。
 - DOM/CSS/CTAの検査を省略しない。微小画素差も自動PASSしない。フッター検査は別Workflowであり、この変更だけで解決したとは扱わない。

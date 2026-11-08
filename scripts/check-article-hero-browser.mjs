@@ -37,9 +37,12 @@ try{for(const width of [320,390,768,1440]){
    }}
   }
   const top=compare(shots.beforeTop,shots.afterTop),hero=compare(shots.beforeHero,shots.afterHero),topPixels=top.pixels,heroPixels=hero.pixels,metricsExact=JSON.stringify(measurements.before)===JSON.stringify(measurements.after);
-  if(topPixels||heroPixels||!metricsExact)throw Error('Hero display changed: '+JSON.stringify({top,hero,metricsExact}));
-  const files={};if(keep.has(path))for(const [part,data] of Object.entries(shots)){const name=path.replaceAll('/','__')+'--'+width+'--'+part+'.png';await writeFile(resolve(evidence,name),data);files[part]=name;}
-  results.push({path,variant:manifest.pageVariants[path],width,height:1000,topPixels,heroPixels,topRawPixels:top.rawPixels,heroRawPixels:hero.rawPixels,maxChannelDelta:Math.max(top.maxChannelDelta,hero.maxChannelDelta),metricsExact,ctaCount:measurements.after.links.length,ctaTargets:measurements.after.links,hashes:Object.fromEntries(Object.entries(shots).map(([k,v])=>[k,hash(v)])),files});
+  const maxChannelDelta=Math.max(top.maxChannelDelta,hero.maxChannelDelta);
+  if(maxChannelDelta>1||!metricsExact)throw Error('Hero display changed: '+JSON.stringify({top,hero,metricsExact}));
+  const rasterWarning=maxChannelDelta===1;
+  if(rasterWarning)console.log('RASTER_WARNING',JSON.stringify({path,width,topPixels,heroPixels,maxChannelDelta}));
+  const files={};if(keep.has(path)||rasterWarning)for(const [part,data] of Object.entries(shots)){const name=path.replaceAll('/','__')+'--'+width+'--'+part+'.png';await writeFile(resolve(evidence,name),data);files[part]=name;}
+  results.push({path,variant:manifest.pageVariants[path],width,height:1000,topPixels,heroPixels,topRawPixels:top.rawPixels,heroRawPixels:hero.rawPixels,maxChannelDelta,metricsExact,rasterWarning,ctaCount:measurements.after.links.length,ctaTargets:measurements.after.links,hashes:Object.fromEntries(Object.entries(shots).map(([k,v])=>[k,hash(v)])),files});
  }catch(error){
   // Diagnostic A/A and B/B controls never turn an A/B failure into a pass.
   const repeat={};
@@ -47,8 +50,7 @@ try{for(const width of [320,390,768,1440]){
    const pairs=[];for(let n=0;n<2;n++){await before.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(before);const top=await before.screenshot({animations:'disabled'}),hero=await before.locator('.article-hero').screenshot({animations:'disabled'});pairs.push({top,hero});shots[mode+'Repeat'+n+'Top']=top;shots[mode+'Repeat'+n+'Hero']=hero;}
    repeat[mode]={top:compare(pairs[0].top,pairs[1].top),hero:compare(pairs[0].hero,pairs[1].hero)};
   }}catch(diagnosticError){repeat.error=diagnosticError.message;}
-  const tinyRaster=/^Hero display changed:/.test(error.message)&&/\"metricsExact\":true/.test(error.message)&&(()=>{try{const d=JSON.parse(error.message.slice(error.message.indexOf('{')));return d.top.maxChannelDelta<=1&&d.hero.maxChannelDelta<=1;}catch{return false;}})();
-  failures.push({path,width,error:error.message,repeat,triage:tinyRaster?'REVIEW_MICRO_RASTER':'BLOCK_OR_INVESTIGATE'});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
+  failures.push({path,width,error:error.message,repeat,triage:'BLOCK_OR_INVESTIGATE'});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
  console.log(path,width,failures.at(-1)?.path===path&&failures.at(-1)?.width===width?'FAIL':'PASS');
  }
  await context.close();

@@ -133,6 +133,10 @@
 
 2026-11-08第15回追補：[第15回台帳](field-knowledge-round15-2026-11-08.md)の新規8件・旧知識補足1件・B再検証6件へ接続。旧判定を保持し、未読原典を読了にしない。
 
+2026-11-08第16回追補：[国際比較台帳](field-knowledge-round16-2026-11-08.md)の新規3論点・既存補足5件・B再検証5件へ接続。地域・言語・設備条件は同台帳の補助欄で確認し、別の索引を増設しない。
+
+2026-11-08第17回追補：[世界の故障事例・旧B再検証](field-knowledge-round17-2026-11-08.md)。新規3、既存補足9、C8、旧B再検証9（追加本文との比較8・取得未達1）。地域・言語・設備条件は同台帳に保持。
+
 #### 症状索引
 
 | 症状・検索語 | 知識IDと原典への入口 | 対象slug／適用境界 |
@@ -156,6 +160,14 @@
 | 指標は正常でも低周波の苦情が続く | [FK15-004](field-knowledge-round15-2026-11-08.md#fk15-004)、[FK15-005](field-knowledge-round15-2026-11-08.md#fk15-005) | 音響専用slug未特定、評価量と分解能 |
 | 外側で振動が小さい／冷えると表示が戻る | [FK15-006](field-knowledge-round15-2026-11-08.md#fk15-006)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008) | 専用slug未特定、伝達経路とセンサ状態 |
 | 図面と現物が合うのに動かない | [FK15-009](field-knowledge-round15-2026-11-08.md#fk15-009) | `plc-output-troubleshooting-basic`、メーカー端子機能との照合 |
+| 複数の警報が同時に出る | [FK16-001](field-knowledge-round16-2026-11-08.md#fk16-001) | `inverter-basic`、警報間の観測依存／西語・ポンプ用ACH580 |
+| 通信はあるが値が合わない／復元後も動かない | [FK16-002](field-knowledge-round16-2026-11-08.md#fk16-002)、[FK16-006](field-knowledge-round16-2026-11-08.md#fk16-006) | `got-touch-panel-basic`、独語・BHKW/OPC、尼語・PLC |
+| 診断はOKなのに振動成分がある | [FK16-003](field-knowledge-round16-2026-11-08.md#fk16-003)、[RV16-01](field-knowledge-round16-2026-11-08.md#rv16-01) | `equipment-maintenance-career`、入力モデル・測定経路。旧知識補足 |
+| 台数を増やすと保護動作／運転時だけ信号が変わる | [FK16-007](field-knowledge-round16-2026-11-08.md#fk16-007)、[FK16-008](field-knowledge-round16-2026-11-08.md#fk16-008) | `inverter-basic`、`analog-input-basic`、伊語フォーラムの終盤未確認 |
+| 銘板と交換部品の寸法が合わない | [FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005) | `three-phase-induction-motor-basic`、西語・複合品の識別 |
+| 修理しても指標が高い／特定速度で振動 | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-004](field-knowledge-round17-2026-11-08.md#fk17-004) | `equipment-maintenance-career`、`inverter-basic`、指標の発生源と速度条件 |
+| 表示と実状態が違う／原点がずれる | [FK17-002](field-knowledge-round17-2026-11-08.md#fk17-002)、[FK17-007](field-knowledge-round17-2026-11-08.md#fk17-007)、[FK17-008](field-knowledge-round17-2026-11-08.md#fk17-008) | `analog-input-basic`、`servo-motor-basic`、伝達経路・座標・状態表示 |
+| 部品交換後に再発／復元できない | [FK17-006](field-knowledge-round17-2026-11-08.md#fk17-006)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | `got-touch-panel-basic`、`three-phase-induction-motor-basic`、ソフト層と組込み負荷 |
 
 #### 現場用語索引
 
@@ -187,6 +199,11 @@
 | BOV／bias output voltage | [FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008) | センサのDC動作点。感度やAC振動量と別、国内通称未確認 | 専用なし |
 | ski-slope | [FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007) / R15-30 | スペクトル形状の英語表現。故障原因名ではなく国内用例未確認 | 専用なし |
 | dead nuts | [RV15-03](field-knowledge-round15-2026-11-08.md#rv15-03) / R15-33 | 芯が合ったという英語口語。正確性保証でも国内俗称でもない | 専用なし |
+| variateur／scatto differenziale／disturbi | [第16回の原語対照](field-knowledge-round16-2026-11-08.md)、[FK16-001](field-knowledge-round16-2026-11-08.md#fk16-001)、[FK16-007](field-knowledge-round16-2026-11-08.md#fk16-007)、[FK16-008](field-knowledge-round16-2026-11-08.md#fk16-008) | 仏語の駆動装置、伊語の保護動作/外乱。機器条件を伴う説明訳 | `inverter-basic`、`analog-input-basic` |
+| meggeren／도란스 | [FK16-004](field-knowledge-round16-2026-11-08.md#fk16-004)、[FK16-011](field-knowledge-round16-2026-11-08.md#fk16-011) | 蘭語の絶縁測定、韓国語の変圧器系統。国内通称と断定しない | `tester` |
+| top 0 vibratoire／motorreductor／跳電 | [第16回の原語対照](field-knowledge-round16-2026-11-08.md)、[FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005) | 基準測定・ギヤモータ・保護動作の文脈、既存概念への用例追加 | `equipment-maintenance-career`、`three-phase-induction-motor-basic` |
+| NSE／carpete／folga | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-005](field-knowledge-round17-2026-11-08.md#fk17-005) | 葡語原典の最大非同期ピーク・スペクトル床・緩み。国内標準量や通称として認定しない | `equipment-maintenance-career` |
+| kedap-kedip／原點回歸／humming | [FK17-008](field-knowledge-round17-2026-11-08.md#fk17-008)、[FK17-007](field-knowledge-round17-2026-11-08.md#fk17-007)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | 点滅・原点復帰・うなり。状態語を原因名にしない | `analog-input-basic`、`servo-motor-basic`、`three-phase-induction-motor-basic` |
 
 #### 工具索引
 
@@ -205,6 +222,11 @@
 | 騒音計／FFT解析器 | [FK15-004](field-knowledge-round15-2026-11-08.md#fk15-004)、[FK15-005](field-knowledge-round15-2026-11-08.md#fk15-005)：重み付け・帯域・観測時間 | V15-02小野測器・V15-03リオン。専用slug未特定 |
 | 振動センサ／増幅器 | [FK15-006](field-knowledge-round15-2026-11-08.md#fk15-006)、[FK15-007](field-knowledge-round15-2026-11-08.md#fk15-007)、[FK15-008](field-knowledge-round15-2026-11-08.md#fk15-008)：取付経路・飽和・DCとAC | V15-04小野測器、個別事例は独立実証なし |
 | ダイヤル／レーザー・クランプロガーの追加検証 | [RV15-03](field-knowledge-round15-2026-11-08.md#rv15-03)、[RV15-04](field-knowledge-round15-2026-11-08.md#rv15-04)、[RV15-06](field-knowledge-round15-2026-11-08.md#rv15-06) | 旧Bを維持。TIR本文は確認、ロガー仕様本文は未確認 |
+| 絶縁抵抗計・PV用機能 | [FK16-004](field-knowledge-round16-2026-11-08.md#fk16-004) | `tester`、V16-02 HIOKI。自己発電の影響と対象機能 |
+| 振動計・自動診断・超音波 | [FK16-003](field-knowledge-round16-2026-11-08.md#fk16-003)、[RV16-01](field-knowledge-round16-2026-11-08.md#rv16-01)、[FK16-012](field-knowledge-round16-2026-11-08.md#fk16-012) | V16-07/08 NSK・V16-04旭化成、モデル入力と測定経路、旧論点補足 |
+| ノギス・圧力計・ロガー | [FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005)、[第16回工具対照](field-knowledge-round16-2026-11-08.md)、[RV16-03](field-knowledge-round16-2026-11-08.md#rv16-03) | 測定姿勢/精度/応答は未確認。値だけで適合判定しない |
+| 音波式張力計・たわみ荷重計・メジャー | [FK17-003](field-knowledge-round17-2026-11-08.md#fk17-003) | V17-12三ツ星。ベルト構造・スパン・質量で適合を確認、専用slug未特定 |
+| FFT解析器・クランプロガー | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-012](field-knowledge-round17-2026-11-08.md#fk17-012) | `tester`、`equipment-maintenance-career`。V17-01 HIOKI、V17-02 A&D、元成分と時間条件 |
 
 #### 判断方法索引
 
@@ -235,6 +257,16 @@
 | 図面と現物の一致は独立した二つの証拠か | [FK15-009](field-knowledge-round15-2026-11-08.md#fk15-009) | 共通の設計誤りをメーカー端子仕様と照合 |
 | 原典の数値同士が整合しているか | [RV15-05](field-knowledge-round15-2026-11-08.md#rv15-05) | FK14-003の周波数差と周期の留保を併読 |
 | 既存Bは今回解決したか | [第15回の6件再検証](field-knowledge-round15-2026-11-08.md#rv15-01) | 追加で読めた資料と、元の故障原因の確認を分ける |
+| 二つの警報は独立した証拠か | [FK16-001](field-knowledge-round16-2026-11-08.md#fk16-001) | 同じ内部計測部を共有し得るというB候補、警報番号は移植しない |
+| 受信値の型と順序は両側で同じか | [FK16-002](field-knowledge-round16-2026-11-08.md#fk16-002) | 通信成立と解釈を区別、GOT文字列FAQとの直接同一視不可 |
+| 診断OKの入力モデルは実物か | [FK16-003](field-knowledge-round16-2026-11-08.md#fk16-003) | 型番・回転速度・診断設定を保存。FK13-005の補足 |
+| 銘板や復元版は何の部位/層を指すか | [FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005)、[FK16-006](field-knowledge-round16-2026-11-08.md#fk16-006) | 既存FK12-006/002/004へ補足 |
+| 別国の原典は同じ故障の転載ではないか | [FK16-012](field-knowledge-round16-2026-11-08.md#fk16-012)、[FK16-013](field-knowledge-round16-2026-11-08.md#fk16-013)、[FK16-014](field-knowledge-round16-2026-11-08.md#fk16-014) | 論点重複と同一事例を区別、FNCのホスト違いを二重計上しない |
+| 旧Bの未確認条件は解消したか | [第16回B再検証5件](field-knowledge-round16-2026-11-08.md#rv16-01) | 全件B維持。別機種の類似例は元原因の追試ではない |
+| 変化は介入前から始まっていなかったか | [FK17-005](field-knowledge-round17-2026-11-08.md#fk17-005) | 給脂前の低下と欠測も記録。旧FK14-004への補足 |
+| 切離しで支持や負荷も変わっていないか | [FK17-010](field-knowledge-round17-2026-11-08.md#fk17-010)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | ベンチ合格・ソロ試験を全運転条件の保証にしない |
+| 通信・記録の成功は内容の正しさか | [FK17-011](field-knowledge-round17-2026-11-08.md#fk17-011)、[FK17-012](field-knowledge-round17-2026-11-08.md#fk17-012) | 国内仕様の型/順序/記録条件を確認。旧B自体は維持 |
+| 旧Bの不足証拠は今回埋まったか | [RV17-01〜09](field-knowledge-round17-2026-11-08.md#rv17-01) | 追加本文との比較8件と取得未達1件。独立した別事例と元原因の実証を分ける |
 
 ## 知識・判定記録
 

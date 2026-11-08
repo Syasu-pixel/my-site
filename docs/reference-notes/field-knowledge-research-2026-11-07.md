@@ -137,6 +137,8 @@
 
 2026-11-08第17回追補：[世界の故障事例・旧B再検証](field-knowledge-round17-2026-11-08.md)。新規3、既存補足9、C8、旧B再検証9（追加本文との比較8・取得未達1）。地域・言語・設備条件は同台帳に保持。
 
+2026-11-08第18回追補：[空圧・油圧・搬送同期・低速軸受と再発防止](field-knowledge-round18-2026-11-08.md)。新規4、補足9、C7、旧B再検証8（全件維持）。原典60URLの全体28・一部6・抜粋25・取得不可1を区別。
+
 #### 症状索引
 
 | 症状・検索語 | 知識IDと原典への入口 | 対象slug／適用境界 |
@@ -168,6 +170,10 @@
 | 修理しても指標が高い／特定速度で振動 | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-004](field-knowledge-round17-2026-11-08.md#fk17-004) | `equipment-maintenance-career`、`inverter-basic`、指標の発生源と速度条件 |
 | 表示と実状態が違う／原点がずれる | [FK17-002](field-knowledge-round17-2026-11-08.md#fk17-002)、[FK17-007](field-knowledge-round17-2026-11-08.md#fk17-007)、[FK17-008](field-knowledge-round17-2026-11-08.md#fk17-008) | `analog-input-basic`、`servo-motor-basic`、伝達経路・座標・状態表示 |
 | 部品交換後に再発／復元できない | [FK17-006](field-knowledge-round17-2026-11-08.md#fk17-006)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | `got-touch-panel-basic`、`three-phase-induction-motor-basic`、ソフト層と組込み負荷 |
+| シリンダの振動・沈下／弁交換後に発熱 | [FK18-001](field-knowledge-round18-2026-11-08.md#fk18-001)、[FK18-002](field-knowledge-round18-2026-11-08.md#fk18-002)、[FK18-004](field-knowledge-round18-2026-11-08.md#fk18-004) | 回路の参照圧力・実流路・力制限。油圧専用slug未特定 |
+| 圧力表示が遅い／入力がONのまま／着座しない | [FK18-005](field-knowledge-round18-2026-11-08.md#fk18-005)、[FK18-006](field-knowledge-round18-2026-11-08.md#fk18-006)、[FK18-009](field-knowledge-round18-2026-11-08.md#fk18-009) | `analog-input-basic`、`plc-input-troubleshooting-basic`、`air-cylinder-troubleshooting-basic` |
+| 低速軸受の小さい値／給脂後再上昇／受入で再現しない | [FK18-003](field-knowledge-round18-2026-11-08.md#fk18-003)、[FK18-011](field-knowledge-round18-2026-11-08.md#fk18-011)、[FK18-012](field-knowledge-round18-2026-11-08.md#fk18-012) | `equipment-maintenance-career`、測定方式・試験条件 |
+| 弁排気から漏れる／速度調整が効かない | [FK18-008](field-knowledge-round18-2026-11-08.md#fk18-008) | `solenoid-valve-troubleshooting-basic`、`air-cylinder-troubleshooting-basic`、保持中と動作中を区別 |
 
 #### 現場用語索引
 
@@ -204,6 +210,8 @@
 | top 0 vibratoire／motorreductor／跳電 | [第16回の原語対照](field-knowledge-round16-2026-11-08.md)、[FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005) | 基準測定・ギヤモータ・保護動作の文脈、既存概念への用例追加 | `equipment-maintenance-career`、`three-phase-induction-motor-basic` |
 | NSE／carpete／folga | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-005](field-knowledge-round17-2026-11-08.md#fk17-005) | 葡語原典の最大非同期ピーク・スペクトル床・緩み。国内標準量や通称として認定しない | `equipment-maintenance-career` |
 | kedap-kedip／原點回歸／humming | [FK17-008](field-knowledge-round17-2026-11-08.md#fk17-008)、[FK17-007](field-knowledge-round17-2026-11-08.md#fk17-007)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | 点滅・原点復帰・うなり。状態語を原因名にしない | `analog-input-basic`、`servo-motor-basic`、`three-phase-induction-motor-basic` |
+| creeping／shudder／スティックスリップ | [FK18-004](field-knowledge-round18-2026-11-08.md#fk18-004)、[FK18-001](field-knowledge-round18-2026-11-08.md#fk18-001) | 保持中移動・振動の文脈。V18-02の国内使用例と原因の未確定を分ける | 油圧専用slug未特定 |
+| slow gauge／COND／HDENV／E_area | [FK18-005](field-knowledge-round18-2026-11-08.md#fk18-005)、[FK18-003](field-knowledge-round18-2026-11-08.md#fk18-003)、[FK18-011](field-knowledge-round18-2026-11-08.md#fk18-011) | 表示応答と機器固有指標。一般単位や新しい日本の通称ではない | `analog-input-basic`、`equipment-maintenance-career` |
 
 #### 工具索引
 
@@ -227,6 +235,8 @@
 | ノギス・圧力計・ロガー | [FK16-005](field-knowledge-round16-2026-11-08.md#fk16-005)、[第16回工具対照](field-knowledge-round16-2026-11-08.md)、[RV16-03](field-knowledge-round16-2026-11-08.md#rv16-03) | 測定姿勢/精度/応答は未確認。値だけで適合判定しない |
 | 音波式張力計・たわみ荷重計・メジャー | [FK17-003](field-knowledge-round17-2026-11-08.md#fk17-003) | V17-12三ツ星。ベルト構造・スパン・質量で適合を確認、専用slug未特定 |
 | FFT解析器・クランプロガー | [FK17-001](field-knowledge-round17-2026-11-08.md#fk17-001)、[FK17-012](field-knowledge-round17-2026-11-08.md#fk17-012) | `tester`、`equipment-maintenance-career`。V17-01 HIOKI、V17-02 A&D、元成分と時間条件 |
+| 圧力計・流量計・回転計 | [FK18-005](field-knowledge-round18-2026-11-08.md#fk18-005)、[FK18-007](field-knowledge-round18-2026-11-08.md#fk18-007) | 導圧経路と速度側の整合性。V18-04、`tester` |
+| AE/超音波/衝撃波計測・ロガー | [FK18-003](field-knowledge-round18-2026-11-08.md#fk18-003)、[FK18-011](field-knowledge-round18-2026-11-08.md#fk18-011) | 原波形・包絡線・測定器の版を分ける。R18-25/26、V18-08 |
 
 #### 判断方法索引
 
@@ -267,6 +277,10 @@
 | 切離しで支持や負荷も変わっていないか | [FK17-010](field-knowledge-round17-2026-11-08.md#fk17-010)、[FK17-009](field-knowledge-round17-2026-11-08.md#fk17-009) | ベンチ合格・ソロ試験を全運転条件の保証にしない |
 | 通信・記録の成功は内容の正しさか | [FK17-011](field-knowledge-round17-2026-11-08.md#fk17-011)、[FK17-012](field-knowledge-round17-2026-11-08.md#fk17-012) | 国内仕様の型/順序/記録条件を確認。旧B自体は維持 |
 | 旧Bの不足証拠は今回埋まったか | [RV17-01〜09](field-knowledge-round17-2026-11-08.md#rv17-01) | 追加本文との比較8件と取得未達1件。独立した別事例と元原因の実証を分ける |
+| 同じ設定でも測っている圧力点は同じか | [FK18-001](field-knowledge-round18-2026-11-08.md#fk18-001)、[FK18-002](field-knowledge-round18-2026-11-08.md#fk18-002) | 変更履歴、流路、シリンダ面積差。数値・配管操作の移植は不可 |
+| 症状解消で元の機能を失っていないか | [FK18-004](field-knowledge-round18-2026-11-08.md#fk18-004)、[FK18-013](field-knowledge-round18-2026-11-08.md#fk18-013) | 力制限・冷却系統・長期再発を含む対策評価 |
+| 単体合格と組込み条件は一致するか | [FK18-010](field-knowledge-round18-2026-11-08.md#fk18-010)、[FK18-012](field-knowledge-round18-2026-11-08.md#fk18-012) | ベンチ、現地、接続・負荷条件。`equipment-maintenance-career` |
+| 旧Bの証拠不足は今回解消したか | [RV18-01〜08](field-knowledge-round18-2026-11-08.md#rv18-01) | 8件維持。元型式未達と別事例の補強を区別。FK10-013は旧A、FK10-016/13-005はCでB集計外 |
 
 ## 知識・判定記録
 

@@ -161,6 +161,7 @@
 | [docs/reference-notes/field-knowledge-round13-2026-11-08.md](../reference-notes/field-knowledge-round13-2026-11-08.md) — 現場知識調査 第13回 — 故障事例・現場用語・測定と判断 | 第13回の原典・本文確認範囲・FK13判定・国内仕様照合・既存知識との重複を再利用する。4軸索引は既存調査台帳を参照。掲載承認や実機検証の証明ではない。 |
 | [docs/reference-notes/field-knowledge-round14-2026-11-08.md](../reference-notes/field-knowledge-round14-2026-11-08.md) — 現場知識調査 第14回 — 軸受・潤滑・複合故障と診断の根拠 | 第14回の原典・確認範囲・FK14判定・日本向け条件・旧知識との重複を再利用するとき。既存4軸索引から参照し、掲載前に対象機種の一次資料を再確認する。 |
 | [docs/reference-notes/field-knowledge-round15-2026-11-08.md](../reference-notes/field-knowledge-round15-2026-11-08.md) — 現場知識調査 第15回 — 誤診・仮説修正・測定条件と暗黙知 | 第15回の原典確認・診断過程・旧B追加検証・4軸索引・記事別採否を参照する。掲載承認・実機実証・現行規格適合の証明ではない。 |
+| [docs/reference-notes/field-knowledge-round16-2026-11-08.md](../reference-notes/field-knowledge-round16-2026-11-08.md) — 現場知識調査 第16回 — 国際比較・診断の証拠・日本向け適用条件 | 第16回の多言語原典・設備条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・国別一般化・実機実証ではない。 |
 
 ## 実装・設定の参照先
 

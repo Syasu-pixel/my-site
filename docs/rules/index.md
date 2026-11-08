@@ -233,7 +233,8 @@
 | [scripts/check-search-index-integrity.mjs](../../scripts/check-search-index-integrity.mjs) | サイト異常で公開記事とサイト内検索インデックスの整合性を確認する場合。 記事の検索登録漏れ・削除済み参照・重複・不正URLを検出する静的監視。 |
 | [scripts/check-site-static-integrity.mjs](../../scripts/check-site-static-integrity.mjs) | 運営ダッシュボードのサイト異常監視で、統合生成candidate内の画像切れ・内部リンク切れ検査を変更または実行する場合。 ローカル画像参照と内部リンク先の実在性を全HTMLから検査し、site-static-integrity.jsonへ出力する静的整合性監視。 |
 | [scripts/check-sitemap-integrity.mjs](../../scripts/check-sitemap-integrity.mjs) | サイト異常のsitemap登録漏れ・余剰URL・重複を検査する場合。 公開対象HTMLとsitemap.xmlの整合性を監視する静的検査。 |
-| [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
+| [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 記事ヒーローの旧新画面・CTAの網羅性を検査する場合。 選択した記事または全記事の4幅を照合し、対象・幅・CTAの欠落、重複、失敗を拒否する。 |
+| [scripts/report-hero-impact.mjs](../../scripts/report-hero-impact.mjs) | 記事ヒーローのPR検査範囲を選ぶ場合。 PR差分を分類し、ブラウザ検査と最終集計に同じ対象とシャード数を渡す。 |
 | [scripts/merge-integration-checks.mjs](../../scripts/merge-integration-checks.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/prepare-article-components.py](../../scripts/prepare-article-components.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/prepare-article-heroes.py](../../scripts/prepare-article-heroes.py) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |

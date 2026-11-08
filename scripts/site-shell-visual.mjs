@@ -120,8 +120,12 @@ try {
       if(await button.count()===1){
         await page.evaluate(()=>window.scrollTo(0,0));
         if(await button.isVisible()){
-          try{await button.click({timeout:3000});language=await button.getAttribute('aria-expanded');await page.keyboard.press('Escape');}
-          catch(error){language='not-actionable';errors.push({target,device,error:'Existing language button is not actionable'});}
+          try{await button.click({timeout:10000});language=await button.getAttribute('aria-expanded');await page.keyboard.press('Escape');}
+          catch(error){
+            language='not-actionable';
+            errors.push({target,device,error:'Existing language button is not actionable'});
+            console.error('Language button action failed:',target,device,error.message);
+          }
         }else language='hidden';
       }
       const links=await page.locator('header a,footer a').evaluateAll(es=>es.map(e=>({href:e.getAttribute('href'),text:e.textContent.trim()})));

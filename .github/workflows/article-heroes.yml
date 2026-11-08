@@ -2,7 +2,11 @@ name: Article hero template preservation
 on:
   pull_request:
     paths:
-      - '.github/article-components/hero/**'
+      - '.github/article-components/**'
+      - '.github/site-shells/**'
+      - 'assets/css/**'
+      - 'assets/js/**'
+      - 'scripts/report-hero-impact.mjs'
       - '.github/workflows/article-heroes.yml'
       - 'scripts/*article-hero*'
       - 'scripts/build-integrated-review.mjs'
@@ -35,6 +39,7 @@ jobs:
       - name: Report affected Hero targets
         id: scope
         env:
+          FULL_HERO_AUDIT: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
           BASE_SHA: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.pull_request.base.sha }}
         run: node scripts/report-hero-impact.mjs "$RUNNER_TEMP/hero-impact.json"
       - uses: actions/upload-artifact@v4
@@ -88,10 +93,10 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[0,1,2,3,4,5]' || needs.impact-report.outputs.shards) }}
+        shard: ${{ fromJSON(needs.impact-report.outputs.shards) }}
     env:
-      HERO_SHARD_COUNT: ${{ github.event_name == 'workflow_dispatch' && '6' || needs.impact-report.outputs.shard_count }}
-      HERO_TARGETS: ${{ github.event_name == 'workflow_dispatch' && '' || needs.impact-report.outputs.targets }}
+      HERO_SHARD_COUNT: ${{ needs.impact-report.outputs.shard_count }}
+      HERO_TARGETS: ${{ needs.impact-report.outputs.targets }}
       HERO_SHARD_INDEX: ${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +112,7 @@ jobs:
         with:
           name: hero-browser-input
           path: ${{ runner.temp }}/hero-build
-      - name: Compare every hero and exercise every CTA
+      - name: Compare selected heroes and exercise their CTAs
         run: |
           node scripts/serve-article-hero-review.mjs ${{ runner.temp }}/hero-build > ${{ runner.temp }}/hero-server.log 2>&1 &
           SERVER_PID=$!
@@ -137,7 +142,9 @@ jobs:
           pattern: hero-browser-shard-*
           path: ${{ runner.temp }}/hero-build
           merge-multiple: true
-      - run: node scripts/merge-article-hero-checks.mjs ${{ runner.temp }}/hero-build ${{ github.event_name == 'workflow_dispatch' && '6' || needs.impact-report.outputs.shard_count }}
+      - run: node scripts/merge-article-hero-checks.mjs ${{ runner.temp }}/hero-build ${{ needs.impact-report.outputs.shard_count }}
+        env:
+          HERO_TARGETS: ${{ needs.impact-report.outputs.targets }}
       - uses: actions/upload-artifact@v4
         with:
           name: hero-all-articles-report

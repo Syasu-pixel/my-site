@@ -5,10 +5,16 @@ if(!out)throw Error('Usage: node scripts/report-hero-impact.mjs <output.json>');
 const manifest=JSON.parse(await readFile('.github/article-components/hero/manifest.json','utf8'));
 const base=process.env.BASE_SHA;
 if(!/^[a-f0-9]{40}$/.test(base||''))throw Error('BASE_SHA must be a 40-character commit SHA');
-const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
-const shared=changed.some(p=>p.startsWith('.github/article-components/hero/')||p.startsWith('.github/site-shells/')||p.startsWith('scripts/build-integrated-review.')||p==='scripts/check-article-hero-browser.mjs');
-const affected=shared?manifest.targets:manifest.targets.filter(p=>changed.includes(p)||changed.some(f=>f.startsWith('assets/images/')&&p.includes(f.split('/').at(-1).replace(/\.(png|jpe?g|webp)$/i,''))));
-const result={base,head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sharedChange:shared,changedFiles:changed,affectedTargets:affected,unaffectedTargets:manifest.targets.length-affected.length,decision:'INFORMATIONAL_ONLY',note:'This report does not override required all-site CI or validate unrelated CTA failures.'};
+const changed=execFileSync('git',['diff','--name-only','--no-renames','-z',base,'HEAD'],{encoding:'utf8'}).split('\0').filter(Boolean);
+const changedTargets=manifest.targets.filter(path=>changed.includes(path));
+const shared=changed.some(path=>!manifest.targets.includes(path)&&!/^docs\/.+\.md$/.test(path));
+const full=process.env.FULL_HERO_AUDIT==='1'||shared||changedTargets.length===0;
+const affectedTargets=full?manifest.targets:changedTargets;
+const shards=full?[0,1,2,3,4,5]:[0];
+const result={base,head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sharedChange:shared,changedFiles:changed,affectedTargets,unaffectedTargets:manifest.targets.length-affectedTargets.length,scope:full?'all':'selected',shards};
 await writeFile(out,JSON.stringify(result,null,2)+'\n');
-if(process.env.GITHUB_OUTPUT){const {appendFile}=await import('node:fs/promises');await appendFile(process.env.GITHUB_OUTPUT,'targets='+affected.join(',')+'\n'+'shards='+(shared?'[0,1,2,3,4,5]':'[0]')+'\n'+'shard_count='+(shared?'6':'1')+'\n');}
-console.log(JSON.stringify({affected:affected.length,shared,decision:result.decision}));
+if(process.env.GITHUB_OUTPUT){
+ const {appendFile}=await import('node:fs/promises');
+ await appendFile(process.env.GITHUB_OUTPUT,'targets='+(full?'':affectedTargets.join(','))+'\n'+'shards='+JSON.stringify(shards)+'\n'+'shard_count='+shards.length+'\n');
+}
+console.log(JSON.stringify({affected:affectedTargets.length,scope:result.scope}));

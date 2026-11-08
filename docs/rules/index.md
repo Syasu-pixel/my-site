@@ -96,6 +96,7 @@
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/no-fuse-breaker-basic.md](../reference-notes/no-fuse-breaker-basic.md) — ノーヒューズブレーカ記事 公式資料・用語参照メモ | articles/no-fuse-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
@@ -163,6 +164,8 @@
 | [docs/reference-notes/field-knowledge-round15-2026-11-08.md](../reference-notes/field-knowledge-round15-2026-11-08.md) — 現場知識調査 第15回 — 誤診・仮説修正・測定条件と暗黙知 | 第15回の原典確認・診断過程・旧B追加検証・4軸索引・記事別採否を参照する。掲載承認・実機実証・現行規格適合の証明ではない。 |
 | [docs/reference-notes/field-knowledge-round16-2026-11-08.md](../reference-notes/field-knowledge-round16-2026-11-08.md) — 現場知識調査 第16回 — 国際比較・診断の証拠・日本向け適用条件 | 第16回の多言語原典・設備条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・国別一般化・実機実証ではない。 |
 | [docs/reference-notes/field-knowledge-round17-2026-11-08.md](../reference-notes/field-knowledge-round17-2026-11-08.md) — 現場知識調査 第17回 — 世界の故障事例・暗黙知・旧Bの再検証 | 第17回の原典本文・故障経緯・工具適合・A/B/CとJP判定・旧Bの追補・記事別採否を参照する。掲載承認や実機実証ではない。 |
+| [docs/reference-notes/field-knowledge-round18-2026-11-08.md](../reference-notes/field-knowledge-round18-2026-11-08.md) — 現場知識調査 第18回 — 空圧・油圧・搬送同期・低速軸受と再発防止 | 第18回の原典本文・診断過程・測定条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・実機実証・監視設定ではない。 |
+| [docs/reference-notes/field-knowledge-round19-2026-11-08.md](../reference-notes/field-knowledge-round19-2026-11-08.md) — 第19回：B判定再検証・国内メーカー型式別条件 | FK10〜FK18の現行B集計・優先度・型式別条件・再検証履歴を参照する。原典原因の実証や掲載承認とは区別する。 |
 
 ## 実装・設定の参照先
 
@@ -230,7 +233,8 @@
 | [scripts/check-search-index-integrity.mjs](../../scripts/check-search-index-integrity.mjs) | サイト異常で公開記事とサイト内検索インデックスの整合性を確認する場合。 記事の検索登録漏れ・削除済み参照・重複・不正URLを検出する静的監視。 |
 | [scripts/check-site-static-integrity.mjs](../../scripts/check-site-static-integrity.mjs) | 運営ダッシュボードのサイト異常監視で、統合生成candidate内の画像切れ・内部リンク切れ検査を変更または実行する場合。 ローカル画像参照と内部リンク先の実在性を全HTMLから検査し、site-static-integrity.jsonへ出力する静的整合性監視。 |
 | [scripts/check-sitemap-integrity.mjs](../../scripts/check-sitemap-integrity.mjs) | サイト異常のsitemap登録漏れ・余剰URL・重複を検査する場合。 公開対象HTMLとsitemap.xmlの整合性を監視する静的検査。 |
-| [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 全記事ヒーローの旧新画面・CTA・網羅性検査を扱う。 全288記事の4幅・旧新比較と対象/幅/CTAの欠落・重複・失敗拒否。 |
+| [scripts/merge-article-hero-checks.mjs](../../scripts/merge-article-hero-checks.mjs) | 記事ヒーローの旧新画面・CTAの網羅性を検査する場合。 選択した記事または全記事の4幅を照合し、対象・幅・CTAの欠落、重複、失敗を拒否する。 |
+| [scripts/report-hero-impact.mjs](../../scripts/report-hero-impact.mjs) | 記事ヒーローのPR検査範囲を選ぶ場合。 PR差分を分類し、ブラウザ検査と最終集計に同じ対象とシャード数を渡す。 |
 | [scripts/merge-integration-checks.mjs](../../scripts/merge-integration-checks.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/prepare-article-components.py](../../scripts/prepare-article-components.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/prepare-article-heroes.py](../../scripts/prepare-article-heroes.py) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |

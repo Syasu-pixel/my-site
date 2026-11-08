@@ -18,20 +18,50 @@ const keep=new Set([...manifest.pilotTargets,...Object.keys(manifest.cssExceptio
 const browser=await chromium.launch({headless:true,args:['--disable-skia-runtime-opts','--disable-partial-raster','--run-all-compositor-stages-before-draw']}),results=[],actions=[],failures=[];
 const hash=b=>createHash('sha256').update(b).digest('hex');
 function compare(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);if(x.width!==y.width||x.height!==y.height)throw Error('Image dimensions differ');let rawPixels=0,maxChannelDelta=0;for(let i=0;i<x.data.length;i+=4){const delta=Math.max(...[0,1,2,3].map(c=>Math.abs(x.data[i+c]-y.data[i+c])));if(delta)rawPixels++;maxChannelDelta=Math.max(maxChannelDelta,delta);}return {pixels:rawPixels,rawPixels,maxChannelDelta};}
-async function stableScreenshot(target){let previous;for(let n=0;n<6;n++){const shot=await target.screenshot({animations:'disabled'});if(previous&&compare(previous,shot).pixels===0)return shot;previous=shot;}throw Error('Screenshot did not stabilize');}
-async function ready(page){await page.mouse.move(0,0);await page.evaluate(()=>scrollTo(0,0));await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].filter(i=>i.getBoundingClientRect().top<innerHeight).map(i=>i.decode().catch(()=>{})));const bg=getComputedStyle(document.querySelector('.article-hero'),'::before').backgroundImage;await Promise.all([...bg.matchAll(/url\(["']?(.*?)["']?\)/g)].map(m=>new Promise(resolve=>{const i=new Image();i.onload=i.onerror=resolve;i.src=m[1];})));});await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}html{scroll-behavior:auto!important}'});}
+async function stableScreenshot(target){let previous;for(let n=0;n<6;n++){const shot=await target.screenshot({animations:'disabled',timeout:15000});if(previous&&compare(previous,shot).pixels===0)return shot;previous=shot;}throw Error('Screenshot did not stabilize');}
+async function ready(page){
+ await page.mouse.move(0,0);
+ await page.evaluate(()=>scrollTo(0,0));
+ await page.evaluate(async()=>{
+  async function bounded(promise,label){
+   let timer;
+   try{
+    return await Promise.race([promise,new Promise((_,reject)=>{
+     timer=setTimeout(()=>reject(Error('Timed out preparing '+label)),10000);
+    })]);
+   }finally{clearTimeout(timer);}
+  }
+  await bounded(document.fonts.ready,'fonts');
+  const visible=[...document.images].filter(image=>{
+   const rect=image.getBoundingClientRect();
+   return rect.width>0&&rect.height>0&&rect.bottom>0&&rect.top<innerHeight;
+  });
+  await bounded(Promise.all(visible.map(image=>image.decode().catch(()=>{}))),'viewport images');
+  const bg=getComputedStyle(document.querySelector('.article-hero'),'::before').backgroundImage;
+  await bounded(Promise.all([...bg.matchAll(/url\(["']?(.*?)["']?\)/g)].map(match=>new Promise(resolve=>{
+   const image=new Image();
+   image.onload=image.onerror=resolve;
+   image.src=match[1];
+  }))),'Hero background');
+ });
+ await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}html{scroll-behavior:auto!important}'});
+}
 async function measure(page){return page.evaluate(()=>{const normalize=s=>s.replaceAll(location.origin+'/before/',location.origin+'/').replaceAll(location.origin+'/after/',location.origin+'/');const h=document.querySelector('.article-hero'),metric=(e,pseudo)=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e,pseudo);return {tag:e.tagName,cls:e.className,rect:[r.x,r.y,r.width,r.height],css:Object.fromEntries([...s].map(k=>[k,normalize(s.getPropertyValue(k))]))}};return {hero:h.outerHTML,headerBottom:document.querySelector('header').getBoundingClientRect().bottom,elements:[h,...h.querySelectorAll('*')].map(e=>metric(e)),pseudo:['::before','::after'].map(p=>metric(h,p)),documentWidth:document.documentElement.scrollWidth,links:[...h.querySelectorAll('.hero-actions a')].map(a=>({href:a.getAttribute('href'),destination:normalize(a.href).slice(location.origin.length),text:a.textContent,idExists:a.hash?!!document.getElementById(decodeURIComponent(a.hash.slice(1))):null}))};});}
 try{for(const width of [320,390,768,1440]){
  const context=await browser.newContext({viewport:{width,height:1000},locale:'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',serviceWorkers:'block'});
  await context.route('**/*',r=>r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:')?r.continue():r.abort());
  // Use one renderer process for both versions; avoid cross-tab raster variance.
  const before=await context.newPage(),after=before;
- for(const path of targets){let shots={};try{
+ for(const path of targets){let shots={},stage='start';try{
   const measurements={};
   for(const [mode,page] of [['before',before],['after',after]]){
-   await page.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(page);measurements[mode]=await measure(page);
+   stage=mode+' navigation';
+   await page.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});
+   stage=mode+' resource readiness';
+   await ready(page);measurements[mode]=await measure(page);
+   stage=mode+' screenshots';
    shots[mode+'Top']=await stableScreenshot(page);shots[mode+'Hero']=await stableScreenshot(page.locator('.article-hero'));
-   if(width===390){const links=measurements[mode].links;for(let n=0;n<links.length;n++){
+   if(width===390){stage=mode+' CTA';const links=measurements[mode].links;for(let n=0;n<links.length;n++){
     if(page.url().split('#')[0]!==origin+'/'+mode+'/'+path){await page.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(page);}
     const state=await checkHeroCta(page,page.locator('.hero-actions a').nth(n),links[n].destination);
     actions.push({path,mode,n,...state});
@@ -46,12 +76,13 @@ try{for(const width of [320,390,768,1440]){
   results.push({path,variant:manifest.pageVariants[path],width,height:1000,topPixels,heroPixels,topRawPixels:top.rawPixels,heroRawPixels:hero.rawPixels,maxChannelDelta,metricsExact,rasterWarning,ctaCount:measurements.after.links.length,ctaTargets:measurements.after.links,hashes:Object.fromEntries(Object.entries(shots).map(([k,v])=>[k,hash(v)])),files});
  }catch(error){
   // Diagnostic A/A and B/B controls never turn an A/B failure into a pass.
+  console.log('CASE_ERROR',JSON.stringify({path,width,stage,error:error.message}));
   const repeat={};
   try{for(const mode of ['before','after']){
-   const pairs=[];for(let n=0;n<2;n++){await before.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(before);const top=await before.screenshot({animations:'disabled'}),hero=await before.locator('.article-hero').screenshot({animations:'disabled'});pairs.push({top,hero});shots[mode+'Repeat'+n+'Top']=top;shots[mode+'Repeat'+n+'Hero']=hero;}
+   const pairs=[];for(let n=0;n<2;n++){await before.goto(origin+'/'+mode+'/'+path,{waitUntil:'networkidle'});await ready(before);const top=await before.screenshot({animations:'disabled',timeout:15000}),hero=await before.locator('.article-hero').screenshot({animations:'disabled',timeout:15000});pairs.push({top,hero});shots[mode+'Repeat'+n+'Top']=top;shots[mode+'Repeat'+n+'Hero']=hero;}
    repeat[mode]={top:compare(pairs[0].top,pairs[1].top),hero:compare(pairs[0].hero,pairs[1].hero)};
   }}catch(diagnosticError){repeat.error=diagnosticError.message;}
-  failures.push({path,width,error:error.message,repeat,triage:'BLOCK_OR_INVESTIGATE'});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
+  failures.push({path,width,stage,error:error.message,repeat,triage:'BLOCK_OR_INVESTIGATE'});console.log('DIAGNOSTIC',JSON.stringify(failures.at(-1)));for(const [part,data] of Object.entries(shots))await writeFile(resolve(evidence,path.replaceAll('/','__')+'--'+width+'--failure-'+part+'.png'),data);}
  console.log(path,width,failures.at(-1)?.path===path&&failures.at(-1)?.width===width?'FAIL':'PASS');
  }
  await context.close();

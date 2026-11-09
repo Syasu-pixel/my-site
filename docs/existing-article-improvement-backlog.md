@@ -32,6 +32,8 @@
 - [x] `articles/air-cylinder-basic.html` — エアシリンダ
 - [x] `articles/a-contact-b-contact-basic.html` — a接点・b接点
 - [x] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
+- [x] `articles/no-fuse-breaker-basic.html` — ノーヒューズブレーカ。最終内容更新 2026-11-08（JST、本文・採用画像5枚の本番反映 [PR #1812](https://github.com/Syasu-pixel/my-site/pull/1812)）。完成・凍結、日付ガードの28日間は原則再改善候補から除外。
+
 - [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
 - [ ] `articles/no-nc-basic.html` — NO・NC
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット

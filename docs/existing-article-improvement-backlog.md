@@ -32,7 +32,7 @@
 - [x] `articles/air-cylinder-basic.html` — エアシリンダ
 - [x] `articles/a-contact-b-contact-basic.html` — a接点・b接点
 - [x] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
-- [ ] `articles/dc24v-common-basic.html` — DC24Vコモン
+- [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
 - [ ] `articles/no-nc-basic.html` — NO・NC
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス

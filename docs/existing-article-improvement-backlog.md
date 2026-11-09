@@ -73,5 +73,58 @@
 - **新しいチャット・記事刷新担当**は、ここに提案があるかだけで判断せず、最新mainの本書、`docs/article-update-date-guard.md`、`docs/article-search-data-precheck-override.md`、Supabaseのデータ鮮度・現在の検索状況、既存PRを確認する。機械評価は提案であって改善実行の許可ではない。
 
 <!-- SEARCH_BACKLOG_AUTO_START -->
-2026-11-05にmainへ導入済み。初回の週次実データ生成・Draft PR作成は未確認。毎週の実行成功後、この区画が確認用PRで更新提案される。
+## 検索実績の機械評価（確認用・自動生成）
+
+- Google直近28日：2026-10-10〜2026-11-06
+- Google前28日：2026-09-12〜2026-10-09
+- データ源：Google公式API → Supabase（確定日次データ、ページ別）。
+- Bingのページ別データは週次スナップショットのため日次Googleと合算しない。 最終保存日：2026-10-30
+- これは調査提案であり本文修正の指示ではない。内容更新日・GitHub/PR履歴・メーカー資料と照合する。
+- 公開GitHubに生のクリック数・表示回数・順位を掲載しない。チェックリストの完了状態は変更しない。
+
+### 悪化・要確認（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/emergency-stop-switch-basic.html | クリック減とCTR/順位の変化を精査 | 未完了／更新日・PR履歴要確認 |
+
+### 改善余地（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/series-parallel-circuit-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/air-cylinder-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／更新日・PR履歴要確認 |
+| articles/no-fuse-breaker-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／28日クールダウン |
+| articles/magnetic-switch-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認 |
+| articles/electromagnetic-contactor-vs-switch.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/voltage-current-resistance-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/iai-robocylinder-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+
+### 伸長・監視（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/npn-pnp-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/no-nc-basic.html | 露出・クリックの増加が継続するか観察 | 未完了 |
+| articles/pe-fg-sg-difference-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/single-phase-three-phase-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/terminal-block-jumper-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認 |
+| articles/air-regulator-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/motor-breaker-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/push-button-switch-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+
+### データ不足（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/earth-leakage-breaker-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/wiring-duct-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/flow-switch-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/air-cylinder-troubleshooting-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/load-cell-basic.html | 前期間の露出が少なく変化判定不能 | 完成・凍結／更新日・PR履歴要確認 |
+| articles/pneumatic-silencer-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/gxw3-mul-div-instruction-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+| articles/sensor-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認 |
+
+※ 候補抽出用の暫定閾値。検索語構成・季節性・祝日などの影響は別途確認する。
 <!-- SEARCH_BACKLOG_AUTO_END -->

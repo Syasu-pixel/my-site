@@ -45,9 +45,13 @@ jobs:
           from pathlib import Path
           target='articles/dc24v-common-basic.html'
           sha=hashlib.sha256(Path(target).read_bytes()).hexdigest()
+          html=Path(target).read_bytes().decode()
+          nav='<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav>'
+          if html.count(nav)!=1: raise SystemExit('Expected one approved footer profile link')
+          shell_sha=hashlib.sha256(html.replace(nav,'').encode()).hexdigest()
           blob=subprocess.check_output(['git','hash-object',target],text=True).strip()
           for filename, selector, field, value in [
-              ('.github/site-shells/manifest.json','output','baselineSha256',sha),
+              ('.github/site-shells/manifest.json','output','baselineSha256',shell_sha),
               ('.github/article-components/site-inventory.json','path','gitBlob',blob),
               ('.github/article-components/end/all-preservation-oracle.json','path','sourceSha256',sha),
           ]:

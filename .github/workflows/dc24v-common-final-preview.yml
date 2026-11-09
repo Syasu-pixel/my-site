@@ -1,9 +1,8 @@
 name: DC24V common final publication preview
 
 on:
-  push:
-    branches:
-      - ai-editorial/dc24v-common-final-preview
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - .github/workflows/dc24v-common-final-preview.yml
 
@@ -12,9 +11,13 @@ permissions:
 
 jobs:
   build-and-materialize:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'ai-editorial/dc24v-common-final-preview'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'

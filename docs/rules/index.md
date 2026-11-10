@@ -230,6 +230,7 @@
 | [scripts/probe-article-hero-raster.mjs](../../scripts/probe-article-hero-raster.mjs) | ヒーロー画面比較の描画揺れを診断する場合。 同一文書の繰返し描画を標準・固定描画条件で対照実験。固定条件も画素差0を要求。 |
 | [scripts/serve-article-hero-review.mjs](../../scripts/serve-article-hero-review.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/site-health-publication-scope.mjs](../../scripts/site-health-publication-scope.mjs) | サイト異常の監視対象範囲を判定する場合。 複数監視に共通の公開停止リスト読み込みと検証。 |
+| [tests/site-health-publication-scope.test.mjs](../../tests/site-health-publication-scope.test.mjs) | サイト異常監視の公開停止対象・HTTP判定・警告除外を変更または検査する場合。 公開停止3記事の期待404/410、誤公開・通信異常と公開中ページの異常検出を検証する回帰テスト。 |
 | [scripts/test-publication-artifact.py](../../scripts/test-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/test-rule-catalog.py](../../scripts/test-rule-catalog.py) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [scripts/verify-publication-artifact.py](../../scripts/verify-publication-artifact.py) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
@@ -237,7 +238,6 @@
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
-| [tests/site-health-publication-scope.test.mjs](../../tests/site-health-publication-scope.test.mjs) | サイト異常監視の公開停止対象・HTTP判定・警告除外を変更または検査する場合。 公開停止3記事の期待404/410、誤公開・通信異常と公開中ページの異常検出を検証する回帰テスト。 |
 
 ## 省略表記の参照先
 

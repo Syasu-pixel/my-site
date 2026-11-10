@@ -27,7 +27,7 @@
 この文書は、DenkicontrolのAI編集部が記事・画像・Preview・公開判断を扱う際の実行上の正本とする。
 
 既存文書と矛盾した場合の優先順位は次の通り。
-1. `docs/ai-governance.md` の安全・法令・人間の権限・秘密情報保護などのPrinciples
+1. `docs/ai-governance.md` の安全・法令・人間の権限・秘密情報保護などのPrinciples、および `docs/security-baseline.md` の全作業共通セキュリティ最低基準
 2. 本文書 `docs/ai-editorial-master-rules.md`
 3. `docs/article-workflow.md`
 4. `docs/new-article-checklist.md`

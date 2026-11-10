@@ -1,5 +1,16 @@
 name: Site health snapshot
 on:
+  pull_request:
+    paths:
+      - 'scripts/check-production-http.mjs'
+      - 'scripts/check-ogp-images.mjs'
+      - 'scripts/check-sitemap-integrity.mjs'
+      - 'scripts/check-canonical-integrity.mjs'
+      - 'scripts/check-search-index-integrity.mjs'
+      - 'scripts/site-health-publication-scope.mjs'
+      - 'assets/data/site-health-unpublished.json'
+      - 'tests/site-health-publication-scope.test.mjs'
+      - '.github/workflows/site-health-snapshot.yml'
   push:
     branches: [main]
     paths:
@@ -20,6 +31,7 @@ on:
       - 'assets/data/search-index.json'
       - 'assets/data/site-health-unpublished.json'
       - 'scripts/site-health-publication-scope.mjs'
+      - 'tests/site-health-publication-scope.test.mjs'
       - 'sitemap.xml'
       - '.github/workflows/pages.yml'
       - '.github/workflows/site-health-snapshot.yml'
@@ -30,10 +42,22 @@ permissions:
   contents: write
   actions: write
 concurrency:
-  group: site-health-snapshot
+  group: site-health-snapshot-${{ github.event.pull_request.number || 'production' }}
   cancel-in-progress: true
 jobs:
+  publication-scope-tests:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.16.0' }
+      - name: Test publication scope and warning boundaries
+        run: node --test tests/site-health-publication-scope.test.mjs
   health:
+    if: github.event_name != 'pull_request'
+    needs: publication-scope-tests
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -91,3 +115,4 @@ jobs:
             exit 0
           fi
           gh workflow run pages.yml --ref main
+

@@ -1,4 +1,4 @@
-import {readdir,access,mkdir,writeFile} from 'node:fs/promises';
+import {readdir,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,relative,dirname} from 'node:path';
 import {unpublishedPaths} from './site-health-publication-scope.mjs';
 
@@ -26,28 +26,31 @@ function publicPath(file){
   if(p==='index.html')return '/';
   return '/'+p;
 }
-const urls=[...new Set(files.map(publicPath).filter(Boolean))].sort();
+// Probe paused URLs even when their source has been removed. Only an explicit
+// 404/410 proves absence; redirects, successful responses and failures stay visible.
+const urls=[...new Set([...files.map(publicPath).filter(Boolean),...Array.from(unpublished,p=>'/'+p)])].sort();
 const results=new Array(urls.length);
 let next=0;
 async function worker(){
   while(true){
     const i=next++; if(i>=urls.length)return;
-    const path=urls[i],url=origin+path;
+    const path=urls[i],url=origin+path,expectedUnpublished=unpublished.has(path.slice(1));
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
     const started=Date.now();
     try{
-      const r=await fetch(url,{method:'GET',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Denkicontrol-Site-Health/1.0'}});
-      results[i]={path,url,status:r.status,ok:r.status>=200&&r.status<400,finalUrl:r.url,durationMs:Date.now()-started};
+      const r=await fetch(url,{method:'GET',redirect:expectedUnpublished?'manual':'follow',signal:controller.signal,headers:{'user-agent':'Denkicontrol-Site-Health/1.0'}});
+      results[i]={path,url,status:r.status,expectedUnpublished,ok:expectedUnpublished?[404,410].includes(r.status):r.status>=200&&r.status<400,finalUrl:r.url,durationMs:Date.now()-started};
       try{await r.body?.cancel()}catch{}
     }catch(e){
-      results[i]={path,url,status:null,ok:false,error:e?.name==='AbortError'?'timeout':String(e?.message||e),durationMs:Date.now()-started};
+      results[i]={path,url,status:null,expectedUnpublished,ok:false,error:e?.name==='AbortError'?'timeout':String(e?.message||e),durationMs:Date.now()-started};
     }finally{clearTimeout(timer)}
     await new Promise(r=>setTimeout(r,80));
   }
 }
 await Promise.all(Array.from({length:concurrency},worker));
-const issues=results.filter(x=>!x.ok).map(x=>({type:'http-unreachable',path:x.path,status:x.status,error:x.error||null,url:x.url,finalUrl:x.finalUrl||null,durationMs:x.durationMs}));
+const issues=results.filter(x=>!x.ok).map(x=>({type:x.expectedUnpublished?(x.status>=200&&x.status<400?'http-unpublished-exposed':'http-unpublished-unverified'):'http-unreachable',path:x.path,status:x.status,error:x.error||null,url:x.url,finalUrl:x.finalUrl||null,durationMs:x.durationMs}));
 const payload={checkedAt:new Date().toISOString(),origin,urlsChecked:results.length,issues,results};
 await mkdir(dirname(out),{recursive:true});
 await writeFile(out,JSON.stringify(payload,null,2)+'\n');
 console.log(JSON.stringify({urlsChecked:results.length,httpIssues:issues.length}));
+

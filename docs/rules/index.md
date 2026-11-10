@@ -237,6 +237,7 @@
 | [supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql](../../supabase/migrations/20260907170500_weekly_plan_ui_and_monday_guard.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql](../../supabase/migrations/20260909065500_ai_editorial_single_final_human_gate.sql) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [tests/article-heroes.test.mjs](../../tests/article-heroes.test.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
+| [tests/site-health-publication-scope.test.mjs](../../tests/site-health-publication-scope.test.mjs) | サイト異常監視の公開停止対象・HTTP判定・警告除外を変更または検査する場合。 公開停止3記事の期待404/410、誤公開・通信異常と公開中ページの異常検出を検証する回帰テスト。 |
 
 ## 省略表記の参照先
 

@@ -17,7 +17,7 @@
 - HeroとOGPの兼用は必須にせず、用途ごとの見え方で専用OGPが必要か判断する。
 - 元の候補抽出や過去監査（例: `docs/search-top-content-audit-2026-09-10.md`）は**履歴資料**として参照できるが、現在の優先順位の根拠にはしない。
 - 完了済み記事は、明確な不具合・技術情報更新・検索データ上の大きな問題がない限り不用意に再編集しない。
-- ただし、完了済みでも検索データ上で明確な悪化や大きな改善機会が確認できた場合は、再評価候補へ戻してよい。
+- ただし、完了済みでも[日付ガード](article-update-date-guard.md)の90日待機を満たし、検索データ上で明確な悪化や大きな改善機会が継続して確認できた場合は、再評価候補へ戻してよい。安全・技術誤り等の例外は同正本に従う。
 - Preview承認前に main へ入れない。
 - 完了後は必要に応じて Google のインデックス状態確認と、既存 GitHub Actions の IndexNow 通知を確認する。
 
@@ -32,14 +32,14 @@
 - [x] `articles/air-cylinder-basic.html` — エアシリンダ
 - [x] `articles/a-contact-b-contact-basic.html` — a接点・b接点
 - [x] `articles/control-panel-wire-color-basic.html` — 制御盤の電線色
-- [x] `articles/no-fuse-breaker-basic.html` — ノーヒューズブレーカ。最終内容更新 2026-11-08（JST、本文・採用画像5枚の本番反映 [PR #1812](https://github.com/Syasu-pixel/my-site/pull/1812)）。完成・凍結、日付ガードの28日間は原則再改善候補から除外。
+- [x] `articles/no-fuse-breaker-basic.html` — ノーヒューズブレーカ。最終内容更新 2026-11-08（JST、本文・採用画像5枚の本番反映 [PR #1812](https://github.com/Syasu-pixel/my-site/pull/1812)）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
 
 - [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
 - [ ] `articles/no-nc-basic.html` — NO・NC
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
 - [ ] `articles/one-shot-circuit-basic.html` — ワンショット回路
-- [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの28日間は原則再改善候補から除外。
+- [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）
@@ -70,7 +70,8 @@
 - `scripts/search_backlog_report.py` は既存のSupabase公式API保存データを読み、Google検索の直近28日と前28日を比較する。Bingのページ別値は週次スナップショットのため日次比較に合算しない。
 - `.github/workflows/weekly-search-backlog.yml` は **毎週月曜日08:30 JST（GitHub Actionsのscheduleなので開始が遅れる場合あり）** に動く設定で、生成した提案は **Draft PR** にまとめる。PR作成権限が無い場合、確認用artifactと警告を残す。週次処理の実運用成功は実行履歴とPRで別途確認する（導入CI成功と初回定期実行成功を混同しない）。
 - 元の改善進捗リスト、`[x]` 完成・凍結状態、記事HTML、SEO、公開導線は自動変更しない。候補は調査提案であり、採用・再編集・main反映は管理者判断を要する。
-- Google確定データの欠損・遅延、公開sitemapが利用不能な場合には候補生成を停止する。公開sitemapに含まれる日本語記事を候補とする。内容更新日が不明な記事はGitHub/PR履歴で確認し、28日ガードを機械判定済みとして扱わない。
+- Google確定データの欠損・遅延、公開sitemapが利用不能な場合には候補生成を停止する。公開sitemapに含まれる日本語記事を候補とする。内容更新日が不明な記事はGitHub/PR履歴で確認し、90日ガードを機械判定済みとして扱わない。
+- クールダウン中の記事も異常を見落とさないため監視表示には残すが、90日未満は原則として通常の再改善候補から除外する。評価期間より新しい更新、更新日不明、完成・凍結も表示し、期間経過だけで再編集を許可しない。比較窓は直近28日対前28日のまま維持する。
 - 公開GitHubのPR・本文にはサイトの検索生データ（クリック数・表示回数・順位）を出さない。詳細数値は非公開のSupabase側で確認する。
 - **新しいチャット・記事刷新担当**は、ここに提案があるかだけで判断せず、最新mainの本書、`docs/article-update-date-guard.md`、`docs/article-search-data-precheck-override.md`、Supabaseのデータ鮮度・現在の検索状況、既存PRを確認する。機械評価は提案であって改善実行の許可ではない。
 

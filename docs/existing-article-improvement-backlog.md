@@ -39,7 +39,7 @@
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
 - [ ] `articles/one-shot-circuit-basic.html` — ワンショット回路
-- [ ] `articles/terminal-block-basic.html` — 端子台
+- [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの28日間は原則再改善候補から除外。
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）

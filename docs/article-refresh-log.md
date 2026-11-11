@@ -15,6 +15,32 @@
 
 ---
  
+## 2026-11-12 — electromagnetic-contactor-vs-switch 刷新・本番公開完了
+
+- 対象記事: `articles/electromagnetic-contactor-vs-switch.html`
+- 本番URL: https://denkicontrol.com/articles/electromagnetic-contactor-vs-switch.html
+- 公開PR: [#1832](https://github.com/Syasu-pixel/my-site/pull/1832)。main反映commit: `f57285ea31c774b2002ef3539a80e6547eee0044`（2026-11-11 21:35:07 UTC / 2026-11-12 06:35:07 JST）。
+- 最終内容更新日: 2026-11-11。公式資料確認日: 2026-11-11。本番配信確認日とは区別する。
+- 反映内容: 採用済み比較記事本文、Hero・OGP・本文図2枚、公式参照メモ、対象記事の共通台帳entry。
+- 採用画像:
+  - `assets/images/electromagnetic-contactor-vs-switch/electromagnetic-contactor-vs-switch-hero.png`
+  - `assets/images/electromagnetic-contactor-vs-switch/electromagnetic-contactor-vs-switch-ogp.png`
+  - `assets/images/electromagnetic-contactor-vs-switch/contactor-switch-construction.png`
+  - `assets/images/electromagnetic-contactor-vs-switch/contactor-thermal-protection-flow.png`
+- 承認済み最終統合Preview: [#1833](https://github.com/Syasu-pixel/my-site/pull/1833)、commit `d81ee74`。採用済み編集元: `cc308f0`。
+- フッター視覚CI: FAILを成功に書き換えず、[個別REVIEW記録](https://github.com/Syasu-pixel/my-site/pull/1832#issuecomment-6807572899)を根拠として公開判断。`docs/preview-environment.md` に従い、必須チェック・保護設定は変更していない。
+- 記事本文・title・meta description・URLは採用版を保持。`assets/data/search-index.json` の対象日本語entryは、承認済み記事のtitle・descriptionと名称の同義表記へ同期。本記録と同じ公開後整備PRで更新。
+- 変更しなかったもの: `sitemap.xml`、`/seo/sitemap.xml`、トップ。`categories/comparison-guide.html` の対象カード1件は、名称・説明を採用本文へ、画像を採用OGPへ同期。カード順・件数・他記事は変更しない。
+- 公開後確認:
+  - GitHub Pages: [run 43104347166](https://github.com/Syasu-pixel/my-site/actions/runs/43104347166) 成功、配信commit `f57285ea31c774b2002ef3539a80e6547eee0044`。最終publicationは350テキスト照合・欠落資源0・errors 0。
+  - 本番表示: 2026-11-12 JST、統合ヘッダー・新Hero・本文図2枚・ライトボックス・公式資料確認日をブラウザ確認。公開前のPCライト/ダークと狭幅388px/323pxライト/ダークの記録を保持。狭幅は通常デスクトップの窓幅・ズームによる検査であり、実機スマホ検査とは扱わない。
+  - IndexNow: [run 43104347105](https://github.com/Syasu-pixel/my-site/actions/runs/43104347105) 成功。job 130803624915で対象記事URL 1件、2026-11-11 21:35:57 UTC（2026-11-12 06:35:57 JST）にHTTP 200受理。検索エンジンでのインデックス確認は未実施。
+  - Google登録リクエスト: 未実施。`GOOGLE_REQUEST_PENDING_MANUAL`。対象は上記本番URL。別途適用可能な許可を確認してから進める。インデックス状態は未確認。
+  - Preview専用PR #1833: 本番公開成功後に未マージでclose。#1832の変更13ファイルにPreview専用Workflow・trigger・生成HTMLの混入なし。Previewブランチは証跡として保持。
+- 状態: 本番公開完了・完成／凍結。最終内容更新から90日間は原則再改善候補から除外。
+
+---
+
 ## 2026-09-29 — solenoid-valve-troubleshooting-basic 全面刷新・本番公開
 
 - 対象記事: `articles/solenoid-valve-troubleshooting-basic.html`

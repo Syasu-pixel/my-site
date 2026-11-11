@@ -7,7 +7,13 @@ on:
       - '.github/site-shell-visual.json'
       - '.github/workflows/site-shell-visual.yml'
       - 'scripts/*site-shell*'
+      - 'scripts/report-article-impact.mjs'
+      - 'scripts/select-shell-visual-targets.mjs'
+      - 'tests/article-impact.test.mjs'
       - 'tests/site-shells.test.mjs'
+      - 'assets/images/**'
+      - 'assets/css/**'
+      - 'assets/js/**'
       - 'articles/**'
       - 'en/articles/**'
       - 'package.json'
@@ -42,7 +48,7 @@ jobs:
           mkdir .visual-base
           git archive "$BASE" | tar -x -C .visual-base
       - name: Test visual audit routing
-        run: node --test tests/select-shell-visual-targets.test.mjs
+        run: node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs
       - name: Select visual audit scope
         run: node scripts/select-shell-visual-targets.mjs "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" .visual-targets.json
       - name: Save baseline before generation

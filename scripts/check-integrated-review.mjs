@@ -1,9 +1,11 @@
+import {loadIntegrationScope,integrationWidths,integrationSuffix} from './integration-review-scope.mjs';
 import {chromium} from 'playwright';import {readFile,writeFile,mkdir} from 'node:fs/promises';import {resolve} from 'node:path';import {PNG} from 'pngjs';import pixelmatch from 'pixelmatch';
-const build=resolve(process.argv[2]||'../integration-build'),shardCount=Number(process.env.REVIEW_SHARD_COUNT||1),shardIndex=Number(process.env.REVIEW_SHARD_INDEX||0),suffix=shardCount>1?'-shard-'+shardIndex:'',evidence=resolve(build,'evidence'+suffix);await mkdir(evidence,{recursive:true});
+const build=resolve(process.argv[2]||'../integration-build'),shardCount=Number(process.env.REVIEW_SHARD_COUNT||1),shardIndex=Number(process.env.REVIEW_SHARD_INDEX||0),suffix=integrationSuffix(shardIndex,shardCount),evidence=resolve(build,'evidence'+suffix);await mkdir(evidence,{recursive:true});
 if(!Number.isInteger(shardCount)||shardCount<1||!Number.isInteger(shardIndex)||shardIndex<0||shardIndex>=shardCount)throw Error('Invalid shard');
 const config=JSON.parse(await readFile('.github/article-components/integration.json','utf8'));
 let specs;try{specs=JSON.parse(await readFile('.github/article-components/sidebar/all-pages.json','utf8')).pages;}catch{specs=[...JSON.parse(await readFile('.github/article-components/sidebar/pages.json','utf8')).pages,...JSON.parse(await readFile('.github/article-components/sidebar/additional-pages.json','utf8')).pages];}
-const targets=(config.targets||config.representatives).filter((p,i)=>i%shardCount===shardIndex);
+const reviewScope=await loadIntegrationScope(config);
+const targets=reviewScope.targets.filter((p,i)=>i%shardCount===shardIndex);
 const browser=await chromium.launch({headless:true});const results=[],votes=[],failures=[],images=[];const origin='http://127.0.0.1:'+(process.env.REVIEW_PORT||8768),beforeOrigin='http://127.0.0.1:'+(process.env.REVIEW_BEFORE_PORT||8769);
 const assert=(ok,message)=>{if(!ok)throw Error(message);};
 const intersects=(a,b)=>a&&b&&a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
@@ -11,7 +13,7 @@ async function ready(page){await page.evaluate(async()=>{await document.fonts.re
 async function context(viewport){const c=await browser.newContext({viewport,locale:'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',serviceWorkers:'block'});await c.route('**/*',r=>{const u=r.request().url();return u.startsWith(origin+'/')||u.startsWith(beforeOrigin+'/')||u.startsWith('data:')?r.continue():r.abort();});return c;}
 async function shot(page,key,part){const file=key+'--'+part+'.png';await page.screenshot({path:resolve(evidence,file),animations:'disabled'});images.push({key,part,file});return file;}
 try{
-for(const path of targets)for(const width of (config.representatives.includes(path)?[320,390,768,1024,1440]:[390,768,1440])){
+for(const path of targets)for(const width of integrationWidths(config,path,reviewScope.scope)){
  const height=width===320?568:width<700?844:1000,key=path.replaceAll('/','__').replace('.html','')+'--'+width,c=await context({width,height}),page=await c.newPage();
  try{
   await page.goto(origin+'/'+path,{waitUntil:'networkidle'});await ready(page);const spec=specs.find(s=>s.path===path),compact=width<=spec.compactMaxWidth;
@@ -82,5 +84,5 @@ for(const width of (shardIndex===0?[390,768,1440]:[])){const c=await context({wi
  results.push({path:'services/gxworks2-online-support.html',width,status:'paused-service',liveSubmission:false});
  }catch(error){failures.push({test:'service',width,error:error.message});}finally{await c.close();}}
 }finally{await browser.close();}
-await writeFile(resolve(build,'browser-checks'+suffix+'.json'),JSON.stringify({shardIndex,shardCount,targets,results,votes,failures,images,externalVotesSent:0,productionPublished:false},null,2));
+await writeFile(resolve(build,'browser-checks'+suffix+'.json'),JSON.stringify({scope:reviewScope.scope,shardIndex,shardCount,targets,results,votes,failures,images,externalVotesSent:0,productionPublished:false},null,2));
 console.log(JSON.stringify({layoutCases:results.length,voteCases:votes.length,failures:failures.length,images:images.length}));if(failures.length)process.exitCode=1;

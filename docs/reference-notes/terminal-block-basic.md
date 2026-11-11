@@ -98,3 +98,13 @@
 - 共有部品の再生成伝播検査ではheader288、関連記事288、日本語評価177・英語111不変、footer対象120・非対象168不変を確認。publicationの正常変換・衝突保持と、本文改変/画像欠落/投票JS改変/余分なreview HTML/衝突原本改変の拒否を含む7契約検査が成功した。
 - 幅の静的契約4テストでは240〜2560pxの2321幅を確認し、旧制約が500pxで3px、390pxで約4.1pxの片側超過を生む負例と、通常側・狭幅側を片方だけ元へ戻すと再び失敗する負例を確認した。これはCSS式と差分範囲の検査であり、ブラウザの実測合格とは区別する。
 - この記録確定時点では、全publicationを別コピーへ再組立て、同じcwebp条件でWebPを再生成中。WebP後の最終照合と外部PreviewのJS差替え後の実測は別途結果を確認する。修正後は320/390/500/640/641/768/900/1180px、ライト/ダーク、開閉・繰返し・Escape・背景クリック・目次復帰を確認し、全記事CIと今回の変更範囲を混同しない。DevToolsや禁止されたブラウザ起動経路は使わず、実タッチpinchは未確認として残す。本番マージ・公開は行っていない。
+
+## フッター比較の端数座標診断（2026-11-11）
+- 編集元PR #1828のhead `602bbcc5aa37f99ab84e0f3075f07943367c7910`、[Header/footer比較run 43015680354](https://github.com/Syasu-pixel/my-site/actions/runs/43015680354)はFAIL。全288記事・1164組のうち日本語端子台記事のmobile footerだけが差分で、操作変化なし・新規エラー0。旧head `3f6713f74921173713625d473faa3f99d56f598c` の同検査でも同じ結果だった。
+- 新旧runのBefore画像は390×208、SHA-256 `b5b98dbec492e06cf0f048a96523127c8c5989213e4a6cad8fcf47deb39ef711`、After画像は390×209、SHA-256 `abf67a7a211c7bb778d28da63d1b5ab3979a85ea5761b5c0bc5a76dc09222f15`でそれぞれバイト同一。撮影器は画像寸法が異なると比較領域全体の画素数を報告するため、81510は390×209に相当する。本文・画像変更により文書内の配置が変わった可能性はあるが、フッター全体が変わった証拠ではない。
+- base `45c9773843e16024ba1525825582e20d83ace6b8` と候補の記事では、footer HTML、全inline CSS、全scriptタグがバイト同一。画像の文言・リンク・折返し・色も同じに見える。ただしこの観察だけで正式FAILをPASSに変更しない。
+- 固定依存Playwright 1.55.0の実装を参照した。[screenshotter.ts](https://github.com/microsoft/playwright/blob/v1.55.0/packages/playwright-core/src/server/screenshotter.ts) は要素の矩形へscroll offsetを加え、[helper.tsのenclosingIntRect](https://github.com/microsoft/playwright/blob/v1.55.0/packages/playwright-core/src/server/helper.ts) は `floor(y + 0.001)` と `ceil(y + height - 0.001)` の差を撮影高にする。同じ要素高でもtopの小数部により撮影高が1px変わり得る。
+- CSSからの説明用概算は、上下padding62px＋上border1px＋先頭pのmargin24px＋3行×21.6px＋nav1行×21.6px＋広告上margin12px＋広告1行×22.1px＝約207.5px。例えば同じ高さ207.46875pxでtopが1000.25pxなら撮影高208px、1000.75pxなら209pxになる。これは丸め機構の例であり、対象ページの実測座標ではない。
+- 原因確定のため、既存 `scripts/site-shell-visual.mjs` のfooter撮影直前・直後へ読み取り専用の座標診断を追加する。baseline/report内の各footer imageの `geometry.before` / `geometry.after` に、要素・子要素の矩形とcomputed style、scroll offset、document座標、予測整数clip、DPR/viewport/visualViewport、文書高、font/image読込状態を保存する。予測clipは記録専用で撮影に渡さない。取得失敗はunavailableとして記録し、合否ロジックには使用しない。
+- 既存の撮影API・viewport・待機・画像・比較閾値・AA設定・基準SHA照合・例外条件・終了コード・Workflowは変更しない。DOM/CSS、本文、原本画像、共有部品、台帳、基準画像も変更しない。診断の式を実際に利用する固定Playwright依存と128座標で照合し、208/209の負例、scroll加算、取得失敗時の記録、既存shell保全・異常系・対象抽出を含む13テストが成功した。
+- 診断追加後の実ブラウザ測定と規定CIは未実行。既存環境のブラウザ制限を回避せず、次の正式CI artifactで実測top/height/bottom・scroll後の整数clipがPNG寸法を説明するか確認する。未確定のままfooter現物や撮影基準を修正せず、mainへのマージ可とはしない。

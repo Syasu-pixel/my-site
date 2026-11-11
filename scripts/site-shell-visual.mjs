@@ -7,6 +7,7 @@ import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { resolve, dirname, extname, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
+import { collectShellGeometry } from './site-shell-geometry.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map(s => { const i=s.indexOf('='); return [s.slice(0,i),s.slice(i+1)]; }));
 const phase = args['--phase'];
@@ -84,12 +85,14 @@ try {
       async function capture(region,fullPage=false){
         const rel=`${phase==='baseline'?'before':'after'}/${key}--${region}.png`;
         await mkdir(dirname(resolve(out,rel)),{recursive:true});
+        const geometryBefore=region==='footer'?await collectShellGeometry(page,'footer.site-footer'):null;
         const bytes=region==='header'
           ? await page.locator('header.site-header').screenshot({path:resolve(out,rel),animations:'disabled'})
           : region==='footer'
             ? await page.locator('footer.site-footer').screenshot({path:resolve(out,rel),animations:'disabled'})
             : await page.screenshot({path:resolve(out,rel),fullPage,animations:'disabled'});
-        images.push({target,device,region,path:rel,sha256:hash(bytes)});
+        const geometryAfter=region==='footer'?await collectShellGeometry(page,'footer.site-footer'):null;
+        images.push({target,device,region,path:rel,sha256:hash(bytes),...(region==='footer'?{geometry:{before:geometryBefore,after:geometryAfter}}:{})});
         if(phase==='compare') {
           const beforePath=rel.replace(/^after\//,'before/');
           const recorded=baseline.images.find(x=>x.path===beforePath);

@@ -4,10 +4,11 @@
 
 検索実績データの取得経路は `docs/search-data-acquisition-rules.md` を正本とする。取得経路について本書と正本が矛盾する場合は `docs/search-data-acquisition-rules.md` を優先する。
 
-## AI検索の実測CSVスナップショット（2026-10-14保存）
+## AI検索の実測CSVスナップショット（2026-10-14 / 2026-11-07保存）
 
-AI検索を踏まえた記事制作・記事刷新では、正規検索APIの現行実績と併せて、保存済みの [Bing AI Performance原本CSV 3件の台帳](../.github/data/bing-ai-search/index.json) を確認する。別チャット・Codexも、データ台帳から3ファイルを取得して対象記事のクエリを抽出する。最新取得分が別日に増えた場合はその保存場所・期間も照合する。
+AI検索を踏まえた記事制作・記事刷新では、正規検索APIの現行実績と併せて、[Bing AI Performanceデータ台帳](../.github/data/bing-ai-search/index.json) の **latest_snapshot** と各日付のmanifestを確認する。2026-10-14の3件に加え、**2026-11-07のCSV 3件（引用クエリ1,085行・日別overview 90行・市場トピック34行）** をGitHubで参照できる。別チャット・Codexも日付台帳から関連クエリを抽出し、古い日付だけで結論を出さない。原本とGoogle検索機能レポートZIPはChatGPT Libraryの `/電気コントロール/AI検索分析/2026-11-07` に保存（GitHubのみの担当はZIPへ自動アクセスできない）。
 
+- `AIPerformanceOverviewStats`（2026-11-07追加）: 日別のCitationsとCited Pages。合計引用数はクリック数や訪問者数ではなく、観測窓の異なる出力と無条件に比較しない。
 - `AISearchQueriesReport`: 電気コントロールの引用クエリ、AIによる引用数・引用シェア。Query＝引用元の情報取得に使われた語句であり、必ずしも検索ユーザーの入力そのままとは限らない。
 - `AITopicsOverallPortfolio`: Bingが分類したテーマと**市場全体の**Volume / Queries / Sitesレンジ。自サイトの引用数と取り違えない。
 - `AITopicsTopOpportunityQueries`: まだ獲得できていないクエリ候補と**市場の**Citation Range。特に英語クエリを日本語記事の需要と同一視しない。

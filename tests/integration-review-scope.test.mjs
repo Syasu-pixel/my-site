@@ -87,3 +87,10 @@ test('six-shard all-article reconciliation retains complete coverage',()=>{
   assert.equal(JSON.parse(readFileSync(join(dir,'coverage-ledger.json'))).browserVerifiedArticles,targets.length);
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
+
+test('workflow exports runner-specific impact paths at step execution, not job env',()=>{
+ const workflow=readFileSync('.github/workflows/article-components-integration.yml','utf8');
+ const jobEnvs=[...workflow.matchAll(/^    env:\n((?:^      .*\n)+)/gm)].map(m=>m[1]);
+ for(const env of jobEnvs)assert.doesNotMatch(env,/\$\{\{\s*runner\./);
+ assert.equal(workflow.split('export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"').length-1,2);
+});

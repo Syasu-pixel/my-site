@@ -111,7 +111,6 @@ jobs:
         shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
     env:
       REVIEW_SHARD_COUNT: ${{ needs.prepare.outputs.shard_count }}
-      ARTICLE_IMPACT_FILE: ${{ runner.temp }}/integration-build/article-impact.json
       REVIEW_SHARD_INDEX: ${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v4
@@ -131,6 +130,7 @@ jobs:
           path: ${{ runner.temp }}/integration-build
       - name: Selected-scope viewport, dark-mode and isolated-vote checks
         run: |
+          export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"
           node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
           REVIEW_PID=$!
           trap 'kill "$REVIEW_PID" || true' EXIT
@@ -148,8 +148,6 @@ jobs:
           if-no-files-found: error
   reconcile:
     needs: [prepare, browser]
-    env:
-      ARTICLE_IMPACT_FILE: ${{ runner.temp }}/integration-build/article-impact.json
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -170,6 +168,7 @@ jobs:
           merge-multiple: true
       - name: Reject missing coverage and generate complete review index
         run: |
+          export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"
           node scripts/merge-integration-checks.mjs ${{ runner.temp }}/integration-build ${{ needs.prepare.outputs.shard_count }}
           node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
           node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build

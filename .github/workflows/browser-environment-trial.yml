@@ -1,0 +1,63 @@
+name: Browser environment equivalence trial
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/browser-environment-trial.yml'
+      - 'scripts/probe-browser-environment.mjs'
+      - 'tests/browser-environment.test.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: browser-environment-trial-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  compare-environments:
+    # No forks, secrets, writes, deployments, workflow_dispatch or recurring work.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      IMAGE: mcr.microsoft.com/playwright:v1.55.0-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: node --test tests/browser-environment.test.mjs
+      - name: Pull official version-matched image and record its immutable identity
+        timeout-minutes: 5
+        run: |
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" --format '{{json .RepoDigests}}'
+      - name: Probe candidate without downloading OS packages
+        timeout-minutes: 3
+        run: |
+          mkdir -p probe-output/candidate
+          docker run --rm --network none --user "$(id -u):$(id -g)" \
+            --mount "type=bind,src=$PWD,dst=/work,readonly" \
+            --mount "type=bind,src=$PWD/probe-output/candidate,dst=/result" \
+            --workdir /work "$IMAGE" \
+            node scripts/probe-browser-environment.mjs capture /result
+      - name: Install existing reference environment (one bounded attempt)
+        timeout-minutes: 6
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Probe existing environment
+        timeout-minutes: 3
+        run: node scripts/probe-browser-environment.mjs capture probe-output/reference
+      - name: Require exact fixture rendering, geometry and used fonts
+        run: node scripts/probe-browser-environment.mjs compare probe-output/reference/report.json probe-output/candidate/report.json
+      - name: Record diagnostic boundary
+        if: always()
+        run: |
+          echo 'Diagnostic only: no existing CI gate or deployment was changed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Candidate runs first. Reference installation failure means equivalence is UNVERIFIED, not passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'A fixture match is necessary, not sufficient; actual article/full-site regression remains required before adoption.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No artifacts/cache are uploaded by this trial. Font, geometry and pixel hashes are in the logs.' >> "$GITHUB_STEP_SUMMARY"

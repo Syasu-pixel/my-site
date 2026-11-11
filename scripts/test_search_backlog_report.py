@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline tests for review-only search backlog generation."""
 import importlib.util
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 import tempfile
 import unittest
@@ -102,6 +102,60 @@ class SearchBacklogTests(unittest.TestCase):
                                      {"https://denkicontrol.com/articles/fresh.html"},
                                      date(2026, 11, 2), None, root)
             self.assertIn("再編集禁止", rendered)
+
+    def render_guard_fixture(self, age_days=None, frozen=False):
+        """Use synthetic metrics; evaluation end date is the cooldown anchor."""
+        end = date(2026, 11, 2)
+        url = "https://denkicontrol.com/articles/guard.html"
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "articles").mkdir()
+            body = "<p>公式資料確認日：2026年11月1日</p>"
+            if age_days is not None:
+                edited = end - timedelta(days=age_days)
+                body += f'<p class="article-updated"><time datetime="{edited}">{edited}</time></p>'
+            (root / "articles/guard.html").write_text(body, encoding="utf-8")
+            rows = [dict(page=url, data_date="2026-10-02", clicks=50,
+                         impressions=1800, avg_position=6),
+                    dict(page=url, data_date="2026-10-30", clicks=20,
+                         impressions=1600, avg_position=8)]
+            original = "# backlog\n- [" + ("x" if frozen else " ") + "] `articles/guard.html`\n"
+            result = module.render(rows, original, {url}, end, None, root)
+            line = next(line for line in result.splitlines() if "| articles/guard.html |" in line)
+            return result, line, original
+
+    def test_cooldown_day_zero_and_89_are_monitor_only(self):
+        for age in (0, 28, 89):
+            with self.subTest(age=age):
+                _, line, _ = self.render_guard_fixture(age)
+                self.assertIn("90日クールダウン", line)
+                self.assertIn("通常の再改善候補から除外（監視のみ）", line)
+
+    def test_day_90_and_later_end_only_cooldown_not_permission(self):
+        for age in (90, 91, 180):
+            with self.subTest(age=age):
+                report, line, _ = self.render_guard_fixture(age)
+                self.assertNotIn("クールダウン", line)
+                self.assertIn("期間経過だけで再編集を許可しない", report)
+
+    def test_frozen_article_is_not_auto_unfrozen_after_90_days(self):
+        report, line, original = self.render_guard_fixture(90, frozen=True)
+        self.assertIn("完成・凍結", line)
+        self.assertIn("- [x] `articles/guard.html`", module.replace_generated(original, report))
+
+    def test_missing_content_date_is_not_cleared_by_source_check_date(self):
+        _, line, _ = self.render_guard_fixture(None)
+        self.assertIn("更新日・PR履歴要確認", line)
+        self.assertIn("通常の再改善候補から除外（監視のみ）", line)
+
+    def test_newer_content_stays_protected(self):
+        _, line, _ = self.render_guard_fixture(-1)
+        self.assertIn("更新内容が評価期間より新しい・再編集禁止", line)
+
+    def test_analytics_windows_remain_28_days(self):
+        report, _, _ = self.render_guard_fixture(89)
+        self.assertIn("Google直近28日：2026-10-06〜2026-11-02", report)
+        self.assertIn("Google前28日：2026-09-08〜2026-10-05", report)
 
     def test_stale_data_does_not_modify_backlog(self):
         with tempfile.TemporaryDirectory() as temp:

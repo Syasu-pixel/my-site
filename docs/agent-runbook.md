@@ -51,7 +51,7 @@
 2. `docs/article-workflow.md` を確認する。
 3. `docs/new-article-checklist.md` を確認する。
 4. **記事監査・全記事監査・修正前監査を行う場合は、最初に `docs/article-audit-entrypoint.md` を確認し、そこから必要な正本へ進む。記事タイプ差をそのまま欠落判定せず、broken / 構造差 / 意図した例外を分離する。**
-5. **既存記事の更新・改善候補選定では、本文・meta・見出しを触る前に `docs/article-update-date-guard.md` を確認する。完成・凍結状態、最終内容更新日、メーカー公式資料確認日、GitHub/PR履歴を確認し、直近28日以内に実質改善した記事を原則として再改善候補から除外する。**
+5. **既存記事の更新・改善候補選定では、本文・meta・見出しを触る前に `docs/article-update-date-guard.md` を確認する。完成・凍結状態、最終内容更新日、メーカー公式資料確認日、GitHub/PR履歴を確認し、最終内容更新から90日未満の記事を原則として再改善候補から除外する。**
 6. **新規記事・既存記事で検索意図、title、meta description、H2/H3、本文補強、関連記事を検討する場合は `docs/article-search-data-precheck-override.md` と `docs/search-data-acquisition-rules.md` を確認する。既存記事では必ず前項の日付ガードを先に通す。**
 7. 記事タイプに応じて `docs/article-type-templates.md` を確認する。
 8. 記事評価カードを新規追加・流用・修正する場合は `docs/article-feedback-rules.md` を確認する。

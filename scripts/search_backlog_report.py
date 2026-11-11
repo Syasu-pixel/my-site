@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKLOG_REL = "docs/existing-article-improvement-backlog.md"
 START = "<!-- SEARCH_BACKLOG_AUTO_START -->"
 END = "<!-- SEARCH_BACKLOG_AUTO_END -->"
+# Re-edit guard; independent of the unchanged 28-day analytics windows.
+COOLDOWN_DAYS = 90
 
 
 class ReportError(RuntimeError):
@@ -172,10 +174,10 @@ def render(rows, current, published, end_date, bing_date, root):
         edited = content_date(root / "articles" / slug)
         if edited and edited > end_date:
             status += "／更新内容が評価期間より新しい・再編集禁止"
-        elif edited and 0 <= (end_date - edited).days < 28:
-            status += "／28日クールダウン"
+        elif edited and 0 <= (end_date - edited).days < COOLDOWN_DAYS:
+            status += f"／{COOLDOWN_DAYS}日クールダウン・通常の再改善候補から除外（監視のみ）"
         elif edited is None:
-            status += "／更新日・PR履歴要確認"
+            status += "／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ）"
         categories[category].append((score, slug, reason, status))
     lines = [
         "## 検索実績の機械評価（確認用・自動生成）", "",
@@ -185,6 +187,7 @@ def render(rows, current, published, end_date, bing_date, root):
         "- Bingのページ別データは週次スナップショットのため日次Googleと合算しない。"
         + (" 最終保存日：" + str(bing_date) if bing_date else " 直近スナップショット未確認。"),
         "- これは調査提案であり本文修正の指示ではない。内容更新日・GitHub/PR履歴・メーカー資料と照合する。",
+        f"- {COOLDOWN_DAYS}日ガードは評価期間末日で判定。除外対象も監視表示には残す。完成・凍結や期間経過だけで再編集を許可しない。",
         "- 公開GitHubに生のクリック数・表示回数・順位を掲載しない。チェックリストの完了状態は変更しない。",
     ]
     for category in ("悪化・要確認", "改善余地", "伸長・監視", "データ不足"):

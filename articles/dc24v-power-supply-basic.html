@@ -285,6 +285,8 @@
     .related-card:hover{text-decoration:none;border-color:#bfd4ec;background:#fbfdff}
     .related-card h3{margin:0 0 8px;font-size:16px;line-height:1.5;color:var(--blue-deep)}
     .related-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.75}
+    .related-card-thumb{margin:-16px -16px 14px;aspect-ratio:16/9;overflow:hidden;border-radius:20px 20px 0 0;border-bottom:1px solid #d7e4f3;background:#eef4ff}
+    .related-card-thumb img{width:100%;height:100%;object-fit:cover}
 
     .article-footer-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
     .site-footer{padding:26px 0 36px;border-top:1px solid #dbe7f3;color:var(--muted);text-align:center;font-size:12px;font-weight:700}
@@ -1079,6 +1081,19 @@ body{
       </div>
     </section>
 
+    <section class="mini-toc-card" aria-label="メーカー公式資料">
+      <h2>メーカー公式資料を確認して作成しています</h2>
+      <p>
+        本記事は、オムロンの産業用スイッチング・パワーサプライ公式仕様・安全上の注意を確認し、DC24V電源の基本を初心者向けに整理しています。
+        入力電圧、出力容量、端子仕様、保護機能、取付条件は製品ごとに異なるため、実機では対象形式の仕様書・取扱説明書を優先してください。
+      </p>
+      <ul>
+        <li><a href="https://www.fa.omron.co.jp/products/family/3178/specification/" target="_blank" rel="noopener noreferrer">オムロン S8VK-G 定格・性能</a> — DC24Vを含む出力電圧、容量、入力条件などの公式仕様</li>
+        <li><a href="https://www.fa.omron.co.jp/products/family/3178/preuse/" target="_blank" rel="noopener noreferrer">オムロン S8VK-G ご使用の前に</a> — 配線・接地・放熱などの安全上の要点</li>
+      </ul>
+      <p><small>公式資料確認日：2026年9月16日</small></p>
+    </section>
+
     <section class="top-summary" aria-label="この記事の概要">
       <article class="summary-card summary-card--fit">
         <h2>向いている人</h2>
@@ -1090,11 +1105,11 @@ body{
       </article>
 
       <article class="summary-card summary-card--notyet">
-        <h2>まだ不要な人</h2>
+        <h2>この記事だけで決めないこと</h2>
         <ul>
-          <li>まず端子台やサーキットプロテクタの見方が不安な人</li>
-          <li>電源装置の細かい型式選定だけを先に知りたい人</li>
-          <li>高圧・動力盤の電源設計を深く知りたい人</li>
+          <li>交換品の型式・容量をこの記事だけで選定しない</li>
+          <li>通電状態での測定や配線変更を自己判断で行わない</li>
+          <li>実機では図面・銘板・メーカー資料・設備手順を優先する</li>
         </ul>
       </article>
 
@@ -1136,10 +1151,9 @@ body{
           </p>
 
           <div class="key-highlight">
-            <h3>パワーサプライを見る時は「入力」と「出力」を分ける</h3>
+            <h3>パワーサプライを見る時は「入力系統」と「出力系統」を分ける</h3>
             <p>
-              入力側にはAC100VやAC200V、出力側にはDC24Vが出ます。
-              電源トラブル時は、入力が来ているか、出力DC24Vが出ているかを分けて確認します。
+              入力側とDC24V出力側は役割が違います。まず図面・銘板・端子表示・DC OKなどの状態表示を照合し、どの電源系統を見ているのかを分けると切り分けしやすくなります。
             </p>
           </div>
 
@@ -1211,10 +1225,9 @@ body{
           </div>
 
           <div class="field-highlight">
-            <h3>まず「DC24Vが出ているか」を見る</h3>
+            <h3>まず電源系統と状態表示を確認する</h3>
             <p>
-              PLCやセンサーが動かない時は、プログラムや機器本体を見る前に、
-              パワーサプライの出力DC24Vが正常かを確認すると切り分けしやすくなります。
+              PLCやセンサーが動かない時は、プログラムや機器本体だけに原因を決めつけず、図面上の電源系統、パワーサプライの表示、保護機器、PLCや機器側の状態表示を順に照合すると切り分けしやすくなります。
             </p>
           </div>
         </section>
@@ -1244,12 +1257,12 @@ body{
                 <tr>
                   <th>センサー</th>
                   <td class="cell-green">近接センサー、光電センサーなどの電源</td>
-                  <td>+24V、0V、信号線を分けて確認します。</td>
+                  <td>図面・端子表示・センサー仕様で+24V、0V、信号線の役割を分けて確認します。</td>
                 </tr>
                 <tr>
                   <th>リレー</th>
                   <td>DC24Vコイルや補助回路の電源</td>
-                  <td>コイル電圧が来ているか、接点側と分けて見ます。</td>
+                  <td>コイル回路の電源系統と状態表示を、接点側の回路と分けて見ます。</td>
                 </tr>
                 <tr>
                   <th>表示灯</th>
@@ -1329,18 +1342,17 @@ body{
         <section class="section-card" id="terminal">
           <h2>入力端子と出力端子の見方</h2>
           <p>
-            パワーサプライを見る時は、入力側と出力側を分けて確認します。
-            入力側にはAC100VやAC200V、出力側には+V、-VなどのDC24V端子があります。
+            パワーサプライを見る時は、まず銘板・図面・端子記号で入力側と出力側を分けます。L/NなどのAC入力端子、+V/-VなどのDC出力端子、FGなどの接地端子は役割が違うため、記号だけで判断せず機種の取扱説明書も合わせて確認します。
           </p>
 
           <div class="check-grid">
             <div class="check-item check-item--important">
               <h3>L / N</h3>
-              <p>AC入力側の端子です。AC100VやAC200Vが入力されているか確認します。</p>
+              <p>AC入力側でよく使われる表記です。実際の入力仕様と端子の意味は銘板・結線図・メーカー資料で確認します。</p>
             </div>
             <div class="check-item check-item--field">
               <h3>+V / -V</h3>
-              <p>DC出力側の端子です。DC24Vが正常に出ているか測定します。</p>
+              <p>DC出力側でよく使われる表記です。機種によって端子数や表記が異なるため、図面と取扱説明書を照合します。</p>
             </div>
             <div class="check-item check-item--important">
               <h3>FG / アース</h3>
@@ -1353,52 +1365,56 @@ body{
           </div>
 
           <div class="field-highlight">
-            <h3>入力が正常でも、出力が出ていないことがある</h3>
+            <h3>表示だけで原因を1つに決めつけない</h3>
             <p>
-              AC入力が来ていても、過負荷、短絡、本体不良、保護回路動作などでDC24Vが出ないことがあります。
-              入力側と出力側を両方確認するのがポイントです。
+              DC OK消灯や機器停止には、入力側・保護機器・負荷側・本体など複数の原因候補があります。図面、状態表示、アラーム、設備履歴を合わせて範囲を絞ります。
             </p>
           </div>
         </section>
 
         <section class="section-card" id="trouble">
-          <h2>電源が出ない時の確認ポイント</h2>
+          <h2>DC24V系統が動かない時の確認ポイント</h2>
           <p>
-            パワーサプライからDC24Vが出ていない時は、本体不良と決めつける前に、入力電源、出力電圧、保護回路、端子ゆるみ、負荷側の短絡などを順番に確認します。
+            PLCやセンサーなどDC24V系統が動かない時は、パワーサプライ本体だけに原因を決めつけません。図面上の電源経路、パワーサプライの状態表示、保護機器、端子表示、負荷側のアラームや状態を順に照合して範囲を絞ります。
           </p>
 
           <figure class="article-figure">
             <img src="../assets/images/dc24v-power-supply-basic/power-supply-troubleshooting.png" alt="パワーサプライの電源が出ない時の確認ポイント" loading="lazy" decoding="async">
             <figcaption>
-              電源が出ない時は、入力電源、出力DC24V、サーキットプロテクタやヒューズ、端子ゆるみ、過負荷・短絡、本体不良の順で確認します。
+              DC24V系統が動かない時は、図面上の電源経路、状態表示、保護機器、端子・配線の外観、負荷側の状態、本体の順に原因候補を整理します。
             </figcaption>
           </figure>
 
           <div class="check-grid">
             <div class="check-item check-item--important">
-              <h3>入力電源が来ているか</h3>
-              <p>AC100VやAC200Vが入力端子に来ているか確認します。</p>
+              <h3>入力側の条件</h3>
+              <p>図面・銘板・上流保護機器・設備状態から、入力側の電源経路と条件を確認します。</p>
             </div>
             <div class="check-item check-item--field">
-              <h3>出力DC24Vを測定する</h3>
-              <p>+Vと-V間でDC24Vが出ているか、テスターで確認します。</p>
+              <h3>出力側の状態表示</h3>
+              <p>DC OKなどの表示、PLCや接続機器の電源表示・アラームを確認し、出力側のどこまで状態が成立しているかを整理します。</p>
             </div>
             <div class="check-item check-item--important">
               <h3>保護回路を確認する</h3>
               <p>サーキットプロテクタやヒューズが動作していないか確認します。</p>
             </div>
             <div class="check-item check-item--warning">
-              <h3>端子ゆるみを見る</h3>
-              <p>入力側、出力側の端子ゆるみや配線外れを確認します。</p>
+              <h3>端子・配線の外観</h3>
+              <p>線番、端子表示、明らかな外れ・変色・損傷の有無を、設備の安全手順に従って確認します。</p>
             </div>
             <div class="check-item check-item--field">
-              <h3>過負荷・短絡を見る</h3>
-              <p>負荷側の機器や配線で短絡していないか、接続機器が増えすぎていないか見ます。</p>
+              <h3>負荷側の状態を見る</h3>
+              <p>接続機器の追加履歴、アラーム、保護機器動作などから、過負荷や負荷側異常の可能性を整理します。</p>
             </div>
             <div class="check-item check-item--warning">
               <h3>本体不良を疑う</h3>
               <p>入力が正常で負荷側にも異常がないのに出力が出ない場合、本体不良の可能性があります。</p>
             </div>
+          </div>
+
+          <div class="danger-box">
+            <h3>通電測定・配線変更・交換は別作業として扱う</h3>
+            <p>活線状態での測定、端子への接触、配線変更、電源装置の交換は、この記事の確認フローとは別の作業です。実機では資格・社内ルール・設備の安全手順・メーカー資料に従い、必要な場合は管理者や有資格者へ引き継いでください。</p>
           </div>
 
           <div class="talk-thread">
@@ -1416,7 +1432,7 @@ body{
                 <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
               </div>
               <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>交換前に、入力電源、出力側の短絡、サーキットプロテクタ、端子ゆるみを確認しよう。本体以外が原因のこともあるよ。</p>
+                <p><span class="talk-name talk-name--senpai">先輩</span>すぐ交換と決めず、図面、状態表示、保護機器、負荷側の履歴を見て原因の範囲を絞ろう。本体以外が原因のこともあるよ。</p>
               </div>
             </div>
           </div>
@@ -1482,8 +1498,8 @@ body{
             DC24V回路を見る時は、パワーサプライの入力側と出力側を分けて確認すると追いやすくなります。
           </p>
           <p>
-            電源が出ない時は、入力電源、出力DC24V、サーキットプロテクタ、端子ゆるみ、過負荷・短絡、本体不良の順に確認します。
-            いきなり交換ではなく、どこで止まっているかを切り分けることが大切です。
+            DC24V系統が動かない時は、図面上の電源経路、状態表示、保護機器、端子・配線の外観、負荷側の状態、本体の順に原因候補を整理します。
+            いきなり交換ではなく、どの系統・どの機器まで状態が成立しているかを切り分けることが大切です。
           </p>
 
           <div class="article-footer-nav">
@@ -1496,28 +1512,20 @@ body{
           <h2>あわせて読みたい記事</h2>
           <div class="related-grid">
             <a class="related-card" href="voltage-current-resistance-basic.html">
-              <h3>電圧・電流・抵抗とは？</h3>
-              <p>DC24V電源を学ぶ前に、V・A・Ωの意味と電源・負荷の関係を基本から確認できます。</p>
+              <div class="related-card-thumb"><img src="../assets/images/voltage-current-resistance-basic/voltage-current-resistance-basic-hero.png" alt="電圧・電流・抵抗の基本記事" loading="lazy" decoding="async"></div>
+              <h3>電圧・電流・抵抗とは？</h3><p>V・A・Ωと電源・負荷の関係を基本から整理します。</p>
             </a>
-
             <a class="related-card" href="circuit-protector-basic.html">
-              <h3>サーキットプロテクタとは？</h3>
-              <p>パワーサプライの出力側を保護する部品として、電源トラブル時の確認につながります。</p>
+              <div class="related-card-thumb"><img src="../assets/images/circuit-protector-basic/circuit-protector-hero.png" alt="サーキットプロテクタの基本記事" loading="lazy" decoding="async"></div>
+              <h3>サーキットプロテクタとは？</h3><p>DC24Vの分岐保護と保護機器の役割を確認できます。</p>
             </a>
-
             <a class="related-card" href="terminal-block-basic.html">
-              <h3>端子台とは？</h3>
-              <p>DC24V電源を各機器へ分配する時に、端子台の見方が役立ちます。</p>
+              <div class="related-card-thumb"><img src="../assets/images/terminal-block-basic/terminal-block-hero.png" alt="端子台の基本記事" loading="lazy" decoding="async"></div>
+              <h3>端子台とは？</h3><p>DC24Vを盤内へ分配するときの端子・線番の見方につながります。</p>
             </a>
-
             <a class="related-card" href="dc24v-common-basic.html">
-              <h3>DC24Vのプラスコモン・マイナスコモンとは？</h3>
-              <p>DC24V電源装置の基本を押さえた後に、PLC入力配線でのCOMと+24V/0Vの使われ方を確認できます。</p>
-            </a>
-
-            <a class="related-card" href="pilot-lamp-basic.html">
-              <h3>パイロットランプ・表示灯とは？</h3>
-              <p>表示灯が点かない時に、電源側から確認する流れにつながります。</p>
+              <div class="related-card-thumb"><img src="../assets/images/dc24v-common-basic/dc24v-common-basic-ogp.png" alt="DC24Vコモンの基本記事" loading="lazy" decoding="async"></div>
+              <h3>DC24Vのプラスコモン・マイナスコモンとは？</h3><p>COM・+24V・0Vを分けて読む考え方を整理します。</p>
             </a>
           </div>
         </section>

@@ -168,6 +168,7 @@
 | [docs/reference-notes/field-knowledge-round17-2026-11-08.md](../reference-notes/field-knowledge-round17-2026-11-08.md) — 現場知識調査 第17回 — 世界の故障事例・暗黙知・旧Bの再検証 | 第17回の原典本文・故障経緯・工具適合・A/B/CとJP判定・旧Bの追補・記事別採否を参照する。掲載承認や実機実証ではない。 |
 | [docs/reference-notes/field-knowledge-round18-2026-11-08.md](../reference-notes/field-knowledge-round18-2026-11-08.md) — 現場知識調査 第18回 — 空圧・油圧・搬送同期・低速軸受と再発防止 | 第18回の原典本文・診断過程・測定条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・実機実証・監視設定ではない。 |
 | [docs/reference-notes/field-knowledge-round19-2026-11-08.md](../reference-notes/field-knowledge-round19-2026-11-08.md) — 第19回：B判定再検証・国内メーカー型式別条件 | FK10〜FK18の現行B集計・優先度・型式別条件・再検証履歴を参照する。原典原因の実証や掲載承認とは区別する。 |
+| [docs/reference-notes/push-button-switch-basic.md](../reference-notes/push-button-switch-basic.md) — push-button-switch-basic 公式参照メモ | 押しボタンスイッチ記事の説明・公式根拠・採用範囲を確認する場合。 |
 
 ## 実装・設定の参照先
 

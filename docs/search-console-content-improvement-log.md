@@ -11,6 +11,19 @@ This log tracks lightweight content reinforcements added to existing articles in
 - Add context that prioritizes manufacturer documentation, drawings/spec sheets, and local site rules.
 - Avoid absolute wording, unsafe assumptions, and one-size-fits-all claims.
 
+## 2026-11-12 Japanese article refresh — dc24v-power-supply-basic
+
+- Target: `articles/dc24v-power-supply-basic.html`; PR [#1843](https://github.com/Syasu-pixel/my-site/pull/1843).
+- Search sources: official APIs stored in Supabase. Google finalized 2026-10-13–11-09 versus 2026-09-15–10-12; Bing latest page/query snapshot 2026-11-06. These different granularities are not merged or treated as equivalent periods. Detailed search metrics remain private.
+- Intent: パワーサプライとは / DC24Vとは / AC入力とDC出力の違い. Sitewide queries are not claimed to be page-attributed queries.
+- Reinforcement: preserve beginner scope; clarify AC-input/DC24V-output example, transformer distinction, continuous current and startup/environment limits, protective earth versus 0V, and safe diagnostic thinking. Do not duplicate the separate common/polarity or troubleshooting articles.
+- Technical evidence: `docs/reference-notes/dc24v-power-supply-basic.md`; manufacturer review date and substantive update date2026-11-12. Unresolved field anecdote not adopted.
+- Publication: PR1843 merged as c8d0dfc5360d7215c69454dc8634630c80cc220b at2026-11-12T14:16:28Z. Pages43235484944 build/deploy succeeded. At2026-11-12T14:21:08.581058Z all30 production resources returned HTTP200 and matched approved publication hashes, without noindex.
+- Navigation/metadata: JA search-index description synchronized to approved meta only; sitemap, category and existing navigation unchanged.
+- Google: not requested; no submission authorized by this task. IndexNow: HTTP 200 accepted for this article URL at2026-11-12T14:17:18.9849238Z (run43235484948, job131241589536). Acceptance is not index confirmation.
+- Freeze: 90-day minimum cooldown; earliest reassessment2027-02-10, only with guard conditions met.
+
+
 ## 2026-09-29 Japanese article refresh — solenoid-valve-troubleshooting-basic
 
 - Target: `articles/solenoid-valve-troubleshooting-basic.html`

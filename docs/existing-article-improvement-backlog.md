@@ -49,7 +49,7 @@
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
 - [ ] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ
 - [ ] `articles/signal-tower-light-basic.html` — タワーライト
-- [ ] `articles/dc24v-power-supply-basic.html` — DC24V電源
+- [x] `articles/dc24v-power-supply-basic.html` — DC24V電源。最終内容更新・公式資料確認日2026-11-12。[PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)で本文・ちびキャラ画像5枚を公開し、2026-11-12 23:21 JSTにPages成功・本番30資源の配信一致を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。
 - [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
 - [x] `articles/load-cell-basic.html` — ロードセル — 2026-10-02 本番公開完了（PR #1650 / 画像6枚刷新 / 公式資料監査済み / 統合最終Preview承認済み / GitHub Pages・IndexNow確認済み / Google Search Console登録リクエスト実施済み）
 

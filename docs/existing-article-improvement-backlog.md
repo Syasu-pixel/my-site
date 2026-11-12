@@ -44,7 +44,7 @@
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）
-- [ ] `articles/din-rail-basic.html` — DINレール
+- [x] `articles/din-rail-basic.html` — DINレール。最終内容更新・公式資料確認日 2026-11-12。[PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841) で公開し、Pages成功・本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードの条件で再評価する。
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路
 - [ ] `articles/control-transformer-basic.html` — 制御トランス
 - [ ] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ

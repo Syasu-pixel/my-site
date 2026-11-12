@@ -15,6 +15,25 @@
 
 ---
  
+## 2026-11-12 — din-rail-basic 刷新・本番公開完了
+
+- 対象記事: `articles/din-rail-basic.html`
+- 本番URL: https://denkicontrol.com/articles/din-rail-basic.html
+- 公開PR: [#1841](https://github.com/Syasu-pixel/my-site/pull/1841)。main反映commit: `ffad714cb9eda0581d2d1259474e34e0f4ed74a0`。旧PR #1839は未マージで閉鎖し、同一の承認済みsource `ab90c6ebc00a3fb3f31f3e547be5a12d1cc6d2c8`で再作成した。
+- 最終内容更新日・公式資料確認日: 2026-11-12。
+- 反映内容: 本文・SEO・Hero/OGP・本文図2枚・公式参照メモ・対象記事の生成台帳。今回の公開PRでは `sitemap.xml` と `assets/data/search-index.json` は変更していない。
+- 採用画像:
+  - `assets/images/din-rail-basic/din-rail-basic-hero-v2.png`
+  - `assets/images/din-rail-basic/din-rail-basic-ogp-v2.png`
+  - `assets/images/din-rail-basic/din-rail-basic-fixing-roles-v2.png`
+  - `assets/images/din-rail-basic/din-rail-basic-maintenance-space-v2.png`
+- CI: 6 workflow成功。Header/footer比較 [43216060795](https://github.com/Syasu-pixel/my-site/actions/runs/43216060795)は既知のDIN日本語PC footer差分1件でFAIL。旧PRと同じ2644 pixels、全288ページ1164画像、interactionChanged=false、新規errors=0。既に個別評価した微小描画差であり、CI成功と書き換えていない。
+- 本番Pages [43220496035](https://github.com/Syasu-pixel/my-site/actions/runs/43220496035)成功。2026-11-12 JSTに本番の新本文、更新日、採用Hero、本文2図の読込、canonical/OGP URLを確認。1152px表示の横はみ出しなし。公開後の実機スマホ検査・実投票・フォーム送信は未実施。
+- IndexNow [43220495962](https://github.com/Syasu-pixel/my-site/actions/runs/43220495962): 1 URL、HTTP 200受理。検索エンジンのインデックス完了とは区別する。
+- Google登録リクエスト: この公開確認時点で未実行（`GOOGLE_REQUEST_PENDING_MANUAL`）。
+- 状態: 本番公開完了・完成／凍結。最終内容更新から90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードの条件で再評価する。
+- Preview専用PR #1840はmainに取り込まず、未閉鎖。後片付けは別途許可の範囲で行う。
+
 ## 2026-11-12 — electromagnetic-contactor-vs-switch 刷新・本番公開完了
 
 - 対象記事: `articles/electromagnetic-contactor-vs-switch.html`

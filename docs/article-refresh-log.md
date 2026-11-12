@@ -33,7 +33,7 @@
 - source CI最終結果: Header/footer比較 [43230808608](https://github.com/Syasu-pixel/my-site/actions/runs/43230808608)はFAILを保持。対象PC/mobileのPNG高さが各1px差、footerの相対構造・5box styles不変、interactionChanged=false・newErrorsなし。本文長によるy差はPC−0.359375px/mobile−0.765625px。Before/After/Diffを個別確認し既存Preview規則によりREVIEW許容。全領域白diffは寸法不一致時のplaceholderで、全画素の実変更ではない。閾値/保護設定変更なし。失敗を成功と書き換えない。
 - Pages: [run43235484944](https://github.com/Syasu-pixel/my-site/actions/runs/43235484944)、build job131241593804・deploy job131243893205とも成功。本番manifest/HTML/画像照合: 本番30/30資源HTTP200・承認済みpublicationとSHA256一致・noindexなし。記事HTML SHA256 `4baeda22ba0b679dcc899185a2a566f8ac0fe5702cf1fe01d9b45f27cd4715d4`、source SHA256 `e11c97871b43d9e9b5053e56de6e25da6607c83f032599288ade337010bd756b`。配信mainは上記merge commit。
 - IndexNow: [run43235484948](https://github.com/Syasu-pixel/my-site/actions/runs/43235484948)、job131241589536。対象本記事1 URL、2026-11-12T14:17:18.9849238ZにHTTP 200受理。通知受理と検索インデックス完了を区別。
-- Google登録リクエスト: 未実施・今回未依頼。インデックス状態は未確認。
+- Google登録リクエスト: 当初未実施だったが、公開後にSearch Consoleで「インデックス登録をリクエスト済み」「URLを優先クロールキューに追加しました」を2026-11-12に確認。`GOOGLE_REQUESTED`。正確な操作時刻は未記録。再クロール完了・検索結果への反映は未確認。
 - ナビ/メタ: URLは維持、sitemap.xmlとseo/sitemap.xmlは変更なし。search-index/カテゴリ: 今回の公開後メタ同期でsearch-indexの対象JA description1件のみ承認metaへ同期。カテゴリは既存有効画像・カード・件数を維持。新着追加や既存棚の件数変更なし。
 - 状態: 本番公開完了・完成／凍結。最終内容更新から90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードにより再評価する。
 

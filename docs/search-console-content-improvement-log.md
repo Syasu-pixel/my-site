@@ -20,7 +20,7 @@ This log tracks lightweight content reinforcements added to existing articles in
 - Technical evidence: `docs/reference-notes/dc24v-power-supply-basic.md`; manufacturer review date and substantive update date2026-11-12. Unresolved field anecdote not adopted.
 - Publication: PR1843 merged as c8d0dfc5360d7215c69454dc8634630c80cc220b at2026-11-12T14:16:28Z. Pages43235484944 build/deploy succeeded. At2026-11-12T14:21:08.581058Z all30 production resources returned HTTP200 and matched approved publication hashes, without noindex.
 - Navigation/metadata: JA search-index description synchronized to approved meta only; sitemap, category and existing navigation unchanged.
-- Google: not requested; no submission authorized by this task. IndexNow: HTTP 200 accepted for this article URL at2026-11-12T14:17:18.9849238Z (run43235484948, job131241589536). Acceptance is not index confirmation.
+- Google: after publication, Search Console confirmed "インデックス登録をリクエスト済み" and "URLを優先クロールキューに追加しました" on2026-11-12. Exact action time is not recorded. Recrawl completion and search-result visibility remain unconfirmed. IndexNow: HTTP 200 accepted for this article URL at2026-11-12T14:17:18.9849238Z (run43235484948, job131241589536). Acceptance is not index confirmation.
 - Freeze: 90-day minimum cooldown; earliest reassessment2027-02-10, only with guard conditions met.
 
 

@@ -15,6 +15,29 @@
 
 ---
  
+## 2026-11-12 — dc24v-power-supply-basic 刷新・本番公開完了
+
+- 対象記事: `articles/dc24v-power-supply-basic.html`
+- 本番URL: https://denkicontrol.com/articles/dc24v-power-supply-basic.html
+- 公開PR: [#1843](https://github.com/Syasu-pixel/my-site/pull/1843)。承認source `cf971997efe13eed9e41e506bf239ee7b204afb6`。main反映commit: `c8d0dfc5360d7215c69454dc8634630c80cc220b`。
+- 最終内容更新日・公式資料確認日: 2026-11-12。公開確認時刻: 2026-11-12T14:21:08.581058Z（同日23:21 JST）。
+- 内容: AC入力・DC24V出力の対象範囲、トランス比較、容量・起動時・温度条件、0V/保護接地、表示と実状態の区別、安全表現を整理。一次資料はオムロン・コーセル。未解決掲示板事例は見送り、実体験の創作なし。
+- 採用画像（ちびキャラ5枚）:
+  - `assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-hero-v2.png`
+  - `assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-ogp-v2.png`
+  - `assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-overview-v2.png`
+  - `assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-comparison-v2.png`
+  - `assets/images/dc24v-power-supply-basic/dc24v-power-supply-basic-selection-v2.png`
+- 最終Preview: https://8ed9a404.denkicontrol-preview.pages.dev/articles/dc24v-power-supply-basic.html （Preview専用PR #1844、mainには入れない）。承認後に記事・画像の意味変更なし。
+- Preview確認: PC1440/390/320/768 CSSpxの通常Chromeウィンドウ＋ズーム検査、Light/Dark、Hero、画像、OGP、目次、CTA、拡大/閉じる。実機スマホ/Safariではない。新図5枚と既存会話avatarの画風差は保持。
+- source CI最終結果: Header/footer比較 [43230808608](https://github.com/Syasu-pixel/my-site/actions/runs/43230808608)はFAILを保持。対象PC/mobileのPNG高さが各1px差、footerの相対構造・5box styles不変、interactionChanged=false・newErrorsなし。本文長によるy差はPC−0.359375px/mobile−0.765625px。Before/After/Diffを個別確認し既存Preview規則によりREVIEW許容。全領域白diffは寸法不一致時のplaceholderで、全画素の実変更ではない。閾値/保護設定変更なし。失敗を成功と書き換えない。
+- Pages: [run43235484944](https://github.com/Syasu-pixel/my-site/actions/runs/43235484944)、build job131241593804・deploy job131243893205とも成功。本番manifest/HTML/画像照合: 本番30/30資源HTTP200・承認済みpublicationとSHA256一致・noindexなし。記事HTML SHA256 `4baeda22ba0b679dcc899185a2a566f8ac0fe5702cf1fe01d9b45f27cd4715d4`、source SHA256 `e11c97871b43d9e9b5053e56de6e25da6607c83f032599288ade337010bd756b`。配信mainは上記merge commit。
+- IndexNow: [run43235484948](https://github.com/Syasu-pixel/my-site/actions/runs/43235484948)、job131241589536。対象本記事1 URL、2026-11-12T14:17:18.9849238ZにHTTP 200受理。通知受理と検索インデックス完了を区別。
+- Google登録リクエスト: 当初未実施だったが、公開後にSearch Consoleで「インデックス登録をリクエスト済み」「URLを優先クロールキューに追加しました」を2026-11-12に確認。`GOOGLE_REQUESTED`。正確な操作時刻は未記録。再クロール完了・検索結果への反映は未確認。
+- ナビ/メタ: URLは維持、sitemap.xmlとseo/sitemap.xmlは変更なし。search-index/カテゴリ: 今回の公開後メタ同期でsearch-indexの対象JA description1件のみ承認metaへ同期。カテゴリは既存有効画像・カード・件数を維持。新着追加や既存棚の件数変更なし。
+- 状態: 本番公開完了・完成／凍結。最終内容更新から90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードにより再評価する。
+
+
 ## 2026-11-12 — din-rail-basic 刷新・本番公開完了
 
 - 対象記事: `articles/din-rail-basic.html`

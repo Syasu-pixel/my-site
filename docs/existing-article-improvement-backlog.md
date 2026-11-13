@@ -23,6 +23,7 @@
 
 ## 改善進捗
 
+- [x] `articles/speed-controller-basic.html` — スピードコントローラ。最終内容更新・公式資料確認日2026-11-12。[PR #1846](https://github.com/Syasu-pixel/my-site/pull/1846)で本文・採用画像5枚を公開し、2026-11-13 JSTにPages成功・本番反映を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。
 - [x] `articles/electromagnetic-contactor-vs-switch.html` — 電磁接触器と電磁開閉器の違い。最終内容更新 2026-11-11、公式資料確認日 2026-11-11。本文・採用画像4枚を [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832) でmain反映（2026-11-12 JST）。2026-11-12 JSTにPages成功・本番の採用画像と表示を確認。完成・凍結、最終内容更新から90日間は原則再改善候補から除外。
 - [x] `articles/star-delta-start-basic.html` — スターデルタ始動
 - [x] `articles/pilot-lamp-basic.html` — パイロットランプ・表示灯

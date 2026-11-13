@@ -15,6 +15,20 @@
 
 ---
  
+## 2026-11-13 — speed-controller-basic 刷新・本番公開完了
+
+- 対象: `articles/speed-controller-basic.html`。本番URL: https://denkicontrol.com/articles/speed-controller-basic.html
+- 公開PR: [#1846](https://github.com/Syasu-pixel/my-site/pull/1846)。採用source `b2a92689ccf14a34aeb03c8c3d21c4bc4c6d1262`、競合解消後head `b221adab0577682ac2e9db90a9dc74bc1feb2670`、main反映 `b3879e1f53e60e53c781f5483e9f5fd204429761`。最新mainのルールcatalogと統合し、採用本文・画像は不変。
+- 最終内容更新日・公式資料確認日: 2026-11-12。公開確認日とは区別する。流量と圧力、メータイン/メータアウト、前進/後退で関係するポート、型式固有の調整方向、安全確認を初歩向けに整理。根拠はSMC・ニッタ公式資料。実体験の創作なし。
+- 採用画像: `assets/images/speed-controller-basic/` 内の `speed-controller-basic-hero-v2.webp`、`speed-controller-basic-ogp-v2.webp`、`speed-controller-basic-overview-v2.webp`、`speed-controller-basic-comparison-v2.webp`、`speed-controller-basic-check-flow-v2.webp`。Hero/OGP/本文3枚、元PNGも保存。承認後の本文・画像変更なし。
+- 最終Preview: https://471e607f.denkicontrol-preview.pages.dev/articles/speed-controller-basic 。Preview専用PR #1847は2026-11-13T04:06:42Zに未マージでclose、ブランチは証跡として保持。
+- 公開前確認: shell 288件不変、統合生成289ページ・欠落資源0、本文保全288件、リンク新規/既存エラー0、関連記事保全288ページ/1356カード・errors0、ルール構造検査成功。新headのPages PR検証43361325368、ルール構造、AI Editorial、追加shellは成功。統合prepare/境界・Hero preserve成功。全記事ブラウザ比較の待機/実行中を成功とは扱わず、個別記事スコープ規則と対象記事の既存確認記録に基づき公開。CI閾値・必須設定は変更なし。既知のmobile footer 1px差は[個別評価記録](https://github.com/Syasu-pixel/my-site/pull/1846#issuecomment-6837540097)を参照。
+- Pages: [run43362428094](https://github.com/Syasu-pixel/my-site/actions/runs/43362428094)、build131678834509・deploy131680809816成功。2026-11-13 04:05 UTCに本番の新title、最終内容更新日、採用Heroを視覚確認。本文3図v2.webpの読込、canonical一致、OGP meta v2.webp、robots metaなし、viewport1180pxに対しscrollWidth1165pxを確認。全依存資源のHTTP/ハッシュ照合や実機スマホ再検査はこの公開後確認では未実施。
+- IndexNow: [run43362428194](https://github.com/Syasu-pixel/my-site/actions/runs/43362428194)（#676）、job131678834879。2026-11-13T03:59:05.0401890Zに対象記事1 URLを送信、03:59:06.7630924ZにHTTP200受理。通知受理と検索インデックス完了を区別する。
+- Google: `GOOGLE_REQUESTED`。対象本番URLをSearch Consoleで検査し、登録リクエストを1回実行。2026-11-13T04:05:58Zに「インデックス登録をリクエスト済み」「URLを優先クロールキューに追加しました」を確認。再クロール完了・検索結果への反映は未確認。
+- 公開導線: 既存URLを維持し、search-indexの対象日本語title/description1件だけ採用済みHTMLメタへ同期。既存keywords/synonyms・英語entry・カテゴリ・トップ・sitemap.xml・非運用seo/sitemap.xmlは変更なし。
+- 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価日2027-02-10、期間経過だけでは再編集しない。
+
 ## 2026-11-13 — emergency-stop-switch-basic 刷新・本番公開完了
 
 - 対象: `articles/emergency-stop-switch-basic.html`。本番URL: https://denkicontrol.com/articles/emergency-stop-switch-basic.html

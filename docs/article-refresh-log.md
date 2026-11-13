@@ -15,12 +15,15 @@
 
 ---
  
-## 2026-11-13 — pressure-switch-basic 刷新プレビュー準備中（未公開）
+## 2026-11-14 — pressure-switch-basic 刷新公開確認完了（内容更新日2026-11-13）
 
 - 対象: `articles/pressure-switch-basic.html`。本文を「とは・仕組み」中心に刷新。メーカー資料との照合、機械式/電子式、適用流体、応差、表示/信号の読み分けを整理。
-- 画像予定: `assets/images/pressure-switch-basic/pressure-switch-basic-{hero,ogp,flow,comparison,hysteresis,confirmation}-20261113.webp` の6枚。画像検査・最終プレビュー確認は別途実施。
-- 既存anchor/関連記事6枚を保全し、対象台帳と検索索引のtitle/descriptionを同期。sitemap.xmlは変更しない。
-- 状態: プレビュー準備中。公開未承認・本番未反映。統合検査と実画面確認後に最終プレビューを提示する。公開完了・検索登録完了ではない。
+- 画像: `assets/images/pressure-switch-basic/pressure-switch-basic-{hero,ogp,flow,comparison,hysteresis,confirmation}-20261113.webp` の6枚を公開。
+- 公開: 管理者承認後、[PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) をマージ（`109a6a6b7a6d99d2097b07f498e43f6b7feedfd0`）。Pages run 43516486745 成功。本番HTML・6画像と採用成果物の一致を確認。Preview専用PR #1865は本番反映対象外。
+- 既存anchor/関連記事6枚を保全し、対象台帳と検索索引のtitle/descriptionを同期。sitemap.xmlは変更なし。
+- 公開後確認: PC幅1331でHero・本文4図・関連記事画像の読込、横はみ出しなし、画像拡大と閉じる操作を確認。本番スマホ/ダーク表示は今回の追加確認では未実施（公開前確認とは区別）。管理者も本番表示を確認したとの本人申告あり。
+- 検索通知: IndexNow run 43516486693 が2026-11-13T22:07:23Zに1 URLをHTTP 200で受理。Googleインデックス登録リクエストは管理者が実施したとの本人申告。いずれも検索インデックス反映完了の確認ではない。
+- 完成・凍結。最終内容更新日・メーカー公式資料確認日は2026-11-13のまま保持。90日未満は通常の再改善候補から除外し、最短再評価日は2027-02-11。期間経過だけで再編集しない。
 - 根拠: [圧力スイッチ根拠ノート](reference-notes/pressure-switch-basic.md)。旧PR1478の資料確認方針を継承。
 
 ## 2026-11-13 — interlock-basic 刷新・本番公開完了

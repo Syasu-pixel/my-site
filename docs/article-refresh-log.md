@@ -15,6 +15,20 @@
 
 ---
  
+## 2026-11-13 — control-transformer-basic 刷新・本番公開完了
+
+- 対象: `articles/control-transformer-basic.html`。本番URL: https://denkicontrol.com/articles/control-transformer-basic.html
+- 公開PR: [#1858](https://github.com/Syasu-pixel/my-site/pull/1858)。最終Previewについて管理者が「採用で公開していこうか」と承認。承認source `697d8b5a4d96446c7bfd32f102853ddf56e529f1`、検索index同期後head `c2e7309c2690e2f7565264239e982b2736173712`、main反映 `4e698688dd161c4bd3ae104290fff7284f311ab5`。本文・画像は承認後不変。
+- 最終内容更新日・公式資料確認日: 2026-11-13。一次側・二次側、ACとDC、定格電圧/VA/周波数、複巻と単巻を初心者向けに整理。東洋技研・鎌田信号機・オムロン公式資料を確認。実体験の創作なし。[公式参照メモ](reference-notes/control-transformer-basic.md)。
+- 採用画像: `assets/images/control-transformer-basic/` の `control-transformer-basic-{hero,ogp,overview,comparison,ratings,check-flow}-20261113.webp` 6枚。Hero/OGP/本文4図、ちびキャラ統一。PNG原本とlossless WebPの全画素一致、転送後Git blob・Preview配信画像の照合済み。
+- 最終Preview: https://5d660330.denkicontrol-preview.pages.dev/articles/control-transformer-basic 。統合済みpublicationを配信。PC 1180px・狭幅393 CSS px（Chrome拡大率による確認、実機エミュレーションではない）で明暗テーマ・目次・本文図拡大を確認。旧等身会話アイコンと重複案内を最終調整。Preview専用PR #1859 は本番確認後に未マージでclose、ブランチは証跡として保持。
+- 検証: 静的保全・統合生成・publication・リンク検査済み。承認sourceのbuild/check/verify/preserve成功。全記事browser/compareの待機・実行中を成功とは扱わず、個別記事スコープ規則と対象記事検査記録に基づき正式公開。CI閾値・必須設定を変更せず。
+- 導線: search-indexの対象日本語title/descriptionのみ採用HTMLへ同期。keywords/synonyms・他entryを維持。sitemap.xmlの対象URL1件を確認、lastmodなしで変更不要。非運用seo/sitemap.xml・トップ・カテゴリは変更なし。
+- Pages: [run43413310685](https://github.com/Syasu-pixel/my-site/actions/runs/43413310685) のbuild/deploy成功。2026-11-13 11:06 UTC、本番の採用title・Hero・本文4図の正常読込・更新日・canonical・OGPを実Chromeで確認。robots metaなし。全依存資源のHTTP/ハッシュ照合・実機スマホ再検査は公開後確認に含めない。
+- IndexNow: [run43413310819](https://github.com/Syasu-pixel/my-site/actions/runs/43413310819)、2026-11-13T10:59:49Zに対象1 URLをHTTP200受理。通知受理と検索インデックス完了は区別。
+- Google: 今回の手動URL検査・登録リクエストは未依頼のため未実施。インデックス完了は未確認。
+- 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11。期間経過のみでは再編集しない。
+
 ## 2026-11-13 — plc-io-unit-basic 刷新・本番公開完了
 
 - 対象: `articles/plc-io-unit-basic.html`。本番URL: https://denkicontrol.com/articles/plc-io-unit-basic.html

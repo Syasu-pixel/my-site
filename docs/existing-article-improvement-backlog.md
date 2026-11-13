@@ -40,7 +40,7 @@
 - [ ] `articles/no-nc-basic.html` — NO・NC
 - [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
-- [ ] `articles/one-shot-circuit-basic.html` — ワンショット回路
+- [x] `articles/one-shot-circuit-basic.html` — ワンショット回路。最終内容更新・公式資料確認2026-11-13。PR #1852で採用本文・ちびキャラ画像4枚を公開し、Pages成功と本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
 - [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
 - [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離

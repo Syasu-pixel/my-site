@@ -47,7 +47,7 @@
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）
 - [x] `articles/din-rail-basic.html` — DINレール。最終内容更新・公式資料確認日 2026-11-12。[PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841) で公開し、Pages成功・本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードの条件で再評価する。
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路
-- [ ] `articles/control-transformer-basic.html` — 制御トランス
+- [x] `articles/control-transformer-basic.html` — 制御トランス。最終内容更新・公式資料確認2026-11-13。本文・ちびキャラ6画像の最終Previewを管理者が採用・公開承認。[PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)をmain `4e698688dd161c4bd3ae104290fff7284f311ab5`へ反映、Pages成功と2026-11-13 11:06 UTCの本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。IndexNow HTTP200受理。Google手動リクエストは未依頼・未実施。
 - [x] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ。最終内容更新・公式資料確認日2026-11-13。[PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)で本文・採用画像5枚を公開し、Pages成功と本番28資源の配信一致を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-11以降も期間経過だけで再編集せず日付ガードに従う。
 - [ ] `articles/signal-tower-light-basic.html` — タワーライト
 - [x] `articles/dc24v-power-supply-basic.html` — DC24V電源。最終内容更新・公式資料確認日2026-11-12。[PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)で本文・ちびキャラ画像5枚を公開し、2026-11-12 23:21 JSTにPages成功・本番30資源の配信一致を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。

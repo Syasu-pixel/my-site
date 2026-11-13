@@ -15,6 +15,14 @@
 
 ---
  
+## 2026-11-13 — interlock-basic 最終Preview準備中（公開未承認）
+
+- 対象: `articles/interlock-basic.html`。通常制御の基本、自己保持との違い、接触器の正逆転例、実物接点とPLC論理、安全機能・再起動境界を整理。[参照メモ](reference-notes/interlock-basic.md)。
+- 状態: 本文改訂と画像組込・独立監査・統合生成を進行中。本番未反映、最終Preview未承認。公開完了・完成/凍結とは扱わない。
+- 候補画像: `assets/images/interlock-basic/` の20261113版Hero/OGP/本文4図。正式採用四コマは代替生成しない。
+- 検索索引は対象日本語title/descriptionのみ候補HTMLへ同期。その他のentry・keywords/synonymsは不変。sitemap・カテゴリ・本番通知は未変更。
+- 最終内容更新日と90日再評価の起点は本番反映確認後に確定する。今回の公式資料確認日は2026-11-13。
+
 ## 2026-11-13 — signal-tower-light-basic 刷新・本番公開完了
 
 - 対象: `articles/signal-tower-light-basic.html`。本番URL: https://denkicontrol.com/articles/signal-tower-light-basic.html

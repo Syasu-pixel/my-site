@@ -174,6 +174,7 @@
 | [docs/reference-notes/push-button-switch-basic.md](../reference-notes/push-button-switch-basic.md) — push-button-switch-basic 公式参照メモ | 押しボタンスイッチ記事の説明・公式根拠・採用範囲を確認する場合。 |
 | [docs/reference-notes/speed-controller-basic.md](../reference-notes/speed-controller-basic.md) — スピードコントローラ記事の技術参照メモ | スピードコントローラ記事の制作・刷新・技術確認時に参照する。 |
 | [docs/reference-notes/one-shot-circuit-basic.md](../reference-notes/one-shot-circuit-basic.md) — ワンショット回路の技術参照メモ | ワンショット回路の記事更新・技術根拠・画像説明を確認する。 |
+| [docs/reference-notes/plc-io-unit-basic.md](../reference-notes/plc-io-unit-basic.md) — PLC入力ユニット・出力ユニット 公式参照メモ | PLC入力・出力ユニット記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
 
 ## 実装・設定の参照先
 

@@ -15,13 +15,18 @@
 
 ---
  
-## 2026-11-13 — interlock-basic 最終Preview準備中（公開未承認）
+## 2026-11-13 — interlock-basic 刷新・本番公開完了
 
-- 対象: `articles/interlock-basic.html`。通常制御の基本、自己保持との違い、接触器の正逆転例、実物接点とPLC論理、安全機能・再起動境界を整理。[参照メモ](reference-notes/interlock-basic.md)。
-- 状態: 本文改訂と画像組込・独立監査・統合生成を進行中。本番未反映、最終Preview未承認。公開完了・完成/凍結とは扱わない。
-- 候補画像: `assets/images/interlock-basic/` の20261113版Hero/OGP/本文4図。正式採用四コマは代替生成しない。
-- 検索索引は対象日本語title/descriptionのみ候補HTMLへ同期。その他のentry・keywords/synonymsは不変。sitemap・カテゴリ・本番通知は未変更。
-- 最終内容更新日と90日再評価の起点は本番反映確認後に確定する。今回の公式資料確認日は2026-11-13。
+- 対象: `articles/interlock-basic.html`。本番URL: https://denkicontrol.com/articles/interlock-basic.html
+- 公開PR [#1862](https://github.com/Syasu-pixel/my-site/pull/1862)。管理者が最終Preview #1863 の公開を承認。source head `c04b333688a4454088b4d930ea8ee2ed7d97f998`、main反映 `933c71241294968080269d5454846fae7bc54128`。承認後の本文・採用画像は不変。
+- 最終内容更新日・公式資料確認日: 2026-11-13。通常制御の基本、自己保持との違い、正逆転、実物接点とPLC論理、安全機能・再起動の境界を整理。[公式参照メモ](reference-notes/interlock-basic.md)。実体験の創作なし。
+- 採用画像: `assets/images/interlock-basic/interlock-basic-{hero,ogp,conditions,comparison,reversing,confirmation}-20261113.webp` の6枚。PNG原本と可逆WebPのRGBA一致、GitHub転送後blob照合。正式採用四コマは変更なし。
+- 導線: search-indexの対象日本語title/descriptionだけ同期。keywords/synonyms・他entryを維持。既存記事刷新のためsitemap.xmlのURL1件を確認、lastmodがなく変更不要。非運用seo/sitemap.xml・トップ・カテゴリは変更なし。
+- 検証: 全288記事保全・関連記事1,356件・追加shell16件・公開境界・リンク/資産欠損0。source build/preserve/prepare/verify/test/check成功。最終生成物のHero320/390/768/1440幅、本文320/390/1440幅の明暗で横はみ出し・JSエラーなし、画像拡大開閉成功。外部PreviewはPC表示と全画像読込を確認。外部DevToolsは利用制限によりスマホエミュレーション未実施。全記事browser/compareの進行中を成功とせず、対象記事スコープ規則に従った。検査閾値・共有実装・公開設定は不変。
+- Pages: [run43437672913](https://github.com/Syasu-pixel/my-site/actions/runs/43437672913) build/deploy成功。2026-11-13 13:59 UTC、本番で採用title・内容更新日・Hero・本文4図と7関連記事画像の正常読込・拡大開閉・canonical・OGP参照・robots index,follow・横はみ出しなしを確認。公開後の全依存資源ハッシュ照合・実機スマホ検査を行ったとはしない。
+- IndexNow: [run43437672986](https://github.com/Syasu-pixel/my-site/actions/runs/43437672986)成功。2026-11-13T13:54:35Zに対象1URLをHTTP200で受理。送信受理と検索インデックス完了は区別。
+- Google: 今回の手動URL検査・登録リクエストは未依頼のため未実施。検索インデックス完了は未確認。
+- 状態: 本番公開完了・完成/凍結。2026-11-13から90日未満は原則再改善対象外。最短再評価2027-02-11、期間経過だけで再編集しない。Preview専用 #1863 は未マージで閉じ、ブランチを証跡として保持。
 
 ## 2026-11-13 — signal-tower-light-basic 刷新・本番公開完了
 

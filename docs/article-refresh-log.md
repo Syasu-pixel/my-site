@@ -15,6 +15,18 @@
 
 ---
  
+## 2026-11-13 — plc-io-unit-basic 刷新・公開承認済み／本番反映待ち
+
+- 対象: `articles/plc-io-unit-basic.html`。本番URL: https://denkicontrol.com/articles/plc-io-unit-basic.html
+- 公開準備PR: [#1855](https://github.com/Syasu-pixel/my-site/pull/1855)。承認source head `c65bf037`。追加2図を含む最終Previewについて管理者が「採用でいいよ進めて」と承認。以下は公開前の準備記録で、マージ・本番反映の完了を意味しない。
+- 最終内容更新日・公式資料確認日: 2026-11-13。入力・内部処理・出力、端子番号／線番／I/Oアドレス、COMの機種差、LEDと実動作、入力仕様と出力定格を初歩向けに整理。三菱電機・オムロン公式資料を確認。根拠と旧PR #1458の限定継承は [公式参照メモ](reference-notes/plc-io-unit-basic.md)。実体験の創作なし。
+- 採用画像: `assets/images/plc-io-unit-basic/` 内の `assets/images/plc-io-unit-basic/plc-io-unit-basic-hero-20261113.webp`、`assets/images/plc-io-unit-basic/plc-io-unit-basic-ogp-20261113.webp`、`assets/images/plc-io-unit-basic/plc-io-unit-basic-overview-20261113.webp`、`assets/images/plc-io-unit-basic/plc-io-unit-basic-observation-20261113.webp`、`assets/images/plc-io-unit-basic/plc-io-unit-basic-specs-20261113.webp`、`assets/images/plc-io-unit-basic/plc-io-unit-basic-mapping-20261113.webp`。Hero/OGP/本文4図、ちびキャラ統一。PNG原本とlossless WebPの全画素一致確認済み。
+- 導線準備: search-indexの対象日本語title/descriptionのみ採用HTMLへ同期。既存keywords/synonyms・英語entryは維持。既存記事URLの更新であり、sitemap.xmlの対象URL1件を確認し変更なし（lastmodなし）。非運用seo/sitemap.xml・カテゴリ・トップは変更なし。
+- 状態: 公開承認済み・本番反映待ち。Pages成功、本番表示、canonical/OGP/robots、承認本文・画像の一致は公開後に確認する。未確認の時点で `PUBLISHED` / `COMPLETED` としない。
+- IndexNow: main反映後の既存Actions通知結果待ち。HTTP200/202を確認するまで受理済みとしない。
+- Google: 今回更新のURL検査・登録リクエストは未実施。本文・title・画像の重要更新として本番反映後に確認し、許可済み経路で実行できた場合のみ記録する。IndexNow受理をGoogleリクエスト済みとは扱わない。
+- 90日管理: 本番反映確認後にbacklogを完成・凍結へ更新。最終内容更新2026-11-13から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
+
 ## 2026-11-13 — one-shot-circuit-basic 刷新・本番公開完了
 
 - 対象: `articles/one-shot-circuit-basic.html`。本番URL: https://denkicontrol.com/articles/one-shot-circuit-basic.html

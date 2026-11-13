@@ -15,6 +15,20 @@
 
 ---
  
+## 2026-11-13 — one-shot-circuit-basic 刷新・本番公開完了
+
+- 対象: `articles/one-shot-circuit-basic.html`。本番URL: https://denkicontrol.com/articles/one-shot-circuit-basic.html
+- 公開PR: [#1852](https://github.com/Syasu-pixel/my-site/pull/1852)。承認source `f2762d9b1e1dc1582c3d5a6164d98b1b19f6d00f`、検索索引同期後head `78397f1cbda23d62776cad6dbd03efeb05e25ad4`、main反映 `ddb82b47810e974909bf4a40f11005d19f97a274`。採用本文・画像は承認後不変。
+- 最終内容更新日・公式資料確認日: 2026-11-13。内部1スキャンと入力ON継続、物理出力、時間指定との違い、機種固有命令、取り込みと実行条件、安全を基礎向けに整理。三菱電機・オムロン公式資料を確認。実体験の創作なし。
+- 採用画像: `assets/images/one-shot-circuit-basic/` 内 `one-shot-circuit-basic-hero-20261113.webp`、`one-shot-circuit-basic-ogp-20261113.webp`、`one-shot-circuit-basic-overview-20261113.webp`、`one-shot-circuit-basic-concept-20261113.webp`。ちびキャラを統一したHero/OGP/本文図2枚。
+- 最終Preview: https://fd60fcd1.denkicontrol-preview.pages.dev/articles/one-shot-circuit-basic 。管理者が採用・公開承認。Preview専用PR #1853は未マージで閉鎖し、ブランチを保持。
+- 確認: 統合288記事、Hero288件保全、リンク新規/既存不良0、publication349テキスト保全・新規欠落0。同一成果物の320/390/768/1440幅light/darkで横溢れ・欠落0、ライトボックス開閉・スマホ表最右列到達を確認。footerの描画/切出し1px差は[管理者許可済み個別監査記録](https://github.com/Syasu-pixel/my-site/pull/1852#issuecomment-6847431943)を参照。CI全緑とはせず、必須設定・閾値変更なし。
+- Pages: [run43389594977](https://github.com/Syasu-pixel/my-site/actions/runs/43389594977) build/deploy成功。2026-11-13 08:05 UTC頃、本番の新本文・採用Hero・更新日を視覚確認。canonicalは本番URL、OGPは採用画像、robots metaなし、横溢れなし。
+- 導線: search-indexの対象日本語title/descriptionのみ同期。既存keywords/synonyms・英語entry・カテゴリ・トップは不変。sitemap.xmlの既存URL1件を維持（lastmodなし）、非運用seo/sitemap.xmlは不変。
+- IndexNow: [run43389594786](https://github.com/Syasu-pixel/my-site/actions/runs/43389594786)、2026-11-13T07:59:11Zに対象1 URLがHTTP200受理。検索反映完了とは区別する。
+- Google: 手動リクエスト未実施。今回は個別依頼がなく、sitemap・内部リンク・自然クロールを維持。検索結果への反映は未確認。
+- 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
+
 ## 2026-11-13 — speed-controller-basic 刷新・本番公開完了
 
 - 対象: `articles/speed-controller-basic.html`。本番URL: https://denkicontrol.com/articles/speed-controller-basic.html

@@ -176,6 +176,7 @@
 | [docs/reference-notes/one-shot-circuit-basic.md](../reference-notes/one-shot-circuit-basic.md) — ワンショット回路の技術参照メモ | ワンショット回路の記事更新・技術根拠・画像説明を確認する。 |
 | [docs/reference-notes/plc-io-unit-basic.md](../reference-notes/plc-io-unit-basic.md) — PLC入力ユニット・出力ユニット 公式参照メモ | PLC入力・出力ユニット記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
 | [docs/reference-notes/control-transformer-basic.md](../reference-notes/control-transformer-basic.md) — 制御用トランス 公式参照メモ | 制御用トランス記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
+| [docs/reference-notes/signal-tower-light-basic.md](../reference-notes/signal-tower-light-basic.md) — 積層信号灯 記事刷新の根拠ノート | 積層信号灯記事の技術根拠・画像・旧PR採否を確認する。 |
 
 ## 実装・設定の参照先
 

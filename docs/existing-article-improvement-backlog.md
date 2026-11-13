@@ -38,7 +38,7 @@
 
 - [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
 - [ ] `articles/no-nc-basic.html` — NO・NC
-- [ ] `articles/plc-io-unit-basic.html` — PLC I/Oユニット。最終内容更新・公式資料確認2026-11-13。本文・ちびキャラ画像6枚の最終Previewを管理者が採用・公開承認、[PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)で公開準備中。本番反映は未確認のため未完了を維持し、重複刷新はしない。公開後は完成・凍結へ更新し、最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
+- [x] `articles/plc-io-unit-basic.html` — PLC I/Oユニット。最終内容更新・公式資料確認2026-11-13。本文・ちびキャラ画像6枚の最終Previewを管理者が採用・公開承認、[PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)をmain `612584cf3d6880dc701f7d512adf1ff035f1a14c`へ反映。Pages成功と2026-11-13 10:02 UTCの本番表示を確認。完成・凍結、最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは未実施。
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
 - [x] `articles/one-shot-circuit-basic.html` — ワンショット回路。最終内容更新・公式資料確認2026-11-13。PR #1852で採用本文・ちびキャラ画像4枚を公開し、Pages成功と本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
 - [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。

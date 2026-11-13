@@ -15,6 +15,14 @@
 
 ---
  
+## 2026-11-13 — pressure-switch-basic 刷新プレビュー準備中（未公開）
+
+- 対象: `articles/pressure-switch-basic.html`。本文を「とは・仕組み」中心に刷新。メーカー資料との照合、機械式/電子式、適用流体、応差、表示/信号の読み分けを整理。
+- 画像予定: `assets/images/pressure-switch-basic/pressure-switch-basic-{hero,ogp,flow,comparison,hysteresis,confirmation}-20261113.webp` の6枚。画像検査・最終プレビュー確認は別途実施。
+- 既存anchor/関連記事6枚を保全し、対象台帳と検索索引のtitle/descriptionを同期。sitemap.xmlは変更しない。
+- 状態: プレビュー準備中。公開未承認・本番未反映。統合検査と実画面確認後に最終プレビューを提示する。公開完了・検索登録完了ではない。
+- 根拠: [圧力スイッチ根拠ノート](reference-notes/pressure-switch-basic.md)。旧PR1478の資料確認方針を継承。
+
 ## 2026-11-13 — interlock-basic 刷新・本番公開完了
 
 - 対象: `articles/interlock-basic.html`。本番URL: https://denkicontrol.com/articles/interlock-basic.html

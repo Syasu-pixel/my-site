@@ -15,15 +15,19 @@
 
 ---
  
-## 2026-11-13 — signal-tower-light-basic 最終Preview承認・公開工程準備
+## 2026-11-13 — signal-tower-light-basic 刷新・本番公開完了
 
 - 対象: `articles/signal-tower-light-basic.html`。本番URL: https://denkicontrol.com/articles/signal-tower-light-basic.html
-- 管理者が最終Previewの公開を承認。本文・採用画像は変更せず、公開前の検索索引を同期する。承認commit・公開PR・本番確認結果は公開担当が確定記録する。
+- 公開PR [#1861](https://github.com/Syasu-pixel/my-site/pull/1861)。管理者が最終Preview #1860 head `4ce85ee47a29ca73ed1162c6da3c0fbf796c8364` の公開を承認。正式source head `1556d3a034988a0d04dc9c03cc0018819429caba`、main反映 `3e6a0cac0757b90cee8b5e2733b89b1885c59156`。承認本文・採用画像は不変。
 - 最終内容更新日・公式資料確認日: 2026-11-13。構成、色・点滅・ブザーの読み方、制御指示と実表示、消音と原因解消・再開の違いを初学者向けに整理。[公式参照メモ](reference-notes/signal-tower-light-basic.md)。実体験の創作なし。
 - 採用画像: `assets/images/signal-tower-light-basic/signal-tower-light-basic-{hero,ogp,overview,display-rules,flow,confirmation}-20261113.webp` の6枚。承認後の変更なし。
 - 導線: search-indexの対象日本語title/descriptionだけ採用HTMLへ同期。keywords/synonyms・他entry・英語を維持。既存記事の刷新のためsitemap.xmlの対象URL1件を確認、lastmodがなく変更不要。非運用seo/sitemap.xml・トップ・カテゴリは変更なし。
 - 日付管理: 2026-11-13から90日未満は原則再改善候補から除外。最短再評価2027-02-11、経過だけで再編集しない。
-- 状態: 公開承認済み・公開工程中。本番表示確認、IndexNow受理、Google登録リクエスト、インデックス完了を未確認のまま成功と扱わない。これらの結果は公開後に分離して追記する。
+- 検証: build・preserve・prepare・verify・test・check成功。Hero run43421616374は全体success、対象320/390/768/1440幅PASS、shard3は192cases/192CTAクリック・失敗0。統合表示browser全6shard成功。footer compareはdesktop字形差とmobile撮影高1px差の個別REVIEW。今回のbefore/after/diff・DOM寸法/style完全一致・操作変化/新規エラーなしを確認し、[PRコメント](https://github.com/Syasu-pixel/my-site/pull/1861#issuecomment-6852623783)に根拠を記録。CI FAILや設定は変更していない。
+- Pages: [run43425236530](https://github.com/Syasu-pixel/my-site/actions/runs/43425236530) build/deploy成功。2026-11-13 12:34 UTC、本番で採用Hero・本文4図の正常読込・拡大開閉、title・内容更新日・canonical・OGP画像を実Chromeで確認。公開後のスマホ実機検査や全依存資源ハッシュ照合を行ったとはしない。
+- IndexNow: [run43425236524](https://github.com/Syasu-pixel/my-site/actions/runs/43425236524)、2026-11-13T12:27:37Zに対象1URLをHTTP200受理。受理と検索インデックス完了は区別。
+- Google: 今回の手動URL検査・登録リクエストは未依頼のため未実施。インデックス完了は未確認。
+- 状態: 本番公開完了・完成/凍結。最短再評価2027-02-11。期間経過のみで再編集しない。Preview専用 #1860 は未マージで閉じ、ブランチを保持する。
 
 ## 2026-11-13 — control-transformer-basic 刷新・本番公開完了
 

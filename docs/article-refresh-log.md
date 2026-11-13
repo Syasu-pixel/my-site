@@ -15,6 +15,20 @@
 
 ---
  
+## 2026-11-13 — emergency-stop-switch-basic 刷新・本番公開完了
+
+- 対象: `articles/emergency-stop-switch-basic.html`。本番URL: https://denkicontrol.com/articles/emergency-stop-switch-basic.html
+- 公開PR: [#1848](https://github.com/Syasu-pixel/my-site/pull/1848)。採用source `5d74a151cf186fa5ca9e36fb4eabbd3e5bc0d360`、main反映 `cba25e7156fb996b9da71ed613415eeac318bdc8`。
+- 最終内容更新日・公式資料確認日: 2026-11-13 JST。通常停止・非常停止・保守時の隔離、NCと直接開路動作、安全PLCと二重化、解除と再起動の区別を初歩向けに整理。根拠はIDEC/オムロン公式資料。実体験の創作なし。
+- 採用画像: `assets/images/emergency-stop-switch-basic/` 内の `emergency-stop-switch-hero-v2.webp`、`emergency-stop-switch-ogp-v2.webp`、`emergency-stop-comparison-v2.webp`、`emergency-stop-system-v2.webp`、`emergency-stop-reset-v2.webp`。Hero/OGP/本文3枚。承認後の本文・画像変更なし。
+- 最終Preview: https://9f4c0a4c.denkicontrol-preview.pages.dev/articles/emergency-stop-switch-basic 。Preview専用PR #1849は本番へマージしない。PCライト/ダーク、400 CSS pxライト/ダーク、目次、画像拡大/閉じる、表横スクロール、検索・関連記事を確認。実機スマートフォン/Safari/実投票は未検証。
+- source CI: 統合検査、Pages PR検証、Hero preservation、追加shell、ルール構造、AI Editorialは成功。Header/footer比較run43327882681は対象記事footer 2枚のみFAIL。artifact13995090246のbefore/after実見、PC1440px/mobile390pxのgeometryとstyles同一、header差分0、interactionChanged=false/newErrors=0。文字輪郭差として個別判定し[公開前記録](https://github.com/Syasu-pixel/my-site/pull/1848#issuecomment-6840393992)に保存。CI閾値・必須設定を変更せず、全緑とはしない。
+- Pages: [run43340055774](https://github.com/Syasu-pixel/my-site/actions/runs/43340055774)成功。本番検証時刻 `2026-11-13T01:11:32.899050+00:00`、HTML＋27依存資源のHTTP200・承認済みpublicationとSHA256一致。HTML SHA256 `ed97c80b1802a69f26c805bbabd12f6a81fa773c57311bb947c05f59a397c482`。
+- IndexNow: [run43340055695](https://github.com/Syasu-pixel/my-site/actions/runs/43340055695)、job131605829388、2026-11-13T00:49:40Zに対象記事1 URLをHTTP200受理。インデックス完了を意味しない。
+- Google: `GOOGLE_REQUEST_PENDING_MANUAL`。再ログインの二段階認証待ち。まだインデックス登録リクエスト未実施。
+- 公開導線: 既存URLを維持、search-indexの対象日本語title/descriptionを採用済み本文メタへ同期。sitemap.xml、非運用seo/sitemap.xml、カテゴリ・トップの件数や記事棚は変更なし。
+- 状態: 本番公開完了・完成/凍結。90日未満は原則再改善候補から除外。最短再評価日2027-02-11、期間経過だけでは再編集しない。
+
 ## 2026-11-12 — dc24v-power-supply-basic 刷新・本番公開完了
 
 - 対象記事: `articles/dc24v-power-supply-basic.html`

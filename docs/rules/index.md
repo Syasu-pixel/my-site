@@ -173,6 +173,7 @@
 | [docs/reference-notes/field-knowledge-round19-2026-11-08.md](../reference-notes/field-knowledge-round19-2026-11-08.md) — 第19回：B判定再検証・国内メーカー型式別条件 | FK10〜FK18の現行B集計・優先度・型式別条件・再検証履歴を参照する。原典原因の実証や掲載承認とは区別する。 |
 | [docs/reference-notes/push-button-switch-basic.md](../reference-notes/push-button-switch-basic.md) — push-button-switch-basic 公式参照メモ | 押しボタンスイッチ記事の説明・公式根拠・採用範囲を確認する場合。 |
 | [docs/reference-notes/speed-controller-basic.md](../reference-notes/speed-controller-basic.md) — スピードコントローラ記事の技術参照メモ | スピードコントローラ記事の制作・刷新・技術確認時に参照する。 |
+| [docs/reference-notes/one-shot-circuit-basic.md](../reference-notes/one-shot-circuit-basic.md) — ワンショット回路の技術参照メモ | ワンショット回路の記事更新・技術根拠・画像説明を確認する。 |
 
 ## 実装・設定の参照先
 

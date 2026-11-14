@@ -125,6 +125,7 @@
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |
+| [docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md](../comic-scripts/no-fuse-breaker-basic-yonkoma-01.md) — ノーヒューズブレーカ4コマ採用記録 | ノーヒューズブレーカ4コマの制作・改訂・公開・SNS追従を扱う場合。 |
 
 ## 履歴・参考
 
@@ -181,6 +182,7 @@
 | [docs/reference-notes/pressure-switch-basic.md](../reference-notes/pressure-switch-basic.md) — 圧力スイッチ 記事刷新の根拠ノート | 圧力スイッチの方式・動作条件・適用流体と安全上の境界を確認する。 |
 | [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
 | [docs/reference-notes/power-signal-wiring-separation-basic.md](../reference-notes/power-signal-wiring-separation-basic.md) — 動力線・信号線の分離 記事刷新の制作・参照メモ | 動力線・信号線の分離記事の技術根拠、現場資料採否、画像計画、公開前Previewの制作状態を確認する。公開完了の記録とは区別する。 |
+| [docs/reference-notes/plc-xymd-device-basic.md](../reference-notes/plc-xymd-device-basic.md) — PLC X・Y・M・D 記事刷新の制作・参照メモ | PLC X・Y・M・D記事の機種別技術根拠、画像計画、公開前Previewの制作状態を確認する。公開完了記録とは区別する。 |
 
 ## 実装・設定の参照先
 

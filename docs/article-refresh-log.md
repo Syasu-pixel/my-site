@@ -108,9 +108,9 @@
 - 最終内容更新・公式資料確認: 2026-11-14（記事本文の日付を確認）。X/Y/M/Dの役割、種類と番号、入力・出力の流れ、Mの状態とDの数値、保持条件・CPU差を初級向けに整理。[公式参照メモ](reference-notes/plc-xymd-device-basic.md)。画面のYがONでも実設備の動作を保証しない。強制操作・値書換え・ラッチクリア手順は掲載しない。
 - 採用画像: `assets/images/plc-xymd-device-basic/plc-xymd-device-basic-{hero,ogp,roles,xy-flow,md-comparison,read-check}-20261114.webp` の6枚。統一ちびキャラ、Hero/OGP別、本文4図。重要技術情報を可視HTMLにも記載。
 - 検証: 競合解消統合commit `88a835e` で167文書のルール構造検査PASS、両catalog/indexを保持。本文・採用画像は承認済み `ec585` から同一。
-- Pages・本番配信: [run43580487604](https://github.com/Syasu-pixel/my-site/actions/runs/43580487604) のbuild・deploy成功。2026-11-14 09:33 UTC頃、本番の修正Hero・新本文・本文図の拡大をブラウザで確認。本番33ファイルはローカル最終publicationとすべてSHA256一致。
+- Pages・本番配信: [run43580487604](https://github.com/Syasu-pixel/my-site/actions/runs/43580487604) のbuild・deploy成功。2026-11-14 09:31 UTC頃、本番の修正Hero・新本文・本文図の拡大をブラウザで確認。本番33ファイルはローカル最終publicationとすべてSHA256一致。
 - IndexNow: [run43580487645](https://github.com/Syasu-pixel/my-site/actions/runs/43580487645) のnotify-indexnow成功。2026-11-14 09:26:12 UTC、対象本番URL1件のHTTP200 acceptedを実ログで確認。受理は検索インデックス完了を意味しない。
-- Google: `GOOGLE_REQUESTED`。助手が対象本番URLのインデックス登録リクエストを1回送信し、2026-11-14 09:35 UTCに「インデックス登録をリクエスト済み」「優先クロールキューに追加」の受理表示を確認。送信前のURL検査は既存登録済み。今回の更新内容の再クロール・再インデックス完了は未確認。
+- Google: `GOOGLE_REQUESTED`。助手が対象本番URLのインデックス登録リクエストを1回送信し、2026-11-14 09:32 UTCに「インデックス登録をリクエスト済み」「優先クロールキューに追加」の受理表示を確認。送信前のURL検査は既存登録済み。今回の更新内容の再クロール・再インデックス完了は未確認。
 - 90日ガード: 最終内容更新2026-11-14から90日未満は原則再改善候補から除外。最短再評価2027-02-12。期間経過だけでは再編集せず、日付ガードの根拠条件に従う。本番確認済みとして完成・凍結し、派生チェック欄も同期。
 
 ## 2026-11-14 — power-signal-wiring-separation-basic 刷新・本番公開完了

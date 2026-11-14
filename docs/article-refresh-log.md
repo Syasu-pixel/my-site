@@ -58,7 +58,7 @@
 | `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-basic` | 刷新main反映済み | 2026-10-14（管理者表示確認記録） | 未確認 | 2026-10-06 | [PR #1763](https://github.com/Syasu-pixel/my-site/pull/1763) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
-| `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Googleはユーザー担当・未実施。 |
+| `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
 | `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -109,7 +109,7 @@
 - 既存URL・canonical・関連記事構成を維持。対象テンプレートentryと、対象記事を参照するカードのOGPキャッシュを同期。sitemap.xml・search-index.json・トップ・カテゴリ・英語記事は今回変更なし。
 - 最終統合公開候補のPreview検査は実施済み。[Pages run43570282299](https://github.com/Syasu-pixel/my-site/actions/runs/43570282299) build/deploy成功（2026-11-14T07:20:11Z更新）。07:20:35 UTC以降に本番HTMLと依存29資産すべてHTTP200・承認publicationとのSHA256一致を確認。採用6画像も含む。外部ブラウザのPC幅1331px・スマホ幅400pxでHero・本文図・画像拡大開閉を確認。スマホ幅でscrollWidth388px/viewport400px、ページ横はみ出しなし。Previewでは両幅のライト/ダーク確認済み。本番の実機スマホ検査を行った意味ではない。
 - [IndexNow run43570282284](https://github.com/Syasu-pixel/my-site/actions/runs/43570282284)成功（2026-11-14T07:16:55Z更新）。ワークフロー成功を確認。検索エンジンでのインデックス完了を意味しない。
-- Google: ユーザー担当・未実施。助手によるリクエストはしていない。検索インデックス完了は未確認。
+- Google: 2026-11-14、ユーザー本人からインデックス登録リクエスト実施の報告あり。助手による再送・Search Consoleでの実施確認はしていない。検索インデックス完了は未確認。
 - 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-12、期間経過だけで再編集しない。Preview専用 #1872 はこの記録時点でopen/Draft、mainへマージしない。
 
 ## 2026-11-14 — air-regulator-basic 刷新・本番公開完了

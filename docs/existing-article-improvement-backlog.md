@@ -25,6 +25,8 @@
 
 ## 改善進捗
 
+- [x] `articles/encoder-basic.html` — エンコーダ。最終内容更新・公式資料確認2026-11-14。[PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)をmain `95756c1ffaa0258c9e07dd0efd23b4d3096d300e`へ反映、Pages成功・2026-11-14T12:31:08Zの本番HTML/6画像一致とPC Hero正常表示を確認。完成・凍結。90日未満は原則再改善候補から除外、最短再評価2027-02-12。期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエスト未実施、インデックス完了未確認。詳細は統合正本の個別履歴を参照。
+
 - [x] `articles/speed-controller-basic.html` — スピードコントローラ。最終内容更新・公式資料確認日2026-11-12。[PR #1846](https://github.com/Syasu-pixel/my-site/pull/1846)で本文・採用画像5枚を公開し、2026-11-13 JSTにPages成功・本番反映を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。
 - [x] `articles/electromagnetic-contactor-vs-switch.html` — 電磁接触器と電磁開閉器の違い。最終内容更新 2026-11-11、公式資料確認日 2026-11-11。本文・採用画像4枚を [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832) でmain反映（2026-11-12 JST）。2026-11-12 JSTにPages成功・本番の採用画像と表示を確認。完成・凍結、最終内容更新から90日間は原則再改善候補から除外。
 - [x] `articles/star-delta-start-basic.html` — スターデルタ始動

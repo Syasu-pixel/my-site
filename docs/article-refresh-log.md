@@ -8,10 +8,10 @@
 
 ### 集計範囲と根拠
 
-- 照合基点: main `0c98d86c4ad712235054e46b460269a01f909d8c`。照合日2026-11-14。
+- 照合基点: main `488a5bd446b8458356de650f6fdf26bbd5dc9456`。照合日2026-11-14。
 - [公開サイトマップ](../sitemap.xml)の日本語 `/articles/` は174 URL（重複0）。英語111 URLと公開停止PLC設計シリーズ3本は分母から除外。今回の本番サイトマップとmainの日本語174 URL集合は一致し、対象記事1 URLを含む。
-- 下表は45 slug。初回統合44件（旧改善台帳25件と公開履歴・mainマージ済み刷新PRの19件）に、動力線・信号線の分離記事の刷新1件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全45本を「同一基準の全面改稿」とは呼ばない。
-- 174−45＝129本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
+- 下表は46 slug（重複0）。初回統合44件（旧改善台帳25件と公開履歴・mainマージ済み刷新PRの19件）に、動力線・信号線の分離記事とPLC X/Y/M/Dデバイス記事の刷新2件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全46本を「同一基準の全面改稿」とは呼ばない。
+- 174−46＝128本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
 - 公開記録日、最終内容更新日、公式資料確認日は別欄。HTMLのファイル更新日時やPRのマージ日を内容更新日に転用しない。未確認は未確認のまま保持。記事本文そのものの日付は今回変更しない。
 - 本番表示の個別確認は既存公開記録を継承。初回統合44記事すべてをブラウザ再監査したという意味ではない。記録が古い・矛盾する場合は実公開・main・PRを確認する。
 
@@ -58,6 +58,7 @@
 | `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-basic` | 刷新main反映済み | 2026-10-14（管理者表示確認記録） | 未確認 | 2026-10-06 | [PR #1763](https://github.com/Syasu-pixel/my-site/pull/1763) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `plc-xymd-device-basic` | 刷新main反映・本番確認済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878)・本書の個別履歴 | 90日ガード対象。最短再評価2027-02-12。完成・凍結。Googleリクエスト受理済み、再インデックス完了は未確認。 |
 | `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
@@ -99,6 +100,18 @@
 - 四コマ漫画の追従確認では、このログの「本番公開完了」記事を起点に `docs/comic-scripts/` の正式採用記録と突合し、未四コマ化の記事を抽出する。
 
 ---
+
+## 2026-11-14 — plc-xymd-device-basic 刷新・本番公開完了
+
+- 対象: `articles/plc-xymd-device-basic.html`。本番URL: https://denkicontrol.com/articles/plc-xymd-device-basic.html
+- 管理者の最終Preview公開承認に基づき、公開本体 [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878) をmainへマージ。main反映 `488a5bd446b8458356de650f6fdf26bbd5dc9456`。生成済みHTMLを含むPreview専用 #1880 はmainへマージしない。
+- 最終内容更新・公式資料確認: 2026-11-14（記事本文の日付を確認）。X/Y/M/Dの役割、種類と番号、入力・出力の流れ、Mの状態とDの数値、保持条件・CPU差を初級向けに整理。[公式参照メモ](reference-notes/plc-xymd-device-basic.md)。画面のYがONでも実設備の動作を保証しない。強制操作・値書換え・ラッチクリア手順は掲載しない。
+- 採用画像: `assets/images/plc-xymd-device-basic/plc-xymd-device-basic-{hero,ogp,roles,xy-flow,md-comparison,read-check}-20261114.webp` の6枚。統一ちびキャラ、Hero/OGP別、本文4図。重要技術情報を可視HTMLにも記載。
+- 検証: 競合解消統合commit `88a835e` で167文書のルール構造検査PASS、両catalog/indexを保持。本文・採用画像は承認済み `ec585` から同一。
+- Pages・本番配信: [run43580487604](https://github.com/Syasu-pixel/my-site/actions/runs/43580487604) のbuild・deploy成功。2026-11-14 09:31 UTC頃、本番の修正Hero・新本文・本文図の拡大をブラウザで確認。本番33ファイルはローカル最終publicationとすべてSHA256一致。
+- IndexNow: [run43580487645](https://github.com/Syasu-pixel/my-site/actions/runs/43580487645) のnotify-indexnow成功。2026-11-14 09:26:12 UTC、対象本番URL1件のHTTP200 acceptedを実ログで確認。受理は検索インデックス完了を意味しない。
+- Google: `GOOGLE_REQUESTED`。助手が対象本番URLのインデックス登録リクエストを1回送信し、2026-11-14 09:32 UTCに「インデックス登録をリクエスト済み」「優先クロールキューに追加」の受理表示を確認。送信前のURL検査は既存登録済み。今回の更新内容の再クロール・再インデックス完了は未確認。
+- 90日ガード: 最終内容更新2026-11-14から90日未満は原則再改善候補から除外。最短再評価2027-02-12。期間経過だけでは再編集せず、日付ガードの根拠条件に従う。本番確認済みとして完成・凍結し、派生チェック欄も同期。
 
 ## 2026-11-14 — power-signal-wiring-separation-basic 刷新・本番公開完了
 

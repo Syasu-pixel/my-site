@@ -241,3 +241,9 @@
 - `terminal-block-basic`を第15作品としてトップ追加。本人採用・公開予約承認済み。source PR #1890 / merge b2dce29ff5a6b8cf4127fc6d0305ac71fe25f57e。
 - Instagram denkicontrolは2026-11-17 10:00 JST予約済み（427891476 / -6842433265755927097、PENDING）。実投稿完了とは区別。
 - 台本・公式根拠・画面検証・転送ログは[端子台4コマ採用記録](comic-scripts/terminal-block-basic-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+
+### 2026-11-14 接触器・サーマル4コマ
+- 本人採用別案02を第16作品としてトップ追加。source PR1895 / merge f71fb2f9。Instagram11/18 10:00 JST予約済（428043373、PENDING）。
+- [台本・採用・検証記録](comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。

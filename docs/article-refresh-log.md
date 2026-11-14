@@ -8,12 +8,12 @@
 
 ### 集計範囲と根拠
 
-- 照合基点: main `d474f1241545a779488adb92aa42605b1299b117`。照合日2026-11-14。
-- [公開サイトマップ](../sitemap.xml)の日本語 `/articles/` は174 URL（重複0）。英語111 URLと公開停止PLC設計シリーズ3本は分母から除外。
-- 下表は44 slug。旧改善台帳25件に、公開履歴・mainマージ済み刷新PRで確認できた19件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全44本を「同一基準の全面改稿」とは呼ばない。
-- 174−44＝130本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
+- 照合基点: main `0c98d86c4ad712235054e46b460269a01f909d8c`。照合日2026-11-14。
+- [公開サイトマップ](../sitemap.xml)の日本語 `/articles/` は174 URL（重複0）。英語111 URLと公開停止PLC設計シリーズ3本は分母から除外。今回の本番サイトマップとmainの日本語174 URL集合は一致し、対象記事1 URLを含む。
+- 下表は45 slug。初回統合44件（旧改善台帳25件と公開履歴・mainマージ済み刷新PRの19件）に、動力線・信号線の分離記事の刷新1件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全45本を「同一基準の全面改稿」とは呼ばない。
+- 174−45＝129本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
 - 公開記録日、最終内容更新日、公式資料確認日は別欄。HTMLのファイル更新日時やPRのマージ日を内容更新日に転用しない。未確認は未確認のまま保持。記事本文そのものの日付は今回変更しない。
-- 本番表示の個別確認は既存公開記録を継承。今回44記事すべてをブラウザ再監査したという意味ではない。記録が古い・矛盾する場合は実公開・main・PRを確認する。
+- 本番表示の個別確認は既存公開記録を継承。初回統合44記事すべてをブラウザ再監査したという意味ではない。記録が古い・矛盾する場合は実公開・main・PRを確認する。
 
 ### 既存文書との分担
 
@@ -58,6 +58,7 @@
 | `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-basic` | 刷新main反映済み | 2026-10-14（管理者表示確認記録） | 未確認 | 2026-10-06 | [PR #1763](https://github.com/Syasu-pixel/my-site/pull/1763) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Googleはユーザー担当・未実施。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
 | `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -98,6 +99,18 @@
 - 四コマ漫画の追従確認では、このログの「本番公開完了」記事を起点に `docs/comic-scripts/` の正式採用記録と突合し、未四コマ化の記事を抽出する。
 
 ---
+
+## 2026-11-14 — power-signal-wiring-separation-basic 刷新・本番公開完了
+
+- 対象: `articles/power-signal-wiring-separation-basic.html`。本番URL: https://denkicontrol.com/articles/power-signal-wiring-separation-basic.html
+- 管理者が最終Previewの公開を承認。公開本体 [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)、承認source `43d20cfdfb134feb22fa3a7da4609ac4063a74a1`。mainマージ: `0c98d86c4ad712235054e46b460269a01f909d8c`。生成済みHTMLを含むPreview専用 #1872 はmainへマージしない。
+- 最終内容更新・公式資料確認: 2026-11-14。電力と情報の役割、信号の種類、配線経路、交差、記録すべき条件を基礎向けに整理。一律の離隔数値やシールド接地方法を指定せず、機器資料と安全な電源隔離を優先。[制作・参照メモ](reference-notes/power-signal-wiring-separation-basic.md)。現場資料は独自の実体験として語らない。
+- 採用画像: `assets/images/power-signal-wiring-separation-basic/power-signal-wiring-separation-basic-{hero,ogp,classification,routing,crossing,checkpoints}-20261114.webp` の6枚。統一ちびキャラ、Hero/OGP別、本文4図。
+- 既存URL・canonical・関連記事構成を維持。対象テンプレートentryと、対象記事を参照するカードのOGPキャッシュを同期。sitemap.xml・search-index.json・トップ・カテゴリ・英語記事は今回変更なし。
+- 最終統合公開候補のPreview検査は実施済み。[Pages run43570282299](https://github.com/Syasu-pixel/my-site/actions/runs/43570282299) build/deploy成功（2026-11-14T07:20:11Z更新）。07:20:35 UTC以降に本番HTMLと依存29資産すべてHTTP200・承認publicationとのSHA256一致を確認。採用6画像も含む。外部ブラウザのPC幅1331px・スマホ幅400pxでHero・本文図・画像拡大開閉を確認。スマホ幅でscrollWidth388px/viewport400px、ページ横はみ出しなし。Previewでは両幅のライト/ダーク確認済み。本番の実機スマホ検査を行った意味ではない。
+- [IndexNow run43570282284](https://github.com/Syasu-pixel/my-site/actions/runs/43570282284)成功（2026-11-14T07:16:55Z更新）。ワークフロー成功を確認。検索エンジンでのインデックス完了を意味しない。
+- Google: ユーザー担当・未実施。助手によるリクエストはしていない。検索インデックス完了は未確認。
+- 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-12、期間経過だけで再編集しない。Preview専用 #1872 はこの記録時点でopen/Draft、mainへマージしない。
 
 ## 2026-11-14 — air-regulator-basic 刷新・本番公開完了
 

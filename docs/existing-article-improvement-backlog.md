@@ -45,7 +45,7 @@
 - [x] `articles/one-shot-circuit-basic.html` — ワンショット回路。最終内容更新・公式資料確認2026-11-13。PR #1852で採用本文・ちびキャラ画像4枚を公開し、Pages成功と本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
 - [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
 - [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
-- [ ] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離
+- [x] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離。最終内容更新・公式資料確認日2026-11-14。[PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)で刷新し、本番反映を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-12、期間経過だけで再編集しない。
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）
 - [x] `articles/din-rail-basic.html` — DINレール。最終内容更新・公式資料確認日 2026-11-12。[PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841) で公開し、Pages成功・本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードの条件で再評価する。
 - [ ] `articles/alternate-operation-circuit-basic.html` — 交互運転回路

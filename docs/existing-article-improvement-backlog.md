@@ -1,5 +1,7 @@
 # 既存記事改善バックログ
 
+更新済み記事の状態・件数の正本は[統合更新台帳](article-refresh-log.md#統合更新台帳状態集計の正本)。本書のチェック欄は週次機械評価向けの派生ビュー。過去の未公開記録だけで現在状態を決めず、正本と公開PRを照合する。
+
 このファイルは、既存記事の**改善履歴・完了状態・未完了候補**を管理するためのバックログです。
 
 このファイル内の並び順は、今後の更新優先順位を固定するものではありません。
@@ -37,7 +39,7 @@
 - [x] `articles/no-fuse-breaker-basic.html` — ノーヒューズブレーカ。最終内容更新 2026-11-08（JST、本文・採用画像5枚の本番反映 [PR #1812](https://github.com/Syasu-pixel/my-site/pull/1812)）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
 
 - [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
-- [ ] `articles/no-nc-basic.html` — NO・NC
+- [x] `articles/no-nc-basic.html` — NO・NC
 - [x] `articles/plc-io-unit-basic.html` — PLC I/Oユニット。最終内容更新・公式資料確認2026-11-13。本文・ちびキャラ画像6枚の最終Previewを管理者が採用・公開承認、[PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)をmain `612584cf3d6880dc701f7d512adf1ff035f1a14c`へ反映。Pages成功と2026-11-13 10:02 UTCの本番表示を確認。完成・凍結、最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは未実施。
 - [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
 - [x] `articles/one-shot-circuit-basic.html` — ワンショット回路。最終内容更新・公式資料確認2026-11-13。PR #1852で採用本文・ちびキャラ画像4枚を公開し、Pages成功と本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
@@ -90,3 +92,26 @@
 ## 2026-11-13 圧力スイッチ更新着手（未公開）
 
 `articles/pressure-switch-basic.html` は「とは・仕組み」を中心に基礎記事として刷新し、設定/復帰・応差は補助説明とする。現在は本文・統一キャラ画像を含む最終プレビュー準備中。公開承認・本番反映は未完了。対象記事の履歴・変更前ベースライン・検索データ事前確認は作業開始時に確認。公開後の完了記録で追記する。
+
+## 統合更新台帳からの完了状態同期（2026-11-14）
+
+以下は[統合更新台帳](article-refresh-log.md#更新済み記事一覧)に根拠を集約した派生状態。日付不明は自動で再編集可能としない。
+
+- [x] `articles/air-cylinder-troubleshooting-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/area-sensor-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/earth-leakage-breaker-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/light-curtain-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/magnetic-switch-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/npn-pnp-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/plc-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/pressure-switch-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/push-button-switch-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/reed-switch-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/safety-control-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/self-hold-circuit.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/sensor-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/series-parallel-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/servo-motor-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/start-stop-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/sto-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+- [x] `articles/while-pressed-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。

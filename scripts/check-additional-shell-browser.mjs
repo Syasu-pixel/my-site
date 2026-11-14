@@ -78,7 +78,7 @@ for(const path of pages)for(const width of [320,390,768,1440]){
     for(let i=0;i<3;i++){await buttons.nth(i).click();await active(i);await page.screenshot({path:resolve(out,'screenshots','hero-'+width+'-dark-'+i+'.png'),animations:'disabled'});}
     await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await active(2);
     // Re-enable motion and prove the final frame wraps to the first at the real interval.
-    await page.emulateMedia({reducedMotion:'no-preference'});assert(await pause.isEnabled(),'Hero does not respond to motion preference change');
+    await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForFunction(()=>!document.querySelector('[data-hero-pause]').disabled,null,{timeout:2000});assert(await pause.isEnabled(),'Hero does not respond to motion preference change');
     await pause.click();await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();
     await page.waitForFunction(()=>document.querySelectorAll('.dc-hero-stage img')[0].classList.contains('is-active'),null,{timeout:10000});await active(0);
     await pause.click();await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await page.waitForTimeout(7300);assert(await slides.nth(0).evaluate(e=>e.classList.contains('is-active')),'Hero advanced while rotation should be stopped');await active(0);

@@ -256,4 +256,4 @@
 
 
 ## 2026-11-15 DC24V電源4コマ追従
-採用第3案「これ、充電するんですか？」をPR1908でmain反映。18作品。Instagramは11/20 10:00 JST予約PENDING確認済み。公開配信検証中、実投稿未確認。詳細は [採用記録](comic-scripts/dc24v-power-supply-basic-yonkoma-01.md)。記事本文の日付と90日ガードは変更しない。
+採用第3案「これ、充電するんですか？」をPR1908でmain反映。18作品。Instagramは11/20 10:00 JST予約PENDING確認済み。本番18作品・採用画像・記事リンクを独立確認済み。実投稿は未確認。詳細は [採用記録](comic-scripts/dc24v-power-supply-basic-yonkoma-01.md)。記事本文の日付と90日ガードは変更しない。

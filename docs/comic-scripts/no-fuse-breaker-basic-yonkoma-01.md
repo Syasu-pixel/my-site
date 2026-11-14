@@ -1,6 +1,6 @@
 # ノーヒューズブレーカ 4コマ・採用記録
 
-状態: 正式採用済み（2026-11-14の通話で管理者が画像確認しサイト公開承認）。サイト反映確認中、Instagram未予約。
+状態: 正式採用済み（2026-11-14の通話で管理者が画像確認しサイト公開承認）。サイト公開・Instagram予約まで完了。実投稿は予約日時後に確認する。
 制作日: 2026-11-14
 対象記事: https://denkicontrol.com/articles/no-fuse-breaker-basic.html
 
@@ -34,9 +34,17 @@ CTA: 詳しくは記事で！ → denkicontrol.com
 - 自己評価95/100: 顔・衣服・役割・日本語・安全境界は適合。第3コマの情報量がやや多いため縮小時は拡大導線必須。
 - 独立レビュー（root）: 全文判読可、明白な手の破綻なし、技術概ね整合、疑問→説明→後輩オチ成立。縮小・拡大導線要確認。
 
-## 残作業
-外部確認Preview、縮小・拡大操作実査、トップ本番掲載・現行mainとの衝突確認。バイナリ転送・台本/catalog登録は完了。SNSは今回公開承認なしにつき行わない。全ルール確認済み・公開済みとはしない。
+## 公開・予約結果
+- 本番PR #1876、merge d6840a2058cc03ad22432f140b1b74c3c1c79fb6。Pages run43576706318はbuild/deploy成功（2026-11-14 08:41:40 UTC）。
+- 本番トップの13作品中7番に採用画像の拡大と正しい記事リンクを独立ブラウザ確認。PCとスマホ相当400pxの表示・拡大・閉じる・切替確認済み。実機スマホ検査ではない。
+- 追加ページ4幅検査・公開成果物検査・catalog/統合保持成功。Donation専用チェックの用途外FAILはPRへ16ページ限定差分検証を記録し、検査設定を変更せず判断。
+- IndexNow run43576706296:1URL、HTTP200受理。Googleリクエストは実施していない。検索登録完了とは扱わない。
+- 2026-11-14管理者がInstagram denkicontrolへの予約投稿を明示承認。
+- 予約:2026-11-15 10:00 Asia/Tokyo。既存未来予約なし、既存投稿履歴とMetricoolの日曜推奨10時（最高値）を確認。
+- Metricool最新post ID427838450、uuid -6456341313180578066。再取得でPENDING/draft:false/autoPublish:true/isAiGenerated:true、対象予約1件を確認。
+- 画像は本番merge固定commitの採用PNG原本からMetricoolへ取り込み。再生成なし。投稿文は過負荷・短絡保護と漏電検知の区別、プロフィール記事CTA、AIイラスト表記。
+- 予約確認は実投稿成功ではない。公開予定時刻後の配信確認を別途行う。
 
 ## 採用原本の配置
 assets/images/comics/no-fuse-breaker-basic/no-fuse-breaker-basic-yonkoma-01.png
-転送Workflow 43574368766成功。サイズ2153466 bytes、Git blob 3601784fbb367011d0b79d50ec4973ed1fcfb8b8を原本と照合。SNSは別承認待ち。
+転送Workflow 43574368766成功。サイズ2153466 bytes、Git blob 3601784fbb367011d0b79d50ec4973ed1fcfb8b8を原本と照合。SNSは上記予約確認済み。

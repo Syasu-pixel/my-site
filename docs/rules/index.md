@@ -130,6 +130,7 @@
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 | [docs/comic-scripts/terminal-block-basic-yonkoma-01.md](../comic-scripts/terminal-block-basic-yonkoma-01.md) — 端子台4コマ・採用記録 | 端子台四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md](../comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md) — 接触器・サーマル4コマ採用記録 | 接触器・サーマルの四コマを制作・配置・公開・投稿するとき。 |
+| [docs/comic-scripts/din-rail-basic-yonkoma-01.md](../comic-scripts/din-rail-basic-yonkoma-01.md) — DINレール4コマ採用記録 | DINレールの四コマを制作・配置・公開・投稿するとき。 |
 
 ## 履歴・参考
 

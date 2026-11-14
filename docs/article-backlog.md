@@ -204,7 +204,7 @@
 
 - [x] **四コマ追従完了** — `articles/no-fuse-breaker-basic.html`。2026-11-14管理者が画像採用・サイト公開承認。台本は `docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md`。トップ本番13作品への追加・拡大リンクを確認。Instagramは2026-11-15 10:00 JSTに予約しPENDING/draft:falseを再取得確認（実投稿は未確認）。記事刷新PR #1812とは別の再利用コンテンツ。
 
-- [ ] **四コマ制作待ち** — `articles/dc24v-common-basic.html`。2026-11-09に既存記事を刷新・公開（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。採用はHero・OGP・本文図3枚。四コマの正式採用・登録は未確認。制作時は採用画像と本文を参照し、先輩・後輩の短い会話で「COMはどちら側？」→「複数入力がCOMを共用」→「プラス／マイナスコモンの違い」→「配線図と機種の仕様書で確認」の順を候補とする。
+- [x] **四コマ追従完了** — `articles/dc24v-common-basic.html`。2026-11-14管理者が画像採用・トップ公開・Instagram予約承認。台本は `docs/comic-scripts/dc24v-common-basic-yonkoma-01.md`。PR #1886で本番トップ14作品へ追加。Instagramは2026-11-16 10:00 JSTに予約しPENDING/draft:false/autoPublish:true/AI申告trueを再取得確認（実投稿未確認）。記事刷新PR #1825とは別の再利用コンテンツ。
 
 - [ ] **四コマ制作待ち**: `articles/series-parallel-circuit-basic.html` — 2026-11-02 記事刷新・採用Hero/OGP/本文画像4枚を本番反映済み。記事に対応する4コマは正式採用・登録を未確認のため、**新たに生成・公開しない**。制作・目視採用後に、既存4コマ一覧／右カラム導線／Instagram連携を既存の4コマルールに従って更新する。既存の記事公開は維持する。
 

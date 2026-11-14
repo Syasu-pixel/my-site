@@ -9,9 +9,9 @@ const script = join(original, 'scripts/select-shell-visual-targets.mjs');
 function git(root, ...args) { return execFileSync('git', args, { cwd:root, encoding:'utf8' }).trim(); }
 function trial(changes) {
   const root=mkdtempSync(join(tmpdir(),'visual-scope-'));
-  for(const p of ['.github/site-shell-visual.json','articles/first.html','articles/second.html']) {
+  for(const p of ['.github/site-shell-visual.json','.github/article-components/integration.json','articles/first.html','articles/second.html']) {
     mkdirSync(dirname(join(root,p)),{recursive:true});
-    writeFileSync(join(root,p),p === '.github/site-shell-visual.json' ? '{}' : 'initial');
+    writeFileSync(join(root,p),p === '.github/site-shell-visual.json' ? '{}' : p.endsWith('integration.json') ? JSON.stringify({targets:['articles/first.html','articles/second.html']}) : 'initial');
   }
   git(root,'init','-q');git(root,'config','user.email','ci@example.invalid');git(root,'config','user.name','CI');
   git(root,'add','.');git(root,'commit','-qm','base');

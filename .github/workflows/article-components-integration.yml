@@ -13,6 +13,19 @@ on:
       - 'scripts/*publication*'
       - '.github/workflows/pages.yml'
       - 'scripts/*site-shell*'
+      - 'scripts/*article-impact*'
+      - 'scripts/integration-review-scope.mjs'
+      - 'tests/integration-review-scope.test.mjs'
+      - 'tests/article-impact.test.mjs'
+      - 'articles/**'
+      - 'en/articles/**'
+      - 'assets/images/**'
+      - 'assets/css/**'
+      - 'assets/js/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  schedule:
+    - cron: '20 18 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,13 +36,30 @@ jobs:
   prepare:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    outputs:
+      shards: ${{ steps.scope.outputs.shards }}
+      shard_count: ${{ steps.scope.outputs.shard_count }}
     env:
       REVIEW_COPY_ASSETS: '0'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
+      - name: Select article impact scope
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          ARTICLE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          FULL_ARTICLE_AUDIT: ${{ github.event_name != 'pull_request' && '1' || '0' }}
+        run: |
+          node scripts/report-article-impact.mjs "$BASE_SHA" "$ARTICLE_HEAD_SHA" "$RUNNER_TEMP/article-impact.json"
+          node --input-type=module -e 'import fs from "node:fs"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/article-impact.json")); const shards=r.scope==="selected"?[0]:[0,1,2,3,4,5]; fs.appendFileSync(process.env.GITHUB_OUTPUT,"shards="+JSON.stringify(shards)+"\nshard_count="+shards.length+"\n");'
+      - name: Test integration scope and evidence rules
+        run: node --test tests/integration-review-scope.test.mjs tests/article-impact.test.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.14'
@@ -38,10 +68,10 @@ jobs:
           version: 11.19.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: python -m pip install lxml==6.1.1
-      - run: pnpm exec playwright install --with-deps chromium
       - name: Build all current articles and verify preservation
         run: |
           node scripts/build-integrated-review.mjs ${{ runner.temp }}/integration-build
+          cp "$RUNNER_TEMP/article-impact.json" "$RUNNER_TEMP/integration-build/article-impact.json"
           python scripts/verify-integrated-source.py ${{ runner.temp }}/integration-build
           python scripts/audit-integrated-links.py ${{ runner.temp }}/integration-build
           python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate ${{ runner.temp }}/integration-build/candidate --assets-source . --output ${{ runner.temp }}/integration-build/end-independent-checks.json
@@ -49,6 +79,7 @@ jobs:
           node scripts/check-integrated-publication.mjs ${{ runner.temp }}/integration-build
           python scripts/test-publication-artifact.py
           node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build
+      - run: pnpm exec playwright install --with-deps chromium
       - name: Boundary, long TOC and fixed-control checks
         run: |
           node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
@@ -77,12 +108,14 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        shard: [0, 1, 2, 3, 4, 5]
+        shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
     env:
-      REVIEW_SHARD_COUNT: '6'
+      REVIEW_SHARD_COUNT: ${{ needs.prepare.outputs.shard_count }}
       REVIEW_SHARD_INDEX: ${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -95,8 +128,9 @@ jobs:
         with:
           name: integration-prepared-${{ github.run_id }}
           path: ${{ runner.temp }}/integration-build
-      - name: All-article viewport, dark-mode and isolated-vote checks
+      - name: Selected-scope viewport, dark-mode and isolated-vote checks
         run: |
+          export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"
           node scripts/serve-integrated-review.mjs ${{ runner.temp }}/integration-build > ${{ runner.temp }}/integration-build/server.log 2>&1 &
           REVIEW_PID=$!
           trap 'kill "$REVIEW_PID" || true' EXIT
@@ -118,6 +152,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
@@ -132,7 +168,8 @@ jobs:
           merge-multiple: true
       - name: Reject missing coverage and generate complete review index
         run: |
-          node scripts/merge-integration-checks.mjs ${{ runner.temp }}/integration-build 6
+          export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"
+          node scripts/merge-integration-checks.mjs ${{ runner.temp }}/integration-build ${{ needs.prepare.outputs.shard_count }}
           node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
           node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build
       - uses: actions/upload-artifact@v4

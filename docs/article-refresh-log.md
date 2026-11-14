@@ -47,7 +47,7 @@
 | `earth-leakage-breaker-basic` | 刷新main反映済み | 未確認 | 未確認 | 2026-10-06 | [PR #1677](https://github.com/Syasu-pixel/my-site/pull/1677) | 本文表示から採録。未確認は推測補完しない。 |
 | `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
 | `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
-| `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエスト未実施、インデックス完了未確認。 |
+| `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
@@ -111,7 +111,7 @@
 - 技術根拠と現場知識の採否: [エンコーダ公式参照メモ](reference-notes/encoder-basic.md)。未解決相談事例を原因確定・復旧成功事例として扱わない。
 - 公開後の検証: Pages [run43594729896](https://github.com/Syasu-pixel/my-site/actions/runs/43594729896)のbuild/deploy成功。2026-11-14T12:31:08Zに本番HTMLと6画像がすべてHTTP200で、承認済み公開生成物のSHA256と全件一致。HTMLは88,601bytes、SHA256 `acce52f7dac949c8361bc129168881ce7c0e4568d410ecb402eabc456907c2be`。canonicalは対象本番URL、noindexなし。本番PC幅1180pxでHero正常表示を確認。最終PreviewのPC/スマホ・ライト/ダーク検証と、本番HTTP・PC表示確認は区別する。
 - 本番検索索引は対象1件で新タイトル一致。本番サイトマップも対象1件、lastmodは2026-11-14。
-- Google登録リクエストは未実施。検索インデックス完了も未確認。IndexNow [run43594729870](https://github.com/Syasu-pixel/my-site/actions/runs/43594729870)、job132446700940の2026-11-14T12:26:12Zログで対象エンコーダURLのHTTP200受理を確認。受理を検索インデックス完了とは扱わない。
+- Google登録リクエストは2026-11-14に管理者本人が実施したと申告（「Googleのリクエストを更新リクエストをやりました」）。検索インデックス完了も未確認。IndexNow [run43594729870](https://github.com/Syasu-pixel/my-site/actions/runs/43594729870)、job132446700940の2026-11-14T12:26:12Zログで対象エンコーダURLのHTTP200受理を確認。受理を検索インデックス完了とは扱わない。
 - 90日ガード: 内容更新2026-11-14を0日目とし、最短再評価日は2027-02-12。期間経過だけでは再編集せず、日付ガードの条件・例外に従う。
 - 集計照合: 2026-11-14、本番サイトマップとmain `2b491cb501ed2ce02832318e1e47a06b00f4f312` の日本語記事集合は174 URLで一致（重複0）。既存完了台帳46 slugはすべて集合内、重複0。encoder-basicは集合内・既存台帳未登録。本番公開確認後に同slugを1件だけ追加し47件、完了未確認の残り127件へ同期。旧46件の状態・日付を変更せず、同記事の再更新や記録PRを重複加算しない。
 

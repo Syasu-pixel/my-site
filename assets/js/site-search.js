@@ -400,7 +400,7 @@
   card.dataset.categoryShelf = 'career';
   card.setAttribute('aria-label', 'キャリア・転職の記事一覧へ');
   card.innerHTML = `
-    <span class="support-category-card__image"><img src="assets/images/career/career-hero-v2.jpg" alt="電気・FAエンジニアのキャリア・転職" loading="lazy" decoding="async"></span>
+    <span class="support-category-card__image"><img src="assets/images/top-c/category-career-chibi-20261114.webp" alt="電気・FAエンジニアのキャリア・転職" loading="lazy" decoding="async"></span>
     <span class="support-category-card__body">
       <span class="support-category-card__title">キャリア・転職</span>
       <span class="support-category-card__description">電気・FAの仕事、必要なスキル、キャリア、転職先の考え方を技術者目線で整理します。</span>

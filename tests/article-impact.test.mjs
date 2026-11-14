@@ -34,3 +34,22 @@ test('category OGP consumer recorded',()=>{const r=trial({[img]:'new'},{initial:
 test('unknown TypeScript consumer forces full',()=>assert.equal(trial({[img]:'new'},{initial:{'assets/render.ts':`const image='${img}';`}}).scope,'all'));
 test('unregistered category forces full',()=>assert.equal(trial({[img]:'new'},{initial:{'categories/unknown.html':`<img class="related-card-thumb" src="../${img}">`}}).scope,'all'));
 test('mixed minified thumbnail and shared body image forces full',()=>assert.equal(trial({[img]:'new'},{initial:{[b]:`<img class="related-card-thumb" src="../${img}"><img src="../${img}">`}}).scope,'all'));
+
+const cssName='a'.repeat(64)+'.css.njk';
+const cssPath='.github/article-components/hero/css/'+cssName;
+const bindingsPath='.github/article-components/hero/css-bindings.json';
+const slot={template:'css/'+cssName,sourceSha256:'source',urls:[]};
+const bindings=(owners=[a])=>JSON.stringify(Object.fromEntries(owners.map(p=>[p,[slot]])));
+const cssInitial={[cssPath]:'.article-hero { display:block; }',[bindingsPath]:bindings()};
+test('static single-owner hero CSS stays focused',()=>{const r=trial({[cssPath]:'.article-hero { display:grid; }'},{initial:cssInitial});assert.equal(r.scope,'selected');assert.deepEqual(r.affectedTargets,[a]);});
+test('added bound static hero CSS stays focused',()=>{const r=trial({[cssPath]:'.article-hero { display:block; }',[bindingsPath]:bindings()},{initial:{[bindingsPath]:JSON.stringify({[a]:[]})}});assert.equal(r.scope,'selected');assert.deepEqual(r.affectedTargets,[a]);});
+test('shared hero CSS stays full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{...cssInitial,[bindingsPath]:bindings([a,b])}}).scope,'all'));
+test('removed shared owner cannot hide impact',()=>assert.equal(trial({[cssPath]:'x',[bindingsPath]:JSON.stringify({[a]:[slot],[b]:[]})},{initial:{...cssInitial,[bindingsPath]:bindings([a,b])}}).scope,'all'));
+test('unknown hero owner stays full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{...cssInitial,[bindingsPath]:bindings(['other.html'])}}).scope,'all'));
+test('unbound added hero CSS stays full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{[bindingsPath]:JSON.stringify({[a]:[]})}}).scope,'all'));
+test('unknown template consumer stays full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{...cssInitial,'other.njk':cssName}}).scope,'all'));
+test('deleted hero CSS stays full',()=>assert.equal(trial({[cssPath]:null},{initial:cssInitial}).scope,'all'));
+for(const [label,css] of Object.entries({dynamic:'{{ urls[0] | safe }}',include:'{% include "other.njk" %}',import:'@IMPORT "shared.css";',url:'x { background:URL(shared.png); }',escaped:'x { color:\\72 ed; }'}))test(label+' hero CSS stays full',()=>assert.equal(trial({[cssPath]:css},{initial:cssInitial}).scope,'all'));
+test('malformed bindings stay full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{...cssInitial,[bindingsPath]:JSON.stringify({[a]:null})}}).scope,'all'));
+test('manual full retains all for owned CSS',()=>assert.equal(trial({[cssPath]:'x'},{initial:cssInitial,full:true}).scope,'all'));
+

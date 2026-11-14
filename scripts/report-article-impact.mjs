@@ -18,6 +18,45 @@ export function articleImpact(base, head='HEAD', full=false) {
  ['.github/article-components/sidebar/all-pages.json',['pages','path',['cardsBefore','tocReference']]],
  ['.github/article-components/hero/css-bindings.json',null]]);
  let reason=full?'Explicit full audit':null;
+ function ownedStaticHeroCss(path){
+  // Never infer ownership from a directory name. Inspect both revisions so a
+  // removed/shared/unknown consumer cannot disappear from the impact proof.
+  if(!/^\.github\/article-components\/hero\/css\/[a-f0-9]{64}\.css\.njk$/.test(path))return false;
+  const bindingPath='.github/article-components/hero/css-bindings.json';
+  const template=path.slice('.github/article-components/hero/'.length), owners=new Set();
+  try{
+   for(const ref of [base,head]){
+    const bindings=json(ref,bindingPath);
+    if(!bindings||Array.isArray(bindings)||typeof bindings!=='object')return false;
+    let exists=true;try{git('cat-file','-e',`${ref}:${path}`);}catch{exists=false;}
+    let count=0;
+    for(const [page,slots] of Object.entries(bindings)){
+     if(!Array.isArray(slots))return false;
+     for(const slot of slots){
+      if(!slot||typeof slot.template!=='string')return false;
+      if(slot.template!==template)continue;
+      if(!exists||!registered.has(page))return false;
+      owners.add(page);count++;
+     }
+    }
+    if(exists){
+     if(!count)return false;
+     // Dynamic Nunjucks, imports and escaped dependencies require a full audit.
+     // Static CSS affects only its proven owning page; page-level checks remain.
+     const css=git('show',`${ref}:${path}`);
+     if(/\{[{%#]|@import\b|url\s*\(|\\/i.test(css))return false;
+    }
+    let matches;try{matches=git('grep','-lzIF','-e',basename(path),ref,'--');}
+    catch(e){if(e.status===1)continue;throw e;}
+    for(const raw of matches.split('\0').filter(Boolean)){
+     const consumer=raw.slice(ref.length+1);
+     if(consumer!==bindingPath&&!/^docs\/.+\.md$/.test(consumer))return false;
+    }
+   }
+  }catch{return false;}
+  if(owners.size!==1)return false;
+  affected.add([...owners][0]);return true;
+ }
  function ledger(path){
   const before=json(base,path),after=json(head,path),rule=registries.get(path);
   if(!rule){if(!isDeepStrictEqual(Object.keys(before),Object.keys(after)))return false;
@@ -61,6 +100,7 @@ export function articleImpact(base, head='HEAD', full=false) {
   if(registered.has(path)){if(status!=='M'){reason=`New article: ${path}`;break;}affected.add(path);continue;}
   if(/^docs\/.+\.md$/.test(path)||path==='docs/rules/catalog.json')continue;
   if(registries.has(path)&&status==='M'&&ledger(path))continue;
+  if(ownedStaticHeroCss(path))continue;
   if(/^assets\/images\//.test(path)&&image(path))continue;
   reason=`Shared or unrecognized change: ${path}`;
  }
@@ -71,3 +111,4 @@ if(process.argv[1]&&import.meta.url===new URL(`file://${process.argv[1]}`).href)
  const [base,head,out]=process.argv.slice(2);if(!base||!head||!out)throw Error('Usage: report-article-impact BASE HEAD OUTPUT');
  const result=articleImpact(base,head,process.env.FULL_ARTICLE_AUDIT==='1');writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }
+

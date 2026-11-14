@@ -128,6 +128,7 @@
 | [docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md](../comic-scripts/no-fuse-breaker-basic-yonkoma-01.md) — ノーヒューズブレーカ4コマ採用記録 | ノーヒューズブレーカ4コマの制作・改訂・公開・SNS追従を扱う場合。 |
 | [docs/comic-scripts/dc24v-common-basic-yonkoma-01.md](../comic-scripts/dc24v-common-basic-yonkoma-01.md) — DC24V COM 4コマ・採用記録 | COM四コマを制作・配置・公開・投稿するとき。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
+| [docs/comic-scripts/terminal-block-basic-yonkoma-01.md](../comic-scripts/terminal-block-basic-yonkoma-01.md) — 端子台4コマ・採用記録 | 端子台四コマを制作・配置・公開・投稿するとき。 |
 
 ## 履歴・参考
 

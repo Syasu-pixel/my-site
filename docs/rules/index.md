@@ -269,6 +269,9 @@
 | [.github/workflows/weekly-search-backlog.yml](../../.github/workflows/weekly-search-backlog.yml) | 検索順位・CTRの週次判定、バックログへの確認専用Draft PR提案を運用・変更する場合。 公式API取得済みデータを使い、記事本文や完了チェックを変更せず評価候補のみPRで提案する週次処理。 |
 | [scripts/search_backlog_report.py](../../scripts/search_backlog_report.py) | 既存記事改善バックログの検索データ自動評価を運用・変更する場合。 Supabase確定Google日次データに基づく候補抽出・公開URL限定・完成凍結/クールダウンガードを持つ提案生成器。 |
 | [scripts/test_search_backlog_report.py](../../scripts/test_search_backlog_report.py) | 検索データ自動評価器または週次提案処理を変更・検査する場合。 候補分類・限定更新・公開URL絞り込み・鮮度停止の回帰テスト。 |
+| [.github/workflows/browser-environment-trial.yml](../../.github/workflows/browser-environment-trial.yml) | ブラウザ検査の実行環境を診断・比較する場合。 公開ゲートを変更しない限定的な環境比較試験。合格は全サイト互換性を意味しない。 |
+| [scripts/probe-browser-environment.mjs](../../scripts/probe-browser-environment.mjs) | ブラウザ検査の実行環境を診断・比較する場合。 公開ゲートを変更しない限定的な環境比較試験。合格は全サイト互換性を意味しない。 |
+| [tests/browser-environment.test.mjs](../../tests/browser-environment.test.mjs) | ブラウザ検査の実行環境を診断・比較する場合。 公開ゲートを変更しない限定的な環境比較試験。合格は全サイト互換性を意味しない。 |
 
 ## 省略表記の参照先
 

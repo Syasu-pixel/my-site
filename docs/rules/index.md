@@ -129,6 +129,8 @@
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
 
+| [docs/comic-scripts/terminal-block-basic-yonkoma-01.md](../comic-scripts/terminal-block-basic-yonkoma-01.md) — 端子台4コマ・採用記録 | 端子台四コマを制作・配置・公開・投稿するとき。 |
+
 ## 履歴・参考
 
 | 文書 | 適用条件・扱い |

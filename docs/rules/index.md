@@ -179,6 +179,7 @@
 | [docs/reference-notes/signal-tower-light-basic.md](../reference-notes/signal-tower-light-basic.md) — 積層信号灯 記事刷新の根拠ノート | 積層信号灯記事の技術根拠・画像・旧PR採否を確認する。 |
 | [docs/reference-notes/interlock-basic.md](../reference-notes/interlock-basic.md) — インターロック回路 記事刷新の根拠ノート | インターロック回路記事の技術根拠・画像・安全機能との区別を確認する。 |
 | [docs/reference-notes/pressure-switch-basic.md](../reference-notes/pressure-switch-basic.md) — 圧力スイッチ 記事刷新の根拠ノート | 圧力スイッチの方式・動作条件・適用流体と安全上の境界を確認する。 |
+| [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
 
 ## 実装・設定の参照先
 

@@ -12,9 +12,9 @@
 | [docs/ai-editorial-project-status.md](../ai-editorial-project-status.md) — AI編集部 プロジェクト状態 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/ai-governance.md](../ai-governance.md) — Denkicontrol AI Governance v0.1 | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
 | [docs/editorial-department-status.md](../editorial-department-status.md) — AI編集部プロジェクト運用ステータス | すべての作業開始時。依頼範囲・権限・現行運用と確認手順を把握する。 |
+| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/conflicts.md](conflicts.md) — 既存不整合と今回の整理 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 | [docs/rules/index.md](index.md) — ルール・参照対象の正式一覧 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
-| [docs/rules/README.md](README.md) — ルール確認の入口と完了条件 | すべての作業開始時。条件付き文書の存在と適用性も判定する。 |
 
 ## 条件付き
 
@@ -62,6 +62,7 @@
 | [docs/codex-update-rules.md](../codex-update-rules.md) — CODEX反映ルール（codex update rules） | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/comic-character-sheet.md](../comic-character-sheet.md) — Denkicontrol 四コマ漫画 キャラクター設定 | 四コマ漫画・SNS漫画で先輩/後輩キャラクターを制作・更新・監査する。 |
 | [docs/comic-production-checklist.md](../comic-production-checklist.md) — Denkicontrol 四コマ漫画 制作チェックリスト | 四コマ漫画・SNS漫画の台本、画像生成、技術レビュー、採用、投稿準備を行う。 |
+| [docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md](../comic-scripts/no-fuse-breaker-basic-yonkoma-01.md) — ノーヒューズブレーカ4コマ採用記録 | ノーヒューズブレーカ4コマの制作・改訂・公開・SNS追従を扱う場合。 |
 | [docs/comic-style-guide.md](../comic-style-guide.md) — Denkicontrol 四コマ漫画スタイルガイド | 四コマ漫画・SNS漫画の世界観、絵柄、構成、CTA、シリーズ統一を扱う。 |
 | [docs/dashboard-progress-status-v066.md](../dashboard-progress-status-v066.md) — AI編集部 進行状況表示 v0.6.6 | 停止中のAI編集部の当該機能を明示依頼に基づき保守・再評価する場合。存在は再開許可を意味しない。 |
 | [docs/decisions/README.md](../decisions/README.md) — Denkicontrol Decision Log | 重要判断を記録・再評価する。既存判断の採用・未採用・失効を区別する。 |
@@ -83,28 +84,28 @@
 | [docs/new-article-checklist-v2-migration.md](../new-article-checklist-v2-migration.md) — 新規記事チェックリスト v2 移行オーバーライド | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/new-article-checklist.md](../new-article-checklist.md) — 新規記事作成チェックリスト | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
 | [docs/plc-ladder-editing-rules.md](../plc-ladder-editing-rules.md) — PLCラダー編集・作成ルール | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
+| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/estimate-template.md](../plc-templates/estimate-template.md) — PLC・制御盤改造 見積書テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/io-removal-checklist-template.md](../plc-templates/io-removal-checklist-template.md) — 現地配線撤去・I/O確認表テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/plc-templates/online-consultation-estimate-template.md](../plc-templates/online-consultation-estimate-template.md) — オンライン相談専用 見積書テンプレート | GX Works2オンライン相談などWeb経由の初回取引で見積書を作成・編集する。標準の現地工事見積には通常適用しない。 |
 | [docs/plc-templates/operation-spec-template.md](../plc-templates/operation-spec-template.md) — 設備運転仕様書（案）テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
-| [docs/plc-templates/README.md](../plc-templates/README.md) — PLC改造案件 提出資料テンプレート | PLCラダー、改造見積、設備運転仕様、現地I/O資料を作成・編集する。Web記事の構造だけの作業には通常該当しない。 |
 | [docs/popular-articles-maintenance.md](../popular-articles-maintenance.md) — 人気記事 週次更新ルール | 人気記事のランキング・週次更新を扱う。 |
 | [docs/post-approval-publish-pipeline.md](../post-approval-publish-pipeline.md) — 管理者Preview承認後の公開・インデックス工程 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
+| [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/dc24v-power-supply-basic.md](../reference-notes/dc24v-power-supply-basic.md) — DC24V電源（パワーサプライ）公式参照・刷新記録 | DC24V電源装置記事の作成・更新・画像・検査を扱う。一次資料、適用条件、検索根拠、採否記録を確認する。 |
 | [docs/reference-notes/din-rail-basic.md](../reference-notes/din-rail-basic.md) — din-rail-basic 公式参照メモ | DINレール記事の技術内容・画像・公式資料・用語を更新または監査する場合。 |
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/electromagnetic-contactor-vs-switch.md](../reference-notes/electromagnetic-contactor-vs-switch.md) — electromagnetic-contactor-vs-switch 公式参照メモ | articles/electromagnetic-contactor-vs-switch.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-fuse-breaker-basic.md](../reference-notes/no-fuse-breaker-basic.md) — ノーヒューズブレーカ記事 公式資料・用語参照メモ | articles/no-fuse-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/no-nc-basic.md](../reference-notes/no-nc-basic.md) — no-nc-basic 公式参照メモ | articles/no-nc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
-| [docs/reference-notes/terminal-block-basic.md](../reference-notes/terminal-block-basic.md) — terminal-block-basic 公式参照メモ | 端子台記事の技術説明・識別例・安全表現・画像を編集または確認する。未完了事項と公開承認を区別する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
@@ -113,6 +114,7 @@
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/terminal-block-basic.md](../reference-notes/terminal-block-basic.md) — terminal-block-basic 公式参照メモ | 端子台記事の技術説明・識別例・安全表現・画像を編集または確認する。未完了事項と公開承認を区別する。 |
 | [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/rule-alignment-v1.md](../rule-alignment-v1.md) — AI編集部ルール整合メモ v1 | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/search-console-content-improvement-log.md](../search-console-content-improvement-log.md) — Search Console Content Improvement Log | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
@@ -124,8 +126,6 @@
 | [docs/site-template-policy.md](../site-template-policy.md) — サイト共通ひな形・構造分離方針 v1（採用済み） | サイト構造・レイアウト・共通部品・記事制作・生成方式・移行状況を扱う。 |
 | [docs/terminology/README.md](../terminology/README.md) — Terminology Rules | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/tool-article-improvement-template.md](../tool-article-improvement-template.md) — 工具記事改善テンプレート（tool article improvement template） | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |
-| [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |
-| [docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md](../comic-scripts/no-fuse-breaker-basic-yonkoma-01.md) — ノーヒューズブレーカ4コマ採用記録 | ノーヒューズブレーカ4コマの制作・改訂・公開・SNS追従を扱う場合。 |
 
 ## 履歴・参考
 
@@ -155,16 +155,11 @@
 | [docs/decisions/2026-09-07-dashboard-japanese-ui-v032.md](../decisions/2026-09-07-dashboard-japanese-ui-v032.md) — AI編集部 Dashboard 日本語UI v0.3.2 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/decisions/2026-09-18-shared-site-templates.md](../decisions/2026-09-18-shared-site-templates.md) — Decision: ページ構造を共通ひな形へ分離する方針 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ja-en-technical-seo-audit.md](../ja-en-technical-seo-audit.md) — JA/EN Technical SEO Audit | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
+| [docs/reference-notes/control-transformer-basic.md](../reference-notes/control-transformer-basic.md) — 制御用トランス 公式参照メモ | 制御用トランス記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
+| [docs/reference-notes/encoder-basic.md](../reference-notes/encoder-basic.md) — encoder-basic 公式参照メモ | エンコーダ記事の根拠・用語・画像・現場知識の採否を確認する。 |
 | [docs/reference-notes/field-blog-watchlist.md](../reference-notes/field-blog-watchlist.md) — 現場知識｜技術ブログ更新チェック対象リスト | 現場知識に役立つ個人技術ブログ等の更新チェック対象・頻度・出典管理を確認するとき。登録だけで監視稼働とは見なさない。 |
 | [docs/reference-notes/field-knowledge-research-2026-11-07.md](../reference-notes/field-knowledge-research-2026-11-07.md) — 現場知識調査 第10回 — 個人技術ブログの比較と一次資料照合 | 現場知識の原典・確認範囲・一次資料照合・採否・既存slug対応を再利用するとき。掲載承認や実体験の独立実証とは見なさない。 |
-| [docs/reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md](../reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md) — 直列・並列回路 記事刷新｜採用画像引き継ぎ（2026-10-27） | 対象記事の採用画像、ハッシュ検証、刷新作業の履歴を参照するとき。公開承認済みの証明ではない。 |
-| [docs/search-top-content-audit-2026-09-10.md](../search-top-content-audit-2026-09-10.md) — 検索流入上位記事 技術・テンプレート品質監査（2026-09-10） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
-| [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
-| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
-| [docs/reference-notes/overseas-field-knowledge-2026-11-07.md](../reference-notes/overseas-field-knowledge-2026-11-07.md) — 海外現場知識 第12回 — 日本仕様との適用比較 | 海外の現場知識を再利用・再検証するとき。A/B/CとJP判定、原典の確認範囲、既存知識との重複を確認する。掲載・規格適合の承認ではない。 |
 | [docs/reference-notes/field-knowledge-round13-2026-11-08.md](../reference-notes/field-knowledge-round13-2026-11-08.md) — 現場知識調査 第13回 — 故障事例・現場用語・測定と判断 | 第13回の原典・本文確認範囲・FK13判定・国内仕様照合・既存知識との重複を再利用する。4軸索引は既存調査台帳を参照。掲載承認や実機検証の証明ではない。 |
 | [docs/reference-notes/field-knowledge-round14-2026-11-08.md](../reference-notes/field-knowledge-round14-2026-11-08.md) — 現場知識調査 第14回 — 軸受・潤滑・複合故障と診断の根拠 | 第14回の原典・確認範囲・FK14判定・日本向け条件・旧知識との重複を再利用するとき。既存4軸索引から参照し、掲載前に対象機種の一次資料を再確認する。 |
 | [docs/reference-notes/field-knowledge-round15-2026-11-08.md](../reference-notes/field-knowledge-round15-2026-11-08.md) — 現場知識調査 第15回 — 誤診・仮説修正・測定条件と暗黙知 | 第15回の原典確認・診断過程・旧B追加検証・4軸索引・記事別採否を参照する。掲載承認・実機実証・現行規格適合の証明ではない。 |
@@ -172,17 +167,23 @@
 | [docs/reference-notes/field-knowledge-round17-2026-11-08.md](../reference-notes/field-knowledge-round17-2026-11-08.md) — 現場知識調査 第17回 — 世界の故障事例・暗黙知・旧Bの再検証 | 第17回の原典本文・故障経緯・工具適合・A/B/CとJP判定・旧Bの追補・記事別採否を参照する。掲載承認や実機実証ではない。 |
 | [docs/reference-notes/field-knowledge-round18-2026-11-08.md](../reference-notes/field-knowledge-round18-2026-11-08.md) — 現場知識調査 第18回 — 空圧・油圧・搬送同期・低速軸受と再発防止 | 第18回の原典本文・診断過程・測定条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・実機実証・監視設定ではない。 |
 | [docs/reference-notes/field-knowledge-round19-2026-11-08.md](../reference-notes/field-knowledge-round19-2026-11-08.md) — 第19回：B判定再検証・国内メーカー型式別条件 | FK10〜FK18の現行B集計・優先度・型式別条件・再検証履歴を参照する。原典原因の実証や掲載承認とは区別する。 |
-| [docs/reference-notes/push-button-switch-basic.md](../reference-notes/push-button-switch-basic.md) — push-button-switch-basic 公式参照メモ | 押しボタンスイッチ記事の説明・公式根拠・採用範囲を確認する場合。 |
-| [docs/reference-notes/speed-controller-basic.md](../reference-notes/speed-controller-basic.md) — スピードコントローラ記事の技術参照メモ | スピードコントローラ記事の制作・刷新・技術確認時に参照する。 |
-| [docs/reference-notes/one-shot-circuit-basic.md](../reference-notes/one-shot-circuit-basic.md) — ワンショット回路の技術参照メモ | ワンショット回路の記事更新・技術根拠・画像説明を確認する。 |
-| [docs/reference-notes/plc-io-unit-basic.md](../reference-notes/plc-io-unit-basic.md) — PLC入力ユニット・出力ユニット 公式参照メモ | PLC入力・出力ユニット記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
-| [docs/reference-notes/control-transformer-basic.md](../reference-notes/control-transformer-basic.md) — 制御用トランス 公式参照メモ | 制御用トランス記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
-| [docs/reference-notes/signal-tower-light-basic.md](../reference-notes/signal-tower-light-basic.md) — 積層信号灯 記事刷新の根拠ノート | 積層信号灯記事の技術根拠・画像・旧PR採否を確認する。 |
 | [docs/reference-notes/interlock-basic.md](../reference-notes/interlock-basic.md) — インターロック回路 記事刷新の根拠ノート | インターロック回路記事の技術根拠・画像・安全機能との区別を確認する。 |
-| [docs/reference-notes/pressure-switch-basic.md](../reference-notes/pressure-switch-basic.md) — 圧力スイッチ 記事刷新の根拠ノート | 圧力スイッチの方式・動作条件・適用流体と安全上の境界を確認する。 |
-| [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
-| [docs/reference-notes/power-signal-wiring-separation-basic.md](../reference-notes/power-signal-wiring-separation-basic.md) — 動力線・信号線の分離 記事刷新の制作・参照メモ | 動力線・信号線の分離記事の技術根拠、現場資料採否、画像計画、公開前Previewの制作状態を確認する。公開完了の記録とは区別する。 |
+| [docs/reference-notes/one-shot-circuit-basic.md](../reference-notes/one-shot-circuit-basic.md) — ワンショット回路の技術参照メモ | ワンショット回路の記事更新・技術根拠・画像説明を確認する。 |
+| [docs/reference-notes/overseas-field-knowledge-2026-11-07.md](../reference-notes/overseas-field-knowledge-2026-11-07.md) — 海外現場知識 第12回 — 日本仕様との適用比較 | 海外の現場知識を再利用・再検証するとき。A/B/CとJP判定、原典の確認範囲、既存知識との重複を確認する。掲載・規格適合の承認ではない。 |
+| [docs/reference-notes/plc-io-unit-basic.md](../reference-notes/plc-io-unit-basic.md) — PLC入力ユニット・出力ユニット 公式参照メモ | PLC入力・出力ユニット記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
 | [docs/reference-notes/plc-xymd-device-basic.md](../reference-notes/plc-xymd-device-basic.md) — PLC X・Y・M・D 記事刷新の制作・参照メモ | PLC X・Y・M・D記事の機種別技術根拠、画像計画、公開前Previewの制作状態を確認する。公開完了記録とは区別する。 |
+| [docs/reference-notes/power-signal-wiring-separation-basic.md](../reference-notes/power-signal-wiring-separation-basic.md) — 動力線・信号線の分離 記事刷新の制作・参照メモ | 動力線・信号線の分離記事の技術根拠、現場資料採否、画像計画、公開前Previewの制作状態を確認する。公開完了の記録とは区別する。 |
+| [docs/reference-notes/pressure-switch-basic.md](../reference-notes/pressure-switch-basic.md) — 圧力スイッチ 記事刷新の根拠ノート | 圧力スイッチの方式・動作条件・適用流体と安全上の境界を確認する。 |
+| [docs/reference-notes/push-button-switch-basic.md](../reference-notes/push-button-switch-basic.md) — push-button-switch-basic 公式参照メモ | 押しボタンスイッチ記事の説明・公式根拠・採用範囲を確認する場合。 |
+| [docs/reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md](../reference-notes/series-parallel-circuit-basic-image-handoff-20261027.md) — 直列・並列回路 記事刷新｜採用画像引き継ぎ（2026-10-27） | 対象記事の採用画像、ハッシュ検証、刷新作業の履歴を参照するとき。公開承認済みの証明ではない。 |
+| [docs/reference-notes/signal-tower-light-basic.md](../reference-notes/signal-tower-light-basic.md) — 積層信号灯 記事刷新の根拠ノート | 積層信号灯記事の技術根拠・画像・旧PR採否を確認する。 |
+| [docs/reference-notes/speed-controller-basic.md](../reference-notes/speed-controller-basic.md) — スピードコントローラ記事の技術参照メモ | スピードコントローラ記事の制作・刷新・技術確認時に参照する。 |
+| [docs/search-top-content-audit-2026-09-10.md](../search-top-content-audit-2026-09-10.md) — 検索流入上位記事 技術・テンプレート品質監査（2026-09-10） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/site-template-rule-audit.md](../site-template-rule-audit.md) — 共通ひな形方針の既存ルール横断確認 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/terminal-block-jumper-audit-2026-09-11.md](../terminal-block-jumper-audit-2026-09-11.md) — 端子台の渡り線・ジャンパー記事 品質監査 2026-09-11 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
+| [docs/worklogs/air-cylinder-troubleshooting-basic-20260917.md](../worklogs/air-cylinder-troubleshooting-basic-20260917.md) — エアシリンダートラブル記事 改善作業ログ / 再開用バックログ | エアシリンダトラブル記事の改善履歴・採用経緯・未完了事項を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
+| [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 
 ## 実装・設定の参照先
 

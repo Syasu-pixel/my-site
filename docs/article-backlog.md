@@ -247,3 +247,9 @@
 ### 2026-11-14 接触器・サーマル4コマ
 - 本人採用別案02を第16作品としてトップ追加。source PR1895 / merge f71fb2f9。Instagram11/18 10:00 JST予約済（428043373、PENDING）。
 - [台本・採用・検証記録](comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+### 2026-11-14 DINレール4コマ
+- 本人採用画像を第17作品としてトップ追加。source PR1901 / merge d10526a2。既存Hero自動循環を保全。
+- Instagram11/19 10:00 JST予約済（428109456、PENDING）。実投稿完了とは区別。
+- [台本・採用・検証記録](comic-scripts/din-rail-basic-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。

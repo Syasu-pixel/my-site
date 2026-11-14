@@ -14,6 +14,15 @@
 - 四コマ漫画の追従確認では、このログの「本番公開完了」記事を起点に `docs/comic-scripts/` の正式採用記録と突合し、未四コマ化の記事を抽出する。
 
 ---
+
+## 2026-11-14 — air-regulator-basic 刷新プレビュー準備中（未公開）
+
+- 対象: `articles/air-regulator-basic.html`。一次側/二次側、圧力計の枝接続、使用中の圧力変化、圧力スイッチ・スピコンの役割差を基礎向けに整理。
+- 画像: `assets/images/air-regulator-basic/air-regulator-basic-{hero,ogp,overview,comparison,flow,checkpoints}-20261114.webp`。統一ちびキャラのHero/OGPと本文4図。
+- 公式資料確認2026-11-14。根拠・採否・画像確認は[参照メモ](reference-notes/air-regulator-basic.md)。未検証の実体験や原因割合は採用しない。
+- 対象台帳と検索索引を同期。既存関連記事・URL維持、sitemap.xmlは変更しない。
+- 状態: 本番未公開。画像原画/本文の独立確認済み。統合検査・最終Preview確認の結果は後続に記録する。旧PR #1486 は未マージで維持。
+
  
 ## 2026-11-13 — pressure-switch-basic 刷新プレビュー準備中（未公開）
 

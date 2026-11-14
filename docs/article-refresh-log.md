@@ -2,6 +2,90 @@
 
 このファイルは、既存記事の画像・OGP・カテゴリカード・関連記事導線などを改善した履歴を記録するためのログです。
 
+## 統合更新台帳（状態・集計の正本）
+
+2026-11-14の管理者依頼により、**更新済み記事の状態・件数は本書のこの台帳を唯一の入口**とする。新しい別台帳は作らない。以降の個別履歴も本書に追記し、この表の同じslugを更新する。過去の記録は消さず、訂正は根拠付きで追記する。
+
+### 集計範囲と根拠
+
+- 照合基点: main `d474f1241545a779488adb92aa42605b1299b117`。照合日2026-11-14。
+- [公開サイトマップ](../sitemap.xml)の日本語 `/articles/` は174 URL（重複0）。英語111 URLと公開停止PLC設計シリーズ3本は分母から除外。
+- 下表は44 slug。旧改善台帳25件に、公開履歴・mainマージ済み刷新PRで確認できた19件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全44本を「同一基準の全面改稿」とは呼ばない。
+- 174−44＝130本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
+- 公開記録日、最終内容更新日、公式資料確認日は別欄。HTMLのファイル更新日時やPRのマージ日を内容更新日に転用しない。未確認は未確認のまま保持。記事本文そのものの日付は今回変更しない。
+- 本番表示の個別確認は既存公開記録を継承。今回44記事すべてをブラウザ再監査したという意味ではない。記録が古い・矛盾する場合は実公開・main・PRを確認する。
+
+### 既存文書との分担
+
+- [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
+- [日本語記事バックログ](article-backlog.md): 新規企画・四コマ待ちなど別目的の状態を保持する。四コマ未完了を記事刷新未完了とは扱わない。
+- [検索改善ログ](search-console-content-improvement-log.md): 個別施策・検索意図の履歴。本文更新件数は本表で管理する。
+- [日付ガード](article-update-date-guard.md): 90日間の再編集制限の正本。日付不明・矛盾は履歴を追加確認し、凍結解除の理由にしない。
+
+### 更新手順
+
+1. 対象slugの実公開状況・記事PRと記録PRを区別して確認する。記録PRの未マージだけで公開済み記事を未公開へ戻さない。
+2. 本表の同一slugの状態・3種の日付・根拠を更新し、下の個別履歴に変更内容と検証範囲を記録する。Googleの本人実施・助手実施・未確認と、検索インデックス完了は分ける。
+3. 同じPRでバックログの派生チェック欄を同期し、slug重複・公開URL・差分範囲を検査する。集計基点と件数は公開URL集合を再確認して更新する。
+4. 安全・技術誤り等の既存例外を除き、90日経過だけでは再編集しない。本台帳は記事公開・費用発生の新たな許可を与えない。
+
+### 更新済み記事一覧
+
+| slug | 確認できた状態 | 公開・確認記録日 | 最終内容更新日 | 公式資料確認日 | 根拠 | 注意 |
+|---|---|---|---|---|---|---|
+| `a-contact-b-contact-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `air-cylinder-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `air-cylinder-troubleshooting-basic` | 刷新main反映済み | 2026-09-22（公開記録日） | 未確認 | 2026-09-16 | [PR #1488](https://github.com/Syasu-pixel/my-site/pull/1488)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `air-regulator-basic` | 刷新main反映済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `area-sensor-basic` | 刷新main反映済み | 未確認 | 2026-10-06 | 2026-10-06 | [PR #1693](https://github.com/Syasu-pixel/my-site/pull/1693) | 本文表示から採録。未確認は推測補完しない。 |
+| `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `dc24v-common-basic` | 改善完了・凍結記録あり | 2026-11-09（本番反映確認記録） | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 統合前台帳は本番反映確認日。内容更新日・公式確認日に転用しない。 |
+| `dc24v-power-supply-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `din-rail-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841)・本書の個別履歴 | 本書の個別公開履歴の最終内容更新日・公式資料確認日を採録。 |
+| `earth-leakage-breaker-basic` | 刷新main反映済み | 未確認 | 未確認 | 2026-10-06 | [PR #1677](https://github.com/Syasu-pixel/my-site/pull/1677) | 本文表示から採録。未確認は推測補完しない。 |
+| `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
+| `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
+| `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `no-fuse-breaker-basic` | 改善完了・凍結記録あり | 未確認 | 要照合（本文11-06／台帳11-08） | 2026-11-06 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 日付不一致を保留。安全側で11-08から90日未満は除外し、本文・台帳を勝手に変更しない。 |
+| `no-nc-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1568](https://github.com/Syasu-pixel/my-site/pull/1568)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `npn-pnp-basic` | 刷新main反映済み | 2026-09-26（公開記録日） | 未確認 | 2026-09-25 | [PR #1586](https://github.com/Syasu-pixel/my-site/pull/1586)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `one-shot-circuit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1852](https://github.com/Syasu-pixel/my-site/pull/1852)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `plc-basic` | 刷新main反映済み | 2026-10-14（管理者表示確認記録） | 未確認 | 2026-10-06 | [PR #1763](https://github.com/Syasu-pixel/my-site/pull/1763) | 本文表示から採録。未確認は推測補完しない。 |
+| `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
+| `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
+| `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `safety-control-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1661](https://github.com/Syasu-pixel/my-site/pull/1661) | 本文表示から採録。未確認は推測補完しない。 |
+| `selector-switch-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `self-hold-circuit` | 刷新main反映済み | 未確認 | 2026-10-04 | 2026-09-30 | [PR #1664](https://github.com/Syasu-pixel/my-site/pull/1664) | 本文表示から採録。未確認は推測補完しない。 |
+| `sensor-basic` | 刷新main反映済み | 2026-09-25（公開記録日） | 未確認 | 2026-09-24 | [PR #1575](https://github.com/Syasu-pixel/my-site/pull/1575)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `series-parallel-circuit-basic` | 刷新main反映済み | 2026-11-02（公開記録日） | 未確認 | 2026-10-28 | [PR #1789](https://github.com/Syasu-pixel/my-site/pull/1789)・[公開反映メモ](article-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `servo-motor-basic` | 画像刷新main反映済み | 2026-09-25（公開記録日） | 未確認 | 未確認 | [PR #1587](https://github.com/Syasu-pixel/my-site/pull/1587)・本書の個別履歴 | 画像刷新を含む広義の改善完了。本文全面改稿とは数えない。 |
+| `shielded-cable-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `signal-tower-light-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1861](https://github.com/Syasu-pixel/my-site/pull/1861)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `solenoid-valve-troubleshooting-basic` | 刷新main反映済み | 2026-09-29（公開記録日） | 2026-09-29 | 2026-09-29 | [PR #1621](https://github.com/Syasu-pixel/my-site/pull/1621)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `speed-controller-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1846](https://github.com/Syasu-pixel/my-site/pull/1846)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `star-delta-start-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `start-stop-circuit-basic` | 刷新main反映済み | 未確認 | 2026-09-29 | 2026-09-29 | [PR #1630](https://github.com/Syasu-pixel/my-site/pull/1630) | 本文表示から採録。未確認は推測補完しない。 |
+| `sto-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 未確認 | 2026-09-25 | [PR #1599](https://github.com/Syasu-pixel/my-site/pull/1599)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `terminal-block-basic` | 改善完了・凍結記録あり | 未確認 | 2026-11-11 | 2026-11-11 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `terminal-block-jumper-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `while-pressed-circuit-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1645](https://github.com/Syasu-pixel/my-site/pull/1645) | 本文表示から採録。未確認は推測補完しない。 |
+
+### 圧力スイッチの記録不一致を解消（2026-11-14）
+
+- [公開本体PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) はmainへマージ済み（`109a6a6b7a6d99d2097b07f498e43f6b7feedfd0`）。[公開後確認](https://github.com/Syasu-pixel/my-site/pull/1864#issuecomment-6867001027)にPages run 43516486745成功、本番HTMLと採用6画像の一致、PC表示・画像拡大確認、管理者の表示確認とGoogleリクエスト本人申告がある。
+- 記録専用[PR #1866](https://github.com/Syasu-pixel/my-site/pull/1866)は統合時点でopen/Draft・未マージ。本書の古い「プレビュー準備中」は当時の履歴として残し、**現在の公開状態として使用しない**。#1866のブランチやPRは今回変更・マージ・閉鎖しない。将来取り込む場合は本書との重複を解消する。
+- 最終内容更新・公式資料確認は2026-11-13。最短再評価2027-02-11。IndexNowはrun 43516486693で2026-11-13T22:07:23Zに1 URL HTTP200受理。Googleインデックス完了は未確認。本番スマホ・ダークの追加検証は未実施という制約も継承する。
+
+---
+
 ## 運用ルール
 
 - 既存記事の画像、OGP、カテゴリカード、関連記事導線、本文の軽微改善を行ったら記録する。

@@ -421,7 +421,7 @@
     button.addEventListener('click', () => {
       careerButton.classList.remove('active');
       careerButton.setAttribute('aria-pressed', 'false');
-      card.hidden = true;
+      card.hidden = (button.dataset.categoryFilter || button.dataset.filter || 'all') !== 'all';
     });
   });
 

@@ -1,6 +1,6 @@
 # DC24V電源4コマ採用記録
 
-状態：正式採用済み、main反映済み・本番配信確認中。2026-11-15 JST。
+状態：正式採用済み、本番配信確認済み。2026-11-15 JST。
 元記事：https://denkicontrol.com/articles/dc24v-power-supply-basic.html
 
 ## 本人採用・台本
@@ -25,7 +25,7 @@ main7fd6817基準のsource PR1908 c64136d。トップanchor1件とcounter17→18
 生成Preview PR1909 ce29f8d、https://8771cea1.denkicontrol-preview.pages.dev/ 。生成ファイルblob a30d00f12e07d67c4af6f774b8073470993d639aを照合。確認専用・mainマージ禁止。
 独立実画面PC約1180/狭幅500pxで18作品・DC24V6/18・採用画像・閉じる・記事CTA遷移正常。Hero3枚/カテゴリ6枠保持。実機スマホではない。
 build/prepare/preserve/check/capture成功。Donation strict job132627512750はサービス専用の変更許容assert行42で失敗。限定差分証明をPRコメント6885987466/6886027988へ記録し、成功へ書き換えていない。任意全件browser/compare進行中、設定/必須check変更なし。
-PR1908通常merge d81bb0350a38ea3806788e11d1d77fdaf06d1a70。Pages run43654431500は記録時進行中、本番確認は追記する。
+PR1908通常merge d81bb0350a38ea3806788e11d1d77fdaf06d1a70。Pages run43654431500成功。独立担当が本番新規タブで18作品・6/18採用第3案実画像の拡大と正しい記事リンクを確認。Preview専用PR1909は未マージで閉鎖。
 
 ## Instagram
 既存11/15〜19各10:00 JSTの5予約を確認し、次の空き枠2026-11-20 10:00 JSTへ予約。

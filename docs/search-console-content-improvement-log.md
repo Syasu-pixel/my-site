@@ -1,5 +1,7 @@
 # Search Console Content Improvement Log
 
+既存記事の更新済み状態・件数は[統合更新台帳](article-refresh-log.md#統合更新台帳状態集計の正本)を参照。本書は検索意図・施策の個別履歴を保持する。過去記録を現在の公開状態や更新件数として重複計上しない。
+
 ## Purpose
 This log tracks lightweight content reinforcements added to existing articles in response to search intents that showed traction in Search Console.
 

@@ -75,7 +75,7 @@ CSSだけの修正、明白なリンク切れ修正、誤字脱字、画像形�
 
 既存記事を「伸びていない」「CTRが低い」「順位が停滞している」等の理由で改善候補にする前に、必ず次の順で確認する。
 
-1. `docs/existing-article-improvement-backlog.md` で完成・凍結 `[x]` か確認する。
+1. [統合更新台帳](article-refresh-log.md#統合更新台帳状態集計の正本)で公開・改善完了・日付を確認し、`docs/existing-article-improvement-backlog.md` の派生チェック欄と照合する。不一致なら公開PR・履歴を優先して確認し、未更新と即断しない。
 2. 記事HTMLの最終内容更新日を確認する。
 3. `docs/reference-notes/{slug}.md` と記事内の公式資料確認日を確認する。
 4. GitHub履歴 / PR履歴で直近の実質的な内容更新がないか補完確認する。

@@ -44,7 +44,7 @@
 
 ## 既存リンクの所在確認
 
-`air-filter-regulator-lubricator-basic.html`、`pressure-gauge-basic.html`、`pressure-switch-basic.html`、`pressure-switch-vs-gauge-basic.html`、`speed-controller-basic.html`、`air-cylinder-troubleshooting-basic.html`、`air-tube-fitting-basic.html` は最新 main の `articles/` に存在。
+`articles/air-filter-regulator-lubricator-basic.html`、`articles/pressure-gauge-basic.html`、`articles/pressure-switch-basic.html`、`articles/pressure-switch-vs-gauge-basic.html`、`articles/speed-controller-basic.html`、`articles/air-cylinder-troubleshooting-basic.html`、`articles/air-tube-fitting-basic.html` は最新 main の `articles/` に存在。
 
 英語記事やサイト共通設定を本作業の都合だけで変更しない。実装時の適用ルール確認、画像検査、PC・スマホ・ダーク表示、Previewの確認結果は別途追記する。このメモ時点で完了扱いにしない。
 

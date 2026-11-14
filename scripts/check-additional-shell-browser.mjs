@@ -55,7 +55,35 @@ for(const path of pages)for(const width of [320,390,768,1440]){
   assert(darkAudit.body!==null&&darkAudit.body<100,'Dark body background missing');
   assert(darkAudit.lightSurfaces.length===0,'Light surfaces remain in dark mode: '+darkAudit.lightSurfaces.join(', '));
   assert(darkAudit.darkTexts.length===0,'Dark text remains in dark mode: '+darkAudit.darkTexts.join(', '));
-  if(path==='index.html'){const bg=await page.locator('.hero-grid').evaluate(e=>getComputedStyle(e).backgroundImage);assert(bg.includes('hero-top.png'),'Top hero image missing in dark mode');assert(!bg.includes('248, 251, 255'),'Light top hero overlay remains in dark mode');}
+  if(path==='index.html'){
+    // The adopted hero is three real images, not the retired hero-top.png CSS background.
+    const expected=['basics','sensor','components'].map(k=>'/assets/images/hero/hero-workshop-'+k+'-20261114.webp');
+    const host=page.locator('.dc-hero-preview'),slides=host.locator('.dc-hero-stage img'),buttons=host.locator('[data-hero-index]'),pause=host.locator('[data-hero-pause]');
+    assert(await host.count()===1,'Top hero missing');assert(await slides.count()===3&&await buttons.count()===3,'Expected exactly three hero images and selectors');
+    assert(JSON.stringify(await slides.evaluateAll(es=>es.map(e=>new URL(e.src).pathname)))===JSON.stringify(expected),'Unapproved hero image set');
+    const active=async i=>{
+      await page.waitForFunction(i=>{const a=[...document.querySelectorAll('.dc-hero-stage img')];return a.filter(e=>e.classList.contains('is-active')).length===1&&a[i].classList.contains('is-active')&&Number(getComputedStyle(a[i]).opacity)>.99&&a.every((e,k)=>k===i||(e.getAttribute('aria-hidden')==='true'&&Number(getComputedStyle(e).opacity)<.01))},i);
+      const info=await slides.nth(i).evaluate(async e=>{await e.decode();const r=e.getBoundingClientRect(),p=e.parentElement.getBoundingClientRect(),s=getComputedStyle(e);return {decoded:e.complete&&e.naturalWidth>0&&e.naturalHeight>0,visible:s.display!=='none'&&s.visibility!=='hidden'&&Math.min(r.right,p.right)>Math.max(r.left,p.left)&&Math.min(r.bottom,p.bottom)>Math.max(r.top,p.top),hidden:e.getAttribute('aria-hidden')};});
+      assert(info.decoded&&info.visible&&info.hidden==='false','Active hero must decode and be visible in dark mode');
+      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','Hero selector state mismatch');
+      assert(await host.locator('[data-hero-index][aria-pressed="true"]').count()===1,'Multiple active hero selectors');
+    };
+    const darkHero=await host.evaluate(e=>{const g=getComputedStyle(e.querySelector('.hero-grid')),a=getComputedStyle(e.querySelector('.dc-hero-stage'),'::after');return {background:g.backgroundColor,overlay:a.backgroundImage,overlayHidden:a.display==='none'};});
+    const bgNumbers=darkHero.background.match(/\d+/g).slice(0,3).map(Number);assert(bgNumbers.reduce((a,b)=>a+b,0)/3<100,'Light hero background remains in dark mode');
+    assert(darkHero.overlayHidden||(!darkHero.overlay.includes('243, 249, 255')&&darkHero.overlay.includes('24, 38, 55')),'Dark hero contrast overlay missing');
+    await host.scrollIntoViewIfNeeded();
+    assert(await pause.isDisabled(),'Reduced motion must disable automatic rotation');
+    // No selector has been clicked: paused is still false, so this isolates reduced-motion behavior.
+    await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await active(0);await page.waitForTimeout(7300);assert(await slides.nth(0).evaluate(e=>e.classList.contains('is-active')),'Hero advanced while rotation should be stopped');await active(0);
+    for(let i=0;i<3;i++){await buttons.nth(i).click();await active(i);await page.screenshot({path:resolve(out,'screenshots','hero-'+width+'-dark-'+i+'.png'),animations:'disabled'});}
+    await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await active(2);
+    // Re-enable motion and prove the final frame wraps to the first at the real interval.
+    await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForFunction(()=>!document.querySelector('[data-hero-pause]').disabled,null,{timeout:2000});assert(await pause.isEnabled(),'Hero does not respond to motion preference change');
+    await pause.click();await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();
+    await page.waitForFunction(()=>document.querySelectorAll('.dc-hero-stage img')[0].classList.contains('is-active'),null,{timeout:10000});await active(0);
+    await pause.click();await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await page.waitForTimeout(7300);assert(await slides.nth(0).evaluate(e=>e.classList.contains('is-active')),'Hero advanced while rotation should be stopped');await active(0);
+    assert(await pause.getAttribute('aria-pressed')==='true','Explicit stop must persist after focus and pointer leave');
+  }
   if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
   if(service && await page.locator('.article-hero-copy').count()>0){
     const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{

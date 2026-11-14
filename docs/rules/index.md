@@ -131,6 +131,7 @@
 | [docs/comic-scripts/terminal-block-basic-yonkoma-01.md](../comic-scripts/terminal-block-basic-yonkoma-01.md) — 端子台4コマ・採用記録 | 端子台四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md](../comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md) — 接触器・サーマル4コマ採用記録 | 接触器・サーマルの四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/din-rail-basic-yonkoma-01.md](../comic-scripts/din-rail-basic-yonkoma-01.md) — DINレール4コマ採用記録 | DINレールの四コマを制作・配置・公開・投稿するとき。 |
+| [docs/comic-scripts/dc24v-power-supply-basic-yonkoma-01.md](../comic-scripts/dc24v-power-supply-basic-yonkoma-01.md) — DC24V電源4コマ採用記録 | DC24V電源の四コマを制作・配置・公開・投稿するとき。 |
 
 ## 履歴・参考
 

@@ -253,3 +253,7 @@
 - 本人採用画像を第17作品としてトップ追加。source PR1901 / merge d10526a2。既存Hero自動循環を保全。
 - Instagram11/19 10:00 JST予約済（428109456、PENDING）。実投稿完了とは区別。
 - [台本・採用・検証記録](comic-scripts/din-rail-basic-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+## 2026-11-15 DC24V電源4コマ追従
+採用第3案「これ、充電するんですか？」をPR1908でmain反映。18作品。Instagramは11/20 10:00 JST予約PENDING確認済み。本番18作品・採用画像・記事リンクを独立確認済み。実投稿は未確認。詳細は [採用記録](comic-scripts/dc24v-power-supply-basic-yonkoma-01.md)。記事本文の日付と90日ガードは変更しない。

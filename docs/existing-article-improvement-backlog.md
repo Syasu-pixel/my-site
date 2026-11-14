@@ -54,6 +54,8 @@
 - [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
 - [x] `articles/load-cell-basic.html` — ロードセル — 2026-10-02 本番公開完了（PR #1650 / 画像6枚刷新 / 公式資料監査済み / 統合最終Preview承認済み / GitHub Pages・IndexNow確認済み / Google Search Console登録リクエスト実施済み）
 
+- [x] `articles/air-regulator-basic.html` — エアレギュレータ。最終内容更新・公式資料確認2026-11-14。本文とちびキャラ画像6枚を承認後、[PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)をmainへ反映。Pages成功、2026-11-14 03:41 UTCに本番本文・6画像の一致を確認。完成・凍結、90日未満は原則再改善候補から除外、最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14にユーザー本人から実施報告あり、検索インデックス完了は未確認。詳細は記事リフレッシュ記録。
+
 ## 次回の改善対象の決め方
 
 固定の「現在位置」は持たない。

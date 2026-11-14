@@ -15,15 +15,19 @@
 
 ---
 
-## 2026-11-14 — air-regulator-basic 刷新プレビュー準備中（未公開）
+## 2026-11-14 — air-regulator-basic 刷新・本番公開完了
 
-- 対象: `articles/air-regulator-basic.html`。一次側/二次側、圧力計の枝接続、使用中の圧力変化、圧力スイッチ・スピコンの役割差を基礎向けに整理。
-- 画像: `assets/images/air-regulator-basic/air-regulator-basic-{hero,ogp,overview,comparison,flow,checkpoints}-20261114.webp`。統一ちびキャラのHero/OGPと本文4図。
-- 公式資料確認2026-11-14。根拠・採否・画像確認は[参照メモ](reference-notes/air-regulator-basic.md)。未検証の実体験や原因割合は採用しない。
-- 対象台帳と検索索引を同期。既存関連記事・URL維持、sitemap.xmlは変更しない。
-- 状態: 本番未公開。画像原画/本文の独立確認済み。統合検査・最終Preview確認の結果は後続に記録する。旧PR #1486 は未マージで維持。
+- 対象: `articles/air-regulator-basic.html`。本番URL: https://denkicontrol.com/articles/air-regulator-basic.html
+- 管理者の最終Preview公開承認により [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867) をmain `db570109a702204f6d2bd2ee5e48ba9df1e0f0c5` へマージ。承認時source `797479aa8aee3c8e309fc1551067cea4e9333b43`、最終source `96eb868d0b5896c6308a09a796ffacffa1e19725`。後者は根拠noteのcatalog登録と参照表記の修正のみで、承認本文・画像は変更していない。
+- 最終内容更新・公式資料確認: 2026-11-14。一次側/二次側、圧力計の枝接続、使用中の圧力変化、圧力スイッチ・スピコンとの役割差を基礎向けに整理。[公式参照メモ](reference-notes/air-regulator-basic.md)。未検証の体験談・原因割合は採用していない。
+- 画像: `assets/images/air-regulator-basic/air-regulator-basic-{hero,ogp,overview,comparison,flow,checkpoints}-20261114.webp` の6枚。統一ちびキャラHero/OGPと本文4図。針の概念表現は方向・大きさ・正常異常を示さないと図直下に注記。
+- 台帳と検索索引の対象title/description・キーワードを同期。既存関連記事とURL維持、sitemap.xml・トップ・カテゴリ・英語記事は変更なし。sitemap対象URLは既存掲載、lastmodなし。
+- 検証: build/prepare/本文349件・画像1641件の対応とリンク・共通領域保存検査を実施。幅320/390/768/1440の明暗8条件で画像・はみ出し・横スクロール表・拡大操作を確認。catalog修正後check job132312378322は成功。shell compareは対象footerの切り出し位置/1px画像寸法差で失敗したが、DOM実寸/内部配置/動作は同一、他記事差分・新規エラーなしと独立確認し個別許容。閾値・設定は変更せず。詳細は[検査記録](https://github.com/Syasu-pixel/my-site/pull/1867#issuecomment-6870826463)。
+- [Pages run43550878307](https://github.com/Syasu-pixel/my-site/actions/runs/43550878307) build/deploy成功。2026-11-14 03:41 UTC（12:41 JST）、本番HTMLが承認publicationとSHA256完全一致、採用6画像すべてHTTP200・SHA256一致。外部Chromeでも更新本文・Hero・本文図の表示を確認。実機スマホ検査とは区別する。
+- [IndexNow run43550878384](https://github.com/Syasu-pixel/my-site/actions/runs/43550878384): 対象1URLの通知が03:20:11 UTCにHTTP200で受理。検索インデックス完了を意味しない。
+- Google: 2026-11-14、ユーザー本人からインデックス登録リクエスト実施の報告あり。助手による再送はしていない。検索インデックス完了は未確認。
+- 状態: 本番公開完了・完成/凍結。最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-12、期間経過だけで再編集しない。Preview専用 #1868 は未マージでclose、ブランチ保持。旧競合PR #1486はマージしていない。
 
- 
 ## 2026-11-13 — pressure-switch-basic 刷新プレビュー準備中（未公開）
 
 - 対象: `articles/pressure-switch-basic.html`。本文を「とは・仕組み」中心に刷新。メーカー資料との照合、機械式/電子式、適用流体、応差、表示/信号の読み分けを整理。

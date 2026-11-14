@@ -202,7 +202,7 @@
 
 ## 公開反映メモ
 
-- [ ] **四コマ制作待ち** — `articles/no-fuse-breaker-basic.html`。2026-11-08刷新（[PR #1812](https://github.com/Syasu-pixel/my-site/pull/1812)）。採用素材はHero・OGP・本文図3枚。四コマの正式採用・登録は未確認。制作時の題材候補は過負荷・短絡・漏電ブレーカとの違い。
+- [x] **四コマ追従完了** — `articles/no-fuse-breaker-basic.html`。2026-11-14管理者が画像採用・サイト公開承認。台本は `docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md`。トップ本番13作品への追加・拡大リンクを確認。Instagramは2026-11-15 10:00 JSTに予約しPENDING/draft:falseを再取得確認（実投稿は未確認）。記事刷新PR #1812とは別の再利用コンテンツ。
 
 - [ ] **四コマ制作待ち** — `articles/dc24v-common-basic.html`。2026-11-09に既存記事を刷新・公開（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。採用はHero・OGP・本文図3枚。四コマの正式採用・登録は未確認。制作時は採用画像と本文を参照し、先輩・後輩の短い会話で「COMはどちら側？」→「複数入力がCOMを共用」→「プラス／マイナスコモンの違い」→「配線図と機種の仕様書で確認」の順を候補とする。
 

@@ -182,6 +182,7 @@
 | [docs/reference-notes/pressure-switch-basic.md](../reference-notes/pressure-switch-basic.md) — 圧力スイッチ 記事刷新の根拠ノート | 圧力スイッチの方式・動作条件・適用流体と安全上の境界を確認する。 |
 | [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
 | [docs/reference-notes/power-signal-wiring-separation-basic.md](../reference-notes/power-signal-wiring-separation-basic.md) — 動力線・信号線の分離 記事刷新の制作・参照メモ | 動力線・信号線の分離記事の技術根拠、現場資料採否、画像計画、公開前Previewの制作状態を確認する。公開完了の記録とは区別する。 |
+| [docs/reference-notes/plc-xymd-device-basic.md](../reference-notes/plc-xymd-device-basic.md) — PLC X・Y・M・D 記事刷新の制作・参照メモ | PLC X・Y・M・D記事の機種別技術根拠、画像計画、公開前Previewの制作状態を確認する。公開完了記録とは区別する。 |
 
 ## 実装・設定の参照先
 

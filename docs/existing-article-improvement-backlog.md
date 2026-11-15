@@ -117,3 +117,9 @@
 - [x] `articles/start-stop-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
 - [x] `articles/sto-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
 - [x] `articles/while-pressed-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+
+
+## 2026-11-15 非常停止4コマ追従
+- 本人採用「戻したら、動いちゃう？」を正式PR1915通常マージ。20作品。Pages成功後、本番20作品・採用画像・正しい記事リンクとHero/カテゴリ保全を独立確認済み。
+- Instagram 2026-11-22 10:00 JST予約 post428486030、PENDING再取得確認。実投稿とは区別。
+- [採用記録](comic-scripts/emergency-stop-switch-basic-yonkoma-01.md)。記事本文・更新日・90日ガードは変更しない。

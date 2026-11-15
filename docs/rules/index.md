@@ -133,6 +133,7 @@
 | [docs/comic-scripts/din-rail-basic-yonkoma-01.md](../comic-scripts/din-rail-basic-yonkoma-01.md) — DINレール4コマ採用記録 | DINレールの四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/dc24v-power-supply-basic-yonkoma-01.md](../comic-scripts/dc24v-power-supply-basic-yonkoma-01.md) — DC24V電源4コマ採用記録 | DC24V電源の四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/push-button-switch-basic-yonkoma-01.md](../comic-scripts/push-button-switch-basic-yonkoma-01.md) — 押しボタン4コマ採用記録 | 照光押しボタンの四コマを制作・配置・公開・投稿するとき。 |
+| [docs/comic-scripts/emergency-stop-switch-basic-yonkoma-01.md](../comic-scripts/emergency-stop-switch-basic-yonkoma-01.md) — 非常停止4コマ採用記録 | 非常停止の四コマを制作・配置・公開・投稿するとき。 |
 
 ## 履歴・参考
 

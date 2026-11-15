@@ -68,4 +68,4 @@
 
 ## メモ
 - 2026-09-29: 既存PR #1466を最新main基準で再構成する際に作成。
-- 検索実績では直近28日でGoogle 1,429 impressions / 55 clicks / CTR 3.85% / avg position 6.84。本文は「故障原因」「故障症状」の需要を意識しつつ、titleは現状維持。
+- 検索実績では直近28日でGoogle [非公開] impressions / [非公開] clicks / CTR [非公開] / avg position [非公開]。本文は「故障原因」「故障症状」の需要を意識しつつ、titleは現状維持。

@@ -1,6 +1,6 @@
 # PLC入出力4コマ採用記録
 
-状態：本人採用・正式main反映済み、本番配信の独立確認待ち。2026-11-15 JST。
+状態：本人採用・本番配信確認済み。2026-11-15 JST。
 元記事：https://denkicontrol.com/articles/plc-io-unit-basic.html
 
 ## 台本と根拠
@@ -24,7 +24,7 @@ source PR1918 HEAD351c61e7cac834f9d9d1ab784d01ccc77baa6e7f、main8609700基準�
 anchor1件とcounter20→21、manifest/inventory index同期のみ。16ページ再生成PASS、indexは承認追加以外一致、他15ページ一致。
 preview専用PR1919 HEAD07687e6badfcc89dab51344044816ef75154679f、https://328379ce.denkicontrol-preview.pages.dev/ 。PC約1180px/狭幅500pxで21作品・16/21採用画像・拡大/閉じる・plc-io-unit-basic.htmlリンクを独立確認。簡素化Heroと新カテゴリ6画像保持。
 build/prepare/verify/check/preserve/capture成功。Donation strict job132655365925は既存GX Works2専用許容assert行42でindex変更を拒否。独立生成物差分と根拠はPRコメント6887305333/6887342190。設定・保護変更や強制mergeなし。任意全件browser/compareの完了は主張しない。
-正式PR1918通常merge9d0322f2632cf204578246ab2a11e86b2503035b。health JSON更新95afd343保全。preview1919未マージ閉鎖。Pages43663553011の本番確認待ち。
+正式PR1918通常merge9d0322f2632cf204578246ab2a11e86b2503035b。health JSON更新95afd343保全。preview1919未マージ閉鎖。Pages43663553011 completed/success。独立担当が新規タブで本番21作品・16/21採用画像の実表示と正しい記事リンクを確認。簡素化Heroとカテゴリ新6画像の正常ロード・配置も保持。
 
 ## Instagram
 既存11/15〜22枠を保持、2026-11-23 10:00 JSTの空き枠へ予約。

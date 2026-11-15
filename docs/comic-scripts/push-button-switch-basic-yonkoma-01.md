@@ -1,6 +1,6 @@
 # 押しボタン4コマ採用記録
 
-状態：正式採用済み、本番配信検証待ち。2026-11-15 JST。
+状態：正式採用済み、本番配信確認済み。2026-11-15 JST。
 元記事：https://denkicontrol.com/articles/push-button-switch-basic.html
 
 ## 本人採用と技術
@@ -27,7 +27,7 @@ Hero/カテゴリ統合main56f00cc基準。正式source PR1912 HEAD40e133812fa94
 https://422ac835.denkicontrol-preview.pages.dev/
 独立PC約1180px/狭幅500pxで19作品・14/19採用画像・拡大・閉じると正しい記事リンクを確認。簡素Heroとカテゴリ6画像保持。
 source build/prepare/preserve/check/capture成功。Donation strict job132637818872はサービス限定許容assert行42で失敗。生成indexから承認anchor1件/counterだけ戻すと基準完全一致、他15ページ一致を確認しPRコメント6886453730/6886621817へ記録。設定・必須check変更なし。任意全件browser/compareは未完了と区別。
-PR1912通常merge c87b144e6ec3cd697c084b587afd9da796fa6aa6。直前health自動更新d1c4623も保全。Preview専用PR1913は未マージ閉鎖。本番Pages43658560611配信は確認待ち。
+PR1912通常merge c87b144e6ec3cd697c084b587afd9da796fa6aa6。直前health自動更新d1c4623も保全。Preview専用PR1913は未マージ閉鎖。本番Pages43658560611成功。独立担当が新規タブの本番トップで19作品・14/19採用画像の拡大表示と正しい記事リンク、簡素Hero・カテゴリ6画像を確認。
 
 ## Instagram
 既存11/15〜20各10:00 JSTを保持し、次の空き枠2026-11-21 10:00 JST予約。

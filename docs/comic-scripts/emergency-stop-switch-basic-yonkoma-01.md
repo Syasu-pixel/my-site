@@ -1,6 +1,6 @@
 # 非常停止4コマ採用記録
 
-状態：正式採用済み、main反映済み。本番配信の独立確認待ち。2026-11-15 JST。
+状態：正式採用済み、本番配信確認済み。2026-11-15 JST。
 元記事：https://denkicontrol.com/articles/emergency-stop-switch-basic.html
 
 ## 本人採用と技術
@@ -26,7 +26,7 @@ indexのanchor1件追加とcounter19→20、manifest/inventoryのindex同期。�
 https://3896d840.denkicontrol-preview.pages.dev/
 独立PC約1180px/狭幅500pxで20作品・19/20採用画像・拡大・閉じる・正しい記事リンク確認。簡素化Heroとカテゴリ新6画像保全。
 build/prepare/verify/check/preserve/capture成功。Donation strict job132648054573は既存のGX Works2限定assert行42でindex変更を拒否。根拠と差分検証はPRコメント6886949566/6887013392。テスト・保護の変更や強制マージなし。任意全件browser/compareの完了は主張しない。
-PR1915通常merge d1d3819b912d0f172b5448207c891b7f612e8e89。Preview1916は未マージ閉鎖。Pages43661205294の本番配信確認は追記予定。
+PR1915通常merge d1d3819b912d0f172b5448207c891b7f612e8e89。Preview1916は未マージ閉鎖。Pages43661205294 completed/success。独立担当が新規タブの本番トップで20作品・19/20採用非常停止画像と正しい記事リンクを実画面確認。簡素化Heroとカテゴリ新6画像全て正常ロード保持。
 
 ## Instagram
 既存11/15〜21各10:00 JSTを保持し、2026-11-22 10:00 JST予約。

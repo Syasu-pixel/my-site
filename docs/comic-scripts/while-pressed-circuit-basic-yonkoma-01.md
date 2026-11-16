@@ -1,6 +1,6 @@
 # 押している間だけ動く回路 四コマ漫画 01
 
-状態: 正式採用済み（2026-11-16）。Instagram予約済み、トップ本番公開は検証・反映待ち。
+状態: 正式採用済み（2026-11-16）。Instagram予約済み、トップ本番公開・配信確認済み。
 
 - 元記事: `articles/while-pressed-circuit-basic.html`（本文の変更なし）
 - 参照: `docs/reference-notes/while-pressed-circuit-basic.md`
@@ -30,3 +30,11 @@
 - additional shell正規生成と16ページ再生成検査に合格。変更は承認された追加のindexエントリーとinventoryだけ。共通テンプレート・検査の改変なし。
 - 変更前main: b6e1f7732bd8a9077d7d6e1f9c1cfbda45f8039f。2026-11-16取得の本番トップSHA-256: 8ad1841d40a8b5cbe5ac3dcf4197acfa9124bc0b7dc48729fc3551c90bf6f4de。生成候補との差は配信時画像最適化のURL変換。
 - ローカルChromium起動は環境制約、別ブラウザからローカルPreviewへは接続不可。GitHub Actionsの生成・4幅ブラウザ検証を確認し、公開配信の確認は別途記録する。
+
+## 本番公開結果（2026-11-16）
+
+- 管理者のトップ本番公開承認後、PR #1939を正規マージ。merge `bf3a3a170236df7a6be64137a540f558cd7091ac`。Pages run 43841268201 success。
+- Additional page shared shells run 43835379789 success（16ページ×4幅、明暗を含む既設検査）。寄付CSS限定の比較は承認済みindex追加を許容しない用途不一致で失敗。検査・共通部品は変更していない。
+- 本番HTML30作品・採用画像・元記事導線・カウンターを再取得確認。配信WebPは1254×1254を目視確認（最適化後なので原本とバイト同一とは扱わない）。
+- 本番ブラウザでも手動切替、対象作品の通常表示から拡大、16 / 30表示、記事リンクを確認。
+- Instagramは予約完了と実投稿を区別し、実投稿は未確認。

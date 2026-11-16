@@ -194,6 +194,7 @@
 | [docs/worklogs/sto-basic-refresh-20260927.md](../worklogs/sto-basic-refresh-20260927.md) — STO記事 全面刷新 作業ログ 2026-09-27 | STO記事の全面刷新における検索データ、公式参照、採用画像、Preview経緯を確認する場合。現行ルールや公開完了の正本として扱わず、最新PR・台帳・CI結果と照合する。 |
 | [top-page-audit-based-revision-plan.md](../../top-page-audit-based-revision-plan.md) — トップページ修正設計（監査ベース） | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/comic-scripts/self-hold-circuit-yonkoma-01.md](../comic-scripts/self-hold-circuit-yonkoma-01.md) — 自己保持回路 四コマ漫画 01 | 自己保持回路記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/start-stop-circuit-basic-yonkoma-01.md](../comic-scripts/start-stop-circuit-basic-yonkoma-01.md) — 起動・停止回路 四コマ漫画 01 | 起動停止回路記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 
 ## 実装・設定の参照先
 

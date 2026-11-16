@@ -271,3 +271,8 @@
 ## 2026-11-16 起動・停止回路4コマ
 
 画像正式採用。Instagram 2026-12-04 10:00 JST予約済み（429636385）。トップ本番公開済み（PR #1937、Pages run 43819941811 success）。本番HTML29作品・元記事導線・配信画像を確認し、四コマ追従完了。本文更新とは別管理。Instagram実投稿は未確認。
+
+
+### 押している間だけ動く回路 四コマ（2026-11-16）
+
+画像正式採用・GitHub正本保存済み。トップ本番公開済み（PR #1939、Pages run 43841268201 success）。本番HTML30作品・通常/拡大表示・元記事導線・配信画像を確認し、四コマ追従完了。Instagram 2026-12-05 10:00 JST予約済み（429749472、PENDING/draft:false/autoPublish:true/AI申告true）。記事本文の刷新とは別管理。Instagram実投稿は未確認。台本は `docs/comic-scripts/while-pressed-circuit-basic-yonkoma-01.md`。

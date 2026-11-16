@@ -1,6 +1,6 @@
 # 自己保持回路 四コマ漫画 01
 
-状態: 正式採用済み（2026-11-16）。トップ掲載候補、Instagram予約確認済み。
+状態: 正式採用済み（2026-11-16）。トップ本番公開・Instagram予約確認済み。
 
 - 元記事: `articles/self-hold-circuit.html`（記事本文は変更しない）
 - 参照: `docs/reference-notes/self-hold-circuit.md`
@@ -33,3 +33,7 @@
 - 既存予約は12月2日まで連続していたため次の空き枠を使用。重複なし。
 - トップは既存27作品に1作品追加する差分。画像採用に基づく追加以外のヒーロー・カテゴリ・記事本文変更はない。
 - additional shell原文基準・candidate基準およびsite-inventoryは、この承認済み追加から正規生成してindex.htmlのエントリーだけを同期。共通テンプレートと検査コードは変更しない。
+
+## 公開完了
+
+PR #1935、merge `31fc0a927c3e2ded1aaf789b63b8749baf9cc39a`。Pages run 43805679907 success。本番トップの導線・28作品カウンター・最適化後WebP画像1254×1254を取得し目視確認。記事本体変更なし。Additional shells、全12ブラウザ分割、両reconcile、生成・保全・比較・目録は成功。旧Donation専用の固定GX Works2差分検査は対象外のindex変更で失敗し、テスト無変更で差分を個別検証した証拠をPRコメントに記録。

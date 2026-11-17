@@ -167,6 +167,7 @@
 | [docs/decisions/2026-09-18-shared-site-templates.md](../decisions/2026-09-18-shared-site-templates.md) — Decision: ページ構造を共通ひな形へ分離する方針 | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/ja-en-technical-seo-audit.md](../ja-en-technical-seo-audit.md) — JA/EN Technical SEO Audit | 個別監査・設計案・過去の判断の根拠を必要時に読む。現行の包括的な命令や実装完了証明として使用しない。 |
 | [docs/reference-notes/air-regulator-basic.md](../reference-notes/air-regulator-basic.md) — エアレギュレータ 記事刷新の根拠ノート | 一次側・二次側、圧力計の接続、圧力と流量の役割差、安全上の境界を確認する。 |
+| [docs/reference-notes/control-panel-cooling-fan-basic.md](../reference-notes/control-panel-cooling-fan-basic.md) — control-panel-cooling-fan-basic 公式参照メモ | 冷却ファン基礎記事の公式資料・適用範囲・安全留保を確認するとき。公開完了や全ルール読了の証明には使用しない。 |
 | [docs/reference-notes/control-transformer-basic.md](../reference-notes/control-transformer-basic.md) — 制御用トランス 公式参照メモ | 制御用トランス記事の更新・技術根拠・画像説明・旧PR継承範囲を確認する。 |
 | [docs/reference-notes/encoder-basic.md](../reference-notes/encoder-basic.md) — encoder-basic 公式参照メモ | エンコーダ記事の根拠・用語・画像・現場知識の採否を確認する。 |
 | [docs/reference-notes/field-blog-watchlist.md](../reference-notes/field-blog-watchlist.md) — 現場知識｜技術ブログ更新チェック対象リスト | 現場知識に役立つ個人技術ブログ等の更新チェック対象・頻度・出典管理を確認するとき。登録だけで監視稼働とは見なさない。 |

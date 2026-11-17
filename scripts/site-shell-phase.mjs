@@ -10,16 +10,16 @@ export async function shellContract(page, selector) {
   });
 }
 
-// Eligibility is deliberately fail-closed. A transform creates a stacking context
-// and a containing block, so it must not be used to make an overlapping element
-// disappear from comparison. Pointer events do not determine painted visibility.
+// Eligibility is deliberately fail-closed. External paint must not disappear
+// from the capture when its origin shifts. Pointer events do not determine
+// painted visibility; computed geometry and paint bounds are checked below.
 export async function assertIndependentFooter(page, selector='footer.site-footer') {
   const evidence=await page.locator(selector).evaluate(root => {
     const issues=[],boundedPseudos=[];
     const label=e=>`${e.tagName.toLowerCase()}${e.id?'#'+e.id:''}${[...e.classList].map(c=>'.'+c).join('')}`;
     const original=root.getBoundingClientRect();
     // Check the union of the original and exact subpixel-shifted paint region.
-    const documentY=original.y+scrollY, dy=Math.round(documentY)-documentY;
+    const documentY=original.y+scrollY, dy=Math.ceil(documentY)-documentY;
     const area={left:original.left, right:original.right, top:original.top+Math.min(0,dy), bottom:original.bottom+Math.max(0,dy)};
     const intersects=r=>r.left<area.right && r.right>area.left && r.top<area.bottom && r.bottom>area.top;
     const hasTransform=s=>s.transform!=='none' || (s.translate && s.translate!=='none') || (s.rotate && s.rotate!=='none') || (s.scale && s.scale!=='none');
@@ -168,15 +168,17 @@ export async function capturePhaseStableFooter(page, options={}) {
   if(await locator.count()!==1) throw Error('Expected exactly one footer');
   const eligibility=await assertIndependentFooter(page,selector);
   const original=await shellContract(page,selector);
-  // No diagnostic geometry/crop values are consumed. Move only the raster origin
-  // by <1 CSS pixel in a temporary capture, retaining width/height and all layout.
+  // Adjust layout BEFORE rasterization, not a compositor transform of an
+  // already rasterized footer. The original page source is restored afterward.
+  // No diagnostic crop values or post-processing of images is used.
   const saved=await locator.evaluate(e=>{
-    const style=e.getAttribute('style');
-    const r=e.getBoundingClientRect();
-    const y=r.y+scrollY;
-    const dy=Math.round(y)-y;
-    const transform=getComputedStyle(e).transform;
-    e.style.setProperty('transform',`translateY(${dy}px) ${transform==='none'?'':transform}`,'important');
+    const body=document.body, bs=getComputedStyle(body);
+    if(bs.display!=='block'||bs.writingMode!=='horizontal-tb'||bs.transform!=='none'||bs.position!=='static')throw Error('Unsupported body layout for phase capture');
+    const style=body.getAttribute('style');
+    const r=e.getBoundingClientRect(), y=r.y+scrollY,dy=Math.ceil(y)-y;
+    const padding=Number.parseFloat(bs.paddingTop);
+    if(!Number.isFinite(padding))throw Error('Invalid body padding');
+    body.style.setProperty('padding-top',`${padding+dy}px`,'important');
     return {style,dy};
   });
   let bytes;
@@ -185,14 +187,13 @@ export async function capturePhaseStableFooter(page, options={}) {
     if(shifted.width!==original.width||shifted.height!==original.height||JSON.stringify(shifted.nodes.map(n=>n.rect))!==JSON.stringify(original.nodes.map(n=>n.rect)))throw Error('Phase stabilization changed footer layout');
     for(let i=0;i<original.nodes.length;i++)for(const kind of ['style','before','after']){
       const a={...original.nodes[i][kind]},b={...shifted.nodes[i][kind]};
-      if(i===0&&kind==='style'){delete a.transform;delete b.transform;}
       if(JSON.stringify(a)!==JSON.stringify(b))throw Error('Phase stabilization changed footer computed styles');
     }
     const documentY=await locator.evaluate(e=>e.getBoundingClientRect().y+scrollY);
     if(Math.abs(documentY-Math.round(documentY))>1e-6)throw Error('Footer phase did not stabilize to integer origin');
     bytes=await locator.screenshot({...options,animations:'disabled'});
   } finally {
-    await locator.evaluate((e,s)=>{if(s===null)e.removeAttribute('style');else e.setAttribute('style',s);},saved.style);
+    await page.evaluate(s=>{if(s===null)document.body.removeAttribute('style');else document.body.setAttribute('style',s);},saved.style);
   }
   const restored=await shellContract(page,selector);
   if(JSON.stringify(original)!==JSON.stringify(restored)) throw Error('Footer capture changed original contract');

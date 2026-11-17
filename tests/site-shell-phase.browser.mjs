@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {PNG} from 'pngjs';
 import pixelmatch from 'pixelmatch';
+import {mkdir,writeFile} from 'node:fs/promises';
 import {capturePhaseStableFooter} from '../scripts/site-shell-phase.mjs';
 const browser=await chromium.launch({headless:true});
 const html=(height,extra='')=>`<!doctype html><style>body{margin:0}main{height:${height}px}footer{padding:30px 20px;background:#f4f4f4;color:#333;font:17px/1.3 Arial;border-top:1px solid #ddd}p{margin:0 0 12px}a{color:#247} ${extra}</style><main></main><footer class="site-footer"><p>Footer contract 日本語の確認</p><a href="/profile/">About this site</a><p>Affiliate disclosure and policy</p></footer>`;
@@ -18,6 +19,8 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
    return {raw,...stable};
  }
  const before=await capture(8219.8125),after=await capture(6809.5);
+ await mkdir('.visual-phase-tests',{recursive:true});
+ for(const [label,c] of [['before',before],['after',after]]){await writeFile(`.visual-phase-tests/${width}-${label}-raw.png`,c.raw);await writeFile(`.visual-phase-tests/${width}-${label}-stable.png`,c.bytes);}
  assert.deepEqual(after.contract,before.contract,'unmodified original contracts');
  assert.equal(pixels(before.bytes,after.bytes),0,'stable before/after pixels');
  assert.notEqual(pixels(before.raw,after.raw),0,'fixture exercises raw subpixel difference');

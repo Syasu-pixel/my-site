@@ -61,3 +61,12 @@
 - 原寸画像：Hero CHARACTER 96/100、OGP CHARACTER 95/100、overview NO-CHARACTER 96/100。
 - 初回 comparison/check-flow は小画面で文字量過多のため各94点で不採用。縦2列と注意点の簡素化で再生成し、最終候補は comparison 96/100、check-flow 97/100。5枚を内部採用。最終ページの4条件表示・拡大操作検証は別途。
 - 原本PNGを維持し、非機密の公開予定画像だけ24時間限定の一時転送を使用。本文・個人情報・一時取得URLは転送対象または本書へ含めない。
+
+### 採用原本の同一性
+| 用途 | PNG名 | bytes | SHA-256 |
+|---|---|---:|---|
+| hero | `motor-breaker-basic-hero.png` | 1736270 | `e0fb0cd39701c2b086e6d5ec821da091231ffd57f815181bd7c0c8ccafe6471e` |
+| ogp | `motor-breaker-basic-ogp.png` | 1600942 | `5515ae7cbf2d4fa25464e50c4010a987fe37528ccf8af8e7f2a5561930fd3f11` |
+| overview | `motor-breaker-basic-overview.png` | 1438936 | `3a4349fe875be552c777d6065d080d559dcb9fbb0c3797c08c290fa02cd3cae9` |
+| comparison | `motor-breaker-basic-comparison.png` | 1585492 | `39d1a95f184e3ff2e1b06d0ed44f95aa124406ec5cc817515ffa9bafbb2ca325` |
+| check-flow | `motor-breaker-basic-check-flow.png` | 1413825 | `41f633898a30fb590b2bcae718cc0f2cfc7b0016cf8d224b35b92856fb7b0f81` |

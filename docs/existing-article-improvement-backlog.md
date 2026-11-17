@@ -25,6 +25,8 @@
 
 ## 改善進捗
 
+- [x] `articles/motor-breaker-basic.html` — モーターブレーカ。[PR #1956](https://github.com/Syasu-pixel/my-site/pull/1956)で刷新・2026-11-18本番確認済み、完成・凍結。内容更新・公式資料確認2026-11-17（制作メモ記録、HTMLの独立した内容更新日表示なし）。90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。footer CIの文字輪郭差はFAILのまま個別REVIEW、他CI成功・正式QAと27本番配信ファイル一致。IndexNow HTTP200受理、Google登録リクエスト未報告・検索反映未確認。根拠と検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+
 - [x] `articles/iai-robocylinder-basic.html` — IAIロボシリンダー。[PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)で刷新・2026-11-18本番確認済み、完成・凍結。最終内容更新日のHTML表示なし、公式資料確認2026-11-17。保守的に公開11-18から90日未満は通常改善候補から除外、最短再評価2027-02-16。期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは11-18に本人実施申告・検索反映未確認。5画像・4条件検査・公開証拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 
 - [x] `articles/input-output-basic.html` — 入力と出力。[PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)で刷新・2026-11-17本番確認済み、完成・凍結。最終内容更新日のHTML表示はなし（11-15修正版採用）、公式資料確認日表記11-15。保守的に公開11-17から90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。IndexNow HTTP200、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。公開証跡・画像・日付の区別は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。

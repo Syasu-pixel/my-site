@@ -33,6 +33,12 @@
 - IAIロボシリンダーの既存記事刷新1件を追加し、下表は50 slug（重複0）。過去49件の状態は変更しない。未公開のモーターブレーカや新規記事・四コマを加算しない。
 - 当初174件の既存記事集合では174−50＝124件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−50＝125件には新規公開済みシールド線1件を含む。
 
+### 2026-11-18 集計追補（モーターブレーカの公開記録）
+
+- 照合基点: main `09425e129c34e3cbcacd159b133b7baeeddb4176`。本番とmainの日本語記事サイトマップは175 URL・重複0、対象URL1件を確認。
+- モーターブレーカの既存記事刷新1件を追加し、下表は51 slug（重複0）。過去50件の状態は変更しない。直前のIAI追補にあるモーターブレーカ未公開は当時の状態であり、現在は本追補と個別公開履歴を参照。
+- 当初174件の既存記事集合では174−51＝123件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−51＝124件には新規公開済みシールド線1件を含む。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -73,6 +79,7 @@
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `motor-breaker-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-17（制作メモ記録、HTML独立表示なし） | 2026-11-17 | [PR #1956](https://github.com/Syasu-pixel/my-site/pull/1956)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-15。footer CIは文字輪郭差を個別REVIEW、PASS扱いにしない。IndexNow HTTP200受理、Google登録リクエスト未報告・検索反映未確認。 |
 | `no-fuse-breaker-basic` | 改善完了・凍結記録あり | 未確認 | 要照合（本文11-06／台帳11-08） | 2026-11-06 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 日付不一致を保留。安全側で11-08から90日未満は除外し、本文・台帳を勝手に変更しない。 |
 | `no-nc-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1568](https://github.com/Syasu-pixel/my-site/pull/1568)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `npn-pnp-basic` | 刷新main反映済み | 2026-09-26（公開記録日） | 未確認 | 2026-09-25 | [PR #1586](https://github.com/Syasu-pixel/my-site/pull/1586)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -789,3 +796,16 @@
 - 導線: 既存URL・title・descriptionを維持。本番canonicalは既存URL、robotsはindex,follow。公開担当が日本語sitemap175 URL・重複0、対象URL1件、search-index対象1件を確認。構造変更不要。
 - 通知: [IndexNow run 44116738909](https://github.com/Syasu-pixel/my-site/actions/runs/44116738909)で対象1URLをHTTP200受理。Google登録リクエストは2026-11-18 JSTに本人が「リクエストしたよ」と実施を申告。助手による操作ではない。検索インデックス完了は未確認。
 - 状態: 完成・凍結。内容更新日を推測せず保守的に公開確認2026-11-18を起点として90日未満は通常改善候補から除外。最短再評価2027-02-16。期間経過だけでは再編集しない。
+
+## 2026-11-18 — motor-breaker-basic 刷新・本番公開完了
+
+- 対象: `articles/motor-breaker-basic.html`。既存URLの刷新。MMSの過負荷・短絡保護、接触器との役割分担、サーマルの検出と主回路遮断を区別。型式別選定値・施工手順へ範囲を広げない。
+- 公開: 修正版の最終統合Previewと管理者の公開指示に基づき、[PR #1956](https://github.com/Syasu-pixel/my-site/pull/1956)をmain `09425e129c34e3cbcacd159b133b7baeeddb4176`へ通常merge。[公開後証拠](https://github.com/Syasu-pixel/my-site/pull/1956#issuecomment-6954421637)を確認。
+- 正式Pages [run 44126469673](https://github.com/Syasu-pixel/my-site/actions/runs/44126469673)のbuild/deploy・最終publication検査成功。missingResources=0、errors=[]、sourceFallbackなし。公開担当が本番HTML HTTP200と承認版との一致を確認。HTML SHA-256: `a8f68bef4444edffb06df1e7e3f68cbe0d3be0c9b15af58e8a3245dd8f90e6df`。
+- Hero・OGP・本文3図は横長1672×941のv2採用画像。CSS/JS/favicon等を含む27配信ファイルを本番再取得し、承認版とSHA-256/bytes全件一致。旧正方形・縦長候補の採点を新版採用根拠に転用しない。
+- [正式QA run 44109051548](https://github.com/Syasu-pixel/my-site/actions/runs/44109051548)でPC/スマホ×明暗4条件、本文3図の拡大・背景/Escape/閉ボタン、配信ファイル確認済み。NFB・最新冷却ファンとの同幅独立目視も実施。公開後の追加cloud-browserはCDP接続タイムアウトであり、別途本番目視を実施済みとはしない。
+- footer CI [run 44119975556](https://github.com/Syasu-pixel/my-site/actions/runs/44119975556)はFAILのまま保持。motorのスマホ390px幅に限る759pxの文字輪郭差で、DOM/CSS/寸法/リンク/操作は一致、新規エラーなし。[個別判定と診断根拠](https://github.com/Syasu-pixel/my-site/pull/1956#issuecomment-6953404133)および[最新head照合](https://github.com/Syasu-pixel/my-site/pull/1956#issuecomment-6953833831)に従い、既存ルールの個別REVIEWとして扱った。閾値・保護設定を緩和せず、CI全成功と報告しない。[その他CI成功の公開直前確認](https://github.com/Syasu-pixel/my-site/pull/1956#issuecomment-6954163413)後に通常merge。一時QA/診断PR #1957は非マージでcloseし、診断Workflowはmainへ混入していない。
+- 日付: [公式参照・更新メモ](reference-notes/motor-breaker-basic.md)に内容更新・公式資料確認2026-11-17を記録。HTMLは公式資料確認日11-17を表示し、独立した最終内容更新日表示はない。公開・本番確認2026-11-18 JSTと区別し、公開日を内容更新日に転用しない。制作メモに残る「未承認」は当時の履歴であり、現在の公開状態は本記録を参照。
+- 導線: 既存URLを維持。本番とmainの日本語sitemap175 URL・重複0・対象1件を記録担当が照合。
+- 通知: [IndexNow run 44126469623](https://github.com/Syasu-pixel/my-site/actions/runs/44126469623)で対象1URLをHTTP200受理。Google登録リクエストは未報告（公開担当記録は `GOOGLE_REQUEST_PENDING_MANUAL`）。検索インデックス完了は未確認。
+- 状態: 完成・凍結。制作メモの内容更新2026-11-17を0日目として90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。

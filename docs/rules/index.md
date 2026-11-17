@@ -219,7 +219,7 @@
 | [.github/site-shells/components/affiliate-disclosure.njk](../../.github/site-shells/components/affiliate-disclosure.njk) | 共通フッターの広告表記を編集・生成する場合。 全記事37variantと追加4ページが共有する文面・配置の正本。 |
 | [.github/site-shells/eleventy.config.cjs](../../.github/site-shells/eleventy.config.cjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/manifest.json](../../.github/site-shells/manifest.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
-| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 承認済み寄付非表示以外の生成HTML・CSS変更を禁止する独立CI。最終Preview目視承認を代替しない。 |
+| [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 追加ページ・寄付非表示・承認済み公開導線の生成差分を検証する場合。 寄付CSSと共通枠の継続保全。変更はピン留めした審査済み導線遷移または既存GX連絡先遷移のみ、他は拒否。目視承認を代替しない。 |
 | [.github/workflows/additional-shells.yml](../../.github/workflows/additional-shells.yml) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/ai-editorial-preview-capture.yml](../../.github/workflows/ai-editorial-preview-capture.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
@@ -249,7 +249,7 @@
 | [scripts/build-article-heroes.mjs](../../scripts/build-article-heroes.mjs) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [scripts/build-integrated-review.mjs](../../scripts/build-integrated-review.mjs) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [scripts/build-site-health-snapshot.mjs](../../scripts/build-site-health-snapshot.mjs) | 運営ダッシュボードのサイト異常監視結果の集約形式・表示データを変更または検査する場合。 CI検査結果をassets/data/site-health.jsonへ集約する管理画面用生成器。 |
-| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 寄付導線非表示のPreview差分監査で、現行mainとPRの生成物を比較する場合。 追加ページと記事CSSの現行main対PR厳密差分検証。視覚比較や最終目視承認を代替しない。 |
+| [scripts/check-donation-main-diff.mjs](../../scripts/check-donation-main-diff.mjs) | 追加ページ・寄付非表示・承認済み公開導線の生成差分を検証する場合。 寄付CSSと共通枠の継続保全。変更はピン留めした審査済み導線遷移または既存GX連絡先遷移のみ、他は拒否。目視承認を代替しない。 |
 | [scripts/check-additional-shell-browser.mjs](../../scripts/check-additional-shell-browser.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-additional-shell-regeneration.mjs](../../scripts/check-additional-shell-regeneration.mjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [scripts/check-article-dark-mode.mjs](../../scripts/check-article-dark-mode.mjs) | サイト全体のダークモード視認性監査で、記事の実表示を全件検査する場合。 全288記事をPC/スマホ相当幅で実ブラウザ表示し、白飛び・明るい面・低コントラスト文字・ダーク背景未適用を検出する制御。 |
@@ -295,6 +295,9 @@
 | [tests/integration-image-contract.test.mjs](../../tests/integration-image-contract.test.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
 | [scripts/integration-evidence-artifacts.mjs](../../scripts/integration-evidence-artifacts.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
 | [tests/integration-evidence-artifacts.test.mjs](../../tests/integration-evidence-artifacts.test.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
+| [scripts/check-reviewed-navigation-delta.mjs](../../scripts/check-reviewed-navigation-delta.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
+| [tests/donation-main-diff.test.mjs](../../tests/donation-main-diff.test.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
+| [.github/site-shells/additional/reviewed-navigation-deltas.json](../../.github/site-shells/additional/reviewed-navigation-deltas.json) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 
 ## 省略表記の参照先
 

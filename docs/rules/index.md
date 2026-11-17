@@ -302,6 +302,8 @@
 | [tests/donation-main-diff.test.mjs](../../tests/donation-main-diff.test.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [.github/site-shells/additional/reviewed-navigation-deltas.json](../../.github/site-shells/additional/reviewed-navigation-deltas.json) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 
+| [.github/workflows/iai-robocylinder-final-qa.yml](../../.github/workflows/iai-robocylinder-final-qa.yml) | IAIロボシリンダーの確認専用PRで最終公開候補を検査する場合。本番mainへ統合しない。 正式Pages工程後の4条件画面・画像拡大操作・本人限定Preview用生成物を保存する一時検査。 |
+
 ## 省略表記の参照先
 
 catalog.json の reference_aliases に、文脈を確認した省略表記と実在パスを個別記録する。Markdownリンクのリンク先を書き換える機能ではない。

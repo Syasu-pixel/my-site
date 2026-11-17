@@ -38,6 +38,10 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
   ['outside overlay','',()=>{const e=document.createElement('div');e.textContent='overlay';e.style.cssText='position:fixed;bottom:0;left:0;width:100%;height:80px;background:red;z-index:999';document.body.append(e)}],
   ['fixed descendant','footer p{position:fixed;bottom:0}'],
   ['existing transform','footer{transform:translateX(1px)}'],
+  ['ancestor clip','body{clip-path:inset(1px)}'],
+  ['ancestor filter','body{filter:opacity(.9)}'],
+  ['ancestor transform','body{transform:translateX(1px)}'],
+  ['direct text overflow','',()=>{const e=document.createElement('div');e.textContent='overflow text';e.style.cssText='position:fixed;bottom:30px;left:0;width:1px;height:0;white-space:nowrap';document.body.append(e)}],
   ['relative z descendant','footer p{position:relative;z-index:10000}'],
   ['absolute pseudo','footer p::before{content:"x";position:absolute}'],
   ['pointerless overlay','',()=>{const e=document.createElement('div');e.style.cssText='position:fixed;bottom:0;left:0;width:100%;height:80px;background:red;pointer-events:none';document.body.append(e)}],
@@ -51,3 +55,41 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
  await page.close();
 });
 test.after(()=>browser.close());
+
+// Exercise the real process exit gate, not just helper comparisons. A negative
+// case must make the actual baseline/compare CLI exit non-zero.
+test('complete visual audit rejects defects and preserves the positive control',async()=>{
+ const {mkdtemp,cp}=await import('node:fs/promises');
+ const {tmpdir}=await import('node:os');
+ const {join,resolve}=await import('node:path');
+ const {spawnSync}=await import('node:child_process');
+ const dir=await mkdtemp(join(tmpdir(),'shell-phase-gate-'));
+ const base=join(dir,'base'),head=join(dir,'head'),out=join(dir,'evidence');
+ const env={...process.env,BASE_SHA:'a'.repeat(40),HEAD_SHA:'b'.repeat(40)};
+ const config={baselineCommit:env.BASE_SHA,articleCount:1,representatives:[],viewports:{desktop:{width:1440,height:1000},mobile:{width:390,height:1000}}};
+ for(const root of [base,head]){
+  await mkdir(join(root,'articles'),{recursive:true});await mkdir(join(root,'en/articles'),{recursive:true});await mkdir(join(root,'.github'),{recursive:true});
+  await writeFile(join(root,'.github/site-shell-visual.json'),JSON.stringify(config));
+ }
+ const fixture=(height,css='',replace)=>{let s=html(height,css).replace('<main>','<header class="site-header"><a href="/">Home</a></header><main>');return replace?replace(s):s;};
+ await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125));
+ const run=(phase,root)=>spawnSync(process.execPath,[resolve('scripts/site-shell-visual.mjs'),`--phase=${phase}`,`--root=${root}`,`--out=${out}`],{env,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});
+ const initial=run('baseline',base);assert.equal(initial.status,0,initial.stderr+initial.stdout);
+ const receipts=[];
+ for(const [name,css,replace] of [
+  ['positive',''],['color','footer{color:red}'],['position','footer p{position:relative;left:1px}'],
+  ['overflow','footer p{width:2000px}'],['clip','footer{height:25px;overflow:hidden}'],
+  ['text','',s=>s.replace('Footer contract','Wrong contract')],['link','',s=>s.replace('href="/profile/"','href="/wrong/"')],
+  ['outside spacing','main{margin-bottom:1px}'],['ancestor clip','body{clip-path:inset(0 0 50px)}'],
+  ['external text','',s=>s+'<div style="position:fixed;bottom:50px;left:0;width:1px;height:0;white-space:nowrap">VISIBLE OVERFLOW</div>'],
+  ['overlay','',s=>s+'<div style="position:fixed;bottom:0;left:0;width:100%;height:80px;background:red;pointer-events:none"></div>'],
+  ['capture style side effect','body[style] footer{color:blue}']
+ ]){
+   await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,css,replace));
+   const result=run('compare',head);receipts.push({name,status:result.status,signal:result.signal,stdout:result.stdout,stderr:result.stderr});
+   await mkdir('.visual-phase-tests',{recursive:true});await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   if(name==='positive')assert.equal(result.status,0,result.stderr+result.stdout);
+   else assert.ok(Number.isInteger(result.status)&&result.status!==0,`${name} must fail the real CLI gate: ${result.stdout}`);
+ }
+ await cp(out,'.visual-phase-tests/cli-evidence',{recursive:true});
+});

@@ -136,6 +136,7 @@
 | [docs/comic-scripts/emergency-stop-switch-basic-yonkoma-01.md](../comic-scripts/emergency-stop-switch-basic-yonkoma-01.md) — 非常停止4コマ採用記録 | 非常停止の四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/plc-io-unit-basic-yonkoma-01.md](../comic-scripts/plc-io-unit-basic-yonkoma-01.md) — PLC入出力4コマ採用記録 | PLC入出力の四コマを制作・配置・公開・投稿するとき。 |
 | [docs/reference-notes/input-output-basic.md](../reference-notes/input-output-basic.md) — 入力と出力 公式参照メモ | articles/input-output-basic.html の技術内容・採用原稿・公開を確認する。 |
+| [docs/reference-notes/shield-grounding-one-end-both-ends.md](../reference-notes/shield-grounding-one-end-both-ends.md) — シールド線の片端・両端接地 参照記録 | シールド線の片端・両端接地記事の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考
 

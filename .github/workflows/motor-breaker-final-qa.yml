@@ -279,10 +279,20 @@ jobs:
             const pass=info.theme===theme&&info.scrollWidth<=info.width&&info.brokenImages.length===0&&info.brokenAnchors.length===0&&info.figures===3&&interactions.every(x=>x.opened&&x.same&&x.backgroundClosed&&x.escapeClosed&&x.closeButtonClosed)&&errors.length===0&&!info.noindex&&info.canonical==='https://denkicontrol.com/articles/motor-breaker-basic.html';
             results.push({width,theme,...info,interactions,errors,pass});await context.close();
            }
-           await browser.close();fs.writeFileSync('motor-final-qa/request-paths.json',JSON.stringify([...requestedPaths]));const html=fs.readFileSync('_site/articles/motor-breaker-basic.html');const evidence={sourceArticleCommit:'dbdbe5209a3907bceb5fd39711f596423d219bac',workflowCommit:process.env.GITHUB_SHA,publicationSha256:crypto.createHash('sha256').update(html).digest('hex'),results};fs.writeFileSync('motor-final-qa/results.json',JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));if(results.some(x=>!x.pass))process.exitCode=1;
+           await browser.close();fs.writeFileSync('motor-final-qa/request-paths.json',JSON.stringify([...requestedPaths]));const html=fs.readFileSync('_site/articles/motor-breaker-basic.html');const evidence={sourceArticleCommit:'5d25f98b1968ba4f6277d83e264c9ee15a9d016b',workflowCommit:process.env.GITHUB_SHA,publicationSha256:crypto.createHash('sha256').update(html).digest('hex'),results};fs.writeFileSync('motor-final-qa/results.json',JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));if(results.some(x=>!x.pass))process.exitCode=1;
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node final-motor-qa.cjs
+      - name: Capture same-width adopted article benchmarks
+        run: |
+          python3 -m http.server 18766 --bind 127.0.0.1 --directory _site > /tmp/motor-benchmark.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          cat > motor-benchmark.cjs <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{const browser=await chromium.launch();for(const width of [1440,390]){const c=await browser.newContext({viewport:{width,height:1000},colorScheme:'light',isMobile:width===390,hasTouch:width===390,locale:'ja-JP'});const p=await c.newPage();await p.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'&&['GET','HEAD'].includes(r.request().method())?r.continue():r.abort());for(const slug of ['motor-breaker-basic','no-fuse-breaker-basic','control-panel-cooling-fan-basic']){await p.goto('http://127.0.0.1:18766/articles/'+slug+'.html',{waitUntil:'networkidle'});await p.evaluate(async()=>{for(const i of document.images)i.loading='eager';await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});await p.locator('.article-hero').screenshot({path:'motor-final-qa/benchmark-'+slug+'-'+width+'-hero.png'});const figs=p.locator('.article-figure');for(let i=0;i<await figs.count();i++)await figs.nth(i).screenshot({path:'motor-final-qa/benchmark-'+slug+'-'+width+'-figure-'+i+'.png'});}await c.close();}await browser.close();})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node motor-benchmark.cjs
       - name: Package exact publication for private review
         run: |
           python3 - <<'PY'
@@ -290,7 +300,7 @@ jobs:
           import re, shutil, json, hashlib
           root=Path('_site'); out=Path('motor-publication')
           page='articles/motor-breaker-basic.html'
-          queue=json.loads(Path('motor-final-qa/request-paths.json').read_text())+[page,'assets/data/search-index.json','assets/images/motor-breaker-basic/motor-breaker-basic-ogp.webp']
+          queue=json.loads(Path('motor-final-qa/request-paths.json').read_text())+[page,'assets/data/search-index.json','assets/images/motor-breaker-basic/motor-breaker-basic-ogp-v2.webp',*[f'assets/images/common/site-logo-dcl-{n}.webp' for n in [16,32,48,180]]]
           seen=set()
           # Dependencies observed from four real browser renderings, plus search and OGP.
           while queue:

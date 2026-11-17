@@ -1,6 +1,6 @@
 # 安全機器があれば安心？ 四コマ漫画 01
 
-状態: 正式採用済み。2026-11-17 トップ本番公開・四コマ追従完了。Instagram予約済み（実投稿は未確認）。
+状態: 正式採用済み（2026-11-16）。2026-11-17 トップ本番公開・四コマ追従完了。Instagram予約済み（実投稿は未確認）。
 
 - 元記事: `articles/safety-control-basic.html`（本文変更なし）
 - 参照: `docs/reference-notes/safety-control-basic.md`、ISO 12100の一般原則。

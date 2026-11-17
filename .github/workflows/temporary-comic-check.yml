@@ -1,0 +1,47 @@
+name: Temporary two-comic visual verification
+on:
+  pull_request:
+    branches: [ai-comic-finish-two-20261117]
+permissions:
+  contents: read
+jobs:
+  verify-comics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: harness
+      - uses: actions/checkout@v4
+        with:
+          ref: 3e9926c6f3fa6b17a133d2367e1f26bb02ad5d4a
+          path: site
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+          package_json_file: site/package.json
+      - name: Verify pinned production candidate and run unchanged behavioral checks
+        working-directory: site
+        run: |
+          test "$(git rev-parse HEAD)" = "3e9926c6f3fa6b17a133d2367e1f26bb02ad5d4a"
+          mkdir -p ../comic-input
+          git rev-parse HEAD > ../comic-input/target-head.txt
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+          cp ../harness/.github/temporary-comic-check.mjs ./temporary-comic-check.mjs
+          node scripts/build-additional-shells.mjs ../comic-finish-build
+          node scripts/check-additional-shell-regeneration.mjs ../comic-finish-build
+          REVIEW_PORT=8890 REVIEW_BEFORE_PORT=8891 node scripts/serve-integrated-review.mjs ../comic-finish-build > ../comic-input/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8890/ >/dev/null && break || sleep 1; done
+          node temporary-comic-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: two-comic-behavior-3e9926c
+          path: comic-input/
+          retention-days: 7

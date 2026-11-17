@@ -1,337 +1,96 @@
-name: Temporary motor breaker final publication QA
+name: Temporary motor footer diagnostic
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - '.github/workflows/motor-breaker-final-qa.yml'
+    paths: ['.github/workflows/motor-breaker-final-qa.yml']
 permissions:
   contents: read
 jobs:
-  build:
+  diagnostic:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node for shared shell verification
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
-
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.14'
-
-      - name: Refuse stale generated headers and footers
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Investigate raster phase without changing source or threshold
         run: |
-          pnpm install --frozen-lockfile --ignore-scripts
-          pnpm check:shells
-
-      - name: Detect consultation worker changes
-        id: consultation-scope
-        shell: bash
-        run: |
-          run_tests=false
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            run_tests=true
-          else
-            if [ "${{ github.event_name }}" = "pull_request" ]; then
-              base="${{ github.event.pull_request.base.sha }}"
-            else
-              base="${{ github.event.before }}"
-            fi
-            if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
-              run_tests=true
-            else
-              while IFS= read -r file; do
-                case "$file" in
-                  .github/workers/gxworks2-support-api/worker.js|scripts/test-general-consultation-worker.mjs|scripts/test-admin-case-management-worker.mjs|contact/index.html|services/gxworks2-online-support.html)
-                    run_tests=true
-                    break
-                    ;;
-                esac
-              done < <(git diff --name-only "$base" HEAD)
-            fi
-          fi
-          echo "run_worker_tests=$run_tests" >> "$GITHUB_OUTPUT"
-
-      - name: Verify temporary consultation pause
-        run: node scripts/test-consultation-pause.mjs
-
-      # Ordinary contact remains open while GX Works2 ZIP intake stays paused.
-      - name: Verify online consultation mail flow
-        run: node scripts/test-general-consultation-worker.mjs
-
-      - name: Verify admin case management API
-        # Keep the existing-case regression test active even if a shallow
-        # checkout prevents change detection against the PR base SHA.
-        run: node scripts/test-admin-case-management-worker.mjs
-
-      - name: Generate and verify approved article components
-        env:
-          REVIEW_COPY_ASSETS: '0'
-        run: |
-          python -m pip install lxml==6.1.1
-          node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
-          node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
-          python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
-          python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
-          python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
-
-      - name: Prepare Pages artifact
-        run: |
-          python scripts/build-admin-article-catalog.py
-
-          rsync -a ./ _site/ \
-            --exclude '_site/' \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude '/docs/rules/catalog.json' \
-            --exclude 'node_modules/' \
-            --exclude '.netlify/' \
-            --exclude '.wrangler/' \
-            --exclude '.cache/' \
-            --exclude 'tmp/' \
-            --exclude 'temp/' \
-            --exclude '*.zip' \
-            --exclude '*.tar' \
-            --exclude '*.tar.gz' \
-            --exclude '*.7z' \
-            --exclude '*.psd' \
-            --exclude '*.ai'
-
-          node scripts/prepare-integrated-publication.mjs "${RUNNER_TEMP}/integration-build" _site
-          python scripts/verify-publication-artifact.py snapshot _site "${RUNNER_TEMP}/integration-build"
-
-          echo 'Before image optimization:'
-          du -sh _site _site/assets/images
-
-      - name: Optimize published images to WebP
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq webp
-          export IMAGE_COLLISION_SKIP="${RUNNER_TEMP}/integration-build/image-collision-skip.txt"
-
-          # Convert PNG/JPEG assets in the publish copy only. The repository originals
-          # remain untouched until the optimized deployment has been verified.
-          find _site/assets/images -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 \
-            | xargs -0 -r -P 4 -I{} bash -c '
-                src="$1"
-                grep -Fxq "$src" "$IMAGE_COLLISION_SKIP" && exit 0
-                dst="${src%.*}.webp"
-                [ -e "$dst" ] && exit 0
-                cwebp -quiet -mt -q 82 -m 4 "$src" -o "$dst"
-              ' _ {}
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import re, json, os
-
-          root = Path('_site')
-          image_root = root / 'assets' / 'images'
-          mapping = {}
-          build = Path(os.environ['RUNNER_TEMP']) / 'integration-build'
-          keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])
-          for src in image_root.rglob('*'):
-              if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:
-                  continue
-              if src.relative_to(root).as_posix() in keep_originals:
-                  continue
-              dst = src.with_suffix('.webp')
-              if dst.exists() and dst.stat().st_size > 0:
-                  rel_src = src.relative_to(root).as_posix()
-                  rel_dst = dst.relative_to(root).as_posix()
-                  mapping[rel_src] = rel_dst
-          (build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')
-
-          # Only rewrite files that can affect the published site. Internal Markdown/TXT
-          # docs contain example placeholders such as {slug} and must not be treated as
-          # live asset references.
-          text_exts = {'.html', '.css', '.js', '.json', '.xml'}
-          changed = 0
-          for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in text_exts:
-                  continue
-              try:
-                  text = path.read_text(encoding='utf-8')
-              except UnicodeDecodeError:
-                  continue
-              new = text
-              for old, replacement in mapping.items():
-                  new = new.replace('/' + old, '/' + replacement)
-                  new = new.replace(old, replacement)
-              if new != text:
-                  path.write_text(new, encoding='utf-8')
-                  changed += 1
-
-          # Remove originals only from the generated publish copy and only when a
-          # valid WebP counterpart exists.
-          removed = 0
-          for old in mapping:
-              src = root / old
-              if src.exists():
-                  src.unlink()
-                  removed += 1
-
-          # Guard against stale references in actual published web files only.
-          stale = []
-          pattern = re.compile(r'assets/images/[^\s"\'<>?#]+\.(?:png|jpe?g)', re.I)
-          for path in root.rglob('*'):
-              if not path.is_file() or path.suffix.lower() not in text_exts:
-                  continue
-              try:
-                  text = path.read_text(encoding='utf-8')
-              except UnicodeDecodeError:
-                  continue
-              for match in pattern.findall(text):
-                  candidate = root / match.lstrip('/')
-                  if not candidate.exists():
-                      stale.append(f'{path}: {match}')
-
-          print(f'Converted images: {len(mapping)}')
-          print(f'Updated published files: {changed}')
-          print(f'Removed publish-copy originals: {removed}')
-          if stale:
-              print('Stale image references detected in published files:')
-              print('\n'.join(stale[:100]))
-              raise SystemExit(1)
-          PY
-
-          echo 'After image optimization:'
-          du -sh _site _site/assets/images
-
-          # GitHub Pages published sites must remain below 1 GB. Keep headroom so
-          # future articles cannot silently cross the limit.
-          bytes=$(du -sb _site | cut -f1)
-          limit=$((900 * 1024 * 1024))
-          echo "Published artifact bytes: $bytes"
-          if [ "$bytes" -ge "$limit" ]; then
-            echo "ERROR: optimized Pages artifact is still >= 900 MiB; refusing oversized deploy."
-            exit 1
-          fi
-
-      - name: Verify final standalone publication
-        run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
-
-      # Apply only after all full-page generation and integrity verification passed.
-      # In PR runs this also exercises the exact same artifact removal as production.
-      - name: Exclude paused PLC design pages from the final publication artifact
-        run: |
-          set -euo pipefail
-          for episode in 01 02 03; do
-            page="_site/articles/plc-drilling-line-design-project-${episode}.html"
-            if test -f "$page"; then
-              rm "$page"
-            fi
-            test ! -e "$page" || { echo "Paused article still present: $page" >&2; exit 1; }
-            echo "Confirmed unpublished: $page"
-          done
-          if grep -Eq 'plc-drilling-line-design-project-(01|02|03)\.html' _site/sitemap.xml _site/assets/data/search-index.json; then
-            echo 'Paused PLC article remains in sitemap or search index' >&2
-            exit 1
-          fi
-
-      - name: Save publication verification
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: publication-verification-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/integration-build/publication-checks.json
-            ${{ runner.temp }}/integration-build/publication-final-checks.json
-            ${{ runner.temp }}/integration-build/published-image-mapping.json
-            ${{ runner.temp }}/integration-build/image-collision-plan.json
-            ${{ runner.temp }}/integration-build/additional-shells/preservation.json
-          retention-days: 30
-
-      - name: Install browser for final publication verification
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Verify final motor breaker publication in four conditions
-        run: |
-          python3 -m http.server 18765 --bind 127.0.0.1 --directory _site > /tmp/motor-server.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill "$SERVER_PID" || true' EXIT
-          cat > final-motor-qa.cjs <<'JS'
-          const {chromium}=require('playwright');
-          const fs=require('fs'),crypto=require('crypto');
-          (async()=>{
-           const browser=await chromium.launch({headless:true});const results=[],requestedPaths=new Set();fs.mkdirSync('motor-final-qa',{recursive:true});
-           for(const width of [1440,390])for(const theme of ['light','dark']){
-            const context=await browser.newContext({viewport:{width,height:width<500?844:1000},colorScheme:theme,isMobile:width<500,hasTouch:width<500,locale:'ja-JP',reducedMotion:'reduce'});const page=await context.newPage(),errors=[];
-            await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.hostname!=='127.0.0.1'||!['GET','HEAD'].includes(route.request().method()))return route.abort();return route.continue();});
-            page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>{if(new URL(r.url()).hostname==='127.0.0.1')errors.push('requestfailed '+r.url());});page.on('response',r=>{const u=new URL(r.url());if(u.hostname==='127.0.0.1'){if(r.status()>=400)errors.push('HTTP '+r.status()+' '+u.pathname);else requestedPaths.add(decodeURIComponent(u.pathname.slice(1)));}});
-            await page.goto('http://127.0.0.1:18765/articles/motor-breaker-basic.html',{waitUntil:'networkidle'});
-            await page.evaluate(async()=>{for(const i of document.images)i.loading='eager';await Promise.all([...document.images].filter(i=>i.getAttribute('src')).map(i=>i.decode().catch(()=>{})));});
-            const info=await page.evaluate(()=>({theme:document.documentElement.dataset.dcTheme,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,brokenImages:[...document.images].filter(i=>i.getAttribute('src')&&(!i.complete||!i.naturalWidth)).map(i=>i.src),figures:document.querySelectorAll('.article-figure img').length,brokenAnchors:[...document.querySelectorAll('a[href^="#"]')].map(a=>a.getAttribute('href')).filter(h=>h.length>1&&!document.getElementById(decodeURIComponent(h.slice(1)))),noindex:document.querySelector('meta[name="robots"]')?.content||null,canonical:document.querySelector('link[rel="canonical"]')?.href}));
-            const figs=page.locator('.article-figure img');const interactions=[];
-            for(let i=0;i<await figs.count();i++){
-             await (width<500?figs.nth(i).tap():figs.nth(i).click());const overlay=page.locator('.dc-image-lightbox');const opened=await overlay.isVisible(),same=(await overlay.locator('img').getAttribute('src'))===(await figs.nth(i).evaluate(e=>e.currentSrc));
-             await (width<500?page.touchscreen.tap(3,3):page.mouse.click(3,3));const backgroundClosed=!(await overlay.isVisible());
-             await (width<500?figs.nth(i).tap():figs.nth(i).click());await page.keyboard.press('Escape');const escapeClosed=!(await overlay.isVisible());
-             await (width<500?figs.nth(i).tap():figs.nth(i).click());await (width<500?page.locator('.dc-image-lightbox__close').tap():page.locator('.dc-image-lightbox__close').click());const closeButtonClosed=!(await overlay.isVisible());
-             interactions.push({i,opened,same,backgroundClosed,escapeClosed,closeButtonClosed});
-            }
-            await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:`motor-final-qa/${width}-${theme}-full.png`,fullPage:true});await page.locator('.article-hero').screenshot({path:`motor-final-qa/${width}-${theme}-hero.png`});
-            const pass=info.theme===theme&&info.scrollWidth<=info.width&&info.brokenImages.length===0&&info.brokenAnchors.length===0&&info.figures===3&&interactions.every(x=>x.opened&&x.same&&x.backgroundClosed&&x.escapeClosed&&x.closeButtonClosed)&&errors.length===0&&!info.noindex&&info.canonical==='https://denkicontrol.com/articles/motor-breaker-basic.html';
-            results.push({width,theme,...info,interactions,errors,pass});await context.close();
+          cat > "$RUNNER_TEMP/footer-diagnostic.mjs" <<'DIAGNOSTIC'
+          // Diagnostic only. Does not alter production files, thresholds, or CI verdicts.
+          // Run from repository root: node /path/footer-phase-diagnostic.mjs OUTPUT_DIR
+          import {createRequire} from 'node:module';
+          import {resolve} from 'node:path';
+          import {pathToFileURL} from 'node:url';
+          import {readFile,writeFile,mkdir} from 'node:fs/promises';
+          const require=createRequire(resolve('package.json'));
+          const {chromium}=require('playwright'),{PNG}=require('pngjs');
+          const pixelmatch=(await import(pathToFileURL(require.resolve('pixelmatch')))).default;
+          const out=resolve(process.argv[2]||'/tmp/footer-phase-diagnostic');await mkdir(out,{recursive:true});
+          const modulePath=resolve('scripts/site-shell-phase.mjs');
+          const original=await readFile(modulePath,'utf8');
+          const needle="bytes=await locator.screenshot({...options,animations:'disabled'});";
+          if(original.split(needle).length!==2)throw Error('Unknown source; review instrumentation manually');
+          const instrumented=original.replace(needle,"await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));\n    "+needle);
+          await writeFile(resolve(out,'phase-two-frames.mjs'),instrumented);
+          const current=await import(pathToFileURL(modulePath));
+          const delayed=await import(pathToFileURL(resolve(out,'phase-two-frames.mjs')));
+          const heights=[9299.59375,11476.671875,11221.953125];
+          const modes=['raw-first','fresh-no-raw','two-frames','initial-inline'];
+          const defects=['none','color','position','spacing','clipping','text','link'];
+          const footer=`<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a></p></div><nav><a href="/profile/">運営者・編集方針</a></nav><p class="disclosure">当サイトはアフィリエイト広告を利用しています。</p></footer>`;
+          const css=`*{box-sizing:border-box}body{margin:0;background:linear-gradient(#f8fbff,#f4f7fb);color:#1e293b}footer{padding:26px 0 36px;border-top:1px solid #dae6f4;color:#607691;font:700 12px/1.8 'Hiragino Sans','Yu Gothic',Meiryo,sans-serif;text-align:center}footer .container{width:calc(100% - 20px);margin:auto}footer p{margin:12px 0}footer a{color:blue;text-decoration:none}footer .disclosure{margin:12px auto 0;padding:0 16px;font-size:13px;font-weight:400;line-height:1.7}`;
+          function html(height,defect,early){const extra={none:'',color:'footer{color:#ff0000}',position:'footer p{position:relative;left:1px}',spacing:'footer{padding-top:27px}',clipping:'footer{height:80px;overflow:hidden}',text:'',link:''}[defect];let f=footer;if(defect==='text')f=f.replace('迷いにくく','不正な本文');if(defect==='link')f=f.replace('/profile/','/wrong/');return `<!doctype html><meta charset="utf-8"><style>${css}main{height:${height}px}${extra}</style><body><main></main>${f}${early?`<script>const e=document.querySelector('footer');const y=e.getBoundingClientRect().y+scrollY;document.body.style.paddingTop=(Math.ceil(y)-y)+'px';</script>`:''}</body>`;}
+          function comparison(a,b){a=PNG.sync.read(a);b=PNG.sync.read(b);if(a.width!==b.width||a.height!==b.height)return {sizeChanged:true,pixels:null};return {sizeChanged:false,pixels:pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:.1,includeAA:false}),exactPixels:pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:0,includeAA:true})};}
+          const browser=await chromium.launch({headless:true});const results=[];let undetected=0;
+          try{for(const width of [390,1440])for(const mode of modes){let base;
+           for(const height of heights)for(const defect of (height===heights[1]?defects:['none'])){
+            // Each trial has a brand-new context: no shared raster, font or storage state.
+            const c=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:1,locale:'ja-JP',reducedMotion:'reduce'});let page=await c.newPage();await page.route('**/*',r=>r.abort());
+            await page.setContent(html(height,defect,false));await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+            const untouched=await current.shellContract(page,'footer.site-footer');
+            const key=`${width}-${mode}-${height}-${defect}`;let capture;
+            try{
+             if(mode==='initial-inline'){
+              // Experimental initial-layout capture, not a production replacement. Original
+              // contract is retained independently, so content/style defects cannot hide.
+              await page.close();page=await c.newPage();await page.route('**/*',r=>r.abort());
+              await page.setContent(html(height,defect,true));await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+              capture=await current.capturePhaseStableFooter(page);
+              await page.evaluate(()=>document.body.removeAttribute('style'));
+              const restored=await current.shellContract(page,'footer.site-footer');
+              if(JSON.stringify(restored)!==JSON.stringify(untouched))throw Error('Initial-inline restoration contract mismatch');
+              capture.contract=untouched;
+             }else{
+              if(mode!=='fresh-no-raw')await page.locator('footer').screenshot({path:resolve(out,key+'-raw.png')});
+              capture=await(mode==='two-frames'?delayed:current).capturePhaseStableFooter(page);
+             }
+             await writeFile(resolve(out,key+'.png'),capture.bytes);
+             if(!base)base=capture;
+             const diff=comparison(base.bytes,capture.bytes),contractChanged=JSON.stringify(base.contract)!==JSON.stringify(capture.contract);
+             const detected=contractChanged||diff.sizeChanged||diff.pixels>0;
+             if(defect!=='none'&&!detected)undetected++;
+             results.push({width,mode,height,defect,...diff,contractChanged,negativeDetected:defect==='none'?null:detected,translationY:capture.translationY});
+            }catch(e){results.push({width,mode,height,defect,error:String(e),negativeDetected:defect==='none'?null:true});}
+            await c.close();
            }
-           await browser.close();fs.writeFileSync('motor-final-qa/request-paths.json',JSON.stringify([...requestedPaths]));const html=fs.readFileSync('_site/articles/motor-breaker-basic.html');const evidence={sourceArticleCommit:'5d25f98b1968ba4f6277d83e264c9ee15a9d016b',workflowCommit:process.env.GITHUB_SHA,publicationSha256:crypto.createHash('sha256').update(html).digest('hex'),results};fs.writeFileSync('motor-final-qa/results.json',JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));if(results.some(x=>!x.pass))process.exitCode=1;
-          })().catch(e=>{console.error(e);process.exit(1)});
-          JS
-          node final-motor-qa.cjs
-      - name: Capture same-width adopted article benchmarks
-        run: |
-          python3 -m http.server 18766 --bind 127.0.0.1 --directory _site > /tmp/motor-benchmark.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill "$SERVER_PID" || true' EXIT
-          cat > motor-benchmark.cjs <<'JS'
-          const {chromium}=require('playwright');
-          (async()=>{const browser=await chromium.launch();for(const width of [1440,390]){const c=await browser.newContext({viewport:{width,height:1000},colorScheme:'light',isMobile:width===390,hasTouch:width===390,locale:'ja-JP'});const p=await c.newPage();await p.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'&&['GET','HEAD'].includes(r.request().method())?r.continue():r.abort());for(const slug of ['motor-breaker-basic','no-fuse-breaker-basic','control-panel-cooling-fan-basic']){await p.goto('http://127.0.0.1:18766/articles/'+slug+'.html',{waitUntil:'networkidle'});await p.evaluate(async()=>{for(const i of document.images)i.loading='eager';await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});await p.locator('.article-hero').screenshot({path:'motor-final-qa/benchmark-'+slug+'-'+width+'-hero.png'});const figs=p.locator('.article-figure');for(let i=0;i<await figs.count();i++)await figs.nth(i).screenshot({path:'motor-final-qa/benchmark-'+slug+'-'+width+'-figure-'+i+'.png'});}await c.close();}await browser.close();})().catch(e=>{console.error(e);process.exit(1)});
-          JS
-          node motor-benchmark.cjs
-      - name: Package exact publication for private review
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re, shutil, json, hashlib
-          root=Path('_site'); out=Path('motor-publication')
-          page='articles/motor-breaker-basic.html'
-          queue=json.loads(Path('motor-final-qa/request-paths.json').read_text())+[page,'assets/data/search-index.json','assets/images/motor-breaker-basic/motor-breaker-basic-ogp-v2.webp',*[f'assets/images/common/site-logo-dcl-{n}.webp' for n in [16,32,48,180]]]
-          seen=set()
-          # Dependencies observed from four real browser renderings, plus search and OGP.
-          while queue:
-              rel=queue.pop()
-              if rel in seen: continue
-              if rel.startswith('/') or '..' in Path(rel).parts: raise SystemExit('Unsafe dependency')
-              src=root/rel
-              if not src.is_file(): raise SystemExit('Missing dependency: '+rel)
-              seen.add(rel); dst=out/rel;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dst)
-          evidence={p:hashlib.sha256((out/p).read_bytes()).hexdigest() for p in sorted(seen)}
-          (out/'publication-files-sha256.json').write_text(json.dumps(evidence,indent=2))
-          PY
-      - name: Verify packaged publication has all rendered dependencies
-        run: |
-          python3 -m http.server 18765 --bind 127.0.0.1 --directory motor-publication > /tmp/motor-package-server.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill "$SERVER_PID" || true' EXIT
-          node final-motor-qa.cjs
-      - name: Save exact publication review files
-        uses: actions/upload-artifact@v4
-        with:
-          name: motor-publication-${{ github.run_id }}
-          path: motor-publication/
-          retention-days: 30
-          if-no-files-found: error
-      - name: Save final four-condition evidence
+          }}finally{await browser.close();}
+          await writeFile(resolve(out,'results.json'),JSON.stringify({diagnosticOnly:true,threshold:.1,includeAA:false,sourceModule:modulePath,results,undetected},null,2));
+          console.log(JSON.stringify({output:out,trials:results.length,undetected}));
+          // A nonzero exit means a known negative was hidden. Positive mismatches are
+          // observations, never a reason to relax production thresholds in this script.
+          if(undetected)process.exitCode=1;
+          
+          DIAGNOSTIC
+          node "$RUNNER_TEMP/footer-diagnostic.mjs" "$RUNNER_TEMP/footer-diagnostic"
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: motor-breaker-final-publication-${{ github.run_id }}
-          path: motor-final-qa/
+          name: motor-footer-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/footer-diagnostic
           retention-days: 30
           if-no-files-found: error
-

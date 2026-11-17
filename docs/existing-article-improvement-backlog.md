@@ -25,6 +25,8 @@
 
 ## 改善進捗
 
+- [x] `articles/iai-robocylinder-basic.html` — IAIロボシリンダー。[PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)で刷新・2026-11-18本番確認済み、完成・凍結。最終内容更新日のHTML表示なし、公式資料確認2026-11-17。保守的に公開11-18から90日未満は通常改善候補から除外、最短再評価2027-02-16。期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは11-18に本人実施申告・検索反映未確認。5画像・4条件検査・公開証拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+
 - [x] `articles/input-output-basic.html` — 入力と出力。[PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)で刷新・2026-11-17本番確認済み、完成・凍結。最終内容更新日のHTML表示はなし（11-15修正版採用）、公式資料確認日表記11-15。保守的に公開11-17から90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。IndexNow HTTP200、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。公開証跡・画像・日付の区別は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 
 - [x] `articles/encoder-basic.html` — エンコーダ。最終内容更新・公式資料確認2026-11-14。[PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)をmain `95756c1ffaa0258c9e07dd0efd23b4d3096d300e`へ反映、Pages成功・2026-11-14T12:31:08Zの本番HTML/6画像一致とPC Hero正常表示を確認。完成・凍結。90日未満は原則再改善候補から除外、最短再評価2027-02-12。期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。詳細は統合正本の個別履歴を参照。

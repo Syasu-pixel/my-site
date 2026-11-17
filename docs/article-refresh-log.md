@@ -50,7 +50,7 @@
 | `air-cylinder-troubleshooting-basic` | 刷新main反映済み | 2026-09-22（公開記録日） | 未確認 | 2026-09-16 | [PR #1488](https://github.com/Syasu-pixel/my-site/pull/1488)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `air-regulator-basic` | 刷新main反映済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `area-sensor-basic` | 刷新main反映済み | 未確認 | 2026-10-06 | 2026-10-06 | [PR #1693](https://github.com/Syasu-pixel/my-site/pull/1693) | 本文表示から採録。未確認は推測補完しない。 |
-| `control-panel-cooling-fan-basic` | 刷新main反映・本番確認済み | 2026-11-17 | 2026-11-15 | 2026-11-15（本文表記、11-17再照合） | [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-13。IndexNow HTTP200受理、Googleリクエストは未実施・手動待ち。検索反映完了は未確認。 |
+| `control-panel-cooling-fan-basic` | 刷新main反映・本番確認済み | 2026-11-17 | 2026-11-15 | 2026-11-15（本文表記、11-17再照合） | [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-13。IndexNow HTTP200受理、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。 |
 | `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -768,5 +768,5 @@
 - [画面・操作証跡](https://github.com/Syasu-pixel/my-site/actions/runs/44058139431/artifacts/14316717999) ZIP SHA-256 `7c70b4571f47d55accf2758c36c9b12d4484b05d8962754bfa774249e48184d9`。ダーク表示の会話キャラ白背景は旧版画面・不透明原画像・不変CSSと照合し、今回の新規回帰ではないと確認。採用素材は変更しない。
 - 日付: 最終内容更新2026-11-15、本文の公式資料確認日2026-11-15。[参照メモ](reference-notes/control-panel-cooling-fan-basic.md)のメーカー5資料再確認11-17と公開日11-17を区別。保存本文への追加はこの更新日表示と、既存公開プロフィールへ接続する単一Article JSON-LDのみ。実質本文は採用版を保持。
 - 完成・凍結。11-15から90日未満を通常再改善候補から除外し、最短再評価2027-02-13。経過だけで再編集せず、日付ガードの既存例外・評価条件に従う。
-- [IndexNow run 44062237800](https://github.com/Syasu-pixel/my-site/actions/runs/44062237800)で対象1 URLのHTTP200受理。Google登録リクエストは本作業で未実施、今回版の本人申請済み報告も確認できていないため `GOOGLE_REQUEST_PENDING_MANUAL`。Google URL検査の接続は契約状態エラーで未実行。旧版の登録状態と今回版の申請/再クロールを混同せず、インデックス反映完了は未確認。
+- [IndexNow run 44062237800](https://github.com/Syasu-pixel/my-site/actions/runs/44062237800)で対象1 URLのHTTP200受理。Google登録リクエストは2026-11-17 19:18 JSTに管理者本人から今回冷却ファン版の実施申告あり（`GOOGLE_REQUESTED`、本人申告）。本作業から申請送信はせず、Google URL検査の接続は契約状態エラーで未実行。申請済みと検索インデックス反映完了は別であり、登録完了・再クロール完了は未確認。
 - 検証専用PR #1951は10:13 UTCにmergeせずクローズ済み。専用workflowは本番mainに混入せず、証跡branchは保存。今回の記録は記事HTML/画像/共有実装/CI/検索データ/sitemapを再変更しない。

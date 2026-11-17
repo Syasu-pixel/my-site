@@ -59,6 +59,9 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
  assert.ok(shadowAfter.eligibility.flowShadows.length,'shadow guard must record its proof scope');
  const coloredShadow=await capture(6809.5,shadowCSS+'main{box-shadow:0 12px 30px rgba(255,0,0,.8)}');
  assert.notEqual(pixels(shadowBefore.bytes,coloredShadow.bytes),0,'changed shadow paint must not be masked');
+ await assert.rejects(capture(6809.5,'',()=>{
+   const e=document.createElement('div');e.style.cssText='position:sticky;top:780px;height:20px;box-shadow:0 12px 30px rgba(0,0,0,.8)';document.body.insertBefore(e,document.querySelector('main'));
+ }),/normal flow did not move by exact dy/,'nontracking sticky must be rejected by the translation proof');
  await page.close();
 });
 test.after(()=>browser.close());
@@ -70,6 +73,7 @@ test('complete visual audit rejects defects and preserves the positive control',
  const {tmpdir}=await import('node:os');
  const {join,resolve}=await import('node:path');
  const {spawnSync}=await import('node:child_process');
+ const {rmSync,readFileSync}=await import('node:fs');
  const dir=await mkdtemp(join(tmpdir(),'shell-phase-gate-'));
  const base=join(dir,'base'),head=join(dir,'head'),out=join(dir,'evidence');
  const env={...process.env,BASE_SHA:'a'.repeat(40),HEAD_SHA:'b'.repeat(40)};
@@ -80,7 +84,12 @@ test('complete visual audit rejects defects and preserves the positive control',
  }
  const fixture=(height,css='',replace)=>{let s=html(height,css).replace('<main>','<header class="site-header"><a href="/">Home</a></header><main>');return replace?replace(s):s;};
  await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125));
- const run=(phase,root,evidenceOut=out)=>spawnSync(process.execPath,[resolve('scripts/site-shell-visual.mjs'),`--phase=${phase}`,`--root=${root}`,`--out=${evidenceOut}`],{env,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});
+ const run=(phase,root,evidenceOut=out)=>{
+   if(phase==='compare')rmSync(join(evidenceOut,'report.json'),{force:true});
+   const result=spawnSync(process.execPath,[resolve('scripts/site-shell-visual.mjs'),`--phase=${phase}`,`--root=${root}`,`--out=${evidenceOut}`],{env,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});
+   if(phase==='compare')try{const r=JSON.parse(readFileSync(join(evidenceOut,'report.json'),'utf8'));result.audit={differences:r.differences,contractDifferences:r.contractDifferences,interactionChanged:r.interactionChanged,newErrors:r.newErrors,changedImages:r.results.filter(x=>x.pixels>0),footers:r.images.filter(x=>x.region==='footer').map(x=>({device:x.device,method:x.phase.method,eligibility:x.phase.eligibility}))};}catch{}
+   return result;
+ };
  const initial=run('baseline',base);assert.equal(initial.status,0,initial.stderr+initial.stdout);
  const receipts=[];
  for(const [name,css,replace] of [
@@ -93,8 +102,9 @@ test('complete visual audit rejects defects and preserves the positive control',
   ['capture style side effect','body[style] footer{color:blue}']
  ]){
    await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,css,replace));
-   const result=run('compare',head);receipts.push({name,status:result.status,signal:result.signal,stdout:result.stdout,stderr:result.stderr});
+   const result=run('compare',head);receipts.push({name,status:result.status,signal:result.signal,audit:result.audit,stdout:result.stdout,stderr:result.stderr});
    await mkdir('.visual-phase-tests',{recursive:true});await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   assert.ok(result.audit,name+' must produce an actual comparison report');
    if(name==='positive')assert.equal(result.status,0,result.stderr+result.stdout);
    else assert.ok(Number.isInteger(result.status)&&result.status!==0,`${name} must fail the real CLI gate: ${result.stdout}`);
  }
@@ -106,8 +116,9 @@ test('complete visual audit rejects defects and preserves the positive control',
  await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,paintCSS+'body{background:red}'));
  const paintBase=run('baseline',base,paintOut);assert.equal(paintBase.status,0,paintBase.stderr+paintBase.stdout);
  const paintHead=run('compare',head,paintOut);
- receipts.push({name:'ancestor-only paint hidden by capture attribute',status:paintHead.status,stdout:paintHead.stdout,stderr:paintHead.stderr});
+ receipts.push({name:'ancestor-only paint hidden by capture attribute',status:paintHead.status,audit:paintHead.audit,stdout:paintHead.stdout,stderr:paintHead.stderr});
  await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+ assert.ok(paintHead.audit,'ancestor-paint counterexample must produce comparison report');
  assert.ok(Number.isInteger(paintHead.status)&&paintHead.status!==0,'ancestor paint regression must fail real CLI');
  await cp(paintOut,'.visual-phase-tests/ancestor-paint-evidence',{recursive:true});
  const shadowOut=join(dir,'flow-shadow');
@@ -116,11 +127,26 @@ test('complete visual audit rejects defects and preserves the positive control',
  const shadowBase=run('baseline',base,shadowOut);assert.equal(shadowBase.status,0,shadowBase.stderr+shadowBase.stdout);
  for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 12px 30px rgba(255,0,0,.8)}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
    await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,shadowCSS+change));
-   const result=run('compare',head,shadowOut);receipts.push({name,status:result.status,stdout:result.stdout,stderr:result.stderr});
+   const result=run('compare',head,shadowOut);receipts.push({name,status:result.status,audit:result.audit,stdout:result.stdout,stderr:result.stderr});
    await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   assert.ok(result.audit,name+' must produce an actual comparison report');
    if(name==='shadow positive')assert.equal(result.status,0,result.stderr+result.stdout);
    else assert.ok(Number.isInteger(result.status)&&result.status!==0,name+' must fail real CLI');
  }
  await cp(shadowOut,'.visual-phase-tests/flow-shadow-evidence',{recursive:true});
+ const stickyOut=join(dir,'nontracking-sticky');
+ const stickyMarkup='<div style="position:sticky;top:780px;height:20px;box-shadow:0 12px 30px rgba(0,0,0,.8)"></div><main>';
+ await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125).replace('<main>',stickyMarkup));
+ await writeFile(join(head,'articles/fixture.html'),fixture(6809.5).replace('<main>',stickyMarkup));
+ const stickyBase=run('baseline',base,stickyOut);assert.equal(stickyBase.status,0,stickyBase.stderr+stickyBase.stdout);
+ const stickyHead=run('compare',head,stickyOut);
+ const {readFile}=await import('node:fs/promises');
+ const stickyReport=JSON.parse(await readFile(join(stickyOut,'report.json'),'utf8'));
+ const stickyFooters=stickyReport.images.filter(x=>x.region==='footer');
+ assert.equal(stickyFooters.length,2);
+ for(const image of stickyFooters){assert.equal(image.phase.method,'raw-only');assert.match(image.phase.eligibility.reason,/normal flow did not move by exact dy/);}
+ receipts.push({name:'nontracking sticky preserves raw comparison',status:stickyHead.status,methods:stickyFooters.map(x=>({device:x.device,method:x.phase.method,reason:x.phase.eligibility.reason})),audit:stickyHead.audit,stdout:stickyHead.stdout,stderr:stickyHead.stderr});
+ await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+ await cp(stickyOut,'.visual-phase-tests/nontracking-sticky-evidence',{recursive:true});
  await cp(out,'.visual-phase-tests/cli-evidence',{recursive:true});
 });

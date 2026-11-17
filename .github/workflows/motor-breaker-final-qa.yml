@@ -1,4 +1,4 @@
-name: Temporary motor footer diagnostic
+name: Temporary motor real-page footer diagnostic
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -18,75 +18,47 @@ jobs:
           version: 11.19.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm exec playwright install --with-deps chromium
-      - name: Investigate raster phase without changing source or threshold
+      - run: git fetch --no-tags --depth=1 origin 747aea6bf6732990fd85bd11fbef26b8dab9180f 5d25f98b1968ba4f6277d83e264c9ee15a9d016b
+      - name: Investigate exact-revision footer without changing source or threshold
         run: |
-          cat > "$RUNNER_TEMP/footer-diagnostic.mjs" <<'DIAGNOSTIC'
-          // Diagnostic only. Does not alter production files, thresholds, or CI verdicts.
-          // Run from repository root: node /path/footer-phase-diagnostic.mjs OUTPUT_DIR
-          import {createRequire} from 'node:module';
-          import {resolve} from 'node:path';
-          import {pathToFileURL} from 'node:url';
-          import {readFile,writeFile,mkdir} from 'node:fs/promises';
-          const require=createRequire(resolve('package.json'));
-          const {chromium}=require('playwright'),{PNG}=require('pngjs');
-          const pixelmatch=(await import(pathToFileURL(require.resolve('pixelmatch')))).default;
-          const out=resolve(process.argv[2]||'/tmp/footer-phase-diagnostic');await mkdir(out,{recursive:true});
-          const modulePath=resolve('scripts/site-shell-phase.mjs');
-          const original=await readFile(modulePath,'utf8');
-          const needle="bytes=await locator.screenshot({...options,animations:'disabled'});";
-          if(original.split(needle).length!==2)throw Error('Unknown source; review instrumentation manually');
-          const instrumented=original.replace(needle,"await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));\n    "+needle);
-          await writeFile(resolve(out,'phase-two-frames.mjs'),instrumented);
-          const current=await import(pathToFileURL(modulePath));
-          const delayed=await import(pathToFileURL(resolve(out,'phase-two-frames.mjs')));
-          const heights=[9299.59375,11476.671875,11221.953125];
-          const modes=['raw-first','fresh-no-raw','two-frames','initial-inline'];
-          const defects=['none','color','position','spacing','clipping','text','link'];
-          const footer=`<footer class="site-footer"><div class="container"><p>現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br><a href="/privacy-policy/">プライバシーポリシー</a> | <a href="/contact/">お問い合わせ</a></p></div><nav><a href="/profile/">運営者・編集方針</a></nav><p class="disclosure">当サイトはアフィリエイト広告を利用しています。</p></footer>`;
-          const css=`*{box-sizing:border-box}body{margin:0;background:linear-gradient(#f8fbff,#f4f7fb);color:#1e293b}footer{padding:26px 0 36px;border-top:1px solid #dae6f4;color:#607691;font:700 12px/1.8 'Hiragino Sans','Yu Gothic',Meiryo,sans-serif;text-align:center}footer .container{width:calc(100% - 20px);margin:auto}footer p{margin:12px 0}footer a{color:blue;text-decoration:none}footer .disclosure{margin:12px auto 0;padding:0 16px;font-size:13px;font-weight:400;line-height:1.7}`;
-          function html(height,defect,early){const extra={none:'',color:'footer{color:#ff0000}',position:'footer p{position:relative;left:1px}',spacing:'footer{padding-top:27px}',clipping:'footer{height:80px;overflow:hidden}',text:'',link:''}[defect];let f=footer;if(defect==='text')f=f.replace('迷いにくく','不正な本文');if(defect==='link')f=f.replace('/profile/','/wrong/');return `<!doctype html><meta charset="utf-8"><style>${css}main{height:${height}px}${extra}</style><body><main></main>${f}${early?`<script>const e=document.querySelector('footer');const y=e.getBoundingClientRect().y+scrollY;document.body.style.paddingTop=(Math.ceil(y)-y)+'px';</script>`:''}</body>`;}
-          function comparison(a,b){a=PNG.sync.read(a);b=PNG.sync.read(b);if(a.width!==b.width||a.height!==b.height)return {sizeChanged:true,pixels:null};return {sizeChanged:false,pixels:pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:.1,includeAA:false}),exactPixels:pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:0,includeAA:true})};}
-          const browser=await chromium.launch({headless:true});const results=[];let undetected=0;
-          try{for(const width of [390,1440])for(const mode of modes){let base;
-           for(const height of heights)for(const defect of (height===heights[1]?defects:['none'])){
-            // Each trial has a brand-new context: no shared raster, font or storage state.
-            const c=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:1,locale:'ja-JP',reducedMotion:'reduce'});let page=await c.newPage();await page.route('**/*',r=>r.abort());
-            await page.setContent(html(height,defect,false));await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
-            const untouched=await current.shellContract(page,'footer.site-footer');
-            const key=`${width}-${mode}-${height}-${defect}`;let capture;
-            try{
-             if(mode==='initial-inline'){
-              // Experimental initial-layout capture, not a production replacement. Original
-              // contract is retained independently, so content/style defects cannot hide.
-              await page.close();page=await c.newPage();await page.route('**/*',r=>r.abort());
-              await page.setContent(html(height,defect,true));await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
-              capture=await current.capturePhaseStableFooter(page);
-              await page.evaluate(()=>document.body.removeAttribute('style'));
-              const restored=await current.shellContract(page,'footer.site-footer');
-              if(JSON.stringify(restored)!==JSON.stringify(untouched))throw Error('Initial-inline restoration contract mismatch');
-              capture.contract=untouched;
-             }else{
-              if(mode!=='fresh-no-raw')await page.locator('footer').screenshot({path:resolve(out,key+'-raw.png')});
-              capture=await(mode==='two-frames'?delayed:current).capturePhaseStableFooter(page);
-             }
-             await writeFile(resolve(out,key+'.png'),capture.bytes);
-             if(!base)base=capture;
-             const diff=comparison(base.bytes,capture.bytes),contractChanged=JSON.stringify(base.contract)!==JSON.stringify(capture.contract);
-             const detected=contractChanged||diff.sizeChanged||diff.pixels>0;
-             if(defect!=='none'&&!detected)undetected++;
-             results.push({width,mode,height,defect,...diff,contractChanged,negativeDetected:defect==='none'?null:detected,translationY:capture.translationY});
-            }catch(e){results.push({width,mode,height,defect,error:String(e),negativeDetected:defect==='none'?null:true});}
-            await c.close();
+          cat > "$RUNNER_TEMP/footer-real.mjs" <<'DIAGNOSTIC'
+          // Read-only git-revision serving; diagnostic evidence only, never a production gate.
+          import {createRequire} from 'node:module';import {resolve,extname} from 'node:path';import {pathToFileURL} from 'node:url';
+          import {readFile,writeFile,mkdir} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import {createServer} from 'node:http';import {createHash} from 'node:crypto';
+          const req=createRequire(resolve('package.json'));const {chromium}=req('playwright'),{PNG}=req('pngjs');const pixelmatch=(await import(pathToFileURL(req.resolve('pixelmatch')))).default;
+          const [baseArg,headArg,outArg]=process.argv.slice(2);if(!baseArg||!headArg||!outArg)throw Error('Usage from repo root: node script.mjs BASE_SHA HEAD_SHA OUTPUT_DIR');
+          const refs=[baseArg,headArg].map(r=>{if(!/^[a-f0-9]{7,40}$/.test(r))throw Error('Expected hex commit');return execFileSync('git',['rev-parse',r]).toString().trim()});
+          const out=resolve(outArg);await mkdir(out,{recursive:true});const path='articles/motor-breaker-basic.html';const helper=resolve('scripts/site-shell-phase.mjs');const source=await readFile(helper,'utf8');const needle="bytes=await locator.screenshot({...options,animations:'disabled'});";if(source.split(needle).length!==2)throw Error('Unexpected helper');await writeFile(resolve(out,'phase-two-frames.mjs'),source.replace(needle,"await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));\n"+needle));
+          const current=await import(pathToFileURL(helper)),delayed=await import(pathToFileURL(resolve(out,'phase-two-frames.mjs')));
+          const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.json':'application/json','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2'};const servers=[],origins=[],assetHashes={};
+          for(const ref of refs){const cache=new Map();const server=createServer((r,s)=>{let p;try{p=decodeURIComponent(new URL(r.url,'http://x').pathname).slice(1);if(p.includes('..')||!['GET','HEAD'].includes(r.method))throw Error('unsafe');if(!p||p.endsWith('/'))p+='index.html';if(!cache.has(p))cache.set(p,execFileSync('git',['show',ref+':'+p],{maxBuffer:64*1024*1024,stdio:['ignore','pipe','ignore']}));const b=cache.get(p);assetHashes[ref+':'+p]=createHash('sha256').update(b).digest('hex');s.writeHead(200,{'Content-Type':mime[extname(p)]||'application/octet-stream'});s.end(r.method==='HEAD'?undefined:b)}catch{s.writeHead(404);s.end('not found')}});await new Promise(r=>server.listen(0,'127.0.0.1',r));servers.push(server);origins.push('http://127.0.0.1:'+server.address().port);}
+          function compare(a,b){a=PNG.sync.read(a);b=PNG.sync.read(b);if(a.width!==b.width||a.height!==b.height)return {sizeChanged:true,pixels:null};const diff=new PNG({width:a.width,height:a.height});const pixels=pixelmatch(a.data,b.data,diff.data,a.width,a.height,{threshold:.1,includeAA:false});return {sizeChanged:false,pixels,exactPixels:pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:0,includeAA:true}),diff:PNG.sync.write(diff)};}
+          const results=[],bases=new Map();let undetected=0;const browser=await chromium.launch({headless:true});
+          try{for(const width of [390,1440])for(const shape of ['full','main-spacer'])for(const mode of ['raw-first','no-raw','two-frames'])for(let side=0;side<2;side++)for(const defect of(side===1?['none','color','position','text','link']:['none'])){
+           const c=await browser.newContext({viewport:{width,height:width===390?844:1000},deviceScaleFactor:1,locale:'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce'});const p=await c.newPage();const errors=[];const origin=origins[side];await c.route('**/*',r=>r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:')?r.continue():r.abort());p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url())});
+           const key=`${width}-${shape}-${mode}-${side}-${defect}`;let record={key,width,shape,mode,ref:refs[side],defect};
+           try{await p.addInitScript(()=>{const O=Date;globalThis.Date=class extends O{constructor(...a){super(...(a.length?a:['2026-09-18T00:00:00Z']))}static now(){return 1789689600000}}});await p.goto(origin+'/'+path,{waitUntil:'networkidle'});await p.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}html{scroll-behavior:auto!important}'});await p.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading='eager';await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})))});
+           const beforeContract=await current.shellContract(p,'footer.site-footer');record.originalDocumentY=await p.locator('footer').evaluate(e=>e.getBoundingClientRect().y+scrollY);
+           if(shape==='main-spacer'){
+            record.spacer=await p.evaluate(()=>{const m=document.querySelector('main');if(!m)throw Error('missing main');const before=m.getBoundingClientRect();const fy=document.querySelector('footer').getBoundingClientRect().y+scrollY;m.replaceChildren();m.style.setProperty('height',before.height+'px','important');m.style.setProperty('min-height',before.height+'px','important');m.style.setProperty('max-height',before.height+'px','important');const after=m.getBoundingClientRect();return {before:{x:before.x,y:before.y,width:before.width,height:before.height},after:{x:after.x,y:after.y,width:after.width,height:after.height},footerYBefore:fy,footerYAfter:document.querySelector('footer').getBoundingClientRect().y+scrollY}});
+            record.spacerFooterContractUnchanged=JSON.stringify(beforeContract)===JSON.stringify(await current.shellContract(p,'footer.site-footer'));
+            if(!record.spacerFooterContractUnchanged||Math.abs(record.spacer.footerYBefore-record.spacer.footerYAfter)>1/64)throw Error('Spacer changed footer contract or origin; fixture invalid, do not interpret pixels');
            }
-          }}finally{await browser.close();}
-          await writeFile(resolve(out,'results.json'),JSON.stringify({diagnosticOnly:true,threshold:.1,includeAA:false,sourceModule:modulePath,results,undetected},null,2));
-          console.log(JSON.stringify({output:out,trials:results.length,undetected}));
-          // A nonzero exit means a known negative was hidden. Positive mismatches are
-          // observations, never a reason to relax production thresholds in this script.
-          if(undetected)process.exitCode=1;
+           if(defect!=='none')await p.evaluate(d=>{const f=document.querySelector('footer');if(d==='color')f.style.color='red';if(d==='position'){f.querySelector('p').style.position='relative';f.querySelector('p').style.left='1px'}if(d==='text')f.querySelector('p').textContent='Unexpected text';if(d==='link')f.querySelector('a').href='/wrong/'},defect);
+           await p.locator('header.site-header').screenshot({path:resolve(out,key+'-header.png')});await p.locator('footer.site-footer').scrollIntoViewIfNeeded();await p.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await p.waitForTimeout(100);
+           if(mode!=='no-raw')await p.locator('footer.site-footer').screenshot({path:resolve(out,key+'-raw.png')});
+           const capture=await(mode==='two-frames'?delayed:current).capturePhaseStableFooter(p);await writeFile(resolve(out,key+'-phase.png'),capture.bytes);await writeFile(resolve(out,key+'-contract.json'),JSON.stringify(capture.contract));record.translationY=capture.translationY;
+           const group=`${width}-${shape}-${mode}`;if(side===0)bases.set(group,capture);const baseline=bases.get(group);const diff=compare(baseline.bytes,capture.bytes);if(diff.diff)await writeFile(resolve(out,key+'-diff.png'),diff.diff);delete diff.diff;Object.assign(record,diff,{contractChanged:JSON.stringify(baseline.contract)!==JSON.stringify(capture.contract),errors});
+           // Compare negatives against SAME head, not against base: preexisting positive drift
+           // must not make a hidden negative appear detected.
+           if(defect==='none'&&side===1)bases.set(group+'-head',capture);
+           if(defect!=='none'){const control=bases.get(group+'-head');const delta=compare(control.bytes,capture.bytes);delete delta.diff;record.negativeAgainstHead={...delta,contractChanged:JSON.stringify(control.contract)!==JSON.stringify(capture.contract)};record.negativeDetected=delta.sizeChanged||delta.pixels>0||record.negativeAgainstHead.contractChanged;if(!record.negativeDetected)undetected++;}
+           }catch(e){record.error=String(e);record.errors=errors;record.negativeDetected=defect==='none'?null:true;}finally{results.push(record);await c.close()}
+          }}finally{await browser.close();await Promise.all(servers.map(s=>new Promise(r=>s.close(r))))}
+          await writeFile(resolve(out,'results.json'),JSON.stringify({diagnosticOnly:true,refs,threshold:.1,includeAA:false,helperSha256:createHash('sha256').update(source).digest('hex'),assetHashes,results,undetected},null,2));console.log(JSON.stringify({out,trials:results.length,undetected}));if(undetected)process.exitCode=1;
           
           DIAGNOSTIC
-          node "$RUNNER_TEMP/footer-diagnostic.mjs" "$RUNNER_TEMP/footer-diagnostic"
+          node "$RUNNER_TEMP/footer-real.mjs" 747aea6bf6732990fd85bd11fbef26b8dab9180f 5d25f98b1968ba4f6277d83e264c9ee15a9d016b "$RUNNER_TEMP/footer-diagnostic"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

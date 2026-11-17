@@ -302,6 +302,7 @@
 | [scripts/check-reviewed-navigation-delta.mjs](../../scripts/check-reviewed-navigation-delta.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [tests/donation-main-diff.test.mjs](../../tests/donation-main-diff.test.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [.github/site-shells/additional/reviewed-navigation-deltas.json](../../.github/site-shells/additional/reviewed-navigation-deltas.json) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
+| [.github/workflows/motor-breaker-final-qa.yml](../../.github/workflows/motor-breaker-final-qa.yml) | モーターブレーカ最終publicationの検証専用PRで4条件と画像拡大を確認する場合。 一時QA専用。mainへマージせず、公開用原稿と同じ生成物を検証・保全する。 |
 
 ## 省略表記の参照先
 

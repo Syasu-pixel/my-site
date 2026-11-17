@@ -286,6 +286,10 @@
 | [.github/workflows/weekly-search-backlog.yml](../../.github/workflows/weekly-search-backlog.yml) | 検索順位・CTRの週次判定、バックログへの確認専用Draft PR提案を運用・変更する場合。 公式API取得済みデータを使い、記事本文や完了チェックを変更せず評価候補のみPRで提案する週次処理。 |
 | [scripts/search_backlog_report.py](../../scripts/search_backlog_report.py) | 既存記事改善バックログの検索データ自動評価を運用・変更する場合。 Supabase確定Google日次データに基づく候補抽出・公開URL限定・完成凍結/クールダウンガードを持つ提案生成器。 |
 | [scripts/test_search_backlog_report.py](../../scripts/test_search_backlog_report.py) | 検索データ自動評価器または週次提案処理を変更・検査する場合。 候補分類・限定更新・公開URL絞り込み・鮮度停止の回帰テスト。 |
+| [scripts/select-shell-visual-targets.mjs](../../scripts/select-shell-visual-targets.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
+| [scripts/site-shell-phase.mjs](../../scripts/site-shell-phase.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
+| [tests/select-shell-visual-targets.test.mjs](../../tests/select-shell-visual-targets.test.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
+| [tests/site-shell-phase.browser.mjs](../../tests/site-shell-phase.browser.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
 
 ## 省略表記の参照先
 

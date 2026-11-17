@@ -43,7 +43,7 @@ Bing AI検索のmain保存3CSV（2026-10-14）と、Draft PR #1806の2026-11-07�
 4. [HIOKI 3665技術資料](https://www.hioki.co.jp/file/cmw/hdTechnicalData/297/attached_file/?action=browser&lang=jp&log=0&nr=t)
    - p2・p5: スプリットペアと、導通・番号対応検査との違い。
 5. [Panasonic T568A/T568B公式FAQ](https://jpn.faq.panasonic.com/app/answers/detail/a_id/80034/)
-6. [パンドウイットLAN配線部材カタログ](https://www.panduit.co.jp/wp-content/uploads/catalog/panduit_lan.pdf)
+6. [パンドウイット LANケーブル配線技術 ハンドブック](https://www.panduit.co.jp/wp-content/uploads/catalog/panduit_lan.pdf)
    - p46: ピン番号と芯線色。1–2、3–6、4–5、7–8の対。プラグの観察方向を示さず「左から」と説明しない。
 
 採用語: 導通、ワイヤマップ、断線、短絡、スプリットペア、T568A/T568B、シールド。機種固有の表示・測定範囲・安全条件は説明書を優先する。簡易導通、対応機種の追加診断、通信性能・規格認証試験を区別する。実機検証済みとは主張しない。

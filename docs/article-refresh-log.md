@@ -8,12 +8,24 @@
 
 ### 集計範囲と根拠
 
-- 照合基点: main `0c98d86c4ad712235054e46b460269a01f909d8c`。照合日2026-11-14。
+- 照合基点: main `95756c1ffaa0258c9e07dd0efd23b4d3096d300e`。照合日2026-11-14。
 - [公開サイトマップ](../sitemap.xml)の日本語 `/articles/` は174 URL（重複0）。英語111 URLと公開停止PLC設計シリーズ3本は分母から除外。今回の本番サイトマップとmainの日本語174 URL集合は一致し、対象記事1 URLを含む。
-- 下表は45 slug。初回統合44件（旧改善台帳25件と公開履歴・mainマージ済み刷新PRの19件）に、動力線・信号線の分離記事の刷新1件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全45本を「同一基準の全面改稿」とは呼ばない。
-- 174−45＝129本は**今回の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
+- 2026-11-14時点の統合は47 slug（重複0）。初回統合44件（旧改善台帳25件と公開履歴・mainマージ済み刷新PRの19件）に、動力線・信号線の分離記事、PLC X/Y/M/Dデバイス記事、エンコーダ記事の刷新3件を追加。本文改善だけでなく採用画像刷新・完成凍結の既存記録も含む。全47本を「同一基準の全面改稿」とは呼ばない。
+- 2026-11-14時点の174−47＝127本は**当時の統合で完了を確認できていない残り**。過去全PRを網羅した未更新確定数ではない。単なる共通CSS、リンク・導線修正、新規公開、英語、PreviewだけのPR、同じ記事の再更新を重複加算しない。
 - 公開記録日、最終内容更新日、公式資料確認日は別欄。HTMLのファイル更新日時やPRのマージ日を内容更新日に転用しない。未確認は未確認のまま保持。記事本文そのものの日付は今回変更しない。
 - 本番表示の個別確認は既存公開記録を継承。初回統合44記事すべてをブラウザ再監査したという意味ではない。記録が古い・矛盾する場合は実公開・main・PRを確認する。
+
+### 2026-11-17 集計追補（入力と出力の公開記録）
+
+- 照合基点: main `9bb6d38ae8ea0192309576b764b1d2d3b7b69d05`。本番サイトマップとmainの日本語記事URL集合は175件・重複0で一致。シールド線の新規公開1件を含む。
+- 入力と出力の既存記事刷新1件を追加し、下表は48 slug（重複0）。以前の47件の状態は変更しない。新規公開のシールド線記事は既存記事刷新件数に加算しない。
+- 当初174件の既存記事集合では、174−48＝126件がこの台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−48＝127件には新規公開済みシールド線1件が含まれるため、127件すべてを未完了記事とは呼ばない。
+
+### 2026-11-17 集計追補（冷却ファンの公開記録）
+
+- 照合基点: main `e924d045dd5f823bebaeb5b98400b678f6c3013a`。本番日本語記事サイトマップ175 URL・重複0を確認。
+- 冷却ファンの既存記事刷新1件を追加し、下表は49 slug（重複0）。過去48件の状態は変更せず、4コマ公開や新規シールド線記事を刷新件数へ加算しない。
+- 当初174件の既存記事集合では174−49＝125件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−49＝126件には新規公開済みシールド線1件を含む。
 
 ### 既存文書との分担
 
@@ -38,6 +50,7 @@
 | `air-cylinder-troubleshooting-basic` | 刷新main反映済み | 2026-09-22（公開記録日） | 未確認 | 2026-09-16 | [PR #1488](https://github.com/Syasu-pixel/my-site/pull/1488)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `air-regulator-basic` | 刷新main反映済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `area-sensor-basic` | 刷新main反映済み | 未確認 | 2026-10-06 | 2026-10-06 | [PR #1693](https://github.com/Syasu-pixel/my-site/pull/1693) | 本文表示から採録。未確認は推測補完しない。 |
+| `control-panel-cooling-fan-basic` | 刷新main反映・本番確認済み | 2026-11-17 | 2026-11-15 | 2026-11-15（本文表記、11-17再照合） | [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-13。IndexNow HTTP200受理、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。 |
 | `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -47,6 +60,8 @@
 | `earth-leakage-breaker-basic` | 刷新main反映済み | 未確認 | 未確認 | 2026-10-06 | [PR #1677](https://github.com/Syasu-pixel/my-site/pull/1677) | 本文表示から採録。未確認は推測補完しない。 |
 | `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
 | `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。 |
+| `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
@@ -58,6 +73,7 @@
 | `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-basic` | 刷新main反映済み | 2026-10-14（管理者表示確認記録） | 未確認 | 2026-10-06 | [PR #1763](https://github.com/Syasu-pixel/my-site/pull/1763) | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `plc-xymd-device-basic` | 刷新main反映・本番確認済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878)・本書の個別履歴 | 90日ガード対象。最短再評価2027-02-12。完成・凍結。Googleリクエスト受理済み、再インデックス完了は未確認。 |
 | `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
@@ -99,6 +115,31 @@
 - 四コマ漫画の追従確認では、このログの「本番公開完了」記事を起点に `docs/comic-scripts/` の正式採用記録と突合し、未四コマ化の記事を抽出する。
 
 ---
+
+## 2026-11-14 — encoder-basic 刷新・本番公開完了
+
+- 対象: `articles/encoder-basic.html`。既存の日本語記事を同じURLで刷新。最終内容更新日・公式資料確認日はいずれも2026-11-14。
+- 管理者が最終Previewを採用し公開承認。[公開用PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)をmain `95756c1ffaa0258c9e07dd0efd23b4d3096d300e`へマージ。完成・凍結。
+- 本文: 回転→信号→受信側の流れ、A/B相の電気角90°、Z相の軸1回転に1回の基準、100 P/Rと1逓倍・4逓倍の区別、インクリメンタル形とアブソリュート形、高速入力端子と実際の計数機能の違いを基礎向けに整理。配線施工・個別の復旧手順は扱わない。
+- 画像: 採用Hero・専用OGP・本文4枚の計6枚。A/Bの周期とZの1回転は別スケールの概念図。採用原本からのWebPを恒久binary-transferで確認用ブランチへ転送し、SHA256・bytes・Git blob一致を確認。
+- 技術根拠と現場知識の採否: [エンコーダ公式参照メモ](reference-notes/encoder-basic.md)。未解決相談事例を原因確定・復旧成功事例として扱わない。
+- 公開後の検証: Pages [run43594729896](https://github.com/Syasu-pixel/my-site/actions/runs/43594729896)のbuild/deploy成功。2026-11-14T12:31:08Zに本番HTMLと6画像がすべてHTTP200で、承認済み公開生成物のSHA256と全件一致。HTMLは88,601bytes、SHA256 `acce52f7dac949c8361bc129168881ce7c0e4568d410ecb402eabc456907c2be`。canonicalは対象本番URL、noindexなし。本番PC幅1180pxでHero正常表示を確認。最終PreviewのPC/スマホ・ライト/ダーク検証と、本番HTTP・PC表示確認は区別する。
+- 本番検索索引は対象1件で新タイトル一致。本番サイトマップも対象1件、lastmodは2026-11-14。
+- Google登録リクエストは2026-11-14に管理者本人が実施したと申告（「Googleのリクエストを更新リクエストをやりました」）。検索インデックス完了も未確認。IndexNow [run43594729870](https://github.com/Syasu-pixel/my-site/actions/runs/43594729870)、job132446700940の2026-11-14T12:26:12Zログで対象エンコーダURLのHTTP200受理を確認。受理を検索インデックス完了とは扱わない。
+- 90日ガード: 内容更新2026-11-14を0日目とし、最短再評価日は2027-02-12。期間経過だけでは再編集せず、日付ガードの条件・例外に従う。
+- 集計照合: 2026-11-14、本番サイトマップとmain `2b491cb501ed2ce02832318e1e47a06b00f4f312` の日本語記事集合は174 URLで一致（重複0）。既存完了台帳46 slugはすべて集合内、重複0。encoder-basicは集合内・既存台帳未登録。本番公開確認後に同slugを1件だけ追加し47件、完了未確認の残り127件へ同期。旧46件の状態・日付を変更せず、同記事の再更新や記録PRを重複加算しない。
+
+## 2026-11-14 — plc-xymd-device-basic 刷新・本番公開完了
+
+- 対象: `articles/plc-xymd-device-basic.html`。本番URL: https://denkicontrol.com/articles/plc-xymd-device-basic.html
+- 管理者の最終Preview公開承認に基づき、公開本体 [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878) をmainへマージ。main反映 `488a5bd446b8458356de650f6fdf26bbd5dc9456`。生成済みHTMLを含むPreview専用 #1880 はmainへマージしない。
+- 最終内容更新・公式資料確認: 2026-11-14（記事本文の日付を確認）。X/Y/M/Dの役割、種類と番号、入力・出力の流れ、Mの状態とDの数値、保持条件・CPU差を初級向けに整理。[公式参照メモ](reference-notes/plc-xymd-device-basic.md)。画面のYがONでも実設備の動作を保証しない。強制操作・値書換え・ラッチクリア手順は掲載しない。
+- 採用画像: `assets/images/plc-xymd-device-basic/plc-xymd-device-basic-{hero,ogp,roles,xy-flow,md-comparison,read-check}-20261114.webp` の6枚。統一ちびキャラ、Hero/OGP別、本文4図。重要技術情報を可視HTMLにも記載。
+- 検証: 競合解消統合commit `88a835e` で167文書のルール構造検査PASS、両catalog/indexを保持。本文・採用画像は承認済み `ec585` から同一。
+- Pages・本番配信: [run43580487604](https://github.com/Syasu-pixel/my-site/actions/runs/43580487604) のbuild・deploy成功。2026-11-14 09:31 UTC頃、本番の修正Hero・新本文・本文図の拡大をブラウザで確認。本番33ファイルはローカル最終publicationとすべてSHA256一致。
+- IndexNow: [run43580487645](https://github.com/Syasu-pixel/my-site/actions/runs/43580487645) のnotify-indexnow成功。2026-11-14 09:26:12 UTC、対象本番URL1件のHTTP200 acceptedを実ログで確認。受理は検索インデックス完了を意味しない。
+- Google: `GOOGLE_REQUESTED`。助手が対象本番URLのインデックス登録リクエストを1回送信し、2026-11-14 09:32 UTCに「インデックス登録をリクエスト済み」「優先クロールキューに追加」の受理表示を確認。送信前のURL検査は既存登録済み。今回の更新内容の再クロール・再インデックス完了は未確認。
+- 90日ガード: 最終内容更新2026-11-14から90日未満は原則再改善候補から除外。最短再評価2027-02-12。期間経過だけでは再編集せず、日付ガードの根拠条件に従う。本番確認済みとして完成・凍結し、派生チェック欄も同期。
 
 ## 2026-11-14 — power-signal-wiring-separation-basic 刷新・本番公開完了
 
@@ -684,3 +725,48 @@
   - Search Consoleクエリ確認後の読みやすさ改善と内容整理
 
 - 2026-05-28: `articles/star-delta-start-basic.html` の「電気図の流れで見る」セクションに配線イメージ図（article-figure）を追加。
+
+## 2026-11-17 シールド線の片端・両端接地：新規公開（刷新件数へ加算しない）
+
+- 対象: `articles/shield-grounding-one-end-both-ends.html`。既存「シールド線とは？」の改稿ではなく、機器マニュアルの接地指定を読み分ける新規記事。統合更新台帳の既存記事刷新47件には加算しない。
+- 採用原稿全文 SHA-256: `9c76543c8bf1d7e2979f30011390e3790c718beeed2bfa70ccb0588aa8de8df6`。採用WebP5枚を保持し、既存288記事の登録・本文・関連記事を保全。
+- Step 1: PR #1943、main `534da6fd3084b3ff74ca5a10b195ec32ffa7e860`。全7CI成功を確認して正規マージ。Header/footerは既存288記事1164画像と新規1記事4画像を別の変更前基準と比較、差分0。
+- 本文・画像の配信: Pages `44030983549`成功。2026-11-17 06:30 UTCに本番HTML取得成功、SHA-256 `441021172c9973c7bffedfbade4b16d35e635e6ad20347fdd9d54399dc3e2adb`が検証済み公開生成物と完全一致。WebP5枚も採用元とバイト一致。
+- 本番相当表示: `44028142281`（artifact `14303204836`）。正規生成＋WebP最適化後の編集成果物をPC1440px／スマホ390px×ライト／ダークで確認。記事・トップ新着・制御カテゴリ計12条件で画像破損0、ページ横溢れ0、JavaScriptエラー0。新着7件とカテゴリ追加カードを目視。CI Chromiumによる確認であり実機スマホ検証ではない。
+- Step 2: PR #1945、main `650c5868a1a3000aa5825877fdecb0bb2334c68d`、全8CI成功後に正規マージ。Pages `44032997976`成功、06:47 UTCに本番トップ・カテゴリ・記事・検索JSON・ルートsitemapの5ファイルが検証済み候補とSHA完全一致を確認。トップ新着7件・カテゴリ1カード・検索1entry・ルートsitemap1URL。関連記事追加Step 2-Bは今回不要として実施せず、既存関連リンクは保全。英語翻訳を捏造せず日英導線は変更しない。
+- 検査方法: 新規289件の在庫はPR #1942のbase/head独立検査を利用。寄付表示保全CIは旧GX Works2一度限り契約との衝突を正規に整理し、承認済み前後SHAと正確な導線断片のみ許容。19正負例・16ページ比較成功。寄付表示CSS・共通header/footer不変、未知差分拒否を維持。
+- IndexNow: `44030983691`で本記事1URLのHTTP200受理を確認。導線2URLも `44032998277`でHTTP200受理。通知受理と検索インデックス掲載は別であり、Google/Bingの掲載完了は未確認。Google手動リクエストは行っていない。
+- 承認: 2026-11-15の採用・公開承認と今回の「記事二つを最後まで進めて」を継承。未承認の本文差し替えなし。
+- 後片付け: Preview専用PR #1944はmainへ統合せず、本番確認後の06:47 UTCにクローズ済み。一時workflowはmainへ混入していない。証拠保存用branchは残しており、以後trigger編集予定なし。
+
+
+## 2026-11-17 — input-output-basic 刷新・本番公開完了
+
+- 対象: `articles/input-output-basic.html`。既存記事を同じURLで刷新。PLC I/Oユニットの記事とは別の対象。基準となる機器によって入力・出力の呼び方が変わること、PLC・リレーの見方、ON表示と実動作の区別を整理。
+- 採用済み編集元全文SHA-256 `a4aaef621e42321fe0a75c86a2ef17b84d68317b5cced62d6e2e582431c8f125`、見出し「信号を整理」の改行防止を維持。[PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)をmain `7a9890f783cf250a56d983a95a61464d1ead09ad`へ通常マージ。
+- [公開後確認記録](https://github.com/Syasu-pixel/my-site/pull/1942#issuecomment-6940029454): [Pages run 44026457718](https://github.com/Syasu-pixel/my-site/actions/runs/44026457718)成功、2026-11-17 05:55 UTC / 14:55 JSTに本番本文と採用WebP5枚の一致を確認。配信HTML SHA-256 `d785eeb43e1c017bfaabc70cd1d375e000129a40dda8dfe3ab31cc6e244d2cd1`。本記録作成時にも同じ本番HTMLハッシュを再確認。
+- 最終head `9c1ee493716ce999da81cfde10c86e2746c2ceae`の7ワークフロー成功。正式CI画像のreceipt hash照合後、PC1440/スマホ390×ライト/ダークの4条件を目視済みという公開時検証を継承。今回の文書追記で表示検査を再実行したものではない。実機スマートフォン検証は主張しない。
+- 画像5点（採用原本を保持）:
+  - `assets/images/input-output-basic/input-output-basic-hero-20261115.webp`
+  - `assets/images/input-output-basic/input-output-basic-ogp-20261115.webp`
+  - `assets/images/input-output-basic/input-output-basic-overview-20261115.webp`
+  - `assets/images/input-output-basic/input-output-basic-perspective-20261115.webp`
+  - `assets/images/input-output-basic/input-output-basic-state-check-20261115.webp`
+- 公開時に検索インデックスの新タイトル、運用サイトマップの対象URL1件を確認。#1942では検索エントリと関連5記事の当該カードOGP/altを整合。サイトマップの登録追加は不要。今回の記録PRは記事HTML・画像・検索データ・サイトマップ・検査コードを変更しない。
+- 日付: 修正版の採用は2026-11-15。記事内に独立した最終内容更新日表示はないため、公開日を内容更新日へ転用しない。公式資料確認日は本文表記2026-11-15、[参照メモ](reference-notes/input-output-basic.md)の引継ぎ再取得は11-17であり区別する。今回、本文の日付や公式資料確認日を更新しない。
+- 完成・凍結。日付不明を再編集の理由にせず、保守的に公開日2026-11-17から90日未満を通常改善候補から除外。最短再評価2027-02-15以降も自動再編集せず、[日付ガード](article-update-date-guard.md)の既存例外・評価条件に従う。
+- [IndexNow run 44026457877](https://github.com/Syasu-pixel/my-site/actions/runs/44026457877)は対象1 URLにHTTP200受理。Google登録リクエストは2026-11-17に管理者本人から実施申告あり。いずれも検索インデックス反映完了を意味しない。
+- 四コマ追従確認は本件の公開記録を起点に行う。PLC I/Oユニット用の既存四コマを本記事の制作済み証拠と取り違えない。本記録は新しい四コマ制作・公開の承認ではない。
+
+## 2026-11-17 — control-panel-cooling-fan-basic 刷新・本番公開完了
+
+- 対象: `articles/control-panel-cooling-fan-basic.html`。既存URLの刷新。換気・盤内循環・密閉型熱対策の役割、吸気・通り道・排気、フィルター、安全に整理できる情報を説明する採用済み再構成本文と6画像を保持。失われた旧原稿の完全復元とは主張しない。
+- [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949) head `bdafd1a2ce7b9455f6aad1edef9d3887e17ed347` をmain `e924d045dd5f823bebaeb5b98400b678f6c3013a`へ通常マージ。直前の4コマmain `b64f8b35`との競合なし、トップ/他記事/共有生成器を保持。対象記事の台帳と検索indexだけを必要範囲で同期。
+- [Pages run 44062237818](https://github.com/Syasu-pixel/my-site/actions/runs/44062237818) build/deploy成功。2026-11-17 10:15:56 UTC / 19:15:56 JSTに本番HTML・採用WebP6枚を実取得し検証済み。HTML SHA-256 `3139e2289a3ab736015a15b94eb967227da449ce0aa0385ea9f3d7774973df54`、6画像は採用原本と全バイト一致。検索indexの新タイトルとsitemap対象URL1件も確認。
+- 画像: 対象画像ディレクトリ内の `control-panel-cooling-fan-basic-{hero,ogp,comparison,overview,filter,check-flow}-20261114.webp` の6点。既存確認用ブランチと保存ZIPの原本に一致し、新規生成・再トリミングなし。
+- 公開headの7正式ワークフローすべて成功。統合6シャードと集約も成功。[検証専用PR #1951](https://github.com/Syasu-pixel/my-site/pull/1951)の[最終公開候補QA run 44058139431](https://github.com/Syasu-pixel/my-site/actions/runs/44058139431)で正規生成・最適化後をPC1440/スマホ390×ライト/ダーク確認。4条件の全画面とHeroを実目視し、本文4画像の開く・元画像一致・背景クリック/タップ・Esc・閉じるボタンを全条件で検査。重大な欠落・重なり・切れ・横溢れ・画像破損なし。実機iPhone検査や本番投票/フォーム送信はしていない。
+- [画面・操作証跡](https://github.com/Syasu-pixel/my-site/actions/runs/44058139431/artifacts/14316717999) ZIP SHA-256 `7c70b4571f47d55accf2758c36c9b12d4484b05d8962754bfa774249e48184d9`。ダーク表示の会話キャラ白背景は旧版画面・不透明原画像・不変CSSと照合し、今回の新規回帰ではないと確認。採用素材は変更しない。
+- 日付: 最終内容更新2026-11-15、本文の公式資料確認日2026-11-15。[参照メモ](reference-notes/control-panel-cooling-fan-basic.md)のメーカー5資料再確認11-17と公開日11-17を区別。保存本文への追加はこの更新日表示と、既存公開プロフィールへ接続する単一Article JSON-LDのみ。実質本文は採用版を保持。
+- 完成・凍結。11-15から90日未満を通常再改善候補から除外し、最短再評価2027-02-13。経過だけで再編集せず、日付ガードの既存例外・評価条件に従う。
+- [IndexNow run 44062237800](https://github.com/Syasu-pixel/my-site/actions/runs/44062237800)で対象1 URLのHTTP200受理。Google登録リクエストは2026-11-17 19:18 JSTに管理者本人から今回冷却ファン版の実施申告あり（`GOOGLE_REQUESTED`、本人申告）。本作業から申請送信はせず、Google URL検査の接続は契約状態エラーで未実行。申請済みと検索インデックス反映完了は別であり、登録完了・再クロール完了は未確認。
+- 検証専用PR #1951は10:13 UTCにmergeせずクローズ済み。専用workflowは本番mainに混入せず、証跡branchは保存。今回の記録は記事HTML/画像/共有実装/CI/検索データ/sitemapを再変更しない。

@@ -4,6 +4,7 @@ import {mkdtempSync,writeFileSync,mkdirSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
+import {expectedIntegrationImages} from '../scripts/integration-image-contract.mjs';
 import {integrationScope,integrationWidths,integrationSuffix} from '../scripts/integration-review-scope.mjs';
 const config={targets:['articles/a.html','articles/b.html'],representatives:['articles/a.html']};
 test('absent scope retains full audit and original widths',()=>{
@@ -29,7 +30,7 @@ function fixture(mutate=()=>{}){
  const target=(full.targets||full.representatives).find(p=>p.startsWith('articles/'));
  const service='services/gxworks2-online-support.html';
  const impact={scope:'selected',affectedTargets:[target]};
- const images=Array.from({length:20},(_,i)=>({key:'fixture',part:'part'+i,file:'fixture-'+i+'.png'}));
+ const images=expectedIntegrationImages([target],{includeService:true});
  const layout={scope:'selected',shardIndex:0,shardCount:1,targets:[target],results:[...[320,390,768,1024,1440].map(width=>({path:target,width,status:'passed'})),...[390,768,1440].map(width=>({path:service,width,status:'paused-service'}))],votes:[{path:target,mode:'success/reload'},...['duplicate','error','no-storage'].map(mode=>({mode}))],images,failures:[]};
  const dark={scope:'selected',shardIndex:0,shardCount:1,targets:[target],results:[390,1440].map(width=>({path:target,width,status:'passed'})),failures:[]};
  mutate({layout,dark,impact});
@@ -68,11 +69,9 @@ test('six-shard all-article reconciliation retains complete coverage',()=>{
   const put=(name,data)=>writeFileSync(join(dir,name),JSON.stringify(data));
   put('article-impact.json',{scope:'all',affectedTargets:targets});
   for(let i=0;i<6;i++){
-   const local=targets.filter((_,n)=>n%6===i),images=[];
+   const local=targets.filter((_,n)=>n%6===i),images=expectedIntegrationImages(local,{includeService:i===0});
    mkdirSync(join(dir,'evidence-shard-'+i));
-   for(let n=0;n<local.length*14+(i===0?6:0);n++){
-    const file=`shard-${i}-${n}.png`;images.push({key:file,part:'fixture',file});writeFileSync(join(dir,'evidence-shard-'+i,file),'fixture');
-   }
+   for(const {file} of images)writeFileSync(join(dir,'evidence-shard-'+i,file),'fixture');
    const results=local.flatMap(path=>integrationWidths(config,path,'all').map(width=>({path,width,status:'passed'})));
    const votes=local.filter(p=>!p.startsWith('en/')).map(path=>({path,mode:'success/reload'}));
    if(i===0){results.push(...[390,768,1440].map(width=>({path:'services/gxworks2-online-support.html',width,status:'paused-service'})));votes.push(...['duplicate','error','no-storage'].map(mode=>({mode})));}

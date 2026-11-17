@@ -17,6 +17,7 @@ for(const path of targets)for(const width of integrationWidths(config,path,revie
  const height=width===320?568:width<700?844:1000,key=path.replaceAll('/','__').replace('.html','')+'--'+width,c=await context({width,height}),page=await c.newPage();
  try{
   await page.goto(origin+'/'+path,{waitUntil:'networkidle'});await ready(page);const spec=specs.find(s=>s.path===path),compact=width<=spec.compactMaxWidth;
+  if([390,1440].includes(width)){const file=key+'--light-full.png';await page.screenshot({path:resolve(evidence,file),fullPage:true,animations:'disabled'});images.push({key,part:'light-full',file});}
   assert(await page.locator('.dc-shell').count()===1,'header count');assert(await page.locator('.dc-toc-button').count()===1,'TOC duplicate');
   const en=path.startsWith('en/');assert(await page.locator('header .dc-consult').count()===(en?0:1),'language consultation condition');
   const headerOverflow=await page.locator('.dc-bar').evaluate(e=>[...e.querySelectorAll('*')].some(n=>{const r=n.getBoundingClientRect();return r.width&&(r.left<0||r.right>innerWidth+1)}));assert(!headerOverflow,'header overflow');

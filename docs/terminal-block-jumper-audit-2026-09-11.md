@@ -4,7 +4,7 @@
 
 ## 現状
 - 公開URL: https://denkicontrol.com/articles/terminal-block-jumper-basic.html
-- GSC直近28日: 64 clicks / 1,239 impressions
+- GSC直近28日: [非公開] clicks / [非公開] impressions
 - HTTP 200 / indexable / self-canonical / H1=1 / hreflang=3 / image alt欠落=0
 - 機械監査上の低優先度課題: structured data未検出、クローラ上のthin-content判定
 

@@ -35,9 +35,9 @@ This log tracks lightweight content reinforcements added to existing articles in
   - 電磁弁 故障 症状
   - 電磁弁が動かない時の確認
 - Search-data snapshot used before editing:
-  - Google 2026-08-28〜2026-09-24: 55 clicks / 1,429 impressions / CTR 3.85% / average position 6.84
-  - Prior Google period 2026-07-31〜2026-08-27: 11 clicks / 326 impressions / CTR 3.37% / average position 6.01
-  - Bing available range 2026-08-28〜2026-09-18: 46 clicks / 710 impressions / CTR 6.48% / average position 5.00
+  - Google 2026-08-28〜2026-09-24: [非公開] clicks / [非公開] impressions / CTR [非公開] / average position [非公開]
+  - Prior Google period 2026-07-31〜2026-08-27: [非公開] clicks / [非公開] impressions / CTR [非公開] / average position [非公開]
+  - Bing available range 2026-08-28〜2026-09-18: [非公開] clicks / [非公開] impressions / CTR [非公開] / average position [非公開]
 - Main reinforcement:
   - Kept the existing title/H1 because the page was already gaining impressions and clicks.
   - Reorganized the body around electrical/control, pneumatic, and load-side causes.

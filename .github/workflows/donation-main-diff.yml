@@ -3,11 +3,29 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
+      - 'index.html'
+      - 'en/index.html'
+      - 'services/gxworks2-online-support.html'
+      - 'contact/index.html'
+      - 'en/contact/index.html'
+      - 'privacy-policy/index.html'
+      - 'en/privacy-policy/index.html'
+      - 'categories/career.html'
+      - 'categories/air-pneumatic.html'
+      - 'categories/circuit-basics.html'
+      - 'categories/comparison-guide.html'
+      - 'categories/control-basics.html'
+      - 'categories/tools-guide.html'
+      - 'en/categories/circuit-basics.html'
+      - 'en/categories/control-basics.html'
+      - 'profile/index.html'
       - '.github/article-components/integration-compat.css'
       - '.github/site-shells/additional/**'
       - 'scripts/build-additional-shells.mjs'
       - 'scripts/check-additional-shell-regeneration.mjs'
       - 'scripts/check-donation-main-diff.mjs'
+      - 'scripts/check-reviewed-navigation-delta.mjs'
+      - 'tests/donation-main-diff.test.mjs'
       - '.github/workflows/donation-main-diff.yml'
 permissions:
   contents: read
@@ -35,15 +53,16 @@ jobs:
           git fetch --depth=1 origin "$BASE_SHA"
           mkdir -p "$RUNNER_TEMP/donation-main-root"
           git archive "$BASE_SHA" | tar -x -C "$RUNNER_TEMP/donation-main-root"
-      - name: Build both sides with the same checked-out builder
+      - name: Build each pinned side with its versioned builder
         run: |
           ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/donation-main-root/node_modules"
           node "$RUNNER_TEMP/donation-main-root/scripts/build-additional-shells.mjs" "$RUNNER_TEMP/donation-main-generated" "$RUNNER_TEMP/donation-main-root"
           node scripts/build-additional-shells.mjs "$RUNNER_TEMP/donation-pr-generated" .
-      - name: Reject all generated-page differences except approved donation CSS
+      - run: node --test tests/donation-main-diff.test.mjs
+      - name: Preserve donation visibility and reject unreviewed generated differences
         run: |
           node scripts/check-donation-main-diff.mjs "$RUNNER_TEMP/donation-main-root" "$RUNNER_TEMP/donation-main-generated" . "$RUNNER_TEMP/donation-pr-generated"
       - name: Summary
         if: always()
         run: |
-          echo 'This strict differential compares 16 production-style generated additional pages and article/category CSS against this PR base SHA. It does not bypass or replace the legacy screenshot check.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This strict differential compares 16 production-style generated additional pages and article/category CSS against this PR base SHA; only pinned reviewed navigation transitions or the historical GX contact transition are allowed. It does not bypass or replace the legacy screenshot check.' >> "$GITHUB_STEP_SUMMARY"

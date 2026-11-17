@@ -8,7 +8,7 @@ export function articleImpact(base, head='HEAD', full=false) {
  const json=(ref,path)=>JSON.parse(git('show',`${ref}:${path}`));
  const all=json(head,'.github/article-components/integration.json').targets;
  if(!Array.isArray(all)||!all.length||new Set(all).size!==all.length)throw Error('Invalid integration targets');
- const registered=new Set(all), affected=new Set(), categories=new Set();
+ const registered=new Set(all), affected=new Set(), categories=new Set(), ogpSources=new Set();
  const entries=git('diff','--name-status','--no-renames','-z',base,head).split('\0');entries.pop();
  const changed=[];for(let i=0;i<entries.length;i+=2)changed.push({status:entries[i],path:entries[i+1]});
  const registries=new Map([
@@ -73,6 +73,7 @@ export function articleImpact(base, head='HEAD', full=false) {
   const m=path.match(/^assets\/images\/([^/]+)\/[^/]+\.(png|webp|jpe?g|gif|avif)$/i);
   if(!m)return false;
   const owner=`articles/${m[1]}.html`;if(!registered.has(owner))return false;
+  ogpSources.add(owner);
   const users=new Set();let found=false;
   for(const ref of [base,head]){
    let matches;try{matches=git('grep','-lzIF','-e',basename(path),ref,'--');}
@@ -92,17 +93,39 @@ export function articleImpact(base, head='HEAD', full=false) {
     if(!category)users.add(consumer);found=true;
    }
   }
-  for(const p of users)affected.add(p);return found;
+  for(const p of users){affected.add(p);ogpSources.add(p);}return found;
  }
  for(const {status,path} of changed){
   if(reason)break;
   if(status!=='M'&&status!=='A'){reason=`Deletion or unrecognized status: ${path}`;break;}
-  if(registered.has(path)){if(status!=='M'){reason=`New article: ${path}`;break;}affected.add(path);continue;}
+  if(registered.has(path)){if(status!=='M'){reason=`New article: ${path}`;break;}affected.add(path);ogpSources.add(path);continue;}
   if(/^docs\/.+\.md$/.test(path)||path==='docs/rules/catalog.json')continue;
   if(registries.has(path)&&status==='M'&&ledger(path))continue;
   if(ownedStaticHeroCss(path))continue;
   if(/^assets\/images\//.test(path)&&image(path))continue;
   reason=`Shared or unrecognized change: ${path}`;
+ }
+ // Related cards read the linked article's current OGP at generation time.
+ // Raw image-name searches alone miss consumers whose source thumbnail differs.
+ // Scan both revisions and all links (a conservative superset of related grids).
+ if(!reason&&ogpSources.size){
+  try{
+   const decode=s=>s.replace(/&(#x[0-9a-f]+|#\d+|amp|quot|apos|lt|gt);/gi,(_,entity)=>{
+    if(entity[0]==='#')return String.fromCodePoint(entity[1].toLowerCase()==='x'?parseInt(entity.slice(2),16):parseInt(entity.slice(1),10));
+    return {amp:'&',quot:'"',apos:"'",lt:'<',gt:'>'}[entity.toLowerCase()];
+   });
+   for(const ref of [base,head])for(const page of all){
+    const html=git('show',`${ref}:${page}`);
+    for(const match of html.matchAll(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)){
+     const href=decode(match[1]??match[2]??match[3]);
+     if(/&(?:#|[a-z])[a-z0-9]*;/i.test(href))throw Error('Unrecognized HTML entity in link');
+     const url=new URL(href,'https://denkicontrol.com/'+page);
+     const target=decodeURIComponent(url.pathname).replace(/^\//,'');
+     // The generator resolves by pathname even for absolute off-site URLs.
+     if(ogpSources.has(target))affected.add(page);
+    }
+   }
+  }catch{reason='Cannot prove generated OGP consumer coverage';}
  }
  if(!affected.size&&!reason)reason='No verifiable affected articles';
  return {base,head:git('rev-parse',head).trim(),scope:reason?'all':'selected',reason:reason||'Verified article-owned changes',affectedTargets:reason?all:all.filter(x=>affected.has(x)),categoryConsumers:[...categories].sort(),changedFiles:changed.map(x=>x.path)};
@@ -111,4 +134,3 @@ if(process.argv[1]&&import.meta.url===new URL(`file://${process.argv[1]}`).href)
  const [base,head,out]=process.argv.slice(2);if(!base||!head||!out)throw Error('Usage: report-article-impact BASE HEAD OUTPUT');
  const result=articleImpact(base,head,process.env.FULL_ARTICLE_AUDIT==='1');writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }
-

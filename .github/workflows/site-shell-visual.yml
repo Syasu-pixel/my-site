@@ -14,6 +14,8 @@ on:
       - 'assets/images/**'
       - 'assets/css/**'
       - 'assets/js/**'
+      - 'tests/site-shell-phase.browser.mjs'
+      - 'tests/select-shell-visual-targets.test.mjs'
       - 'articles/**'
       - 'en/articles/**'
       - 'package.json'
@@ -48,7 +50,9 @@ jobs:
           mkdir .visual-base
           git archive "$BASE" | tar -x -C .visual-base
       - name: Test visual audit routing
-        run: node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs
+        run: |
+          node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs
+          node --test tests/site-shell-phase.browser.mjs
       - name: Select visual audit scope
         run: node scripts/select-shell-visual-targets.mjs "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" .visual-targets.json
       - name: Save baseline before generation
@@ -56,6 +60,14 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/site-shell-visual.mjs --phase=baseline --root=.visual-base --out=.visual-evidence --targets-file=.visual-targets.json
+      - name: Save new-page source baseline before generation
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$(node -p "require('./.visual-targets.json').addedTargets.length")" -gt 0 ]; then
+            node scripts/site-shell-visual.mjs --phase=baseline --cohort=added --root=. --out=.visual-additions --targets-file=.visual-targets.json
+          fi
       - name: Upload immutable baseline evidence
         uses: actions/upload-artifact@v4
         with:
@@ -64,6 +76,8 @@ jobs:
             .visual-evidence/before/
             .visual-evidence/baseline.json
             .visual-targets.json
+            .visual-additions/before/
+            .visual-additions/baseline.json
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error
@@ -79,12 +93,23 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/site-shell-visual.mjs --phase=compare --root=. --out=.visual-evidence --targets-file=.visual-targets.json
+      - name: Compare added pages against their own source
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$(node -p "require('./.visual-targets.json').addedTargets.length")" -gt 0 ]; then
+            node scripts/site-shell-visual.mjs --phase=compare --cohort=added --root=. --out=.visual-additions --targets-file=.visual-targets.json
+          fi
       - name: Upload browsable comparison evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shell-comparison-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .visual-evidence/
+          path: |
+            .visual-evidence/
+            .visual-additions/
+            .visual-phase-tests/
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error

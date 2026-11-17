@@ -25,6 +25,10 @@
 
 ## 改善進捗
 
+- [x] `articles/input-output-basic.html` — 入力と出力。[PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)で刷新・2026-11-17本番確認済み、完成・凍結。最終内容更新日のHTML表示はなし（11-15修正版採用）、公式資料確認日表記11-15。保守的に公開11-17から90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。IndexNow HTTP200、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。公開証跡・画像・日付の区別は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+
+- [x] `articles/encoder-basic.html` — エンコーダ。最終内容更新・公式資料確認2026-11-14。[PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)をmain `95756c1ffaa0258c9e07dd0efd23b4d3096d300e`へ反映、Pages成功・2026-11-14T12:31:08Zの本番HTML/6画像一致とPC Hero正常表示を確認。完成・凍結。90日未満は原則再改善候補から除外、最短再評価2027-02-12。期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。詳細は統合正本の個別履歴を参照。
+
 - [x] `articles/speed-controller-basic.html` — スピードコントローラ。最終内容更新・公式資料確認日2026-11-12。[PR #1846](https://github.com/Syasu-pixel/my-site/pull/1846)で本文・採用画像5枚を公開し、2026-11-13 JSTにPages成功・本番反映を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。
 - [x] `articles/electromagnetic-contactor-vs-switch.html` — 電磁接触器と電磁開閉器の違い。最終内容更新 2026-11-11、公式資料確認日 2026-11-11。本文・採用画像4枚を [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832) でmain反映（2026-11-12 JST）。2026-11-12 JSTにPages成功・本番の採用画像と表示を確認。完成・凍結、最終内容更新から90日間は原則再改善候補から除外。
 - [x] `articles/star-delta-start-basic.html` — スターデルタ始動
@@ -41,10 +45,10 @@
 - [x] `articles/dc24v-common-basic.html` — DC24Vコモン。2026-11-09刷新・本番反映確認（[PR #1825](https://github.com/Syasu-pixel/my-site/pull/1825)）。四コマの引き継ぎは [公開反映メモ](article-backlog.md#公開反映メモ) を参照。
 - [x] `articles/no-nc-basic.html` — NO・NC
 - [x] `articles/plc-io-unit-basic.html` — PLC I/Oユニット。最終内容更新・公式資料確認2026-11-13。本文・ちびキャラ画像6枚の最終Previewを管理者が採用・公開承認、[PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)をmain `612584cf3d6880dc701f7d512adf1ff035f1a14c`へ反映。Pages成功と2026-11-13 10:02 UTCの本番表示を確認。完成・凍結、最終内容更新から90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。IndexNow HTTP200受理、Google登録リクエストは未実施。
-- [ ] `articles/plc-xymd-device-basic.html` — PLC X/Y/M/Dデバイス
+- [x] `articles/plc-xymd-device-basic.html` — 最終内容更新・公式資料確認2026-11-14。[PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878)はmain反映・本番確認済み。完成・凍結。90日未満は原則再改善候補から除外、最短再評価2027-02-12。Google登録リクエストは助手実施・受理済み（再インデックス完了は未確認）。詳細は統合正本の個別履歴を参照。 — PLC X/Y/M/Dデバイス
 - [x] `articles/one-shot-circuit-basic.html` — ワンショット回路。最終内容更新・公式資料確認2026-11-13。PR #1852で採用本文・ちびキャラ画像4枚を公開し、Pages成功と本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-11、期間経過だけでは再編集しない。
 - [x] `articles/terminal-block-basic.html` — 端子台。2026-11-11刷新・本番反映確認（[PR #1828](https://github.com/Syasu-pixel/my-site/pull/1828)、本文・採用画像6枚・共通ライトボックス幅修正）。完成・凍結、日付ガードの90日間は原則再改善候補から除外。
-- [ ] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン
+- [x] `articles/control-panel-cooling-fan-basic.html` — 制御盤冷却ファン。[PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)で刷新・2026-11-17本番確認済み、完成・凍結。最終内容更新/公式資料確認日表記11-15（11-17に一次資料再照合）。通常再改善候補は90日未満除外、最短再評価2027-02-13、期間経過だけで再編集しない。IndexNow HTTP200受理、Google登録リクエストは11-17に本人実施申告。検索反映は未確認。6画像/4条件検査/本番ハッシュは[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 - [x] `articles/power-signal-wiring-separation-basic.html` — 動力線・信号線の分離。最終内容更新・公式資料確認日2026-11-14。[PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)で刷新し、本番反映を確認。完成・凍結、90日未満は原則再改善候補から除外。最短再評価2027-02-12、期間経過だけで再編集しない。
 - [x] `articles/solenoid-valve-troubleshooting-basic.html` — 電磁弁トラブルシューティング — 2026-09-29 本番公開完了（PR #1621 / Hero・OGP・本文画像3枚刷新 / 公式資料監査済み / 本番同等Preview承認済み / GitHub Pages・IndexNow確認済み）
 - [x] `articles/din-rail-basic.html` — DINレール。最終内容更新・公式資料確認日 2026-11-12。[PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841) で公開し、Pages成功・本番表示を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず、日付ガードの条件で再評価する。
@@ -115,3 +119,15 @@
 - [x] `articles/start-stop-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
 - [x] `articles/sto-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
 - [x] `articles/while-pressed-circuit-basic.html` — 刷新反映確認済み。公開・日付・検証範囲は統合更新台帳を参照。
+
+
+## 2026-11-15 非常停止4コマ追従
+- 本人採用「戻したら、動いちゃう？」を正式PR1915通常マージ。20作品。Pages成功後、本番20作品・採用画像・正しい記事リンクとHero/カテゴリ保全を独立確認済み。
+- Instagram 2026-11-22 10:00 JST予約 post428486030、PENDING再取得確認。実投稿とは区別。
+- [採用記録](comic-scripts/emergency-stop-switch-basic-yonkoma-01.md)。記事本文・更新日・90日ガードは変更しない。
+
+
+## 2026-11-15 PLC入出力4コマ追従
+- 本人採用「出力なのに、入力？」を正式PR1918通常マージ、21作品。本番21作品・採用画像・正しい記事リンク、Hero/カテゴリ保全を独立確認済み。
+- Instagram 2026-11-23 10:00 JST予約 post428500781、PENDING再取得確認。実投稿とは区別。
+- [採用記録](comic-scripts/plc-io-unit-basic-yonkoma-01.md)。記事本文・更新日・90日ガードは変更しない。

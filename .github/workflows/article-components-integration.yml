@@ -6,6 +6,7 @@ on:
       - '.github/site-shells/**'
       - '.github/workflows/article-components-integration.yml'
       - 'scripts/*integrat*'
+      - 'tests/integration-*.test.mjs'
       - 'scripts/*article*preservation*'
       - 'scripts/*article-components*'
       - 'scripts/*dark-mode*'
@@ -68,6 +69,8 @@ jobs:
           version: 11.19.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: python -m pip install lxml==6.1.1
+      - name: Test exact light screenshot evidence contract
+        run: node --test tests/integration-image-contract.test.mjs tests/integration-evidence-artifacts.test.mjs
       - name: Build all current articles and verify preservation
         run: |
           node scripts/build-integrated-review.mjs ${{ runner.temp }}/integration-build
@@ -136,14 +139,28 @@ jobs:
           trap 'kill "$REVIEW_PID" || true' EXIT
           node scripts/check-integrated-review.mjs ${{ runner.temp }}/integration-build
           node scripts/check-article-dark-mode.mjs ${{ runner.temp }}/integration-build
+      - name: Split evidence without dropping source files
+        if: always()
+        run: node scripts/integration-evidence-artifacts.mjs stage ${{ runner.temp }}/integration-build ${{ runner.temp }}/integration-artifacts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: integrated-shard-${{ matrix.shard }}-${{ github.run_id }}
-          path: |
-            ${{ runner.temp }}/integration-build/evidence-shard-${{ matrix.shard }}/
-            ${{ runner.temp }}/integration-build/browser-checks-shard-${{ matrix.shard }}.json
-            ${{ runner.temp }}/integration-build/article-dark-checks-shard-${{ matrix.shard }}.json
+          name: integrated-shard-${{ matrix.shard }}-normal-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-artifacts/normal/
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrated-shard-${{ matrix.shard }}-light-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-artifacts/light/
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrated-shard-${{ matrix.shard }}-dark-${{ github.run_id }}
+          path: ${{ runner.temp }}/integration-artifacts/dark/
           retention-days: 30
           if-no-files-found: error
   reconcile:
@@ -164,11 +181,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: integrated-shard-*-${{ github.run_id }}
-          path: ${{ runner.temp }}/integration-build
-          merge-multiple: true
+          path: ${{ runner.temp }}/integration-artifact-downloads
+          merge-multiple: false
       - name: Reject missing coverage and generate complete review index
         run: |
           export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"
+          node --test tests/integration-image-contract.test.mjs tests/integration-evidence-artifacts.test.mjs
+          node scripts/integration-evidence-artifacts.mjs assemble ${{ runner.temp }}/integration-artifact-downloads ${{ runner.temp }}/integration-build ${{ needs.prepare.outputs.shard_count }}
           node scripts/merge-integration-checks.mjs ${{ runner.temp }}/integration-build ${{ needs.prepare.outputs.shard_count }}
           node scripts/package-integrated-review.mjs ${{ runner.temp }}/integration-build
           node scripts/make-integration-gallery.mjs ${{ runner.temp }}/integration-build

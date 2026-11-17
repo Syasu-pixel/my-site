@@ -53,3 +53,23 @@ for(const [label,css] of Object.entries({dynamic:'{{ urls[0] | safe }}',include:
 test('malformed bindings stay full',()=>assert.equal(trial({[cssPath]:'x'},{initial:{...cssInitial,[bindingsPath]:JSON.stringify({[a]:null})}}).scope,'all'));
 test('manual full retains all for owned CSS',()=>assert.equal(trial({[cssPath]:'x'},{initial:cssInitial,full:true}).scope,'all'));
 
+
+for(const href of ['./first.html','/articles/first.html','https://denkicontrol.com/articles/first.html','./%66irst.html','./&#102;irst.html'])test('generated OGP consumers included: '+href,()=>{
+ const initial={[b]:`<a href="${href}"><img src="old-thumb.png"></a>`};
+ assert.deepEqual(trial({[a]:'<meta property="og:title" content="new">'},{initial}).affectedTargets,[a,b]);
+ assert.deepEqual(trial({[img]:'new image'},{initial}).affectedTargets,[a,b]);
+});
+test('removed OGP consumer in base remains in scope',()=>{
+ const r=trial({[a]:'new',[b]:'removed card'},{initial:{[b]:'<a href="./first.html">old</a>'}});
+ assert.deepEqual(r.affectedTargets,[a,b]);
+});
+
+test('shared OGP image consumers propagate to their generated card users',()=>{
+ const c='articles/third.html';
+ const r=trial({[img]:'new'}, {initial:{
+  '.github/article-components/integration.json':JSON.stringify({targets:[a,b,c]}),
+  [b]:`<meta property="og:image" content="/${img}">`,
+  [c]:'<a href="./second.html"><img src="old-thumb.png"></a>'
+ }});
+ assert.equal(r.scope,'selected');assert.deepEqual(r.affectedTargets,[a,b,c]);
+});

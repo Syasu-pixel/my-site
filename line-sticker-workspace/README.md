@@ -301,3 +301,55 @@ at least 12px transparent margin on every edge (prefer 14px).
 23. またあした
 24. おやすみなさい
 - 本日の10テーマ依頼のうち、この記録時点で申請完了1、残り9は未制作。生成完了・申請済と混同しない。
+
+
+## 限界わんこ 休むための連絡
+- 2026-11-18 審査リクエスト完了。LINE ID: 49247082。審査待ちを画面確認、本日2/30。
+- English: Tired Puppy: Taking a Break
+- 管理画面: https://creator.line.me/my/lhJFTTks9tle9jrT/sticker/49247082#/image
+- Preview: https://creator.line.me/my/lhJFTTks9tle9jrT/sticker/49247082/preview
+- Drive: https://drive.google.com/drive/folders/1WYb24vCloLvd5-SXVsUTzBKljhVr4OsZ
+- 原画ZIP: https://drive.google.com/file/d/1bSab0r4mw1QENq3JhszeU3TFMz4hbZbL/view?usp=drivesdk
+- 最終26PNG ZIP: https://drive.google.com/file/d/1gUJF7Fi8LYPesiHL4pWNhOoNZbBeT7Yb/view?usp=drivesdk
+- 一覧: https://drive.google.com/file/d/15zZhafwp0V3zUBEbv1TGLeATZWSfBog6/view?usp=drivesdk
+- 検査JSON: https://drive.google.com/file/d/1D5DP_bkcuN5Z9v4sWYLBsGWdp6wWirm1/view?usp=drivesdk
+- AI使用あり、通常静止画24枚、ほんわか・癒し／イヌ、手動販売開始、特集企画なし。
+- 既存限界わんこVol1(48082733)24文言を照合。パジャマ白犬で休む連絡・返信猶予・丁寧な辞退・感謝・再開の用途へ差別化。
+- 各画像独立生成、RGBA透過。原画の端の微細alphaを削除せず32px透明パディング後に全体縮小。最終370x320、四辺14px以上。main240x240、tab96x74。tabは文字なし独立原画を新規生成。
+- 原画25枚と最終26枚を保持。24文言/欠損/絵柄/縮小可読性を目視確認、LINE最終プレビューでも全24枚正常表示。
+- 承認後も自動販売しない。審査結果待ち。
+
+
+## 無表情カエルのやんわりお断り（2026-11-18 JST）
+
+- 制作終了／LINE審査リクエスト済み。ID49247112。実画面で審査待ち、本日3/30回を確認。
+- English: Deadpan Frog Polite Refusals。24枚＋main/tabの26PNG。AI使用あり、敬語・丁寧／その他、価格¥190〜、特集企画不参加、販売開始は手動のまま。
+- 既存Vol.1 ID48083197／全力ほめ係 ID49038832の全48文言・構図を実画面確認し、断り・保留・代案へ用途拡張。
+- 1画像1スタンプ。04の余分な腕、10のぼけ、21の下部消失、24の見切れのみ再生成。最終24枚目視合格。全画素保持の透明2px追加後に縮小配置、26PNGの寸法・RGBA・14px以上余白を検査。採用元画像は保持。
+- Drive実在確認済: https://drive.google.com/drive/folders/1NiZC1OZ7w5Ja-JJSrj1ROub58gHd3I1p （採用原画24ZIP、投稿26PNG ZIP、確認一覧、検査JSON）。
+- 重複照合用24文言:
+01. 今回は見送ります
+02. 今日はむずかしい
+03. またの機会に
+04. お気持ちだけ
+05. お誘いうれしい
+06. 予定がありまして
+07. 少し考えさせて
+08. 今は手が離せず
+09. 今日はここまで
+10. 先に失礼します
+11. 今回はパスで
+12. 遠慮しておきます
+13. 別の日なら
+14. 短時間なら
+15. 聞くだけなら
+16. あとで確認します
+17. いったん保留で
+18. 持ち帰ります
+19. お返事は明日
+20. そこまではちょっと
+21. 無理はできません
+22. 今回はお任せで
+23. また誘ってね
+24. 気にしないでね
+- この追記時点で本日の申請完了3件（冬ヤマネ、限界わんこ、無表情カエル）。残りの進捗は別途確認し、未申請を完了に含めない。

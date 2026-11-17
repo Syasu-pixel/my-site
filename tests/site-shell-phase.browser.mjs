@@ -53,6 +53,12 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
  }
  const independentHeader=await capture(6809.5,'header{position:fixed;z-index:999;top:0;height:30px}header::after{content:"";position:absolute;width:7px;height:2px;right:-5px;bottom:-2px;transform:rotate(45deg)}',()=>{const e=document.createElement('header');e.textContent='Header';document.body.prepend(e)});
  assert.equal(pixels(before.bytes,independentHeader.bytes),0,'bounded external pseudo cannot reach footer paint');
+ const shadowCSS='main{margin-bottom:48px;box-shadow:0 12px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
+ const shadowBefore=await capture(8219.8125,shadowCSS),shadowAfter=await capture(6809.5,shadowCSS);
+ assert.equal(pixels(shadowBefore.bytes,shadowAfter.bytes),0,'flow shadow remains in equal comparison images');
+ assert.ok(shadowAfter.eligibility.flowShadows.length,'shadow guard must record its proof scope');
+ const coloredShadow=await capture(6809.5,shadowCSS+'main{box-shadow:0 12px 30px rgba(255,0,0,.8)}');
+ assert.notEqual(pixels(shadowBefore.bytes,coloredShadow.bytes),0,'changed shadow paint must not be masked');
  await page.close();
 });
 test.after(()=>browser.close());
@@ -104,5 +110,17 @@ test('complete visual audit rejects defects and preserves the positive control',
  await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
  assert.ok(Number.isInteger(paintHead.status)&&paintHead.status!==0,'ancestor paint regression must fail real CLI');
  await cp(paintOut,'.visual-phase-tests/ancestor-paint-evidence',{recursive:true});
+ const shadowOut=join(dir,'flow-shadow');
+ const shadowCSS='main{margin-bottom:48px;box-shadow:0 12px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
+ await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125,shadowCSS));
+ const shadowBase=run('baseline',base,shadowOut);assert.equal(shadowBase.status,0,shadowBase.stderr+shadowBase.stdout);
+ for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 12px 30px rgba(255,0,0,.8)}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
+   await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,shadowCSS+change));
+   const result=run('compare',head,shadowOut);receipts.push({name,status:result.status,stdout:result.stdout,stderr:result.stderr});
+   await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   if(name==='shadow positive')assert.equal(result.status,0,result.stderr+result.stdout);
+   else assert.ok(Number.isInteger(result.status)&&result.status!==0,name+' must fail real CLI');
+ }
+ await cp(shadowOut,'.visual-phase-tests/flow-shadow-evidence',{recursive:true});
  await cp(out,'.visual-phase-tests/cli-evidence',{recursive:true});
 });

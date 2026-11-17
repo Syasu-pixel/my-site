@@ -129,3 +129,5 @@ Canonical ProductionはGitHub Pages / `main` / `https://denkicontrol.com/`。本
 - 最初のtransform案はブラウザ正例で2061画素差が残ったため不採用。レイアウト段階で揃える方法を改めて同じ正例・負例で検証する。失敗した正例の期待値は緩めない。
 
 - 検査器だけの修正でもCIが起動する経路を維持し、実際のbaseline/compare CLIで、色・文字・位置・切れ・overflow・リンク・外側間隔・祖先clip・外部テキスト・overlay・撮影時style副作用の負例が非ゼロ終了することを確認する。helper単体の一致だけを公開判定の証明としない。
+
+- 実記事のカードbox-shadowは画像から除外しない。本体矩形がfooter外で、固定・絶対配置や変形のない通常フロー／sticky所有者と祖先が、撮影時にfooterと同じdyだけ厳密に移動し、全sceneの寸法・style・テキストが保存された場合だけ、影を残した同一撮影枠で比較する。stickyが追従しない場合はraw-only。影色・位置・本体重なりの実CLI負例を維持する。この限定検査は、動的映像・任意の描画副作用すべての保証ではない。

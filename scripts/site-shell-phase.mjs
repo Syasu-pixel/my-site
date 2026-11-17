@@ -17,7 +17,7 @@ export async function shellContract(page, selector) {
 // painted visibility; computed geometry and paint bounds are checked below.
 export async function assertIndependentFooter(page, selector='footer.site-footer') {
   const evidence=await page.locator(selector).evaluate(root => {
-    const issues=[],boundedPseudos=[];
+    const issues=[],boundedPseudos=[],flowShadows=[];
     const label=e=>`${e.tagName.toLowerCase()}${e.id?'#'+e.id:''}${[...e.classList].map(c=>'.'+c).join('')}`;
     const original=root.getBoundingClientRect();
     // Check the union of the original and exact subpixel-shifted paint region.
@@ -25,6 +25,10 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
     const area={left:original.left, right:original.right, top:original.top+Math.min(0,dy), bottom:original.bottom+Math.max(0,dy)};
     const intersects=r=>r.left<area.right && r.right>area.left && r.top<area.bottom && r.bottom>area.top;
     const hasTransform=s=>s.transform!=='none' || (s.translate && s.translate!=='none') || (s.rotate && s.rotate!=='none') || (s.scale && s.scale!=='none');
+    const normalFlow=e=>{
+      for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(!['static','relative','sticky'].includes(s.position)||hasTransform(s)||s.perspective!=='none')return false;}
+      return true;
+    };
     const visible=(e,s=getComputedStyle(e))=>{
       if(s.display==='none'||s.visibility!=='visible'||Number(s.opacity)===0)return false;
       for(let p=e.parentElement;p;p=p.parentElement)if(Number(getComputedStyle(p).opacity)===0 || getComputedStyle(p).display==='none')return false;
@@ -170,11 +174,18 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
       const outset=Math.max(box,text,outline,parseFloat(s.webkitTextStrokeWidth)||0);
       for(const r of e.getClientRects()) {
         if(intersects({left:r.left-outset,right:r.right+outset,top:r.top-outset,bottom:r.bottom+outset})) {
-          issues.push({kind:'external-paint-overlap',element:label(e)});break;
+          // A flow/sticky card's static box shadow is NOT masked or ignored.
+          // Its owner and every flow/sticky ancestor must translate by the exact
+          // permitted dy, with unchanged styles/sizes, in verifyScene below.
+          // Only shadow overlap is eligible; its real border box must be outside.
+          const shadowOnly=!intersects(r)&&box>0&&text===0&&outline===0&&!(parseFloat(s.webkitTextStrokeWidth)||0)&&e instanceof HTMLElement&&normalFlow(e);
+          if(shadowOnly)flowShadows.push({element:label(e),boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,width:r.width,height:r.height}});
+          else issues.push({kind:'external-paint-overlap',element:label(e)});
+          break;
         }
       }
     }
-    return {eligible:issues.length===0,externalElements,boundedPseudos,issues};
+    return {eligible:issues.length===0,externalElements,boundedPseudos,flowShadows,issues};
   });
   if(!evidence.eligible)throw Error(`Footer phase capture ineligible: ${JSON.stringify(evidence.issues)}`);
   return evidence;
@@ -183,7 +194,8 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
 async function snapshotScene(page) {
   return page.evaluateHandle(()=>[...document.querySelectorAll('*')].map(element=>{
     const s=getComputedStyle(element),r=element.getBoundingClientRect();
-    return {element,text:element.textContent,style:Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),rect:{x:r.x+scrollX,y:r.y+scrollY,vx:r.x,vy:r.y,width:r.width,height:r.height},hasBox:element.getClientRects().length>0};
+    let normalFlow=true;for(let p=element;p;p=p.parentElement){const st=getComputedStyle(p);if(!['static','relative','sticky'].includes(st.position)||st.transform!=='none'||st.perspective!=='none'||(st.translate&&st.translate!=='none')||(st.rotate&&st.rotate!=='none')||(st.scale&&st.scale!=='none'))normalFlow=false;}
+    return {element,normalFlow,text:element.textContent,style:Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),rect:{x:r.x+scrollX,y:r.y+scrollY,vx:r.x,vy:r.y,width:r.width,height:r.height},hasBox:element.getClientRects().length>0};
   }));
 }
 async function verifyScene(page,scene,dy) {
@@ -203,6 +215,7 @@ async function verifyScene(page,scene,dy) {
       if(!near(r.width,a.width)||!(near(r.height,a.height)||(ancestor&&near(r.height,a.height+dy))))issues.push(e.tagName+' size changed');
       if(!near(r.x+scrollX,a.x))issues.push(e.tagName+' horizontal position changed');
       const moved=near(r.y+scrollY,a.y+dy),stationary=near(r.y+scrollY,a.y)||near(r.y,a.vy);
+      if(old.normalFlow&&!ancestor&&!moved)issues.push(e.tagName+' normal flow did not move by exact dy');
       if(!moved&&!stationary)issues.push(e.tagName+' did not translate rigidly');
     }
     return issues.slice(0,20);
@@ -233,7 +246,8 @@ export async function capturePhaseStableFooter(page, options={}) {
   try {
     const sceneIssues=await verifyScene(page,scene,saved.dy);
     if(sceneIssues.length)throw Error('Page paint changed: '+sceneIssues.join('; '));
-    await assertIndependentFooter(page,selector);
+    eligibility.after=await assertIndependentFooter(page,selector);
+    eligibility.flowShadowProof='all-normal-flow-elements-exact-dy-and-styles-sizes-unchanged';
     const shifted=await shellContract(page,selector);
     if(shifted.html!==original.html)throw Error('Footer DOM changed during capture');
     if(shifted.width!==original.width||shifted.height!==original.height||JSON.stringify(shifted.nodes.map(n=>n.rect))!==JSON.stringify(original.nodes.map(n=>n.rect)))throw Error('Phase stabilization changed footer layout');

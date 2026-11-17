@@ -27,6 +27,12 @@
 - 冷却ファンの既存記事刷新1件を追加し、下表は49 slug（重複0）。過去48件の状態は変更せず、4コマ公開や新規シールド線記事を刷新件数へ加算しない。
 - 当初174件の既存記事集合では174−49＝125件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−49＝126件には新規公開済みシールド線1件を含む。
 
+### 2026-11-18 集計追補（IAIロボシリンダーの公開記録）
+
+- 照合基点: main `9e29c73d755683781ad82d16482811aada185882`。公開担当が本番日本語記事サイトマップ175 URL・重複0と対象URL1件、検索indexの対象1件を確認。
+- IAIロボシリンダーの既存記事刷新1件を追加し、下表は50 slug（重複0）。過去49件の状態は変更しない。未公開のモーターブレーカや新規記事・四コマを加算しない。
+- 当初174件の既存記事集合では174−50＝124件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−50＝125件には新規公開済みシールド線1件を含む。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -61,6 +67,7 @@
 | `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
 | `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。 |
+| `iai-robocylinder-basic` | 刷新main反映・本番確認済み | 2026-11-18 | HTML表示なし（採用・公開日と区別） | 2026-11-17 | [PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)・本書の個別履歴 | 完成・凍結。保守的に公開11-18から90日未満は除外、最短再評価2027-02-16。IndexNow HTTP200、Google登録リクエストは11-18に本人実施申告・検索反映未確認。 |
 | `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
@@ -770,3 +777,15 @@
 - 完成・凍結。11-15から90日未満を通常再改善候補から除外し、最短再評価2027-02-13。経過だけで再編集せず、日付ガードの既存例外・評価条件に従う。
 - [IndexNow run 44062237800](https://github.com/Syasu-pixel/my-site/actions/runs/44062237800)で対象1 URLのHTTP200受理。Google登録リクエストは2026-11-17 19:18 JSTに管理者本人から今回冷却ファン版の実施申告あり（`GOOGLE_REQUESTED`、本人申告）。本作業から申請送信はせず、Google URL検査の接続は契約状態エラーで未実行。申請済みと検索インデックス反映完了は別であり、登録完了・再クロール完了は未確認。
 - 検証専用PR #1951は10:13 UTCにmergeせずクローズ済み。専用workflowは本番mainに混入せず、証跡branchは保存。今回の記録は記事HTML/画像/共有実装/CI/検索データ/sitemapを再変更しない。
+
+## 2026-11-18 — iai-robocylinder-basic 刷新・本番公開完了
+
+- 対象: `articles/iai-robocylinder-basic.html`。既存URLの刷新。定義・直動構造・空圧との比較・PIO信号の役割を整理し、型式固有の条件と安全上の限界を明示。
+- 公開: 管理者の最終Preview採用と別途公開承認後、[PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)をmain `9e29c73d755683781ad82d16482811aada185882`へ反映。[公開後証拠](https://github.com/Syasu-pixel/my-site/pull/1954#issuecomment-6953089106)を確認。
+- 正式Pages [run 44116739003](https://github.com/Syasu-pixel/my-site/actions/runs/44116739003)のbuild/deploy成功。公開担当が本番HTMLと採用済み最終Preview v2のbyte一致を確認。HTML SHA-256: `7863e7b28b3f4b1407dc1cdd7523e98cdb92b4f6984bb83976c7bd0ed21e9494`。
+- Hero・本文3図（構造、比較、PLC信号）・OGPの本番WebP全5枚がHTTP200、最終QA生成物とbyte一致。画像・本文は採用済み。最終軽微修正は重複する拡大案内3行の削除のみ。
+- [最終QA run 44103423738](https://github.com/Syasu-pixel/my-site/actions/runs/44103423738)でPC1440/スマホ390×明暗、画像decode・目次・横はみ出し・JSエラー、3図の拡大/背景・Esc・ボタンによる閉じる操作が合格。本文・視覚の独立レビュー済み。記事sourceの全CI成功後に公開。QA専用PR #1955は非マージでclose。
+- 日付: 公式資料確認日は2026-11-17。公開・本番確認は2026-11-18 JST。独立した最終内容更新日のHTML表示はないため、公開日やファイル日時を内容更新日に転用しない。[公式参照メモ](reference-notes/iai-robocylinder-basic.md)の「制作中・未公開」「未承認」は制作時点の履歴であり、現在の公開状態は本記録を参照。
+- 導線: 既存URL・title・descriptionを維持。本番canonicalは既存URL、robotsはindex,follow。公開担当が日本語sitemap175 URL・重複0、対象URL1件、search-index対象1件を確認。構造変更不要。
+- 通知: [IndexNow run 44116738909](https://github.com/Syasu-pixel/my-site/actions/runs/44116738909)で対象1URLをHTTP200受理。Google登録リクエストは2026-11-18 JSTに本人が「リクエストしたよ」と実施を申告。助手による操作ではない。検索インデックス完了は未確認。
+- 状態: 完成・凍結。内容更新日を推測せず保守的に公開確認2026-11-18を起点として90日未満は通常改善候補から除外。最短再評価2027-02-16。期間経過だけでは再編集しない。

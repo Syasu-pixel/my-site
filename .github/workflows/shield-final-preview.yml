@@ -1,0 +1,150 @@
+name: Shield final publication evidence (preview only)
+'on':
+  push:
+    branches:
+    - ai-editorial/shield-final-preview-20261117
+    paths:
+    - .github/workflows/shield-final-preview.yml
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: 6984db97d684628d81e7663589eff5268345eaa0
+        fetch-depth: 1
+    - name: Setup Node for shared shell verification
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.16.0
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 11.19.0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.12.14
+    - name: Refuse stale generated headers and footers
+      run: 'pnpm install --frozen-lockfile --ignore-scripts
+
+        pnpm check:shells
+
+        '
+    - name: Verify temporary consultation pause
+      run: node scripts/test-consultation-pause.mjs
+    - name: Verify online consultation mail flow
+      run: node scripts/test-general-consultation-worker.mjs
+    - name: Verify admin case management API
+      run: node scripts/test-admin-case-management-worker.mjs
+    - name: Generate and verify approved article components
+      env:
+        REVIEW_COPY_ASSETS: '0'
+      run: 'python -m pip install lxml==6.1.1
+
+        node scripts/build-integrated-review.mjs "${RUNNER_TEMP}/integration-build"
+
+        node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/integration-build/additional-shells"
+
+        python scripts/verify-integrated-source.py "${RUNNER_TEMP}/integration-build"
+
+        python scripts/audit-integrated-links.py "${RUNNER_TEMP}/integration-build"
+
+        python scripts/verify-article-end-preservation.py --oracle .github/article-components/end/all-preservation-oracle.json
+        --candidate "${RUNNER_TEMP}/integration-build/candidate" --assets-source . --output "${RUNNER_TEMP}/integration-build/end-independent-checks.json"
+
+        '
+    - name: Prepare Pages artifact
+      run: "python scripts/build-admin-article-catalog.py\n\nrsync -a ./ _site/ \\\n  --exclude '_site/' \\\n  --exclude '.git/'\
+        \ \\\n  --exclude '.github/' \\\n  --exclude '/docs/rules/catalog.json' \\\n  --exclude 'node_modules/' \\\n  --exclude\
+        \ '.netlify/' \\\n  --exclude '.wrangler/' \\\n  --exclude '.cache/' \\\n  --exclude 'tmp/' \\\n  --exclude 'temp/'\
+        \ \\\n  --exclude '*.zip' \\\n  --exclude '*.tar' \\\n  --exclude '*.tar.gz' \\\n  --exclude '*.7z' \\\n  --exclude\
+        \ '*.psd' \\\n  --exclude '*.ai'\n\nnode scripts/prepare-integrated-publication.mjs \"${RUNNER_TEMP}/integration-build\"\
+        \ _site\npython scripts/verify-publication-artifact.py snapshot _site \"${RUNNER_TEMP}/integration-build\"\n\necho\
+        \ 'Before image optimization:'\ndu -sh _site _site/assets/images\n"
+    - name: Optimize published images to WebP
+      run: "sudo apt-get update -qq\nsudo apt-get install -y -qq webp\nexport IMAGE_COLLISION_SKIP=\"${RUNNER_TEMP}/integration-build/image-collision-skip.txt\"\
+        \n\n# Convert PNG/JPEG assets in the publish copy only. The repository originals\n# remain untouched until the optimized\
+        \ deployment has been verified.\nfind _site/assets/images -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg'\
+        \ \\) -print0 \\\n  | xargs -0 -r -P 4 -I{} bash -c '\n      src=\"$1\"\n      grep -Fxq \"$src\" \"$IMAGE_COLLISION_SKIP\"\
+        \ && exit 0\n      dst=\"${src%.*}.webp\"\n      [ -e \"$dst\" ] && exit 0\n      cwebp -quiet -mt -q 82 -m 4 \"$src\"\
+        \ -o \"$dst\"\n    ' _ {}\n\npython3 - <<'PY'\nfrom pathlib import Path\nimport re, json, os\n\nroot = Path('_site')\n\
+        image_root = root / 'assets' / 'images'\nmapping = {}\nbuild = Path(os.environ['RUNNER_TEMP']) / 'integration-build'\n\
+        keep_originals = set(json.loads((build/'image-collision-plan.json').read_text())['keepOriginals'])\nfor src in image_root.rglob('*'):\n\
+        \    if not src.is_file() or src.suffix.lower() not in {'.png', '.jpg', '.jpeg'}:\n        continue\n    if src.relative_to(root).as_posix()\
+        \ in keep_originals:\n        continue\n    dst = src.with_suffix('.webp')\n    if dst.exists() and dst.stat().st_size\
+        \ > 0:\n        rel_src = src.relative_to(root).as_posix()\n        rel_dst = dst.relative_to(root).as_posix()\n \
+        \       mapping[rel_src] = rel_dst\n(build/'published-image-mapping.json').write_text(json.dumps(mapping), encoding='utf-8')\n\
+        \n# Only rewrite files that can affect the published site. Internal Markdown/TXT\n# docs contain example placeholders\
+        \ such as {slug} and must not be treated as\n# live asset references.\ntext_exts = {'.html', '.css', '.js', '.json',\
+        \ '.xml'}\nchanged = 0\nfor path in root.rglob('*'):\n    if not path.is_file() or path.suffix.lower() not in text_exts:\n\
+        \        continue\n    try:\n        text = path.read_text(encoding='utf-8')\n    except UnicodeDecodeError:\n   \
+        \     continue\n    new = text\n    for old, replacement in mapping.items():\n        new = new.replace('/' + old,\
+        \ '/' + replacement)\n        new = new.replace(old, replacement)\n    if new != text:\n        path.write_text(new,\
+        \ encoding='utf-8')\n        changed += 1\n\n# Remove originals only from the generated publish copy and only when\
+        \ a\n# valid WebP counterpart exists.\nremoved = 0\nfor old in mapping:\n    src = root / old\n    if src.exists():\n\
+        \        src.unlink()\n        removed += 1\n\n# Guard against stale references in actual published web files only.\n\
+        stale = []\npattern = re.compile(r'assets/images/[^\\s\"\\'<>?#]+\\.(?:png|jpe?g)', re.I)\nfor path in root.rglob('*'):\n\
+        \    if not path.is_file() or path.suffix.lower() not in text_exts:\n        continue\n    try:\n        text = path.read_text(encoding='utf-8')\n\
+        \    except UnicodeDecodeError:\n        continue\n    for match in pattern.findall(text):\n        candidate = root\
+        \ / match.lstrip('/')\n        if not candidate.exists():\n            stale.append(f'{path}: {match}')\n\nprint(f'Converted\
+        \ images: {len(mapping)}')\nprint(f'Updated published files: {changed}')\nprint(f'Removed publish-copy originals:\
+        \ {removed}')\nif stale:\n    print('Stale image references detected in published files:')\n    print('\\n'.join(stale[:100]))\n\
+        \    raise SystemExit(1)\nPY\n\necho 'After image optimization:'\ndu -sh _site _site/assets/images\n\n# GitHub Pages\
+        \ published sites must remain below 1 GB. Keep headroom so\n# future articles cannot silently cross the limit.\nbytes=$(du\
+        \ -sb _site | cut -f1)\nlimit=$((900 * 1024 * 1024))\necho \"Published artifact bytes: $bytes\"\nif [ \"$bytes\" -ge\
+        \ \"$limit\" ]; then\n  echo \"ERROR: optimized Pages artifact is still >= 900 MiB; refusing oversized deploy.\"\n\
+        \  exit 1\nfi\n"
+    - name: Verify final standalone publication
+      run: python scripts/verify-publication-artifact.py verify _site "${RUNNER_TEMP}/integration-build"
+    - name: Exclude paused PLC design pages from the final publication artifact
+      run: "set -euo pipefail\nfor episode in 01 02 03; do\n  page=\"_site/articles/plc-drilling-line-design-project-${episode}.html\"\
+        \n  if test -f \"$page\"; then\n    rm \"$page\"\n  fi\n  test ! -e \"$page\" || { echo \"Paused article still present:\
+        \ $page\" >&2; exit 1; }\n  echo \"Confirmed unpublished: $page\"\ndone\nif grep -Eq 'plc-drilling-line-design-project-(01|02|03)\\\
+        .html' _site/sitemap.xml _site/assets/data/search-index.json; then\n  echo 'Paused PLC article remains in sitemap\
+        \ or search index' >&2\n  exit 1\nfi\n"
+    - name: Install browser for final publication evidence
+      run: pnpm exec playwright install --with-deps chromium
+    - name: Capture final publication in four conditions
+      run: "cat > .shield-final-capture.mjs <<'SHIELD_JS'\nimport {chromium} from 'playwright';\nimport fs from 'node:fs';\n\
+        import crypto from 'node:crypto';\nconst origin='http://127.0.0.1:4177',path='articles/shield-grounding-one-end-both-ends.html',out='shield-final-evidence';\n\
+        fs.mkdirSync(out,{recursive:true});\nconst sha=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst source=fs.readFileSync(path),published=fs.readFileSync('_site/'+path);\n\
+        if(sha(source)!=='9c76543c8bf1d7e2979f30011390e3790c718beeed2bfa70ccb0588aa8de8df6')throw Error('Adopted source mismatch');\n\
+        const browser=await chromium.launch({headless:true}),results=[];\ntry{\nfor(const width of [1440,390])for(const theme\
+        \ of ['light','dark']){\n const ctx=await browser.newContext({viewport:{width,height:width===390?844:1000},colorScheme:theme,locale:'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',serviceWorkers:'block'});\n\
+        \ const blocked=[];await ctx.route('**/*',route=>{const req=route.request();if(req.url().startsWith(origin+'/')&&req.method()==='GET')return\
+        \ route.continue();blocked.push({url:req.url(),method:req.method()});return route.abort();});\n const page=await ctx.newPage();const\
+        \ errors=[];page.on('pageerror',e=>errors.push(e.message));\n const res=await page.goto(origin+'/'+path,{waitUntil:'networkidle'});if(!res?.ok())throw\
+        \ Error('HTTP failed');\n await page.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading='eager';await\
+        \ Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});\n await page.waitForFunction(t=>document.documentElement.dataset.dcTheme===t,theme);\n\
+        \ const audit=await page.evaluate(()=>({theme:document.documentElement.dataset.dcTheme,viewport:innerWidth,scroll:document.documentElement.scrollWidth,headers:document.querySelectorAll('header.dc-shell').length,feedback:document.querySelectorAll('#articleFeedbackCard').length,toc:document.querySelectorAll('.dc-toc-button').length,broken:[...document.images].filter(i=>i.getAttribute('src')&&(!i.complete||!i.naturalWidth)).map(i=>i.getAttribute('src')),title:document.title,canonical:document.querySelector('link[rel=canonical]')?.href}));\n\
+        \ if(audit.scroll>width||audit.headers!==1||audit.feedback!==1||audit.toc!==1||audit.broken.length)throw Error(JSON.stringify(audit));\n\
+        \ const name=`${width}-${theme}`;await page.screenshot({path:`${out}/${name}-full.png`,fullPage:true});\n for(const\
+        \ [label,sel] of [['hero','h1'],['examples','#sec3'],['table','table'],['end','#articleFeedbackCard']]){const el=page.locator(sel).first();if(await\
+        \ el.count()){await el.scrollIntoViewIfNeeded();await page.screenshot({path:`${out}/${name}-${label}.png`});}}\n const\
+        \ imgs=page.locator('.article-figure .dc-zoomable-image');let zooms=0;\n for(let i=0;i<await imgs.count();i++){await\
+        \ imgs.nth(i).click();if(!await page.locator('.dc-image-lightbox').isVisible())throw Error('Lightbox did not open');await\
+        \ page.locator('.dc-image-lightbox__close').click();if(await page.locator('.dc-image-lightbox').isVisible())throw\
+        \ Error('Lightbox did not close');zooms++;}\n await page.locator('.dc-toc-button').click();if(!await page.locator('#dc-toc-dialog').evaluate(e=>e.open))throw\
+        \ Error('TOC failed');await page.keyboard.press('Escape');\n results.push({width,theme,audit,zooms,errors,blockedExternalRequests:blocked});await\
+        \ ctx.close();\n}\n}finally{await browser.close();}\nfs.copyFileSync('_site/'+path,out+'/published.html');\nfs.writeFileSync(out+'/manifest.json',JSON.stringify({sourceCommit:'6984db97d684628d81e7663589eff5268345eaa0',sourceSha256:sha(source),publicationSha256:sha(published),workflowCommit:process.env.GITHUB_SHA,externalRequestsBlocked:true,realVotesSent:false,results},null,2));\n\
+        console.log(JSON.stringify(results));\n\nSHIELD_JS\npython3 -m http.server 4177 --bind 127.0.0.1 --directory _site\
+        \ > /tmp/shield-server.log 2>&1 &\nSERVER_PID=$!\ntrap 'kill \"$SERVER_PID\" || true' EXIT\nfor i in $(seq 1 30);\
+        \ do curl -fsS http://127.0.0.1:4177/articles/shield-grounding-one-end-both-ends.html >/dev/null && break; sleep 1;\
+        \ done\nnode .shield-final-capture.mjs\n"
+    - name: Upload final publication evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: shield-final-publication-four-conditions
+        path: 'shield-final-evidence/
+
+          ${{ runner.temp }}/integration-build/publication-*.json
+
+          ${{ runner.temp }}/integration-build/published-image-mapping.json
+
+          '
+        retention-days: 30
+        if-no-files-found: error

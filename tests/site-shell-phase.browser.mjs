@@ -41,6 +41,7 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
   ['ancestor clip','body{clip-path:inset(1px)}'],
   ['ancestor filter','body{filter:opacity(.9)}'],
   ['ancestor transform','body{transform:translateX(1px)}'],
+  ['margin collapse side effect','main{margin-top:20px}'],
   ['direct text overflow','',()=>{const e=document.createElement('div');e.textContent='overflow text';e.style.cssText='position:fixed;bottom:30px;left:0;width:1px;height:0;white-space:nowrap';document.body.append(e)}],
   ['relative z descendant','footer p{position:relative;z-index:10000}'],
   ['absolute pseudo','footer p::before{content:"x";position:absolute}'],
@@ -73,7 +74,7 @@ test('complete visual audit rejects defects and preserves the positive control',
  }
  const fixture=(height,css='',replace)=>{let s=html(height,css).replace('<main>','<header class="site-header"><a href="/">Home</a></header><main>');return replace?replace(s):s;};
  await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125));
- const run=(phase,root)=>spawnSync(process.execPath,[resolve('scripts/site-shell-visual.mjs'),`--phase=${phase}`,`--root=${root}`,`--out=${out}`],{env,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});
+ const run=(phase,root,evidenceOut=out)=>spawnSync(process.execPath,[resolve('scripts/site-shell-visual.mjs'),`--phase=${phase}`,`--root=${root}`,`--out=${evidenceOut}`],{env,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});
  const initial=run('baseline',base);assert.equal(initial.status,0,initial.stderr+initial.stdout);
  const receipts=[];
  for(const [name,css,replace] of [
@@ -91,5 +92,17 @@ test('complete visual audit rejects defects and preserves the positive control',
    if(name==='positive')assert.equal(result.status,0,result.stderr+result.stdout);
    else assert.ok(Number.isInteger(result.status)&&result.status!==0,`${name} must fail the real CLI gate: ${result.stdout}`);
  }
+ // An ancestor-only paint regression must remain visible even when adding a
+ // style attribute for capture would otherwise make both versions white.
+ const paintOut=join(dir,'ancestor-paint');
+ const paintCSS='footer{background:transparent}header{background:white}body[style]{background:white}';
+ await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125,paintCSS+'body{background:black}'));
+ await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,paintCSS+'body{background:red}'));
+ const paintBase=run('baseline',base,paintOut);assert.equal(paintBase.status,0,paintBase.stderr+paintBase.stdout);
+ const paintHead=run('compare',head,paintOut);
+ receipts.push({name:'ancestor-only paint hidden by capture attribute',status:paintHead.status,stdout:paintHead.stdout,stderr:paintHead.stderr});
+ await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+ assert.ok(Number.isInteger(paintHead.status)&&paintHead.status!==0,'ancestor paint regression must fail real CLI');
+ await cp(paintOut,'.visual-phase-tests/ancestor-paint-evidence',{recursive:true});
  await cp(out,'.visual-phase-tests/cli-evidence',{recursive:true});
 });

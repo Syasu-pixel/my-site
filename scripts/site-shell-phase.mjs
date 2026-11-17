@@ -6,7 +6,7 @@ export async function shellContract(page, selector) {
     const rect = e => { const b=e.getBoundingClientRect(); return {x:b.x-r.x,y:b.y-r.y,width:b.width,height:b.height}; };
     const style = (e,pseudo) => { const s=getComputedStyle(e,pseudo); return Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k).replaceAll(location.origin,'http://visual-origin.invalid')])); };
     const siblingGap=direction=>{let e=root[direction];while(e){const b=e.getBoundingClientRect();if(b.width&&b.height)return direction==='previousElementSibling'?r.top-b.bottom:b.top-r.bottom;e=e[direction];}return null;};
-    const ancestors=[];for(let e=root.parentElement;e;e=e.parentElement){const s=getComputedStyle(e);ancestors.push({tag:e.tagName,styles:Object.fromEntries(['overflowX','overflowY','clip','clipPath','maskImage','filter','backdropFilter','transform','perspective','isolation'].map(k=>[k,s[k]]))});}
+    const ancestors=[];for(let e=root.parentElement;e;e=e.parentElement){const styles=style(e);for(const k of ['height','block-size','transform-origin','perspective-origin'])delete styles[k];ancestors.push({tag:e.tagName,styles});}
     return {html:root.outerHTML, x:r.x,width:r.width,height:r.height,previousGap:siblingGap('previousElementSibling'),nextGap:siblingGap('nextElementSibling'),ancestors,
       nodes:[root,...root.querySelectorAll('*')].map(e=>({tag:e.tagName,rect:rect(e),style:style(e),before:style(e,'::before'),after:style(e,'::after'),scrollWidth:e.scrollWidth,clientWidth:e.clientWidth,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight}))};
   });
@@ -34,6 +34,7 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
       const s=getComputedStyle(e);
       if(hasTransform(s)||s.filter!=='none'||s.perspective!=='none'||s.clipPath!=='none'||s.maskImage!=='none'||(s.backdropFilter&&s.backdropFilter!=='none')||(e!==document.body&&e!==document.documentElement&&[s.overflowX,s.overflowY].some(x=>['hidden','clip','auto','scroll'].includes(x))))issues.push({kind:'ancestor-paint-or-clip',element:label(e)});
     }
+    if(root.querySelector('canvas,video,iframe,object,embed,svg'))issues.push({kind:'unsupported-dynamic-footer-paint',element:label(root)});
     if(hasTransform(getComputedStyle(root)))issues.push({kind:'existing-footer-transform',element:label(root)});
     for(const e of [root,...root.querySelectorAll('*')]) {
       const s=getComputedStyle(e);
@@ -149,8 +150,7 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
           issues.push({kind:'unbounded-external-pseudo',element:label(e),pseudo});
         }
       }
-      if(ancestor||!visible(e,s))continue;
-      externalElements++;
+      if(!visible(e,s))continue;
       if(s.webkitBoxReflect&&s.webkitBoxReflect!=='none')issues.push({kind:'external-reflection',element:label(e)});
       const letter=getComputedStyle(e,'::first-letter'),marker=getComputedStyle(e,'::marker');
       if(['fontSize','fontFamily','fontWeight','fontStyle','textShadow'].some(k=>letter[k]!==s[k])||!['normal','none'].includes(marker.content))issues.push({kind:'unsupported-external-text-pseudo',element:label(e)});
@@ -160,6 +160,8 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
         const inkMargin=2*(parseFloat(s.fontSize)||16);
         for(const r of range.getClientRects())if(intersects({left:r.left-inkMargin,right:r.right+inkMargin,top:r.top-inkMargin,bottom:r.bottom+inkMargin}))issues.push({kind:'external-text-paint-near-footer',element:label(e)});
       }
+      if(ancestor)continue;
+      externalElements++;
       const box=shadowOutset(s.boxShadow),text=shadowOutset(s.textShadow);
       if(box===null||text===null||s.filter!=='none'||(s.backdropFilter&&s.backdropFilter!=='none')||(e instanceof SVGElement && s.stroke!=='none' && Number(s.strokeOpacity)!==0)) {
         issues.push({kind:'unbounded-external-paint',element:label(e)});continue;
@@ -178,12 +180,41 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
   return evidence;
 }
 
+async function snapshotScene(page) {
+  return page.evaluateHandle(()=>[...document.querySelectorAll('*')].map(element=>{
+    const s=getComputedStyle(element),r=element.getBoundingClientRect();
+    return {element,style:Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),rect:{x:r.x+scrollX,y:r.y+scrollY,vx:r.x,vy:r.y,width:r.width,height:r.height},hasBox:element.getClientRects().length>0};
+  }));
+}
+async function verifyScene(page,scene,dy) {
+  return page.evaluate(({scene,dy})=>{
+    const near=(a,b)=>Math.abs(a-b)<1e-6,issues=[];
+    if(document.querySelectorAll('*').length!==scene.length)return ['DOM inventory changed'];
+    for(const old of scene){
+      const e=old.element;if(!e.isConnected){issues.push('Element removed');continue;}
+      const s=getComputedStyle(e),now=Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),prior={...old.style};
+      const ancestor=e===document.body||e===document.documentElement;
+      if(ancestor)for(const k of ['height','block-size','transform-origin','perspective-origin']){delete now[k];delete prior[k];}
+      if(e===document.body)for(const k of ['padding-top','padding-block-start']){delete now[k];delete prior[k];}
+      if(JSON.stringify(now)!==JSON.stringify(prior))issues.push(e.tagName+' computed styles changed');
+      if(!old.hasBox)continue;
+      const r=e.getBoundingClientRect(),a=old.rect;
+      if(!near(r.width,a.width)||!(near(r.height,a.height)||(ancestor&&near(r.height,a.height+dy))))issues.push(e.tagName+' size changed');
+      if(!near(r.x+scrollX,a.x))issues.push(e.tagName+' horizontal position changed');
+      const moved=near(r.y+scrollY,a.y+dy),stationary=near(r.y+scrollY,a.y)||near(r.y,a.vy);
+      if(!moved&&!stationary)issues.push(e.tagName+' did not translate rigidly');
+    }
+    return issues.slice(0,20);
+  },{scene,dy});
+}
+
 export async function capturePhaseStableFooter(page, options={}) {
   const selector='footer.site-footer';
   const locator=page.locator(selector);
   if(await locator.count()!==1) throw Error('Expected exactly one footer');
   const eligibility=await assertIndependentFooter(page,selector);
   const original=await shellContract(page,selector);
+  const scene=await snapshotScene(page);
   // Adjust layout BEFORE rasterization, not a compositor transform of an
   // already rasterized footer. The original page source is restored afterward.
   // No diagnostic crop values or post-processing of images is used.
@@ -195,17 +226,27 @@ export async function capturePhaseStableFooter(page, options={}) {
     const padding=Number.parseFloat(bs.paddingTop);
     if(!Number.isFinite(padding))throw Error('Footer phase capture ineligible: invalid body padding');
     body.style.setProperty('padding-top',`${padding+dy}px`,'important');
-    return {style,dy};
+    return {style,dy,y};
   });
   let bytes,failure;
   try {
+    const sceneIssues=await verifyScene(page,scene,saved.dy);
+    if(sceneIssues.length)throw Error('Page paint changed: '+sceneIssues.join('; '));
+    await assertIndependentFooter(page,selector);
     const shifted=await shellContract(page,selector);
     if(shifted.width!==original.width||shifted.height!==original.height||JSON.stringify(shifted.nodes.map(n=>n.rect))!==JSON.stringify(original.nodes.map(n=>n.rect)))throw Error('Phase stabilization changed footer layout');
     for(let i=0;i<original.nodes.length;i++)for(const kind of ['style','before','after']){
       const a={...original.nodes[i][kind]},b={...shifted.nodes[i][kind]};
       if(JSON.stringify(a)!==JSON.stringify(b))throw Error('Phase stabilization changed footer computed styles');
     }
+    if(shifted.previousGap!==original.previousGap||shifted.nextGap!==original.nextGap)throw Error('Footer outside spacing changed');
+    for(let i=0;i<original.ancestors.length;i++){
+      const a={...original.ancestors[i].styles},b={...shifted.ancestors[i].styles};
+      if(original.ancestors[i].tag==='BODY')for(const k of ['padding-top','padding-block-start']){delete a[k];delete b[k];}
+      if(JSON.stringify(a)!==JSON.stringify(b))throw Error('Ancestor paint changed');
+    }
     const documentY=await locator.evaluate(e=>e.getBoundingClientRect().y+scrollY);
+    if(Math.abs(documentY-saved.y-saved.dy)>1e-6)throw Error('Footer moved by more than the phase adjustment');
     if(Math.abs(documentY-Math.round(documentY))>1e-6)throw Error('Footer phase did not stabilize to integer origin');
     bytes=await locator.screenshot({...options,animations:'disabled'});
   } catch(error) {
@@ -213,6 +254,9 @@ export async function capturePhaseStableFooter(page, options={}) {
   } finally {
     await page.evaluate(s=>{if(s===null)document.body.removeAttribute('style');else document.body.setAttribute('style',s);},saved.style);
   }
+  const restoredSceneIssues=await verifyScene(page,scene,0);
+  await scene.dispose();
+  if(restoredSceneIssues.length)throw Error('Scene restoration failed: '+restoredSceneIssues.join('; '));
   const restored=await shellContract(page,selector);
   if(JSON.stringify(original)!==JSON.stringify(restored)) throw Error('Footer capture changed original contract');
   if(failure)throw Error('Footer phase capture ineligible: '+failure.message);

@@ -1563,7 +1563,39 @@
   }
 }
 
-</style>
+
+    /* Article-specific adopted Hero: show the full image, without mobile cropping. */
+    .article-hero{min-height:440px;background:#edf7ff}
+    .article-hero::before{background-position:center;background-size:contain;opacity:1}
+    .article-hero::after{background:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.85) 30%,rgba(255,255,255,0) 56%)}
+    .article-hero-copy{width:52%;min-height:440px}
+    @media(max-width:1100px){
+      .article-hero{min-height:0}
+      .article-hero::before{inset:auto 0 0;height:calc((100vw - 28px) * .5625);background-position:center bottom;background-size:contain;opacity:1}
+      .article-hero::after{display:none}
+      .article-hero-copy{width:100%;min-height:0;padding:28px 22px calc((100vw - 28px) * .5625 + 24px);background:none}
+    }
+  </style>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "IAIロボシリンダーとは？エアシリンダーとの違いと現場で見るポイント",
+  "description": "IAIロボシリンダーとは何かを、電気工事士・制御初心者向けにやさしく整理。エアシリンダーとの違い、基本構成、PLCとの信号の流れ、原点復帰、位置No、完了信号、アラーム確認、現場での見方まで解説します。",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://denkicontrol.com/articles/iai-robocylinder-basic.html"
+  },
+  "image": "https://denkicontrol.com/assets/images/iai-robocylinder-basic/iai-robocylinder-basic-ogp.png",
+  "inLanguage": "ja",
+  "author": {
+    "@type": "Person",
+    "@id": "https://denkicontrol.com/profile/#operator"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://denkicontrol.com/#organization"
+  }
+}</script>
 </head>
 
 <body>
@@ -1685,13 +1717,13 @@
           <section class="section-card" id="what-is">
             <h2>IAIロボシリンダーとは？</h2>
             <p>
-              IAIロボシリンダーとは、ざっくり言うと<span class="mark">モーターで動く電動シリンダー</span>です。
+              IAIロボシリンダーは、<span class="mark">モーターで位置や速度を制御する電動アクチュエータ</span>です。シリンダーのような直線動作を電動で行い、指定位置への移動や条件に応じた動きを設定できます。
             </p>
             <p>
               エアシリンダーのように前進・後退させるだけでなく、指定した位置まで動かしたり、速度を変えたり、途中位置で止めたりできるのが大きな特徴です。
             </p>
             <p>
-              現場では、ワークを押す、スライドさせる、位置を合わせる、搬送の一部を動かす、検査位置までゆっくり持っていくなど、空気圧だけでは少し調整しにくい場所で使われます。
+              たとえば、ワークを検査位置まで運ぶ、品種ごとに停止位置を変える、接近時だけ速度を落とす、といった用途が考えられます。この記事は仕組みと確認の順序を整理する基礎解説であり、特定機種の配線・試運転手順ではありません。
             </p>
 
             <div class="key-highlight">
@@ -1724,16 +1756,17 @@
           <section class="section-card" id="structure">
             <h2>ロボシリンダーの基本構成</h2>
             <p>
-              ロボシリンダーは、本体だけで動いているように見えても、実際にはコントローラ、電源、PLC、入出力信号が関係します。
+              直動タイプでは、モーターの回転をボールねじで直線運動に変え、ガイドでスライダの動きを支えます。<strong>動きを作る機械部分</strong>と、位置・速度を制御する<strong>コントローラ</strong>を分けて見るのが理解の近道です。スライダー形、ロッド形などがあり、外観や機構は型式によって異なります。
             </p>
             <p>
-              現場で見る時は、まず「どこが動く本体か」「どこにコントローラがあるか」「PLCと何の信号でつながっているか」を分けると追いやすくなります。
+              設備で確認する時は、本体とコントローラの型式、適合するケーブル、電源、PLCとの接続方式を一組として確認します。PLCから位置番号を送る方式だけでなく、フィールドネットワーク等で制御する構成もあるため、見た目だけで配線や信号を決めないでください。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-structure.png" alt="IAIロボシリンダーの基本構成。ロボシリンダー本体、コントローラ、PLC、電源、信号のつながりをまとめた図。">
+              <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-structure.png" alt="直動タイプの構造の概念図。モーター、ボールねじ、ガイド、スライダの関係。">
               <figcaption>
-                ロボシリンダー本体だけでなく、コントローラ、PLC、電源、入出力信号をセットで見ると、設備内での役割が分かりやすくなります。
+                直動タイプの構造を示す概念図です。モーターの回転をボールねじで直線運動に変え、ガイドでスライダを支えます。構造は機種によって異なります。
+              <span>画像をクリック／タップすると拡大表示できます</span>
               </figcaption>
             </figure>
 
@@ -1753,13 +1786,13 @@
               <div class="check-item check-item--warning">
                 <h3>PLCからの指令</h3>
                 <p>
-                  位置No選択、起動、停止、原点復帰、リセットなど、設備側から動作指令を出します。
+                  位置番号を指定するPIO構成では、位置No選択や起動などを設備側から伝えます。信号の割付や設定はコントローラ・運転モードによって異なります。
                 </p>
               </div>
               <div class="check-item">
                 <h3>戻り信号</h3>
                 <p>
-                  位置決め完了、原点復帰完了、移動中、アラームなど、ロボシリンダー側の状態をPLCへ返します。
+                  位置決め完了や異常などの状態をPLCへ返します。PLCから見た入力は、コントローラから見れば出力です。図面で、どちら側を基準にした入出力かを確かめます。
                 </p>
               </div>
             </div>
@@ -1786,13 +1819,14 @@
               エアシリンダーは、空気圧で前進・後退するシンプルな動きが得意です。構造も比較的分かりやすく、前進端・後退端のリードスイッチで位置確認する場面が多いです。
             </p>
             <p>
-              一方でロボシリンダーは、電動で動くため、複数位置への移動、速度変更、途中停止、押付け動作などを扱いやすくなります。その分、信号や設定を見るポイントは増えます。
+              一方でロボシリンダーは、対応する機種・設定の範囲で、複数位置への移動、速度・加減速の変更、押付け動作などを扱えます。ただし、電動なら無条件に高精度・低コストという意味ではありません。荷重、ストローク、姿勢、周囲環境、必要な精度を合わせて選定します。
             </p>
 
             <figure class="article-figure">
               <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-air-cylinder-comparison.png" alt="エアシリンダーとロボシリンダーの違いを比較した図。空気圧で動くエアシリンダーと、電動で位置決めできるロボシリンダーの違い。">
               <figcaption>
-                エアシリンダーはシンプルな前進・後退に向き、ロボシリンダーは位置決め・速度調整・途中停止など細かい動きに向いています。
+                一般的な端位置往復の空圧制御と、位置指定の電動制御を比較しています。方式・機種によって異なり、空圧機器すべての動作を端位置往復に限定する図ではありません。
+              <span>画像をクリック／タップすると拡大表示できます</span>
               </figcaption>
             </figure>
 
@@ -1818,7 +1852,7 @@
                   </tr>
                   <tr>
                     <td>位置確認</td>
-                    <td>リードスイッチや近接センサで端位置を見ることが多い</td>
+                    <td>シリンダ用オートスイッチ等で端位置を確認する例が多い</td>
                     <td>位置データ、完了信号、原点復帰完了などで見る</td>
                   </tr>
                   <tr>
@@ -1866,13 +1900,14 @@
               ロボシリンダーを見る時に大事なのは、機械本体の動きだけではありません。PLCとコントローラの間で、どんな信号をやり取りしているかを見ることが重要です。
             </p>
             <p>
-              現場でよく見る流れは、PLCから「どの位置へ動くか」「動作を開始するか」を出し、ロボシリンダー側から「動作が終わったか」「アラームが出ていないか」を返す形です。
+              ここでは<strong>位置番号を指定するPIO制御の例</strong>として、PLCから位置Noと起動指令を送り、コントローラから完了や状態を返す流れを説明します。配線図ではなく、機能の関係を示した概念図です。実機の信号名・割付・タイミングは、対象型式の取扱説明書を優先してください。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-plc-control-flow.png" alt="PLCとロボシリンダーの信号の流れ。PLCから位置Noと起動信号を出し、ロボシリンダーから完了信号やアラーム信号が戻る流れ。">
+              <img src="../assets/images/iai-robocylinder-basic/iai-robocylinder-basic-plc-control-flow.png" alt="PLCからコントローラへ位置Noと起動の指令を送り、コントローラからPLCへ完了・異常の状態が戻る流れ。">
               <figcaption>
-                PLCから位置Noや起動信号を出し、ロボシリンダー側から位置決め完了やアラームなどの信号が戻る流れで見ると分かりやすいです。
+                位置番号を指定するPIO制御の概念図で、配線図ではありません。青矢印はPLCからコントローラへの指令、緑矢印はコントローラからPLCへ戻る状態です。
+              <span>画像をクリック／タップすると拡大表示できます</span>
               </figcaption>
             </figure>
 
@@ -1892,7 +1927,7 @@
               <div class="check-item check-item--warning">
                 <h3>完了信号を見る</h3>
                 <p>
-                  指定位置まで動いたら、位置決め完了信号などが返ります。次工程へ進む条件として使われることが多いです。
+                  位置決め完了は、設定された位置決め幅などの判定条件を満たしたことを示します。厳密な一点への到達や、ワークを確実につかんだことを単独で保証する信号ではありません。
                 </p>
               </div>
               <div class="check-item">
@@ -1906,7 +1941,7 @@
             <div class="field-highlight">
               <h3>ラダーでは「出している信号」と「待っている信号」を分ける</h3>
               <p>
-                PLC側のラダーを見る時は、位置Noや起動信号のようにPLCから出す信号と、完了やアラームのように戻ってくる信号を分けると追いやすいです。
+                PLC側のラダーを見る時は、位置Noや起動信号のようにPLCから出す信号と、完了や異常状態のように戻ってくる信号を分けます。起動前からONの完了信号を、新しい移動の完了と取り違えないことも重要です。信号の変化と完了位置番号など、採用モードに定められた確認条件を見てください。
               </p>
             </div>
 
@@ -1930,13 +1965,19 @@
             </div>
           </section>
 
+          <section class="section-card" id="signal-cautions">
+            <h2>信号名だけでON・OFFの意味を決めない</h2>
+            <p>IAIのACON/DCON/PCON用PIOクイックスタートガイド（MJ0368 第2版）の例では、<strong>*ALMは正常時ON、アラーム時OFF</strong>です。「アラームという名前だからONなら異常」とは判断できません。対象機種の信号表とPLC側の論理を照合します。</p>
+            <p>同資料ではPENDとINPの挙動も区別されています。完了信号を安全確認の代わりに使わず、機種と設定に合う判定を行ってください。ここでは端子番号、配線色、信号時間を全機種共通の値として掲載しません。</p>
+          </section>
+
           <section class="section-card" id="home-position">
             <h2>原点復帰と位置Noの考え方</h2>
             <p>
               ロボシリンダーでは、原点復帰と位置Noの考え方が大切です。エアシリンダーだけを見てきた人は、ここで少し戸惑いやすいかもしれません。
             </p>
             <p>
-              原点復帰は、ロボシリンダーが自分の基準位置を確認する動作です。設備によっては、電源投入後やアラーム復旧後に原点復帰が完了していないと、通常動作に進めないことがあります。
+              原点復帰は、位置決めの基準を確立する動作です。必要になるタイミングはエンコーダ方式、保持状態、機種・設備仕様で異なり、「毎回の電源投入で必ず必要」「絶対位置方式なら今後一切不要」とは一律に言えません。原点情報の有効状態と対象機種の手順を確認します。
             </p>
             <p>
               位置Noは、あらかじめ登録された動作位置の番号です。たとえば、位置No.1は待機位置、位置No.2は押付け位置、位置No.3は退避位置のように使うことがあります。
@@ -1958,7 +1999,7 @@
               <div class="check-item check-item--warning">
                 <h3>位置決め完了</h3>
                 <p>
-                  指定した位置へ到達したことを示す戻り信号です。次工程の開始条件になることがあります。
+                  位置決め幅などの条件による戻り信号です。次工程の条件として使う場合も、目的の移動に対する完了か、設備側の条件と整合しているかを確認します。
                 </p>
               </div>
               <div class="check-item">
@@ -1988,7 +2029,7 @@
               ロボシリンダーが動かない時や、動いたのに次工程へ進まない時は、いきなり本体交換や細かい設定を疑う前に、信号の流れを順番に確認します。
             </p>
             <p>
-              特に多いのは、起動条件がそろっていない、原点復帰が完了していない、位置Noが違う、完了信号が返っていない、アラームが出ている、機械的に引っかかっている、といったパターンです。
+              切り分けの候補は、起動条件、原点情報、指令位置、完了判定、アラーム、機械側の抵抗や干渉です。これは原因を断定する一覧ではありません。<strong>動作範囲へ入る・機器へ触れる前には、設備の安全手順に従い、電源遮断、再起動防止、残留エネルギーや落下の危険への対策を行ってください。</strong>安全回路の短絡やPLC出力の強制ONで動かす確認はしません。
             </p>
 
             <div class="check-grid">
@@ -2019,7 +2060,7 @@
               <div class="check-item check-item--warning">
                 <h3>5. アラーム</h3>
                 <p>
-                  アラームが出ている場合は、内容を確認します。過負荷、位置偏差、原点未完了、外部停止などが関係することがあります。
+                  リセット前に、コントローラ型式、表示コード、発生した動作・位置、履歴を記録します。コードは対象機種の取扱説明書やIAI公式エラーコード検索で照合し、他シリーズの対処をそのまま適用しません。
                 </p>
               </div>
               <div class="check-item check-item--field">
@@ -2037,7 +2078,7 @@
               <div>
                 <h3>リセットだけで済ませない</h3>
                 <p>
-                  アラームをリセットして動いたとしても、過負荷や干渉の原因が残っていると再発します。何が原因で止まったのかを確認することが大切です。
+                  アラームを解除できても、原因が解消した証拠にはなりません。原因と解除条件を確認し、再起動で人やワークへ危険がない状態を確保します。垂直軸のブレーキ解除は落下につながるため、確認目的で安易に操作しないでください。
                 </p>
               </div>
             </div>
@@ -2060,6 +2101,17 @@
                 </div>
               </div>
             </div>
+          </section>
+
+          <section class="section-card" id="official-references">
+            <h2>公式資料で型式・信号・アラームを確認する</h2>
+            <p>仕様・信号割付は機種ごとに異なります。この記事の一般説明と、実機に適用する取扱説明書を分けて使用してください。</p>
+            <ul>
+              <li><a href="https://www.iai-robot.co.jp/product/electric-actuator/robo.html" target="_blank" rel="noopener noreferrer">IAI：ロボシリンダーの構造・製品説明</a></li>
+              <li><a href="https://www.iai-robot.co.jp/data_dl/CAD_MANUAL/" target="_blank" rel="noopener noreferrer">IAI：取扱説明書ダウンロード</a>（本体とコントローラの型式で照合）</li>
+              <li><a href="https://www.iai-robot.co.jp/download/q_start/pdf/Q_START_A_D_PCON_PIO%28MJ0368%29.pdf" target="_blank" rel="noopener noreferrer">IAI：ACON/DCON/PCON用PIOクイックスタートガイド MJ0368 第2版</a>（信号機能とタイミングの機種別例）</li>
+              <li><a href="https://www.iai-robot.co.jp/err_sh/" target="_blank" rel="noopener noreferrer">IAI：エラーコード検索システム</a></li>
+            </ul>
           </section>
 
           <section class="section-card" id="summary">

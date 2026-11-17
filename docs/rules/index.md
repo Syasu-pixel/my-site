@@ -135,6 +135,7 @@
 | [docs/comic-scripts/push-button-switch-basic-yonkoma-01.md](../comic-scripts/push-button-switch-basic-yonkoma-01.md) — 押しボタン4コマ採用記録 | 照光押しボタンの四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/emergency-stop-switch-basic-yonkoma-01.md](../comic-scripts/emergency-stop-switch-basic-yonkoma-01.md) — 非常停止4コマ採用記録 | 非常停止の四コマを制作・配置・公開・投稿するとき。 |
 | [docs/comic-scripts/plc-io-unit-basic-yonkoma-01.md](../comic-scripts/plc-io-unit-basic-yonkoma-01.md) — PLC入出力4コマ採用記録 | PLC入出力の四コマを制作・配置・公開・投稿するとき。 |
+| [docs/reference-notes/input-output-basic.md](../reference-notes/input-output-basic.md) — 入力と出力 公式参照メモ | articles/input-output-basic.html の技術内容・採用原稿・公開を確認する。 |
 
 ## 履歴・参考
 

@@ -1,7 +1,7 @@
 # iai-robocylinder-basic 公式参照メモ（制作中・未公開）
 
 ## 確認日
-- 2026-11-18（JST）。本文・画像は確認用候補であり、採用・公開未承認。
+- 2026-11-17（JST）。本文・画像は確認用候補であり、採用・公開未承認。
 
 ## 参照した公式元
 - IAI ロボシリンダ製品説明: https://www.iai-robot.co.jp/product/electric-actuator/robo.html
@@ -32,7 +32,7 @@
 - 現時点はメーカー一次資料に基づく一般的な確認軸のみ。現場経験の創作や未確認事例の断定はしない。
 
 ## 追加確認資料・採用範囲
-- IAI ACON/DCON/PCON PIOクイックスタートガイド MJ0368 第2版、p12–13の信号機能、p40–41のタイミング（2026-11-18確認）:
+- IAI ACON/DCON/PCON PIOクイックスタートガイド MJ0368 第2版、p12–13の信号機能、p40–41のタイミング（2026-11-17確認）:
   https://www.iai-robot.co.jp/download/q_start/pdf/Q_START_A_D_PCON_PIO%28MJ0368%29.pdf
   - PENDは設定された位置決め幅の条件、INPとの差、*ALMは正常ON/異常OFFを機種限定例として採用。ピン番号・配線色・信号時間・安全機能の代替は掲載しない。
 - IAIエラーコード検索: https://www.iai-robot.co.jp/err_sh/

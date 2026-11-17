@@ -277,3 +277,8 @@
 ### 押している間だけ動く回路 四コマ（2026-11-16）
 
 画像正式採用・GitHub正本保存済み。トップ本番公開済み（PR #1939、Pages run 43841268201 success）。本番HTML30作品・通常/拡大表示・元記事導線・配信画像を確認し、四コマ追従完了。Instagram 2026-12-05 10:00 JST予約済み（429749472、PENDING/draft:false/autoPublish:true/AI申告true）。記事本文の刷新とは別管理。Instagram実投稿は未確認。台本は `docs/comic-scripts/while-pressed-circuit-basic-yonkoma-01.md`。
+
+
+## 2026-11-17 PLC・安全機器4コマ追従
+
+本人採用済み「PLCって、気が利く？」「安全機器があれば安心？」の公開工程を再開。トップ第32・33作品として追加対象。採用原本保存済み。Instagramは12月7日・8日各10:00 JST予約済み（429844601 / 429855460、PENDING・draft:false）。予約重複作成なし。本文・更新日・90日ガードは変更しない。本番反映確認は完了後に採用記録へ追記する。

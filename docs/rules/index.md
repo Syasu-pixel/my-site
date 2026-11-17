@@ -199,6 +199,8 @@
 | [docs/comic-scripts/start-stop-circuit-basic-yonkoma-01.md](../comic-scripts/start-stop-circuit-basic-yonkoma-01.md) — 起動・停止回路 四コマ漫画 01 | 起動停止回路記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/while-pressed-circuit-basic-yonkoma-01.md](../comic-scripts/while-pressed-circuit-basic-yonkoma-01.md) — 押している間だけ動く回路 四コマ漫画 01 | 押している間だけ動く回路記事の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/series-parallel-circuit-basic-yonkoma-01.md](../comic-scripts/series-parallel-circuit-basic-yonkoma-01.md) — 直列と並列の違い 四コマ漫画 01 | 直列・並列回路の四コマ採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/plc-basic-yonkoma-01.md](../comic-scripts/plc-basic-yonkoma-01.md) — PLCって、気が利く？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/comic-scripts/safety-control-basic-yonkoma-01.md](../comic-scripts/safety-control-basic-yonkoma-01.md) — 安全機器があれば安心？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
 
 ## 実装・設定の参照先
 

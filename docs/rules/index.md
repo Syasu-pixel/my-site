@@ -299,6 +299,7 @@
 | [scripts/check-reviewed-navigation-delta.mjs](../../scripts/check-reviewed-navigation-delta.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [tests/donation-main-diff.test.mjs](../../tests/donation-main-diff.test.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [.github/site-shells/additional/reviewed-navigation-deltas.json](../../.github/site-shells/additional/reviewed-navigation-deltas.json) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
+| [.github/workflows/cooling-fan-final-qa.yml](../../.github/workflows/cooling-fan-final-qa.yml) | 冷却ファンの確認専用PRで最終公開候補を検査する場合。本番mainへ統合しない。 正式Pages工程後の4条件画面と画像拡大操作の一時検査。 |
 
 ## 省略表記の参照先
 

@@ -290,6 +290,10 @@
 | [scripts/site-shell-phase.mjs](../../scripts/site-shell-phase.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
 | [tests/select-shell-visual-targets.test.mjs](../../tests/select-shell-visual-targets.test.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
 | [tests/site-shell-phase.browser.mjs](../../tests/site-shell-phase.browser.mjs) | 共通ヘッダー・フッターの撮影・検査・対象在庫を変更または検証する場合。 不変基準、画素位相安定化、在庫分離と正例・負例の検証。閾値緩和は行わない。 |
+| [scripts/integration-image-contract.mjs](../../scripts/integration-image-contract.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
+| [tests/integration-image-contract.test.mjs](../../tests/integration-image-contract.test.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
+| [scripts/integration-evidence-artifacts.mjs](../../scripts/integration-evidence-artifacts.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
+| [tests/integration-evidence-artifacts.test.mjs](../../tests/integration-evidence-artifacts.test.mjs) | 統合確認画像の保存・集約・分割artifactを変更または検証する場合。 画像種類別の完備・重複拒否、分割証拠の全群・hash照合と正負例。画面検査を省略しない。 |
 
 ## 省略表記の参照先
 

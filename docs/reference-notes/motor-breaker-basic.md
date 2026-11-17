@@ -70,3 +70,21 @@
 | overview | `motor-breaker-basic-overview.png` | 1438936 | `3a4349fe875be552c777d6065d080d559dcb9fbb0c3797c08c290fa02cd3cae9` |
 | comparison | `motor-breaker-basic-comparison.png` | 1585492 | `39d1a95f184e3ff2e1b06d0ed44f95aa124406ec5cc817515ffa9bafbb2ca325` |
 | check-flow | `motor-breaker-basic-check-flow.png` | 1413825 | `41f633898a30fb590b2bcae718cc0f2cfc7b0016cf8d224b35b92856fb7b0f81` |
+
+
+## 管理者指摘による画像再制作（2026-11-17）
+- 初回Previewは「他の記事と画像比率が違い、手抜きに見える」との指摘で不採用。旧原寸採点を最終採用根拠として扱わない。
+- 実際にHTMLから参照される採用画像を比較。NFBは約16:9、最新冷却ファンの日付付きWebPは3:2。保存候補の16:9冷却ファンPNGと現採用画像を混同しない。
+- motor内で横長・正方形・縦長が混在し、説明が一般アイコンと文字箱中心になった点、Heroのcontain化でスマホ上の画が小さな帯になった点を是正。
+- 新版5枚は1672×941へ統一。機器の外観・盤内の奥行き・質感を具体化し、役割の短いラベルで補助。Heroの背景4設定はNFBの採用設定に揃えた。引伸ばしや余白足しでなく全図を再生成。
+- 新版原寸独立評価：Hero97、OGP96、overview96、comparison95、check-flow95。これは内部候補採用であり、旧記事同幅との比較・実ページ4条件・拡大・本人最終確認は別途。
+- 技術的に引出線は検出位置、接点拡大は特定型式の内部構造やハンドル位置と誤認させないようcaptionで限定。旧版は履歴として保持し、新版はv2別名。
+
+### 新版原本の同一性
+| 用途 | PNG名 | bytes | SHA-256 |
+|---|---|---:|---|
+| hero | `motor-breaker-basic-hero-v2.png` | 1921223 | `faf7d3ff5b753eee3656a79671ca8aa7e297255098aa93248dce3a88ff784bd9` |
+| overview | `motor-breaker-basic-overview-v2.png` | 1785179 | `a26cc0774907aa2232e4ff50ec0f824ffbd5b21c8cc3d02302e8ab33ff92e512` |
+| comparison | `motor-breaker-basic-comparison-v2.png` | 1781345 | `8d35c6708f69f06155f0c10dd5f14af3daa0fb059088214a3640b5e27a063473` |
+| check-flow | `motor-breaker-basic-check-flow-v2.png` | 1856744 | `9481bc42beed40954ddb8f4fc3327dba647afeb8a0a3cefa8916209282159b5d` |
+| ogp | `motor-breaker-basic-ogp-v2.png` | 1996379 | `9fd283dd25901be7a3f274927a4703ec16571b2a91b1e1645a202a1a2a7d379c` |

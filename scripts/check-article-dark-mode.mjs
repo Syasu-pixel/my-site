@@ -125,7 +125,9 @@ try{
         failures.push({path,width,problems,...audit,screenshot:key});
         console.log('DARK FAIL',path,width,problems.join(' | '));
       }else{
-        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance});
+        const key=path.replaceAll('/','__').replace('.html','')+'--'+width+'--dark-full.png';
+        await page.screenshot({path:resolve(evidence,key),fullPage:true,animations:'disabled'});
+        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance,screenshot:key});
         console.log('DARK PASS',path,width);
       }
     }catch(error){

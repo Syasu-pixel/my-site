@@ -7,6 +7,7 @@ import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { resolve, dirname, extname, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
+import { capturePhaseStableFooter, shellContract } from './site-shell-phase.mjs';
 import { collectShellGeometry } from './site-shell-geometry.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map(s => { const i=s.indexOf('='); return [s.slice(0,i),s.slice(i+1)]; }));
@@ -14,7 +15,7 @@ const phase = args['--phase'];
 if (!['baseline','compare'].includes(phase)) throw Error('Use --phase=baseline or --phase=compare');
 const base = resolve(args['--root'] || '.');
 const out = resolve(args['--out'] || '.visual-evidence');
-const config = JSON.parse(await readFile(new URL('../.github/site-shell-visual.json', import.meta.url), 'utf8'));
+const config = JSON.parse(await readFile(resolve(base,'.github/site-shell-visual.json'), 'utf8'));
 const baseSha = process.env.BASE_SHA || config.baselineCommit; // CI must supply the PR base SHA; legacy pinned commit is only a manual fallback.
 if (!/^[a-f0-9]{40}$/.test(baseSha)) throw Error('Invalid pinned baseline');
 const scope = args['--scope'] || 'all';
@@ -24,9 +25,19 @@ for (const dir of ['articles','en/articles']) for (const name of (await readdir(
   if (name.endsWith('.html')) pages.push(`${dir}/${name}`);
 }
 const selection = args['--targets-file'] ? JSON.parse(await readFile(resolve(args['--targets-file']), 'utf8')) : null;
-const targets = selection?.mode === 'changed-articles'
+const cohort=args['--cohort']||'existing';
+if(!['existing','added'].includes(cohort))throw Error('Invalid comparison cohort');
+const inventorySide=phase==='baseline'&&cohort==='existing'?'base':'head';
+if(selection?.formatVersion===2){
+  const configBytes=await readFile(resolve(base,'.github/site-shell-visual.json'));
+  if(createHash('sha256').update(configBytes).digest('hex')!==selection.configSha256[inventorySide])throw Error('Root config does not match selected commit');
+  if(JSON.stringify([...pages].sort())!==JSON.stringify(selection.inventories[inventorySide]))throw Error('Root inventory does not match selected commit');
+  if(selection.baseSha!==baseSha||selection.headSha!==process.env.HEAD_SHA)throw Error('Selection commit provenance mismatch');
+}
+const targets = selection?.formatVersion===2 ? (cohort==='added'?selection.addedTargets:selection.existingTargets) : selection?.mode === 'changed-articles'
   ? selection.targets
   : scope === 'pilot' ? config.representatives : pages;
+if(!targets.length||targets.some(path=>!pages.includes(path)))throw Error('Invalid or empty capture targets');
 if (selection?.mode === 'changed-articles' && (!Array.isArray(targets) || !targets.length || targets.some(path => !pages.includes(path)))) throw Error('Invalid focused visual targets');
 if (scope==='all' && pages.length!==config.articleCount) throw Error(`Article inventory changed: ${pages.length}; review config explicitly`);
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -37,7 +48,7 @@ if (phase === 'baseline') {
   catch (e) { if(e.code!=='ENOENT') throw e; }
 } else {
   baseline=JSON.parse(await readFile(manifestFile,'utf8'));
-  if(baseline.baseSha!==baseSha || baseline.scope!==scope || JSON.stringify(baseline.targets)!==JSON.stringify(targets)) throw Error('Baseline provenance/coverage mismatch');
+  if(baseline.baseSha!==baseSha || baseline.headSha!==(process.env.HEAD_SHA||'local') || baseline.sourceSha!==(cohort==='added'?(process.env.HEAD_SHA||'local'):baseSha) || baseline.cohort!==cohort || baseline.scope!==scope || JSON.stringify(baseline.targets)!==JSON.stringify(targets)) throw Error('Baseline provenance/coverage mismatch');
 }
 await mkdir(out,{recursive:true});
 const errors=[]; const external=new Set();
@@ -54,9 +65,9 @@ const server=createServer(async(req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch({headless:true});
-const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:3,parallelContexts:4};
+const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:5,parallelContexts:4};
 if(baseline && JSON.stringify(environment)!==JSON.stringify(baseline.environment)) throw Error('Baseline/candidate environments differ');
-const images=[];const results=[];const htmlHashes={};const probes=[];
+const images=[];const results=[];const rawResults=[];const contractDifferences=[];const htmlHashes={};const probes=[];
 try {
   async function captureTarget(target) {
     const body=await readFile(resolve(base,target));htmlHashes[target]=hash(body);
@@ -86,18 +97,52 @@ try {
         const rel=`${phase==='baseline'?'before':'after'}/${key}--${region}.png`;
         await mkdir(dirname(resolve(out,rel)),{recursive:true});
         const geometryBefore=region==='footer'?await collectShellGeometry(page,'footer.site-footer'):null;
-        const bytes=region==='header'
+        let bytes=region==='header'
           ? await page.locator('header.site-header').screenshot({path:resolve(out,rel),animations:'disabled'})
           : region==='footer'
             ? await page.locator('footer.site-footer').screenshot({path:resolve(out,rel),animations:'disabled'})
             : await page.screenshot({path:resolve(out,rel),fullPage,animations:'disabled'});
         const geometryAfter=region==='footer'?await collectShellGeometry(page,'footer.site-footer'):null;
-        images.push({target,device,region,path:rel,sha256:hash(bytes),...(region==='footer'?{geometry:{before:geometryBefore,after:geometryAfter}}:{})});
+        let phaseStable=null, rawBytes=null;
+        if(region==='footer') {
+          rawBytes=bytes;
+          try {
+            phaseStable=await capturePhaseStableFooter(page,{path:resolve(out,rel.replace('.png','--phase.png'))});
+            phaseStable.method='phase-stable';
+          } catch(error) {
+            if(!String(error.message).startsWith('Footer phase capture ineligible:'))throw error;
+            // Ineligible pages retain the ORIGINAL strict pixel comparison. This
+            // is not a tolerated difference: any raw difference still fails.
+            phaseStable={bytes:rawBytes,contract:await shellContract(page,'footer.site-footer'),method:'raw-only',eligibility:{eligible:false,reason:error.message}};
+            await writeFile(resolve(out,rel.replace('.png','--phase.png')),rawBytes);
+          }
+          bytes=phaseStable.bytes;
+        }
+        images.push({target,device,region,path:rel,sha256:hash(rawBytes||bytes),...(region==='footer'?{
+          geometry:{before:geometryBefore,after:geometryAfter},
+          phase:{path:rel.replace('.png','--phase.png'),sha256:hash(bytes),contract:phaseStable.contract,method:phaseStable.method,eligibility:phaseStable.eligibility,translationY:phaseStable.translationY}
+        }:{})});
         if(phase==='compare') {
           const beforePath=rel.replace(/^after\//,'before/');
           const recorded=baseline.images.find(x=>x.path===beforePath);
-          const beforeBytes=await readFile(resolve(out,beforePath));
+          let beforeBytes=await readFile(resolve(out,beforePath));
           if(!recorded || hash(beforeBytes)!==recorded.sha256) throw Error(`Baseline tampered: ${beforePath}`);
+          if(region==='footer') {
+            const rawA=PNG.sync.read(beforeBytes),rawB=PNG.sync.read(rawBytes);
+            const sameSize=rawA.width===rawB.width&&rawA.height===rawB.height;
+            const rawW=Math.max(rawA.width,rawB.width),rawH=Math.max(rawA.height,rawB.height),rawDiff=new PNG({width:rawW,height:rawH});
+            const rawPixels=sameSize?pixelmatch(rawA.data,rawB.data,rawDiff.data,rawW,rawH,{threshold:environment.pixelThreshold,includeAA:environment.includeAntialiasing}):rawW*rawH;
+            if(!sameSize)rawDiff.data.fill(255);
+            const rawDiffPath=`diff/${key}--footer--raw.png`;
+            await mkdir(dirname(resolve(out,rawDiffPath)),{recursive:true});
+            await writeFile(resolve(out,rawDiffPath),PNG.sync.write(rawDiff));
+            rawResults.push({target,device,region,before:beforePath,after:rel,diff:rawDiffPath,pixels:rawPixels,
+              exactPixels:sameSize?pixelmatch(rawA.data,rawB.data,null,rawW,rawH,{threshold:0,includeAA:true}):rawW*rawH});
+            if(!recorded.phase)throw Error('Missing phase-stable baseline evidence');
+            beforeBytes=await readFile(resolve(out,recorded.phase.path));
+            if(hash(beforeBytes)!==recorded.phase.sha256)throw Error('Phase baseline tampered');
+            if(recorded.phase.method!==phaseStable.method||JSON.stringify(recorded.phase.contract)!==JSON.stringify(phaseStable.contract))contractDifferences.push({target,device,region});
+          }
           const a=PNG.sync.read(beforeBytes),b=PNG.sync.read(bytes);
           const w=Math.max(a.width,b.width),h=Math.max(a.height,b.height),diff=new PNG({width:w,height:h});
           let pixels,exactPixels;
@@ -108,7 +153,7 @@ try {
           }
           const diffPath=`diff/${key}--${region}.png`;await mkdir(dirname(resolve(out,diffPath)),{recursive:true});
           await writeFile(resolve(out,diffPath),PNG.sync.write(diff));
-          results.push({target,device,region,before:beforePath,after:rel,diff:diffPath,pixels,exactPixels,width:w,height:h});
+          results.push({target,device,region,before:region==='footer'?recorded.phase.path:beforePath,after:region==='footer'?rel.replace('.png','--phase.png'):rel,diff:diffPath,pixels,exactPixels,width:w,height:h});
         }
       }
       await capture('header');
@@ -143,7 +188,7 @@ try {
   }));
 }finally {await browser.close();await new Promise(r=>server.close(r));}
 probes.sort((a,b)=>(a.target+a.device).localeCompare(b.target+b.device));
-const common={baseSha,headSha:process.env.HEAD_SHA||'local',scope,targets,environment,images,htmlHashes,probes,errors,externalRequestsBlocked:[...external].sort()};
+const common={baseSha,cohort,baselineOrigin:cohort==='added'?'head-before-generation':'immutable-main',sourceSha:phase==='baseline'&&cohort==='existing'?baseSha:process.env.HEAD_SHA||'local',headSha:process.env.HEAD_SHA||'local',scope,targets,environment,images,htmlHashes,probes,errors,externalRequestsBlocked:[...external].sort()};
 if(phase==='baseline') {
   await writeFile(manifestFile,JSON.stringify(common,null,2),{flag:'wx'});
   console.log(`Baseline saved: ${images.length} images. No overwrite permitted.`);
@@ -188,11 +233,11 @@ if(phase==='baseline') {
       return true;
     })();
   }
-  const report={...common,results,differences:differences.length,interactionChanged,newErrors,
+  const report={...common,results,rawResults,contractDifferences,differences:differences.length,interactionChanged,newErrors,
     approvedChange:approvedProfileFooterChange?'sitewide-profile-footer-link':null};
   await writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2));
   const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
-  await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header/footer comparison</title><style>body{font:16px sans-serif;margin:24px}section{border-top:1px solid #999;padding:20px 0}figure{display:inline-block;width:30%;vertical-align:top;margin:1%}img{width:100%}summary{cursor:pointer}</style><h1>Header/footer comparison</h1><p>Base ${esc(baseSha)} / Head ${esc(common.headSha)}</p><p>${targets.length} pages; ${images.length} captures; ${differences.length} image differences. Before/after: same Chromium ${esc(environment.browser)}.</p><p>External requests are blocked identically; inspect report.json for existing console errors and excluded external resources. Do not treat this as a complete content/form/backend audit.</p>${results.map(r=>`<section><details ${r.pixels?'open':''}><summary>${esc(r.target)} — ${r.device} / ${r.region} — ${r.pixels} changed pixels</summary>${['before','after','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r[k]}"><img loading="lazy" src="${r[k]}"></a></figure>`).join('')}</details></section>`).join('')}`);
+  await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header/footer comparison</title><style>body{font:16px sans-serif;margin:24px}section{border-top:1px solid #999;padding:20px 0}figure{display:inline-block;width:30%;vertical-align:top;margin:1%}img{width:100%}summary{cursor:pointer}</style><h1>Header/footer comparison</h1><p>Base ${esc(baseSha)} / Head ${esc(common.headSha)}</p><p>${targets.length} pages; ${images.length} captures; ${differences.length} image differences. Before/after: same Chromium ${esc(environment.browser)}.</p><p>External requests are blocked identically; inspect report.json for existing console errors and excluded external resources. Do not treat this as a complete content/form/backend audit.</p>${[...results,...rawResults.map(r=>({...r,region:r.region+' (raw diagnostic)'}))].map(r=>`<section><details ${r.pixels?'open':''}><summary>${esc(r.target)} — ${r.device} / ${r.region} — ${r.pixels} changed pixels</summary>${['before','after','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r[k]}"><img loading="lazy" src="${r[k]}"></a></figure>`).join('')}</details></section>`).join('')}`);
   console.log(JSON.stringify({pages:targets.length,images:images.length,differences:differences.length,interactionChanged,newErrors:newErrors.length,differenceDetails:differences.map(({target,device,region,pixels,exactPixels,width,height})=>({target,device,region,pixels,exactPixels,width,height}))}));
-  if((differences.length||interactionChanged||newErrors.length)&&!approvedProfileFooterChange)process.exitCode=1;
+  if((differences.length||contractDifferences.length||interactionChanged||newErrors.length)&&!approvedProfileFooterChange)process.exitCode=1;
 }

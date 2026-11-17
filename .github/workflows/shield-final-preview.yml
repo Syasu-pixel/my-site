@@ -15,7 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ref: 6984db97d684628d81e7663589eff5268345eaa0
+        ref: b01c9b18685c66832160d2ef107c3a861edd2a0f
         fetch-depth: 1
     - name: Setup Node for shared shell verification
       uses: actions/setup-node@v4
@@ -108,32 +108,67 @@ jobs:
     - name: Install browser for final publication evidence
       run: pnpm exec playwright install --with-deps chromium
     - name: Capture final publication in four conditions
-      run: "cat > .shield-final-capture.mjs <<'SHIELD_JS'\nimport {chromium} from 'playwright';\nimport fs from 'node:fs';\n\
-        import crypto from 'node:crypto';\nconst origin='http://127.0.0.1:4177',path='articles/shield-grounding-one-end-both-ends.html',out='shield-final-evidence';\n\
-        fs.mkdirSync(out,{recursive:true});\nconst sha=b=>crypto.createHash('sha256').update(b).digest('hex');\nconst source=fs.readFileSync(path),published=fs.readFileSync('_site/'+path);\n\
-        if(sha(source)!=='9c76543c8bf1d7e2979f30011390e3790c718beeed2bfa70ccb0588aa8de8df6')throw Error('Adopted source mismatch');\n\
-        const browser=await chromium.launch({headless:true}),results=[];\ntry{\nfor(const width of [1440,390])for(const theme\
-        \ of ['light','dark']){\n const ctx=await browser.newContext({viewport:{width,height:width===390?844:1000},colorScheme:theme,locale:'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',serviceWorkers:'block'});\n\
-        \ const blocked=[];await ctx.route('**/*',route=>{const req=route.request();if(req.url().startsWith(origin+'/')&&req.method()==='GET')return\
-        \ route.continue();blocked.push({url:req.url(),method:req.method()});return route.abort();});\n const page=await ctx.newPage();const\
-        \ errors=[];page.on('pageerror',e=>errors.push(e.message));\n const res=await page.goto(origin+'/'+path,{waitUntil:'networkidle'});if(!res?.ok())throw\
-        \ Error('HTTP failed');\n await page.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading='eager';await\
-        \ Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});\n await page.waitForFunction(t=>document.documentElement.dataset.dcTheme===t,theme);\n\
-        \ const audit=await page.evaluate(()=>({theme:document.documentElement.dataset.dcTheme,viewport:innerWidth,scroll:document.documentElement.scrollWidth,headers:document.querySelectorAll('header.dc-shell').length,feedback:document.querySelectorAll('#articleFeedbackCard').length,toc:document.querySelectorAll('.dc-toc-button').length,broken:[...document.images].filter(i=>i.getAttribute('src')&&(!i.complete||!i.naturalWidth)).map(i=>i.getAttribute('src')),title:document.title,canonical:document.querySelector('link[rel=canonical]')?.href}));\n\
-        \ if(audit.scroll>width||audit.headers!==1||audit.feedback!==1||audit.toc!==1||audit.broken.length)throw Error(JSON.stringify(audit));\n\
-        \ const name=`${width}-${theme}`;await page.screenshot({path:`${out}/${name}-full.png`,fullPage:true});\n for(const\
-        \ [label,sel] of [['hero','h1'],['examples','#sec3'],['table','table'],['end','#articleFeedbackCard']]){const el=page.locator(sel).first();if(await\
-        \ el.count()){await el.scrollIntoViewIfNeeded();await page.screenshot({path:`${out}/${name}-${label}.png`});}}\n const\
-        \ imgs=page.locator('.article-figure .dc-zoomable-image');let zooms=0;\n for(let i=0;i<await imgs.count();i++){await\
-        \ imgs.nth(i).click();if(!await page.locator('.dc-image-lightbox').isVisible())throw Error('Lightbox did not open');await\
-        \ page.locator('.dc-image-lightbox__close').click();if(await page.locator('.dc-image-lightbox').isVisible())throw\
-        \ Error('Lightbox did not close');zooms++;}\n await page.locator('.dc-toc-button').click();if(!await page.locator('#dc-toc-dialog').evaluate(e=>e.open))throw\
-        \ Error('TOC failed');await page.keyboard.press('Escape');\n results.push({width,theme,audit,zooms,errors,blockedExternalRequests:blocked});await\
-        \ ctx.close();\n}\n}finally{await browser.close();}\nfs.copyFileSync('_site/'+path,out+'/published.html');\nfs.writeFileSync(out+'/manifest.json',JSON.stringify({sourceCommit:'6984db97d684628d81e7663589eff5268345eaa0',sourceSha256:sha(source),publicationSha256:sha(published),workflowCommit:process.env.GITHUB_SHA,externalRequestsBlocked:true,realVotesSent:false,results},null,2));\n\
-        console.log(JSON.stringify(results));\n\nSHIELD_JS\npython3 -m http.server 4177 --bind 127.0.0.1 --directory _site\
-        \ > /tmp/shield-server.log 2>&1 &\nSERVER_PID=$!\ntrap 'kill \"$SERVER_PID\" || true' EXIT\nfor i in $(seq 1 30);\
-        \ do curl -fsS http://127.0.0.1:4177/articles/shield-grounding-one-end-both-ends.html >/dev/null && break; sleep 1;\
-        \ done\nnode .shield-final-capture.mjs\n"
+      run: 'cat > .shield-final-capture.mjs <<''SHIELD_JS''
+
+        import {chromium} from ''playwright'';import fs from ''node:fs'';import crypto from ''node:crypto'';
+
+        const origin=''http://127.0.0.1:4177'',out=''shield-final-evidence'',slug=''shield-grounding-one-end-both-ends'',article=''articles/''+slug+''.html'';fs.mkdirSync(out,{recursive:true});const
+        sha=b=>crypto.createHash(''sha256'').update(b).digest(''hex'');
+
+        if(sha(fs.readFileSync(article))!==''9c76543c8bf1d7e2979f30011390e3790c718beeed2bfa70ccb0588aa8de8df6'')throw Error(''Adopted
+        article changed'');
+
+        const browser=await chromium.launch({headless:true}),results=[],files={};
+
+        try{for(const path of [''index.html'',''categories/control-basics.html'',article]){
+
+        files[path]={sourceSHA256:sha(fs.readFileSync(path)),publishedSHA256:sha(fs.readFileSync(''_site/''+path))};fs.copyFileSync(''_site/''+path,out+''/''+path.replaceAll(''/'',''__''));
+
+        for(const width of [1440,390])for(const theme of [''light'',''dark'']){
+
+        const ctx=await browser.newContext({viewport:{width,height:width===390?844:1000},colorScheme:theme,locale:''ja-JP'',timezoneId:''Asia/Tokyo'',reducedMotion:''reduce'',serviceWorkers:''block''});let
+        blocked=0;await ctx.route(''**/*'',r=>{if(r.request().url().startsWith(origin+''/'')&&r.request().method()===''GET'')return
+        r.continue();blocked++;return r.abort()});
+
+        const page=await ctx.newPage(),errors=[];page.on(''pageerror'',e=>errors.push(e.message));const res=await page.goto(origin+''/''+path,{waitUntil:''networkidle''});if(!res?.ok())throw
+        Error(''HTTP failed'');await page.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading=''eager'';await
+        Promise.all([...document.images].map(i=>i.decode().catch(()=>{})))});await page.waitForFunction(t=>document.documentElement.dataset.dcTheme===t,theme);
+
+        const audit=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,headers:document.querySelectorAll(''header.dc-shell'').length,broken:[...document.images].filter(i=>i.getAttribute(''src'')&&(!i.complete||!i.naturalWidth)).map(i=>i.getAttribute(''src''))}));if(audit.scroll>width||audit.headers!==1||audit.broken.length||errors.length)throw
+        Error(JSON.stringify({audit,errors}));
+
+        const prefix=path.replaceAll(''/'',''__'')+''--''+width+''--''+theme;await page.screenshot({path:out+''/''+prefix+''--full.png'',fullPage:true});
+
+        const target=path===''index.html''?''#new'':path.startsWith(''categories/'')?''a.article-row[href="../''+article+''"]'':''h1'';await
+        page.locator(target).first().scrollIntoViewIfNeeded();await page.screenshot({path:out+''/''+prefix+''--target.png''});
+
+        if(path===''index.html''){if(await page.locator(''#new li'').count()!==7)throw Error(''Latest count'');if(await page.locator(''#new
+        a'').first().getAttribute(''href'')!==article)throw Error(''Latest new link'');}
+
+        if(path.startsWith(''categories/'')){if(await page.locator(target).count()!==1)throw Error(''Category duplicate'');}
+
+        await page.locator(''footer'').scrollIntoViewIfNeeded();await page.screenshot({path:out+''/''+prefix+''--footer.png''});results.push({path,width,theme,audit,errors,blocked});await
+        ctx.close();
+
+        }}finally{await browser.close()}
+
+        fs.writeFileSync(out+''/manifest.json'',JSON.stringify({sourceCommit:''b01c9b18685c66832160d2ef107c3a861edd2a0f'',workflowCommit:process.env.GITHUB_SHA,files,results,noRealVotes:true,externalRequestsBlocked:true},null,2));console.log(JSON.stringify(results));
+
+
+        SHIELD_JS
+
+        python3 -m http.server 4177 --bind 127.0.0.1 --directory _site > /tmp/shield-server.log 2>&1 &
+
+        SERVER_PID=$!
+
+        trap ''kill "$SERVER_PID" || true'' EXIT
+
+        for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4177/articles/shield-grounding-one-end-both-ends.html >/dev/null
+        && break; sleep 1; done
+
+        node .shield-final-capture.mjs
+
+        '
     - name: Upload final publication evidence
       if: always()
       uses: actions/upload-artifact@v4

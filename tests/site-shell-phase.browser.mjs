@@ -135,7 +135,7 @@ test('complete visual audit rejects defects and preserves the positive control',
  const shadowCSS='main{margin-bottom:48px;box-shadow:0 48px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
  await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125,shadowCSS));
  const shadowBase=run('baseline',base,shadowOut);assert.equal(shadowBase.status,0,shadowBase.stderr+shadowBase.stdout);
- for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 48px 30px rgba(255,0,0,.8)}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
+ for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 48px 30px rgba(255,0,0,.8)}'],['shadow radius','main{border-radius:24px}'],['shadow width','main{width:calc(100% - 4px)}'],['shadow horizontal position','main{position:relative;left:2px}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
    await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,shadowCSS+change));
    const result=run('compare',head,shadowOut);receipts.push({name,status:result.status,audit:result.audit,stdout:result.stdout,stderr:result.stderr});
    await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
@@ -155,6 +155,9 @@ test('complete visual audit rejects defects and preserves the positive control',
  const stickyReport=JSON.parse(await readFile(join(stickyOut,'report.json'),'utf8'));
  const stickyFooters=stickyReport.images.filter(x=>x.region==='footer');
  assert.equal(stickyFooters.length,2);
+ assert.ok(stickyHead.audit,'sticky fallback must produce a comparison report');
+ assert.ok(stickyReport.differences>0,'raw fallback must retain the fixture subpixel difference');
+ assert.ok(Number.isInteger(stickyHead.status)&&stickyHead.status!==0,'raw fallback differences must fail the actual CLI');
  for(const image of stickyFooters){assert.equal(image.phase.method,'raw-only');assert.match(image.phase.eligibility.reason,/normal flow did not move by exact dy/);}
  receipts.push({name:'nontracking sticky preserves raw comparison',status:stickyHead.status,methods:stickyFooters.map(x=>({device:x.device,method:x.phase.method,reason:x.phase.eligibility.reason})),audit:stickyHead.audit,stdout:stickyHead.stdout,stderr:stickyHead.stderr});
  await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));

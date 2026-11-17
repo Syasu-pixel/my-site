@@ -183,7 +183,7 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
 async function snapshotScene(page) {
   return page.evaluateHandle(()=>[...document.querySelectorAll('*')].map(element=>{
     const s=getComputedStyle(element),r=element.getBoundingClientRect();
-    return {element,style:Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),rect:{x:r.x+scrollX,y:r.y+scrollY,vx:r.x,vy:r.y,width:r.width,height:r.height},hasBox:element.getClientRects().length>0};
+    return {element,text:element.textContent,style:Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),rect:{x:r.x+scrollX,y:r.y+scrollY,vx:r.x,vy:r.y,width:r.width,height:r.height},hasBox:element.getClientRects().length>0};
   }));
 }
 async function verifyScene(page,scene,dy) {
@@ -192,6 +192,7 @@ async function verifyScene(page,scene,dy) {
     if(document.querySelectorAll('*').length!==scene.length)return ['DOM inventory changed'];
     for(const old of scene){
       const e=old.element;if(!e.isConnected){issues.push('Element removed');continue;}
+      if(e.textContent!==old.text)issues.push(e.tagName+' text changed');
       const s=getComputedStyle(e),now=Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k)])),prior={...old.style};
       const ancestor=e===document.body||e===document.documentElement;
       if(ancestor)for(const k of ['height','block-size','transform-origin','perspective-origin']){delete now[k];delete prior[k];}
@@ -234,6 +235,7 @@ export async function capturePhaseStableFooter(page, options={}) {
     if(sceneIssues.length)throw Error('Page paint changed: '+sceneIssues.join('; '));
     await assertIndependentFooter(page,selector);
     const shifted=await shellContract(page,selector);
+    if(shifted.html!==original.html)throw Error('Footer DOM changed during capture');
     if(shifted.width!==original.width||shifted.height!==original.height||JSON.stringify(shifted.nodes.map(n=>n.rect))!==JSON.stringify(original.nodes.map(n=>n.rect)))throw Error('Phase stabilization changed footer layout');
     for(let i=0;i<original.nodes.length;i++)for(const kind of ['style','before','after']){
       const a={...original.nodes[i][kind]},b={...shifted.nodes[i][kind]};

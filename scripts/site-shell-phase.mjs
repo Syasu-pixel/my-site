@@ -179,7 +179,7 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
           // permitted dy, with unchanged styles/sizes, in verifyScene below.
           // Only shadow overlap is eligible; its real border box must be outside.
           const shadowOnly=!intersects(r)&&box>0&&text===0&&outline===0&&!(parseFloat(s.webkitTextStrokeWidth)||0)&&e instanceof HTMLElement&&normalFlow(e);
-          if(shadowOnly)flowShadows.push({element:label(e),boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,width:r.width,height:r.height}});
+          if(shadowOnly)flowShadows.push({element:label(e),boxShadow:s.boxShadow,borderRadius:s.borderRadius,width:r.width,relativeLeft:r.left-original.left,bottomGap:original.top-r.bottom,rect:{x:r.x,y:r.y,width:r.width,height:r.height}});
           else issues.push({kind:'external-paint-overlap',element:label(e)});
           break;
         }
@@ -276,5 +276,5 @@ export async function capturePhaseStableFooter(page, options={}) {
   const restored=await shellContract(page,selector);
   if(JSON.stringify(original)!==JSON.stringify(restored)) throw Error('Footer capture changed original contract');
   if(failure)throw Error('Footer phase capture ineligible: '+failure.message);
-  return {bytes,contract:original,translationY:saved.dy,eligibility};
+  return {bytes,contract:{...original,flowShadows:eligibility.flowShadows.map(({rect,...paint})=>paint)},translationY:saved.dy,eligibility};
 }

@@ -53,14 +53,23 @@ for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-l
  }
  const independentHeader=await capture(6809.5,'header{position:fixed;z-index:999;top:0;height:30px}header::after{content:"";position:absolute;width:7px;height:2px;right:-5px;bottom:-2px;transform:rotate(45deg)}',()=>{const e=document.createElement('header');e.textContent='Header';document.body.prepend(e)});
  assert.equal(pixels(before.bytes,independentHeader.bytes),0,'bounded external pseudo cannot reach footer paint');
- const shadowCSS='main{margin-bottom:48px;box-shadow:0 12px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
+ const weakCSS='main{margin-bottom:48px;box-shadow:0 12px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
+ const weakA=await capture(6809.5,weakCSS),weakB=await capture(6809.5,weakCSS+'main{box-shadow:0 12px 30px rgba(255,0,0,.8)}');
+ const weakReceipt={rawPixels:pixels(weakA.raw,weakB.raw),stablePixels:pixels(weakA.bytes,weakB.bytes),contractChanged:JSON.stringify(weakA.contract)!==JSON.stringify(weakB.contract)};
+ for(const [label,c] of [['gray',weakA],['red',weakB]]){await writeFile(`.visual-phase-tests/${width}-weak-shadow-${label}-raw.png`,c.raw);await writeFile(`.visual-phase-tests/${width}-weak-shadow-${label}-stable.png`,c.bytes);}
+ await writeFile(`.visual-phase-tests/${width}-weak-shadow.json`,JSON.stringify(weakReceipt,null,2));
+ assert.ok(weakReceipt.contractChanged,'near-footer shadow color contract must preserve even weak paint changes');
+ assert.ok(weakReceipt.rawPixels===0||weakReceipt.stablePixels>0||weakReceipt.contractChanged,'a real raw shadow difference must not escape both gates');
+ const shadowCSS='main{margin-bottom:48px;box-shadow:0 48px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
  const shadowBefore=await capture(8219.8125,shadowCSS),shadowAfter=await capture(6809.5,shadowCSS);
  assert.equal(pixels(shadowBefore.bytes,shadowAfter.bytes),0,'flow shadow remains in equal comparison images');
  assert.ok(shadowAfter.eligibility.flowShadows.length,'shadow guard must record its proof scope');
- const coloredShadow=await capture(6809.5,shadowCSS+'main{box-shadow:0 12px 30px rgba(255,0,0,.8)}');
- assert.notEqual(pixels(shadowBefore.bytes,coloredShadow.bytes),0,'changed shadow paint must not be masked');
+ const coloredShadow=await capture(6809.5,shadowCSS+'main{box-shadow:0 48px 30px rgba(255,0,0,.8)}');
+ for(const [label,c] of [['gray',shadowAfter],['red',coloredShadow]]){await writeFile(`.visual-phase-tests/${width}-visible-shadow-${label}-raw.png`,c.raw);await writeFile(`.visual-phase-tests/${width}-visible-shadow-${label}-stable.png`,c.bytes);}
+ assert.notEqual(pixels(shadowAfter.raw,coloredShadow.raw),0,'negative fixture must have a visible same-height raw color difference');
+ assert.notEqual(pixels(shadowAfter.bytes,coloredShadow.bytes),0,'visible shadow paint must not be masked');
  await assert.rejects(capture(6809.5,'',()=>{
-   const e=document.createElement('div');e.style.cssText='position:sticky;top:780px;height:20px;box-shadow:0 12px 30px rgba(0,0,0,.8)';document.body.insertBefore(e,document.querySelector('main'));
+   const e=document.createElement('div');e.style.cssText='position:sticky;top:780px;height:20px;box-shadow:0 48px 30px rgba(0,0,0,.8)';document.body.insertBefore(e,document.querySelector('main'));
  }),/normal flow did not move by exact dy/,'nontracking sticky must be rejected by the translation proof');
  await page.close();
 });
@@ -104,6 +113,7 @@ test('complete visual audit rejects defects and preserves the positive control',
    await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,css,replace));
    const result=run('compare',head);receipts.push({name,status:result.status,signal:result.signal,audit:result.audit,stdout:result.stdout,stderr:result.stderr});
    await mkdir('.visual-phase-tests',{recursive:true});await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   await cp(out,'.visual-phase-tests/cases/'+name.replace(/[^a-z0-9]+/gi,'-'),{recursive:true});
    assert.ok(result.audit,name+' must produce an actual comparison report');
    if(name==='positive')assert.equal(result.status,0,result.stderr+result.stdout);
    else assert.ok(Number.isInteger(result.status)&&result.status!==0,`${name} must fail the real CLI gate: ${result.stdout}`);
@@ -122,20 +132,21 @@ test('complete visual audit rejects defects and preserves the positive control',
  assert.ok(Number.isInteger(paintHead.status)&&paintHead.status!==0,'ancestor paint regression must fail real CLI');
  await cp(paintOut,'.visual-phase-tests/ancestor-paint-evidence',{recursive:true});
  const shadowOut=join(dir,'flow-shadow');
- const shadowCSS='main{margin-bottom:48px;box-shadow:0 12px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
+ const shadowCSS='main{margin-bottom:48px;box-shadow:0 48px 30px rgba(0,0,0,.8)}footer{background:transparent}body{background:white}';
  await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125,shadowCSS));
  const shadowBase=run('baseline',base,shadowOut);assert.equal(shadowBase.status,0,shadowBase.stderr+shadowBase.stdout);
- for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 12px 30px rgba(255,0,0,.8)}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
+ for(const [name,change] of [['shadow positive',''],['shadow color','main{box-shadow:0 48px 30px rgba(255,0,0,.8)}'],['shadow position','main{position:relative;top:1px}'],['shadow real overlap','main{margin-bottom:-10px}']]){
    await writeFile(join(head,'articles/fixture.html'),fixture(6809.5,shadowCSS+change));
    const result=run('compare',head,shadowOut);receipts.push({name,status:result.status,audit:result.audit,stdout:result.stdout,stderr:result.stderr});
    await writeFile('.visual-phase-tests/cli-results.json',JSON.stringify(receipts,null,2));
+   await cp(shadowOut,'.visual-phase-tests/cases/'+name.replace(/[^a-z0-9]+/gi,'-'),{recursive:true});
    assert.ok(result.audit,name+' must produce an actual comparison report');
    if(name==='shadow positive')assert.equal(result.status,0,result.stderr+result.stdout);
    else assert.ok(Number.isInteger(result.status)&&result.status!==0,name+' must fail real CLI');
  }
  await cp(shadowOut,'.visual-phase-tests/flow-shadow-evidence',{recursive:true});
  const stickyOut=join(dir,'nontracking-sticky');
- const stickyMarkup='<div style="position:sticky;top:780px;height:20px;box-shadow:0 12px 30px rgba(0,0,0,.8)"></div><main>';
+ const stickyMarkup='<div style="position:sticky;top:780px;height:20px;box-shadow:0 48px 30px rgba(0,0,0,.8)"></div><main>';
  await writeFile(join(base,'articles/fixture.html'),fixture(8219.8125).replace('<main>',stickyMarkup));
  await writeFile(join(head,'articles/fixture.html'),fixture(6809.5).replace('<main>',stickyMarkup));
  const stickyBase=run('baseline',base,stickyOut);assert.equal(stickyBase.status,0,stickyBase.stderr+stickyBase.stdout);

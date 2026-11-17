@@ -203,6 +203,7 @@
 | [docs/comic-scripts/series-parallel-circuit-basic-yonkoma-01.md](../comic-scripts/series-parallel-circuit-basic-yonkoma-01.md) — 直列と並列の違い 四コマ漫画 01 | 直列・並列回路の四コマ採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/plc-basic-yonkoma-01.md](../comic-scripts/plc-basic-yonkoma-01.md) — PLCって、気が利く？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/safety-control-basic-yonkoma-01.md](../comic-scripts/safety-control-basic-yonkoma-01.md) — 安全機器があれば安心？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
+| [docs/reference-notes/iai-robocylinder-basic.md](../reference-notes/iai-robocylinder-basic.md) — iai-robocylinder-basic 公式参照メモ | IAIロボシリンダー記事の一次資料、機種別適用範囲、画像採用、変更前基準を確認するとき。公開完了や全ルール読了の証明には使用しない。 |
 
 ## 実装・設定の参照先
 

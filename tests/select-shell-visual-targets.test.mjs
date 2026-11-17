@@ -15,7 +15,7 @@ function trial(changes, {baseConfig=config(), dirty={}}={}) {
     mkdirSync(dirname(join(root,p)),{recursive:true});writeFileSync(join(root,p),v);
   };
   try {
-    put(configPath,baseConfig);put('articles/first.html','initial first');put('articles/second.html','initial second');
+    put('.github/article-components/integration.json', JSON.stringify({targets:['articles/first.html','articles/second.html']}));put(configPath,baseConfig);put('articles/first.html','initial first');put('articles/second.html','initial second');
     git(root,'init','-q');git(root,'config','user.email','ci@example.invalid');git(root,'config','user.name','CI');
     git(root,'add','.');git(root,'commit','-qm','base');
     const base=git(root,'rev-parse','HEAD');

@@ -2,6 +2,7 @@
 import {readFile,writeFile,mkdir,readdir,lstat,copyFile} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {createHash} from 'node:crypto';import {resolve,dirname} from 'node:path';import {fileURLToPath} from 'node:url';
+import {loadIntegrationScope} from './integration-review-scope.mjs';
 import {validateIntegrationImages} from './integration-image-contract.mjs';
 const GROUPS=['normal','light','dark'];
 export const MAX_GROUP_BYTES=480*1024*1024; // Raw-byte cap leaves room under the 512 MiB ZIP transport ceiling.
@@ -124,7 +125,8 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
     const config=JSON.parse(await readFile('.github/article-components/integration.json','utf8'));
     const build=mode==='assemble'?resolve(arg):resolve(root),shards=Number(mode==='assemble'?count||6:arg||6);
     if(mode==='assemble')await assembleEvidence(resolve(root),build,shards);
-    const result=await verifyEvidence(build,config.targets||config.representatives,shards);
+    const scope=await loadIntegrationScope(config);
+    const result=await verifyEvidence(build,scope.targets,shards);
     await writeFile(resolve(build,'evidence-artifact-checks.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
   }else throw Error('Use stage BUILD STAGING, verify BUILD SHARDS, or assemble DOWNLOADS BUILD SHARDS');
 }

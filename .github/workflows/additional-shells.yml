@@ -6,15 +6,25 @@ on:
       - '.github/workflows/additional-shells.yml'
       - '.github/workflows/pages.yml'
       - 'scripts/*additional-shell*'
+      - 'scripts/report-article-impact.mjs'
+      - 'tests/article-impact.test.mjs'
       - 'scripts/*publication*'
+      - 'assets/images/**'
+      - 'assets/css/**'
+      - 'assets/js/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - 'index.html'
       - 'en/index.html'
-      - 'categories/career.html'
+      - 'categories/**'
+      - 'en/categories/**'
       - 'services/gxworks2-online-support.html'
       - 'contact/index.html'
       - 'en/contact/index.html'
       - 'privacy-policy/index.html'
       - 'en/privacy-policy/index.html'
+  schedule:
+    - cron: '35 19 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,26 +37,46 @@ jobs:
       REVIEW_BEFORE_PORT: '8791'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
+      - name: Select semantic article impact
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          FULL_ARTICLE_AUDIT: ${{ github.event_name != 'pull_request' && '1' || '0' }}
+        run: |
+          node scripts/report-article-impact.mjs "$BASE_SHA" HEAD "$RUNNER_TEMP/article-impact.json"
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/article-impact.json"));fs.appendFileSync(process.env.GITHUB_OUTPUT,"full="+(r.scope==="all"||r.categoryConsumers.length>0)+"\n")'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: additional-shell-impact
+          path: ${{ runner.temp }}/article-impact.json
       - uses: pnpm/action-setup@v4
+        if: steps.scope.outputs.full == 'true'
         with:
           version: 11.19.0
-      - run: pnpm install --frozen-lockfile --ignore-scripts
-      - run: pnpm exec playwright install --with-deps chromium
+      - if: steps.scope.outputs.full == 'true'
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - if: steps.scope.outputs.full == 'true'
+        run: pnpm exec playwright install --with-deps chromium
       - name: Generate accepted preview and verify shared regeneration
+        if: steps.scope.outputs.full == 'true'
         run: |
           node scripts/build-additional-shells.mjs "${RUNNER_TEMP}/additional-shells"
           node scripts/check-additional-shell-regeneration.mjs "${RUNNER_TEMP}/additional-shells"
       - name: Compare registered pages at four widths without sending
+        if: steps.scope.outputs.full == 'true'
         run: |
           node scripts/serve-integrated-review.mjs "${RUNNER_TEMP}/additional-shells" > "${RUNNER_TEMP}/additional-shells/server.log" 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" || true' EXIT
           node scripts/check-additional-shell-browser.mjs "${RUNNER_TEMP}/additional-shells"
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.scope.outputs.full == 'true'
         with:
           name: additional-shells-${{ github.run_id }}
           path: ${{ runner.temp }}/additional-shells/

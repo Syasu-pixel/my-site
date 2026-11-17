@@ -34,3 +34,16 @@ test('dark coverage is separate and exact',()=>{assert.equal(validateDarkReports
 test('raw group size contract stays below ZIP transport ceiling',()=>assert.ok(MAX_GROUP_BYTES<512*1024*1024));
 test('declared duplicate across groups is rejected before overwrite',()=>trial(async f=>{const dir=join(f.downloads,'integrated-shard-0-dark-123'),receipt=join(dir,'evidence-shard-0-dark-receipt.json'),r=JSON.parse(await readFile(receipt));const source=join(f.downloads,'integrated-shard-0-light-123'),light=JSON.parse(await readFile(join(source,'evidence-shard-0-light-receipt.json'))),entry=light.files[0];r.files.push(entry);await writeFile(receipt,JSON.stringify(r));await cp(join(source,entry.path),join(dir,entry.path));await assert.rejects(assembleEvidence(f.downloads,f.output,1),/Duplicate payload/);}));
 test('declared over-limit group is rejected independently of payload hashes',()=>trial(async f=>{await assembleEvidence(f.downloads,f.output,1);const {createHash}=await import('node:crypto'),p=join(f.output,'evidence-shard-0-manifest.json'),m=JSON.parse(await readFile(p));m.files.find(x=>x.group==='light').size=MAX_GROUP_BYTES;const bytes=Buffer.from(JSON.stringify(m));await writeFile(p,bytes);for(const g of ['normal','light','dark']){const q=join(f.output,`evidence-shard-0-${g}-receipt.json`),r=JSON.parse(await readFile(q));r.manifestSha256=createHash('sha256').update(bytes).digest('hex');r.files=m.files.filter(x=>x.group===g);await writeFile(q,JSON.stringify(r));}await assert.rejects(verifyEvidence(f.output,targets,1),/size contract/);}));
+
+test('CLI assembly honors selected scope while preserving exact evidence validation',()=>trial(async f=>{
+ const {spawnSync}=await import('node:child_process');
+ const script=join(process.cwd(),'scripts/integration-evidence-artifacts.mjs');
+ await mkdir(join(f.temp,'.github/article-components'),{recursive:true});
+ await writeFile(join(f.temp,'.github/article-components/integration.json'),JSON.stringify({targets:[...targets,'articles/b.html']}));
+ const impact=join(f.temp,'impact.json');await writeFile(impact,JSON.stringify({scope:'selected',affectedTargets:targets}));
+ const result=spawnSync(process.execPath,[script,'assemble',f.downloads,f.output,'1'],{cwd:f.temp,encoding:'utf8',env:{...process.env,ARTICLE_IMPACT_FILE:impact}});
+ assert.equal(result.status,0,result.stderr);
+ assert.equal(JSON.parse(await readFile(join(f.output,'evidence-artifact-checks.json'))).screenshots,24);
+ const full=spawnSync(process.execPath,[script,'verify',f.output,'1'],{cwd:f.temp,encoding:'utf8',env:{...process.env,ARTICLE_IMPACT_FILE:''}});
+ assert.notEqual(full.status,0,'same reduced evidence must not pass as all articles');
+}));

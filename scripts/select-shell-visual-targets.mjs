@@ -1,6 +1,7 @@
 // Conservative PR visual scope and independently verified commit inventories.
 // Added pages have no main baseline: callers must capture their head source BEFORE
 // generation, separately from the immutable base of every existing article.
+import {articleImpact} from './report-article-impact.mjs';
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -47,9 +48,11 @@ if (entries.some(([status,...paths]) => status.startsWith('R') && paths.some(pat
   throw Error('Article rename requires an explicit migration audit');
 }
 const changed = [...new Set(entries.flatMap(parts => parts.slice(1)))].sort();
-const onlyArticleHtml = entries.length > 0 && entries.every(([status,file]) => status === 'M' && article.test(file) && before.pages.includes(file) && after.pages.includes(file));
-const mode = onlyArticleHtml ? 'changed-articles' : 'all';
-const existingTargets = mode === 'all' ? before.pages : changed;
+const impact = articleImpact(baseSha,headSha);
+// Keep the independently verified shell inventory as the upper bound.
+const focused = impact.scope === 'selected' && !addedTargets.length && impact.affectedTargets.every(path => before.pages.includes(path) && after.pages.includes(path));
+const mode = focused ? 'changed-articles' : 'all';
+const existingTargets = focused ? impact.affectedTargets : before.pages;
 const result = {
   formatVersion:2, baseSha, headSha, mode,
   targets:mode==='all'?null:existingTargets,
@@ -59,7 +62,7 @@ const result = {
   existingTargets, addedTargets, removedTargets,
   additionBaseline:addedTargets.length?'head-before-generation':null,
   changed,
-  reason:mode==='all'?'Shared, non-article, addition, or unrecognized changes require full existing-article audit plus separate added-page verification':'Only existing article HTML changed'
+  reason:focused?impact.reason:'Full existing-article audit plus separate added-page verification: '+impact.reason
 };
 writeFileSync(output, JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify(result));

@@ -18,7 +18,10 @@ for(const width of [390,1440])test(`fixed overlay stays visible and guarded at $
  const changed=await capture(9101.765625,css);assert.notDeepEqual(changed.contract,a.contract,css);
  }
  for(const [css,mutate] of [['',()=>document.querySelector('button').textContent='Different'],['',()=>document.querySelector('footer p').textContent='Changed']])assert.notDeepEqual((await capture(9101.765625,css,mutate)).contract,a.contract);
- for(const css of ['button{transform:translateY(1px)}','button{filter:blur(1px)}','button::before{content:"x"}','button{position:absolute}','button{width:1px;height:1px;padding:0;font-size:40px;white-space:nowrap;overflow:visible}'])await assert.rejects(capture(9101.765625,css),undefined,css);
+ for(const css of ['html{filter:blur(1px)}','body{zoom:1.1}','button{transform:translateY(1px)}','button{filter:blur(1px)}','button::before{content:"x"}','button{position:absolute}','button{width:1px;height:1px;padding:0;font-size:40px;white-space:nowrap;overflow:visible}'])await assert.rejects(capture(9101.765625,css),undefined,css);
  await assert.rejects(capture(9101.765625,'',()=>{let e=document.createElement('div');e.style='position:fixed;bottom:0;width:100%;height:30px;background:red;pointer-events:none';document.body.append(e)}));
+ await assert.rejects(capture(9101.765625,'button{visibility:hidden}'));
+ await assert.rejects(capture(9101.765625,'',()=>{const b=document.querySelector('button');const wrapper=document.createElement('div');b.before(wrapper);wrapper.append(b)}));
+ await assert.rejects(capture(9101.765625,'',()=>{const e=document.createElement('iframe');e.style='position:fixed;bottom:0;width:100%;height:30px';document.body.append(e)}));
  await page.close();
 });

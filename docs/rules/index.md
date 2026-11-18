@@ -138,6 +138,7 @@
 | [docs/reference-notes/input-output-basic.md](../reference-notes/input-output-basic.md) — 入力と出力 公式参照メモ | articles/input-output-basic.html の技術内容・採用原稿・公開を確認する。 |
 | [docs/reference-notes/shield-grounding-one-end-both-ends.md](../reference-notes/shield-grounding-one-end-both-ends.md) — シールド線の片端・両端接地 参照記録 | シールド線の片端・両端接地記事の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/motor-breaker-basic.md](../reference-notes/motor-breaker-basic.md) — モーターブレーカ記事 公式参照・更新メモ | モーターブレーカ記事の技術内容・画像・更新・Previewを扱う。 |
+| [docs/reference-notes/lan-checker.md](../reference-notes/lan-checker.md) — LANチェッカー記事の参照・制作記録 | LANチェッカー記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考
 

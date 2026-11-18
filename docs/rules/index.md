@@ -111,6 +111,7 @@
 | [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |
 | [docs/reference-notes/forward-reverse-circuit-basic.md](../reference-notes/forward-reverse-circuit-basic.md) — 正転・逆転回路：刷新参照メモ | 正転・逆転回路記事の本文・画像・技術参照元を更新・検査する。未公開の改稿記録であり公開承認ではない。 |
 | [docs/reference-notes/input-output-basic.md](../reference-notes/input-output-basic.md) — 入力と出力 公式参照メモ | articles/input-output-basic.html の技術内容・採用原稿・公開を確認する。 |
+| [docs/reference-notes/lan-checker.md](../reference-notes/lan-checker.md) — LANチェッカー記事の参照・制作記録 | LANチェッカー記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/motor-breaker-basic.md](../reference-notes/motor-breaker-basic.md) — モーターブレーカ記事 公式参照・更新メモ | モーターブレーカ記事の技術内容・画像・更新・Previewを扱う。 |

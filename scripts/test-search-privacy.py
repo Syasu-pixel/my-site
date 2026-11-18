@@ -27,6 +27,23 @@ class GuardTests(unittest.TestCase):
         self.assertTrue(guard.findings('７３１' + 'クリック'))
         self.assertTrue(guard.findings('clicks' + ': ' + '&#55;&#51;&#49;'))
 
+    def test_japanese_particles_context_zero_and_renamed_export(self):
+        for text in ('Googleのクリック数は ', '表示回数は ', 'Google 表示 ', 'Googleの平均順位 '):
+            self.assertTrue(guard.findings(text + str(731)))
+        self.assertTrue(guard.findings(invented(value=0)))
+        body = 'Grounding Query,Intent,Topic,Citations,Citation Share\n'
+        body += ','.join(['fiction', 'intent', 'topic', str(731), str(12) + '%'])
+        self.assertTrue(guard.inspect_bytes(body.encode(), 'renamed.csv'))
+
+    def test_review_regressions(self):
+        self.assertTrue(guard.findings('Google ' + str(731) + '表示。'))
+        self.assertTrue(guard.findings('検索実績：平均順位は' + str(7) + '位'))
+        self.assertTrue(guard.findings('平均掲載順位 約' + str(7)))
+        self.assertTrue(guard.findings('検索実績\n期間|表示\n架空期間|' + str(731)))
+        body = '{"clicks":\n' + str(731) + '}'
+        self.assertTrue(guard.findings(body))
+        self.assertTrue(guard.findings(json.dumps({'nested': [dict([("impressions", 0)])]}, indent=2)))
+
     def test_json_and_csv_markdown_tsv(self):
         self.assertTrue(guard.findings(json.dumps(dict([("clicks", 731)]))))
         for delim in (',', '\t', '|'):

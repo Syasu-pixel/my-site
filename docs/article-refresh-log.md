@@ -82,7 +82,7 @@
 | `iai-robocylinder-basic` | 刷新main反映・本番確認済み | 2026-11-18 | HTML表示なし（採用・公開日と区別） | 2026-11-17 | [PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)・本書の個別履歴 | 完成・凍結。保守的に公開11-18から90日未満は除外、最短再評価2027-02-16。IndexNow HTTP200、Google登録リクエストは11-18に本人実施申告・検索反映未確認。 |
 | `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
-| `lan-checker` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。footer CI FAILは個別判定のまま保持。IndexNow HTTP200受理、Google登録リクエスト未実施・検索反映未確認。 |
+| `lan-checker` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。footer CI FAILは個別判定のまま保持。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人提供画面で実施済みを確認・検索反映未確認。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -827,5 +827,5 @@
 - 既存課題の分離: mobileの固定上戻りボタンと開示末尾の重なり、共通Amazon自動追加リンクとストアカードのrel属性不足は変更前にも存在し、今回の削除・新規回帰とは区別して別課題とする。静的Amazonリンク7個・収益開示とfooter全文は変更前と一致。
 - 日付: 最終内容更新日・公式資料確認日はHTMLに2026-11-18と別々に表示。公開確認日と同日だが意味を区別する。参照メモやPR本文に残る公開前状態は制作時点の履歴であり、現在の公開状態は本記録を参照。
 - 導線: 既存URLを維持。本番/mainの日本語sitemap175 URL・重複0・対象1件を記録担当が照合。記事刷新を新規公開として重複加算しない。
-- 通知: [IndexNow run 44215774776](https://github.com/Syasu-pixel/my-site/actions/runs/44215774776)で対象1URLを2026-11-18T01:26:48ZにHTTP200受理。Google登録リクエストは未実施、検索インデックス完了は未確認。
+- 通知: [IndexNow run 44215774776](https://github.com/Syasu-pixel/my-site/actions/runs/44215774776)で対象1URLを2026-11-18T01:26:48ZにHTTP200受理。公開確認時点ではGoogle登録リクエスト未実施。その後2026-11-18 JSTに本人提供スクリーンショットで登録リクエスト済みを確認。助手による操作ではなく、検索インデックス完了は未確認。
 - 状態: 完成・凍結。最終内容更新2026-11-18を0日目として90日未満は通常改善候補から除外、最短再評価2027-02-16。期間経過だけでは再編集しない。

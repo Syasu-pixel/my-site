@@ -20,7 +20,7 @@ for(const side of ['A','B']){
  }catch{res.writeHead(404).end();}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));servers[side]=server;origins[side]='http://127.0.0.1:'+server.address().port;
 }
-const report={diagnosticOnly:true,base:'d05ba287b0d273e89976638e651d56de55063b1f',head:process.env.DIAGNOSTIC_HEAD,slug,captures:[],comparisons:[]};
+const report={diagnosticOnly:true,priorCommonGuardFailure:{run:44308682976,reason:'Scene restoration failed',interpretation:'Common-origin is a separate artificial raw experiment, not a successful guard run'},base:'d05ba287b0d273e89976638e651d56de55063b1f',head:process.env.DIAGNOSTIC_HEAD,slug,captures:[],comparisons:[]};
 const browser=await chromium.launch();report.browser=browser.version();
 async function metrics(page){return page.locator('footer.site-footer').evaluate(e=>{const r=e.getBoundingClientRect(),w=document.createTreeWalker(e,NodeFilter.SHOW_TEXT),texts=[];let n;while(n=w.nextNode()){if(!n.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(n);texts.push({text:n.textContent,rects:[...range.getClientRects()].map(x=>({x:x.x-r.x,y:x.y-r.y,width:x.width,height:x.height}))});}return{documentY:r.y+scrollY,viewportY:r.y,scrollY,width:r.width,height:r.height,fontsStatus:document.fonts.status,texts};});}
 try{
@@ -37,7 +37,7 @@ try{
   await page.locator('header.site-header').screenshot({animations:'disabled'});
   await page.locator('footer.site-footer').scrollIntoViewIfNeeded();
   await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(100);
-  const original=await shellContract(page,'footer.site-footer'),before=await metrics(page),entry={name,side,repeat,experiment,before};
+  const original=await shellContract(page,'footer.site-footer'),before=await metrics(page),entry={name,side,repeat,experiment,before,originalContract:original};
   // CDP reports actual fonts, not just declared CSS font-family.
   const cdp=await context.newCDPSession(page);await cdp.send('DOM.enable');await cdp.send('CSS.enable');const {root}=await cdp.send('DOM.getDocument');const {nodeIds}=await cdp.send('DOM.querySelectorAll',{nodeId:root.nodeId,selector:'footer.site-footer,footer.site-footer *'});
   entry.platformFonts=[];for(const nodeId of nodeIds){const {node}=await cdp.send('DOM.describeNode',{nodeId});entry.platformFonts.push({tag:node.nodeName,fonts:(await cdp.send('CSS.getPlatformFontsForNode',{nodeId})).fonts});}
@@ -46,16 +46,31 @@ try{
   try{
    if(experiment==='common-origin')saved=await page.evaluate(()=>{const b=document.body,r=document.querySelector('footer.site-footer').getBoundingClientRect(),y=r.y+scrollY,target=32768;if(y>target)throw Error('Diagnostic origin too small');const style=b.getAttribute('style');b.style.setProperty('padding-top',`${parseFloat(getComputedStyle(b).paddingTop)+target-y}px`,'important');return style;});
    await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(200);entry.captureGeometry=await metrics(page);if(experiment==='common-origin'&&Math.abs(entry.captureGeometry.documentY-32768)>1e-6)throw Error('Common document origin not reached');
-   await page.locator('footer.site-footer').screenshot({path:resolve(out,name+'-raw.png'),animations:'disabled'});
-   const phase=await capturePhaseStableFooter(page,{path:resolve(out,name+'-phase.png')});entry.phase={translationY:phase.translationY,contract:phase.contract,eligibility:phase.eligibility,hash:createHash('sha256').update(phase.bytes).digest('hex')};
+   if(experiment==='natural'){
+    await page.locator('footer.site-footer').screenshot({path:resolve(out,name+'-raw.png'),animations:'disabled'});
+    const phase=await capturePhaseStableFooter(page,{path:resolve(out,name+'-phase.png')});entry.phase={mode:'official-phase',path:name+'-phase.png',translationY:phase.translationY,contract:phase.contract,eligibility:phase.eligibility,hash:createHash('sha256').update(phase.bytes).digest('hex')};
+   }else{
+    const contract=await shellContract(page,'footer.site-footer'),geometry=await metrics(page),style=await page.locator('body').getAttribute('style');
+    const bytes=await page.locator('footer.site-footer').screenshot({path:resolve(out,name+'-diagnostic-common-raw.png'),animations:'disabled'});
+    entry.commonAfter={contract:await shellContract(page,'footer.site-footer'),geometry:await metrics(page),style:await page.locator('body').getAttribute('style')};
+    if(JSON.stringify(contract)!==JSON.stringify(entry.commonAfter.contract)||JSON.stringify(geometry)!==JSON.stringify(entry.commonAfter.geometry)||style!==entry.commonAfter.style)throw Error('Common raw capture changed diagnostic scene');
+    entry.phase={mode:'diagnostic-common-raw-not-guard',path:name+'-diagnostic-common-raw.png',contract,hash:createHash('sha256').update(bytes).digest('hex')};
+   }
   }catch(error){entry.diagnosticError=String(error.message);}
-  finally{if(experiment==='common-origin'&&saved!==undefined)await page.evaluate(s=>s===null?document.body.removeAttribute('style'):document.body.setAttribute('style',s),saved);await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(200);entry.restored=JSON.stringify(original)===JSON.stringify(await shellContract(page,'footer.site-footer'))&&entry.originalBodyStyle===await page.locator('body').getAttribute('style');}
+  finally{
+   entry.postCapture={geometry:await metrics(page),bodyStyle:await page.locator('body').getAttribute('style'),contract:await shellContract(page,'footer.site-footer')};
+   // Explicitly restore the diagnostic context, recording rather than hiding its prior state.
+   await page.evaluate(s=>s===null?document.body.removeAttribute('style'):document.body.setAttribute('style',s),entry.originalBodyStyle);
+   await page.evaluate(y=>scrollTo(0,y),before.scrollY);await page.waitForTimeout(100);
+   entry.restoredGeometry=await metrics(page);entry.restoredBodyStyle=await page.locator('body').getAttribute('style');entry.restoredContract=await shellContract(page,'footer.site-footer');
+   entry.restored=JSON.stringify(original)===JSON.stringify(entry.restoredContract)&&JSON.stringify(before)===JSON.stringify(entry.restoredGeometry)&&entry.originalBodyStyle===entry.restoredBodyStyle;
+  }
   report.captures.push(entry);await context.close();
  }
  for(const experiment of ['natural','common-origin'])for(const [a,b]of [['A-1','A-2'],['B-1','B-2'],['A-1','B-1'],['A-2','B-2']]){
   const names=[a+'-'+experiment,b+'-'+experiment],entries=names.map(n=>report.captures.find(e=>e.name===n));
-  const comparison={experiment,a,b};if(entries.some(e=>!e.phase)){comparison.unavailable=true;report.comparisons.push(comparison);continue;}
-  const [x,y]=await Promise.all(names.map(async n=>PNG.sync.read(await readFile(resolve(out,n+'-phase.png')))));
+  const comparison={experiment,a,b,mode:experiment==='natural'?'official-phase':'diagnostic-common-raw-not-guard'};if(entries.some(e=>!e.phase)){comparison.unavailable=true;report.comparisons.push(comparison);continue;}
+  const [x,y]=await Promise.all(entries.map(async e=>PNG.sync.read(await readFile(resolve(out,e.phase.path)))));
   comparison.sameDimensions=x.width===y.width&&x.height===y.height;comparison.rawContractEqual=JSON.stringify(entries[0].phase.contract)===JSON.stringify(entries[1].phase.contract);const normalize=c=>{const copy=structuredClone(c);if(experiment==='common-origin')for(const a of copy.ancestors)if(a.tag==='BODY'){delete a.styles['padding-top'];delete a.styles['padding-block-start'];}return copy;};comparison.diagnosticContractEqual=JSON.stringify(normalize(entries[0].phase.contract))===JSON.stringify(normalize(entries[1].phase.contract));
   if(comparison.sameDimensions){const diff=new PNG({width:x.width,height:x.height});comparison.pixels=pixelmatch(x.data,y.data,diff.data,x.width,x.height,{threshold:.1,includeAA:false});comparison.exactPixels=0;for(let i=0;i<x.data.length;i+=4)if(x.data.slice(i,i+4).some((v,j)=>v!==y.data[i+j]))comparison.exactPixels++;await writeFile(resolve(out,a+'-'+b+'-'+experiment+'-diff.png'),PNG.sync.write(diff));}
   report.comparisons.push(comparison);

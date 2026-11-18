@@ -821,7 +821,7 @@
 
 - 対象: `articles/lan-checker.html`。機器・PoEから外す手順、機種別LED判定、T568B、スプリットペアと通信性能の区別を公式資料で整理。既存Amazonリンク・商品画像・動画・関連記事順・収益開示を維持。
 - 公開: 管理者の明示公開承認後、[PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)をmain `ccb372c40dccfa8b73f4699e53f451a961833a87`へ通常merge。[Pages run 44215774707](https://github.com/Syasu-pixel/my-site/actions/runs/44215774707)成功、deploy完了2026-11-18T01:35:37Z。本番確認2026-11-18T01:39:02Z（同日JST）。
-- 本番HTML SHA-256 `6acdd0a5ae94082735a91d32fad6fcee92a93a9b7f2555402db752b4d40dd412` は承認済みpublicationと一致。公開担当が描画依存資産30/30点の一致を確認。採用画像はHero・専用OGP・手順・検査限界の4枚、1536×1024 WebP。採用原本hash・公式資料の確認範囲は[参照・制作記録](reference-notes/lan-checker.md)。
+- 本番HTML SHA-256 `6acdd0a5ae94082735a91d32fad6fcee92a93a9b7f2555402db752b4d40dd412` は承認済みpublicationと一致。公開担当がHTMLを含む配信ファイル30/30点の一致を確認。採用画像はHero・専用OGP・手順・検査限界の4枚、1536×1024 WebP。採用原本hash・公式資料の確認範囲は[参照・制作記録](reference-notes/lan-checker.md)。
 - 検証範囲: 公開前publicationのPC1440/スマホ390×明暗および境界幅を含む14条件、限定package4条件、本文2図の拡大/背景・Esc・閉ボタンを確認。公開後cloud-browserではPCのHero・商品表示と2図開閉を確認。本番4条件の追加検査はローカルブラウザのERR_EMPTY_RESPONSEで未完了であり、公開前検査と本番bytes一致を実本番4条件目視完了とは呼ばない。
 - footer比較 [run 44201116270](https://github.com/Syasu-pixel/my-site/actions/runs/44201116270)はFAILのまま。LAN desktop footerの撮影位相差によるPNG寸法差について、正式原画の独立目視・寸法/DOM/styles/操作の照合により既存規則の個別判定を記録。ほか正式CI6件成功。閾値・必須チェック・保護を変更せず通常merge。旧headの目次期待数FAILも履歴保持。全CI成功とは記さない。
 - 既存課題の分離: mobileの固定上戻りボタンと開示末尾の重なり、共通Amazon自動追加リンクとストアカードのrel属性不足は変更前にも存在し、今回の削除・新規回帰とは区別して別課題とする。静的Amazonリンク7個・収益開示とfooter全文は変更前と一致。

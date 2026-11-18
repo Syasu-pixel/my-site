@@ -209,6 +209,7 @@
 | [docs/comic-scripts/plc-basic-yonkoma-01.md](../comic-scripts/plc-basic-yonkoma-01.md) — PLCって、気が利く？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/comic-scripts/safety-control-basic-yonkoma-01.md](../comic-scripts/safety-control-basic-yonkoma-01.md) — 安全機器があれば安心？ 四コマ漫画 01 | 採用内容・技術ガード・保存先を確認する場合。 |
 | [docs/reference-notes/iai-robocylinder-basic.md](../reference-notes/iai-robocylinder-basic.md) — iai-robocylinder-basic 公式参照メモ | IAIロボシリンダー記事の一次資料、機種別適用範囲、画像採用、変更前基準を確認するとき。公開完了や全ルール読了の証明には使用しない。 |
+| [docs/proposals/footer-disclosure-clearance.md](../proposals/footer-disclosure-clearance.md) — 固定戻るボタンと広告開示の重なり：分離修正案 | 固定戻るボタンとfooter広告開示の重なりを独立修正するときの未採用設計案。現行仕様・公開承認として使わない。 |
 
 ## 実装・設定の参照先
 

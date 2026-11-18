@@ -6,6 +6,7 @@ on:
       - ".github/workflows/weekly-search-backlog.yml"
       - "scripts/search_backlog_report.py"
       - "scripts/test_search_backlog_report.py"
+      - "scripts/check-search-privacy.py"
       - "docs/existing-article-improvement-backlog.md"
   workflow_dispatch:
   schedule:
@@ -54,6 +55,8 @@ jobs:
           test -n "$SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY"
       - name: Generate review-only section
         run: python scripts/search_backlog_report.py --write
+      - name: Scan generated public proposal before any upload or push
+        run: python scripts/check-search-privacy.py docs/existing-article-improvement-backlog.md
       - name: Upload review artifact
         uses: actions/upload-artifact@v4
         with:

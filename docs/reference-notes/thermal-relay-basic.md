@@ -1,0 +1,86 @@
+# thermal-relay-basic 公式参照・刷新メモ
+
+## 状態と範囲
+
+- 基準: main `35c934c9`、確認日 2026-11-18 JST。
+- 既存PR #1484（head `db836e6f`）の公式資料案を継続。同PRをDraft化し、重複PRを作らない。旧冒頭ボックスの意図は記事末の公式資料欄へ統合する。
+- 本文・メタ・画像を更新するPreview制作。未公開、管理者の最終Preview承認前。safe to merge: NO。
+- 直近の公開記事変更は2026-10-22共通footer再生成、2026-09-19広告表記。本文の履歴は2026-05-20以前。完成・凍結台帳に対象slugなし。90日以内の実質更新なしを確認。未マージの9月資料案を公開内容更新日と混同しない。
+- 既存のURL、言語導線、共通shell、本文カラム、会話、支援、関連記事を保持。英語記事、トップ・カテゴリ・検索index・sitemap・他記事は変更しない。
+
+## 編集前ベースライン
+
+本番 https://denkicontrol.com/articles/thermal-relay-basic.html を2026-11-17 UTCに取得。
+HTML SHA-256: `6347fe7a158dea318a8e6522232a9f9cd69ff7333996e5c5eb732cdd721ed800`。
+main `35c934c9` の正式統合生成candidateから公開用画像URLをWebPへ変換したHTMLと完全一致。
+本番デプロイIDの取得は未実施。共通部品の基準を未承認記事で置換せず、変更前と変更後を分離する。
+
+## 検索データ
+
+Google/Bing公式API → Supabase `search_performance_daily` を2026-11-18 JSTに再確認。healthは両方succeeded。Google確定最新2026-11-14、Bingページ・query最新2026-11-13（site最新11-15）。
+
+|サービス|期間|表示|クリック|平均順位|
+|---|---|---:|---:|---:|
+|Google page|2026-10-18〜11-14|730|8|7.71|
+|Google page|2026-09-20〜10-17|411|3|8.47|
+|Bing page|同じ日付窓内の週次snapshot|257|5|7.00|
+|Bing page|前窓内の週次snapshot|101|3|8.00|
+
+BingはGoogleの日次合計と直接比較しない。queryはサイト粒度でありURL帰属は断定しない。直近窓の「サーマルリレーとは」はBing245表示2クリック、Google14表示0クリック。「サーマル リレー 仕組み」「サーマルとブレーカーの違い」「サーマルリセットボタン」はGoogle各1表示。少数値を大きな需要と誇張しない。
+
+保存済みBing AI CSV（2026-10-14、観測期間不明）は3原本を照合。AISearchQueriesReportに「サーマルリレー」3297引用/9.68%、「サーマルトリップ 見分け方」80/31.25%、「サーマルリレー 仕組み 図解」42/16.73%、「サーマルリレーとは」11/0.66%、「サーマルリレー トリップとは」4/23.53%。引用記事URLは不明。Portfolio/Opportunityは市場範囲であり自サイト引用数に加算しない。用語定義・動作順・トリップ確認を整理する補助根拠として使用し、FAQ量産は行わない。
+
+## 公式資料と採用範囲
+
+確認日: 2026-11-18 JST。
+
+- 三菱電機 サーマルリレー製品一覧 https://www.mitsubishielectric.co.jp/fa/products/lvd/lvsw/items/thr/index.html
+  - 過負荷・欠相保護形、遅動形、速動形は機種で異なる。全機種が欠相保護対応とはしない。
+- 三菱電機 サーマルリレーの構造と動作 https://www.mitsubishielectric.co.jp/fa/ssl/learn/el/eln/course/fa_0120/cha_4/04030201.html
+  - ヒーターとバイメタル、出力b接点、接触器コイルの消磁、主接点開放を分ける。
+- 三菱電機 電磁開閉器とは https://www.mitsubishielectric.co.jp/fa/ssl/learn/el/eln/course/fa_0136/cha_1/01010002.html
+  - 電磁接触器＋サーマルリレーの組合せと単体の区別。
+- 三菱電機 FAQ 14917 https://fa-faq.mitsubishielectric.co.jp/faq/show/14917?site_domain=default
+  - 全負荷電流を設定の基準とし、温度・接続電線等の補正条件は対象製品資料を優先する。
+- オムロン 低圧開閉器 用語解説 https://www.fa.omron.co.jp/guide/technicalguide/753/344/index.html
+  - 整定電流と短絡保護協調。サーマルを短絡保護装置としない。
+- 富士電機 FAQ 1587 サーマルのリセット https://faq-fa.fujielectric.co.jp/faq/show/1587?site_domain=default
+  - トリップ直後はバイメタルが冷えるまで復帰できない。公式HTML本文を取得し確認。機種別の待ち秒数は一般化しない。
+- 富士電機 FAQ 1643 自動復帰の適用 https://faq-fa.fujielectric.co.jp/faq/show/1643?site_domain=default
+  - 自動復帰後の不意の始動防止。公式HTML本文を取得し確認。機種別の待ち秒数は一般化しない。
+
+数値設定、端子番号、機種固有リセット操作、待ち時間の一律値は掲載しない。設備の運転指令・停止・安全確保を確認し、資格/権限が必要な作業を初心者の作業手順にしない。
+
+## 現場知識・差分の判断
+
+サイト方針第16節「制御機器／マグネット」の候補と既存 magnetic-switch-basic 参照メモを照合。呼称と正式な機器構成を分ける項目をA候補として採用。公式構成による裏付けであり、管理者の実体験としない。ブログ経験談、故障率、架空の現場事例は追加しない。
+
+- 「主回路を直接切るというより」という曖昧な説明を、検出部と制御用接点・接触器主接点に分ける。
+- マグネットスイッチと接触器を同一視せず、電磁開閉器の構成を明記。
+- 過負荷/短絡/漏電の保護範囲を混同しない。
+- 原因・設定確認をリセット後に回さず、停止/安全確保→確認→冷却/復帰条件→安全確認の順にする。
+- 自動復帰や運転指令残留による不意の始動に注意を追加。
+
+## 画像と検証の状態
+
+Hero、専用OGP、動作概念図、復帰前確認図の4点。16:9、白/青系、正本キャラクターと現行NFB Heroを参照して生成。機器は無銘柄の概念イラストで、配線指示・端子番号・数値設定は示さない。動作図の矢印は因果関係であり配線ではない。
+
+生成側自己評価95/100。別担当の原寸4画像・正本キャラクター・本文技術/SEO監査を2026-11-18に実施。重大な誤りなし、設定確認カードをリセット前へ移す指摘を反映済み。4画像は概念図として採用可。正式publication→WebP後の1440px/390px×明暗4条件を別担当が検査済み。横はみ出し・JavaScript例外・画像読込失敗なし。本文2図の拡大とEscape/閉ボタン/背景クリックを検査。外部SNSクローラと実機ピンチは未検証。本人限定ホストPreviewの検証が残るため、ARTICLE_READYとしない。
+
+ルール確認は必須と適用主要文書を確認済み。長文の article-workflow / new-article-checklist / image-generation-rules は一部のみ、参照先・全件適用表の確認が残るため「全ルール確認済み」としない。公開・Preview完成前に対象工程の未確認項目を解消する。
+
+## 適用範囲と最終生成の記録（2026-11-18）
+
+- 旧 article-workflow の事前マージ/手動画像配置の記述より、マスター・移行ルール・article-editing-playbook・画像GitHub転送ルールを優先。画像は正規画像生成ツールで制作し、24時間限定Firestorageから確認用ブランチへ転送。本番/導線は対象外。
+- article-workflow の2段階/5記事、画像別検査、PR確認、更新フロー、リンク、画像alt/captionの該当節を確認。旧new-article-checklistの固定PNG/5枚等は移行ルールの現行WebP/必要点数と混同しない。
+- image-generation-rules の基礎記事4〜5点、自己検品、正本キャラ、再監査、関連記事OGPの該当節を確認。4点はHero/専用OGP/動作/復帰確認で役割分担。
+- preview-environment の現行生成/publication検証、before/after・4条件、画像SHA保全を適用。Cloudflare配信の過去成功例を今回の本人限定ホスト成功と読み替えない。
+- 日本語本文のみ今回の対象。既存英語版は未更新であり、日本語の技術補強を英語へ同期済みとは扱わない。新着・カテゴリ・検索index・sitemap・backlog・共通CSS/JS・検査器は変更しない。
+- 正式生成290ページ missingAssets 0。最終publication検査は351テキスト比較、画像mapping1672件、既存/新規欠落0、許可画像mapping以外の本文変更なし。
+- 対象publication HTML SHA256: `b991c059856a3951ba7108898efe1d3a93f9942a9c5fd5f0cea910601a79c01b`。
+- モバイルHeroの装飾背景ラベルは右端クロップあり。H1/本文可読・操作正常であり表示ブロッカーとは判定しない。
+- 画像レビュー、ローカル画面QA、ホストPreview、管理者承認、本番公開は別判定。本番公開/マージなし。
+
+## 本人限定Preview配信
+
+2026-11-18、Sites private版 `https://thermal-relay-review-20261118.hushed-ridge-8788.chatgpt.site` の配信成功。正式publication対象HTMLをバイト一致で配置。作成Siteのsource commit `a35635dc2aaded54e50cc9571f7374e792745e48`。ホスト上の実表示確認はChatGPT連携同意画面のため未実施。同意操作を代行していない。ローカル完成物の4条件QAと区別する。サイト内の他記事/カテゴリ遷移はこの限定パッケージの対象外。

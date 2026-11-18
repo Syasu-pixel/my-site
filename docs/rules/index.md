@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 30003)
-Total output lines: 477
-
 # ルール・参照対象の正式一覧
 
 この一覧は catalog.json から生成する。読む順序と完了条件は [確認の入口](README.md)。登録は読了・理解・採用・稼働の証明ではない。
@@ -243,7 +240,7 @@ Total output lines: 477
 | [.github/workflows/editorial-discussion-smoke.yml](../../.github/workflows/editorial-discussion-smoke.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/external-challenger.yml](../../.github/workflows/external-challenger.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/indexnow.yml](../../.github/workflows/indexnow.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
-| [.github/workflows/orchestrator-pilot.yml](../../.github/workflows/orchestrator-pilot.yml) | この実装・自動検査・公…3 tokens truncated…運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
+| [.github/workflows/orchestrator-pilot.yml](../../.github/workflows/orchestrator-pilot.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/orchestrator-state-tests.yml](../../.github/workflows/orchestrator-state-tests.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/pages.yml](../../.github/workflows/pages.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/rule-catalog.yml](../../.github/workflows/rule-catalog.yml) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |

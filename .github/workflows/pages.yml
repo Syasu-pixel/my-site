@@ -15,6 +15,8 @@ on:
       - 'scripts/*article*'
       - 'scripts/*site-shell*'
       - 'scripts/*additional-shell*'
+      - 'scripts/check-search-privacy.py'
+      - 'scripts/test-search-privacy.py'
       - 'scripts/test-general-consultation-worker.mjs'
       - 'scripts/test-admin-case-management-worker.mjs'
       - 'articles/*.html'
@@ -278,6 +280,9 @@ jobs:
             ${{ runner.temp }}/integration-build/image-collision-plan.json
             ${{ runner.temp }}/integration-build/additional-shells/preservation.json
           retention-days: 30
+
+      - name: Refuse search metrics in final publication artifact
+        run: python scripts/check-search-privacy.py _site
 
       - name: Upload artifact
         # The deploy step is unreachable unless the standalone artifact passes.

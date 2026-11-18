@@ -139,6 +139,7 @@
 | [docs/reference-notes/shield-grounding-one-end-both-ends.md](../reference-notes/shield-grounding-one-end-both-ends.md) — シールド線の片端・両端接地 参照記録 | シールド線の片端・両端接地記事の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/motor-breaker-basic.md](../reference-notes/motor-breaker-basic.md) — モーターブレーカ記事 公式参照・更新メモ | モーターブレーカ記事の技術内容・画像・更新・Previewを扱う。 |
 | [docs/reference-notes/lan-checker.md](../reference-notes/lan-checker.md) — LANチェッカー記事の参照・制作記録 | LANチェッカー記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/forward-reverse-circuit-basic.md](../reference-notes/forward-reverse-circuit-basic.md) — 正転・逆転回路：刷新参照メモ | 正転・逆転回路記事の本文・画像・技術参照元を更新・検査する。未公開の改稿記録であり公開承認ではない。 |
 | [docs/reference-notes/flicker-circuit-basic.md](../reference-notes/flicker-circuit-basic.md) — flicker-circuit-basic 公式参照メモ | フリッカ回路記事の技術内容・画像・一次資料・検索根拠を更新または監査する。 |
 
 ## 履歴・参考
@@ -305,6 +306,9 @@
 | [scripts/check-reviewed-navigation-delta.mjs](../../scripts/check-reviewed-navigation-delta.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [tests/donation-main-diff.test.mjs](../../tests/donation-main-diff.test.mjs) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
 | [.github/site-shells/additional/reviewed-navigation-deltas.json](../../.github/site-shells/additional/reviewed-navigation-deltas.json) | 追加ページの承認済み導線変更を寄付非表示保全と両立して検査する場合。 承認された前後source hashと限定置換を固定し、生成物の他のバイト差を拒否する契約・正負例。 |
+| [.github/workflows/search-privacy.yml](../../.github/workflows/search-privacy.yml) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
+| [scripts/check-search-privacy.py](../../scripts/check-search-privacy.py) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
+| [scripts/test-search-privacy.py](../../scripts/test-search-privacy.py) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
 
 ## 省略表記の参照先
 

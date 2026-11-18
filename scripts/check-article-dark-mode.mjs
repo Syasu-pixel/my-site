@@ -1,3 +1,4 @@
+import {loadIntegrationScope} from './integration-review-scope.mjs';
 import {chromium} from 'playwright';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -8,7 +9,8 @@ const shardIndex=Number(process.env.REVIEW_SHARD_INDEX||0);
 if(!Number.isInteger(shardCount)||shardCount<1||!Number.isInteger(shardIndex)||shardIndex<0||shardIndex>=shardCount)throw Error('Invalid shard');
 
 const config=JSON.parse(await readFile('.github/article-components/integration.json','utf8'));
-const targets=(config.targets||config.representatives).filter((p,i)=>i%shardCount===shardIndex);
+const reviewScope=await loadIntegrationScope(config);
+const targets=reviewScope.targets.filter((p,i)=>i%shardCount===shardIndex);
 const evidence=resolve(build,'evidence-shard-'+shardIndex);
 await mkdir(evidence,{recursive:true});
 
@@ -125,7 +127,9 @@ try{
         failures.push({path,width,problems,...audit,screenshot:key});
         console.log('DARK FAIL',path,width,problems.join(' | '));
       }else{
-        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance});
+        const key=path.replaceAll('/','__').replace('.html','')+'--'+width+'--dark-full.png';
+        await page.screenshot({path:resolve(evidence,key),fullPage:true,animations:'disabled'});
+        results.push({path,width,status:'passed',bodyLuminance:audit.bodyLuminance,screenshot:key});
         console.log('DARK PASS',path,width);
       }
     }catch(error){
@@ -139,7 +143,7 @@ try{
   await browser.close();
 }
 
-const report={shardIndex,shardCount,targets,widths,results,failures,productionPublished:false};
+const report={scope:reviewScope.scope,shardIndex,shardCount,targets,widths,results,failures,productionPublished:false};
 await writeFile(resolve(build,'article-dark-checks-shard-'+shardIndex+'.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({shardIndex,cases:results.length+failures.length,passed:results.length,failures:failures.length}));
 if(failures.length)process.exitCode=1;

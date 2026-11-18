@@ -2,8 +2,9 @@ import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
+import {checkReviewedNavigationDelta} from './check-reviewed-navigation-delta.mjs';
 
-// Strictly compare production-style generated additional pages from the same builder.
+// Strictly compare production-style generated additional pages with each pinned side’s versioned builder.
 // This does NOT replace screenshot / browser interaction reviews.
 const [baseRoot,baseOut,headRoot,headOut]=process.argv.slice(2);
 if([baseRoot,baseOut,headRoot,headOut].some(x=>!x))throw Error('Usage: node scripts/check-donation-main-diff.mjs BASE_ROOT BASE_OUT HEAD_ROOT HEAD_OUT');
@@ -23,7 +24,9 @@ const updatedLink="<a href=\"/contact/\" style=\"color:#1d4ed8;font-weight:800;o
 const gitBlob=text=>createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const sha256=text=>createHash('sha256').update(text).digest('hex');
 const firstElement=(html,tag)=>(html.match(new RegExp('<'+tag+'\\b[^>]*>[\\s\\S]*?<\\/'+tag+'>'))||[])[0]||'';
-let homes=0,categories=0,other=0,updatedServiceLinks=0;
+const navigation=JSON.parse(await file(headRoot,'.github/site-shells/additional/reviewed-navigation-deltas.json'));
+assert.equal(navigation.version,1);
+let homes=0,categories=0,other=0,updatedServiceLinks=0,navigationChanges=0;
 for(const path of basePaths){
   const before=await file(resolve(baseOut,'candidate'),path);
   const after=await file(resolve(headOut,'candidate'),path);
@@ -38,7 +41,11 @@ for(const path of basePaths){
   assert.equal(after.includes(categoryCss),before.includes(categoryCss),'Category donation visibility changed: '+path);
   const profileLink='<nav class="dc-footer-profile-link" aria-label="'+(path.startsWith('en/')?'About this site':'サイト運営情報')+'">\n    <a href="/profile/">'+(path.startsWith('en/')?'About the operator &amp; editorial policy':'運営者・編集方針')+'</a>\n  </nav>\n  ';
   assert.equal(after.split(profileLink).length,2,'Expected exactly one profile footer link: '+path);
-  if(beforeSource!==afterSource){
+  assert.equal(firstElement(after,'header'),firstElement(before,'header'),'Shared header changed: '+path);
+  assert.equal(firstElement(after,'footer'),firstElement(before,'footer'),'Shared footer changed: '+path);
+  if(beforeSource!==afterSource&&['index.html','categories/control-basics.html'].includes(path)){
+    checkReviewedNavigationDelta(path,beforeSource,afterSource,before,after,navigation);navigationChanges++;
+  }else if(beforeSource!==afterSource){
     assert.equal(path,'services/gxworks2-online-support.html','Unapproved source change: '+path);
     assert.equal(gitBlob(afterSource),approvedServiceSourceBlob,'GX Works2 source differs from reviewed link change');
     assert.equal(beforeSource.split(previousLink).length,2,'Previous contact link not unique in main');
@@ -54,7 +61,8 @@ for(const path of basePaths){
     assert.equal(after,before,'Unrelated generated HTML changed: '+path);
   }
 }
-assert.equal(updatedServiceLinks,1,'Exactly the GX Works2 link must change');
+// Historical GX transition is checked only when present; unchanged pages must pass.
+assert.ok(updatedServiceLinks<=1,'Duplicated historical GX transition');
 
 const articlePath='.github/article-components/integration-compat.css';
 const beforeArticle=await file(baseRoot,articlePath),afterArticle=await file(headRoot,articlePath);
@@ -62,4 +70,4 @@ assert.equal(afterArticle,beforeArticle,'Article donation visibility CSS must re
 const beforeCategory=await file(baseRoot,'.github/site-shells/additional/category.css');
 const afterCategory=await file(headRoot,'.github/site-shells/additional/category.css');
 assert.equal(afterCategory,beforeCategory,'Category donation visibility CSS must remain unchanged');
-console.log(JSON.stringify({result:'PASS',mainVsPr:'only the GX Works2 contact link changed; ordinary contact and footer remain preserved',pages:basePaths.length,homes,categories,unchangedOtherPages:other,updatedServiceLinks,articleCss:'approved append only',categoryCss:'approved append only',screenshots:'not covered'},null,2));
+console.log(JSON.stringify({result:'PASS',mainVsPr:'unchanged pages or exact reviewed navigation/GX transition only; donation and shared shell preserved',pages:basePaths.length,homes,categories,unchangedOtherPages:other,updatedServiceLinks,navigationChanges,articleCss:'unchanged',categoryCss:'unchanged',screenshots:'not covered'},null,2));

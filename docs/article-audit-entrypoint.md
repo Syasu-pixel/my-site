@@ -58,7 +58,7 @@
    - 最終内容更新日
    - 公式資料確認日
    - GitHub / PR履歴
-   - 28日クールダウン
+   - 90日クールダウン
 2. `docs/existing-article-improvement-backlog.md`
    - `[x]` 完成・凍結か、`[ ]` 改善対象か。
 3. `docs/article-search-data-precheck-override.md`

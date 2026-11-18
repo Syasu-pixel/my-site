@@ -80,11 +80,11 @@ Supabaseだけをデータ源として、ChatGPTから28日比較を実行済み
 初回確認値:
 
 - Google
-  - 直近28日: 2,548 clicks / 139,359 impressions / CTR 1.83%
-  - 前28日: 1,567 clicks / 93,650 impressions / CTR 1.67%
+  - 直近28日: [非公開] clicks / [非公開] impressions / CTR [非公開]
+  - 前28日: [非公開] clicks / [非公開] impressions / CTR [非公開]
 - Bing
-  - 直近28日: 5,842 clicks / 205,384 impressions / CTR 2.84%
-  - 前28日: 4,300 clicks / 140,076 impressions / CTR 3.07%
+  - 直近28日: [非公開] clicks / [非公開] impressions / CTR [非公開]
+  - 前28日: [非公開] clicks / [非公開] impressions / CTR [非公開]
 
 この確認により、
 `公式API -> GitHub Actions -> Supabase -> ChatGPT`

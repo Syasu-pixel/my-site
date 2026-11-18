@@ -125,6 +125,15 @@ class GuardTests(unittest.TestCase):
             finally:
                 os.chdir(old)
 
+    def test_admin_script_preserved_across_publication_image_rewrite(self):
+        root = Path(__file__).resolve().parents[1]
+        body = (root / 'admin/search.html').read_text()
+        published = body.replace('.png', '.webp').replace('.jpg', '.webp')
+        self.assertFalse(guard.findings(published))
+        self.assertTrue(guard.findings(published + invented()))
+        changed = published.replace('clicks:' + str(0), 'clicks:' + str(731), 1)
+        self.assertTrue(guard.findings(changed))
+
     def test_artifact_tree_nested_and_no_output_values(self):
         with tempfile.TemporaryDirectory() as root:
             path = Path(root) / 'docs'

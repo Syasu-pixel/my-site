@@ -31,12 +31,11 @@ TEXT_SUFFIXES = {'.md', '.mdx', '.txt', '.csv', '.tsv', '.json', '.jsonl', '.htm
 SKIP_DIRS = {'.git', 'node_modules', '__pycache__', '.venv'}
 # Explicit byte-pinned market-only datasets, not a directory or filename bypass.
 REVIEWED_SHA256 = {
-    '94eb43aad867f574f1be5033355386ff25cf588d27ea7b39b10d7244993138e2',  # Reviewed zero-initialized client aggregates, no observed metrics.
     # Reviewed historical synthetic tests, algorithm thresholds, and policy ranges.
     'eb45460942fb06778f84f109d3a1eb795ab2bfee9c31ab8ae58ef52535e8a776',  # scripts/test_search_data_sync.py
     '31d0f07e021f1a5ec155057046f260005b74d3255011b0439282b4414295a38b',  # scripts/test_search_backlog_report.py
     '213a87c5dc38a4d0e4d333203da7e5b541d7b124de5c88650b2d21e7570051ce',  # scripts/search_backlog_report.py
-    'a3a85789d7bbd4b1342fc22de1d0cb1d4a10cc2b122eebd37cd587d33b16986b',  # docs/search-data-acquisition-rules.md
+    '65f6e9d0c50c2c5ffff7be8745102fc3b4929b4db5254779e5c47af019adb250',  # docs/search-data-acquisition-rules.md
     'd0d0620699ecd938a99062a120c968d8f3bc63e363d1b7169f3a493c978062ba',  # docs/denkicontrol-strategy-whitepaper.md
 
     '2cc4c97a263aee76902d185ddd7b083a58950f261f02896a17e8fd70150697b6',
@@ -49,6 +48,8 @@ POLICY_LINES = {
     '4ff094fe7dab91bc9e6d310c2e1eaca9456e8ca6bb29300d806bcb7ea605b9c0',
     'bc327f16c1b0b1fcc685c54b834ee220755391080b9a765033f84b87ad98946c',
 }
+# The reviewed admin aggregate script stays byte-identical across image URL optimization.
+REVIEWED_SCRIPT_SHA256 = {'2639b102f4e93936335db4a4ec468b154132da151f3d38463ac88f433d897706'}
 MAX_BYTES = 16 * 1024 * 1024
 
 
@@ -62,6 +63,12 @@ def normal(text):
 
 def findings(text):
     """Return (line, constant rule ID), never matched values or source excerpts."""
+    # Exempt only an exact reviewed script body; scan its containing HTML normally.
+    def reviewed_script(match):
+        if hashlib.sha256(match.group(2).encode()).hexdigest() in REVIEWED_SCRIPT_SHA256:
+            return match.group(1) + ('\n' * match.group(2).count('\n')) + match.group(3)
+        return match.group(0)
+    text = re.sub(r'(<script\b[^>]*>)(.*?)(</script\s*>)', reviewed_script, text, flags=re.I | re.S)
     normalized = normal(text)
     lines = normalized.splitlines()
     hits = set()

@@ -1,0 +1,101 @@
+import {createRequire} from 'node:module';import {mkdir,writeFile,readFile} from 'node:fs/promises';import {resolve} from 'node:path';
+const require=createRequire(import.meta.url),{chromium}=require('playwright');
+const out=resolve(process.argv[2]||'../additional-shell-build'),manifest=JSON.parse(await readFile(resolve('.github/site-shells/additional/manifest.json'),'utf8')),pages=manifest.pages.map(p=>p.path),counterparts=new Map(manifest.pages.map(p=>[p.path,p.realCounterpart])),results=[],failures=[];await mkdir(resolve(out,'screenshots'),{recursive:true});
+const browser=await chromium.launch({headless:true});let blockedWrites=0;
+const assert=(v,msg)=>{if(!v)throw Error(msg)};
+const footerData=page=>page.locator('footer').evaluate(e=>({text:[...e.childNodes].filter(n=>!(n.nodeType===1&&(n.classList.contains('dc-affiliate-disclosure')||n.classList.contains('dc-footer-social')||n.classList.contains('dc-footer-profile-link')))).map(n=>n.textContent).join('').replace(/\s+/g,' ').trim(),links:[...e.querySelectorAll('a:not(.dc-footer-instagram):not(.dc-footer-profile-link a)')].map(a=>({text:a.textContent.trim(),href:new URL(a.getAttribute('href'),'https://denkicontrol.com'+location.pathname).href}))}));
+for(const path of pages)for(const width of [320,390,768,1440]){
+ const context=await browser.newContext({viewport:{width,height:width<768?844:1000},serviceWorkers:'block',reducedMotion:'reduce',colorScheme:'light'});await context.route('**/*',r=>{if(!['GET','HEAD'].includes(r.request().method())){blockedWrites++;return r.abort()}const u=new URL(r.request().url());return ['127.0.0.1','localhost'].includes(u.hostname)||u.protocol==='data:'?r.continue():r.abort()});
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ try{
+  await page.goto('http://127.0.0.1:'+(process.env.REVIEW_BEFORE_PORT||8791)+'/'+path,{waitUntil:'networkidle'});const beforeFooter=await footerData(page),beforeWidth=await page.evaluate(()=>document.documentElement.scrollWidth),beforeForms=await page.locator('form:not(#siteSearch)').evaluateAll(es=>es.map(e=>e.outerHTML)),beforeErrors=[...errors];errors.length=0;
+  await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--before.png'),animations:'disabled'});
+  await page.goto('http://127.0.0.1:'+(process.env.REVIEW_PORT||8790)+'/'+path,{waitUntil:'networkidle'});await page.evaluate(async()=>{await document.fonts.ready;for(const i of document.images)i.loading='eager';await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})))});
+  const afterWidth=await page.evaluate(()=>document.documentElement.scrollWidth);assert(afterWidth<=Math.max(width,beforeWidth),'New horizontal overflow '+afterWidth+'/'+beforeWidth);
+  assert(await page.locator('.dc-shell').count()===1,'Header count');assert(await page.locator('.dc-shared-footer').count()===1,'Shared footer');assert(await page.locator('.dc-toc-button,#articleFeedbackCard').count()===0,'Article-only controls');
+  assert(await page.locator('footer .dc-affiliate-disclosure').count()===1,'Affiliate disclosure count');assert(await page.locator('footer .dc-footer-instagram').count()===1,'Instagram footer link count');assert((await page.locator('footer .dc-footer-instagram').getAttribute('href'))==='https://www.instagram.com/denkicontrol/','Instagram footer target');
+   assert((await page.locator('footer .dc-affiliate-disclosure').innerText())===(path.startsWith('en/')?'This site uses affiliate links and may earn a commission from purchases.':'当サイトはアフィリエイト広告を利用しています。'),'Affiliate disclosure language');
+   const enFooter=path.startsWith('en/');const profileLinks=page.locator('footer nav.dc-footer-profile-link a');assert(await profileLinks.count()===1,'Expected exactly one profile footer link');assert(await profileLinks.getAttribute('href')==='/profile/','Profile footer link target changed');assert((await profileLinks.innerText()).trim()===(enFooter?'About the operator & editorial policy':'運営者・編集方針'),'Profile footer link label changed');assert((await page.locator('footer nav.dc-footer-profile-link').getAttribute('aria-label'))===(enFooter?'About this site':'サイト運営情報'),'Profile footer navigation label changed');const footer=await footerData(page);assert(JSON.stringify(footer)===JSON.stringify(beforeFooter),'Existing footer text/links changed');
+  assert(JSON.stringify(await page.locator('form:not(#siteSearch)').evaluateAll(es=>es.map(e=>e.outerHTML)))===JSON.stringify(beforeForms),'Service/body forms changed');
+  const en=path.startsWith('en/'),service=path.startsWith('services/'),contactPage=path==='contact/index.html'||path==='en/contact/index.html',generalConsultationPage=path==='contact/index.html',counterpart=counterparts.get(path);assert(await page.locator('.dc-consult').count()===(en?0:1),'Consult language');if(service)assert(await page.locator('a.dc-consult').count()===0,'Self consultation link');if(contactPage)assert(await page.locator('a.dc-contact').count()===0,'Self contact link');
+  for(const selector of ['#dc-search-toggle','#dc-menu-toggle']){const r=await page.locator(selector).boundingBox();assert(r.x>=0&&r.x+r.width<=width,'Header button clipped')}
+  await page.locator('#dc-menu-toggle').click();assert(await page.locator('.dc-alternative').count()===(counterpart?1:0),'Invented/missing translation');if(counterpart)assert(await page.locator('.dc-alternative').getAttribute('href')===counterpart,'Translation target');await page.keyboard.press('Escape');
+  await page.locator('#dc-search-toggle').click();await page.locator('#site-search-input').fill('PLC');await page.locator('#site-search-results li').first().waitFor({state:'visible'});await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--search.png'),animations:'disabled'});await page.keyboard.press('Escape');
+  assert(await page.locator('#dc-search-toggle').evaluate(e=>e===document.activeElement),'Search focus return');
+  if(service||generalConsultationPage){
+    if(service){
+      assert(await page.locator('#consultation-paused-title').count()===1,'GX Works2 pause notice missing');
+      assert((await page.locator('#consultation-paused-title').innerText()).includes('現在更新中です'),'GX Works2 pause heading');
+      assert(await page.locator('#consultationForm,#zip-input').count()===0,'GX Works2 upload form must be absent');
+      assert(await page.locator('main a[href="/contact/"]').count()===1,'GX Works2 ordinary contact form link missing');
+    }else{
+      assert(await page.locator('#generalConsultationForm').count()===1,'Ordinary contact form missing');
+      assert(await page.locator('#contact-confidentiality-notice').count()===1,'Confidentiality warning missing');
+      assert(await page.locator('#generalConsultationForm').evaluate(e=>e.checkValidity())===false,'Empty contact form should not be valid');
+      assert(await page.locator('#consultationForm,#zip-input').count()===0,'GX Works2 upload must be absent from contact');
+      assert((await page.locator('footer a[href$="/contact/"]').count())===1,'Footer inquiry destination missing');
+    }
+    assert(await page.evaluate(()=>document.documentElement.dataset.dcTheme!=='dark'),'Expected light preview before dark-mode switch');
+    await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--light.png'),animations:'disabled',fullPage:true});
+  }
+  await page.evaluate(()=>localStorage.removeItem('dc-theme'));await page.emulateMedia({colorScheme:'dark'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>document.documentElement.dataset.dcTheme==='dark');
+  await page.locator('#dc-menu-toggle').click();assert(await page.locator('#dc-theme-toggle').getAttribute('aria-checked')==='true','System dark switch state');await page.keyboard.press('Escape');
+  const darkAudit=await page.evaluate(()=>{
+    const visible=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'};
+    const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
+    const avg=v=>v?(v[0]+v[1]+v[2])/3:null;
+    const surfaceSelectors=['.info-box','.bookmark-help-panel','.shelf-row','.shelf-links','.category-modal__panel','.side-box','.intro-box','.featured-article','.article-row','.air-feature-card','.notice-box','.troubleshooting-hub','.hub-note','.tool-task-card','.tool-article-card','.featured-tool-card','.tool-group','.category-block','.compare-group','.topic-block','.bottom-nav a','.feature','.side-pill-list li','.step','.step-no','.step-links a','.step-links span','.finder-pill','.note','.label','.project-card','.project-feature','.series-card','.series-feature','.bookmark-help-button','.project-series-entry__link','.project-series-entry__media','.page-hero','.contact-list li','.notice','.consent-box','.consultation-success','.consultation-success-code','.side-card a.quick-link','.eyebrow','.policy-card','.policy-side','.article','.soft-box','.operator-profile'];
+    const textSelectors=['.hero-text','.category-lead','.section-lead','.support-card-text','.mobile-shortcut span','.shelf-summary p','.support-category-card__description','.storefront-guide-card__note','.category-modal__description','.intro-box p','.featured-article p','.article-row-body p','.troubleshooting-hub p','.hub-note','.tool-task-card p','.tool-group ul','.side-category-card span','.side-note','.category-block p','.compare-group p','.topic-block p','.bottom-nav p','.feature p','.side-pill-list li','.container > .hero p','.step h3','.step p','.step-links a','.step-links span','.eyebrow','.finder-heading','.support-category-card__title','.top-right-rail .info-box--latest a','.top-right-rail .info-box--series .link-list a','.bookmark-help-button','.project-series-entry__title','.project-series-entry__sub','.project-series-entry__cta','.project-series-entry__kicker','.page-lead','.contact-card p','.profile-card p','.side-card p','.contact-list li','.notice','.form-field label','.reply-choice label','.consent-box label','.consultation-status','.policy-card p','.policy-card h2','.policy-side h2','.policy-side a','.intro-box strong','.side-category-card strong','.side-category-card span','.bottom-nav strong','.bottom-nav span','.side-link-list a','.article-filter-label','.article p','.article h1','.article h2','.soft-box h2','.soft-box li','.operator-profile h2','.operator-profile p','.operator-profile li'];
+    const lightSurfaces=[],darkTexts=[];
+    for(const sel of surfaceSelectors)for(const e of document.querySelectorAll(sel)){if(!visible(e))continue;const a=avg(rgb(getComputedStyle(e).backgroundColor));if(a!==null&&a>145)lightSurfaces.push(sel+':'+Math.round(a));}
+    for(const sel of textSelectors)for(const e of document.querySelectorAll(sel)){if(!visible(e)||!e.textContent.trim())continue;const a=avg(rgb(getComputedStyle(e).color));if(a!==null&&a<115)darkTexts.push(sel+':'+Math.round(a));}
+    const body=avg(rgb(getComputedStyle(document.body).backgroundColor));
+    return {lightSurfaces:[...new Set(lightSurfaces)].slice(0,20),darkTexts:[...new Set(darkTexts)].slice(0,20),body};
+  });
+  assert(darkAudit.body!==null&&darkAudit.body<100,'Dark body background missing');
+  assert(darkAudit.lightSurfaces.length===0,'Light surfaces remain in dark mode: '+darkAudit.lightSurfaces.join(', '));
+  assert(darkAudit.darkTexts.length===0,'Dark text remains in dark mode: '+darkAudit.darkTexts.join(', '));
+  if(path==='index.html'){
+    // The adopted hero is three real images, not the retired hero-top.png CSS background.
+    const expected=['basics','sensor','components'].map(k=>'/assets/images/hero/hero-workshop-'+k+'-20261114.webp');
+    const host=page.locator('.dc-hero-preview'),slides=host.locator('.dc-hero-stage img'),buttons=host.locator('[data-hero-index]'),pause=host.locator('[data-hero-pause]');
+    assert(await host.count()===1,'Top hero missing');assert(await slides.count()===3&&await buttons.count()===0,'Expected three hero images and no manual selectors');assert(await pause.count()===1,'Accessible pause control missing');assert(await host.locator('.dc-hero-controls,.dc-hero-caption,.dc-hero-note').count()===0,'Retired hero controls or caption remain');const pauseSize=await pause.boundingBox();assert(pauseSize&&pauseSize.width>=44&&pauseSize.height>=44,'Pause target too small');
+    assert(JSON.stringify(await slides.evaluateAll(es=>es.map(e=>new URL(e.src).pathname)))===JSON.stringify(expected),'Unapproved hero image set');
+    const active=async i=>{
+      await page.waitForFunction(i=>{const a=[...document.querySelectorAll('.dc-hero-stage img')];return a.filter(e=>e.classList.contains('is-active')).length===1&&a[i].classList.contains('is-active')&&Number(getComputedStyle(a[i]).opacity)>.99&&a.every((e,k)=>k===i||(e.getAttribute('aria-hidden')==='true'&&Number(getComputedStyle(e).opacity)<.01))},i);
+      const info=await slides.nth(i).evaluate(async e=>{await e.decode();const r=e.getBoundingClientRect(),p=e.parentElement.getBoundingClientRect(),s=getComputedStyle(e);return {decoded:e.complete&&e.naturalWidth>0&&e.naturalHeight>0,visible:s.display!=='none'&&s.visibility!=='hidden'&&Math.min(r.right,p.right)>Math.max(r.left,p.left)&&Math.min(r.bottom,p.bottom)>Math.max(r.top,p.top),hidden:e.getAttribute('aria-hidden')};});
+      assert(info.decoded&&info.visible&&info.hidden==='false','Active hero must decode and be visible in dark mode');
+    };
+    const darkHero=await host.evaluate(e=>{const g=getComputedStyle(e.querySelector('.hero-grid')),a=getComputedStyle(e.querySelector('.dc-hero-stage'),'::after');return {background:g.backgroundColor,overlay:a.backgroundImage,overlayHidden:a.display==='none'};});
+    const bgNumbers=darkHero.background.match(/\d+/g).slice(0,3).map(Number);assert(bgNumbers.reduce((a,b)=>a+b,0)/3<100,'Light hero background remains in dark mode');
+    assert(darkHero.overlayHidden||(!darkHero.overlay.includes('243, 249, 255')&&darkHero.overlay.includes('24, 38, 55')),'Dark hero contrast overlay missing');
+    await host.scrollIntoViewIfNeeded();
+    assert(await pause.isDisabled(),'Reduced motion must disable automatic rotation');
+    // No selector has been clicked: paused is still false, so this isolates reduced-motion behavior.
+    await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await active(0);await page.waitForTimeout(7300);assert(await slides.nth(0).evaluate(e=>e.classList.contains('is-active')),'Hero advanced while rotation should be stopped');await active(0);
+    await page.screenshot({path:resolve(out,'screenshots','hero-'+width+'-dark-0.png'),animations:'disabled'});
+    // Re-enable motion without manual selection: inspect the real 0→1→2→0 cycle.
+    await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForFunction(()=>!document.querySelector('[data-hero-pause]').disabled,null,{timeout:2000});assert(await pause.isEnabled(),'Hero does not respond to motion preference change');
+    for(const i of [1,2,0]){await page.waitForFunction(i=>document.querySelectorAll('.dc-hero-stage img')[i].classList.contains('is-active'),i,{timeout:10000});await active(i);await page.screenshot({path:resolve(out,'screenshots','hero-'+width+'-dark-'+i+'.png'),animations:'disabled'});}
+    await pause.click();await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await page.waitForTimeout(7300);assert(await slides.nth(0).evaluate(e=>e.classList.contains('is-active')),'Hero advanced while rotation should be stopped');await active(0);
+    assert(await pause.getAttribute('aria-pressed')==='true','Explicit stop must persist after focus and pointer leave');
+    assert((await pause.getAttribute('aria-label')||'').includes('再開'),'Stopped hero must offer accessible resume name');await pause.click();assert((await pause.getAttribute('aria-label')||'').includes('停止'),'Running hero must offer accessible stop name');await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await page.waitForFunction(()=>document.querySelectorAll('.dc-hero-stage img')[1].classList.contains('is-active'),null,{timeout:10000});await active(1);
+  }
+  if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
+  if(service && await page.locator('.article-hero-copy').count()>0){
+    const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{
+      const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};
+      const avg=v=>v?(v[0]+v[1]+v[2])/3:null,title=e.querySelector('h1'),lead=e.querySelector('.hero-lead');
+      return {backgroundImage:getComputedStyle(e).backgroundImage,title:avg(rgb(getComputedStyle(title).color)),lead:avg(rgb(getComputedStyle(lead).color))};
+    });
+    assert(heroDark.title!==null&&heroDark.title>=180,'GX Works2 hero title contrast regressed: '+heroDark.title);
+    assert(heroDark.lead!==null&&heroDark.lead>=150,'GX Works2 hero lead contrast regressed: '+heroDark.lead);
+    if(width<=900)assert(heroDark.backgroundImage.includes('10, 18, 28'),'GX Works2 hero keeps a light mobile/tablet veil in dark mode: '+heroDark.backgroundImage);
+  }
+  await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--dark.png'),animations:'disabled',fullPage:true});
+  assert(errors.every(e=>beforeErrors.includes(e)),'New script errors: '+errors.join('; '));
+  await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--after.png'),animations:'disabled'});await page.locator('footer').scrollIntoViewIfNeeded();await page.screenshot({path:resolve(out,'screenshots',path.replaceAll('/','__')+'--'+width+'--footer.png'),animations:'disabled'});
+  results.push({path,width,status:'passed',beforeWidth,afterWidth,footerPreserved:true,formsPreserved:true,scriptErrors:errors});
+ }catch(e){failures.push({path,width,error:e.message});}finally{await context.close()}
+}
+await browser.close();await writeFile(resolve(out,'browser-checks.json'),JSON.stringify({results,failures,blockedWrites,liveVotesSent:0,liveFormsSubmitted:0},null,2));console.log(JSON.stringify({checks:results.length,failures,blockedWrites}));if(failures.length)process.exitCode=1;

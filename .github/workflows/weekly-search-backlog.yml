@@ -1,0 +1,98 @@
+name: Weekly search improvement backlog
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/weekly-search-backlog.yml"
+      - "scripts/search_backlog_report.py"
+      - "scripts/test_search_backlog_report.py"
+      - "docs/existing-article-improvement-backlog.md"
+  workflow_dispatch:
+  schedule:
+    # Monday 08:30 JST, following daily 06:25 search sync.
+    - cron: "30 23 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-search-backlog
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        run: |
+          python -m py_compile scripts/search_backlog_report.py scripts/test_search_backlog_report.py
+          python scripts/test_search_backlog_report.py
+
+  propose:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      SEARCH_DATA_SUPABASE_URL: ${{ vars.SEARCH_DATA_SUPABASE_URL }}
+      SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Verify data source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SEARCH_DATA_SUPABASE_URL"
+          test -n "$SEARCH_DATA_SUPABASE_SERVICE_ROLE_KEY"
+      - name: Generate review-only section
+        run: python scripts/search_backlog_report.py --write
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-backlog-proposal
+          path: docs/existing-article-improvement-backlog.md
+          retention-days: 14
+      - name: Update existing draft PR or create a review PR
+        shell: bash
+        env:
+          BRANCH: automation/weekly-search-improvement-backlog
+        run: |
+          set -euo pipefail
+          # Never modify a PR already promoted from Draft to human review.
+          open_pr_state="$(gh pr list --state open --head "$BRANCH" --base main --json isDraft --jq 'if length == 0 then "none" else (.[0].isDraft | tostring) end')"
+          if [[ "$open_pr_state" == "false" ]]; then
+            echo "::warning::Existing review PR is no longer Draft. Proposal artifact saved; no branch update."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$BRANCH:refs/remotes/origin/$BRANCH" || true
+          # Keep the original checked-out main commit: the report was produced from it.
+          # Fetching a newer main here could discard concurrent user changes.
+          git switch -C "$BRANCH"
+          git add docs/existing-article-improvement-backlog.md
+          if git diff --cached --quiet; then
+            echo "No generated section change to propose."
+            exit 0
+          fi
+          git commit -m "chore(search): propose weekly article evaluation"
+          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH"
+          # A CLOSED or MERGED PR must not suppress a new weekly proposal.
+          existing_pr="$(gh pr list --state open --head "$BRANCH" --base main --json url --jq '.[0].url // empty')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Updated existing open review PR: $existing_pr"
+          else
+            if ! gh pr create --draft --base main --head "$BRANCH" \
+              --title "chore(search): weekly article improvement candidates" \
+              --body "Auto-generated, review-only classification. No articles are modified and no completion checkbox is flipped. Check cooldown, primary sources, and PR history before merging. Public PR omits raw search counts."; then
+              echo "::warning::Draft PR creation blocked. Review uploaded artifact or repository Actions PR permissions."
+            fi
+          fi

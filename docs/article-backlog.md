@@ -1,5 +1,7 @@
 # 日本語記事バックログ（中級・実務フェーズ）
 
+既存記事の更新済み状態・件数は[統合更新台帳](article-refresh-log.md#統合更新台帳状態集計の正本)を参照。本書は新規企画・四コマ待ちを保持する。過去記録を現在の公開状態や更新件数として重複計上しない。
+
 このファイルは、Denkicontrol / 電気と制御の実務メモの日本語記事について、テーマ別クラスターの現在地と次の判断を管理するバックログです。単純な記事本数や「あと何記事」を目標にはしません。
 
 ## 現在のフェーズ
@@ -79,7 +81,8 @@
 #### 個別候補
 
 - **既存記事でカバー済み**: 端子台の渡り配線・短絡バー・ジャンパ、線番の追い方、マークチューブ、配線色、盤アース、動力線／信号線の分離、シールド線、ノイズフィルタ、盤ファン、盤ヒータ、盤内コンセント、盤内ラベル。
-- **優先候補**: ノイズらしい誤動作の切り分け、シールドの片側／両側接地を選ぶ考え方、FG・SG・PE、4–20mA／0–10V信号のノイズ診断。
+- **優先候補**: ノイズらしい誤動作の切り分け、FG・SG・PE、4–20mA／0–10V信号のノイズ診断。
+- **公開済み（2026-11-17）**: `articles/shield-grounding-one-end-both-ends.html`。片端／両端を一律に決めず、対象機器マニュアル・接続先・端末処理・設備側条件を照合する記事。Step 1 PR #1943、導線 PR #1945。本番本文・採用画像5枚・トップ新着・カテゴリ・検索・ルートsitemapを配信確認済み。新規公開として記事リフレッシュ記録に記載し、既存記事刷新件数には加算しない。
 - **ハブ完成後に判断**: センサーケーブルの保護、センサーのシールド接続、盤内温度上昇、主回路と制御回路の電源分岐、AC100V・AC200V・DC24Vの使い分け、制御盤内コモン線、配線図と実物線番の照合、電線色と線番の優先順位。
 - **保留**: ヒューズとブレーカー、サーキットプロテクタとNFB、ELBとNFB、トランス一次／二次、CT二次側開放、パイロットランプAC／DC、表示灯不点灯、タワーライトの色。
 
@@ -200,4 +203,82 @@
 
 ## 公開反映メモ
 
+- [x] **四コマ追従完了** — `articles/no-fuse-breaker-basic.html`。2026-11-14管理者が画像採用・サイト公開承認。台本は `docs/comic-scripts/no-fuse-breaker-basic-yonkoma-01.md`。トップ本番13作品への追加・拡大リンクを確認。Instagramは2026-11-15 10:00 JSTに予約しPENDING/draft:falseを再取得確認（実投稿は未確認）。記事刷新PR #1812とは別の再利用コンテンツ。
+
+- [x] **四コマ追従完了** — `articles/dc24v-common-basic.html`。2026-11-14管理者が画像採用・トップ公開・Instagram予約承認。台本は `docs/comic-scripts/dc24v-common-basic-yonkoma-01.md`。PR #1886で本番トップ14作品へ追加。Instagramは2026-11-16 10:00 JSTに予約しPENDING/draft:false/autoPublish:true/AI申告trueを再取得確認（実投稿未確認）。記事刷新PR #1825とは別の再利用コンテンツ。
+
+- [ ] **四コマ制作待ち**: `articles/series-parallel-circuit-basic.html` — 2026-11-02 記事刷新・採用Hero/OGP/本文画像4枚を本番反映済み。記事に対応する4コマは正式採用・登録を未確認のため、**新たに生成・公開しない**。制作・目視採用後に、既存4コマ一覧／右カラム導線／Instagram連携を既存の4コマルールに従って更新する。既存の記事公開は維持する。
+
+
+
+- [x] 四コマ追従: `articles/area-sensor-basic.html` — 2026-10-07 正式採用。画像は `assets/images/comics/area-sensor-basic/area-sensor-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/light-curtain-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/light-curtain-basic/light-curtain-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/load-cell-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/load-cell-basic/load-cell-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/earth-leakage-breaker-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/earth-leakage-breaker-basic/earth-leakage-breaker-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/air-cylinder-troubleshooting-basic.html` — 2026-10-06 再制作版を正式採用。画像は `assets/images/comics/air-cylinder-troubleshooting-basic/air-cylinder-troubleshooting-basic-yonkoma-01.png`。旧JPG版は目崩れで採用解除済み。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/magnetic-switch-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/magnetic-switch-basic/magnetic-switch-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/sto-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/sto-basic/sto-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 四コマ追従: `articles/solenoid-valve-troubleshooting-basic.html` — 2026-10-06 正式採用。画像は `assets/images/comics/solenoid-valve-troubleshooting-basic/solenoid-valve-troubleshooting-basic-yonkoma-01.png`。トップページ4コマ導線・Instagram投稿予約まで追従対象。
+
+- [x] 自己保持回路記事刷新: `articles/self-hold-circuit.html` — 本文を「定義→保持対象→リレー回路→PLCラダー→動作順→起動停止→トラブル確認→安全回路との違い」の流れへ全面刷新。採用済みOGP・専用Hero・本文画像4枚を反映し、スマホのPLC説明は横スクロール不要の構造へ変更。青マーカー・太字・注意強調・ダークモード・画像拡大を確認。公式参照正本は `docs/reference-notes/self-hold-circuit.md`。最終Previewで本番同等publication、WebP最適化、PC/スマホ×ライト/ダーク、Hero/OGP実体を確認して本番採用。Google Search Console再クロール対象: `https://denkicontrol.com/articles/self-hold-circuit.html`。
+
+- [x] マグネットスイッチ記事刷新: `articles/magnetic-switch-basic.html` — 本文構成・OGP・専用Hero・本文画像3枚を刷新して公開（#1606）。続けて日本語メーカー公式資料（三菱電機FA／富士電機）で「電磁接触器」「電磁開閉器」「サーマルリレー」の正式な役割区分を再確認し、本文の用語説明・公式資料欄・最終内容更新日／公式資料確認日を追補して公開（#1614）。公式参照正本は `docs/reference-notes/magnetic-switch-basic.md`。Google Search ConsoleのURL検査から再クロール依頼対象。
+
+- [x] PLC設備設計シリーズ 第3回: `articles/plc-drilling-line-design-project-03.html` — 搬送制御編の本文完成・本番公開・主要導線追加まで完了。
+
+
 - [x] キャリア・転職 STEP 4: `articles/fa-engineer-career-service-comparison.html` — 転職サービス比較（メーカーズジョブ掲載）を公開。
+
+
+
+### 2026-11-14 端子台4コマ
+- `terminal-block-basic`を第15作品としてトップ追加。本人採用・公開予約承認済み。source PR #1890 / merge b2dce29ff5a6b8cf4127fc6d0305ac71fe25f57e。
+- Instagram denkicontrolは2026-11-17 10:00 JST予約済み（427891476 / -6842433265755927097、PENDING）。実投稿完了とは区別。
+- 台本・公式根拠・画面検証・転送ログは[端子台4コマ採用記録](comic-scripts/terminal-block-basic-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+
+### 2026-11-14 接触器・サーマル4コマ
+- 本人採用別案02を第16作品としてトップ追加。source PR1895 / merge f71fb2f9。Instagram11/18 10:00 JST予約済（428043373、PENDING）。
+- [台本・採用・検証記録](comic-scripts/electromagnetic-contactor-vs-switch-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+### 2026-11-14 DINレール4コマ
+- 本人採用画像を第17作品としてトップ追加。source PR1901 / merge d10526a2。既存Hero自動循環を保全。
+- Instagram11/19 10:00 JST予約済（428109456、PENDING）。実投稿完了とは区別。
+- [台本・採用・検証記録](comic-scripts/din-rail-basic-yonkoma-01.md)。記事本文の再更新ではなく90日間隔はリセットしない。
+
+
+## 2026-11-15 DC24V電源4コマ追従
+採用第3案「これ、充電するんですか？」をPR1908でmain反映。18作品。Instagramは11/20 10:00 JST予約PENDING確認済み。本番18作品・採用画像・記事リンクを独立確認済み。実投稿は未確認。詳細は [採用記録](comic-scripts/dc24v-power-supply-basic-yonkoma-01.md)。記事本文の日付と90日ガードは変更しない。
+
+
+## 2026-11-15 押しボタン4コマ追従
+- 本人採用「押してないのに、光ってる？」。正式source PR #1912通常マージ済み、トップ19作品の本番配信・採用画像・記事リンクの独立確認済み。
+- 採用原本のバイナリ転送・PC/狭幅Preview検査・Instagram 2026-11-21 10:00 JST予約（post428460902、PENDING）確認済み。予約と実投稿は区別。
+- [採用記録](comic-scripts/push-button-switch-basic-yonkoma-01.md)。記事本文・更新日・90日ガードは変更しない。
+
+## 2026-11-16 自己保持回路4コマ
+
+画像正式採用・GitHub保存済み。Instagram 2026-12-03 10:00 JST予約済み（429565342）。トップ本番公開済み（PR #1935、Pages run 43805679907 success）。本番画像と元記事導線を確認し、四コマ追従完了。記事本文の刷新とは別管理。
+
+## 2026-11-16 起動・停止回路4コマ
+
+画像正式採用。Instagram 2026-12-04 10:00 JST予約済み（429636385）。トップ本番公開済み（PR #1937、Pages run 43819941811 success）。本番HTML29作品・元記事導線・配信画像を確認し、四コマ追従完了。本文更新とは別管理。Instagram実投稿は未確認。
+
+
+### 押している間だけ動く回路 四コマ（2026-11-16）
+
+画像正式採用・GitHub正本保存済み。トップ本番公開済み（PR #1939、Pages run 43841268201 success）。本番HTML30作品・通常/拡大表示・元記事導線・配信画像を確認し、四コマ追従完了。Instagram 2026-12-05 10:00 JST予約済み（429749472、PENDING/draft:false/autoPublish:true/AI申告true）。記事本文の刷新とは別管理。Instagram実投稿は未確認。台本は `docs/comic-scripts/while-pressed-circuit-basic-yonkoma-01.md`。
+
+
+## 2026-11-17 PLC・安全機器4コマ追従
+
+本人採用済み「PLCって、気が利く？」「安全機器があれば安心？」はPR #1948（merge `b64f8b35`）で本番公開。Pages run `44060919177`成功、本番33作品・両元記事リンク・配信WebPを確認し、四コマ追従完了。8種CIと個別8条件の通常/拡大表示・独立16枚目視合格。Instagramは12月7日・8日各10:00 JST予約済み（429844601 / 429855460、PENDING・draft:false）。予約重複作成なし。実投稿は未確認。本文・更新日・90日ガードは変更しない。詳細は各comic scriptを参照。

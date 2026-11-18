@@ -1505,7 +1505,7 @@
 <p>オムロンNJ301の仕様でも、原点を決める「原点復帰」と、既にある絶対座標の0へ位置決めする「高速原点復帰」は別機能です。名称や命令の違いを、使っている装置の資料で確かめましょう。</p>
 </section>
 <section class="section-card" id="ladder">
-<h2>ラダーを読む前に、状態を分ける</h2>
+<h2>ラダー図で要求と完了の動きを読む</h2>
 <p>以下は説明用の状態整理であり、<strong class="mark">そのままPLCに書き込むプログラムではありません</strong>。軸の動作は対象コントローラの命令と機械仕様に従います。</p>
 <ol>
 <li>待機：開始要求があっても、許可条件を満たさなければ開始しません。</li>
@@ -1514,6 +1514,28 @@
 <li>中止・異常：完了とは区別します。異常解除と再始動は別の操作です。再始動には設備仕様で定めた条件の確認が必要です。</li>
 </ol>
 <figure class="article-figure"><img src="../assets/images/home-return-circuit-basic/home-return-completion-20261118.webp" alt="位置の基準、今回の要求の完了、設備全体の条件を別々に確認する図" width="1536" height="1024" loading="lazy" decoding="async"><figcaption>位置の基準が有効か、今回の要求が完了したか、自動運転に必要な設備全体の条件が整ったかは分けて確認します。図は確認観点の整理であり、機種別条件を網羅した実装図ではありません。</figcaption></figure>
+<h3>FX5Uのラダーで「要求保持→今回の完了」を読む</h3>
+<p>ここからは、三菱電機<strong>MELSEC iQ-F FX5U／GX Works3</strong>のPLS・SET・RST命令を使った、編集部作成の学習例です。メーカーの原点復帰サンプルそのものではありません。<strong class="mark">原点復帰の要求を受け付け、今回の完了を記憶する部分</strong>を示し、軸を動かす命令・配線・安全回路は図に含めていません。</p>
+<figure class="article-figure"><img src="../assets/images/home-return-circuit-basic/home-return-ladder-20261118.webp" alt="FX5UのPLS、SET、RSTを用い、復帰要求を保持して今回の完了応答で要求を解除する6行の学習用ラダー図。軸制御は図外。" width="1536" height="1024" loading="lazy" decoding="async"><figcaption>要求を保持し、今回の完了を記憶する部分の学習例です。X2は原点センサーではなく模擬完了応答です。軸の原点復帰命令・実配線・安全回路を含みません。</figcaption></figure>
+<div class="table-wrap" role="region" aria-label="ラダー学習例のデバイス" tabindex="0"><table><thead><tr><th scope="col">デバイス</th><th scope="col">この学習例での意味</th></tr></thead><tbody>
+<tr><th scope="row">X0</th><td>開始ボタンの模擬入力。OFFからONへの変化で開始を要求します。</td></tr>
+<tr><th scope="row">X1</th><td>受付許可の模擬入力。通常制御の条件で、安全機能の代わりではありません。</td></tr>
+<tr><th scope="row">X2</th><td>今回の要求に対する完了応答の模擬入力。<strong>原点センサーではありません。</strong></td></tr>
+<tr><th scope="row">X3</th><td>中断・教材状態クリア。機器のアラームリセットとは別です。</td></tr>
+<tr><th scope="row">M0</th><td>開始時の1スキャンパルス。</td></tr>
+<tr><th scope="row">M100</th><td>復帰要求の保持。軸が実際に動いていることを保証する信号ではありません。</td></tr>
+<tr><th scope="row">M110</th><td>今回の完了記憶。座標の基準有効や自動運転許可とは別です。</td></tr>
+</tbody></table></div>
+<p>初期状態はX0・X2・X3・M0・M100・M110がOFF、X1がONです。上から順に毎スキャン実行し、ほかの処理がM0・M100・M110を書き換えない条件で読みます。図の斜線付き接点は「そのデバイスがOFF」の条件で、実配線のNC接点を指定するものではありません。</p>
+<ol>
+<li><strong>01・02行目：開始して保持する。</strong>X0を押すとPLSでM0が1スキャンONになります。X1がON、X2・X3・M100・M110がOFFならSET M100を実行します。X0を離してもM100は保持されます。実際に軸を動かす処理は図外です。</li>
+<li><strong>03・04行目：完了を記憶して要求を解除する。</strong>M100とX1がON、X3がOFFの間にX2がONになると、まずSET M110、続いてRST M100を実行します。同じスキャン内で上からこの順に処理されます。X2がOFFに戻ってもM110は保持されます。</li>
+<li><strong>05・06行目：中断・クリアする。</strong>X1がOFF、またはX3がONなら、M100とM110をOFFにします。並列の枝は「どちらか一方」の条件です。</li>
+<li><strong>次を始める。</strong>完了後はX3で教材の完了記憶をクリアし、X2をOFFへ戻します。X1の復帰やX3の解除だけでは開始しません。<strong class="mark">X0を一度OFFへ戻してから、改めてON</strong>にします。</li>
+</ol>
+<p>02行目のX2のOFF条件は、<strong>開始時からONの完了信号を受け付けない</strong>ためのものです。開始後に来る応答が今回の要求に対応することの確認は、図外の制御処理に必要です。過去の応答をこの6行だけで完全に識別できるわけではありません。</p>
+<div class="note-box"><h3>この図だけで実機を動かさない</h3><p>タイムアウト、通信断、機器異常、電源投入時や保持領域の扱い、安全停止などを網羅した実装例ではありません。まずシミュレータの模擬入力で読み方を確認するための教材です。実設備では対象型式・原点復帰方式・完了信号・再始動条件を別途設計し、安全機能を通常のラダーだけに任せないでください。</p></div>
+
 <h3>完了フラグをどう扱うか</h3>
 <p>完了フラグは、<strong class="mark">どの条件で成立し、いつ無効になるか</strong>までセットで読みます。電源断、軸の異常、座標変更、再実行などの扱いは機種と設備仕様次第です。一律に保持またはリセットするのではなく、「位置の基準が有効か」と「今回の要求が完了したか」を分けて確認します。</p>
 <p>原点センサーが最初からONのときも、即完了としてよいとは限りません。採用方式の開始条件や検出順序を確認する必要があります。</p>
@@ -1545,6 +1567,7 @@
 <p>公式資料確認日：2026年11月18日。設定・実装では対象型式とバージョンの最新資料を優先してください。</p>
 <ul>
 <li><a href="https://www.fa.omron.co.jp/products/family/3111/specification/" target="_blank" rel="noopener noreferrer">オムロン NJ301 CPUユニット 定格・性能</a>：原点復帰、高速原点復帰、軸エラーリセット、絶対値エンコーダ対応の機能区分。</li>
+<li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf" target="_blank" rel="noopener noreferrer">三菱電機 FX5プログラミングマニュアル JY997D55801-AC</a>：SET・RST・PLSの動作（本文145・147・156–157ページ）と同一デバイスへの命令実行（2.3節）。図はこれらの命令を用いた独自の学習例です。</li>
 <li><a href="https://www.mitsubishielectric.co.jp/fa/ssl/learn/el/eln/course/common/term_0022/0030.html" target="_blank" rel="noopener noreferrer">三菱電機 eラーニング 原点復帰方法</a>：機構により選ぶ方式が異なること。特定方式の設定値・施工手順は本記事では扱いません。</li>
 </ul>
 </section>

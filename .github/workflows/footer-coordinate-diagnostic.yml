@@ -1,0 +1,58 @@
+name: Diagnostic only footer coordinate reproduction
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/footer-coordinate-diagnostic.yml'
+      - 'scripts/diagnose-footer-coordinate.mjs'
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - slug: crimping-tips
+            head: 5818be924cadfe0e64d4e6d4e4546393f507e386
+          - slug: home-return-circuit-basic
+            head: da874cf3bc6b3f694e8bd9fc33f9c869c5a9c985
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Materialize fixed public snapshots only
+        env:
+          CANDIDATE: ${{ matrix.head }}
+        run: |
+          git fetch --depth=1 origin d05ba287b0d273e89976638e651d56de55063b1f "$CANDIDATE"
+          mkdir .diagnostic-base .diagnostic-head
+          git archive d05ba287b0d273e89976638e651d56de55063b1f | tar -x -C .diagnostic-base
+          git archive "$CANDIDATE" | tar -x -C .diagnostic-head
+          ln -s "$GITHUB_WORKSPACE/node_modules" .diagnostic-head/node_modules
+          (cd .diagnostic-head && node scripts/build-site-shells.mjs)
+      - name: Diagnose without changing any acceptance gate
+        env:
+          DIAGNOSTIC_SLUG: ${{ matrix.slug }}
+          DIAGNOSTIC_HEAD: ${{ matrix.head }}
+        run: node scripts/diagnose-footer-coordinate.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-only-${{ matrix.slug }}-${{ github.run_id }}
+          path: .coordinate-evidence/
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: error

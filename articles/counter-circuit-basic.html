@@ -1702,7 +1702,23 @@
 
           <section class="section-card" id="ladder">
             <h2>PLCのカウンタで、3回を数える例</h2>
-            <p>初期値0、設定値3の例で考えます。計数入力がOFFからONへ変わるたびに現在値が1、2、3と増え、3回目で到達接点がONします。この説明区間ではリセットを入れません。</p>
+            <h3>ラダーでは「リセット・計数・到達表示」を分けて読む</h3>
+            <p>次は、三菱電機のFX3G実習機（FX3G-14MR/ES）向け教材の回路を、設定値だけ<strong>K10からK3</strong>に変えて読む学習例です。全メーカー・全CPUに共通の書式ではありません。</p>
+            <figure class="article-image article-figure" data-no-amazon-link>
+              <img src="../assets/images/counter-circuit-basic/counter-ladder-20261118.webp" alt="FX3Gの一般用カウンタC0のラダー例。上からX001でRST C0、X003で設定K3のC0を計数、C0到達接点でY003をON、ENDの順。X001によるリセットとX003による計数は別の入力。" width="1536" height="1024" loading="lazy" decoding="async" data-no-amazon-link>
+              <figcaption>X003をOFFにしただけではリセットされず、X001をONにするとRST C0が実行されます。画像をクリック／タップすると拡大表示できます。</figcaption>
+            </figure>
+            <p><strong>X001はリセット入力、X003は計数入力、C0はカウンタ、Y003は到達表示の出力</strong>として読みます。2行目のC0は数える処理、3行目のC0接点は「設定値に届いたか」を読む条件です。</p>
+            <ol>
+              <li><strong>待機：</strong>一度リセットして現在値を0にし、X001とX003をOFFにします。C0接点とY003はOFFです。</li>
+              <li><strong>計数：</strong>X001をOFFにしたまま、X003をOFF→ON→OFFと切り替えます。<strong class="mark">立ち上がり1回につき現在値が1増え</strong>、1回目は1、2回目は2になります。ONのままでは増え続けません。</li>
+              <li><strong>到達：</strong>3回目で現在値3になり、C0接点がONします。その後の行でY003も論理上ONになります。X003がOFFに戻っても、現在値3とC0接点のONは保持されます。</li>
+              <li><strong>リセット：</strong>この確認例ではX003をOFFにしてから、<strong class="mark">X001をONにしてRST C0を実行</strong>します。現在値が0、C0接点がOFFになり、後段のY003もOFFになります。X001をOFFへ戻してから次の計数を始めます。</li>
+            </ol>
+            <p><strong>X003をOFFにしただけではリセットされません。</strong>また、運転中の保持と電源断時の保持は別です。計数とリセットを同時に与える例ではなく、「どの機種でもリセットが優先される」と判断しないでください。</p>
+            <p>Y003は到達表示を説明するための例です。実出力端子や表示器にはスキャン・出力更新・応答時間があり、C0接点とのゼロ遅延を保証しません。モータの直接制御や安全停止の設計例でもありません。まずシミュレータや安全な教材で確認し、実設備の出力先・再始動条件・安全回路は別途確認してください。</p>
+            <h3>タイミング図と対応させる</h3>
+            <p>下図の「計数入力」はX003、「現在値」はC0の値、「到達接点」はC0接点に対応します。初期値0、設定値3で、X001をOFFにしてリセットを入れない区間の動きを示しています。</p>
             <figure class="article-image article-figure" data-no-amazon-link>
               <img src="../assets/images/counter-circuit-basic/counter-timing-20261118.webp" alt="設定値3、初期0、リセットなしの概念図。3回の立ち上がりで現在値が0、1、2、3と増え、3回目から到達接点がONを保つ。ON保持中と立ち下がりでは増えない。" width="1536" height="1024" loading="lazy" decoding="async" data-no-amazon-link>
               <figcaption>ONを保つ時間ではなく、OFFからONへ変わる回数を数えます。 画像をクリック／タップすると拡大表示できます。</figcaption>

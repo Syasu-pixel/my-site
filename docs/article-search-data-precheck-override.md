@@ -26,7 +26,8 @@ GSC Wizardや無料外部アプリを記事制作前チェックの標準ソー�
 
 ## Bing AI検索データの手動CSVスナップショット（追加確認）
 
-- 2026-10-14の原本CSV3本は [Bing AI検索データ台帳](../.github/data/bing-ai-search/index.json) に保存されている。今後の記事刷新・新記事企画では、日付ガードを優先したうえで、対象クエリの引用実績と機会を確認する。
+- 2026-10-14の原本CSV3本は [Bing AI検索データ台帳](../.github/data/bing-ai-search/index.json) で保存先を確認する。今後の記事刷新・新記事企画では、日付ガードを優先したうえで、対象クエリの引用実績と機会を確認する。
+- 保管先の区別（2026-11-18）: 自サイト実績の AISearchQueriesReport 原本は所有者の非公開 ChatGPT Library から取得し、台帳のファイル名・SHA256と照合する。公開リポジトリにあるのは市場レンジCSV2件のみ。非公開原本を取得できない場合は未確認と記録し、公開ブランチ・成果物・サイトへ再転記しない。過去Git履歴の除去は今回の保管先変更に含まれない。
 - `AISearchQueriesReport` = Grounding Queryごとの自サイト引用数・引用シェア。**記事URL別の引用数ではない**。
 - `AITopicsOverallPortfolio` = 分類テーマ別のAI検索全体の規模レンジ。**自サイトの引用実績ではない**。
 - `AITopicsTopOpportunityQueries` = 他サイトが引用され、自サイトには機会が残る検索語。**市場のレンジを自サイトの数値として加算しない**。

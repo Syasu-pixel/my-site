@@ -12,7 +12,8 @@ for(const width of [390,1440])test(`fixed overlay stays visible and guarded at $
  };
  const a=await capture(6809.125),b=await capture(9101.765625);
  assert.deepEqual(a.contract,b.contract);assert.equal(pixels(a.bytes,b.bytes),0);assert.notEqual(pixels(a.raw,b.raw),0);
- assert.ok(a.contract.fixedOverlay);assert.equal(a.contract.fixedOverlay.rect.y,860);
+ assert.ok(a.contract.fixedOverlay);assert.equal(a.contract.fixedOverlay.rect.y+a.contract.fixedOverlay.rect.height,884);
+ assert.ok(a.contract.fixedOverlay.rect.height>24,'text must be rendered, not an empty button box');
  for(const css of ['button{bottom:17px}','button{right:17px}','button{padding:13px}','button{background:red}','button{opacity:.5}','button{pointer-events:none}','button{box-shadow:0 2px 3px red}','button{outline:2px solid red}','body{opacity:.9}','main{margin-bottom:1px}','footer{padding-top:31px}','footer{color:red}']){
  const changed=await capture(9101.765625,css);assert.notDeepEqual(changed.contract,a.contract,css);
  }

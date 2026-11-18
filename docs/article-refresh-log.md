@@ -45,6 +45,13 @@
 - LANチェッカーの既存記事刷新1件を追加し、下表は52 slug（重複0）。過去51件の状態は変更しない。
 - 当初174件の既存記事集合では174−52＝122件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−52＝123件には新規公開済みシールド線1件を含む。
 
+### 2026-11-18 集計追補（正転・逆転／サーマル／フリッカ／メガーの公開記録）
+
+- 照合基点: main `b72c9a6e3e8174cd184c521bc7e59f84b42ef278`。本番とmainの日本語記事サイトマップ175 URL・重複0、対象4 URLが各1件で一致することを確認。
+- 既存記事刷新4件を追加し、下表は56 slug（重複0）。過去52件の状態と履歴は保持する。正転・逆転回路の過去OGP更新履歴を別記事として二重加算しない。
+- 当初174件の既存記事集合では174−56＝118件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−56＝119件には新規公開済みシールド線1件を含む。
+- 4記事とも内容更新日・公式資料確認日は採用本文の2026-11-18表記を採録。完成・凍結、最短再評価は2027-02-16。日数経過だけで再編集しない。Google登録リクエストの受付・結果不明・未申請を記事別に区別し、検索反映完了は未確認として公開完了と分離する。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -79,6 +86,8 @@
 | `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
 | `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。 |
+| `flicker-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1967](https://github.com/Syasu-pixel/my-site/pull/1967)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは未申請、検索反映完了は未確認。 |
+| `forward-reverse-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1969](https://github.com/Syasu-pixel/my-site/pull/1969)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは受付確認済み、検索反映完了は未確認。 |
 | `iai-robocylinder-basic` | 刷新main反映・本番確認済み | 2026-11-18 | HTML表示なし（採用・公開日と区別） | 2026-11-17 | [PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)・本書の個別履歴 | 完成・凍結。保守的に公開11-18から90日未満は除外、最短再評価2027-02-16。IndexNow HTTP200、Google登録リクエストは11-18に本人実施申告・検索反映未確認。 |
 | `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -86,6 +95,7 @@
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `mega` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1966](https://github.com/Syasu-pixel/my-site/pull/1966)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNowの個別受付結果は本記録では未確認。Google登録リクエストは未申請、検索反映完了は未確認。 |
 | `motor-breaker-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-17（制作メモ記録、HTML独立表示なし） | 2026-11-17 | [PR #1956](https://github.com/Syasu-pixel/my-site/pull/1956)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-15。footer CIは文字輪郭差を個別REVIEW、PASS扱いにしない。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人実施申告・検索反映未確認。 |
 | `no-fuse-breaker-basic` | 改善完了・凍結記録あり | 未確認 | 要照合（本文11-06／台帳11-08） | 2026-11-06 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 日付不一致を保留。安全側で11-08から90日未満は除外し、本文・台帳を勝手に変更しない。 |
 | `no-nc-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1568](https://github.com/Syasu-pixel/my-site/pull/1568)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -114,6 +124,7 @@
 | `sto-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 未確認 | 2026-09-25 | [PR #1599](https://github.com/Syasu-pixel/my-site/pull/1599)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `terminal-block-basic` | 改善完了・凍結記録あり | 未確認 | 2026-11-11 | 2026-11-11 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `terminal-block-jumper-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `thermal-relay-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは操作開始後の接続断により受付結果不明、検索反映完了も未確認。 |
 | `while-pressed-circuit-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1645](https://github.com/Syasu-pixel/my-site/pull/1645) | 本文表示から採録。未確認は推測補完しない。 |
 
 ### 圧力スイッチの記録不一致を解消（2026-11-14）
@@ -829,3 +840,44 @@
 - 導線: 既存URLを維持。本番/mainの日本語sitemap175 URL・重複0・対象1件を記録担当が照合。記事刷新を新規公開として重複加算しない。
 - 通知: [IndexNow run 44215774776](https://github.com/Syasu-pixel/my-site/actions/runs/44215774776)で対象1URLを2026-11-18T01:26:48ZにHTTP200受理。公開確認時点ではGoogle登録リクエスト未実施。その後2026-11-18 JSTに本人提供スクリーンショットで登録リクエスト済みを確認。助手による操作ではなく、検索インデックス完了は未確認。
 - 状態: 完成・凍結。最終内容更新2026-11-18を0日目として90日未満は通常改善候補から除外、最短再評価2027-02-16。期間経過だけでは再編集しない。
+
+
+## 2026-11-18 正転・逆転回路／サーマルリレー／フリッカ回路／メガーの刷新公開
+
+4記事とも採用版をmainへ反映し、Pages成功後の本番配信を確認。以下は公開担当の検証記録を照合した記録であり、この台帳追記で全画面を再検査した意味ではない。本文・画像・公開方式は変更しない。制作メモに残る「未公開」「承認前」は制作時点の履歴として保持し、現在の公開状態は本節を参照する。
+
+### 正転・逆転回路（forward-reverse-circuit-basic）
+
+- 対象: `articles/forward-reverse-circuit-basic.html`。[PR #1969](https://github.com/Syasu-pixel/my-site/pull/1969)、採用head `eb5a1d4fdb9928c3f23bb61a79809e62b0f64dba`、merge `d7c2f74fe1f48bfdee9f1717c77c34ae0e1fa3fc`。
+- 三相誘導モーター・接触器方式の範囲、任意2相交換、停止指令と回転停止、切替許可、電気的／機械的インターロック、PLC表示と実接点、安全な点検前提を整理。Hero・OGP・本文3図を採用、本文図は拡大可能。
+- [Pages run 44251173929](https://github.com/Syasu-pixel/my-site/actions/runs/44251173929)成功後、本番取得42ファイル中41ファイルが採用配信物と一致（HTML・5画像を含む）。残るsite-health.jsonは定期更新による差で、最新mainと一致。公開切替中の旧HTML・画像404はPages成功後の再取得で解消した。
+- 採用PreviewでPC／スマホ明暗・境界幅を検証。修正後の動作順序図はPC・390pxで表示／拡大／閉じるを確認。本番ではPC lightのHero・本文・同図の開閉を確認し、本番スマホ／darkの再操作とは区別する。
+- [IndexNow run 44251164603](https://github.com/Syasu-pixel/my-site/actions/runs/44251164603)は対象1 URLをHTTP200受理。検索反映完了の証明ではない。英語同slugは今回更新せず、旧PR #1962は未採用・未マージの履歴として保持。
+
+### サーマルリレー（thermal-relay-basic）
+
+- 対象: `articles/thermal-relay-basic.html`。[PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)、採用head `36b428159d8fba8795d3eecaae7ce37958c14138`、merge `421928c7d6fa1707a23772c04575d45a7ba3c9e4`。
+- 過負荷検知と接触器による遮断、b接点、電磁接触器／電磁開閉器／ブレーカの役割、電流設定、トリップ後の安全確認と復帰を整理。Hero・OGP・本文2図を採用。
+- [Pages run 44254076460](https://github.com/Syasu-pixel/my-site/actions/runs/44254076460)成功後、2026-11-18T06:56:03Zに本番HTMLと採用4 WebPのHTTP200・承認済みPreviewとのSHA256一致を確認。採用PreviewでPC／スマホ明暗・拡大操作を検証済み。本番ハッシュ照合と本番全画面再操作は同義にしない。
+- [IndexNow run 44254076449](https://github.com/Syasu-pixel/my-site/actions/runs/44254076449)はHTTP200受理。検索反映完了は未確認。旧PR #1484の履歴は保持し、採用クリーン版と区別する。
+
+### フリッカ回路（flicker-circuit-basic）
+
+- 対象: `articles/flicker-circuit-basic.html`。[PR #1967](https://github.com/Syasu-pixel/my-site/pull/1967)、採用head `ca7baf7db614e7aff3b14e1f151e0ce538d13cf8`、merge `feaa2a3a7cad6cfc02640949e4502abf196b0933`。
+- 採用本文・Hero／OGP／本文2図を反映し、既存URL・関連導線・他記事を維持。日本語検索indexの対象記事title／descriptionを同期。
+- 正式CI 8件成功。[Pages run 44265575338](https://github.com/Syasu-pixel/my-site/actions/runs/44265575338)成功後、2026-11-18T08:23:03Zに本文・4 WebP・依存資産を含む27リソースのHTTP200と正式配信物とのSHA256一致を確認。本番H1・Hero・本文2図の拡大、閉じる／Escapeを確認。全条件の本番再検査とは区別する。
+- [IndexNow run 44265575322](https://github.com/Syasu-pixel/my-site/actions/runs/44265575322)は対象1 URLをHTTP200受理。検索反映完了は未確認。旧PR #1964は不採用の履歴として保持し、採用クリーン版の祖先へ含めていない。
+
+### メガー（mega）
+
+- 対象: `articles/mega.html`。[PR #1966](https://github.com/Syasu-pixel/my-site/pull/1966)、採用head `06186a1aa89381cc145904c4e5b58499ee14ebab`、merge `b72c9a6e3e8174cd184c521bc7e59f84b42ef278`。
+- テスターとの測定目的の違い、機種別試験電圧、切離し・無電圧確認・放電などの安全条件、PDM5219SとPDM1529Sの区別を整理。Hero・OGP・比較図・安全図を採用。既存URL・H1・canonical・商品リンクを保持。
+- 正式CI 8件成功。[Pages run 44273216354](https://github.com/Syasu-pixel/my-site/actions/runs/44273216354)のbuild／deploy成功後、2026-11-18T09:16:10Zに本番HTMLが採用配信物と一致、採用4 WebPも原本と一致することを確認。本番Hero・本文・2図の拡大／閉じる、画像欠落0・横溢れなしを確認。全幅・全テーマの本番再検査とは区別する。
+- IndexNowの個別受付結果は本記録では未確認。自動workflowの存在だけで通知完了としない。旧PR #1963は不採用・未マージの履歴として保持。
+
+### 4記事共通の残件と凍結
+
+- 最終内容更新日・公式資料確認日はともに2026-11-18（採用本文表記）。台帳記入日を新たな本文更新日に転用しない。
+- 完成・凍結。通常の再改善候補は90日未満除外、最短再評価2027-02-16。期間経過だけで再編集せず、日付ガードの例外・再評価条件を維持する。
+- Google登録リクエストの最新確認状況: 正転・逆転回路は受付確認済み。サーマルリレーは操作開始後に接続が切れ、受付結果は不明。フリッカ回路・メガーは未申請。いずれも検索反映完了は未確認。公開担当の初回配信検証時点の未実施記録とは区別し、IndexNow受付と同一視しない。
+- 本台帳と既存記事改善バックログの派生チェック欄だけを同期。検索実績の生数値・個別検索クエリ・非公開分析原票は転記しない。

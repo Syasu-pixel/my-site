@@ -3,7 +3,7 @@
 export async function shellContract(page, selector) {
   return page.locator(selector).evaluate(root => {
     const r = root.getBoundingClientRect();
-    const rect = e => { const b=e.getBoundingClientRect(); return {x:b.x-r.x,y:b.y-r.y,width:b.width,height:b.height}; };
+    const rect = e => { if(!e.getClientRects().length)return {x:0,y:0,width:0,height:0}; const b=e.getBoundingClientRect(); return {x:b.x-r.x,y:b.y-r.y,width:b.width,height:b.height}; };
     const style = (e,pseudo) => { const s=getComputedStyle(e,pseudo); return Object.fromEntries([...s].map(k=>[k,s.getPropertyValue(k).replaceAll(location.origin,'http://visual-origin.invalid')])); };
     const siblingGap=direction=>{let e=root[direction];while(e){const b=e.getBoundingClientRect();if(b.width&&b.height)return direction==='previousElementSibling'?r.top-b.bottom:b.top-r.bottom;e=e[direction];}return null;};
     const ancestors=[];for(let e=root.parentElement;e;e=e.parentElement){const styles=style(e);for(const k of ['height','block-size','transform-origin','perspective-origin'])delete styles[k];ancestors.push({tag:e.tagName,styles});}
@@ -12,11 +12,34 @@ export async function shellContract(page, selector) {
   });
 }
 
+// A narrowly bounded fixed overlay remains visible at its original viewport
+// coordinates. Its complete paint/DOM contract is compared, never masked.
+async function fixedOverlayContract(page) {
+  return page.evaluate(() => {
+    const e=document.querySelector('#scrollTopBtn'),footer=document.querySelector('footer.site-footer');
+    if(!e)return null;
+    const s=getComputedStyle(e);
+    if(s.display==='none'||s.visibility!=='visible'||Number(s.opacity)===0)return null;
+    const fail=()=>{throw Error('Footer phase capture ineligible: unsupported fixed overlay');};
+    if(document.querySelectorAll('#scrollTopBtn').length!==1||e.tagName!=='BUTTON'||e.parentElement!==document.body||footer.nextElementSibling!==e||e.children.length||s.position!=='fixed')fail();
+    const transform=st=>st.transform!=='none'||(st.translate&&st.translate!=='none')||(st.rotate&&st.rotate!=='none')||(st.scale&&st.scale!=='none');
+    for(let a=e;a;a=a.parentElement){const st=getComputedStyle(a);if(transform(st)||st.filter!=='none'||st.perspective!=='none'||st.clipPath!=='none'||st.maskImage!=='none'||(st.backdropFilter&&st.backdropFilter!=='none')||(st.zoom&&Number(st.zoom)!==1))fail();}
+    const styles=st=>Object.fromEntries([...st].map(k=>[k,st.getPropertyValue(k).replaceAll(location.origin,'http://visual-origin.invalid')]));
+    const pseudo={};for(const name of ['::before','::after','::first-letter','::marker']){const ps=getComputedStyle(e,name);pseudo[name]=styles(ps);if(['::before','::after','::marker'].includes(name)&&!['none','normal'].includes(ps.content))fail();}
+    const letter=getComputedStyle(e,'::first-letter');if(['fontSize','fontFamily','fontWeight','fontStyle','textShadow'].some(k=>letter[k]!==s[k]))fail();
+    if(s.offsetPath!=='none'||s.backgroundImage!=='none'||s.borderImageSource!=='none'||(s.webkitBoxReflect&&s.webkitBoxReflect!=='none')||s.writingMode!=='horizontal-tb')fail();
+    const r=e.getBoundingClientRect();
+    if(r.width<=0||r.height<=0||r.left<0||r.top<0||r.right>innerWidth||r.bottom>innerHeight||e.scrollWidth>e.clientWidth||e.scrollHeight>e.clientHeight)fail();
+    for(const node of e.childNodes){if(node.nodeType===Node.TEXT_NODE&&node.textContent.trim()){const range=document.createRange();range.selectNodeContents(node);for(const t of range.getClientRects())if(t.left<r.left||t.right>r.right||t.top<r.top||t.bottom>r.bottom)fail();}}
+    return {html:e.outerHTML,style:styles(s),pseudo,viewport:{width:innerWidth,height:innerHeight},rect:{x:r.x,y:r.y,width:r.width,height:r.height}};
+  });
+}
+
 // Eligibility is deliberately fail-closed. External paint must not disappear
 // from the capture when its origin shifts. Pointer events do not determine
 // painted visibility; computed geometry and paint bounds are checked below.
-export async function assertIndependentFooter(page, selector='footer.site-footer') {
-  const evidence=await page.locator(selector).evaluate(root => {
+export async function assertIndependentFooter(page, selector='footer.site-footer', fixedOverlay=false) {
+  const evidence=await page.locator(selector).evaluate((root,fixedOverlay) => {
     const issues=[],boundedPseudos=[],flowShadows=[];
     const label=e=>`${e.tagName.toLowerCase()}${e.id?'#'+e.id:''}${[...e.classList].map(c=>'.'+c).join('')}`;
     const original=root.getBoundingClientRect();
@@ -144,6 +167,8 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
     let externalElements=0;
     for(const e of document.querySelectorAll('*')) {
       if(root.contains(e))continue;
+      // Validated separately before and after capture; still present in pixels.
+      if(fixedOverlay && e.id==='scrollTopBtn')continue;
       const s=getComputedStyle(e);
       // A hidden host may have a visibility:visible pseudo or descendant.
       if(s.display==='none'||Number(s.opacity)===0)continue;
@@ -186,7 +211,7 @@ export async function assertIndependentFooter(page, selector='footer.site-footer
       }
     }
     return {eligible:issues.length===0,externalElements,boundedPseudos,flowShadows,issues};
-  });
+  },fixedOverlay);
   if(!evidence.eligible)throw Error(`Footer phase capture ineligible: ${JSON.stringify(evidence.issues)}`);
   return evidence;
 }
@@ -226,7 +251,8 @@ export async function capturePhaseStableFooter(page, options={}) {
   const selector='footer.site-footer';
   const locator=page.locator(selector);
   if(await locator.count()!==1) throw Error('Expected exactly one footer');
-  const eligibility=await assertIndependentFooter(page,selector);
+  const overlay=await fixedOverlayContract(page);
+  const eligibility=await assertIndependentFooter(page,selector,Boolean(overlay));
   const original=await shellContract(page,selector);
   const scene=await snapshotScene(page);
   // Adjust layout BEFORE rasterization, not a compositor transform of an
@@ -242,11 +268,11 @@ export async function capturePhaseStableFooter(page, options={}) {
     body.style.setProperty('padding-top',`${padding+dy}px`,'important');
     return {style,dy,y};
   });
-  let bytes,failure;
+  let bytes,failure,canonicalOverlay;
   try {
     const sceneIssues=await verifyScene(page,scene,saved.dy);
     if(sceneIssues.length)throw Error('Page paint changed: '+sceneIssues.join('; '));
-    eligibility.after=await assertIndependentFooter(page,selector);
+    eligibility.after=await assertIndependentFooter(page,selector,Boolean(overlay));
     eligibility.flowShadowProof='all-normal-flow-elements-exact-dy-and-styles-sizes-unchanged';
     const shifted=await shellContract(page,selector);
     if(shifted.html!==original.html)throw Error('Footer DOM changed during capture');
@@ -255,7 +281,7 @@ export async function capturePhaseStableFooter(page, options={}) {
       const a={...original.nodes[i][kind]},b={...shifted.nodes[i][kind]};
       if(JSON.stringify(a)!==JSON.stringify(b))throw Error('Phase stabilization changed footer computed styles');
     }
-    if(shifted.previousGap!==original.previousGap||shifted.nextGap!==original.nextGap)throw Error('Footer outside spacing changed');
+    if(shifted.previousGap!==original.previousGap||(!overlay&&shifted.nextGap!==original.nextGap))throw Error('Footer outside spacing changed');
     for(let i=0;i<original.ancestors.length;i++){
       const a={...original.ancestors[i].styles},b={...shifted.ancestors[i].styles};
       if(original.ancestors[i].tag==='BODY')for(const k of ['padding-top','padding-block-start']){delete a[k];delete b[k];}
@@ -265,6 +291,11 @@ export async function capturePhaseStableFooter(page, options={}) {
     if(Math.abs(documentY-saved.y-saved.dy)>1e-6)throw Error('Footer moved by more than the phase adjustment');
     if(Math.abs(documentY-Math.round(documentY))>1e-6)throw Error('Footer phase did not stabilize to integer origin');
     bytes=await locator.screenshot({...options,animations:'disabled'});
+    if(overlay){
+      if(JSON.stringify(await fixedOverlayContract(page))!==JSON.stringify(overlay))throw Error('Fixed overlay viewport or paint changed');
+      canonicalOverlay=await locator.evaluate(e=>{const r=e.getBoundingClientRect(),b=document.querySelector('#scrollTopBtn').getBoundingClientRect();return {footerViewportY:r.y,gap:b.top-r.bottom};});
+      if(Math.abs(canonicalOverlay.footerViewportY-Math.round(canonicalOverlay.footerViewportY))>1e-6)throw Error('Canonical footer viewport phase is fractional');
+    }
   } catch(error) {
     failure=error;
   } finally {
@@ -272,9 +303,10 @@ export async function capturePhaseStableFooter(page, options={}) {
   }
   const restoredSceneIssues=await verifyScene(page,scene,0);
   await scene.dispose();
+  if(overlay&&JSON.stringify(await fixedOverlayContract(page))!==JSON.stringify(overlay))throw Error('Fixed overlay restoration failed');
   if(restoredSceneIssues.length)throw Error('Scene restoration failed: '+restoredSceneIssues.join('; '));
   const restored=await shellContract(page,selector);
   if(JSON.stringify(original)!==JSON.stringify(restored)) throw Error('Footer capture changed original contract');
   if(failure)throw Error('Footer phase capture ineligible: '+failure.message);
-  return {bytes,contract:{...original,flowShadows:eligibility.flowShadows.map(({rect,...paint})=>paint)},translationY:saved.dy,eligibility};
+  return {bytes,contract:{...original,...(overlay?{nextGap:canonicalOverlay.gap,fixedOverlay:{...overlay,...canonicalOverlay}}:{}),flowShadows:eligibility.flowShadows.map(({rect,...paint})=>paint)},translationY:saved.dy,eligibility};
 }

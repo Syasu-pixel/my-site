@@ -142,6 +142,7 @@
 | [docs/reference-notes/forward-reverse-circuit-basic.md](../reference-notes/forward-reverse-circuit-basic.md) — 正転・逆転回路：刷新参照メモ | 正転・逆転回路記事の本文・画像・技術参照元を更新・検査する。未公開の改稿記録であり公開承認ではない。 |
 | [docs/reference-notes/thermal-relay-basic.md](../reference-notes/thermal-relay-basic.md) — サーマルリレー記事の公式参照・刷新メモ | サーマルリレー記事の技術内容・画像・刷新・Previewを扱う。 |
 | [docs/reference-notes/flicker-circuit-basic.md](../reference-notes/flicker-circuit-basic.md) — flicker-circuit-basic 公式参照メモ | フリッカ回路記事の技術内容・画像・一次資料・検索根拠を更新または監査する。 |
+| [docs/reference-notes/tester.md](../reference-notes/tester.md) — テスター記事の参照・制作記録 | テスター記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考
 

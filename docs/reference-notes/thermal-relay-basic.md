@@ -65,6 +65,22 @@ BingはGoogleの日次合計と直接比較しない。queryはサイト粒度�
 
 Hero、専用OGP、動作概念図、復帰前確認図の4点。16:9、白/青系、正本キャラクターと現行NFB Heroを参照して生成。機器は無銘柄の概念イラストで、配線指示・端子番号・数値設定は示さない。動作図の矢印は因果関係であり配線ではない。
 
-生成側自己評価95/100。別担当の原寸4画像・正本キャラクター・本文技術/SEO監査を2026-11-18に実施。重大な誤りなし、設定確認カードをリセット前へ移す指摘を反映済み。4画像は概念図として採用可。正式生成後の4条件最終画面確認は未完了のため、ARTICLE_READYとしない。
+生成側自己評価95/100。別担当の原寸4画像・正本キャラクター・本文技術/SEO監査を2026-11-18に実施。重大な誤りなし、設定確認カードをリセット前へ移す指摘を反映済み。4画像は概念図として採用可。正式publication→WebP後の1440px/390px×明暗4条件を別担当が検査済み。横はみ出し・JavaScript例外・画像読込失敗なし。本文2図の拡大とEscape/閉ボタン/背景クリックを検査。外部SNSクローラと実機ピンチは未検証。本人限定ホストPreviewの検証が残るため、ARTICLE_READYとしない。
 
 ルール確認は必須と適用主要文書を確認済み。長文の article-workflow / new-article-checklist / image-generation-rules は一部のみ、参照先・全件適用表の確認が残るため「全ルール確認済み」としない。公開・Preview完成前に対象工程の未確認項目を解消する。
+
+## 適用範囲と最終生成の記録（2026-11-18）
+
+- 旧 article-workflow の事前マージ/手動画像配置の記述より、マスター・移行ルール・article-editing-playbook・画像GitHub転送ルールを優先。画像は正規画像生成ツールで制作し、24時間限定Firestorageから確認用ブランチへ転送。本番/導線は対象外。
+- article-workflow の2段階/5記事、画像別検査、PR確認、更新フロー、リンク、画像alt/captionの該当節を確認。旧new-article-checklistの固定PNG/5枚等は移行ルールの現行WebP/必要点数と混同しない。
+- image-generation-rules の基礎記事4〜5点、自己検品、正本キャラ、再監査、関連記事OGPの該当節を確認。4点はHero/専用OGP/動作/復帰確認で役割分担。
+- preview-environment の現行生成/publication検証、before/after・4条件、画像SHA保全を適用。Cloudflare配信の過去成功例を今回の本人限定ホスト成功と読み替えない。
+- 日本語本文のみ今回の対象。既存英語版は未更新であり、日本語の技術補強を英語へ同期済みとは扱わない。新着・カテゴリ・検索index・sitemap・backlog・共通CSS/JS・検査器は変更しない。
+- 正式生成290ページ missingAssets 0。最終publication検査は351テキスト比較、画像mapping1672件、既存/新規欠落0、許可画像mapping以外の本文変更なし。
+- 対象publication HTML SHA256: `b991c059856a3951ba7108898efe1d3a93f9942a9c5fd5f0cea910601a79c01b`。
+- モバイルHeroの装飾背景ラベルは右端クロップあり。H1/本文可読・操作正常であり表示ブロッカーとは判定しない。
+- 画像レビュー、ローカル画面QA、ホストPreview、管理者承認、本番公開は別判定。本番公開/マージなし。
+
+## 本人限定Preview配信
+
+2026-11-18、Sites private版 `https://thermal-relay-review-20261118.hushed-ridge-8788.chatgpt.site` の配信成功。正式publication対象HTMLをバイト一致で配置。作成Siteのsource commit `a35635dc2aaded54e50cc9571f7374e792745e48`。ホスト上の実表示確認はChatGPT連携同意画面のため未実施。同意操作を代行していない。ローカル完成物の4条件QAと区別する。サイト内の他記事/カテゴリ遷移はこの限定パッケージの対象外。

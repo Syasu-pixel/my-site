@@ -148,6 +148,7 @@
 | [docs/reference-notes/crimping-tips.md](../reference-notes/crimping-tips.md) — 圧着のコツ記事の参照・制作記録 | 圧着のコツ記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/analog-output-basic.md](../reference-notes/analog-output-basic.md) — アナログ出力 公式参照メモ | articles/analog-output-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/limit-switch-troubleshooting-basic.md](../reference-notes/limit-switch-troubleshooting-basic.md) — リミットスイッチ不調 公式参照メモ | articles/limit-switch-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/home-return-circuit-basic.md](../reference-notes/home-return-circuit-basic.md) — 原点復帰記事の参照・制作記録 | 原点復帰記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考
 

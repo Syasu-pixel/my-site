@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ジョグ運転回路とは？寸動操作で少しだけ動かす基本をやさしく解説</title>
-  <meta name="description" content="ジョグ運転回路とは何かを初心者向けにやさしく整理。押している間だけ少し動かす寸動操作の考え方、手動操作との違い、自己保持を使わない理由、簡略ラダー例、現場での確認ポイントまで解説します。">
+  <meta name="description" content="ジョグ運転回路とは何かを初心者向けにやさしく整理。押している間だけ少し動かす寸動操作の考え方、手動操作との違い、自己保持を使わない理由、ラダー見本（表示灯）、現場での確認ポイントまで解説します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/jog-operation-circuit-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/jog-operation-circuit-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/jog-operation-circuit-basic.html">
@@ -1354,12 +1354,12 @@
         <span class="hero-label">回路の基礎</span>
         <h1 id="page-title">ジョグ運転回路とは？<br>寸動操作で少しだけ動かす基本をやさしく解説</h1>
         <p class="hero-lead">
-          ジョグ運転回路は、<span class="mark">押している間だけ少し動かす</span>ための基本回路です。
-          位置合わせ、試運転、復旧確認などで、設備を少しずつ安全に動かしたい時に使います。
+          ジョグ運転（寸動）は、<span class="mark">押している間だけ運転を指令</span>して、位置合わせなどで少しずつ動かす手動操作です。
+          位置合わせや試運転で使われます。ここでは、運転指令と実際の停止の違いを、表示灯だけのラダーで整理します。
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#overview">先に結論から読む</a>
-          <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
+          <a class="btn btn-secondary" href="#ladder">ラダー見本を見る</a>
         </div>
       </div>
     </section>
@@ -1386,8 +1386,8 @@
       <section class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>ジョグ運転回路は、<span class="mark">押している間だけ出力する回路</span>です。</li>
-          <li>基本的に自己保持は使わず、手を離したら止まる考え方にします。</li>
+          <li>ジョグ運転回路は、<span class="mark">押している間だけ運転を指令する方式</span>です。</li>
+          <li>押し続ける方式では自己保持せず、手を離したら運転指令を取り消します。</li>
           <li>位置合わせ・試運転・手動復旧で使いやすい操作です。</li>
         </ul>
       </section>
@@ -1399,7 +1399,7 @@
         <a href="#overview">全体像</a>
         <a href="#operation">基本動作</a>
         <a href="#comparison">自己保持との違い</a>
-        <a href="#ladder">簡略ラダー例</a>
+        <a href="#ladder">ラダー見本（表示灯）</a>
         <a href="#checks">確認ポイント</a>
         <a href="#related-title">関連記事</a>
       </div>
@@ -1408,253 +1408,90 @@
     <div class="page-layout">
       <article class="main-column">
         <section class="section-card" id="overview">
-          <h2>ジョグ運転回路の全体像</h2>
-          <p>
-            ジョグ運転回路は、ボタンを押している間だけ出力をONし、手を離すと出力をOFFする回路です。
-            「少しだけ動かす」「位置を合わせる」「試運転で様子を見る」といった場面で使います。
-          </p>
-          <p>
-            自動運転のように連続して動かすのではなく、作業者が操作している間だけ動かすのが基本です。
-            そのため、自己保持で動き続ける回路とは分けて考えると理解しやすくなります。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/jog-operation-circuit-basic/jog-operation-circuit-basic-overview.png" alt="ジョグボタンを押している間だけ出力がONする全体構成図" loading="lazy" decoding="async">
-            <figcaption>ジョグボタンを押している間だけジョグ指令を出し、手を離すと出力を止めるのが基本です。</figcaption>
-          </figure>
-
+          <h2>ジョグ運転（寸動）とは？</h2>
+          <p>ジョグ運転は、手動で位置を少し調整したいときの操作です。押しボタン式の基本は、<strong>押している間は運転を要求し、離したら要求を取り消す</strong>こと。三菱電機のMR-J4-A向けサンプル画面には、操作ボタンに触れている間にJOG運転を指令する例があります。</p>
           <div class="key-highlight">
-            <h3>ジョグ運転は「少しだけ動かす」ための操作</h3>
-            <p>
-              コンベア、シリンダ、モータ、位置合わせ機構などで、いきなり連続運転させたくない時に使います。
-              設備を少しずつ動かせるので、調整や復旧確認で役立ちます。
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>ジョグは「押している間だけ少し動かす」操作だよ。位置合わせや試運転ではかなりよく出てくるよ。</p>
-              </div>
-            </div>
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩の案内キャラクター">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">後輩</span>押したら動き続けるのではなく、手を離したら止まるのがポイントなんですね。</p>
-              </div>
-            </div>
+            <h3>指令がOFFになる時点と、機械が止まる時点は別</h3>
+            <p>離した瞬間に機械が完全停止するとは限りません。停止するまでの時間や距離は、駆動機器と機械、停止方法によって変わります。<strong>ジョグは、一定距離だけ移動させる指令でも、安全停止の代わりでもありません。</strong></p>
           </div>
         </section>
 
         <section class="section-card" id="operation">
-          <h2>ジョグ運転の基本動作</h2>
-          <p>
-            ジョグ運転では、ジョグボタンを押している間だけジョグ指令を有効にします。
-            ボタンを離したら指令が切れ、出力も止まるようにします。
-          </p>
-          <p>
-            ただし、ジョグボタンだけで出力を直接ONするのではなく、運転許可、非常停止、異常なし、モード条件などを組み合わせて考えることが多いです。
-            「ジョグボタンが押された」かつ「動かしてよい条件がそろっている」時だけ動くようにします。
-          </p>
-
+          <h2>ジョグ運転はどんな順で動く？</h2>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>ジョグPB</h3>
-              <p>作業者が押している間だけ、ジョグ指令の元になる入力です。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>運転許可</h3>
-              <p>非常停止解除、異常なし、安全条件OKなど、動かしてよい条件です。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>ジョグ指令</h3>
-              <p>ジョグPBと許可条件が成立した時だけONする内部条件です。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>出力</h3>
-              <p>モータ、シリンダ、ソレノイドなど、実際に動かす対象へつながります。</p>
-            </div>
-          </div>
-
-          <div class="field-highlight">
-            <h3>ジョグは「手動操作」の一種として見る</h3>
-            <p>
-              ジョグ運転は、自動運転とは別に手動操作で設備を少し動かすための考え方です。
-              手動・自動切替回路と組み合わせる場合は、手動モード中だけジョグを有効にすることが多いです。
-            </p>
+            <div class="check-item check-item--important"><h3>1. ボタン入力</h3><p>押している間の信号を指令の元にします。押下直後の1回だけを使うワンショットとは異なります。</p></div>
+            <div class="check-item check-item--important"><h3>2. 通常制御の許可</h3><p>手動モードなど、設備仕様で決められた成立条件を確認します。通常制御の許可と、危険を抑える安全機能は別です。</p></div>
+            <div class="check-item check-item--field"><h3>3. ジョグ指令</h3><p>必要な条件がそろっている間だけ有効にし、ボタンを離すか条件が外れたら指令を止めます。</p></div>
+            <div class="check-item check-item--warning"><h3>4. 指令と実際の動作</h3><p>ジョグ指令があるかと、機械が動くかは別の確認です。指令を切ることと、危険な動きが止まることも区別します。</p></div>
           </div>
         </section>
 
         <section class="section-card" id="comparison">
-          <h2>自己保持回路との違い</h2>
-          <p>
-            ジョグ運転回路で大事なのは、基本的に自己保持を使わないことです。
-            自己保持を入れると、ボタンを離しても動き続けるため、ジョグの「押している間だけ」という考え方と合わなくなります。
-          </p>
-          <p>
-            運転を続けたい時は自己保持回路、少しだけ動かしたい時はジョグ運転回路、というように目的で分けて考えると整理しやすいです。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/jog-operation-circuit-basic/jog-operation-circuit-basic-comparison.png" alt="ジョグ運転回路と自己保持回路の違いを比較した図" loading="lazy" decoding="async">
-            <figcaption>ジョグ運転は押している間だけ動かし、自己保持は起動後に運転状態を続けるために使います。</figcaption>
-          </figure>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>項目</th>
-                  <th>ジョグ運転回路</th>
-                  <th>自己保持回路</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>主な目的</th>
-                  <td class="cell-orange">少しだけ動かす</td>
-                  <td class="cell-blue">運転を継続する</td>
-                </tr>
-                <tr>
-                  <th>ボタンを離した時</th>
-                  <td>出力を止める</td>
-                  <td>停止条件が入るまで運転を続ける</td>
-                </tr>
-                <tr>
-                  <th>よく使う場面</th>
-                  <td>位置合わせ、試運転、復旧確認</td>
-                  <td>通常運転、起動保持、連続運転</td>
-                </tr>
-                <tr>
-                  <th>注意点</th>
-                  <td>許可条件や安全条件を必ず見る</td>
-                  <td>停止条件やインターロックを必ず見る</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="note-box">
-            <h3>「少し動かす」つもりで保持させない</h3>
-            <p>
-              ジョグ操作のつもりで自己保持が入っていると、手を離しても動き続ける可能性があります。
-              設備の動き方と回路の目的が合っているかを確認することが大切です。
-            </p>
-          </div>
+          <h2>自己保持回路・ワンショットとの違い</h2>
+          <p>ジョグの押しボタンを離しても出力が残るように、出力接点をボタンと並列に入れるのは、この例の目的に合いません。</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th scope="col">方式</th><th scope="col">信号の使い方</th><th scope="col">ボタンを離した後</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">押し続けるジョグ</th><td>押下中の信号を使う</td><td>ジョグ指令はOFF</td></tr>
+              <tr><th scope="row">自己保持</th><td>起動後の状態を保持する</td><td>別の停止条件が成立するまで保持</td></tr>
+              <tr><th scope="row">ワンショット</th><td>信号が切り替わった瞬間だけをイベントとして使う</td><td>押下時間に応じた出力はしない</td></tr>
+            </tbody>
+          </table></div>
         </section>
 
         <section class="section-card" id="ladder">
-          <h2>簡略ラダー例</h2>
-          <p>
-            ジョグ運転回路を簡略化すると、ジョグPBと許可条件を直列に入れて、ジョグ出力へつなぐ形になります。
-            押している間だけONするため、基本形では自己保持接点を入れません。
-          </p>
-
-          <div class="ladder-box" role="img" aria-label="ジョグ運転回路の簡略ラダー例">
-            <div class="ladder-row">
-              <div class="ladder-label">許可</div>
-              <div class="ladder-line">[ M10 手動モード ] [ M20 運転許可 ] [ /M90 禁止条件 ] ---- ( M30 ジョグ許可 )</div>
-            </div>
-            <div class="ladder-row">
-              <div class="ladder-label">指令</div>
-              <div class="ladder-line">[ M30 ジョグ許可 ] [ X0 ジョグPB ] ------------------------ ( M100 ジョグ指令 )</div>
-            </div>
-            <div class="ladder-row">
-              <div class="ladder-label">出力</div>
-              <div class="ladder-line">[ M100 ジョグ指令 ] -------------------------------------- ( Y0 ジョグ出力 )</div>
-            </div>
-          </div>
-
-          <p>
-            この例では、手動モード、運転許可、禁止条件なしが成立している時だけジョグ許可がONします。
-            そのうえで、ジョグPBを押している間だけジョグ指令と出力がONします。
-          </p>
-
-          <div class="key-highlight">
-            <h3>ジョグ出力の前に許可条件を入れる</h3>
-            <p>
-              ジョグ操作は手動で動かせるため便利ですが、何でも動かせるようにしてよいわけではありません。
-              非常停止、異常、インターロック、モード条件などを確認した上で出力するのが基本です。
-            </p>
+          <h2>ラダー見本：表示灯だけで動きを確かめる</h2>
+          <p>ここで扱う出力は<strong>練習用の表示灯だけ</strong>です。M10はシミュレーションで与える練習許可、X0はジョグボタンの入力、Y0は表示灯を表します。番地は説明用で、実機のモータや安全機器にはつなぎません。</p>
+          <figure class="article-figure">
+            <img src="../assets/images/jog-operation-circuit-basic/jog-practice-ladder-20261119.webp" alt="左母線からM10練習許可とX0ジョグボタンのa接点を直列に通り、Y0表示灯コイルへつながるラダー。自己保持接点なし。実機の運転・安全用ではない。" width="1200" height="850" loading="lazy" decoding="async">
+            <figcaption>M10とX0の両方がONの間だけ点灯。ボタンを離すか練習許可をOFFにすると消灯します。自己保持は入れていません。</figcaption>
+          </figure>
+          <div class="table-wrap"><table>
+            <thead><tr><th scope="col">M10 練習許可</th><th scope="col">X0 ボタン</th><th scope="col">Y0 練習表示灯</th></tr></thead>
+            <tbody>
+              <tr><td>OFF</td><td>OFF</td><td>消灯</td></tr>
+              <tr><td>OFF</td><td>ON</td><td>消灯</td></tr>
+              <tr><td>ON</td><td>OFF</td><td>消灯</td></tr>
+              <tr><td>ON</td><td>ON</td><td>点灯</td></tr>
+            </tbody>
+          </table></div>
+          <div class="danger-box">
+            <h3>この見本には再起動防止がない</h3>
+            <p><strong>押しっぱなしで練習許可を戻すと、表示灯は再点灯します。</strong>この見本を実機の運転出力へ置き換えてはいけません。電源復帰、モードの切替、異常や非常停止からの復帰などで押しっぱなしの指令が動作につながらないよう、実機では想定する状態を明らかにし、必要な再起動防止を設計・検証します。非常停止やガードの安全機能を通常PLCのこのラダーで代用しません。</p>
           </div>
         </section>
 
         <section class="section-card" id="checks">
-          <h2>現場での確認ポイント</h2>
-          <p>
-            ジョグ運転が動かない時は、ジョグPBだけでなく、手動モード、運転許可、禁止条件、出力側を順番に確認します。
-            逆に、手を離しても止まらない場合は、自己保持や別の出力条件が混ざっていないかを確認します。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/jog-operation-circuit-basic/jog-operation-circuit-basic-check-flow.png" alt="ジョグ運転回路で確認するポイントをSTEP形式で整理した図" loading="lazy" decoding="async">
-            <figcaption>ジョグPB、手動モード、許可条件、禁止条件、出力の順で見ると、動かない原因を追いやすくなります。</figcaption>
-          </figure>
-
+          <h2>ジョグ運転が動かない・止まらないときの切り分け</h2>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>ジョグPBが入っているか</h3>
-              <p>入力モニタで、ボタンを押した時だけONしているか確認します。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>手動モードになっているか</h3>
-              <p>自動モード中はジョグを無効にする設計も多いため、モード条件を確認します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>運転許可が出ているか</h3>
-              <p>非常停止解除、異常なし、安全条件OKなど、許可条件を確認します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>禁止条件で止まっていないか</h3>
-              <p>インターロック、上限・下限、異常保持などで切れていないか見ます。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>自己保持が混ざっていないか</h3>
-              <p>手を離しても止まらない時は、保持接点や別ルートの出力条件を確認します。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>出力側が動く状態か</h3>
-              <p>PLC出力、リレー、電磁弁、モータ側の電源や配線も確認します。</p>
-            </div>
-          </div>
-
-          <div class="danger-box">
-            <h3>ジョグ操作でも安全条件は省略しない</h3>
-            <p>
-              ジョグは手動で少し動かせる便利な操作ですが、設備を実際に動かす操作です。
-              実機では設備仕様、社内手順、安全確認、メーカー資料に従って作業してください。
-            </p>
+            <div class="check-item check-item--important"><h3>入力：押すとON、離すとOFFか</h3><p>動力を必要としない確認から始め、入力モニタでONとOFFの両方を記録します。</p></div>
+            <div class="check-item check-item--important"><h3>条件：手動モード・通常許可は成立しているか</h3><p>設計資料と照らし、どの条件で指令が途切れるかを追います。安全装置を短絡・無効化したり、出力を強制したりしません。</p></div>
+            <div class="check-item check-item--field"><h3>指令：ボタンを離した後も残っていないか</h3><p>自己保持や別経路から同じ装置を要求していないかを、回路資料とモニタで区別します。</p></div>
+            <div class="check-item check-item--warning"><h3>機械：指令がOFFでも動きが残るか</h3><p>危険な動きが続くときは切り分けを続けず、設備の安全手順に従って停止・隔離し、責任者に引き継ぎます。停止距離やブレーキなどの確認は設備仕様とメーカー資料に従います。</p></div>
           </div>
         </section>
 
         <section class="section-card" id="summary">
           <h2>まとめ</h2>
-          <p>
-            ジョグ運転回路は、押している間だけ少し動かすための基本回路です。
-            位置合わせ、試運転、復旧確認などで使いやすく、手動操作の中でも現場でよく出てきます。
-          </p>
-          <p>
-            大事なのは、自己保持で動き続ける回路と混同しないことです。
-            ジョグは手を離したら止まることが基本なので、運転許可や禁止条件を入れたうえで、押している間だけ出力する形にします。
-          </p>
-
           <ul class="simple-list">
-            <li>ジョグ運転回路は、押している間だけ出力する回路</li>
-            <li>位置合わせ・試運転・復旧確認で使いやすい</li>
-            <li>基本形では自己保持を使わない</li>
-            <li>手動モード、運転許可、禁止条件を確認してから出力する</li>
-            <li>手を離しても止まらない時は、保持接点や別ルートを確認する</li>
+            <li>ジョグ運転（寸動）は、押している間だけ要求する手動操作です。指令のOFFと機械の完全停止は別です。</li>
+            <li>表示灯の見本は、練習許可とボタンの直列条件だけ。自己保持はありません。</li>
+            <li>実機では通常制御とは別に、安全機能と予期しない再起動の防止を検証します。</li>
           </ul>
-
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
             <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎を見る</a>
           </div>
+        </section>
+
+        <section class="section-card" id="official-sources">
+          <h2>メーカー公式資料・技術参照元</h2>
+          <p>内容更新日：2026-11-19 ／ 公式資料確認日：2026-11-19</p>
+          <ul class="simple-list">
+            <li><a href="https://www.mitsubishielectric.co.jp/fa/document/others/got/conn_j002/MITSUBISHI_MR-J4-A_V_Ver3a_J.pdf">三菱電機：MELSERVO-J4 MR-J4-A サンプル画面説明書（PDF）</a>。JOG画面の操作例。対象機種固有の資料で、掲載の表示灯ラダーとは別です。</li>
+            <li><a href="https://www.fa.omron.co.jp/product/special/safetynavi/design/pl_case/emergency_stop/">オムロン：非常停止スイッチのPL評価事例</a>。安全回路の機能を通常制御と区別するための事例で、全設備に共通の処方ではありません。</li>
+            <li><a href="https://www.fa.omron.co.jp/product/special/safetynavi/tips/safety_principle_03/">オムロン：マニュアルリセットとオートリセットの使い分け</a>。再起動防止とリスクアセスメントの関係を確認。</li>
+          </ul>
         </section>
 
         <section class="section-card" aria-labelledby="related-title">
@@ -1695,7 +1532,7 @@
             <li><a href="#overview">全体像</a></li>
             <li><a href="#operation">基本動作</a></li>
             <li><a href="#comparison">自己保持との違い</a></li>
-            <li><a href="#ladder">簡略ラダー例</a></li>
+            <li><a href="#ladder">ラダー見本（表示灯）</a></li>
             <li><a href="#checks">確認ポイント</a></li>
             <li><a href="#summary">まとめ</a></li>
           </ul>
@@ -1706,8 +1543,8 @@
           <ul>
             <li>ジョグPBが入っているか</li>
             <li>手動モードになっているか</li>
-            <li>運転許可が成立しているか</li>
-            <li>手を離したら止まるか</li>
+            <li>通常制御の運転許可が成立しているか</li>
+            <li>ボタンを離したらジョグ指令がOFFになるか</li>
           </ul>
         </section>
 

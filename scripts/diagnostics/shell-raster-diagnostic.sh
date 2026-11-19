@@ -103,8 +103,11 @@ done
 df -Pk "$tmp" > "$artifact/disk-after-fixtures.txt"
 for fixture in crimp clean; do
   ln -s "$root/node_modules" "$tmp/$fixture/node_modules"
-  node "$tmp/$fixture/scripts/build-site-shells.mjs" --check
-  node "$tmp/$fixture/scripts/build-site-shells.mjs"
+  (
+    cd "$tmp/$fixture"
+    node scripts/build-site-shells.mjs --check
+    node scripts/build-site-shells.mjs
+  )
 done
 
 write_summary() {

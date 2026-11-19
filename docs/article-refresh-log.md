@@ -90,6 +90,12 @@
 - 既存記事刷新1件を追加し、下表は64 slug（重複0）。従来の63件の状態と履歴は保持する。
 - 当初174件の既存記事集合では174−64＝110件が本台帳で完了を確認できていない残り。未更新確定数ではない。
 
+### 2026-11-19 集計追補（タイマー回路・ジョグ運転回路の公開記録）
+
+- 照合基点: main `30137ed65400a8587626f808b7839cc6f74349e0`。本番サイトマップ・サイト内検索索引に2記事の対象URLを各1件確認。
+- 既存記事刷新2件を追加し、下表は66 slug（重複0）。従来の64件の状態と履歴は保持する。
+- 当初174件の既存記事集合では174−66＝108件が本台帳で完了を確認できていない残り。未更新確定数ではない。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -133,6 +139,7 @@
 | `iai-robocylinder-basic` | 刷新main反映・本番確認済み | 2026-11-18 | HTML表示なし（採用・公開日と区別） | 2026-11-17 | [PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)・本書の個別履歴 | 完成・凍結。保守的に公開11-18から90日未満は除外、最短再評価2027-02-16。IndexNow HTTP200、Google登録リクエストは11-18に本人実施申告・検索反映未確認。 |
 | `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `jog-operation-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回を約21:47 JSTに優先クロール待ちとして受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。 |
 | `lan-checker` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。footer CI FAILは個別判定のまま保持。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人提供画面で実施済みを確認・検索反映未確認。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
 | `limit-switch-troubleshooting-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（本文表記） | 2026-11-19（本文・参照記録） | [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。 |
@@ -170,6 +177,7 @@
 | `terminal-block-jumper-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `tester` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
 | `thermal-relay-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
+| `timer-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回を約21:46 JSTに受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。 |
 | `tool-belt` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
 | `while-pressed-circuit-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1645](https://github.com/Syasu-pixel/my-site/pull/1645) | 本文表示から採録。未確認は推測補完しない。 |
 
@@ -1005,4 +1013,13 @@
 - 単安定リレーの動作前後のa・b・c接点と、コイル定格／接点定格の違い、交換時の型式照合、点検の安全上の前提を整理。採用済みの動作図と定格図を反映。根拠のメーカー公式資料と2026-11-19確認日は本文に記載。
 - 正式成果物はPC・タブレット・スマホとダーク表示に合格。[本番Pages run44506112004](https://github.com/Syasu-pixel/my-site/actions/runs/44506112004) build/deploy成功（19:36:25 JST）。19:38:46 JSTに同一本番manifest、配信HTML SHA-256 `852ec0710999737dea3c7ff14823a0f45419c5bffb35b2d8aeddde13c34218c5`、画像2点のバイト一致、対象のサイトマップ／検索索引各1件を検証。
 - [IndexNow run44506112158](https://github.com/Syasu-pixel/my-site/actions/runs/44506112158) の対象1 URL自動送信は19:30:05 JSTにHTTP200受付。Google Search ConsoleのURL検査では、既存URLの登録済み表示に加え、Google登録リクエスト1回、約19:40 JSTに受付を確認（GOOGLE_REQUESTED）。更新版の再クロール・検索反映完了は未確認。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 タイマー回路・ジョグ運転回路の公開確認
+
+- 対象: 既存日本語2記事のみ。[PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000) の正式CI 8件合格、最終head `8b8b9911bbefe46192c7fc93bfdea0e8ad86cf9c`、merge `30137ed65400a8587626f808b7839cc6f74349e0`。リレーソケット・英語版は変更なし。
+- 正式成果物はPC・タブレット・スマホとダーク表示に合格。[本番Pages run44525650210](https://github.com/Syasu-pixel/my-site/actions/runs/44525650210) build/deploy成功。21:45:16 JSTに本番manifest一致、画像バイト一致、canonicalとサイトマップ／検索索引各1件を検証。
+- [IndexNow run44525650244](https://github.com/Syasu-pixel/my-site/actions/runs/44525650244) が対象2 URLを21:38:32 JSTにHTTP200受付。クロール／登録完了を意味しない。
+- [ジョグ運転回路](https://denkicontrol.com/articles/jog-operation-circuit-basic.html): 通常のジョグ指令と実機停止・安全機能を区別し、表示灯の練習ラダーと、指令OFF・通常制御の許可を明記した右欄を反映。配信HTML SHA-256 `57326fb835da6b281c2b88eafa8acf13e640199609eccfb3540a72fe7d8ad0fb`、採用ラダーWebP SHA-256 `bc9b9b83451c63d3dfbbcfb81489cf13bc5cb7c1e1519cc882698bfe028aa3ff`。Google登録リクエスト1回を約21:47 JSTに優先クロール待ちとして受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。
+- [タイマー回路](https://denkicontrol.com/articles/timer-circuit-basic.html): 三菱電機MELSEC iQ-F FX5の通常オンディレイを、通常タイマーと表示灯の練習ラダーで解説。設定値の時間単位と積算との違いを明記。配信HTML SHA-256 `732ee80a32e16305f4251bc0a0737a54c7d07f297ebd346fcaade0c32e205290`、採用ラダーWebP SHA-256 `e4afa59ce1ebf49158f93d95d4219a3de71e28be1bc7bfc39feebac353890b71`。Google登録リクエスト1回を約21:46 JSTに受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。
 - 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。

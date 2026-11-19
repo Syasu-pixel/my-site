@@ -145,6 +145,7 @@
 | [docs/reference-notes/tool-belt.md](../reference-notes/tool-belt.md) — 腰袋記事の参照・制作記録 | 腰袋記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/tester.md](../reference-notes/tester.md) — テスター記事の参照・制作記録 | テスター記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/counter-circuit-basic.md](../reference-notes/counter-circuit-basic.md) — カウンタ回路記事の参照・制作記録 | カウンタ回路記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/crimping-tips.md](../reference-notes/crimping-tips.md) — 圧着のコツ記事の参照・制作記録 | 圧着のコツ記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/home-return-circuit-basic.md](../reference-notes/home-return-circuit-basic.md) — 原点復帰記事の参照・制作記録 | 原点復帰記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考

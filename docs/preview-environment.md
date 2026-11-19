@@ -1,88 +1,144 @@
-# Denkicontrol Preview Environment v0.1
+# Denkicontrol Preview Environment v0.2
 
 ## 目的
 本番 `https://denkicontrol.com/` を変更する前に、PRの内容を実ページとして確認できるPreview環境を用意する。
 
-Canonical Productionは引き続きGitHub Pages / `main` / `https://denkicontrol.com/` とし、PreviewはNetlify Deploy Previewsを利用する。
+Canonical ProductionはGitHub Pages / `main` / `https://denkicontrol.com/`。本書のNetlify Deploy Previews手順は2026-09-06時点の初期導入記録であり、現在の最終Preview標準経路とみなさない。実際の配信サービスと生成済みHTMLの実体を確認する。
 
-## 採用理由
-- GitHub PRごとに固有のPreview URLを自動生成できる。
-- PRへ追加コミットすると同じPreview URLが更新される。
-- Productionとは別URLで確認できる。
-- 静的HTML中心の現在の構成をそのまま配信できる。
-- Netlify Deploy Previewは検索エンジン向けnoindexヘッダーを自動付与する。
-- さらに本リポジトリの `netlify.toml` でもNetlify配信全体へ `X-Robots-Tag: noindex, noarchive` を付与し、Netlify側の重複main deploymentも検索対象外にする。
+## 正常完了した記事更新ルート（ロードセルを基準とする）
 
-## Previewは公開面である
-Deploy Previewは `noindex` でも非公開ページではない。URLを知る人が閲覧できるPUBLIC REVIEW SURFACEとして扱う。
+2026-10-02に最終Previewから管理者承認・本番反映まで完了したロードセル記事の PR #1650（記事更新）と PR #1651（最終Preview専用）を基準事例とする。
 
-Previewへ載せてよいのは公開予定のHTML・画像・CSS/JS等のサイト資産と、公開されても問題ないリポジトリ内容に限る。APIキー、アクセストークン、秘密情報、契約情報、個人情報、非公開顧客情報等をPreview対象PRへ含めない。
+- 記事編集PRと最終Preview専用ブランチを分離する。Preview専用ブランチはmainへマージしない。
+- 専用ブランチでは採用済みソースをもとに `scripts/build-integrated-review.mjs` を実行し、生成済みcandidate記事HTMLと必要な共通CSS/JSを実際の配信ブランチへ書き出す。編集元raw HTMLを最終Previewとして案内しない。
+- 固定ヘッダー `site-header dc-shell`、目次・共通JS・画像等の対象マーカーを検査し、外部Preview URLで実際の表示を確認する。PC/スマホ・ライト/ダークの確認を行う。
+- 管理者が最終Previewを目視承認した後にのみ、本番用PRをmainへ反映する。本番Pages公開と本番URL表示も別途確認する。
+- PR #1651のブランチ内に存在したロードセル専用Preview Workflowは当時の成功実装例であり、現在のmainに存在する汎用Workflowではない。記事名・ブランチ名・画像名をそのまま別記事へ流用せず、適用対象と必要資産を限定する。
+- PLC記事は2026-10-11にCloudflare Pages Preview配信と管理者目視承認が完了。配信手順は次節を正本とする。
+- 追加ページは `docs/additional-page-shells.md` の生成・検査を優先し、記事専用の目次・関連記事などを要求しない。外部Previewの配信実体確認と管理者承認という共通原則だけを適用する。
 
-将来、非公開案件やコミュニティの個人情報を扱う必要が生じた場合は、認証付きPreviewまたは別環境を設計する。
+以下は初期Netlify導入時の履歴であり、現在の作業手順として実行しない。現在の正規判断は上記の成功実績と `docs/article-editing-playbook.md`（記事）・`docs/additional-page-shells.md`（追加ページ）を優先する。
 
-## Productionとの境界
-- `main` pushによるGitHub Pages公開は変更しない。
-- `.github/workflows/pages.yml` は変更しない。
-- `.github/workflows/indexnow.yml` は `main` pushのみで動くためPreviewでは実行されない。
-- NetlifyのURLを本番canonicalとして扱わない。
-- NetlifyのURLを本番sitemap、search-index、IndexNow通知対象へ追加しない。
-- Denkicontrolの独自ドメインをNetlifyへ向けない。
-- Netlifyのmain deploymentは `duplicate non-indexed staging surface` と扱い、Canonical Productionとは呼ばない。
 
-## 想定フロー
-1. AIが確認用ブランチへ変更を作成する。
-2. `main` 向けPRを作成する。
-3. NetlifyがPR固有のDeploy Previewを作成する。
-4. AIがHTML、リンク、画像、HTTPヘッダー等を確認する。
-5. ユーザーがPreview URLを目視確認する。
-6. 修正が必要なら同じPRへ追加コミットする。
-7. ユーザーが公開OKを出す。
-8. PRを `main` へマージする。
-9. GitHub PagesがCanonical Productionを更新する。
-10. `main` pushを受けて既存IndexNow workflowが対象HTMLを通知する。
+## Cloudflare Pages 最終Preview配信：2026-10-11検証済み手順（配信運用の正本）
 
-## 検索エンジン隔離チェック
-Preview導入テストでは最低限以下を確認する。
+この節は **配信方法だけ** の正本。本文編集・画像採用・統合生成・publication検証は `docs/article-editing-playbook.md`、管理者承認後の本番反映と検索登録は `docs/post-approval-publish-pipeline.md` を参照し、ここで重複記述しない。
 
-- Preview URLが `denkicontrol.com` ではない。
-- PreviewのHTTPレスポンスに `X-Robots-Tag: noindex` がある。
-- Preview作成だけではIndexNow workflowが実行されない。
-- Preview URLをsitemapへ追加していない。
-- ページ内canonicalがPreview URLへ書き換わっていない。
-- robots/noindexの設定がProductionへ影響していない。
+1. 最終統合済みpublicationのHTMLと必要な共通CSS/JS・画像を、**mainへマージしない専用Previewブランチ**へ保存。raw HTMLやreview用noindex出力を最終Previewとしない。Preview専用Draft PRは本番PRと分離する。新規PR/Workflowを無意味に増やさない。
+2. Cloudflare Pagesプロジェクトは `denkicontrol-preview`、Git連携先は `Syasu-pixel/my-site`。Cloudflare Dashboard → Workers & Pages → `denkicontrol-preview` → Settings → Preview → Branch control で、対象ブランチがPreview許可条件に含まれることを確認する。2026-10-11時点のカスタム許可条件は `ai-editorial/*`、`プレビュー-*`、`preview-final-plc-basic-publication-v3-20261007`。**別記事のブランチが自動で許可されるとは限らない**。必要なブランチのみ追加し、既存条件を削除しない。
+3. Production branchは `main`。Productionの自動デプロイ設定をPreview配信のために有効化しない。Cloudflare Pagesのプロジェクト内「Production」は本番サイト `denkicontrol.com`（GitHub Pages）とは別の環境だが、意図しないデプロイを避ける。
+4. Git連携の新しいPushが届いてもCloudflareが `skipped` とする場合がある。Dashboard → Deployments → 対象ブランチ・commitの Details で状態を確認し、**対象がPreviewブランチであることを確認したうえで**「Manage deployment → Retry deployment」を使う。2026-10-11のPLCではコミット `7fee8c6` が最初 `skipped` となり、同じ対象のRetryで `success` になった。別ブランチやProductionのデプロイを再実行しない。Retryが使えるなら追加コミットは不要。
+5. Cloudflareの成功画面に表示される **Deployment URL** と **Branch alias** を記録する。記事の場合はその実URLの末尾に `/articles/{slug}.html` を付け、HTTP到達・統合ヘッダー・本文・画像・CSS/JS・ライトボックス・PC/スマホとライト/ダークを実際に確認する。**URLの文字列を作れただけでは表示成功と記録しない**。BotコメントがなくてもCloudflare Dashboardのsuccessと実URLを証拠とできる。
+6. 管理者の最終目視OKが出るまでmainマージ禁止。承認後の公開は `docs/post-approval-publish-pipeline.md` に従い、Preview専用PRをそのままmainへマージしない。公開成功後にPreview専用PRを未マージで閉じる。
 
-## 配信対象について
-v0.1 Pilotでは現在の静的サイト構成を崩さないため `publish = "."` を使用する。この方式ではリポジトリrootが配信面となるため、Preview対象ブランチへ置くファイルは公開可能な内容のみとする。
+### PLC配信の検証済み実績（2026-10-11）
 
-AI運営ログ、Decision Log、将来の内部資料等で公開不要情報が増えた場合は、Preview専用build directoryを導入し、`docs/`、`.github/` 等の運用ファイルを配信対象から除外する。この改善はPilot後の再検討項目とする。
+- Preview専用PR: #1761、ブランチ `preview-final-plc-basic-publication-v3-20261007`、内容不変の配信トリガーコミット `7fee8c667a7e3fd85dede20950ff2e7000b8086f`。
+- Cloudflare Deployment ID: `609fd85d-bc8d-4928-bb9e-efc804619b69`。Dashboardで clone/build/deploy 全成功、所要1分37秒。
+- 固定Deployment URL: `https://609fd85d.denkicontrol-preview.pages.dev/articles/plc-basic.html`。Branch alias: `https://preview-final-plc-basic-publ-rnch.denkicontrol-preview.pages.dev`（Cloudflare画面表示）。
+- 管理者から最終目視確認完了の明示OKあり。Cloudflare配信成功と管理者目視承認は記録済みだが、main公開成功とは区別する。
 
-## 初回接続時に人間が行う作業
-NetlifyのGitHub連携は外部サービスのアカウント権限を伴うため、初回だけユーザーがNetlify側でリポジトリ `Syasu-pixel/my-site` を接続する。
+## 表示差分の品質判断（2026-11-02 管理者方針）
 
-推奨設定:
-- Git provider: GitHub
-- Repository: `Syasu-pixel/my-site`
-- Production branch: `main`
-- Build command: なし
-- Publish directory: `.`
-- Deploy Previews: 有効
-- Custom domain: 設定しない
+- 原則としてCIのピクセル比較・画像保全検査は維持する。閾値を一律に緩めたり、失敗を自動成功へ変更したりしない。
+- 既存記事の刷新で検出された差分は、**変更記事固有の表示差分・共通部品の回帰・無関係な他記事の既存差分**を、最新mainを基準に個別に区別する。CIジョブ全体のFAILと変更記事そのもののFAILを混同しない。
+- 管理者が承認済みのPreviewについて、フッターの約1pxの高さ差や文字アンチエイリアス等の人間が通常表示で気づかない微小差は、before/after/diff、表示幅、原因、リンク・機能・テキスト切れの有無を記録した**個別の目視判定**によって、公開の妨げとしない判断ができる。ただし全件に自動適用する許容値ではない。
+- 文字切れ、重なり、画像の取り違え、リンク・操作不良、横スクロール、重要な構造の変化、未確認の技術表現などは微小差扱いにせず修正または追加検証する。
+- 画像のハッシュ不一致は表示の微小差とは別問題。変換・配信・キャッシュ・原本取り違えを切り分け、承認画像と配信物の対応を検証する。
+- CIが失敗のままでも公開可と**機械的に判定しない**。ブランチ保護・必須チェックを迂回せず、必要な例外判断は、根拠・対象URL・承認者・比較元SHA・結果をPRに記録して正式な公開経路で扱う。全サイト保全で他記事の既存FAILがある場合は独立した改善案件に分け、今回の変更による新規回帰がないことを必ず確認する。
+- 目視判定後に本文・Hero・共通部品など意味のある変更が加わった場合は、再検証を要する。
 
-接続後は通常のPR作成だけでPreview生成を自動化する。
+## 旧運用記録の扱い
 
-## 初回接続とこのPRのマージを分離する
-`netlify.toml` と設計文書を `main` へ入れること自体は、GitHub Pages / IndexNow workflowを変更しない。このためPR #1292のマージと、Netlifyへの外部GitHub接続は別ゲートとして扱う。
+2026-09-06のNetlify Pilotの具体的な設定手順・初回接続・旧PR #1292の記録はGit履歴で確認する。現行の作業手順として再掲しない。旧記録を参照する際も現在の配信・生成・検証実装を優先する。
 
-PR #1292はレビュー通過後に先にマージ可能。Netlify接続はその後、外部サービス権限を伴うHuman Gateとして実施する。
+## PRのヘッダー・フッター視覚比較：最新mainを基準とする（2026-10-16）
 
-## 初回実証
-接続完了後、表示へ影響しない小さなテストPRまたは次の実記事変更PRで以下を実証する。
+- **通常のPRレビューでは、古い固定コミットを合否判定の基準にしない。** `.github/workflows/site-shell-visual.yml` は検査対象PRの `pull_request.base.sha`（その実行時点のマージ先 `main`）を取得し、同じランナー・ブラウザ・設定でbaseとheadを比較する。古い記事刷新、画像変更、文字位置の変化を今回のPRに誤帰属しない。
+- `scripts/site-shell-visual.mjs` にはWorkflowから `BASE_SHA` を渡して、before/afterの基準一致を強制する。既存の `.github/site-shell-visual.json` の `baselineCommit` は過去比較用の手動フォールバックであり、PR合否の正本ではない。
+- **検査の厳しさを下げる運用ではない。** 予期しないヘッダー・フッターの構造、リンク、メニュー、横スクロール、崩れは差し戻す。描画差分が出た場合はスクリーンショットのbefore/after/diffを確認し、1〜2px程度の文字輪郭やアンチエイリアスと、実際の配置・構造の変化を分けて記録する。現行のピクセル判定を勝手に緩和・停止しない。
+- PR作成・レビュー中にmainが進んだ場合は `base.sha` と比較対象の再確認が必要。見かけ上の成功だけで本番反映しない。変更対象の限定差分検査（例：寄付カード非表示）と実際の最終Preview目視確認も別途実施する。
+- 正式な本番反映は、**生成済み最終Previewを管理者が確認して明示承認した後だけ**。従来の固定baselineの履歴・証拠は削除しない。
 
-- PR上にDeploy Preview status / URLが出る。
-- 記事URLへ直接アクセスできる。
-- CSS / JS / 画像がProductionと同様に読み込める。
-- `X-Robots-Tag: noindex` を確認できる。
-- `main` はユーザー承認まで変更されない。
+## Hero検査の影響範囲レポート（2026-11-08 段階導入）
 
-## ロールバック
-Preview側の設定に問題がある場合はNetlify連携を停止しても、GitHub PagesのCanonical Production公開には影響させない。`netlify.toml` はNetlify専用設定として扱う。
+- `article-heroes.yml` は従来の全サイトHero・CTA検査を維持しつつ、独立した `impact-report` ジョブでPRの変更対象を `hero-impact-report` に記録する。**現段階は情報提供のみ**であり、必須チェックの合否を変更しない。
+- 記事固有の変更は対象記事、Hero生成器や共通部品変更は全記事を影響候補とする。共通CSS等の間接依存はこの簡易判定だけでは網羅できないため、公開判定時は差分を追加確認する。
+- ブラウザ検査の `HERO_TARGETS` にはmanifest内の明示的な対象パスをカンマ区切りで指定できる。未指定なら従来どおり全対象を検査し、不明な対象はエラーとする。
+- Heroブラウザ検査の微小画素差は末尾の警告条件に従う。CTAの不一致、構造・画像・リンク異常は引き続き調査・修正対象。
+- 全サイト検査と変更影響範囲の結果を比較し、変更対象外の既存不具合を独立Issueへ移す判断は証拠・管理者承認・必須チェック制約をPRに残す。全サイト監視の停止や必須チェックの迂回はしない。
+
+# 記事公開監査の判定設計（段階導入案・2026-11-08）
+
+対象：記事刷新PR、Hero保全、共通ヘッダー・フッター、リンク・CTA。関連Issue #1816、実例PR #1812。
+
+## 1. 監査と公開ゲートを分ける
+
+| 判定 | 例 | 対応 |
+|---|---|---|
+| BLOCK | 採用画像の取り違え、欠落、技術的な誤記、リンク切れ、CTA誤遷移、文字切れ・重なり・横スクロール、共通部品の実回帰 | 修正まで公開停止 |
+| REVIEW | 同一HTML/CSS/寸法・機能正常が確認できた微小なラスタ差、原因がまだ確定していない非機能差 | before/after/diff、比較SHA、幅、対象URL、判断者と根拠をPRに記録。未判断は公開不可 |
+| PASS | 対象記事と依存部品の検査成功、または根拠付き個別REVIEWを正式に承認 | 次の公開工程へ進む |
+
+色差だけで公開可否を判断しない。Heroブラウザ検査の警告条件は末尾に記載する。CTA不一致を微小差扱いしない。
+
+## 2. 変更影響範囲の決め方
+
+- 記事本文だけ：当該記事と関連カード掲載元、カテゴリ・検索導線、共通テンプレートへの影響を点検。
+- 画像・Hero・OGP：対象記事の画像原本ハッシュ、参照先、PC/スマホの表示、OGPを点検。
+- 共通CSS/JS、ヘッダー・フッター、ビルダー、監査プログラム：全サイトに波及し得るため、対象を限定せず広範囲の回帰検査を実施。
+- 変更対象外の既存FAIL：独立Issueへ切り分けるが、**今回のPRが新しい回帰を起こしていない証拠が必要**。未確認のCTAエラーは別Issueへ移すだけで解決済みとみなさない。
+
+## 3. 段階導入と検証条件
+
+1. **観測段階（PR #1817）**：`hero-impact-report` を生成。全サイトの従来CIは変更しない。微小差分は診断分類のみ。
+2. **実証段階（後続PR）**：代表的な記事単独変更・画像変更・共通CSS変更の3ケースで、抽出された影響範囲が十分かテスト。変更記事のHero/CTA・フッターの不具合を故意に混ぜた負例テストも実施。
+3. **公開ゲート段階（別途承認後）**：影響対象のBLOCKとREVIEWを判定し、全サイトの既存FAILを独立監査に分離。branch protection / required checksの変更が必要なら設定を確認し、事前承認を得て実施。黙って無効化しない。
+
+## 4. 証跡の必須項目
+
+- PR番号、対象URL、承認済みPreview URL、管理者承認
+- base/head SHA、変更ファイルと間接依存、対象外の既存FAILのIssue
+- 画像blob SHA、DOM/CSS/操作検査結果、スクリーンショット比較（幅別）
+- BLOCK / REVIEW / PASSの根拠と判断者、再検証が必要な変更の有無
+
+## 5. PR #1812への適用条件
+
+ノーヒューズブレーカ記事の採用済み本文・画像5枚は維持する。今回の日本語記事の全幅Hero・CTAとフッターの差分を再確認し、対象外のCTAエラーを #1816 で追跡。**CIが失敗のままの状態を自動で公開許可としない**。正式な公開経路で条件が揃ってからmainへ反映する。
+
+### 2026-11-08: PR時のHeroブラウザ検査を影響範囲に限定
+
+- 登録済み記事HTMLのみのPR（該当記事の保全台帳ハッシュと補足Markdownを含む場合も同様）は、`impact-report` が選んだ `HERO_TARGETS` をブラウザ検査と最終集計で共有し、1シャードで検査する。集計では対象記事の全4幅とCTA操作の結果を照合する。
+- 記事用画像を差し替える場合は、差分前後の参照元と保全台帳の変更行から影響記事を追加する。カテゴリの画像参照はレポートに記録し、カテゴリ表示は別の検査で確認する。共通CSS/JS・部品、台帳の共通設定、検査器の変更や参照元を特定できない画像は、全Heroを6シャードで検査する。
+- `workflow_dispatch` は引き続き全Heroを6シャードで検査する。定期全サイト監査の追加は別案件で検討する。
+- Heroブラウザ検査では、DOM・寸法・リンク等の計測値が完全一致し、色差が各チャンネル最大1階調の場合に限り、比較画像と件数を警告として記録する。CTA不一致、寸法差、2階調以上の差は失敗とする。フッター検査の判定は別Workflowに従う。
+- **公開用の全サイトCIと変更対象検査の分離は段階導入**。影響範囲の網羅性・検査の成功を確認するまで必須チェックや保護設定を変更しない。
+
+## 2026-11-17: 承認済み検査方式改修（PR検証中）
+
+管理者が「記事二つを最後まで進めて」と、撮影位相の安定化・新規記事のbase/head別在庫対応を承認。記事原稿・共有部品・比較画像の基準差替え、閾値緩和、必須CI回避の承認ではない。
+
+- 原版before/after/diffと読取り専用座標診断は保持する。既存のgeometry診断値をcropや差分受理へ転用しない。
+- フッターは撮影時だけbody上paddingを1px未満追加して通常レイアウトの画素位相を整数へ揃えた追加画像で、従来と同じthreshold=0.1・AA除外・差分0の比較を行う。DOM/CSSは必ず復元し、本番HTMLへ変更を保存しない。原画像の差分件数も隠さず別記録する。
+- 固定Chromiumの比較撮影では、基準側・候補側とも文字のLCDサブピクセル描画を無効にし、文字輪郭の描画方式を揃える。撮影レポートに方式と撮影バージョンを記録し、異なる方式の基準画像は使用しない。サイトのHTMLやCSS、比較閾値、検査対象は変更しない。原画像と厳密なピクセル差分件数は引き続き保存する。
+- 原状態の全フッターDOM、全子要素・疑似要素のcomputed style、寸法、相対配置、スクロール寸法、リンク・操作を独立比較する。外部要素による重なりや固定子要素等、撮影変換の副作用を排除できない条件では位相変換を使わず、従来の原画像差分0をそのまま必須とする。方式の適用可否がbefore/afterで変わる場合も失敗。復元や撮影中の相対配置が一致しない場合も失敗。
+- 本文長だけが変わる正例と、色・文字・位置・余白・切れ・はみ出し・リンク・外部遮蔽・固定子要素・既存変換の負例をブラウザで検証する。共通検査器の変更では全既存記事の監査を維持する。負例が通過したら採用しない。
+- 在庫はbase/head各commitのGit treeと各設定件数を独立照合する。既存記事は最新mainから生成後headへ全件比較、新規記事はmainにないためhead生成前の編集元から生成後への独立比較を必須とし、main基準合格とは称さない。削除・rename・件数不一致は停止する。
+- 各基準はcommit・設定hash・対象一覧・画像hashを固定し上書き禁止。別headの基準流用は拒否。PC/スマホの明暗4条件画像も成功時に保存するが、目視の完了は担当者が実物確認して別記録する。
+- これは検証中の変更であり、必須CI全成功・最終4条件目視・本番配信確認までは公開完了としない。過去の失敗を成功に書換えない。
+
+- 最初のtransform案はブラウザ正例で2061画素差が残ったため不採用。レイアウト段階で揃える方法を改めて同じ正例・負例で検証する。失敗した正例の期待値は緩めない。
+
+- 検査器だけの修正でもCIが起動する経路を維持し、実際のbaseline/compare CLIで、色・文字・位置・切れ・overflow・リンク・外側間隔・祖先clip・外部テキスト・overlay・撮影時style副作用の負例が非ゼロ終了することを確認する。helper単体の一致だけを公開判定の証明としない。
+
+- 実記事のカードbox-shadowは画像から除外しない。本体矩形がfooter外で、固定・絶対配置や変形のない通常フロー／sticky所有者と祖先が、撮影時にfooterと同じdyだけ厳密に移動し、全sceneの寸法・style・テキストが保存された場合だけ、影を残した同一撮影枠で比較する。stickyが追従しない場合はraw-only。影色・位置・本体重なりの実CLI負例を維持する。この限定検査は、動的映像・任意の描画副作用すべての保証ではない。
+
+- 影の比較は画像だけに頼らず、対象所有者のbox-shadow値・角丸・横幅・横位置・footerまでの間隔も元状態の契約として比較する。負例は同じ高さのraw画像で色差が検出可能なことを先に検証し、弱い影の診断と明確な描画差の負例を区別して画像・ケース別reportを保存する。
+
+- 明暗fullpage追加後の集約は、旧14枚の総数だけでなく、各記事・幅・画像種類・ファイル名の完全集合を検証する。正式workflowの画像artifactは通常・明fullpage・暗fullpageへ分割して全証拠を保持し、各群のreceiptとhash、light/dark各検査結果と画像を集約時に照合する。欠落・重複・改変・検査失敗を拒否し、配布容量のために画面条件を省略しない。
+
+### 2026-11-17: 寄付非表示の継続保全と個別公開導線の分離
+
+旧GX Works2連絡先変更を毎回1件要求する条件を廃し、変更なしも正しく検証する。旧GX遷移が実際にある場合は従来の固定blobと唯一のリンク置換を厳密検証する。寄付非表示CSS・共通header/footerは継続して同一を要求する。今回承認されたシールド記事のトップ新着7件ローテーションと制御カテゴリ1件追加は、reviewed-navigation-deltas.jsonに前後source SHAと正確な置換を固定し、sourceと生成候補の他の全バイトが同一であることを要求する。未知の本文変更・寄付再表示・共通枠変更は拒否し、期待hashの自動付替えはしない。正負例と正式CI・公開前目視を維持する。
+
+この契約ファイルは承認そのものを認証するものではない。変更時は所有者指示に対応する独立差分レビューを行い、今回の固定遷移を自動的に新しい期待値へ更新しない。全検査対象HTMLのみの変更でもCIを起動する。base/headはそれぞれピン留めした版の生成器で生成し、生成器変更による差分も同じ厳密差分判定を通す。

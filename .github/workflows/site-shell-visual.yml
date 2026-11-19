@@ -1,0 +1,140 @@
+name: Header footer visual comparison
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/site-shells/**'
+      - '.github/site-shell-visual.json'
+      - '.github/workflows/site-shell-visual.yml'
+      - 'scripts/*site-shell*'
+      - 'scripts/report-article-impact.mjs'
+      - 'scripts/select-shell-visual-targets.mjs'
+      - 'scripts/select-ui-proposal-targets.mjs'
+      - 'tests/article-impact.test.mjs'
+      - 'tests/site-shells.test.mjs'
+      - 'assets/images/**'
+      - 'assets/css/**'
+      - 'assets/js/**'
+      - 'tests/site-shell-phase.browser.mjs'
+      - 'tests/site-shell-fixed-overlay.browser.mjs'
+      - 'tests/select-shell-visual-targets.test.mjs'
+      - 'tests/select-ui-proposal-targets.test.mjs'
+      - 'articles/**'
+      - 'en/articles/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+permissions:
+  contents: read
+concurrency:
+  group: site-shell-visual-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Materialize immutable baseline
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          git fetch --depth=1 origin "$BASE"
+          mkdir .visual-base
+          git archive "$BASE" | tar -x -C .visual-base
+      - name: Test visual audit routing
+        run: |
+          node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs tests/select-ui-proposal-targets.test.mjs
+          node --test tests/site-shell-phase.browser.mjs tests/site-shell-fixed-overlay.browser.mjs
+      - name: Select visual audit scope
+        run: node scripts/select-shell-visual-targets.mjs "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" .visual-targets.json
+      - name: Save baseline before generation
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/site-shell-visual.mjs --phase=baseline --root=.visual-base --out=.visual-evidence --targets-file=.visual-targets.json
+      - name: Save new-page source baseline before generation
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$(node -p "require('./.visual-targets.json').addedTargets.length")" -gt 0 ]; then
+            node scripts/site-shell-visual.mjs --phase=baseline --cohort=added --root=. --out=.visual-additions --targets-file=.visual-targets.json
+          fi
+      - name: Upload immutable baseline evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-baseline-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .visual-evidence/before/
+            .visual-evidence/baseline.json
+            .visual-targets.json
+            .visual-additions/before/
+            .visual-additions/baseline.json
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error
+      - name: Verify and generate registered shells
+        run: |
+          if [ -f scripts/build-site-shells.mjs ]; then
+            pnpm check:shells
+            pnpm test:shells
+            pnpm build:shells
+          fi
+      - name: Compare after generation
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/site-shell-visual.mjs --phase=compare --root=. --out=.visual-evidence --targets-file=.visual-targets.json
+      - name: Compare added pages against their own source
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$(node -p "require('./.visual-targets.json').addedTargets.length")" -gt 0 ]; then
+            node scripts/site-shell-visual.mjs --phase=compare --cohort=added --root=. --out=.visual-additions --targets-file=.visual-targets.json
+          fi
+      - name: Upload browsable comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-comparison-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .visual-evidence/
+            .visual-additions/
+            .visual-phase-tests/
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error
+      - name: Evidence navigation
+        if: always()
+        run: |
+          echo 'Download shell-comparison from this run, extract, and open index.html. Each entry links Before / After / Diff PNGs and report.json preserves provenance.' >> "$GITHUB_STEP_SUMMARY"
+          echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Render separate header UI proposal
+        if: success() && hashFiles('scripts/preview-site-shell-ui.mjs') != ''
+        run: |
+          node scripts/select-ui-proposal-targets.mjs .visual-targets.json .visual-evidence/baseline.json .ui-proposal-targets.json
+          node scripts/preview-site-shell-ui.mjs .ui-proposal .ui-proposal-targets.json
+          node scripts/capture-site-shell-ui.mjs .ui-proposal .ui-evidence .visual-evidence
+      - name: Upload intentional UI proposal separately
+        if: always() && hashFiles('.ui-evidence/report.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-ui-proposal-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .ui-evidence/
+            .ui-proposal-targets.json
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error

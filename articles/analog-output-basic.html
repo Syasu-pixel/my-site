@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>アナログ出力とは？4-20mA・0-10Vで機器を動かす基本をやさしく解説</title>
-  <meta name="description" content="アナログ出力とは何かを初心者向けにやさしく整理。4-20mA・0-10Vの違い、PLCのAO出力でインバータや調節弁を制御する考え方、配線・スケーリング・ノイズ対策の確認ポイントまで現場目線で解説します。">
+  <meta name="description" content="PLCのアナログ出力（AO）を基礎から解説。4–20mAと0–10Vの違い、受け側の入力レンジ・負荷の合わせ方、指令50％の換算、値が合わないときにどこを確認するかを整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/analog-output-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/analog-output-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/analog-output-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/analog-output-basic.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="アナログ出力とは？4-20mA・0-10Vで機器を動かす基本をやさしく解説">
-  <meta property="og:description" content="アナログ出力の基本、4-20mA・0-10Vの違い、PLCのAO出力で機器を動かす考え方、配線時の注意点をやさしく整理します。">
+  <meta property="og:description" content="PLCのアナログ出力（AO）の基本。4–20mAと0–10Vを比べ、送り側と受け側の仕様、指令値の換算、値が合わないときの確認点を整理します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/analog-output-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/analog-output-basic/analog-output-basic-hero.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="アナログ出力とは？4-20mA・0-10Vで機器を動かす基本をやさしく解説">
-  <meta name="twitter:description" content="4-20mA・0-10Vの違い、PLCのAO出力で機器を動かす考え方を初心者向けに整理します。">
+  <meta name="twitter:description" content="PLCのアナログ出力（AO）の基本。4–20mAと0–10Vの違い、受け側の設定と信号値の確認点を解説します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/analog-output-basic/analog-output-basic-hero.png">
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -1532,7 +1532,7 @@
           <ul>
             <li>アナログ出力は、PLCから連続した値を出す出力</li>
             <li>4-20mAや0-10Vで、速度・開度・表示値などを変える</li>
-            <li>出力レンジ、配線、COM、スケーリングの確認が重要</li>
+            <li><strong>出力と入力を同じ信号種別・レンジに合わせる</strong>。次に負荷条件とスケーリングを確認する</li>
           </ul>
         </article>
       </section>
@@ -1563,7 +1563,7 @@
             <figure class="article-figure">
               <img src="../assets/images/analog-output-basic/analog-output-basic-overview.png" alt="アナログ出力の基本と制御対象機器の例を示した図">
               <figcaption>
-                アナログ出力は、PLCのAO出力からインバータ・調節弁・メータなどへ連続した信号を渡して、速度・開度・表示値などを変えるために使います。
+                アナログ出力は、PLCのAO出力からインバータ・調節弁・メータなどへ連続した信号を渡して、速度・開度・表示値などを変えるために使います。 画像をクリック／タップすると拡大表示できます。
               </figcaption>
             </figure>
 
@@ -1603,7 +1603,7 @@
             <figure class="article-figure">
               <img src="../assets/images/analog-output-basic/analog-output-basic-4-20ma-vs-0-10v.png" alt="4-20mAと0-10Vの違いを比較した図">
               <figcaption>
-                4-20mAは電流信号、0-10Vは電圧信号です。接続する機器の入力仕様に合わせて、どちらのレンジを使うか確認します。
+                4-20mAは電流信号、0-10Vは電圧信号です。接続する機器の入力仕様に合わせて、どちらのレンジを使うか確認します。 画像をクリック／タップすると拡大表示できます。
               </figcaption>
             </figure>
 
@@ -1619,13 +1619,13 @@
                 <tbody>
                   <tr>
                     <td class="cell-blue">4-20mA</td>
-                    <td>電流信号。長めの配線やノイズ環境でも使われやすい。</td>
-                    <td>4mAが下限、20mAが上限として扱われることが多いです。</td>
+                    <td>電流の大きさで伝えます。規定内の負荷でなければ設定どおりに出力できません。</td>
+                    <td>標準的な直線割付では4mAが0％、20mAが100％です。断線の扱いは受け側の機能・設定を確認します。</td>
                   </tr>
                   <tr>
                     <td class="cell-green">0-10V</td>
-                    <td>電圧信号。比較的扱いやすく、近距離配線で使われることが多い。</td>
-                    <td>0Vが下限、10Vが上限として扱われることが多いです。</td>
+                    <td>入力の基準端子から見た電圧で伝えます。相手機器の入力抵抗と基準電位を確認します。</td>
+                    <td>標準的な直線割付では0Vが0％、10Vが100％です。0Vという値だけでは正常下限と異常を区別できません。</td>
                   </tr>
                   <tr>
                     <td class="cell-orange">共通点</td>
@@ -1639,7 +1639,7 @@
             <div class="note-box">
               <h3>接続先の仕様に合わせる</h3>
               <p>
-                PLC側が4-20mAで出していても、接続先が0-10V入力の設定になっていると正しく動きません。出す側と受ける側のレンジをセットで確認します。
+                <strong>電流出力を電圧入力につなぐだけでは代用できません。</strong> 同じ電流信号でも4–20mAと0–20mAは下限が違います。送り側・受け側それぞれの仕様と設定を見比べ、信号種別と上下限をそろえます。
               </p>
             </div>
           </section>
@@ -1679,23 +1679,23 @@
           <section class="section-card" id="wiring">
             <h2>アナログ出力の配線イメージ</h2>
             <p>
-              アナログ出力では、PLCのAO端子から接続先機器のAI端子へ信号を渡します。代表的には、AO+、AO-、COM、シールド線、FGなどを確認します。
+              アナログ出力では、PLCのAOから相手機器のAIへ設定値を渡します。電流なら受け側の入力抵抗と配線などを含むループの総負荷、電圧なら受け側の入力抵抗と信号の基準端子を確認します。
             </p>
             <p>
               機器によって端子名は異なるため、配線図だけで判断せず、必ずPLC側と接続先機器側の仕様書を確認します。
             </p>
 
             <figure class="article-figure">
-              <img src="../assets/images/analog-output-basic/analog-output-basic-wiring.png" alt="PLCのアナログ出力から制御対象機器へ接続する配線イメージ図">
+              <img src="../assets/images/analog-output-basic/analog-output-basic-spec-match-20261119.webp" alt="4–20mAは電流入力とループ全体の負荷を、0–10Vは電圧入力と基準端子・入力抵抗を照合する概念図" width="1600" height="900" loading="lazy" decoding="async" data-no-amazon-link>
               <figcaption>
-                PLCのアナログ出力から、インバータなどの制御対象機器へ信号を渡す例です。端子名、COM、シールド、FGを確認します。
+                PLCと受け側で照合する項目の概念図です。個別機種の結線図ではありません。 画像をクリック／タップすると拡大表示できます。
               </figcaption>
             </figure>
 
             <div class="danger-box">
               <h3>COMや極性を間違えない</h3>
               <p>
-                アナログ信号は小さな信号なので、COMの取り方や極性を間違えると、値が反転したり、動作が不安定になったりします。
+                信号のCOM（基準・戻り）とFG（フレーム接地などの表記）は同じとは限りません。端子の並びや記号の似た別機種の例から判断せず、接続・変更前に対象2機種の結線図と設備の安全手順を確認します。
               </p>
             </div>
 
@@ -1705,7 +1705,7 @@
                   <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩キャラ">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>アナログ出力はノイズの影響も受けやすいから、動力線と離す、シールドを使う、FGを確認する。このあたりはかなり大事だよ。</p>
+                  <p><span class="talk-name talk-name--senpai">先輩</span>両方の仕様を照合しよう。シールドが必要か、どこに接続するかも、機器の取扱説明書と盤の設計を見て決めるよ。</p>
                 </div>
               </div>
               <div class="talk-row talk-row--right">
@@ -1728,7 +1728,7 @@
             <figure class="article-figure">
               <img src="../assets/images/analog-output-basic/analog-output-basic-checkpoints.png" alt="アナログ出力で確認したいポイントをまとめた図">
               <figcaption>
-                出力レンジ、受け側の入力仕様、スケーリング、配線と共通、ノイズ対策を順番に確認すると、設定ミスや配線ミスを防ぎやすくなります。
+                出力レンジ、受け側の入力仕様、スケーリング、配線と共通、ノイズ対策を順番に確認すると、設定ミスや配線ミスを防ぎやすくなります。 画像をクリック／タップすると拡大表示できます。
               </figcaption>
             </figure>
 
@@ -1742,7 +1742,7 @@
               <div class="check-item check-item--field">
                 <h3>スケーリング</h3>
                 <p>
-                  PLC内の数値と、実際の出力値がどう対応するかを確認します。0〜100%や0〜4000など、扱う範囲を整理します。
+                  PLCのデジタル指令値、信号の電圧・電流、受け側に換算された値は別々です。たとえば指令を0〜100％へ直線割付した場合、信号の対応は下表のとおりです。PLCの生データ範囲は機種・レンジ設定で異なります。
                 </p>
               </div>
               <div class="check-item check-item--warning">
@@ -1754,15 +1754,27 @@
               <div class="check-item">
                 <h3>ノイズ対策</h3>
                 <p>
-                  シールドケーブル、FG、動力線との分離を確認します。値がふらつく時は配線経路も確認します。
+                  値がふらついても、すぐノイズとは決めません。まず監視している指令と対象チャンネル、受け側の表示を区別し、配線経路やシールド処理は機器の資料・盤の設計と照合します。
                 </p>
               </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <caption>信号の換算例（直線割付）</caption>
+                <thead><tr><th scope="col">指令</th><th scope="col">4–20mA</th><th scope="col">0–10V</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">0％</th><td>4mA</td><td>0V</td></tr>
+                  <tr><th scope="row">50％</th><td>12mA</td><td>5V</td></tr>
+                  <tr><th scope="row">100％</th><td>20mA</td><td>10V</td></tr>
+                </tbody>
+              </table>
             </div>
 
             <div class="key-highlight">
               <h3>設定値と現場の動きが合っているかを見る</h3>
               <p>
-                例えば50%出力した時に、インバータの周波数や調節弁の開度が想定通りか確認します。数値だけでなく、相手の機器側の表示や動作も見ます。
+                <strong>50％は信号レンジの中点であって、装置が実際に50％動いたという意味ではありません。</strong> 周波数の上下限、弁の作動方向、運転許可、インターロックは別条件です。指令値を強制したり安全機能を無効化したりせず、図面・設定・既存の状態表示から、PLC側の指令と相手側の受信値・実際の動作を分けて追います。
               </p>
             </div>
           </section>
@@ -1782,6 +1794,18 @@
                 アナログ出力は、ON/OFFではなく連続した値を出す出力です。4-20mA・0-10Vの違いと、PLC側・接続先機器側のレンジ合わせを押さえると、制御盤の信号の流れが追いやすくなります。
               </p>
             </div>
+          </section>
+
+          <section class="section-card" id="official-sources">
+            <h2>メーカー公式資料・技術参照元</h2>
+            <p class="source-checked-date">公式資料確認日：<time datetime="2026-11-19">2026年11月19日</time></p>
+            <ul>
+              <li><a href="https://www.mitsubishielectric.co.jp/fa/products/faspec/detail.page?formNm=FX5-4DA&amp;kisyu=/plcf">三菱電機 MELSEC iQ-F FX5-4DA 性能仕様</a>：電圧・電流の出力レンジ、外部負荷抵抗、デジタル指令値の機種例。</li>
+              <li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/ib0800577/ib0800577jf.pdf">三菱電機 FX5-4DA ハードウェアマニュアル</a>：外部配線と安全上の注意。</li>
+              <li><a href="https://www.mitsubishielectric.co.jp/fa/document/catalog/inv/l-06130/l060130j.pdf">三菱電機 FR-E800 カタログ</a>：周波数設定入力の種別・許容範囲と、入力選択が機種・設定に依存する例。</li>
+            </ul>
+            <p>機器ごとの端子、レンジ、設定方法は、実際に使う型式の最新資料を優先してください。</p>
+            <p class="article-updated">最終内容更新：<time datetime="2026-11-19">2026年11月19日</time></p>
           </section>
 
           <section class="section-card">
@@ -1867,7 +1891,7 @@
       <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
     </p>
   </div>
-</footer>
+<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
 
   <script>
   (function(){

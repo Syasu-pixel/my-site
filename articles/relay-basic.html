@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>リレーとは？コイルと接点で信号を切り替える基本部品をやさしく解説</title>
-  <meta name="description" content="リレーとは何かを初心者向けにやさしく整理。コイルとa接点・b接点の関係、接点が切り替わる流れ、PLC出力や自己保持回路との関係、電磁接触器との違いまで現場目線で解説します。">
+  <meta name="description" content="リレーの仕組みを初心者向けに図解。コイルを入れる前後のa・b・c接点、コイル定格と接点定格の違い、交換前の確認や、表示灯が点いても負荷が動かないときの見方を整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/relay-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/relay-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/relay-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/relay-basic.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="リレーとは？コイルと接点で信号を切り替える基本部品をやさしく解説">
-  <meta property="og:description" content="リレーの役割、コイルONで接点が切り替わる流れ、a接点・b接点、電磁接触器との違いをやさしく整理します。">
+  <meta property="og:description" content="一般的な電磁リレーの動き、a・b・c接点の違い、コイル定格と接点定格を分ける理由を図で解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/relay-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/relay-basic/relay-overview.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -1436,10 +1436,10 @@ body{
         <a href="#conclusion">先に結論</a>
         <a href="#overview">リレーとは</a>
         <a href="#flow">基本の動き</a>
-        <a href="#contact">a接点・b接点</a>
+        <a href="#contact">a・b・c接点</a>
         <a href="#plc">PLCとの関係</a>
         <a href="#contactor">電磁接触器との違い</a>
-        <a href="#panel">盤内での見方</a>
+        <a href="#panel">定格と交換前の確認</a>
         <a href="#trouble">トラブル時の確認</a>
         <a href="#summary">まとめ</a>
       </div>
@@ -1456,6 +1456,7 @@ body{
           <p>
             押しボタンやPLC出力などの小さな信号を使って、ランプ、ソレノイド、別の制御回路などを切り替えるときに使われます。
             制御盤の中では、信号の中継、条件分岐、自己保持、インターロックなどでよく出てきます。
+            ここで扱うのは、<span class="mark">コイルの通電を切ると通常位置へ戻る有接点リレー</span>です。状態を保持するラッチングリレーや、可動接点のないSSRは動作が異なります。
           </p>
 
           <div class="key-highlight">
@@ -1539,6 +1540,7 @@ body{
             <p>
               リレーを確認するときは、まず「コイルに電気が来ているか」を見ます。
               そのうえで「接点側が切り替わっているか」を確認すると、入力側の問題か、リレー本体・接点側の問題かを分けやすくなります。
+              接点自体が電源を作るわけではありません。接点側に電源が必要な回路では、別に確認します。
             </p>
           </div>
         </section>
@@ -1552,7 +1554,7 @@ body{
           </p>
 
           <figure class="article-figure">
-            <img src="../assets/images/relay-basic/relay-operation-flow.png" alt="リレーのコイルONで接点が切り替わる流れ" loading="lazy" decoding="async">
+            <img src="../assets/images/relay-basic/relay-operation-flow-technical-20261119.webp" alt="単安定リレーのコイルOFFと動作後ONにおけるa接点とb接点の開閉、およびa接点で開閉するランプの例" loading="lazy" decoding="async">
             <figcaption>
               コイルがONになると磁力が発生し、a接点は閉じ、b接点は開く方向に切り替わります。
             </figcaption>
@@ -1587,10 +1589,10 @@ body{
         </section>
 
         <section class="section-card" id="contact">
-          <h2>a接点・b接点の考え方</h2>
+          <h2>a・b・c接点はコイルOFFの状態から読む</h2>
           <p>
-            リレーを理解するときに大事なのが、a接点とb接点です。
-            どちらもコイルのON/OFFによって状態が変わりますが、動き方が逆になります。
+            図面のa接点・b接点は、原則として<span class="mark">コイルを励磁していない状態</span>から読みます。
+            c接点は、一つの共通端子（COM）をb側（NC）とa側（NO）の間で切り替える接点です。
           </p>
 
           <div class="table-wrap">
@@ -1598,7 +1600,7 @@ body{
               <thead>
                 <tr>
                   <th>接点</th>
-                  <th>通常時</th>
+                  <th>コイルOFF時</th>
                   <th>コイルON時</th>
                   <th>使い方のイメージ</th>
                 </tr>
@@ -1614,7 +1616,13 @@ body{
                   <td class="cell-orange">b接点</td>
                   <td>閉じている</td>
                   <td class="cell-orange">開く</td>
-                  <td>コイルONで出力を切りたいときや、異常時に止めたいときに使う</td>
+                  <td>コイルONで制御信号を切りたいとき</td>
+                </tr>
+                <tr>
+                  <td class="cell-blue">c接点（切替）</td>
+                  <td>COMとNCがつながる</td>
+                  <td>COMとNOがつながる</td>
+                  <td>1つの共通端子から信号の行き先を選ぶ</td>
                 </tr>
               </tbody>
             </table>
@@ -1624,7 +1632,8 @@ body{
             <h3>a接点は「ONで閉じる」、b接点は「ONで開く」</h3>
             <p>
               まずはこの見方で十分です。
-              図面やラダーを見るときも、コイルがONしたときに接点がどう変わるかを追うと、回路の意味が分かりやすくなります。
+              図面と現物を照合するときは、<strong>端子番号と図の向き</strong>を対象型式の仕様書で確認します。
+              見た目や番号の並びだけで判断せず、詳しくは<a href="./relay-socket-basic.html">リレーソケットの基礎</a>、記号の読み方は<a href="./no-nc-basic.html">NO・NCの違い</a>を参照してください。
             </p>
           </div>
 
@@ -1698,7 +1707,7 @@ body{
           <figure class="article-figure">
             <img src="../assets/images/relay-basic/relay-vs-contactor.png" alt="リレーと電磁接触器の違いを比較する図解" loading="lazy" decoding="async">
             <figcaption>
-              リレーは小さな信号の切替・中継に使われ、電磁接触器はモーターなど大きな負荷の主回路入切に使われます。
+              代表的な使い分けです。接点の適否は大きさの印象ではなく、負荷の種類と各型式の定格で判断します。
             </figcaption>
           </figure>
 
@@ -1737,28 +1746,33 @@ body{
           </div>
 
           <div class="key-highlight">
-            <h3>小さな信号はリレー、大きな負荷は電磁接触器</h3>
+            <h3>電流だけで代用を判断しない</h3>
             <p>
-              ざっくり分けるなら、リレーは制御信号の切替や中継、電磁接触器はモーターなどの主回路を入切する部品として見ると整理しやすいです。
+              リレーは信号の切替・中継、電磁接触器はモーターなど主回路の入切が代表的です。モーター用途なら、定常電流だけでなく投入時の電流や開閉条件を含め、対象機器の資料を確認します。
             </p>
           </div>
         </section>
 
         <section class="section-card" id="panel">
-          <h2>制御盤の中でどう見るか</h2>
+          <h2>盤内での見方：コイル定格と接点定格は別</h2>
           <p>
             制御盤の中でリレーを見るときは、リレー本体だけを見るのではなく、
-            そのリレーが何の信号を受けて、どの回路を切り替えているのかを確認します。
+            そのリレーが何の信号を受け、どの回路を切り替えているかを図面で確認します。
+            <span class="mark">コイル定格は駆動側、接点定格は負荷側</span>の条件です。コイルがDC24Vだから接点側もDC24Vとは限りません。
           </p>
+          <figure class="article-figure">
+            <img src="../assets/images/relay-basic/relay-input-output-20261119.svg" alt="コイル側は駆動のAC/DC・電圧・電流、接点側は負荷開閉の電圧・電流・負荷種別を確認する" width="1200" height="675" loading="lazy" decoding="async">
+            <figcaption>一般的な電磁リレーの概念図です。端子配列・結線ではなく、型式別資料で分けて見る項目を示しています。</figcaption>
+          </figure>
 
           <div class="check-grid">
             <div class="check-item check-item--field">
               <h3>1. コイル側を見る</h3>
-              <p>PLC出力、押しボタン、センサーなど、何の信号でコイルがONするか確認します。</p>
+              <p>コイルのAC/DC、定格電圧、消費電流と、PLCなど駆動側の出力仕様を照合します。ダイオードや表示灯付きは、極性の指定も見ます。</p>
             </div>
             <div class="check-item check-item--field">
               <h3>2. 接点側を見る</h3>
-              <p>リレー接点で、どのランプ・ソレノイド・信号をON/OFFしているか確認します。</p>
+              <p>負荷側の電圧・電流、AC/DC、使用する接点、負荷の種類を照合します。抵抗負荷とソレノイドなどの誘導負荷の定格は同じとは限りません。</p>
             </div>
             <div class="check-item check-item--important">
               <h3>3. 接点番号を見る</h3>
@@ -1766,8 +1780,13 @@ body{
             </div>
             <div class="check-item check-item--warning">
               <h3>4. 交換時は仕様を見る</h3>
-              <p>コイル電圧、接点容量、接点構成、端子配列が合っているか確認します。</p>
+              <p>本体型式とソケット型式、接点の組合せ、内部接続図・端子配列を揃えます。外形や差し込み穴が似ているだけでは互換性を判断しません。</p>
             </div>
+          </div>
+
+          <div class="note-box">
+            <h3>サージ対策は付ける場所と負荷によって変わる</h3>
+            <p>コイルをOFFしたときのサージ対策と、リレー接点が誘導負荷を切るときの接点保護は、同じものではありません。DC用ダイオードの方法をACに流用せず、内蔵保護の有無・極性・復帰時間への影響を含めて、対象機器の指定を確認します。</p>
           </div>
 
           <div class="field-highlight">
@@ -1786,8 +1805,10 @@ body{
             リレーのコイル側と接点側を分けて確認すると原因を絞りやすくなります。
           </p>
 
+          <p><strong>安全：</strong>配線の着脱や導通確認の前に、設備の手順に従ってコイル側・接点側とも電源を遮断し、無電圧を確認してください。通電中の測定が必要な場合は、権限と手順を備えた担当者が行います。一般リレーを非常停止などの安全機能の代用品にしないでください。</p>
+
           <ul class="simple-list">
-            <li>リレーのコイルに指定電圧が来ているか</li>
+            <li>回路図上で、コイルを動かす指令と負荷側の電源を分けて追う</li>
             <li>コイルがONしたときにリレーが動作しているか</li>
             <li>a接点・b接点が想定どおり切り替わっているか</li>
             <li>接点側の電源が来ているか</li>
@@ -1805,10 +1826,10 @@ body{
           </div>
 
           <div class="note-box">
-            <h3>交換時はコイル電圧と接点構成を確認</h3>
+            <h3>交換時はソケットも型式と状態を確認</h3>
             <p>
               見た目が似ていても、DC24Vコイル、AC100Vコイル、接点数、端子配列、接点容量が違うことがあります。
-              同じ形に見えても仕様違いがあるため、交換前に型式と仕様を確認します。
+              取り外し・点検は遮断後に行い、ソケットや端子に変色・損傷がある場合は、部品交換だけで再稼働せず、負荷条件や接続状態を含めて原因を確認します。
             </p>
           </div>
         </section>
@@ -1827,6 +1848,17 @@ body{
             現場では「コイルが入っているか」と「接点が返っているか」を分けて見ることが大事です。
             リレー単体で覚えるだけでなく、どの信号を受けて、どの回路を切り替えているかまで追えるようにしておくと、トラブル対応もしやすくなります。
           </p>
+
+          <div class="note-box" aria-label="メーカー公式資料">
+            <h3>確認に使ったメーカー公式資料</h3>
+            <ul class="simple-list">
+              <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/36/65/" target="_blank" rel="noopener noreferrer">オムロン：一般リレーの概要と分類</a></li>
+              <li><a href="https://www.fa.omron.co.jp/product/selection/36/func_spec.html" target="_blank" rel="noopener noreferrer">オムロン：一般リレーの機能・仕様一覧</a></li>
+              <li><a href="https://www.fa.omron.co.jp/product/cautions/36/68/index.html" target="_blank" rel="noopener noreferrer">オムロン：負荷開閉・コイル・サージ対策の注意事項</a></li>
+              <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/36/287/index.html" target="_blank" rel="noopener noreferrer">オムロン：一般リレーのトラブルシューティング</a></li>
+            </ul>
+            <p>メーカー公式資料確認日：<time datetime="2026-11-19">2026年11月19日</time>。個別の仕様は対象型式の資料を優先してください。</p>
+          </div>
 
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
@@ -1916,7 +1948,7 @@ body{
       <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
     </p>
   </div>
-</footer>
+<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
   <script>
   (function(){
     const button = document.getElementById("languageMenuButton");

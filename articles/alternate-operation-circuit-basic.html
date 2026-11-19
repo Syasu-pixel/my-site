@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説</title>
-  <meta name="description" content="交互運転回路とは何かをPLC初心者向けにやさしく整理。押すたびにON/OFFを切り替える考え方、切替フラグの見方、簡略ラダー例、現場での使いどころを解説します。">
+  <title>交互運転回路とは？押すたびにAとBが切り替わる基本とラダー例をやさしく解説</title>
+  <meta name="description" content="交互運転回路とは。押した瞬間にA・Bを一度だけ切り替えるしくみを、FX5Uの表示灯ラダーで解説。ポンプ2台の交互運転との違いも整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/alternate-operation-circuit-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説">
-  <meta property="og:description" content="交互運転回路の基本を、押す→ON→もう一度押す→OFFの流れでやさしく整理します。">
+  <meta property="og:title" content="交互運転回路とは？押すたびにAとBが切り替わる基本とラダー例をやさしく解説">
+  <meta property="og:description" content="押すたびに表示灯A・Bを切り替えるラダー見本と、ポンプ2台の交互運転との違いを解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/alternate-operation-circuit-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="交互運転回路とは？押すたびにON/OFFが切り替わる基本の考え方をやさしく解説">
-  <meta name="twitter:description" content="交互運転回路の基本を、押す→ON→もう一度押す→OFFの流れでやさしく整理します。">
+  <meta name="twitter:title" content="交互運転回路とは？押すたびにAとBが切り替わる基本とラダー例をやさしく解説">
+  <meta name="twitter:description" content="押すたびに表示灯A・Bを切り替えるラダー見本と、ポンプ2台の交互運転との違いを解説します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ogp.png">
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -573,6 +573,11 @@
       border-color:#f7dba2;
     }
 
+    #ladder .table-wrap table{min-width:0;table-layout:fixed}
+    #ladder .table-wrap th:first-child{width:52%}
+    #ladder .table-wrap :is(th,td){overflow-wrap:anywhere;white-space:normal}
+    @media (max-width:640px){#ladder .table-wrap :is(th,td){padding:10px 7px;line-height:1.5;font-size:.82rem}}
+
     .table-wrap{
       overflow:auto;
       margin:18px 0 6px;
@@ -684,8 +689,6 @@
       color:var(--muted);
       line-height:1.75;
     }
-    .related-card-thumb{margin:-16px -16px 14px;aspect-ratio:16/9;overflow:hidden;border-radius:19px 19px 12px 12px;background:#eaf1f8;border-bottom:1px solid #d7e4f3}
-    .related-card-thumb img{width:100%;height:100%;object-fit:cover}
 
     .article-footer-nav{
       display:flex;
@@ -1465,9 +1468,9 @@
     <div class="article-hero">
       <div class="article-hero-copy">
         <span class="hero-label">PLC BASIC</span>
-        <h1>交互運転回路とは？<br>押すたびにON/OFFが切り替わる基本の考え方</h1>
+        <h1>交互運転回路とは？<br>押すたびにAとBが切り替わる基本とラダー例</h1>
         <p class="hero-lead">
-          交互運転回路は、押すたびにON/OFFを切り替えたり、AとBを順番に切り替えたりするための基本回路です。
+          交互運転回路は、きっかけが入るたびに、いま選んでいる側を反対へ切り替える回路です。表示灯2つのラダーを使って、入力・記憶・出力の違いを確認します。
         </p>
         <div class="hero-actions">
           <a href="#basic" class="btn btn-primary">交互運転の基本を見る</a>
@@ -1475,6 +1478,8 @@
         </div>
       </div>
     </div>
+
+    <p class="article-updated">最終内容更新：<time datetime="2026-11-19">2026年11月19日</time></p>
 
     <div class="top-summary">
       <div class="summary-card summary-card--fit">
@@ -1498,9 +1503,9 @@
       <div class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>交互運転は「前回と反対側へ切り替える」回路</li>
-          <li>切替フラグでON/OFFやA/Bを覚える</li>
-          <li>同時ON防止と切替タイミングの確認が大事</li>
+          <li>ボタンを押した瞬間に、選択を1回だけ切り替えます。</li>
+          <li>押し続けても選択は変わらず、次に押すと反対側になります。</li>
+          <li>表示灯の教材と、実際のポンプ2台の交互運転は別です。</li>
         </ul>
       </div>
     </div>
@@ -1510,7 +1515,7 @@
       <div class="mini-toc">
         <a href="#basic">交互運転回路の基本</a>
         <a href="#flow">動作の流れ</a>
-        <a href="#ladder">簡略ラダー例</a>
+        <a href="#ladder">表示灯のラダー例</a>
         <a href="#field">現場での使い方</a>
         <a href="#check">確認ポイント</a>
       </div>
@@ -1520,20 +1525,13 @@
       <div class="main-column">
         <div class="section-card" id="basic">
           <h2>交互運転回路は「押すたびに切り替える」ための回路</h2>
-          <p>
-            交互運転回路は、入力が入るたびに状態を切り替える回路です。
-            シンプルに言うと、<span class="mark">1回押すとON、もう一度押すとOFF</span>のような動きを作ります。
-          </p>
-          <p>
-            設備では、AとBの機器を交代で動かしたい時にも使います。
-            たとえば、ポンプAとポンプBを1回ごとに交代で使い、片方だけに負担が偏らないようにする考え方です。
-            2台のポンプやファンを同じ役割で使う設備では、運転時間や起動回数が片側に偏らないように交互運転を使うことがあります。ただし、起動ごとに切り替えるのか、停止時に次回側を切り替えるのか、異常時に片側固定へ移るのかは、設備仕様や図面によって変わります。
-          </p>
+          <p>「交互運転」には2つの使われ方があります。ボタンを押すたびに同じ出力をON・OFFする使い方と、設備でポンプA・Bなどを運転のたびに交代させる使い方です。</p>
+          <p>共通するのは、<span class="mark">いまの選択を覚え、1回のきっかけで反対へ切り替える</span>ことです。この記事では、表示灯2つを使ってこの原理だけを確認します。</p>
 
           <figure class="article-figure">
             <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-flow.png" alt="交互運転回路の基本動作イメージ図">
             <figcaption>
-              押すたびに状態を切り替えたり、AとBを交代で動かしたりする考え方を整理した図です。
+              設備で「今回の運転先」と「次回の運転先」を分ける考え方のイメージです。下の表示灯ラダーの動作順を示した図ではありません。
             </figcaption>
           </figure>
 
@@ -1559,125 +1557,39 @@
         </div>
 
         <div class="section-card" id="flow">
-          <h2>基本の流れは「入力 → 状態を反転 → 出力切替」</h2>
-          <p>
-            交互運転回路を見るときは、入力そのものよりも「切替フラグがどう変わるか」を追うと分かりやすくなります。
-          </p>
-
+          <h2>入力 → 切替フラグ → 出力の順に読む</h2>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>1. 入力が入る</h3>
-              <p>押しボタン、完了信号、起動きっかけなどがONになります。</p>
-            </div>
-
-            <div class="check-item">
-              <h3>2. ワンショット化する</h3>
-              <p>押しっぱなしで何度も切り替わらないよう、一瞬の信号にすることがあります。</p>
-            </div>
-
-            <div class="check-item check-item--field">
-              <h3>3. 切替フラグを反転</h3>
-              <p>M0などの内部リレーで、ON/OFFやA/Bの状態を覚えます。</p>
-            </div>
-
-            <div class="check-item check-item--warning">
-              <h3>4. 出力を切り替える</h3>
-              <p>フラグの状態に応じて、Y0側かY1側などを選んで動かします。</p>
-            </div>
+            <div class="check-item check-item--important"><h3>1. 入力の変化を拾う</h3><p>ボタンがOFFからONになった瞬間を1回だけ拾います。ONが続いている時間とは別です。</p></div>
+            <div class="check-item check-item--field"><h3>2. 状態を反転して覚える</h3><p>内部リレーをOFFからON、またはONからOFFへ切り替えます。ボタンを離しても選択はそのままです。</p></div>
+            <div class="check-item"><h3>3. 状態を見て出力を選ぶ</h3><p>内部リレーがOFFならA、ONならB。表示前に状態を更新しているので、そのスキャンの新しい選択を読みます。</p></div>
           </div>
-
-          <div class="key-highlight">
-            <h3>ワンショットとの関係</h3>
-            <p>
-              押しボタンを押している間ずっと切替条件がONだと、回路が意図せず何度も反転することがあります。
-              そのため、交互運転ではワンショット信号と組み合わせると考えやすいです。
-            </p>
-          </div>
+          <div class="key-highlight"><h3>押しっぱなしと、もう一度押すのは別</h3><p>ワンショットはONが続く状態ではなく、OFFからONへの変化を拾います。次の切替には、一度離してもう一度押す必要があります。</p></div>
         </div>
 
         <div class="section-card" id="ladder">
-          <h2>交互運転回路の簡略ラダー例</h2>
-          <p>
-            ここでは、切替フラグM0を使って、出力Y0とY1を交互に選ぶ考え方で見ます。
-          </p>
-
+          <h2>見本ラダー：表示灯A・Bを押すたびに切り替える</h2>
+          <p>三菱電機 MELSEC iQ-F FX5Uを例に、シミュレーターの表示灯だけで確認します。<code>ALTP M0</code>は、実行条件の<strong>OFF → ON</strong>ごとに内部リレーM0を反転するパルス実行命令です。<code>ALT</code>に置き換えると、実行条件がONの間はスキャンごとに反転します。</p>
           <figure class="article-figure">
-            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-ladder.png" alt="交互運転回路の基本ラダー図イメージ">
-            <figcaption>
-              M0の状態でA/Bを切り替え、次回の運転先を更新する基本例です。実際の命令名やデバイス番号はPLC機種により変わります。
-            </figcaption>
+            <img src="../assets/images/alternate-operation-circuit-basic/alternate-operation-circuit-basic-lamp-ladder-20261119.webp" width="1200" height="880" alt="FX5Uの表示灯用ラダー4段。X0でALTP M0、X1でRST M0。X1とM0の否定接点でY0、X1の否定接点とM0の肯定接点でY1">
+            <figcaption>表示灯専用の教材です。上から状態反転、リセット、表示灯A、表示灯Bの順です。</figcaption>
           </figure>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>見るところ</th>
-                  <th>例</th>
-                  <th>意味</th>
-                  <th>確認ポイント</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="cell-blue">切替フラグ</td>
-                  <td>M0</td>
-                  <td>今どちら側を選ぶかを覚える</td>
-                  <td>ON/OFFのどちらがA側かB側か確認する</td>
-                </tr>
-                <tr>
-                  <td class="cell-green">出力選択</td>
-                  <td>Y0 / Y1</td>
-                  <td>M0の状態に応じて出力を分ける</td>
-                  <td>AとBが同時にONしない条件になっているか見る</td>
-                </tr>
-                <tr>
-                  <td class="cell-orange">切替タイミング</td>
-                  <td>完了信号・押しボタン</td>
-                  <td>次回のためにM0を反転する</td>
-                  <td>起動時に切替か、完了時に切替かを確認する</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="note-box">
-            <h3>GX Works3で見るときの注意</h3>
-            <p>
-              交互運転の書き方は現場やPLC機種によって変わります。最初は「切替フラグ」「出力選択」「フラグ更新」の3つに分けて追うと理解しやすいです。
-            </p>
-          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th scope="col">操作</th><th scope="col">M0</th><th scope="col">点く表示灯</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">初回確認：X0をOFFにしてX1をON</th><td>OFF</td><td>なし</td></tr>
+              <tr><th scope="row">X1をOFFにする</th><td>OFF</td><td>A（Y0）</td></tr>
+              <tr><th scope="row">X0を1回押す</th><td>ON</td><td>B（Y1）</td></tr>
+              <tr><th scope="row">X0を押し続ける／離す</th><td>ONのまま</td><td>B（Y1）</td></tr>
+              <tr><th scope="row">X0をもう一度押す</th><td>OFF</td><td>A（Y0）</td></tr>
+            </tbody>
+          </table></div>
+          <div class="note-box"><h3>初期化とリセットを読む</h3><p>X0は切替、X1はリセットです。上段で反転を処理した後にX1のリセットを実行するので、同じスキャンで両方の条件が入ってもM0はOFFになり、表示灯は両方消えます。X0を押したままX1を離しても、すでにX0がONなら新しい立ち上がりは発生しません。</p><p>表はX1で手動初期化してからの動作です。電源投入・RUN切替直後の状態や停電保持を保証する回路ではありません。また入力のチャタリングで複数回の立ち上がりが入れば、パルス命令でも複数回切り替わり得ます。</p></div>
         </div>
 
         <div class="section-card" id="field">
-          <h2>現場ではどんな場面で使う？</h2>
-          <p>
-            交互運転回路は、同じ役割の機器を偏らず使いたい時や、押すたびに状態を変えたい時に使います。
-          </p>
-
-          <ul class="simple-list">
-            <li>ポンプAとポンプBを1回ごとに交互に動かす</li>
-            <li>ファン2台を交互に使って負担を分ける</li>
-            <li>押しボタン1つでON/OFFを切り替える</li>
-            <li>予備機を含めて運転順を切り替える</li>
-            <li>同じ機器ばかり動く偏りを減らす</li>
-          </ul>
-
-          <div class="field-highlight">
-            <h3>実務では「どのタイミングで切り替えるか」を見る</h3>
-            <p>
-              起動した瞬間に切り替えるのか、停止した時に切り替えるのか、完了信号で切り替えるのかで意味が変わります。
-              交互運転は切替フラグだけで完結するとは限らず、手動/自動、異常、インターロック、予備機条件と組み合わせて使われることがあります。PLC上の書き方は設備や機種で変わるため、実際の図面、プログラム、試運転時の動きを合わせて確認します。
-            </p>
-          </div>
-        </div>
-
-        
-        <div class="section-card" id="meaning">
-          <h2>「交互運転」は文脈で意味が変わる</h2>
-          <p>この記事では、<strong>1つの操作をするたびに同じ出力のON/OFF状態を切り替える回路</strong>を「交互運転回路」として説明しています。</p>
-          <p>一方で、ポンプやファンなどの設備では「交互運転」が、<strong>2台以上の機器を1号機→2号機のように順番に切り替えて運転する方式</strong>を指すこともあります。名称だけで判断せず、対象設備の図面・仕様書・PLCコメントで意味を確認することが大切です。</p>
-          <div class="note-box"><h3>この記事で扱うのは「押すたびに状態が反転する」考え方</h3><p>ラダーを見るときは、切替用の内部フラグがどの条件でON/OFFされるかを追うと整理しやすくなります。</p></div>
+          <h2>ポンプ2台の交互運転は、表示灯の見本と何が違う？</h2>
+          <p>設備では、ポンプ2台を交代させ、一方に使用が偏らないようにする方式も「交互運転」と呼びます。オムロンの形61F-ANは、メーカーがポンプ2台の交互運転用として案内している専用リレーの一例です。上のPLCラダーは、この製品の代用・接続例ではありません。</p>
+          <div class="field-highlight"><h3>「次に使う側」と「実際に運転できるか」は別</h3><p>運転開始・停止・完了のどこで次回の選択を更新するか、異常時や予備機をどう扱うかは設備仕様によります。同時運転の可否も決めつけず、担当者が図面と仕様書で確認します。</p></div>
         </div>
 
         <div class="section-card" id="check">
@@ -1695,8 +1607,8 @@
             </div>
 
             <div class="check-item check-item--field">
-              <h3>A/Bが同時に入らないか</h3>
-              <p>交互運転では、両方同時ONにならない条件作りが重要です。</p>
+              <h3>選択条件と出力条件は別か</h3>
+              <p>交互に選ぶ条件と、実際に動かす条件を分けて確認します。設備によっては補助運転で2台同時に動かす仕様もあります。</p>
             </div>
 
             <div class="check-item check-item--warning">
@@ -1708,10 +1620,18 @@
           <div class="danger-box">
             <h3>切替だけ見て判断しない</h3>
             <p>
-              交互運転は、切替フラグだけでなく安全条件・異常条件・手動/自動条件と組み合わせて使われます。
-              出力が入らない時は、切替フラグ以外の条件も一緒に確認します。
+              この見本は、モーターやポンプの始動・停止、安全機能、復電時の再始動防止を扱いません。そのまま実機の制御には使わず、設備の判断は該当機種の資料と設備の安全手順に従ってください。
             </p>
           </div>
+        </div>
+
+        <div class="section-card" id="official-sources">
+          <h2>メーカー公式資料・技術参照元</h2>
+          <p class="source-checked-date">公式資料確認日：2026-11-19</p>
+          <ul class="simple-list">
+            <li>三菱電機：<a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf">MELSEC iQ-F FX5プログラミングマニュアル（英語・JY997D55801-AC）</a> 6.3 出力命令「ALT(P)」p.161–162、同章「RST」。日本語版JY997D54701-ACの掲載は確認しましたが、本文は同版の公開英語資料を参照しています。</li>
+            <li>オムロン：<a href="https://www.fa.omron.co.jp/data_pdf/cat/61f-an_ds_j_5_2.pdf?id=249">61F-AN 交互運転リレー データシート</a>。ポンプ2台を対象とする専用リレーの用途のみ。見本の配線根拠には使用していません。</li>
+          </ul>
         </div>
 
         <div class="section-card">
@@ -1722,13 +1642,11 @@
 
           <div class="related-grid">
             <a class="related-card" href="one-shot-circuit-basic.html">
-              <div class="related-card-thumb"><img src="../assets/images/one-shot-circuit-basic/one-shot-circuit-basic-ogp.png" alt="ワンショット回路の記事イメージ" loading="lazy" decoding="async"></div>
               <h3>ワンショット回路とは？</h3>
               <p>切替きっかけ信号の考え方を整理できます。</p>
             </a>
 
             <a class="related-card" href="self-hold-circuit.html">
-              <div class="related-card-thumb"><img src="../assets/images/self-hold-circuit/self-hold-circuit-ogp.png" alt="自己保持回路の記事イメージ" loading="lazy" decoding="async"></div>
               <h3>自己保持回路とは？</h3>
               <p>動作を保持する基本回路を先に確認できます。</p>
             </a>
@@ -1744,7 +1662,6 @@
             </a>
 
             <a class="related-card" href="timer-circuit-basic.html">
-              <div class="related-card-thumb"><img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ogp.png" alt="タイマー回路の記事イメージ" loading="lazy" decoding="async"></div>
               <h3>タイマー回路とは？</h3>
               <p>時間を使った制御と組み合わせて理解できます。</p>
             </a>
@@ -1764,11 +1681,11 @@
 
       <aside class="side-rail" aria-label="補足情報">
         <div class="side-card">
-          <h3>この記事の要点</h3>
+          <h3>見るポイント</h3>
           <ul>
-            <li>交互運転は押すたびに状態を切り替える</li>
-            <li>切替フラグで今の状態を覚える</li>
-            <li>A/B同時ON防止が大事</li>
+            <li>どの信号で切り替わる？</li>
+            <li>今どちら側を覚えている？</li>
+            <li>切替前後にどちらがON？</li>
           </ul>
         </div>
 
@@ -1788,8 +1705,8 @@
           <ul>
             <li>切替フラグ</li>
             <li>切替のきっかけ</li>
-            <li>A/Bの出力条件</li>
-            <li>異常時の条件</li>
+            <li>次回の選択を更新するタイミング</li>
+            <li>異常時や補助運転の扱い</li>
           </ul>
         </div>
       
@@ -1818,7 +1735,7 @@
       <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
     </p>
   </div>
-</footer>
+<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
 
   <script>
   (function(){

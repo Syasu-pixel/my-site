@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>タイマー回路とは？一定時間後に動く基本の考え方をやさしく解説</title>
-  <meta name="description" content="タイマー回路とは何かをPLC初心者向けにやさしく整理。入力ONからタイマー計測、一定時間後に出力が動く流れ、ラダーの見方、現場で確認したいポイントを解説します。">
+  <meta name="description" content="PLCのタイマー回路をオンディレイのラダー図で解説。入力が5秒続くと点灯する例で、K50の読み方、途中で入力が切れたときのリセット、機種ごとの時間単位を確認します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/timer-circuit-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/timer-circuit-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/timer-circuit-basic.html">
@@ -1552,7 +1552,7 @@
         <span class="hero-label">PLC BASIC</span>
         <h1>タイマー回路とは？<br>一定時間後に動く基本の考え方</h1>
         <p class="hero-lead">
-          タイマー回路は、入力が入ってすぐ動かすのではなく、設定した時間を待ってから出力を動かすための基本回路です。
+          PLCのオンディレイは、入力条件が設定時間だけ続いたときに出力をONにする回路です。表示ランプのラダー例で、時間に達する前に入力が切れたときの動きまで確認します。
         </p>
         <div class="hero-actions">
           <a href="#basic" class="btn btn-primary">タイマーの基本を見る</a>
@@ -1583,9 +1583,9 @@
       <div class="summary-card summary-card--conclusion">
         <h2>先に結論</h2>
         <ul>
-          <li>タイマーは「条件ONから時間を数える部品」</li>
-          <li>時間到達後にタイマー接点がONになる</li>
-          <li>現場では遅延起動・待ち時間・確認時間に使う</li>
+          <li>オンディレイは、入力条件が設定時間まで続くと完了する</li>
+          <li>通常タイマーの例では、入力が途中で切れると次は0から数え直す</li>
+          <li>設定時間は「設定値 × 命令の時間単位」で読む</li>
         </ul>
       </div>
     </div>
@@ -1598,6 +1598,7 @@
         <a href="#ladder">簡略ラダー例</a>
         <a href="#field">現場での使い方</a>
         <a href="#check">確認ポイント</a>
+        <a href="#official-sources">メーカー公式資料</a>
       </div>
     </div>
 
@@ -1610,7 +1611,7 @@
             <span class="mark">設定した時間が経ってから出力をONする</span>ために使います。
           </p>
           <p>
-            たとえば「起動ボタンを押して3秒後にランプを点ける」「モーター起動後、少し待って次の動作へ進む」といった場面で使います。
+            ここでは、<strong>入力条件が連続してONのときだけ計測するオンディレイ</strong>に絞ります。たとえば「入力が5秒続いたら表示ランプを点ける」使い方です。入力がOFFになった後に出力を切るまで待つオフディレイとは、待ち時間が始まるきっかけが違います。
           </p>
 
           <figure class="article-figure">
@@ -1660,12 +1661,12 @@
 
             <div class="check-item check-item--field">
               <h3>3. 設定時間に到達</h3>
-              <p>指定時間に達すると、タイマーの接点が使える状態になります。</p>
+              <p>現在値が設定値に達すると、タイマーの完了条件が成立し、例のT0のa接点が導通します。</p>
             </div>
 
             <div class="check-item check-item--warning">
               <h3>4. 出力がON</h3>
-              <p>タイマー接点を条件にして、ランプや次工程の出力をONします。</p>
+              <p>完了接点を条件にした段が成立し、この例では表示ランプY0がONになります。</p>
             </div>
           </div>
 
@@ -1678,56 +1679,35 @@
         </div>
 
         <div class="section-card" id="ladder">
-          <h2>タイマー回路の簡略ラダー例</h2>
-          <p>
-            ここでは、起動条件がONしてから5秒後にランプを点灯させる例で考えます。
-          </p>
+          <h2>見本ラダー：X0が5秒続いたら表示ランプを点灯</h2>
+          <p>三菱電機 MELSEC iQ-F FX5の通常タイマー <code>OUT T</code> を例にします。<strong>X0は瞬間的なパルスではなく、計測中にONが続く入力条件</strong>です。回路図は動作を読むための見本で、実機の配線図ではありません。</p>
 
           <figure class="article-figure">
-            <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ladder.png" alt="タイマー回路の簡易ラダー例">
-            <figcaption>
-              X0でタイマーT0を起動し、T0接点でY0を出力する基本例です。実際の命令名やデバイス番号はPLC機種により変わります。
-            </figcaption>
+            <img src="../assets/images/timer-circuit-basic/timer-circuit-basic-ladder-20261119.webp" alt="オンディレイの2段ラダー。1段目のX0のa接点で通常タイマーT0を起動し、設定値はK50。2段目はT0の完了a接点で表示ランプY0をON。入力が途中で切れると次回は0から計測する。" width="1448" height="1086" loading="lazy" decoding="async">
+            <figcaption>X0でT0を起動し、T0の完了接点でY0をONにします。</figcaption>
           </figure>
 
           <div class="table-wrap">
             <table>
               <thead>
-                <tr>
-                  <th>段</th>
-                  <th>条件</th>
-                  <th>動作</th>
-                  <th>見方</th>
-                </tr>
+                <tr><th scope="col">X0の状態</th><th scope="col">T0の現在値と完了接点</th><th scope="col">表示ランプY0</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="cell-blue">1段目</td>
-                  <td>X0 起動条件</td>
-                  <td>T0 K50</td>
-                  <td>X0がONすると、T0が5秒を数え始める</td>
-                </tr>
-                <tr>
-                  <td class="cell-green">2段目</td>
-                  <td>T0 接点</td>
-                  <td>Y0 ランプ</td>
-                  <td>T0が時間到達すると、Y0がONする</td>
-                </tr>
-                <tr>
-                  <td class="cell-orange">停止時</td>
-                  <td>X0 OFF</td>
-                  <td>T0リセット</td>
-                  <td>条件が切れると、基本的には計測も解除される</td>
-                </tr>
+                <tr><td>ONから5秒未満</td><td>計測中。完了接点は開いたまま</td><td>消灯</td></tr>
+                <tr><td>ONが5秒続いた</td><td>設定値に到達。完了接点が閉じる</td><td>点灯</td></tr>
+                <tr><td>途中または点灯後にOFF</td><td>現在値は0に戻る。完了接点は開く</td><td>消灯</td></tr>
               </tbody>
             </table>
           </div>
 
+          <div class="key-highlight">
+            <h3>3秒で入力が切れたら、残り2秒ではない</h3>
+            <p>たとえばX0が3秒ONになってからOFFになると、その3秒は残りません。次にONしたときは<strong>改めて5秒続いたときに点灯</strong>します。この動作は通常タイマーの例で、途中の値を保持する積算タイマー（FX5のST）とは区別します。</p>
+          </div>
+
           <div class="note-box">
-            <h3>GX Works3で見るときの注意</h3>
-            <p>
-              タイマー番号、設定値、単位はPLCや命令の設定によって変わります。実機では必ず使用しているCPU・命令表記に合わせて確認してください。
-            </p>
+            <h3>K50が5秒になるのは時間単位が100msだから</h3>
+            <p>この例の <code>OUT T</code> は100ms単位なので、<strong>50 × 100ms ＝ 5秒</strong>です。同じFX5でも <code>OUTH T</code> は10ms、<code>OUTHS T</code> は1ms単位です。実機はCPU型式、命令名、時間単位の順に照合してください。5秒は設定値であり、物理出力を測定した精度を示す値ではありません。</p>
           </div>
         </div>
 
@@ -1738,7 +1718,7 @@
           </p>
 
           <ul class="simple-list">
-            <li>起動ボタンを押して数秒後にランプを点灯する</li>
+            <li>入力条件が数秒途切れず続いたら、表示ランプを点灯する</li>
             <li>モーター起動後、安定してから次の動作へ進む</li>
             <li>センサーONが一定時間続いたら異常と判断する</li>
             <li>エアシリンダ動作後、次工程へ進むまで少し待つ</li>
@@ -1780,9 +1760,18 @@
           <div class="danger-box">
             <h3>時間だけを見て判断しない</h3>
             <p>
-              タイマー値が正しくても、元の入力条件や安全条件が違っていれば意図した動きにはなりません。必ず前後の条件も一緒に見ます。
+              タイマーの時間到達は、機械が停止したことや人が入っていないことの証明にはなりません。非常停止やガードの安全機能を、通常PLCのこの見本回路で代用しないでください。
             </p>
           </div>
+        </div>
+
+        <div class="section-card" id="official-sources">
+          <h2>メーカー公式資料・技術参照元</h2>
+          <ul class="simple-list">
+            <li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55401/jy997d55401ah.pdf">三菱電機 MELSEC iQ-F FX5 User's Manual (Application)</a>：DeviceのTimer (T)/Retentive Timer (ST) の項。通常タイマーの動作、命令別の時間単位。</li>
+            <li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf">三菱電機 MELSEC iQ-F FX5 Programming Manual (Instructions, Standard Functions/Function Blocks)</a>：第6章6.3「Timer」p.136–137。時間到達時の接点、入力OFF時の現在値・接点、命令の時間単位。</li>
+          </ul>
+          <p>最終内容更新：<time datetime="2026-11-19">2026年11月19日</time>。公式資料確認：<time datetime="2026-11-19">2026年11月19日</time>。図は資料の転載ではなく、表示ランプを使った説明用の作図です。</p>
         </div>
 
         <div class="section-card">
@@ -1891,7 +1880,7 @@
       <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
     </p>
   </div>
-</footer>
+<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
 
   <script>
   (function(){

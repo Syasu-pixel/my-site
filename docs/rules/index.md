@@ -144,6 +144,7 @@
 | [docs/reference-notes/flicker-circuit-basic.md](../reference-notes/flicker-circuit-basic.md) — flicker-circuit-basic 公式参照メモ | フリッカ回路記事の技術内容・画像・一次資料・検索根拠を更新または監査する。 |
 | [docs/reference-notes/tool-belt.md](../reference-notes/tool-belt.md) — 腰袋記事の参照・制作記録 | 腰袋記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/tester.md](../reference-notes/tester.md) — テスター記事の参照・制作記録 | テスター記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/counter-circuit-basic.md](../reference-notes/counter-circuit-basic.md) — カウンタ回路記事の参照・制作記録 | カウンタ回路記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考
 

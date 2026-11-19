@@ -66,6 +66,12 @@
 - 当初174件の既存記事集合では174−59＝115件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−59＝116件には新規公開済みシールド線1件を含む。
 - 最終内容更新日のHTML独立表示は未確認。制作・出典確認2026-11-18と本番確認2026-11-19を区別し、90日の再評価ガードは保守的に2026-11-19起点。最短再評価2027-02-17。期間経過だけで再編集しない。
 
+### 2026-11-19 集計追補（圧着の公開記録）
+
+- 照合基点: main `ae4e7e45dcfdfe0369a02e3e5e297c826d4faf0a`。本番とmainの日本語記事サイトマップは175 URL・重複0、対象URLは1件。
+- 既存記事刷新1件を追加し、下表は60 slug（重複0）。従来の59件の履歴は保持し、原点復帰はこの追補に含めない。
+- 当初174件の既存記事集合では174−60＝114件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−60＝115件には新規公開済みシールド線1件を含む。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -94,6 +100,7 @@
 | `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `counter-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（本文・参照記録） | [PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付済み。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
+| `crimping-tips` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照記録） | [PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付、Google登録リクエスト受付済み。更新版の検索反映は未確認。 |
 | `dc24v-common-basic` | 改善完了・凍結記録あり | 2026-11-09（本番反映確認記録） | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 統合前台帳は本番反映確認日。内容更新日・公式確認日に転用しない。 |
 | `dc24v-power-supply-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `din-rail-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841)・本書の個別履歴 | 本書の個別公開履歴の最終内容更新日・公式資料確認日を採録。 |
@@ -943,3 +950,11 @@
 
 - 承認済み工具3記事のうち残る圧着 `crimping-tips` のみ。[採用元 PR #1980](https://github.com/Syasu-pixel/my-site/pull/1980) head `5818be924cadfe0e64d4e6d4e4546393f507e386` の本文と採用済み画像4枚を変更せず、腰袋・テスター・カウンタ回路の公開記録を保持したまま必要な対象メタデータのみ同期した。
 - 旧確認用PRのスマホフッター比較は [比較撮影の修正 #1990](https://github.com/Syasu-pixel/my-site/pull/1990) の取り込み後に再検査する。正式検査・マージ・本番配信・検索サービス受付は未確認。公開完了件数やバックログ完了チェックは加算しない。
+
+### 圧着の公開確認（2026-11-19）
+
+- 対象: [圧着のコツ](https://denkicontrol.com/articles/crimping-tips.html)。管理者が工具3記事の本番公開を承認。圧着の採用元は [確認用PR #1980](https://github.com/Syasu-pixel/my-site/pull/1980) の `5818be924cadfe0e64d4e6d4e4546393f507e386`。本番用 [PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993) head `561375f7975bc30f1d0c85b37685d7e81adef672` は採用本文・画像4点と一致。正式CI 8/8成功後、main `ae4e7e45dcfdfe0369a02e3e5e297c826d4faf0a` に反映。
+- 改稿では、電線・端子・工具の適合、製品資料に基づく加工条件、圧着後の外観確認を整理。公式資料確認は2026-11-18（[参照記録](reference-notes/crimping-tips.md)）、独立した最終内容更新日のHTML表示は未確認。公開確認日と区別する。
+- [本番Pages run44478432291](https://github.com/Syasu-pixel/my-site/actions/runs/44478432291) のbuild/deploy成功。16:23:50 JSTに本番manifestのsourceCommit一致を確認。公開工程の画像URL変換後の本番HTML SHA256は `2f9d7ed2b75717a17a14498425290b6f9d6a58bdedd24b02c6a8c01a3141b24d`。採用WebP4点はバイト一致。検索索引289件と日本語記事サイトマップ175 URLで対象の反映を確認。
+- [IndexNow run44478432285](https://github.com/Syasu-pixel/my-site/actions/runs/44478432285) の対象1 URL自動送信は16:18:13 JSTにHTTP200受付。Google Search ConsoleのURL検査から助手が対象URLに1回リクエストし、16:26 JSTに「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」を確認（`GOOGLE_REQUESTED`）。既存URLはリクエスト前から登録済み。今回更新版の再クロール・検索反映完了は未確認。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。

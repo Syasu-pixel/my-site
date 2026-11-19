@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {chromium} from 'playwright';import {PNG} from 'pngjs';import pixelmatch from 'pixelmatch';
+import {launchShellCaptureBrowser} from '../scripts/site-shell-raster.mjs';import {PNG} from 'pngjs';import pixelmatch from 'pixelmatch';
 import {capturePhaseStableFooter} from '../scripts/site-shell-phase.mjs';
-const browser=await chromium.launch();test.after(()=>browser.close());
+const browser=await launchShellCaptureBrowser();test.after(()=>browser.close());
 const pixels=(a,b)=>{a=PNG.sync.read(a);b=PNG.sync.read(b);return a.width===b.width&&a.height===b.height?pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:.1,includeAA:false}):Infinity;};
 for(const width of [390,1440])test(`fixed overlay stays visible and guarded at ${width}`,async()=>{
  const page=await browser.newPage({viewport:{width,height:900}});

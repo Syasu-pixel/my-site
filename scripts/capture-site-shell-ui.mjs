@@ -1,4 +1,3 @@
-import { chromium } from 'playwright';
 import { readFile,writeFile,mkdir } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { resolve,extname,sep } from 'node:path';
@@ -6,17 +5,23 @@ import { createHash } from 'node:crypto';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { root } from './build-site-shells.mjs';
+import { launchShellCaptureBrowser, shellCaptureEnvironment, assertCaptureBaselineMode, assertCompatibleCaptureEnvironment } from './site-shell-raster.mjs';
 const preview=resolve(process.argv[2]||'.ui-proposal'),out=resolve(process.argv[3]||'.ui-evidence'),baseline=resolve(process.argv[4]||'.visual-evidence');
 const proposals=JSON.parse(await readFile(resolve(preview,'proposal.json'),'utf8')).pages;
 const base=JSON.parse(await readFile(resolve(baseline,'baseline.json'),'utf8'));
+assertCaptureBaselineMode(base.environment);
 const hash=b=>createHash('sha256').update(b).digest('hex');
 await mkdir(out,{recursive:true});
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.json':'application/json','.webp':'image/webp','.svg':'image/svg+xml'};
 const server=createServer(async(req,res)=>{try{let path=decodeURIComponent(new URL(req.url,'http://local').pathname).replace(/^\//,'');if(path.endsWith('/')||!path)path+='index.html';if(!resolve(root,path).startsWith(root+sep))throw Error();let data;try{data=await readFile(resolve(preview,path));}catch{data=await readFile(resolve(root,path));}res.writeHead(200,{'Content-Type':mime[extname(path)]||'application/octet-stream'}).end(data);}catch{res.writeHead(404).end();}});
-await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch();
-if(browser.version()!==base.environment.browser||process.platform!==base.environment.platform||process.version!==base.environment.node)throw Error('Proposal and baseline must share browser/OS/Node');
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;
 const records=[];
-try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.environment.viewports)){
+let browser,environment;
+try{
+browser=await launchShellCaptureBrowser();
+environment=shellCaptureEnvironment(browser,base.environment.viewports);
+assertCompatibleCaptureEnvironment(environment,base.environment);
+for(const p of proposals)for(const [device,viewport]of Object.entries(environment.viewports)){
  const context=await browser.newContext({viewport,deviceScaleFactor:1,locale:p.lang==='en'?'en-US':'ja-JP',timezoneId:'Asia/Tokyo',reducedMotion:'reduce',colorScheme:'light'});
  await context.route('**/*',r=>r.request().url().startsWith(origin+'/')||r.request().url().startsWith('data:')?r.continue():r.abort());
  const page=await context.newPage();await page.addInitScript(()=>{const Original=Date;globalThis.Date=class extends Original{constructor(...a){super(...(a.length?a:['2026-09-18T00:00:00Z']));}static now(){return 1789689600000;}};});
@@ -76,7 +81,7 @@ try{for(const p of proposals)for(const [device,viewport]of Object.entries(base.e
  const overflow=await page.locator('.dc-shell').evaluate(e=>[...e.querySelectorAll('.dc-bar *')].some(n=>{const r=n.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1);}));if(overflow)throw Error(`Header overflow: ${p.output} ${device}`);
  if(await page.locator('#dc-menu-toggle').getAttribute('aria-expanded')!=='false')throw Error('Menu Escape failed');
  r.checks='passed';records.push(r);await context.close();
-}}finally{await browser.close();await new Promise(r=>server.close(r));}
-await writeFile(resolve(out,'report.json'),JSON.stringify({stage:'intentional-header-ui-proposal',status:'review-only',baselineCommit:base.baseSha,environment:base.environment,records},null,2));
+}}finally{try{await browser?.close();}finally{await new Promise(r=>server.close(r));}}
+await writeFile(resolve(out,'report.json'),JSON.stringify({stage:'intentional-header-ui-proposal',status:'review-only',baselineCommit:base.baseSha,environment,records},null,2));
 await writeFile(resolve(out,'index.html'),`<!doctype html><meta charset="utf-8"><title>Header proposal</title><style>body{font:16px sans-serif;margin:24px;color:#17304b}section{border-top:1px solid #ccc;padding:20px 0}.row{display:flex;gap:16px;flex-wrap:wrap}figure{margin:0;width:300px}img{width:100%;border:1px solid #ddd}figcaption{padding:8px}</style><h1>Header proposal — review only</h1><p>Intentional UI changes, separate from byte-identical common-template migration. Original article sources remain unchanged. Japanese: consultation, search, menu. English: search, menu; no consultation link. Contact and available article languages are in the menu.</p>${records.map(r=>`<section><h2>${r.target} / ${r.device}</h2><p>Counterpart: ${r.counterpart||'none — no alternative link'}; checks ${r.checks}</p><div class="row">${['before','closed','search','menu','dark-menu','dark-page','diff'].map(k=>`<figure><figcaption>${k}</figcaption><a href="${r.images[k]}"><img src="${r.images[k]}" loading="lazy"></a></figure>`).join('')}</div></section>`).join('')}`);
 console.log(`UI proposal: ${records.length} page/device combinations passed; ${records.length*7} images.`);

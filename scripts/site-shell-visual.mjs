@@ -1,14 +1,13 @@
 // Capture the immutable base first, then compare the candidate in the same browser.
-import { chromium } from 'playwright';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { resolve, dirname, extname, sep } from 'node:path';
 import { createHash } from 'node:crypto';
-import os from 'node:os';
 import { capturePhaseStableFooter, shellContract } from './site-shell-phase.mjs';
 import { collectShellGeometry } from './site-shell-geometry.mjs';
+import { launchShellCaptureBrowser, shellCaptureEnvironment, assertCaptureBaselineMode, assertCompatibleCaptureEnvironment } from './site-shell-raster.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map(s => { const i=s.indexOf('='); return [s.slice(0,i),s.slice(i+1)]; }));
 const phase = args['--phase'];
@@ -48,6 +47,7 @@ if (phase === 'baseline') {
   catch (e) { if(e.code!=='ENOENT') throw e; }
 } else {
   baseline=JSON.parse(await readFile(manifestFile,'utf8'));
+  assertCaptureBaselineMode(baseline.environment);
   if(baseline.baseSha!==baseSha || baseline.headSha!==(process.env.HEAD_SHA||'local') || baseline.sourceSha!==(cohort==='added'?(process.env.HEAD_SHA||'local'):baseSha) || baseline.cohort!==cohort || baseline.scope!==scope || JSON.stringify(baseline.targets)!==JSON.stringify(targets)) throw Error('Baseline provenance/coverage mismatch');
 }
 await mkdir(out,{recursive:true});
@@ -64,11 +64,13 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
-const browser=await chromium.launch({headless:true});
-const environment={browser:browser.version(),platform:os.platform(),arch:os.arch(),node:process.version,viewports:config.viewports,pixelThreshold:0.1,includeAntialiasing:false,captureVersion:5,parallelContexts:4};
-if(baseline && JSON.stringify(environment)!==JSON.stringify(baseline.environment)) throw Error('Baseline/candidate environments differ');
 const images=[];const results=[];const rawResults=[];const contractDifferences=[];const htmlHashes={};const probes=[];
+let browser,environment;
 try {
+  // Normalize glyph paint before capture without changing pixels afterwards.
+  browser=await launchShellCaptureBrowser();
+  environment=shellCaptureEnvironment(browser,config.viewports);
+  if(baseline)assertCompatibleCaptureEnvironment(environment,baseline.environment);
   async function captureTarget(target) {
     const body=await readFile(resolve(base,target));htmlHashes[target]=hash(body);
     for(const [device,viewport] of Object.entries(config.viewports)) {
@@ -186,7 +188,7 @@ try {
   await Promise.all(Array.from({length:environment.parallelContexts},async()=>{
     while(queue.length)await captureTarget(queue.shift());
   }));
-}finally {await browser.close();await new Promise(r=>server.close(r));}
+}finally {try {await browser?.close();} finally {await new Promise(r=>server.close(r));}}
 probes.sort((a,b)=>(a.target+a.device).localeCompare(b.target+b.device));
 const common={baseSha,cohort,baselineOrigin:cohort==='added'?'head-before-generation':'immutable-main',sourceSha:phase==='baseline'&&cohort==='existing'?baseSha:process.env.HEAD_SHA||'local',headSha:process.env.HEAD_SHA||'local',scope,targets,environment,images,htmlHashes,probes,errors,externalRequestsBlocked:[...external].sort()};
 if(phase==='baseline') {

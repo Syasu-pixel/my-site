@@ -25,6 +25,8 @@
 
 ## 改善進捗
 
+- [x] `articles/home-return-circuit-basic.html` — 原点復帰回路。[PR #1994](https://github.com/Syasu-pixel/my-site/pull/1994)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認日は2026-11-18（本文表記）。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。IndexNow HTTP200受付。Googleの登録リクエストは2026-11-19の初回と18:55 JSTの再試行とも送信時にエラーとなり、受付未確認。次回は2026-11-20 10:30 JSTに同一URLの状態を確認し、未受付で送信可能なら1回のみ再試行する。更新版の再クロール・検索反映は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+
 - [x] `articles/analog-output-basic.html` — アナログ出力。[PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新・公式資料確認はいずれも2026-11-19（本文表記）。日付ガードの最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 
 - [x] `articles/crimping-tips.html` — 圧着のコツ。[PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付、Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。

@@ -95,7 +95,6 @@
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
-| [docs/reference-notes/analog-output-basic.md](../reference-notes/analog-output-basic.md) — アナログ出力 公式参照メモ | articles/analog-output-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
 | [docs/reference-notes/dc24v-power-supply-basic.md](../reference-notes/dc24v-power-supply-basic.md) — DC24V電源（パワーサプライ）公式参照・刷新記録 | DC24V電源装置記事の作成・更新・画像・検査を扱う。一次資料、適用条件、検索根拠、採否記録を確認する。 |
@@ -146,6 +145,8 @@
 | [docs/reference-notes/tool-belt.md](../reference-notes/tool-belt.md) — 腰袋記事の参照・制作記録 | 腰袋記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/tester.md](../reference-notes/tester.md) — テスター記事の参照・制作記録 | テスター記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/counter-circuit-basic.md](../reference-notes/counter-circuit-basic.md) — カウンタ回路記事の参照・制作記録 | カウンタ回路記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/crimping-tips.md](../reference-notes/crimping-tips.md) — 圧着のコツ記事の参照・制作記録 | 圧着のコツ記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/analog-output-basic.md](../reference-notes/analog-output-basic.md) — アナログ出力 公式参照メモ | articles/analog-output-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/limit-switch-troubleshooting-basic.md](../reference-notes/limit-switch-troubleshooting-basic.md) — リミットスイッチ不調 公式参照メモ | articles/limit-switch-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 
 ## 履歴・参考

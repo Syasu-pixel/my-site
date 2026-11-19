@@ -98,6 +98,7 @@
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
 | [docs/reference-notes/dc24v-power-supply-basic.md](../reference-notes/dc24v-power-supply-basic.md) — DC24V電源（パワーサプライ）公式参照・刷新記録 | DC24V電源装置記事の作成・更新・画像・検査を扱う。一次資料、適用条件、検索根拠、採否記録を確認する。 |
+| [docs/reference-notes/dc24v-power-troubleshooting-basic.md](../reference-notes/dc24v-power-troubleshooting-basic.md) — dc24v-power-troubleshooting-basic 公式参照メモ | articles/dc24v-power-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/din-rail-basic.md](../reference-notes/din-rail-basic.md) — din-rail-basic 公式参照メモ | DINレール記事の技術内容・画像・公式資料・用語を更新または監査する場合。 |
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/electromagnetic-contactor-vs-switch.md](../reference-notes/electromagnetic-contactor-vs-switch.md) — electromagnetic-contactor-vs-switch 公式参照メモ | articles/electromagnetic-contactor-vs-switch.html の技術内容・画像・公式資料・用語を更新または監査する。 |
@@ -117,6 +118,7 @@
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/terminal-block-basic.md](../reference-notes/terminal-block-basic.md) — terminal-block-basic 公式参照メモ | 端子台記事の技術説明・識別例・安全表現・画像を編集または確認する。未完了事項と公開承認を区別する。 |
+| [docs/reference-notes/vacuum-switch-basic.md](../reference-notes/vacuum-switch-basic.md) — vacuum-switch-basic 公式参照メモ | articles/vacuum-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/rule-alignment-v1.md](../rule-alignment-v1.md) — AI編集部ルール整合メモ v1 | AI編集部の再評価・保守・再開判断、または通常チャットで曜日の役割を依頼された場合。必ず運用状態文書を先に読み、自動再開しない。 |
 | [docs/search-console-content-improvement-log.md](../search-console-content-improvement-log.md) — Search Console Content Improvement Log | 既存記事の監査・改善候補選定・内容更新・検索意図・SEOを扱う。日付ガードを先に確認する。 |

@@ -149,6 +149,8 @@
 | [docs/reference-notes/analog-output-basic.md](../reference-notes/analog-output-basic.md) — アナログ出力 公式参照メモ | articles/analog-output-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/limit-switch-troubleshooting-basic.md](../reference-notes/limit-switch-troubleshooting-basic.md) — リミットスイッチ不調 公式参照メモ | articles/limit-switch-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/home-return-circuit-basic.md](../reference-notes/home-return-circuit-basic.md) — 原点復帰記事の参照・制作記録 | 原点復帰記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
+| [docs/reference-notes/timer-circuit-basic.md](../reference-notes/timer-circuit-basic.md) — タイマー回路 公式参照メモ | タイマー回路記事の技術根拠、ラダー例、メーカー公式資料を更新または監査する。 |
+| [docs/reference-notes/jog-operation-circuit-basic.md](../reference-notes/jog-operation-circuit-basic.md) — ジョグ運転回路 公式参照メモ | ジョグ運転回路記事の技術根拠、ラダー例、メーカー公式資料を更新または監査する。 |
 
 ## 履歴・参考
 

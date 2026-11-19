@@ -25,7 +25,7 @@
 
 ## 改善進捗
 
-- [x] `articles/counter-circuit-basic.html` — カウンタ回路。[PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付済み、Google登録リクエスト・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+- [x] `articles/counter-circuit-basic.html` — カウンタ回路。[PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付済み、Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 
 - [x] `articles/tool-belt.html` — 腰袋。[PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付、Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 

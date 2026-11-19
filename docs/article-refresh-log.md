@@ -93,7 +93,7 @@
 | `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
-| `counter-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（本文・参照記録） | [PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付済み。Google登録リクエスト・検索反映完了は未確認。 |
+| `counter-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（本文・参照記録） | [PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付済み。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
 | `dc24v-common-basic` | 改善完了・凍結記録あり | 2026-11-09（本番反映確認記録） | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 統合前台帳は本番反映確認日。内容更新日・公式確認日に転用しない。 |
 | `dc24v-power-supply-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `din-rail-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841)・本書の個別履歴 | 本書の個別公開履歴の最終内容更新日・公式資料確認日を採録。 |
@@ -935,5 +935,6 @@
 - FX3G学習用ラダーは設定値3、立ち上がりとリセットの読み分けを説明する。設備への書込み用ではない。公式資料確認日2026-11-18は公開本文に記載。独立した最終内容更新日のHTML表示は未確認、制作記録は2026-11-18。根拠は[参照メモ](reference-notes/counter-circuit-basic.md)。
 - 正式CI 8/8成功後に通常マージし、main `e8957fd47c7611e89ea63938ff0ab5a6214fa9bb` に反映。統合CIの対象289件・失敗0、対象記事の390/768/1440pxとダーク390/1440pxを検証。これは公開前の候補検査であり、本番ブラウザ全条件の再操作とは分ける。
 - [本番Pages run44446985058](https://github.com/Syasu-pixel/my-site/actions/runs/44446985058) のbuild/deploy成功。2026-11-19 11:55:42 JSTに本番manifestのsourceCommit一致、本文・採用画像5点・検索索引・サイトマップの計8ファイルがHTTP200で期待値と一致を確認。本文は公開工程の公式画像URL置換と、当該置換に伴う標準の改行正規化の後で一致。採用ラダーは本番ファイルが採用WebPとバイト一致。
-- [IndexNow run44446985162](https://github.com/Syasu-pixel/my-site/actions/runs/44446985162) が対象本番URLを自動送信し、11:49:30 JSTにHTTP200受付確認。Google登録リクエストはこの作業では実行していない。検索反映完了は未確認。
+- [IndexNow run44446985162](https://github.com/Syasu-pixel/my-site/actions/runs/44446985162) が対象本番URLを自動送信し、11:49:30 JSTにHTTP200受付確認。この公開記録時点でGoogle登録リクエストは未実施。後続の受付は下記を参照。
 - 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。日数経過だけで再編集しない。
+- Google: 2026-11-19 JSTに対象本番URLのGoogle Search Console URL検査からインデックス登録を1回リクエストし、「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」の受付表示を確認（`GOOGLE_REQUESTED`）。送信前の検査では既存URLは登録済み。今回更新版の再クロール・検索反映完了は未確認。

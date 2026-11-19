@@ -131,9 +131,9 @@
 | `sto-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 未確認 | 2026-09-25 | [PR #1599](https://github.com/Syasu-pixel/my-site/pull/1599)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `terminal-block-basic` | 改善完了・凍結記録あり | 未確認 | 2026-11-11 | 2026-11-11 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `terminal-block-jumper-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
-| `tester` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト・検索反映完了は未確認。 |
+| `tester` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
 | `thermal-relay-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
-| `tool-belt` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト・検索反映完了は未確認。 |
+| `tool-belt` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
 | `while-pressed-circuit-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1645](https://github.com/Syasu-pixel/my-site/pull/1645) | 本文表示から採録。未確認は推測補完しない。 |
 
 ### 圧力スイッチの記録不一致を解消（2026-11-14）
@@ -911,5 +911,11 @@
 - [本番Pages run44425964940](https://github.com/Syasu-pixel/my-site/actions/runs/44425964940) のbuild/deploy成功。最終publication検査は351テキストファイル比較、画像URL置換のみ、missing0、errors0、sourceFallbackUsed=false。公開manifestのsourceCommitも上記merge SHAと一致。
 - 2026-11-19 00:10:51 UTC（09:10:51 JST）に本番2 HTML、採用画像8 WebP、検索index、sitemapの計12ファイルをHTTP200で取得し、HTMLは正式画像URLマッピング後の期待生成物、それ以外は採用mainファイルとバイト一致を確認。本番2ページのPC実ブラウザで新本文・ヒーロー表示を確認。スマホ・darkの全面検査はCIおよび公開前の統合候補検査であり、本番全条件を再操作したとは扱わない。
 - 中間shell単体の390pxフッター画像では固定ボタンが広告文末尾に重なったが、最終統合候補には既存の下余白82pxが入り、実390px幅で最下部の全文可読を確認。2記事ともAmazonアソシエイト明示文を別途保持。中間成果物の状態と最終配信状態を混同しない。アフィリエイトURL集合・canonicalを保持。
-- [IndexNow run44425964894](https://github.com/Syasu-pixel/my-site/actions/runs/44425964894) は対象2 URLを自動送信し、2026-11-19 00:04:44 UTCにHTTP200受付を確認。Google登録リクエストは未確認で、この公開記録作業から手動送信していない。受付と検索インデックス反映完了は別。
+- [IndexNow run44425964894](https://github.com/Syasu-pixel/my-site/actions/runs/44425964894) は対象2 URLを自動送信し、2026-11-19 00:04:44 UTCにHTTP200受付を確認。この公開記録時点ではGoogle登録リクエスト未確認・未送信。後続の受付は下記追補を参照。受付と検索インデックス反映完了は別。
 - 公式資料確認日は両記事の参照・制作記録にある2026-11-18。テスターの制作案日も2026-11-18だが、両記事の最終内容更新日のHTML独立表示は未確認のまま保持。完成・凍結、保守的に公開確認日2026-11-19から90日、最短再評価2027-02-17。既存の日付ガードの例外・再評価条件を維持する。
+
+
+### 2026-11-19 Google登録リクエスト受付の追補
+
+- 2026-11-19 JSTにGoogle Search Consoleの対象URL検査で、[腰袋](https://denkicontrol.com/articles/tool-belt.html)と[テスター](https://denkicontrol.com/articles/tester.html)のインデックス登録を各1回リクエスト。いずれも「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」の受付表示を確認（`GOOGLE_REQUESTED`）。
+- URL自体はリクエスト前の検査で登録済みだったが、今回の更新版の再クロール・検索反映完了は未確認。IndexNow受付、公開日、記事内容更新日、公式資料確認日、90日ガード、刷新件数は変更しない。

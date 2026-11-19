@@ -1,5 +1,7 @@
 import test from 'node:test';
+import { assertRasterArguments, shellCaptureEnvironment, assertCompatibleCaptureEnvironment } from '../scripts/site-shell-raster.mjs';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtemp, cp, readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { root, sourceDir, renderShells, buildShells, replaceShells } from '../scripts/build-site-shells.mjs';
@@ -89,4 +91,38 @@ test('unavailable or invalid diagnostic measurements do not alter the audit verd
     assert.equal('pixels' in result,false);
     assert.equal('approvedChange' in result,false);
   }
+});
+
+// Compare provenance before trying to use an old or mixed-mode screenshot.
+test('raster provenance requires a single unopposed flag and exact environment',()=>{
+  assert.doesNotThrow(()=>assertRasterArguments(['--other','--disable-lcd-text']));
+  for(const invalid of [null,[],['--disable-lcd-text','--disable-lcd-text'],['--disable-lcd-text','--enable-lcd-text']]){
+    assert.throws(()=>assertRasterArguments(invalid),/unopposed Chromium LCD/);
+  }
+  const viewports={mobile:{width:390,height:844}};
+  const actual=shellCaptureEnvironment({version:()=> '140.0.7339.16'},viewports);
+  assert.equal(actual.captureVersion,6);
+  assert.equal(actual.textRasterization,'grayscale-lcd-disabled');
+  assert.equal(actual.pixelThreshold,0.1);
+  assert.equal(actual.includeAntialiasing,false);
+  assert.doesNotThrow(()=>assertCompatibleCaptureEnvironment(actual,structuredClone(actual)));
+  for(const mismatch of [{captureVersion:5},{textRasterization:'default'},{browser:'different'},{arch:'different'},{pixelThreshold:.2}]){
+    assert.throws(()=>assertCompatibleCaptureEnvironment(actual,{...actual,...mismatch}),/Baseline\/candidate environments differ/);
+  }
+});
+
+test('proposal image capture rejects pre-v6 or different-mode baseline before launching',async()=>{
+  const dir=await mkdtemp(resolve(root,'shell-raster-test-'));
+  try {
+    await writeFile(resolve(dir,'proposal.json'),JSON.stringify({pages:[]}));
+    for(const environment of [
+      {captureVersion:5},
+      {captureVersion:6,textRasterization:'default'}
+    ]){
+      await writeFile(resolve(dir,'baseline.json'),JSON.stringify({environment}));
+      const result=spawnSync(process.execPath,[resolve(root,'scripts/capture-site-shell-ui.mjs'),dir,resolve(dir,'out'),dir],{encoding:'utf8',timeout:5000});
+      assert.equal(result.status,1,result.stderr);
+      assert.match(result.stderr,/unsupported shell raster capture provenance/);
+    }
+  } finally {await rm(dir,{recursive:true,force:true});}
 });

@@ -25,6 +25,8 @@
 
 ## 改善進捗
 
+- [x] `articles/analog-output-basic.html` — アナログ出力。[PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新・公式資料確認はいずれも2026-11-19（本文表記）。日付ガードの最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
+
 - [x] `articles/crimping-tips.html` — 圧着のコツ。[PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付、Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 
 - [x] `articles/counter-circuit-basic.html` — カウンタ回路。[PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新日のHTML独立表示は未確認、公式資料確認2026-11-18。公開確認日起点90日、最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付済み、Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。公開証拠・検証範囲は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
@@ -79,7 +81,7 @@
 - [x] `articles/emergency-stop-switch-basic.html` — 非常停止スイッチ。最終内容更新・公式資料確認日2026-11-13。[PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)で本文・採用画像5枚を公開し、Pages成功と本番28資源の配信一致を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-11以降も期間経過だけで再編集せず日付ガードに従う。
 - [x] `articles/signal-tower-light-basic.html` — タワーライト。2026-11-13 PR #1861で刷新・本番確認完了、完成/凍結。最終内容更新・公式資料確認2026-11-13、90日未満は重複改善候補から除外（最短再評価2027-02-11）。IndexNow HTTP200受理、Google手動リクエスト未実施・インデックス未確認。詳細は記事リフレッシュ記録。
 - [x] `articles/dc24v-power-supply-basic.html` — DC24V電源。最終内容更新・公式資料確認日2026-11-12。[PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)で本文・ちびキャラ画像5枚を公開し、2026-11-12 23:21 JSTにPages成功・本番30資源の配信一致を確認。完成・凍結、90日未満は原則再改善候補から除外。2027-02-10以降も期間経過だけで再編集せず日付ガードに従う。
-- [ ] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング
+- [x] `articles/limit-switch-troubleshooting-basic.html` — リミットスイッチトラブルシューティング。[PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)で刷新・2026-11-19本番確認済み、完成・凍結。最終内容更新・公式資料確認はいずれも2026-11-19（本文表記）。日付ガードの最短再評価2027-02-17、期間経過だけで再編集しない。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 - [x] `articles/load-cell-basic.html` — ロードセル — 2026-10-02 本番公開完了（PR #1650 / 画像6枚刷新 / 公式資料監査済み / 統合最終Preview承認済み / GitHub Pages・IndexNow確認済み / Google Search Console登録リクエスト実施済み）
 
 - [x] `articles/air-regulator-basic.html` — エアレギュレータ。最終内容更新・公式資料確認2026-11-14。本文とちびキャラ画像6枚を承認後、[PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)をmainへ反映。Pages成功、2026-11-14 03:41 UTCに本番本文・6画像の一致を確認。完成・凍結、90日未満は原則再改善候補から除外、最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14にユーザー本人から実施報告あり、検索インデックス完了は未確認。詳細は記事リフレッシュ記録。

@@ -72,6 +72,12 @@
 - 既存記事刷新1件を追加し、下表は60 slug（重複0）。従来の59件の履歴は保持し、原点復帰はこの追補に含めない。
 - 当初174件の既存記事集合では174−60＝114件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−60＝115件には新規公開済みシールド線1件を含む。
 
+### 2026-11-19 集計追補（アナログ出力・リミットスイッチトラブルシューティングの公開記録）
+
+- 照合基点: main `89163d1c1784da7000dd3ec3268b3749650526d7`。本番日本語記事サイトマップ175 URL・重複0、対象2 URL各1件と検索索引の各1件を確認。
+- 既存記事刷新2件を追加し、下表は62 slug（重複0）。従来の60件の状態と履歴は保持し、リレー・原点復帰は加算しない。
+- 当初174件の既存記事集合では174−62＝112件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−62＝113件には新規公開済みシールド線1件を含む。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -94,6 +100,7 @@
 | `air-cylinder-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `air-cylinder-troubleshooting-basic` | 刷新main反映済み | 2026-09-22（公開記録日） | 未確認 | 2026-09-16 | [PR #1488](https://github.com/Syasu-pixel/my-site/pull/1488)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `air-regulator-basic` | 刷新main反映済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `analog-output-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（本文表記） | 2026-11-19（本文・参照記録） | [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。 |
 | `area-sensor-basic` | 刷新main反映済み | 未確認 | 2026-10-06 | 2026-10-06 | [PR #1693](https://github.com/Syasu-pixel/my-site/pull/1693) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-panel-cooling-fan-basic` | 刷新main反映・本番確認済み | 2026-11-17 | 2026-11-15 | 2026-11-15（本文表記、11-17再照合） | [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-13。IndexNow HTTP200受理、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。 |
 | `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
@@ -115,6 +122,7 @@
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `lan-checker` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。footer CI FAILは個別判定のまま保持。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人提供画面で実施済みを確認・検索反映未確認。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
+| `limit-switch-troubleshooting-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（本文表記） | 2026-11-19（本文・参照記録） | [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `mega` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1966](https://github.com/Syasu-pixel/my-site/pull/1966)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNowの個別受付結果は本記録では未確認。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
@@ -958,3 +966,13 @@
 - [本番Pages run44478432291](https://github.com/Syasu-pixel/my-site/actions/runs/44478432291) のbuild/deploy成功。16:23:50 JSTに本番manifestのsourceCommit一致を確認。公開工程の画像URL変換後の本番HTML SHA256は `2f9d7ed2b75717a17a14498425290b6f9d6a58bdedd24b02c6a8c01a3141b24d`。採用WebP4点はバイト一致。検索索引289件と日本語記事サイトマップ175 URLで対象の反映を確認。
 - [IndexNow run44478432285](https://github.com/Syasu-pixel/my-site/actions/runs/44478432285) の対象1 URL自動送信は16:18:13 JSTにHTTP200受付。Google Search ConsoleのURL検査から助手が対象URLに1回リクエストし、16:26 JSTに「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」を確認（`GOOGLE_REQUESTED`）。既存URLはリクエスト前から登録済み。今回更新版の再クロール・検索反映完了は未確認。
 - 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 アナログ出力・リミットスイッチトラブルシューティングの公開確認
+
+- 対象: [アナログ出力](https://denkicontrol.com/articles/analog-output-basic.html)と[リミットスイッチトラブルシューティング](https://denkicontrol.com/articles/limit-switch-troubleshooting-basic.html)の既存日本語2記事のみ。リレーと原点復帰は含めない。採用版 `93cfa30ea7371435c8fa1df7ad885079877f61d1` と [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995) head `fe2d1b84b6b8f7a921bda568089f540505f1c0ae` の編集元HTML2点、画像6点、参照メモ2点が一致。正式CI 8/8成功後、main `89163d1c1784da7000dd3ec3268b3749650526d7` に反映。
+- アナログ出力では4–20mA／0–10Vの仕様照合、負荷条件と指令換算、値不一致時の確認手順を整理し、仕様合わせ図1点を追加。[公式資料の参照記録](reference-notes/analog-output-basic.md)。
+- リミットスイッチでは機械の当たり・接点／配線・PLC入力の切り分けと安全上の区別を整理し、採用画像5点を反映。[公式資料の参照記録](reference-notes/limit-switch-troubleshooting-basic.md)。
+- 正式成果物にてPC・タブレット・スマホとダーク表示を確認。[本番Pages run44488240137](https://github.com/Syasu-pixel/my-site/actions/runs/44488240137) のbuild/deploy成功（17:36:42 JST）。17:40:19 JSTに同一本番manifestと2記事のHTML、画像6点の実配信を確認。アナログ出力のWebP1点は採用版とバイト一致し、リミットスイッチの5点は公開工程でのWebP変換後も画像内容・寸法が対応。サイト内検索索引と日本語記事サイトマップで各対象は1件。今回の本番HTML SHA-256: アナログ出力 `31104cb19291790214abdb797184f67ca03f1c67cd4dbf3ec4ccc2e75a76facf`、リミットスイッチ `1381d3b1218f519ac52dc34f551f4705ee6462dfde4260c06ee5b93939f9ff20`。
+- [IndexNow run44488240033](https://github.com/Syasu-pixel/my-site/actions/runs/44488240033) の対象2 URL自動送信は17:31:39 JSTにHTTP200受付。
+- Google Search Console URL検査: アナログ出力: 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。リミットスイッチ: 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。 リクエスト受付は、今回更新版の再クロール・検索反映完了とは区別する。
+- 最終内容更新日・公式資料確認日は、それぞれ公開本文で2026-11-19と独立表示。本番確認日と別に記録。完成・凍結、最短再評価2027-02-17。期間経過だけで再編集しない。

@@ -119,6 +119,7 @@
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/stripper.md](../reference-notes/stripper.md) — stripper 公式参照メモ | ストリッパー記事の被覆区分・型式別適用電線・公式資料を更新または確認する。 |
 | [docs/reference-notes/terminal-block-basic.md](../reference-notes/terminal-block-basic.md) — terminal-block-basic 公式参照メモ | 端子台記事の技術説明・識別例・安全表現・画像を編集または確認する。未完了事項と公開承認を区別する。 |
 | [docs/reference-notes/vacuum-switch-basic.md](../reference-notes/vacuum-switch-basic.md) — vacuum-switch-basic 公式参照メモ | articles/vacuum-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/while-pressed-circuit-basic.md](../reference-notes/while-pressed-circuit-basic.md) — while-pressed-circuit-basic 公式参照メモ | articles/while-pressed-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

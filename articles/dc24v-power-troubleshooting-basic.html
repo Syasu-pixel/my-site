@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DC24V電源が落ちる時の確認手順｜短絡・過負荷・電圧降下の見方 | 電気と制御の実務メモ</title>
-  <meta name="description" content="DC24V電源が落ちる、電圧が出ない、負荷をつなぐと落ちる時の確認手順を、電気工事士・制御初心者向けにやさしく整理。短絡、過負荷、電圧降下、ヒューズ、端子台、PLC・センサー電源の見方まで解説します。">
+  <meta name="description" content="DC24V電源が落ちる原因を「全系統」「一分岐」「負荷動作時」で切り分けます。過負荷・短絡保護と末端の電圧降下、電源による復帰条件の違いを解説。">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://denkicontrol.com/articles/dc24v-power-troubleshooting-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/dc24v-power-troubleshooting-basic.html">
@@ -13,7 +13,7 @@
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="DC24V電源が落ちる時の確認手順｜短絡・過負荷・電圧降下の見方">
-  <meta property="og:description" content="DC24V電源が落ちる、電圧が出ない、負荷をつなぐと落ちる時に、短絡・過負荷・電圧降下をどの順番で確認するかを初心者向けに整理します。">
+  <meta property="og:description" content="DC24Vが全系統で落ちる、一分岐だけ落ちる、負荷が動く時だけ落ちる。影響範囲と発生タイミングから、過負荷保護と末端の電圧降下を切り分けます。">
   <meta property="og:url" content="https://denkicontrol.com/articles/dc24v-power-troubleshooting-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/dc24v-power-troubleshooting-basic/dc24v-power-troubleshooting-basic-ogp.png">
   <meta property="og:site_name" content="電気と制御の実務メモ">
@@ -21,7 +21,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="DC24V電源が落ちる時の確認手順｜短絡・過負荷・電圧降下の見方">
-  <meta name="twitter:description" content="DC24V電源が落ちる時の確認順を、短絡・過負荷・電圧降下・端子台・負荷側の流れでやさしく整理。">
+  <meta name="twitter:description" content="DC24V電源が落ちるとき、全系統・一分岐・動作時のどれかを整理。保護動作と負荷端での電圧降下の見分け方を解説します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/dc24v-power-troubleshooting-basic/dc24v-power-troubleshooting-basic-ogp.png">
 
   <meta name="theme-color" content="#f8fbff">
@@ -1687,8 +1687,8 @@
           <h2>先に結論</h2>
           <ul>
             <li>DC24Vが落ちる時は電源本体だけでなく負荷側を分けて見る</li>
-            <li>負荷を外すと復帰するなら、負荷側の短絡や過負荷を疑う</li>
-            <li>電圧が出ていても端子台や末端で電圧降下していることがある</li>
+            <li>全系統・一分岐・動作時だけのどれかを記録する</li>
+            <li>電源出力と負荷端の状態を同じ時刻で比べる</li>
           </ul>
         </div>
       </section>
@@ -1701,6 +1701,7 @@
           <a href="#comparison">症状別の見方</a>
           <a href="#check-flow">確認手順</a>
           <a href="#common-mistakes">よくある原因</a>
+          <a href="#official-sources">公式資料</a>
           <a href="#related">関連記事</a>
         </div>
       </section>
@@ -1816,129 +1817,39 @@
           </section>
 
           <section class="section-card" id="comparison">
-            <h2>症状別に見ると原因を絞りやすい</h2>
-            <p>
-              DC24Vのトラブルは、まったく電圧が出ない場合、負荷をつなぐと落ちる場合、動作時だけ電圧が下がる場合などに分かれます。
-              症状を分けると、原因の方向が見えやすくなります。
-            </p>
-
-            <figure class="article-figure">
-              <img src="../assets/images/dc24v-power-troubleshooting-basic/dc24v-power-troubleshooting-basic-comparison.png" alt="DC24V電源が落ちる時の症状別比較図">
-              <figcaption>
-                電圧が出ない、負荷をつなぐと落ちる、動作時だけ下がるなど、症状を分けると確認場所を絞りやすくなります。
-              </figcaption>
-            </figure>
-
+            <h2>症状を「どこまで」「いつ」で分ける</h2>
+            <p>まず<strong>同じ電源につながるどの機器が止まったか</strong>と、<strong>いつ止まったか</strong>を記録します。動作時だけの異常は、全系統・一分岐のどちらでも起きます。範囲とタイミングは別々に整理します。</p>
             <div class="table-wrap">
               <table>
-                <thead>
-                  <tr>
-                    <th>症状</th>
-                    <th>考えやすい原因</th>
-                    <th>最初に見る場所</th>
-                  </tr>
-                </thead>
+                <thead><tr><th scope="col">見え方</th><th scope="col">原因の候補</th><th scope="col">最初に照らし合わせる情報</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td class="cell-blue">電源ユニットから電圧が出ない</td>
-                    <td>一次側電源なし、電源故障、保護動作、ヒューズ切れ</td>
-                    <td>入力電源、電源表示、出力端子</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">負荷をつなぐと落ちる</td>
-                    <td>負荷側短絡、過負荷、機器故障、配線ミス</td>
-                    <td>分岐系統、負荷側配線、保護機器</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">動作時だけ電圧が下がる</td>
-                    <td>容量不足、突入電流、電磁弁やリレーの同時動作</td>
-                    <td>負荷電流、電源容量、動作タイミング</td>
-                  </tr>
-                  <tr>
-                    <td>末端機器だけ動かない</td>
-                    <td>端子ゆるみ、電圧降下、0V不良、ケーブル断線</td>
-                    <td>末端電圧、端子台、0V共通線</td>
-                  </tr>
+                  <tr><td class="cell-blue">同じ電源の全系統が落ちる</td><td>入力電源の異常、電源の保護動作、電源故障、共通配線の異常</td><td>電源表示、複数の分岐の状態、異常履歴</td></tr>
+                  <tr><td class="cell-green">一分岐だけ落ちる</td><td>分岐保護の動作、端子・配線・負荷の異常</td><td>分岐名と保護表示、その下流の機器</td></tr>
+                  <tr><td class="cell-orange">負荷が動く時だけ落ちる</td><td>起動時の突入電流、同時動作による負荷増加、配線・端子での電圧降下</td><td>動いた機器と時刻、電源元と負荷端の状態の違い</td></tr>
                 </tbody>
               </table>
             </div>
-
             <div class="key-highlight">
-              <h3>負荷を外すと復帰するかが大きなヒント</h3>
-              <p>
-                負荷を外すと電源が復帰する場合は、電源本体よりも負荷側の短絡や過負荷を疑いやすくなります。
-              </p>
+              <h3>「電源元も低下」と「負荷端だけ低下」は別</h3>
+              <p>同じ時刻に電源元の出力も低ければ、入力・電源保護・総負荷が候補です。電源元が保たれ、負荷端だけ低ければ、分岐・端子・配線を疑います。<strong>どちらも原因の確定ではありません。</strong>出力表示が点灯していても、負荷側の電圧や瞬間的な低下まで正常とは限りません。</p>
             </div>
           </section>
 
           <section class="section-card" id="check-flow">
             <h2>DC24V電源が落ちる時の確認手順</h2>
-            <p>
-              DC24V電源の確認では、いきなり配線を外しすぎると状況が分からなくなります。
-              まず電源本体、次に保護機器、分岐、負荷側という順番で、どこで落ちているかを切り分けます。
-            </p>
-
+            <p>停止の範囲と発生のタイミングを整理し、図面で「電源ユニット → 分岐保護・端子 → 負荷」の対応を確かめます。</p>
             <figure class="article-figure">
-              <img src="../assets/images/dc24v-power-troubleshooting-basic/dc24v-power-troubleshooting-basic-check-flow.png" alt="DC24V電源が落ちる時の確認手順を示すフロー図">
-              <figcaption>
-                DC24V電源の確認は、電源本体、保護機器、分岐、負荷側、末端電圧の順に見ると整理しやすくなります。
-              </figcaption>
+              <img src="../assets/images/dc24v-power-troubleshooting-basic/dc24v-power-troubleshooting-branch-flow-20261120.webp" alt="電源ユニット、分岐保護・端子、負荷・機器の順に影響範囲をたどる図。全系統、一分岐、動作時だけの3つの見方を示す。配線図ではない。" width="1440" height="810">
+              <figcaption>全系統・一分岐・動作時の違いを、電源元から負荷までの位置関係で整理します。</figcaption>
             </figure>
-
             <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>1. 電源ユニットの表示を見る</h3>
-                <p>
-                  電源ランプ、異常表示、出力表示を確認します。一次側電源が入っているかも合わせて見ます。
-                </p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>2. 出力端子で24Vを測る</h3>
-                <p>
-                  電源ユニットの出力端子で、24Vと0Vの電圧を確認します。ここで出ているかが最初の切り分けです。
-                </p>
-              </div>
-
-              <div class="check-item">
-                <h3>3. ヒューズや保護機器を見る</h3>
-                <p>
-                  ヒューズ切れ、サーキットプロテクタのトリップ、分岐保護の状態を確認します。
-                </p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>4. 分岐ごとに負荷を切り分ける</h3>
-                <p>
-                  どの分岐をつなぐと電源が落ちるのかを確認します。全体ではなく系統ごとに見ると原因を絞れます。
-                </p>
-              </div>
-
-              <div class="check-item">
-                <h3>5. 負荷側の短絡を確認する</h3>
-                <p>
-                  センサー、電磁弁、リレー、ケーブルなどで24Vと0Vが短絡していないか確認します。
-                </p>
-              </div>
-
-              <div class="check-item check-item--important">
-                <h3>6. 末端電圧を確認する</h3>
-                <p>
-                  電源元では24Vがあっても、末端機器のところで電圧が下がっていないかを確認します。
-                </p>
-              </div>
+              <div class="check-item check-item--important"><h3>1. 停止範囲を記録する</h3><p>制御盤の外から見える表示や設備の異常履歴で、どの分岐まで影響したかを整理します。複数の電源がある設備では、同じ電源から供給される系統かを図面で確認します。</p></div>
+              <div class="check-item check-item--field"><h3>2. 発生時刻と動いた機器をそろえる</h3><p>異常記録から、投入時・機器の起動時・同時動作時のどれかを見ます。復帰していても、原因を再現するための再投入・試運転は行わず、記録を保全担当者へ引き継ぎます。</p></div>
+              <div class="check-item"><h3>3. 電源と分岐保護の型式を確認する</h3><p>保護表示だけで短絡・過負荷・電源故障は確定できません。電源と分岐保護の型式、異常表示、影響範囲を記録し、対象機種の説明書と照合します。</p></div>
             </div>
-
-            <div class="danger-box caution-character-box">
-              <div class="caution-character">
-                <img src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="注意点を案内する先輩キャラクター">
-              </div>
-              <div>
-                <h3>短絡確認は安全に行う</h3>
-                <p>
-                  通電中の短絡確認や配線の抜き差しは、火花や機器故障につながる場合があります。必要に応じて電源を切り、図面と手順を確認して作業します。
-                </p>
-              </div>
+            <div class="danger-box">
+              <h3>盤内作業は保全担当者へ</h3>
+              <p>DC24Vでも、盤内にAC入力や別系統がある場合があります。<strong>このページは通電中の測定・配線の抜き差し・保護の解除を案内しません。</strong>異臭、焦げ、発熱や繰り返すトリップがあるときは再投入せず、現場手順に従い、点検と復旧は資格・権限のある担当者へ引き継いでください。</p>
             </div>
           </section>
 
@@ -1951,7 +1862,7 @@
 
             <h3>電源ユニットだけを疑ってしまう</h3>
             <p>
-              電源が落ちると本体故障を疑いたくなりますが、負荷側を外すと復帰する場合は、負荷側の短絡や過負荷を優先して確認します。
+              電源が落ちると本体故障を疑いたくなりますが、電源本体の故障と決めつけず、分岐の状態と発生時刻を確認します。復帰したという事実だけで負荷側が原因とは断定できません。
             </p>
 
             <h3>24V側だけ見て0V側を見ていない</h3>
@@ -1959,7 +1870,7 @@
               0V共通線のゆるみや断線があると、機器が不安定になったり、入力や出力が正しく動かないことがあります。
             </p>
 
-            <h3>末端電圧を測っていない</h3>
+            <h3>電源元の状態だけで判断する</h3>
             <p>
               電源ユニットの出力端子では24Vがあっても、遠い負荷や細い線、端子ゆるみの先で電圧が下がっている場合があります。
             </p>
@@ -1975,7 +1886,7 @@
                   <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="確認する後輩キャラクター">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--kouhai">後輩</span>DC24Vが落ちる時って、どこから外して確認すればいいか迷います。</p>
+                  <p><span class="talk-name talk-name--kouhai">後輩</span>表示が復帰していたら、もう正常と見ていいですか？</p>
                 </div>
               </div>
 
@@ -1984,7 +1895,7 @@
                   <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="説明する先輩キャラクター">
                 </div>
                 <div class="talk-bubble">
-                  <p><span class="talk-name talk-name--senpai">先輩</span>まず電源本体の出力を見て、その次に分岐ごとに見るといいよ。いきなり全部外すより、どの系統で落ちるかを残しながら確認しよう。</p>
+                  <p><span class="talk-name talk-name--senpai">先輩</span>復帰したことと原因がなくなったことは別だよ。止まった機器と時刻、型式を記録して、保護の復帰条件は説明書で確かめよう。</p>
                 </div>
               </div>
             </div>
@@ -1994,14 +1905,14 @@
             <h2>現場での見方のコツ</h2>
             <p>
               DC24V電源のトラブルは、全体の電源が落ちているのか、特定の負荷だけ動かないのかで見方が変わります。
-              測る場所を変えながら、どこまでは正常かを順番に確認します。
+              誰が確認しても同じ系統を追えるように、影響した範囲と直前の状況を残します。
             </p>
 
             <div class="check-grid">
               <div class="check-item check-item--field">
-                <h3>電源元と末端で測る</h3>
+                <h3>電源元と末端を区別する</h3>
                 <p>
-                  電源ユニットの出力端子だけでなく、センサーや電磁弁など実際の負荷側でも電圧を確認します。
+                  電源元が正常でも負荷端まで正常とは限りません。保全担当者の確認結果は、記録した場所・時刻・機器名がそろって初めて比較できます。
                 </p>
               </div>
 
@@ -2013,9 +1924,9 @@
               </div>
 
               <div class="check-item check-item--warning">
-                <h3>負荷を戻す順番を決める</h3>
+                <h3>復帰した条件を残す</h3>
                 <p>
-                  切り分けで外した負荷は、1つずつ戻して確認すると、どの負荷で落ちるか分かりやすくなります。
+                  自動で表示が戻ったのか、設備側の復旧作業後に戻ったのかを分けて記録します。表示が戻っても再起動や運転許可の確認は設備側の手順に従います。
                 </p>
               </div>
 
@@ -2038,6 +1949,16 @@
                 </p>
               </div>
             </div>
+          </section>
+
+          <section class="section-card" id="official-sources">
+            <h2>メーカー公式資料・技術参照元</h2>
+            <p>たとえばオムロンのS8VK-G・S8VK-Sでは過電流保護が自動復帰と記載されていますが、同シリーズでも過電圧保護は出力遮断後の復帰条件が別です。これは機種例であり、すべての24V電源・分岐保護で同じ動作をするわけではありません。</p>
+            <ul>
+              <li><a href="https://www.fa.omron.co.jp/products/family/3178/specification/">オムロン S8VK-G 定格／性能</a>：過電流保護、過電圧保護、出力表示。</li>
+              <li><a href="https://www.fa.omron.co.jp/products/family/3485/specification/">オムロン S8VK-S 定格／性能</a>：24V仕様、保護の種類。不足電圧検出出力は30～120Wタイプにはなく、240・480Wタイプにはある。</li>
+            </ul>
+            <p>公式資料確認日：2026年11月20日。現在の設備に適用する条件は、実際の型式ごとの説明書を確認してください。</p>
           </section>
 
           <section class="section-card" id="related">
@@ -2116,9 +2037,9 @@
             <h3>この記事の要点</h3>
             <ul>
               <li>DC24V電源本体と負荷側を分けて見る</li>
-              <li>負荷をつなぐと落ちるなら短絡や過負荷を疑う</li>
+              <li>全系統・一分岐・動作時の違いを見る</li>
               <li>24V側だけでなく0V側も確認する</li>
-              <li>電源元、分岐、末端で電圧を測る</li>
+              <li>電源と保護機器の型式別資料を照合する</li>
             </ul>
           </section>
 
@@ -2136,8 +2057,8 @@
           <section class="side-card">
             <h3>現場メモ</h3>
             <ul>
-              <li>いきなり全部外さず分岐ごとに見る</li>
-              <li>負荷を戻す時は1つずつ確認する</li>
+              <li>止まった範囲と発生時刻を記録する</li>
+              <li>復帰と原因解消を区別する</li>
               <li>端子ゆるみと0V不良を見落とさない</li>
               <li>直前に触った配線や機器を優先して確認する</li>
             </ul>

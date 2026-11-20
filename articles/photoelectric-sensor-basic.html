@@ -13,11 +13,11 @@
   <meta property="og:title" content="光電センサとは？種類と使い方を初心者向けにやさしく整理">
   <meta property="og:description" content="光電センサの基本、透過型・回帰反射型・拡散反射型の違い、検出距離や光軸ズレ、汚れによる誤検出の確認ポイントをやさしく整理します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/photoelectric-sensor-basic.html">
-  <meta property="og:image" content="https://denkicontrol.com/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp.png">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp-refresh-20261120.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="光電センサとは？種類と使い方を初心者向けにやさしく整理">
   <meta name="twitter:description" content="透過型・回帰反射型・拡散反射型の違い、検出距離や光軸ズレ、確認ポイントを初心者向けに整理します。">
-  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp.png">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-ogp-refresh-20261120.png">
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
@@ -1486,6 +1486,7 @@
 
   @media (max-width:640px){:root{--header-h:66px;}html{scroll-padding-top:82px;}.site-header{padding:7px 8px;}.site-header-inner{gap:6px;}.brand{gap:7px;}.brand-logo{height:36px;}.brand-title{font-size:13px;letter-spacing:0;}.brand-sub{display:none;}.language-menu-button{width:34px;min-width:34px;min-height:34px;}.header-search{flex:0 1 138px;min-height:36px;}.search-box{padding:0 9px;gap:6px;}.search-box-input{font-size:11px;}.header-search-icon{width:14px;height:14px;}.search-box-panel{right:-48px;width:min(340px,94vw);}}
 </style>
+<style id="sensor-figure-layout">.sensor-body-figure img{display:block;width:100%;height:auto}</style>
 </head>
 
 <body>
@@ -1560,6 +1561,8 @@
         </div>
       </section>
 
+      <p class="article-updated">最終内容更新：<time datetime="2026-11-20">2026年11月20日</time></p>
+
       <section class="top-summary" aria-label="この記事の要約">
         <article class="summary-card summary-card--fit">
           <h2>この記事が向いている人</h2>
@@ -1583,8 +1586,8 @@
           <h2>先に結論</h2>
           <ul>
             <li>光電センサは光の遮りや反射でワークを検出する</li>
-            <li>距離・ワーク色・反射・光軸ズレで検出が変わる</li>
-            <li>近接センサより離れた検出や非接触検出に向く</li>
+            <li>受光器・反射板を向かい側に置けるかで方式を絞る</li>
+            <li>不調時はセンサ出力とPLC入力を分けて確認する</li>
           </ul>
         </article>
       </section>
@@ -1607,11 +1610,13 @@
             <h2>光電センサの全体像</h2>
             <p>光電センサは、光を出して、その光が<span class="mark">遮られたか、反射して戻ってきたか</span>を見て、ワークの有無や位置を検出するセンサです。</p>
             <p>制御盤や機械装置では、ワークの通過確認、位置確認、部品の有無確認、箱や製品の検出などでよく使われます。</p>
-            <p>近接センサは金属検出が得意ですが、光電センサは光を使うため、金属以外のワークも検出しやすい場面があります。ただし、ワークの色、表面の反射、汚れ、光軸ズレの影響を受けることがあります。</p>
+            <p>金属を検出する誘導形近接センサと違い、光電センサには非金属のワークを検出しやすい方式もあります。ただし、ワークの色、表面の反射、汚れ、光軸ズレの影響を受けることがあります。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-overview.png" alt="光電センサの全体像。光を出す、遮るまたは反射する、検出する、PLCや表示へ信号を送る流れ" loading="lazy" decoding="async">
-              <figcaption>光電センサは、光を使ってワークの有無や位置を非接触で検出し、PLCや表示機器へ信号を送ります。</figcaption>
+            <p class="key-highlight"><strong>信号の流れ：</strong>投光する → 光が遮られる・反射する → 受光量を判定する → センサが出力する</p>
+
+            <figure class="article-figure sensor-body-figure">
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-overview-diagram-v2.png" width="1080" height="700" alt="受光状態、センサ出力、PLC入力を分けて見る3段階" loading="lazy" decoding="async">
+              <figcaption>センサが光を受けているか、センサの出力が切り替わるか、その変化がPLC入力に届くかを分けて確認します。</figcaption>
             </figure>
 
             <div class="talk-thread">
@@ -1639,11 +1644,11 @@
             <h2>光電センサの基本の考え方</h2>
             <p>光電センサで見るポイントは、<span class="mark">投光・受光・検出物</span>の関係です。</p>
             <p>投光部から出た光を、受光部が受け取ります。その途中にワークが入って光が遮られたり、ワークで反射した光が戻ってきたりすると、センサが状態の変化として検出します。</p>
-            <p>PLCで見る場合は、光電センサの出力が入力信号として入ります。つまり、センサ本体の検出状態と、PLC入力がONしているかを分けて確認すると、トラブル時に追いやすくなります。</p>
+            <p>PLCにつなぐ場合は、センサが光を受けているか、出力が切り替わったか、PLC入力が変わったかを分けて見ます。出力ONが「ワークあり」とは限りません。</p>
 
             <div class="key-highlight">
               <h3>光電センサは「光の通り道」を見る</h3>
-              <p>検出しない時は、センサ本体だけでなく、投光方向、受光方向、ワークの位置、光軸、汚れや遮りを順番に確認すると原因を見つけやすくなります。</p>
+              <p>入光時ON（ライトオン）は受光量が所定のレベルに達したとき、遮光時ON（ダークオン）は光が所定のレベルより減ったときに出力します。どちらで使っているかは対象機種と設定を確認します。</p>
             </div>
 
             <div class="table-wrap">
@@ -1659,7 +1664,7 @@
                   <tr>
                     <td class="cell-blue">投光</td>
                     <td>センサから光を出す側</td>
-                    <td>光が正しい方向へ出ているか</td>
+                    <td>投光側が固定され、光を遮るものがないか</td>
                   </tr>
                   <tr>
                     <td class="cell-green">受光</td>
@@ -1674,7 +1679,7 @@
                   <tr>
                     <td class="cell-orange">PLC入力</td>
                     <td>センサ出力が入る先</td>
-                    <td>センサ検出時にPLC入力がONしているか</td>
+                    <td>ワークの有無とセンサ出力に対応して入力が切り替わるか</td>
                   </tr>
                 </tbody>
               </table>
@@ -1683,40 +1688,43 @@
 
           <section class="section-card" id="types">
             <h2>光電センサの主な種類</h2>
-            <p>光電センサは、大きく分けると<span class="mark">透過型・回帰反射型・拡散反射型</span>があります。</p>
-            <p>どれが正解というより、検出距離、取り付けスペース、ワークの色や反射、周囲の環境に合わせて選びます。</p>
+            <p>代表的な検出方式は<span class="mark">透過型・回帰反射型・拡散反射型</span>の3つです。メーカー資料では「透過形」など「形」と表記する場合もあります。</p>
+            <p>まず、向かい側に受光器や反射板を取り付けられるかを見ます。次に、ワークの大きさ・材質、距離、速度、汚れや周囲光の条件で絞り込みます。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-types.png" alt="光電センサの主な種類。透過型、回帰反射型、拡散反射型の違い" loading="lazy" decoding="async">
-              <figcaption>透過型は投光器と受光器を向かい合わせます。回帰反射型は反射板を使い、拡散反射型は対象物からの反射を使って検出します。</figcaption>
+            <figure class="article-figure sensor-body-figure">
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-types-diagram-v2.png" width="1080" height="700" alt="透過型は投光器から受光器、回帰反射型は反射板からの戻り光、拡散反射型はワークからの反射光を使う" loading="lazy" decoding="async">
+              <figcaption>光路の模式図です。上の2方式はワークが光を遮る前、拡散反射型はワークが光を反射している状態です。</figcaption>
             </figure>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
                 <h3>透過型</h3>
-                <p>投光器と受光器を向かい合わせて設置します。検出距離を取りやすく、ワークが光を遮ることで検出します。</p>
+                <p><strong>光の経路：</strong>投光器 → 受光器</p>
+                <p>両側に機器を固定・配線できる場合の候補です。ワークが途中で光を遮ると検出します。細い部品は、カタログの最小検出物体と実際の通過位置を確認します。</p>
               </div>
 
               <div class="check-item check-item--field">
                 <h3>回帰反射型</h3>
-                <p>センサ本体と反射板を使います。反射板から戻る光が遮られることでワークを検出します。</p>
+                <p><strong>光の経路：</strong>センサ本体 ⇄ 専用反射板</p>
+                <p>配線は片側だけにし、向かい側に反射板を置ける場合の候補です。反射板から戻る光がワークで減るのを見ます。</p>
               </div>
 
               <div class="check-item">
                 <h3>拡散反射型</h3>
-                <p>対象物に当たって戻る光を使います。設置はしやすいですが、ワークの色や反射の影響を受けやすい場合があります。</p>
+                <p><strong>光の経路：</strong>センサ本体 ⇄ ワーク</p>
+                <p>向かい側に機器も反射板も置けない場合の候補です。ワークからの反射光を受けます。黒い部品や傾いた面、背後の治具は実物で確認します。</p>
               </div>
 
               <div class="check-item check-item--warning">
-                <h3>選定は環境も見る</h3>
-                <p>粉じん、油、透明体、光沢物、黒いワークなどでは検出が不安定になることがあります。</p>
+                <h3>カタログの検出距離はどこからどこまで？</h3>
+                <p>透過型は投光器と受光器、回帰反射型は本体と反射板、拡散反射型は本体とワークの間です。拡散反射型の定格値は白紙など指定の標準検出物体での値です。</p>
               </div>
             </div>
           </section>
 
           <section class="section-card" id="use">
             <h2>近接センサとの使い分け</h2>
-            <p>光電センサと近接センサは、どちらもワークを検出するために使いますが、得意な条件が違います。</p>
+            <p>ここで比べるのは、金属の接近を検出する誘導形近接センサです。どちらも非接触ですが、向いているワークと設置条件が違います。</p>
             <p>近接センサは金属ワークの検出に向いています。一方で光電センサは、光を使うため、金属以外のワークや少し離れた位置の検出に使いやすい場面があります。</p>
 
             <div class="table-wrap">
@@ -1759,40 +1767,42 @@
               </div>
               <div>
                 <h3>黒いワークや光沢物は要注意</h3>
-                <p>拡散反射型では、ワークの色や表面の反射で検出が不安定になることがあります。現場では実物に近い条件で確認するのが安心です。</p>
+                <p>拡散反射型では、黒いワークからの戻りが弱いことや、ワークがないのに背景を拾うことがあります。実物と実際の背景で確認し、背景が原因なら距離設定形なども候補です。</p>
+                <p>回帰反射型では、鏡面のワークからの戻りを反射板の光と区別できず、検出を逃すことがあります。偏光で鏡面反射の影響を抑える機種（M.S.R.など）を検討します。</p>
+                <p>透明な容器やフィルムは、通常品だと光量の変化が小さいことがあります。対象物に合う透明体検出用機種を候補にし、実物で確認します。</p>
               </div>
             </div>
           </section>
 
           <section class="section-card" id="checkpoints">
             <h2>光電センサがうまく検出しない時の確認ポイント</h2>
-            <p>光電センサがうまく検出しない時は、センサ本体の故障だけでなく、検出距離、ワークの色や反射、取り付け位置、汚れを順番に確認します。</p>
-            <p>特に、以前は動いていたのに急に不安定になった場合は、レンズ汚れ、位置ズレ、治具やワークの変更が原因になっていることがあります。</p>
+            <p>検出しない・誤検出するときは、先にどこで信号が変わらないかを見ます。いきなり感度を上げると、背景や不要な反射まで拾うことがあります。</p>
+            <p>可動部の近くで点検・清掃・調整する前に、設備の安全手順に従って停止し、再起動を防ぎます。通電での信号観測は、安全を確保できる手順と位置から行います。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-checkpoints.png" alt="光電センサの確認ポイント。検出距離、ワークの色や反射、取付位置や光軸、汚れや遮りを整理" loading="lazy" decoding="async">
-              <figcaption>検出距離、ワークの色や反射、光軸、汚れを分けて見ると、光電センサのトラブル原因を追いやすくなります。</figcaption>
+            <figure class="article-figure sensor-body-figure">
+              <img src="../assets/images/photoelectric-sensor-basic/photoelectric-sensor-basic-checkpoints-diagram-v2.png" width="1080" height="700" alt="安全確保のあと、信号、光路、設置条件を確認し、必要なときだけ型式の取扱説明書に従って調整する" loading="lazy" decoding="async">
+              <figcaption>最初に信号を切り分け、光路と設置条件を見直します。感度を調整する場合は元の設定を記録し、型式の取扱説明書に従います。</figcaption>
             </figure>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
-                <h3>検出距離は合っているか</h3>
-                <p>センサの検出範囲から外れていないか、ワークとの距離が遠すぎないか確認します。</p>
+                <h3>1. 受光・センサ出力・PLC入力を分ける</h3>
+                <p>ワークあり／なしを同じ条件で比較します。センサの表示灯の意味と出力モードは機種資料で確認します。出力が切り替わるのにPLC入力が変わらない場合は、入力側の配線・方式を切り分けます。</p>
               </div>
 
               <div class="check-item check-item--field">
-                <h3>ワークの色や反射は問題ないか</h3>
-                <p>黒いワーク、透明体、光沢物では検出が不安定になることがあります。</p>
+                <h3>2. レンズ・反射板・光軸を確認する</h3>
+                <p>汚れ、治具の影、取付けの緩みを見ます。透過型は投光器と受光器、回帰反射型は本体と反射板の位置を確認します。清掃・調整方法は取扱説明書に従います。</p>
               </div>
 
               <div class="check-item">
-                <h3>取付位置や光軸は合っているか</h3>
-                <p>投光方向と受光方向がズレていないか、振動で位置が変わっていないか確認します。</p>
+                <h3>3. 距離・ワーク・周囲の条件を見る</h3>
+                <p>方式に応じた距離と、ワークの色・向き・通過位置を確認します。拡散反射型では背景の反射も確認します。日光や照明、隣のセンサによる相互干渉も切り分けます。</p>
               </div>
 
               <div class="check-item check-item--warning">
-                <h3>汚れや遮りはないか</h3>
-                <p>レンズ汚れ、油、粉じん、治具の影などで光が遮られていないか確認します。</p>
+                <h3>4. 条件を戻してから機種指定の調整へ</h3>
+                <p>前の設定を記録し、必要なときだけ、取扱説明書どおりに感度やティーチングを調整します。調整後は実際のワークと速度で、あり／なしの両方を確認します。</p>
               </div>
             </div>
 
@@ -1802,9 +1812,22 @@
               </div>
               <div>
                 <h3>安全用途とは分けて考える</h3>
-                <p>一般的な光電センサは、ワーク検出や位置確認に使う部品です。人の侵入検知や安全停止に関わる用途では、安全機器や安全回路として適した構成を別に考える必要があります。</p>
+                <p>ここで扱う一般のワーク検出用センサは、人体保護や安全停止の代わりには使いません。安全用途では、リスクに応じて安全機器と安全回路を選定します。</p>
               </div>
             </div>
+          </section>
+
+          <section class="section-card" id="official-sources">
+            <h2>メーカー公式資料・技術参照元</h2>
+            <p class="source-checked-date">公式資料確認日：<time datetime="2026-11-20">2026年11月20日</time></p>
+            <ul>
+              <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/43/2/index.html" target="_blank" rel="noopener noreferrer">オムロン：光電センサ 概要</a>（方式と選定条件）</li>
+              <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/43/3/index.html" target="_blank" rel="noopener noreferrer">オムロン：光電センサ 用語解説</a>（検出距離・入光／遮光動作）</li>
+              <li><a href="https://www.fa.omron.co.jp/guide/technicalguide/43/5/index.html" target="_blank" rel="noopener noreferrer">オムロン：光電センサ 参考資料</a>（鏡面・透明体・背景の影響）</li>
+              <li><a href="https://www.fa.omron.co.jp/product/cautions/43/7/index.html" target="_blank" rel="noopener noreferrer">オムロン：光電センサ 共通の注意事項</a>（取付け・干渉・点検）</li>
+              <li><a href="https://www.keyence.co.jp/ss/products/sensor/sensorbasics/pe_type.jsp" target="_blank" rel="noopener noreferrer">キーエンス：光電センサの検出方式と特徴</a>（各方式の構成と特徴）</li>
+            </ul>
+            <p>実機の検出距離、最小検出物体、指定反射板、応答時間、出力仕様、設置・調整条件は、対象型式の最新資料を優先してください。</p>
           </section>
 
           <section class="section-card" id="related">
@@ -1863,12 +1886,11 @@
           </section>
 
           <section class="side-card">
-            <h3>この記事の要点</h3>
+            <h3>現場で見るヒント</h3>
             <ul>
-              <li>光電センサは光でワークを検出する</li>
-              <li>透過型・回帰反射型・拡散反射型がある</li>
-              <li>距離・色・反射・光軸ズレに注意する</li>
-              <li>PLC入力とセンサ本体の状態を分けて見る</li>
+              <li>対向側に受光器・反射板を置ける？</li>
+              <li>鏡面と透明体は対策を分けて考える</li>
+              <li>受光・出力・PLC入力を分けて確認</li>
             </ul>
           </section>
 

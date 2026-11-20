@@ -157,6 +157,7 @@
 | [docs/reference-notes/home-return-circuit-basic.md](../reference-notes/home-return-circuit-basic.md) — 原点復帰記事の参照・制作記録 | 原点復帰記事の技術根拠、採用画像、更新・Previewを扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/timer-circuit-basic.md](../reference-notes/timer-circuit-basic.md) — タイマー回路 公式参照メモ | タイマー回路記事の技術根拠、ラダー例、メーカー公式資料を更新または監査する。 |
 | [docs/reference-notes/jog-operation-circuit-basic.md](../reference-notes/jog-operation-circuit-basic.md) — ジョグ運転回路 公式参照メモ | ジョグ運転回路記事の技術根拠、ラダー例、メーカー公式資料を更新または監査する。 |
+| [docs/reference-notes/relay-socket-basic.md](../reference-notes/relay-socket-basic.md) — リレーソケット記事の公式資料と編集判断 | リレーソケット記事のメーカー資料、型式・端子表示、図の向き、更新判断を扱う。公開承認や完了記録とは区別する。 |
 
 ## 履歴・参考
 

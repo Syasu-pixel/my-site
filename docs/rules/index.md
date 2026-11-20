@@ -160,6 +160,7 @@
 | [docs/reference-notes/jog-operation-circuit-basic.md](../reference-notes/jog-operation-circuit-basic.md) — ジョグ運転回路 公式参照メモ | ジョグ運転回路記事の技術根拠、ラダー例、メーカー公式資料を更新または監査する。 |
 | [docs/reference-notes/relay-socket-basic.md](../reference-notes/relay-socket-basic.md) — リレーソケット記事の公式資料と編集判断 | リレーソケット記事のメーカー資料、型式・端子表示、図の向き、更新判断を扱う。公開承認や完了記録とは区別する。 |
 | [docs/reference-notes/air-tube-fitting-basic.md](../reference-notes/air-tube-fitting-basic.md) — エアチューブ・継手 公式参照メモ | エアチューブ・継手の記事更新、外径・ポート規格・シールと公式資料を確認する。 |
+| [docs/reference-notes/inverter-basic.md](../reference-notes/inverter-basic.md) — inverter-basic 公式参照メモ | インバーターの記事更新、指令元・運転状態・停止と機器隔離の公式根拠を確認する。 |
 
 ## 履歴・参考
 

@@ -1673,7 +1673,7 @@
 
             <figure class="article-figure">
               <img src="../assets/images/flow-switch-basic/flow-switch-basic-overview.png" alt="フロースイッチの全体像。配管外側から流れを検出し、ON/OFF出力やPLC、ランプへつなげる流れ">
-              <figcaption>配管外付けタイプのフロースイッチは、配管の外側から流れを検出し、出力信号をPLCやランプなどへ渡します。</figcaption>
+              <figcaption>配管外付け形で液体の流れを見る概念図です。図のON/OFFは設定の一例で、対応する流体・配管・出力は型式で確認します。</figcaption>
             </figure>
 
             <div class="talk-thread">
@@ -1749,18 +1749,18 @@
 
             <figure class="article-figure">
               <img src="../assets/images/flow-switch-basic/flow-switch-basic-operation-flow.png" alt="フロースイッチの動作の流れ。流体が流れる、クランプセンサが検出、接点や出力が切り替わる、PLCや設備へ信号が送られる流れ">
-              <figcaption>流体が流れると、配管外側のセンサが流れを検出し、ON/OFF出力やアナログ出力としてPLCや設備へ信号を送ります。</figcaption>
+              <figcaption>外付け形で液体の流れを見る例です。スイッチ出力は設定条件でON/OFFし、対応機種のアナログ出力は流量に応じた値を送ります。</figcaption>
             </figure>
 
             <p>たとえば冷却水ラインで、一定以上の流れがある時だけ運転許可を出す、流れが止まったら異常を出す、といった使い方があります。</p>
-            <p>PLC側では、単純に入力ON/OFFとして見る場合もあれば、アナログ出力を読み取って流量の目安として扱う場合もあります。初心者向けには、まず「流れありでON」「流れなしでOFF」と考えると分かりやすいです。</p>
+            <p>流量が表示されていても、出力がONとは限りません。スイッチ出力は設定した条件で切り替わります。PLCでは、スイッチ出力のON/OFFと、アナログ出力に対応する機種から読む流量値を分けて見ます。</p>
 
             <div class="note-box">
               <div class="caution-character-box">
                 <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="先輩のちびキャラ">
                 <div>
                   <h3>まずはON/OFFの見方からでOK</h3>
-                  <p>流量を細かく数値で見る前に、設備としては「流れているか」「止まっているか」を確認したい場面が多いです。最初はON/OFF入力として整理すると追いやすいです。</p>
+                  <p>「流量があるか」と「設備が必要とする流量に達したか」は別です。まずON/OFFが何を示す設定かを確認します。</p>
                 </div>
               </div>
             </div>
@@ -1804,10 +1804,17 @@
             <p>フロースイッチが思った通りに動かない時は、機器本体だけでなく、配管の状態、取付位置、配線、出力形式、流体の状態を分けて確認します。</p>
             <p>特に外付けタイプでは、配管が満水でない、気泡が多い、直管部が足りない、配管材質が合っていない、といった条件で検出が不安定になることがあります。</p>
 
-            <figure class="article-figure">
-              <img src="../assets/images/flow-switch-basic/flow-switch-basic-checkpoints.png" alt="フロースイッチの確認ポイント。配管満水、取付位置、配線や出力形式、配管材質や汚れを整理">
-              <figcaption>配管の満水状態、取付位置、配線・出力形式、配管材質や汚れを分けて見ると、原因を追いやすくなります。</figcaption>
-            </figure>
+            <div class="field-highlight">
+              <h3>流量は表示されるのにPLC入力が入らない</h3>
+              <p>瞬時流量、出力条件、センサの出力、PLC入力の順に見ます。ここではSMCのPF3A703H-L／PF3A706H-L／PF3A712H-Lを通常のスイッチ出力（SIO）で使う場合を例にします。空気・窒素（N₂）用の配管に組み込む機種で、上の液体用外付け形とは別です。</p>
+              <ol>
+                <li><strong>瞬時流量</strong>：現在の流量を読む。積算値や設定値とは別です。</li>
+                <li><strong>出力条件</strong>：モード、設定値、応差（ONとOFFが切り替わる点の差）を確認する。</li>
+                <li><strong>OUT1</strong>：条件と出力表示が合うか確認する。</li>
+                <li><strong>PLC入力</strong>：合っていれば、対応する入力のモニタで状態を照合する。</li>
+              </ol>
+              <p>OUT1とPLC入力の表示が合わなければ、信号経路と入力の割付を切り分けます。出力表示灯だけではPLCに信号が届いたとは判断できません。この-L型には外部へのOUT2スイッチ出力がありません。</p>
+            </div>
 
             <div class="check-grid">
               <div class="check-item check-item--important">
@@ -1817,7 +1824,7 @@
 
               <div class="check-item check-item--field">
                 <h3>取付位置は合っているか</h3>
-                <p>直管部の長さ、上流・下流の距離、センサの向きが推奨条件に合っているか確認します。</p>
+                <p>必要な直管部、上流・下流の距離、センサの向きは、実機型式の資料で確認します。</p>
               </div>
 
               <div class="check-item">
@@ -1850,6 +1857,13 @@
                 </div>
               </div>
             </div>
+            <h3>参考にしたメーカー公式資料</h3>
+            <ul>
+              <li><a href="https://www.smcworld.com/assets/manual/ja-jp/files/PF3A7xxH-L.jpn.pdf">SMC：PF3A703H-L／PF3A706H-L／PF3A712H-L 取扱説明書（PDF）</a>。瞬時・積算表示、出力条件、OUT1とOUT2の仕様。</li>
+              <li><a href="https://www.keyence.co.jp/products/process/flow/fd-q/specs/">キーエンス：液体用クランプオン式流量センサ FD-Qの仕様</a>。対応流体・配管と、型式ごとの出力条件。</li>
+            </ul>
+            <p class="article-updated">最終内容更新：<time datetime="2026-11-20">2026年11月20日</time></p>
+            <p class="source-checked-date">公式資料確認日：2026-11-20。実機の確認では、使用する型式の最新版資料を優先してください。</p>
           </section>
 
           <section class="section-card" id="related">
@@ -1911,7 +1925,7 @@
             <h3>この記事の要点</h3>
             <ul>
               <li>フロースイッチは流れの有無を検出する</li>
-              <li>配管外付けタイプは後付けしやすい</li>
+              <li>瞬時流量・出力条件・センサ出力・PLC入力を順に見る</li>
               <li>圧力があることと流れていることは別</li>
               <li>満水・取付位置・配線・材質を分けて見る</li>
             </ul>

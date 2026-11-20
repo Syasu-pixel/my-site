@@ -96,6 +96,7 @@
 | [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/dc-motor-control-basic.md](../reference-notes/dc-motor-control-basic.md) — DCモーター制御 公式参照メモ | DCモーター制御記事の駆動方式・停止方法・回生の説明を更新または確認する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
 | [docs/reference-notes/dc24v-power-supply-basic.md](../reference-notes/dc24v-power-supply-basic.md) — DC24V電源（パワーサプライ）公式参照・刷新記録 | DC24V電源装置記事の作成・更新・画像・検査を扱う。一次資料、適用条件、検索根拠、採否記録を確認する。 |
 | [docs/reference-notes/dc24v-power-troubleshooting-basic.md](../reference-notes/dc24v-power-troubleshooting-basic.md) — dc24v-power-troubleshooting-basic 公式参照メモ | articles/dc24v-power-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

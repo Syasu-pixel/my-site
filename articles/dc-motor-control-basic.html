@@ -1359,10 +1359,10 @@
           <h2>DCモーター制御とは</h2>
           <p>
             DCモーター制御とは、直流電源で動くモーターを、スイッチやPLC、モータードライバを使って思い通りに動かすことです。
-            単純に回すだけなら電源をつなげば動きますが、現場の装置では<span class="term">安全に動かす</span>ことが大切です。
+            直流電源を使う機器でも、ブラシ付きDCモーターとブラシレスモーターでは駆動方法が異なります。まず型式からモーターの種類と、対応するドライバを確認します。
           </p>
           <p>
-            たとえば、起動・停止、正転・逆転、速度調整、過電流保護、非常停止との連動などを考える必要があります。
+            たとえば、起動・停止、正転・逆転、速度調整が運転制御です。過電流から回路や機器を保護する対策と、人の危険を小さくするための安全停止は、別に考えます。
             そのため、モーターに直接電源を入れるだけではなく、制御信号と電力の流れを分けて考えます。
           </p>
 
@@ -1396,9 +1396,30 @@
         <section class="section-card" id="overview">
           <h2>直流モーター制御の基本構成</h2>
           <figure class="article-figure">
-            <img src="../assets/images/dc-motor-control-basic/dc-motor-control-basic-overview.png" alt="DC電源、スイッチまたはPLC出力、モータードライバ、DCモーターで構成される直流モーター制御の基本構成図">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 336" width="560" height="336" role="img" aria-labelledby="dcOverviewTitle dcOverviewDesc" style="display:block;width:100%;height:auto;margin-inline:auto">
+              <title id="dcOverviewTitle">DCモーター制御の基本構成</title>
+              <desc id="dcOverviewDesc">動力はDC電源からドライバを経てDCモーターへ。運転指令はPLCまたはスイッチからドライバへ。配線図ではない。</desc>
+              <rect width="560" height="336" rx="22" fill="#f0f6ff"/>
+              <text x="280" y="42" text-anchor="middle" fill="#142b48" font-family="sans-serif" font-weight="700" font-size="26">動力と制御信号は別の経路</text>
+              <g font-family="sans-serif" text-anchor="middle" font-weight="700" font-size="22">
+                <rect x="42" y="67" width="191" height="62" rx="12" fill="#e3efff" stroke="#1b5794" stroke-width="3"/>
+                <text x="137" y="105" fill="#123e72">DC電源</text>
+                <rect x="327" y="67" width="191" height="62" rx="12" fill="#fff1db" stroke="#8c490a" stroke-width="3"/>
+                <text x="423" y="105" fill="#70400e">PLCなど</text>
+                <rect x="122" y="181" width="316" height="58" rx="12" fill="#fff" stroke="#30516f" stroke-width="3"/>
+                <text x="280" y="218" fill="#142b48">モータードライバ</text>
+                <rect x="167" y="269" width="226" height="48" rx="12" fill="#e3efff" stroke="#1b5794" stroke-width="3"/>
+                <text x="280" y="301" fill="#123e72">DCモーター</text>
+                <text x="198" y="159" fill="#123e72">動力</text>
+                <text x="354" y="159" fill="#70400e">指令</text>
+              </g>
+              <path d="M137 129v45 M280 239v22" fill="none" stroke="#1b5794" stroke-width="5" stroke-linejoin="round"/>
+              <path d="M423 129v45" fill="none" stroke="#8c490a" stroke-width="5" stroke-dasharray="7 5" stroke-linejoin="round"/>
+              <path d="M131 169l6 10 6-10z M274 256l6 10 6-10z" fill="#1b5794"/>
+              <path d="M417 169l6 10 6-10z" fill="#8c490a"/>
+            </svg>
             <figcaption>
-              DCモーター制御では、DC電源、スイッチまたはPLC出力、モータードライバ、DCモーターを組み合わせます。制御信号と電力の流れを分けて見るのが基本です。
+              動力は「DC電源 → モータードライバ → DCモーター」、運転指令は「PLCやスイッチ → モータードライバ」です。これは機器の役割を示す概念図で、端子・配線・PLCの電源を示す図ではありません。
             </figcaption>
           </figure>
           <p>
@@ -1443,8 +1464,8 @@
             </div>
             <div class="icon-point">
               <span class="icon">↔</span>
-              <h3>逆起電力が出る</h3>
-              <p>モーター停止時や切替時に、ノイズや逆起電力が問題になることがあります。</p>
+              <h3>サージと回生</h3>
+              <p>電流を遮断・切替するときのサージや、回転中のモーターが発電することで生じる回生を、同じものとして扱わないようにします。</p>
             </div>
             <div class="icon-point icon-point--green">
               <span class="icon">🛡</span>
@@ -1456,23 +1477,17 @@
 
         <section class="section-card" id="comparison">
           <h2>ON/OFF・正逆転・速度調整の違い</h2>
-          <figure class="article-figure">
-            <img src="../assets/images/dc-motor-control-basic/dc-motor-control-basic-comparison.png" alt="DCモーター制御のON/OFF制御、正転逆転制御、速度調整の違いを比較した図">
-            <figcaption>
-              DCモーター制御は、ON/OFF、正転・逆転、速度調整に分けて考えると整理しやすいです。用途に合わせて必要な制御方法を選びます。
-            </figcaption>
-          </figure>
           <p>
             ON/OFF制御は、モーターを回すか止めるかを切り替える一番シンプルな制御です。
-            小さな搬送や簡単な機構では、まずこの考え方が基本になります。
+            ドライバによっては駆動をやめて惰性で止まる方法と、電気的に制動する方法を選べます。停止指令や電気的な制動を、設備の安全停止や停止後の保持と同じものとして扱わないでください。
           </p>
           <p>
             正転・逆転制御は、モーターの回転方向を切り替える制御です。
-            極性を入れ替える、またはHブリッジ回路や対応したドライバを使うことで実現します。
+            Hブリッジでモーター端子の極性を切り替える説明は、永久磁石式のブラシ付きDCモーターの一例です。ブラシレスモーターでは対応する駆動回路が必要で、ドライバへの直流電源の＋と−を入れ替える方法ではありません。逆転前に停止が必要か、切替条件を機種の取扱説明書で確認します。
           </p>
           <p>
             速度調整は、モーターの回転数を変える制御です。
-            PWM制御などを使って、モーターに加わる平均的な電圧を調整することで、速度を変えます。
+            ブラシ付きDCモーターの駆動では、PWMで通電する割合を変えて速度を調整する方法があります。ドライバ内部のPWM駆動と、外部からドライバへ送る速度指令は別です。
             正転・逆転の入力方法、速度指令の種類、PWM入力やボリューム入力の扱いは、使用するモータードライバによって異なります。実機では、ドライバの取扱説明書や仕様書で入力仕様、許容電圧、配線方法、保護機能を確認します。
           </p>
 
@@ -1489,12 +1504,12 @@
                 <tr>
                   <td class="cell-blue">ON/OFF制御</td>
                   <td>モーターを回す、止める</td>
-                  <td>電源を入れる・切るだけのシンプルな制御</td>
+                  <td>運転・停止の入力と、惰性停止か制動かを確認する</td>
                 </tr>
                 <tr>
                   <td class="cell-green">正転・逆転制御</td>
                   <td>回転方向を切り替える</td>
-                  <td>極性切替やドライバの方向入力を見る</td>
+                  <td>モーターの種類とドライバの方向入力・切替条件を見る</td>
                 </tr>
                 <tr>
                   <td class="cell-orange">速度調整</td>
@@ -1503,8 +1518,8 @@
                 </tr>
                 <tr>
                   <td>安全・保護</td>
-                  <td>過電流や異常時の停止</td>
-                  <td>ヒューズ、ブレーカー、保護入力、非常停止を確認する</td>
+                  <td>回路や機器を過電流などから保護する</td>
+                  <td>ヒューズ・ブレーカー、ドライバの保護機能と適用範囲を確認する。非常停止とは別に考える。</td>
                 </tr>
               </tbody>
             </table>
@@ -1516,7 +1531,7 @@
           <figure class="article-figure">
             <img src="../assets/images/dc-motor-control-basic/dc-motor-control-basic-control-flow.png" alt="操作入力、PLC出力、ドライバ入力、モータードライバ、DCモーターまでの制御信号の流れを示した図">
             <figcaption>
-              操作入力やPLC出力からの信号をモータードライバが受け取り、DC電源の電力を制御してDCモーターへ供給します。PLC出力を直接モーターへつながないことが大切です。
+              これは指令の流れを示す概念図で、実機の結線図ではありません。EN・FWD・REV・SPD、線色、端子の並びは例示です。名称や役割、入力方式は機種の取扱説明書で確認します。動力はDC電源からドライバを経てモーターへ供給されます。
             </figcaption>
           </figure>
           <p>
@@ -1600,9 +1615,18 @@
             </div>
             <div class="check-item check-item--red">
               <h3>極性とノイズ</h3>
-              <p>極性間違い、逆起電力、ノイズ対策もトラブルの原因になります。</p>
+              <p>減速時や外力で軸が回されると、条件によってモーターから電力が戻ります。回生を処理できない組み合わせでは電源やドライバの保護が働くことがあるため、電源の許容条件とドライバの回生処理の有無を型式ごとに確認します。</p>
             </div>
           </div>
+          <h3>参考にしたメーカー公式資料</h3>
+          <ul>
+            <li><a href="https://support.maxongroup.com/hc/en-us/articles/360019707620-Why-can-the-usage-of-a-motor-controller-be-an-advantage-even-for-a-DC-motor">maxon：DCモーターでコントローラを使用する利点</a></li>
+            <li><a href="https://toshiba.semicon-storage.com/jp/semiconductor/product/motor-driver-ics/brushed-dc-motor-driver-ics/detail.TB67H400AFTG.html">東芝デバイス＆ストレージ：TB67H400AFTG 製品概要</a></li>
+            <li><a href="https://ww1.microchip.com/downloads/en/appnotes/00905a.pdf">Microchip：AN905 ブラシ付きDCモーターの基礎（PDF）</a></li>
+            <li><a href="https://www.orientalmotor.co.jp/system/files/document/products/B-19.pdf?brandCode=BL&amp;senimotoId=1&amp;seriesCode=FJ00&amp;serviceTypeNo=18">オリエンタルモーター：ブラシレスモーター BLVシリーズ（カタログPDF）</a></li>
+          </ul>
+          <p class="article-updated">最終内容更新：<time datetime="2026-11-20">2026年11月20日</time></p>
+          <p class="source-checked-date">公式資料確認日：2026-11-20</p>
         </section>
 
         <section class="section-card" id="summary">

@@ -163,7 +163,7 @@
 | [docs/reference-notes/inverter-basic.md](../reference-notes/inverter-basic.md) — inverter-basic 公式参照メモ | インバーターの記事更新、指令元・運転状態・停止と機器隔離の公式根拠を確認する。 |
 | [docs/reference-notes/wiring-duct-basic.md](../reference-notes/wiring-duct-basic.md) — 配線ダクト 公式参照メモ | 配線ダクト記事の収容数・曲げ・配線経路の分離を更新または確認する。 |
 | [docs/reference-notes/photoelectric-sensor-basic.md](../reference-notes/photoelectric-sensor-basic.md) — 光電センサ 公式参照メモ | 光電センサ記事の検出方式・距離・検出不調・安全上の用途区分を更新または確認する。 |
-| [docs/reference-notes/analog-input-basic.md](../reference-notes/analog-input-basic.md) — 光電センサ 公式参照メモ | 光電センサ記事の検出方式・距離・検出不調・安全上の用途区分を更新または確認する。 |
+| [docs/reference-notes/analog-input-basic.md](../reference-notes/analog-input-basic.md) — アナログ入力 公式参照メモ | アナログ入力記事の4–20 mAレンジ・スケーリング・異常検出を型式別資料で確認する。 |
 
 ## 履歴・参考
 

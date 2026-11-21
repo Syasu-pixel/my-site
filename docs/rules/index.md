@@ -164,6 +164,7 @@
 | [docs/reference-notes/wiring-duct-basic.md](../reference-notes/wiring-duct-basic.md) — 配線ダクト 公式参照メモ | 配線ダクト記事の収容数・曲げ・配線経路の分離を更新または確認する。 |
 | [docs/reference-notes/photoelectric-sensor-basic.md](../reference-notes/photoelectric-sensor-basic.md) — 光電センサ 公式参照メモ | 光電センサ記事の検出方式・距離・検出不調・安全上の用途区分を更新または確認する。 |
 | [docs/reference-notes/timer-relay-basic.md](../reference-notes/timer-relay-basic.md) — タイマーリレー記事のメーカー資料と編集判断 | タイマーリレー記事の型式・タイムチャート・出力条件を確認する。 |
+| [docs/reference-notes/proximity-sensor-basic.md](../reference-notes/proximity-sensor-basic.md) — 近接センサ記事のメーカー資料と編集判断 | 近接センサ記事の検出距離・M12配線・子局・リレー中継の型式別条件を確認する。 |
 
 ## 履歴・参考
 

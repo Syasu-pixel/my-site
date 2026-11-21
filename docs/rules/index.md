@@ -169,6 +169,7 @@
 | [docs/reference-notes/limit-switch-basic.md](../reference-notes/limit-switch-basic.md) — リミットスイッチの基礎：参照資料 | 当該記事の制作・更新・一次資料監査時。 |
 | [docs/reference-notes/manual-auto-selector-circuit-basic.md](../reference-notes/manual-auto-selector-circuit-basic.md) — 手動・自動切替回路 公式参照メモ | 当該記事の制作・更新・一次資料監査時。 |
 | [docs/reference-notes/surge-protection-basic.md](../reference-notes/surge-protection-basic.md) — surge-protection-basic 公式参照メモ（作業履歴から復元、同一ハッシュには未照合） | 当該記事の制作・更新・一次資料監査時。 |
+| [docs/reference-notes/plc-output-troubleshooting-basic.md](../reference-notes/plc-output-troubleshooting-basic.md) — PLC出力がONしない時に見る順番｜公式資料確認 | 当該記事の制作・更新・一次資料監査時。 |
 
 ## 履歴・参考
 

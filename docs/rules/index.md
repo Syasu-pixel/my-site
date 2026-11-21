@@ -166,6 +166,7 @@
 | [docs/reference-notes/timer-relay-basic.md](../reference-notes/timer-relay-basic.md) — タイマーリレー記事のメーカー資料と編集判断 | タイマーリレー記事の型式・タイムチャート・出力条件を確認する。 |
 | [docs/reference-notes/proximity-sensor-basic.md](../reference-notes/proximity-sensor-basic.md) — 近接センサ記事のメーカー資料と編集判断 | 近接センサ記事の検出距離・M12配線・子局・リレー中継の型式別条件を確認する。 |
 | [docs/reference-notes/analog-input-basic.md](../reference-notes/analog-input-basic.md) — アナログ入力 公式参照メモ | アナログ入力記事の4–20 mAレンジ・スケーリング・異常検出を型式別資料で確認する。 |
+| [docs/reference-notes/manual-auto-selector-circuit-basic.md](../reference-notes/manual-auto-selector-circuit-basic.md) — 手動・自動切替回路 公式参照メモ | 当該記事の制作・更新・一次資料監査時。 |
 | [docs/reference-notes/surge-protection-basic.md](../reference-notes/surge-protection-basic.md) — surge-protection-basic 公式参照メモ（作業履歴から復元、同一ハッシュには未照合） | 当該記事の制作・更新・一次資料監査時。 |
 
 ## 履歴・参考

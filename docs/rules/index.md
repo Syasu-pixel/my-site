@@ -165,6 +165,7 @@
 | [docs/reference-notes/photoelectric-sensor-basic.md](../reference-notes/photoelectric-sensor-basic.md) — 光電センサ 公式参照メモ | 光電センサ記事の検出方式・距離・検出不調・安全上の用途区分を更新または確認する。 |
 | [docs/reference-notes/timer-relay-basic.md](../reference-notes/timer-relay-basic.md) — タイマーリレー記事のメーカー資料と編集判断 | タイマーリレー記事の型式・タイムチャート・出力条件を確認する。 |
 | [docs/reference-notes/proximity-sensor-basic.md](../reference-notes/proximity-sensor-basic.md) — 近接センサ記事のメーカー資料と編集判断 | 近接センサ記事の検出距離・M12配線・子局・リレー中継の型式別条件を確認する。 |
+| [docs/reference-notes/analog-input-basic.md](../reference-notes/analog-input-basic.md) — アナログ入力 公式参照メモ | アナログ入力記事の4–20 mAレンジ・スケーリング・異常検出を型式別資料で確認する。 |
 
 ## 履歴・参考
 

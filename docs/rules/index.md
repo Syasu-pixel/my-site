@@ -271,6 +271,7 @@
 | [.github/workflows/rule-catalog.yml](../../.github/workflows/rule-catalog.yml) | ルール登録・確認手順・構造検査を変更または実行する場合。 確認ゲートの実装・設定 |
 | [.github/workflows/search-data-sync.yml](../../.github/workflows/search-data-sync.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |
 | [.github/workflows/site-health-snapshot.yml](../../.github/workflows/site-health-snapshot.yml) | 運営ダッシュボードのサイト異常監視、自動CI検査、監視スナップショット生成・公開経路を変更または検査する場合。 main更新時にサイト健全性検査を実行し、管理画面用スナップショットを生成する自動監視Workflow。 |
+| [.github/workflows/shell-raster-diagnostic.yml](../../.github/workflows/shell-raster-diagnostic.yml) | 検査用の固定Chromiumでフッター文字輪郭の描画方式を切り分ける場合のみ。 隔離診断専用。正式な公開判定、配信、権限または検査条件の変更に使用しない。診断PRはマージしない。 |
 | [.github/workflows/site-shell-evidence-package.yml](../../.github/workflows/site-shell-evidence-package.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/site-shell-visual.yml](../../.github/workflows/site-shell-visual.yml) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/workflows/sync-popular-articles.yml](../../.github/workflows/sync-popular-articles.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |

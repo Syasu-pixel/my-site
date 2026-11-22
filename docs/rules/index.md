@@ -179,6 +179,8 @@
 | [docs/reference-notes/pneumatic-silencer-basic.md](../reference-notes/pneumatic-silencer-basic.md) — 空圧サイレンサ：参照メモ | 空圧排気サイレンサの流量・背圧、ねじ規格、詰まりや作動への影響の確認時。 |
 | [docs/reference-notes/panel-heater-basic.md](../reference-notes/panel-heater-basic.md) — 盤用ヒーターの一次資料メモ | 盤内の結露対策、適合するヒーター・制御機器、設置条件の確認時。 |
 | [docs/reference-notes/crimping-tools.md](../reference-notes/crimping-tools.md) — 圧着工具の選び方：一次資料と検証範囲 | 端子・電線・適合工具の組合せ、ダイス指定、型式別仕様の確認時。 |
+| [docs/reference-notes/circuit-protector-basic.md](../reference-notes/circuit-protector-basic.md) — サーキットプロテクタ 公式参照メモ | サーキットプロテクタの用途・適用規格、回路条件と遮断器との違いを確認するとき。 |
+| [docs/reference-notes/vacuum-ejector-basic.md](../reference-notes/vacuum-ejector-basic.md) — 真空発生器（エジェクタ）の公式参照メモ | 真空エジェクタの給気・吸着・排気、機種の用途と取扱条件を確認するとき。 |
 
 ## 履歴・参考
 

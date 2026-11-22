@@ -172,6 +172,7 @@
 | [docs/reference-notes/plc-output-troubleshooting-basic.md](../reference-notes/plc-output-troubleshooting-basic.md) — PLC出力がONしない時に見る順番｜公式資料確認 | 当該記事の制作・更新・一次資料監査時。 |
 | [docs/reference-notes/plc-input-troubleshooting-basic.md](../reference-notes/plc-input-troubleshooting-basic.md) — PLC入力が入らない時の確認手順：参照資料 | 当該記事の制作・更新・一次資料監査時。 |
 | [docs/reference-notes/plc-scan-basic.md](../reference-notes/plc-scan-basic.md) — PLCのスキャン動作｜公式参照メモ | 当該記事の制作・更新・一次資料監査時。 |
+| [docs/reference-notes/pipe-wiring-tips.md](../reference-notes/pipe-wiring-tips.md) — 配管入線のコツ：技術参照メモ | 当該記事の制作・更新・一次資料監査時。 |
 
 ## 履歴・参考
 

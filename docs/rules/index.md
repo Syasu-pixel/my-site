@@ -187,6 +187,11 @@
 | [docs/reference-notes/air-valve-basic.md](../reference-notes/air-valve-basic.md) — エアバルブ：公式参照と採否 | 既存記事「エアバルブ：公式参照と採否」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/reset-circuit-basic.md](../reference-notes/reset-circuit-basic.md) — リセット回路 公式参照メモ | 既存記事「リセット回路 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/noise-filter-basic.md](../reference-notes/noise-filter-basic.md) — ノイズフィルタ：公式資料の照合と掲載範囲 | 既存記事「ノイズフィルタ：公式資料の照合と掲載範囲」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/upper-lower-limit-circuit-basic.md](../reference-notes/upper-lower-limit-circuit-basic.md) — 上限・下限リミット回路 公式参照メモ | 既存記事「上限・下限リミット回路 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/delayed-start-circuit-basic.md](../reference-notes/delayed-start-circuit-basic.md) — 遅延起動回路：メーカー資料と学習例の範囲 | 既存記事「遅延起動回路：メーカー資料と学習例の範囲」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/air-breaker-basic.md](../reference-notes/air-breaker-basic.md) — エアブレーカー（低圧気中遮断器・ACB）の参照メモ | 既存記事「エアブレーカー（低圧気中遮断器・ACB）の参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/control-panel-light-basic.md](../reference-notes/control-panel-light-basic.md) — 盤内照明・作業灯：一次資料と確認範囲 | 既存記事「盤内照明・作業灯：一次資料と確認範囲」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/got-touch-panel-basic.md](../reference-notes/got-touch-panel-basic.md) — GOT・タッチパネルの基本：出典照合メモ | 既存記事「GOT・タッチパネルの基本：出典照合メモ」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

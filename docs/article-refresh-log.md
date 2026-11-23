@@ -104,6 +104,10 @@
 
 - PR #2037の既存日本語記事1本を追記。この表は77 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
 
+### 2026-11-23 集計追補（圧力スイッチと圧力計の公開記録）
+
+- PR #2039の既存日本語記事1本を追記。この表は78 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -174,6 +178,7 @@
 | `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
 | `pressure-gauge-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：19:01:36 JST受付（配信前）。Google登録リクエストは配信時点で未送信、検索反映未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
+| `pressure-switch-vs-gauge-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2039](https://github.com/Syasu-pixel/my-site/pull/2039)・[Pages run 45190376965](https://github.com/Syasu-pixel/my-site/actions/runs/45190376965)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
 | `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `relay-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #1998](https://github.com/Syasu-pixel/my-site/pull/1998)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回、約19:40 JSTに受付を確認（GOOGLE_REQUESTED）。更新版の再クロール・検索反映完了は未確認。 |
@@ -1061,3 +1066,7 @@
 ## 2026-11-23 — 圧力計の公開確認
 
 - [圧力計](../articles/pressure-gauge-basic.html)（[PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)、公式配信 2026-11-23 19:06:27 JST、main `1fe62a8f680f9eb06cff7a7031e57f648373559d`）：取出し位置、負荷時の圧力、読み違いの切り分けを図解。内容更新2026-11-23／公式資料確認2026-11-23。公開正規URLのHTTP 200、本番HTMLと配信画像5点、関連記事カード4箇所を確認。配信画像：[hero](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.png`）、[reading-check](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.png`）、[tap-points](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.png`）、[under-load](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.png`）。
+
+## 2026-11-23 — 圧力スイッチと圧力計の公開確認
+
+- [圧力スイッチと圧力計](../articles/pressure-switch-vs-gauge-basic.html)（[PR #2039](https://github.com/Syasu-pixel/my-site/pull/2039)・[Pages run 45190376965](https://github.com/Syasu-pixel/my-site/actions/runs/45190376965)、公式配信 2026-11-23 23:09:21 JST、main `5ad5730b84f4f1cafea1de02405fe53ce3a9590b`）：4つの観察点、0.45 MPaの応差例、スイッチ出力とPLC入力の切り分けを整理し、スマホに本文内目次を追加。内容更新2026-11-23／公式資料確認2026-11-23。公開正規URLの本番HTMLと配信画像5点を照合。配信画像：[hero](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hero-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hero-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-ogp-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-ogp-20261123.png`）、[decision-check](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-decision-check-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-decision-check-20261123.png`）、[four-readings](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-four-readings-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-four-readings-20261123.png`）、[hysteresis](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hysteresis-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hysteresis-20261123.png`）。

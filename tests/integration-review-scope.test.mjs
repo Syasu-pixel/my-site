@@ -93,3 +93,27 @@ test('workflow exports runner-specific impact paths at step execution, not job e
  for(const env of jobEnvs)assert.doesNotMatch(env,/\$\{\{\s*runner\./);
  assert.equal(workflow.split('export ARTICLE_IMPACT_FILE="$RUNNER_TEMP/integration-build/article-impact.json"').length-1,2);
 });
+
+import {usesInlineCompactToc,verifyCompactTocState,verifyCompactDestination} from '../scripts/integration-inline-toc.mjs';
+test('inline mobile TOC opts in only the Japanese pressure comparison and only at compact widths', () => {
+  const p = 'articles/pressure-switch-vs-gauge-basic.html';
+  assert.equal(usesInlineCompactToc(p, true), true);
+  for (const [path,compact] of [[p,false],['en/'+p,true],['articles/pressure-switch-basic.html',true],[p,undefined]]) assert.equal(usesInlineCompactToc(path,compact),false);
+});
+test('inline mobile TOC rejects overlaid controls, missing anchors and inaccessible destination', () => {
+  const anchors = [['#flow','pressure example'],['#references','references']];
+  const positive = {legacyHidden:true,dialogClosed:true,staticDetails:true,detailsCount:1,summaryCount:1,summaryHeight:44,horizontalFit:true,links:anchors};
+  assert.equal(verifyCompactTocState(positive,anchors),true);
+  assert.throws(()=>verifyCompactTocState({...positive,legacyHidden:false},anchors),/replace legacy overlay/);
+  assert.throws(()=>verifyCompactTocState({...positive,staticDetails:false},anchors),/document flow/);
+  assert.throws(()=>verifyCompactTocState({...positive,links:anchors.slice(1)},anchors),/anchors, order/);
+  assert.throws(()=>verifyCompactTocState({...positive,horizontalFit:false},anchors),/fit horizontally/);
+  const destination={focus:true,clearance:16,outline:'solid',outlineWidth:2,focusVisible:true,headingInViewport:true,hashMatches:true};
+  assert.equal(verifyCompactDestination(destination,true),true);
+  assert.equal(verifyCompactDestination({...destination,focusVisible:false,outline:'none'},false),true);
+  assert.throws(()=>verifyCompactDestination({...destination,focusVisible:false},false),/pointer destination/);
+  assert.throws(()=>verifyCompactDestination({...destination,outline:'none'},true),/focus must remain visible/);
+  assert.throws(()=>verifyCompactDestination({...destination,clearance:0},true),/below the header/);
+  assert.throws(()=>verifyCompactDestination({...destination,headingInViewport:false},true),/visible in the viewport/);
+  assert.throws(()=>verifyCompactDestination({...destination,hashMatches:false},true),/URL fragment/);
+});

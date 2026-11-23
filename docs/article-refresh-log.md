@@ -100,6 +100,10 @@
 
 - PR #2032、#2033、#2035 の日本語既存記事10本を追加。この表の記録は76 slug（重複なし）。旧行・集計根拠を保存。サイトマップは302 URL（変更前後の集合・順番は同一）。全履歴を網羅した実数とは扱わない。
 
+### 2026-11-23 集計追補（圧力計の公開記録）
+
+- PR #2037の既存日本語記事1本を追記。この表は77 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -168,6 +172,7 @@
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-xymd-device-basic` | 刷新main反映・本番確認済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878)・本書の個別履歴 | 90日ガード対象。最短再評価2027-02-12。完成・凍結。Googleリクエスト受理済み、再インデックス完了は未確認。 |
 | `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
+| `pressure-gauge-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：19:01:36 JST受付（配信前）。Google登録リクエストは配信時点で未送信、検索反映未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
 | `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
@@ -1052,3 +1057,7 @@
 - [上限・下限リミット回路](../articles/upper-lower-limit-circuit-basic.html)（[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)、本番確認 2026-11-23 14:14:06 JST、main `0ca6af82b9fb8665e505ee4004831cd1c02c741a`）：方向別制限と安全機能を区別し、コメント付きラダー例を掲載。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[upper-lower-limit-circuit-basic-directions-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-directions-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-directions-20261123.png`）、[upper-lower-limit-circuit-basic-hero-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero-20261123.png`）、[upper-lower-limit-circuit-basic-ladder-comments-y-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ladder-comments-y-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ladder-comments-y-20261123.png`）、[upper-lower-limit-circuit-basic-ogp-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp-20261123.png`）、[upper-lower-limit-circuit-basic-records-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-records-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-records-20261123.png`）。
 
 - 公開本体ではルートの sitemap 日付を変更していない。後追いの今回案は公開を確認した日本語の対象locだけに lastmod を記録する。Googleは本記録から新規操作しない。
+
+## 2026-11-23 — 圧力計の公開確認
+
+- [圧力計](../articles/pressure-gauge-basic.html)（[PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)、公式配信 2026-11-23 19:06:27 JST、main `1fe62a8f680f9eb06cff7a7031e57f648373559d`）：取出し位置、負荷時の圧力、読み違いの切り分けを図解。内容更新2026-11-23／公式資料確認2026-11-23。公開正規URLのHTTP 200、本番HTMLと配信画像5点、関連記事カード4箇所を確認。配信画像：[hero](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.png`）、[reading-check](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.png`）、[tap-points](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.png`）、[under-load](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.png`）。

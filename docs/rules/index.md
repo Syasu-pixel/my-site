@@ -191,6 +191,7 @@
 | [docs/reference-notes/delayed-start-circuit-basic.md](../reference-notes/delayed-start-circuit-basic.md) — 遅延起動回路：メーカー資料と学習例の範囲 | 既存記事「遅延起動回路：メーカー資料と学習例の範囲」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/control-panel-light-basic.md](../reference-notes/control-panel-light-basic.md) — 盤内照明・作業灯：一次資料と確認範囲 | 既存記事「盤内照明・作業灯：一次資料と確認範囲」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/got-touch-panel-basic.md](../reference-notes/got-touch-panel-basic.md) — GOT・タッチパネルの基本：出典照合メモ | 既存記事「GOT・タッチパネルの基本：出典照合メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/pressure-gauge-basic.md](../reference-notes/pressure-gauge-basic.md) — 圧力計：公式資料と記事内の適用範囲 | 圧力計の取得位置・負荷時の読み方と、機種・設置条件ごとの一次資料を確認する。 |
 
 ## 履歴・参考
 

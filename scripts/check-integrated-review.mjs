@@ -1,4 +1,5 @@
 import {loadIntegrationScope,integrationWidths,integrationSuffix} from './integration-review-scope.mjs';
+import {usesInlineCompactToc,checkInlineCompactToc} from './integration-inline-toc.mjs';
 import {chromium} from 'playwright';import {readFile,writeFile,mkdir} from 'node:fs/promises';import {resolve} from 'node:path';import {PNG} from 'pngjs';import pixelmatch from 'pixelmatch';
 const build=resolve(process.argv[2]||'../integration-build'),shardCount=Number(process.env.REVIEW_SHARD_COUNT||1),shardIndex=Number(process.env.REVIEW_SHARD_INDEX||0),suffix=integrationSuffix(shardIndex,shardCount),evidence=resolve(build,'evidence'+suffix);await mkdir(evidence,{recursive:true});
 if(!Number.isInteger(shardCount)||shardCount<1||!Number.isInteger(shardIndex)||shardIndex<0||shardIndex>=shardCount)throw Error('Invalid shard');
@@ -29,6 +30,9 @@ for(const path of targets)for(const width of integrationWidths(config,path,revie
   const counterpart=(en?'articles/':'en/articles/')+path.split('/').at(-1);let exists=true;try{await readFile(counterpart);}catch{exists=false;}
   assert(await page.locator('.dc-alternative').count()===(exists?1:0),'counterpart presence');if(exists)assert(await page.locator('.dc-alternative').getAttribute('href')==='/'+counterpart,'counterpart destination');
   await page.waitForTimeout(50);assert(!intersects(await page.locator('.dc-toc-button').boundingBox(),await page.locator('#dc-menu-drawer').boundingBox()),'TOC overlaps menu drawer');await page.keyboard.press('Escape');
+  if(usesInlineCompactToc(path,compact)){
+   await checkInlineCompactToc(page,spec,[390,1440].includes(width)?()=>shot(page,key,'toc-open'):null);
+  }else{
   await page.locator('.dc-toc-button').click();assert(await page.locator('#dc-toc-dialog').evaluate(e=>e.open),'TOC open');assert(await page.locator('.dc-toc-button').getAttribute('aria-expanded')==='true','TOC aria');
   assert(await page.locator('.dc-toc-button').evaluate(e=>e.parentElement.tagName==='DIALOG')===compact,'TOC mode');
   const panel=await page.locator('.dc-toc-panel').boundingBox(),button=await page.locator('.dc-toc-button').boundingBox();assert(panel.x>=-1&&panel.x+panel.width<=width+1&&panel.y>=-1&&panel.y+panel.height<=height+1,'TOC panel outside viewport');
@@ -38,6 +42,7 @@ for(const path of targets)for(const width of integrationWidths(config,path,revie
   await page.locator('.dc-toc-button').click();const anchor=page.locator('.dc-toc-list a').last(),id=decodeURIComponent((await anchor.getAttribute('href')).slice(1));await anchor.click();
   assert(!await page.locator('#dc-toc-dialog').evaluate(e=>e.open),'TOC close on jump');
   const jump=await page.evaluate(id=>{const t=document.getElementById(id),h=t.matches('h2,h3')?t:t.querySelector('h2,h3')||t;return{focus:document.activeElement===h,clearance:h.getBoundingClientRect().top-document.querySelector('header').getBoundingClientRect().bottom};},id);assert(jump.focus&&jump.clearance>=15,'TOC heading hidden or not focused');
+  }
   const badImages=await page.locator('.article-end-related-media img').evaluateAll(es=>es.filter(e=>!e.complete||!e.naturalWidth||getComputedStyle(e).objectFit!=='contain').map(e=>e.src));assert(!badImages.length,'OGP image failure '+badImages.join(','));
   const clipped=await page.locator('.article-end-related-copy').evaluateAll(es=>es.some(e=>e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1));assert(!clipped,'related text clipped');
   const failedLocalImages=await page.locator('img').evaluateAll(es=>es.filter(e=>e.currentSrc.startsWith(location.origin+'/')&&(!e.complete||!e.naturalWidth)).map(e=>e.currentSrc));assert(!failedLocalImages.length,'local image decode failure '+failedLocalImages.join(','));

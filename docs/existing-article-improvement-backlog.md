@@ -25,6 +25,26 @@
 
 ## 改善進捗
 
+- [x] `articles/air-filter-regulator-lubricator-basic.html` — FRLユニット。[PR #2032](https://github.com/Syasu-pixel/my-site/pull/2032)、2026-11-22本番確認済み。完成・凍結。最終内容更新2026-11-22、公式資料確認2026-11-22、90日基準の最短再評価2027-02-20。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/air-valve-basic.html` — エアバルブ。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/buzzer-circuit-basic.html` — ブザー回路。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/control-panel-light-basic.html` — 盤内照明・作業灯。[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/current-transformer-basic.html` — 変流器（CT）。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-22、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/delayed-start-circuit-basic.html` — 遅延起動回路。[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/got-touch-panel-basic.html` — GOT・タッチパネル。[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/noise-filter-basic.html` — ノイズフィルタ。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/reset-circuit-basic.html` — リセット回路。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/upper-lower-limit-circuit-basic.html` — 上限・下限リミット回路。[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
 - [x] `articles/jog-operation-circuit-basic.html` — ジョグ運転回路。[PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)で刷新、2026-11-19本番確認済み。完成・凍結、最短再評価2027-02-17。公式資料確認日2026-11-19（本文）。IndexNow HTTP200受付。Google登録リクエスト1回を約21:47 JSTに優先クロール待ちとして受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 - [x] `articles/timer-circuit-basic.html` — タイマー回路。[PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)で刷新、2026-11-19本番確認済み。完成・凍結、最短再評価2027-02-17。公式資料確認日2026-11-19（本文）。IndexNow HTTP200受付。Google登録リクエスト1回を約21:46 JSTに受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。根拠は[統合更新台帳](article-refresh-log.md)の個別履歴を参照。
 

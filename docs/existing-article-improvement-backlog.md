@@ -117,7 +117,64 @@
 - **新しいチャット・記事刷新担当**は、ここに提案があるかだけで判断せず、最新mainの本書、`docs/article-update-date-guard.md`、`docs/article-search-data-precheck-override.md`、Supabaseのデータ鮮度・現在の検索状況、既存PRを確認する。機械評価は提案であって改善実行の許可ではない。
 
 <!-- SEARCH_BACKLOG_AUTO_START -->
-2026-11-05にmainへ導入済み。初回の週次実データ生成・Draft PR作成は未確認。毎週の実行成功後、この区画が確認用PRで更新提案される。
+## 検索実績の機械評価（確認用・自動生成）
+
+- Google直近28日：2026-10-24〜2026-11-20
+- Google前28日：2026-09-26〜2026-10-23
+- データ源：Google公式API → Supabase（確定日次データ、ページ別）。
+- Bingのページ別データは週次スナップショットのため日次Googleと合算しない。 最終保存日：2026-11-20
+- これは調査提案であり本文修正の指示ではない。内容更新日・GitHub/PR履歴・メーカー資料と照合する。
+- 90日ガードは評価期間末日で判定。除外対象も監視表示には残す。完成・凍結や期間経過だけで再編集を許可しない。
+- 公開GitHubに生のクリック数・表示回数・順位を掲載しない。チェックリストの完了状態は変更しない。
+
+### 悪化・要確認（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/control-panel-wire-color-basic.html | クリック減とCTR/順位の変化を精査 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/flicker-circuit-basic.html | クリック減とCTR/順位の変化を精査 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/tool-belt.html | クリック減とCTR/順位の変化を精査 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+
+### 改善余地（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/series-parallel-circuit-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/air-cylinder-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/pilot-lamp-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/no-fuse-breaker-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/magnetic-switch-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/voltage-current-resistance-basic.html | 露出に対するCTR・検索意図を確認 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/earth-leakage-breaker-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/speed-controller-basic.html | 露出に対するCTR・検索意図を確認 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+
+### 伸長・監視（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/shielded-cable-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/npn-pnp-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/a-contact-b-contact-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/motor-breaker-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/air-regulator-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/forward-reverse-circuit-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/pe-fg-sg-difference-basic.html | 露出・クリックの増加が継続するか観察 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/interlock-basic.html | 露出・クリックの増加が継続するか観察 | 完成・凍結／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+
+### データ不足（上位8件）
+
+| 記事 | 検出理由 | 手動確認事項 |
+|---|---|---|
+| articles/ohms-law-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/wiring-duct-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/pneumatic-silencer-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/stripper.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/circuit-protector-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新内容が評価期間より新しい・再編集禁止 |
+| articles/flow-switch-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／90日クールダウン・通常の再改善候補から除外（監視のみ） |
+| articles/ratchet-wrench.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+| articles/sequence-diagram-reading-basic.html | 前期間の露出が少なく変化判定不能 | バックログ未掲載・手動確認／更新日・PR履歴要確認・通常の再改善候補から除外（監視のみ） |
+
+※ 候補抽出用の暫定閾値。検索語構成・季節性・祝日などの影響は別途確認する。
 <!-- SEARCH_BACKLOG_AUTO_END -->
 
 ## 2026-11-13 個別更新候補の進行記録

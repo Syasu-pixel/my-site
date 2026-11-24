@@ -196,6 +196,9 @@
 | [docs/reference-notes/electrician-knife.md](../reference-notes/electrician-knife.md) — 電工ナイフ：公式参照メモ | 既存記事「電工ナイフ：公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/gx-works3-cross-reference-basic.md](../reference-notes/gx-works3-cross-reference-basic.md) — GX Works3 クロスリファレンス：公式参照と教材範囲 | 既存記事「GX Works3 クロスリファレンス：公式参照と教材範囲」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/temperature-sensor-basic.md](../reference-notes/temperature-sensor-basic.md) — 温度センサー：公式参照メモ | 既存記事「温度センサー：公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/wire-number-marker-basic.md](../reference-notes/wire-number-marker-basic.md) — 線番・マークチューブ：公式参照メモ | 既存記事「線番・マークチューブ：公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gxw3-one-shot-rise-fall-detection.md](../reference-notes/gxw3-one-shot-rise-fall-detection.md) — GX Works3の立上り・立下り検出：メーカー根拠と教材の境界 | 既存記事「GX Works3の立上り・立下り検出：メーカー根拠と教材の境界」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/control-panel-outlet-basic.md](../reference-notes/control-panel-outlet-basic.md) — control-panel-outlet-basic 公式参照メモ | 既存記事「control-panel-outlet-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

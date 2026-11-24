@@ -199,6 +199,9 @@
 | [docs/reference-notes/wire-number-marker-basic.md](../reference-notes/wire-number-marker-basic.md) — 線番・マークチューブ：公式参照メモ | 既存記事「線番・マークチューブ：公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/gxw3-one-shot-rise-fall-detection.md](../reference-notes/gxw3-one-shot-rise-fall-detection.md) — GX Works3の立上り・立下り検出：メーカー根拠と教材の境界 | 既存記事「GX Works3の立上り・立下り検出：メーカー根拠と教材の境界」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/control-panel-outlet-basic.md](../reference-notes/control-panel-outlet-basic.md) — control-panel-outlet-basic 公式参照メモ | 既存記事「control-panel-outlet-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gxw3-timer-ton-toff-retentive.md](../reference-notes/gxw3-timer-ton-toff-retentive.md) — GX Works3のタイマー命令：メーカー資料照合 | 既存記事「GX Works3のタイマー命令：メーカー資料照合」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/control-panel-label-basic.md](../reference-notes/control-panel-label-basic.md) — 制御盤の銘板・機器ラベル 公式参照メモ | 既存記事「制御盤の銘板・機器ラベル 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/air-pneumatic-troubleshooting-guide.md](../reference-notes/air-pneumatic-troubleshooting-guide.md) — air-pneumatic-troubleshooting-guide 公式参照メモ | 既存記事「air-pneumatic-troubleshooting-guide 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

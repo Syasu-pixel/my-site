@@ -202,6 +202,9 @@
 | [docs/reference-notes/gxw3-timer-ton-toff-retentive.md](../reference-notes/gxw3-timer-ton-toff-retentive.md) — GX Works3のタイマー命令：メーカー資料照合 | 既存記事「GX Works3のタイマー命令：メーカー資料照合」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/control-panel-label-basic.md](../reference-notes/control-panel-label-basic.md) — 制御盤の銘板・機器ラベル 公式参照メモ | 既存記事「制御盤の銘板・機器ラベル 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/air-pneumatic-troubleshooting-guide.md](../reference-notes/air-pneumatic-troubleshooting-guide.md) — air-pneumatic-troubleshooting-guide 公式参照メモ | 既存記事「air-pneumatic-troubleshooting-guide 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/ladder-reading.md](../reference-notes/ladder-reading.md) — ラダー図の読み方 公式参照メモ | 既存記事「ラダー図の読み方 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/ratchet-wrench.md](../reference-notes/ratchet-wrench.md) — ラチェットレンチの選び方：公式資料確認メモ | 既存記事「ラチェットレンチの選び方：公式資料確認メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/safety-door-switch-interlock-basic.md](../reference-notes/safety-door-switch-interlock-basic.md) — 安全ドアスイッチ：確認した一次資料 | 既存記事「安全ドアスイッチ：確認した一次資料」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

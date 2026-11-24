@@ -176,6 +176,12 @@
 
 - [x] `articles/pressure-switch-vs-gauge-basic.html` — 圧力スイッチと圧力計。[PR #2039](https://github.com/Syasu-pixel/my-site/pull/2039)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
 
+- [x] `articles/electrician-knife.html` — 電工ナイフ。[PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)、2026-11-24本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/gx-works3-cross-reference-basic.html` — GX Works3 クロスリファレンス。[PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)、2026-11-24本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/temperature-sensor-basic.html` — 温度センサー。[PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)、2026-11-24本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。
+
 ## 2026-11-15 非常停止4コマ追従
 - 本人採用「戻したら、動いちゃう？」を正式PR1915通常マージ。20作品。Pages成功後、本番20作品・採用画像・正しい記事リンクとHero/カテゴリ保全を独立確認済み。
 - Instagram 2026-11-22 10:00 JST予約 post428486030、PENDING再取得確認。実投稿とは区別。

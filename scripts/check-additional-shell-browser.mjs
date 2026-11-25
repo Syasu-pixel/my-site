@@ -1,6 +1,23 @@
 import {createRequire} from 'node:module';import {mkdir,writeFile,readFile} from 'node:fs/promises';import {resolve} from 'node:path';
 const require=createRequire(import.meta.url),{chromium}=require('playwright');
 const out=resolve(process.argv[2]||'../additional-shell-build'),manifest=JSON.parse(await readFile(resolve('.github/site-shells/additional/manifest.json'),'utf8')),pages=manifest.pages.map(p=>p.path),counterparts=new Map(manifest.pages.map(p=>[p.path,p.realCounterpart])),results=[],failures=[];await mkdir(resolve(out,'screenshots'),{recursive:true});
+const pausedRegister=JSON.parse(await readFile(resolve('assets/data/site-health-unpublished.json'),'utf8'));
+if(pausedRegister.version!==1||!Array.isArray(pausedRegister.unpublished))throw Error('Invalid unpublished-page register');
+const pausedPaths=pausedRegister.unpublished.map(row=>{
+ if(typeof row?.path!=='string'||!/^articles\/[a-z0-9-]+\.html$/.test(row.path))throw Error('Invalid unpublished article path');
+ return '/'+row.path;
+});
+const checkHomePublication=async page=>{
+ const blocked=await page.locator('a[href]').evaluateAll((links,paths)=>links.flatMap(a=>{
+  const u=new URL(a.href),sameSite=u.origin===location.origin||['denkicontrol.com','www.denkicontrol.com'].includes(u.hostname);
+  return sameSite&&paths.includes(u.pathname)?[u.pathname]:[];
+ }),pausedPaths);
+ assert(blocked.length===0,'Unpublished page linked from rendered homepage: '+blocked.join(', '));
+ if(pausedPaths.some(p=>p.startsWith('/articles/plc-drilling-line-design-project-'))){
+  assert(await page.locator('.project-series-entry').count()===0,'Paused PLC project card must not be rendered');
+ }
+ assert(await page.locator('#featured a[href="articles/star-delta-start-basic.html"]').filter({hasText:'スターデルタ始動の記事を読む'}).count()===1,'Star-delta CTA missing');
+};
 const browser=await chromium.launch({headless:true});let blockedWrites=0;
 const assert=(v,msg)=>{if(!v)throw Error(msg)};
 const footerData=page=>page.locator('footer').evaluate(e=>({text:[...e.childNodes].filter(n=>!(n.nodeType===1&&(n.classList.contains('dc-affiliate-disclosure')||n.classList.contains('dc-footer-social')||n.classList.contains('dc-footer-profile-link')))).map(n=>n.textContent).join('').replace(/\s+/g,' ').trim(),links:[...e.querySelectorAll('a:not(.dc-footer-instagram):not(.dc-footer-profile-link a)')].map(a=>({text:a.textContent.trim(),href:new URL(a.getAttribute('href'),'https://denkicontrol.com'+location.pathname).href}))}));
@@ -81,7 +98,12 @@ for(const path of pages)for(const width of [320,390,768,1440]){
     assert(await pause.getAttribute('aria-pressed')==='true','Explicit stop must persist after focus and pointer leave');
     assert((await pause.getAttribute('aria-label')||'').includes('再開'),'Stopped hero must offer accessible resume name');await pause.click();assert((await pause.getAttribute('aria-label')||'').includes('停止'),'Running hero must offer accessible stop name');await page.mouse.move(0,0);await page.locator('#dc-menu-toggle').focus();await page.waitForFunction(()=>document.querySelectorAll('.dc-hero-stage img')[1].classList.contains('is-active'),null,{timeout:10000});await active(1);
   }
-  if(path==='index.html'){assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');assert(await page.locator('.project-series-entry__link').count()===1,'PLC project entry missing');}
+  if(path==='index.html'){
+   assert(await page.locator('.bookmark-help-button').count()===1,'Bookmark button missing');
+   await checkHomePublication(page);
+   await page.goto('http://127.0.0.1:'+(process.env.REVIEW_PORT||8790)+'/?unpublished-check=1',{waitUntil:'networkidle'});
+   await checkHomePublication(page);
+  }
   if(service && await page.locator('.article-hero-copy').count()>0){
     const heroDark=await page.locator('.article-hero-copy').evaluate(e=>{
       const rgb=s=>{const m=s.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);return m?[+m[1],+m[2],+m[3]]:null};

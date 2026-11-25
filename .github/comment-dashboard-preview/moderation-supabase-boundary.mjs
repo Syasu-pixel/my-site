@@ -37,7 +37,7 @@ export function createBoundModeration({origin,authClient,createActorClient}={}){
   }};
   const moderators={has:async id=>await rpc(bound(id),'dc_comment_moderator_self')===true};
   const store={
-   list:async({adminId,state,limit})=>rpc(bound(adminId),'dc_comment_moderation_list',{p_state:state,p_limit:limit}),
+   list:async({adminId,state,limit,after=null})=>rpc(bound(adminId),'dc_comment_moderation_list',{p_state:state,p_limit:limit,p_after:after}),
    apply:async d=>{
     if(!ops.has(d.action))throw failure(400);
     // The DB function derives identity from auth.uid(), never from adminId.

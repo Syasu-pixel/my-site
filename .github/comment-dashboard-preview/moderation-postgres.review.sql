@@ -60,20 +60,28 @@ returns boolean language sql security definer set search_path='' as $$
  select dc_comment_private.moderator(false);
 $$;
 
-create function public.dc_comment_moderation_list(p_state text, p_limit integer)
+create function public.dc_comment_moderation_list(p_state text, p_limit integer, p_after uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare result jsonb;
+declare result jsonb; anchor_time timestamptz;
 begin
  if not dc_comment_private.moderator(false) then
    raise exception 'moderator required' using errcode='42501';
  end if;
- if p_state is null or p_state not in ('pending','published') or p_limit is null or p_limit not between 1 and 50 then
+ if p_state is null or p_state not in ('pending','published') or p_limit is null or p_limit not between 1 and 51 then
    raise exception 'invalid list parameters' using errcode='22023';
+ end if;
+ if p_after is not null then
+   select e.created_at into anchor_time from dc_comment_private.entry e
+   join dc_comment_private.article a on a.path=e.path and a.enabled where e.id=p_after;
+   if not found then raise exception 'invalid cursor' using errcode='22023'; end if;
  end if;
  select coalesce(jsonb_agg(jsonb_build_object(
    'id', x.id,'path', x.path,'parent', x.parent,'state',p_state,
    'body',x.version->>'body','nickname',x.version->>'nickname',
    'editor',x.version->>'editor','rev',x.rev,
+   'parentUnavailable',p_state='pending' and x.parent is not null and not exists (
+     select 1 from dc_comment_private.entry parent where parent.id=x.parent and parent.path=x.path
+       and parent.parent is null and not parent.hidden and parent.published is not null),
    'hasPendingEdit',p_state='published' and x.pending is not null,
    'mayFeature',p_state='published' and x.pending is null and x.version->'consent'='true'::jsonb
  ) order by x.created_at desc,x.id),'[]'::jsonb) into result
@@ -81,7 +89,8 @@ begin
    select e.*,case p_state when 'pending' then e.pending else e.published end as version
    from dc_comment_private.entry e
    join dc_comment_private.article a on a.path=e.path and a.enabled
-   where not e.hidden and (
+   where not e.hidden
+   and (p_after is null or e.created_at < anchor_time or (e.created_at=anchor_time and e.id>p_after)) and (
       (p_state='pending' and e.pending is not null)
       or (p_state='published' and e.published is not null and (e.parent is null or exists (
         select 1 from dc_comment_private.entry pe where pe.id=e.parent and pe.path=e.path
@@ -139,9 +148,9 @@ begin
 end $$;
 
 revoke all on function public.dc_comment_moderator_self() from public, anon, authenticated;
-revoke all on function public.dc_comment_moderation_list(text,integer) from public, anon, authenticated;
+revoke all on function public.dc_comment_moderation_list(text,integer,uuid) from public, anon, authenticated;
 revoke all on function public.dc_comment_moderation_apply(text,uuid,text,integer,text,text) from public, anon, authenticated;
 grant execute on function public.dc_comment_moderator_self() to authenticated;
-grant execute on function public.dc_comment_moderation_list(text,integer) to authenticated;
+grant execute on function public.dc_comment_moderation_list(text,integer,uuid) to authenticated;
 grant execute on function public.dc_comment_moderation_apply(text,uuid,text,integer,text,text) to authenticated;
 commit;

@@ -16,7 +16,7 @@ let db=new PGlite(dir);
 const data=(body)=>JSON.stringify({body,nickname:'合成',editor:'投稿者',consent:true});
 const statements={
  dc_comment_moderator_self:['select public.dc_comment_moderator_self() as data',[]],
- dc_comment_moderation_list:['select public.dc_comment_moderation_list($1,$2) as data',['p_state','p_limit']],
+ dc_comment_moderation_list:['select public.dc_comment_moderation_list($1,$2,$3) as data',['p_state','p_limit','p_after']],
  dc_comment_moderation_apply:['select public.dc_comment_moderation_apply($1,$2,$3,$4,$5,$6) as data',['p_path','p_id','p_action','p_rev','p_body','p_nickname']],
 };
 const claims=async (tx,token,role='authenticated')=>{
@@ -37,8 +37,8 @@ function handler(){
   }
  })});
 }
-function request(token,op,state){
- return new Request(endpoint+(state?'?state='+state:''),{method:op?'POST':'GET',headers:{...(token?{authorization:'Bearer '+token}:{}),...(op?{origin,'content-type':'application/json'}:{})},body:op?JSON.stringify(op):undefined});
+function request(token,op,state,after=null){
+ return new Request(endpoint+(state?'?state='+state+(after?'&after='+encodeURIComponent(after):''):''),{method:op?'POST':'GET',headers:{...(token?{authorization:'Bearer '+token}:{}),...(op?{origin,'content-type':'application/json'}:{})},body:op?JSON.stringify(op):undefined});
 }
 const act=(action,id,rev,fields={})=>handler()(request('admin',{path,id,action,rev,...fields}));
 const list=async(token,state)=>{const r=await handler()(request(token,null,state));assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'private, no-store');return (await r.json()).rows;};
@@ -66,6 +66,7 @@ try {
 
  const initial=await list('admin','pending');assert.equal(initial.length,2);assert(!JSON.stringify(initial).includes(actors.reader));
  assert.deepEqual(await list('admin','published'),[]);
+ assert.equal(initial.find(row=>row.id===ids.reply).parentUnavailable,true);
  assert.equal((await act('approve',ids.reply,1)).status,409);
  assert.equal((await act('approve',ids.post,1)).status,200);
  assert.equal((await act('approve',ids.reply,1)).status,200);
@@ -92,6 +93,23 @@ try {
  const {rows}=await db.query('select action,from_rev from dc_comment_private.moderation_event order by id');
  assert.deepEqual(rows.map(x=>x.action),['approve','approve','edit','approve','hide']);
  ok('データベースを開き直しても承認が残る、親の非表示で返信も非表示、操作履歴が残る');
+
+ await db.query(`insert into dc_comment_private.entry(id,path,author_id,pending,created_at)
+   select ('70000001-aaaa-4311-8222-'||lpad(n::text,12,'0'))::uuid,$1,$2,$3,'2026-11-25T13:00:00Z'
+   from generate_series(1,51) n`,[path,actors.reader,data('一覧ページの合成')]);
+ const r1=await handler()(request('admin',null,'pending'));
+ assert.equal(r1.status,200);
+ const first=await r1.json();
+ assert.equal(first.rows.length,50);
+ assert.equal(first.next,'70000001-aaaa-4311-8222-000000000050');
+ assert.equal((await act('decline',first.next,1)).status,200);
+ const older=await handler()(request('admin',null,'pending',first.next));
+ assert.equal(older.status,200);
+ const last=await older.json();
+ assert.deepEqual(last.rows.map(row=>row.id),['70000001-aaaa-4311-8222-000000000051']);
+ assert.equal(last.next,null);
+ assert.equal((await handler()(request('reader',null,'pending',first.next))).status,403);
+ ok('同時刻の51件を安定順でページ送り、最後の表示行が見送り後も移動可・非管理者は拒否');
 
  await db.query('delete from public.ai_editorial_admins where user_id=$1',[actors.admin]);
  assert.equal((await handler()(request('admin',null,'pending'))).status,403);

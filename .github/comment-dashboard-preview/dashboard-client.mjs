@@ -10,12 +10,16 @@ export function makeClient({getToken,fetcher=fetch}){
   }
   return r.json();
  }
- return {list:async state=>(await run(endpoint+'?state='+encodeURIComponent(state))).rows,apply:async op=>run(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op)})};
+ const listPage=async(state,after=null)=>{
+  const params=new URLSearchParams({state});if(after)params.set('after',after);
+  return run(endpoint+'?'+params);
+ };
+ return {listPage,list:async state=>(await listPage(state)).rows,apply:async op=>run(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op)})};
 }
 export function mountDashboard({root,client,doc=document,articleTitle=()=>null}){
  const list=root.querySelector('[data-comments-list]'),status=root.querySelector('[data-comments-status]'),choose=root.querySelector('select'),refresh=root.querySelector('[data-comments-refresh]');
  const filter=root.querySelector('[data-comments-filter]'), heading=root.querySelector('[data-comments-heading]');
- let busy=false, state='pending', generation=0, rows=[], opened=null;
+ let busy=false, state='pending', generation=0, rows=[], next=null, opened=null;
  const stateLabel=()=>state==='pending'?'承認待ち':'公開中';
  const titleFor=path=>articleTitle(path)||path.slice('/articles/'.length).replace(/\.html$/,'');
  const el=(tag,text)=>{const x=doc.createElement(tag); if(text)x.textContent=text;return x;};
@@ -55,7 +59,9 @@ export function mountDashboard({root,client,doc=document,articleTitle=()=>null})
    if(row.state==='pending'){
     const approve=reviewButton('承認して公開','このコメントが記事ページで全読者に表示されます。個人情報や危険な作業の案内が含まれていないか確認してください。',()=>op('approve',{rev:row.rev}));
     approve.className='comment-primary';
-    group.append(approve,reviewButton('見送る','この版を見送りします。記事には表示されません。',()=>op('decline',{rev:row.rev})));
+    if(row.parentUnavailable)group.append(el('p','親コメントが公開されていないため、この返信は承認できません。'));
+    else group.append(approve);
+    group.append(reviewButton('見送る','この版を見送りします。記事には表示されません。',()=>op('decline',{rev:row.rev})));
    }
    if(row.state==='published')group.append(reviewButton('非表示にする','この投稿を記事から非表示にします。親コメントの場合、返信も表示されなくなります。',()=>op('hide')));
    const edit=button('編集する',()=>{
@@ -74,18 +80,25 @@ export function mountDashboard({root,client,doc=document,articleTitle=()=>null})
    else card.append(el('p','修正版があります。編集する場合は承認待ち一覧で内容を確認してください。'));
    list.append(card);
   }
-  const summary=matching.length?'表示 '+matching.length+'件'+(rows.length===50?'（取得上限50件）':''):q?'表示中の投稿に一致するものがありません。':stateLabel()+'のコメントはありません。';
-  status.textContent=notice?notice+' '+summary:summary;
+  if(next)list.append(button('さらに前のコメントを表示',()=>operate(null,true)));
+  const summary=matching.length?'表示 '+matching.length+'件':q?'読み込んだ投稿に一致するものがありません。':stateLabel()+'のコメントはありません。';
+  const scope=next?' 現在は'+rows.length+'件まで読み込み済みです。検索は読み込んだ投稿が対象です。':'';
+  status.textContent=(notice?notice+' '+summary:summary)+scope;
  }
- async function reload(notice,stamp){
+ async function reload(notice,stamp,append=false){
   if(heading)heading.textContent=stateLabel();
-  opened=null;rows=[];list.replaceChildren();status.textContent='一覧を取得中です。';
-  const result=await client.list(state);
+  const after=append?next:null;
+  if(append&&!after)return;
+  if(!append){opened=null;rows=[];next=null;list.replaceChildren();}
+  status.textContent='一覧を取得中です。';
+  const result=client.listPage?await client.listPage(state,after):{rows:await client.list(state),next:null};
   if(stamp!==generation)return;
-  if(!Array.isArray(result))throw new Error('一覧を取得できません。');
-  rows=result;render(notice);
+  if(!Array.isArray(result?.rows)||result.next&&(
+    result.next===after||result.next!==result.rows.at(-1)?.id))throw new Error('一覧を取得できません。');
+  const known=new Set(rows.map(row=>row.id));
+  rows=[...rows,...result.rows.filter(row=>!known.has(row.id))];next=result.next??null;render(notice);
  }
- async function operate(action){
+ async function operate(action,append=false){
   if(busy)return;busy=true;controls(true);const stamp=generation;
   try{
    if(action){
@@ -94,15 +107,15 @@ export function mountDashboard({root,client,doc=document,articleTitle=()=>null})
     const labels={approve:'承認しました。',decline:'見送りました。',hide:'非表示にしました。',edit:'修正版を承認待ちに保存しました。'};
     try{await reload(labels[action.action],stamp);}
     catch{if(stamp===generation)status.textContent=labels[action.action]+' 一覧を更新できません。';}
-   }else await reload(undefined,stamp);
+   }else await reload(undefined,stamp,append);
   }catch(e){
    if(stamp!==generation)return;
-   if(e.status===401||e.status===403||e.status===409){opened=null;rows=[];list.replaceChildren();}
+   if(e.status===401||e.status===403||e.status===409){opened=null;rows=[];next=null;list.replaceChildren();}
    status.textContent=e.message;
   }finally{busy=false;controls(false);}
  }
  choose.addEventListener('change',()=>{state=choose.value;operate();});
  refresh.addEventListener('click',()=>operate());
  filter?.addEventListener('input',()=>{if(!busy&&!opened&&rows.length)render();});
- return {refresh:()=>{if(!opened)return operate();},clear:()=>{generation++;opened=null;rows=[];if(filter)filter.value='';list.replaceChildren();controls(busy);status.textContent='ログインしてください。';}};
+ return {refresh:()=>{if(!opened)return operate();},clear:()=>{generation++;opened=null;rows=[];next=null;if(filter)filter.value='';list.replaceChildren();controls(busy);status.textContent='ログインしてください。';}};
 }

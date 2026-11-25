@@ -63,10 +63,12 @@ export function openPreviewStore({file,eligible,operatorIds}){
    pathGuard(path);actorGuard(actor);
    return all('SELECT * FROM comment WHERE path=? AND author=? AND hidden=0 ORDER BY rowid',path,actor).flatMap(r=>r.pending?[output(r,'pending')]:visible(r)?[output(r,'published')]:[]);
   },
-  list:({adminId,state,limit})=>{
-   adminGuard(adminId);if(!['pending','published'].includes(state)||!Number.isInteger(limit)||limit<1||limit>50)fail(400);
-   return all(`SELECT * FROM comment WHERE hidden=0 AND ${state} IS NOT NULL ORDER BY rowid DESC`)
-    .filter(r=>allow.has(r.path)&&(state==='pending'||visible(r))).slice(0,limit).map(r=>output(r,state));
+  list:({adminId,state,limit,after=null})=>{
+   adminGuard(adminId);if(!['pending','published'].includes(state)||!Number.isInteger(limit)||limit<1||limit>51)fail(400);
+   const anchor=after===null?null:one('SELECT rowid,path FROM comment WHERE id=?',after);
+   if(after!==null&&(!anchor||!allow.has(anchor.path)))fail(400);
+   return all(`SELECT * FROM comment WHERE hidden=0 AND ${state} IS NOT NULL AND (? IS NULL OR rowid < ?) ORDER BY rowid DESC`,anchor?.rowid??null,anchor?.rowid??null)
+    .filter(r=>allow.has(r.path)&&(state==='pending'||visible(r))).slice(0,limit).map(r=>({...output(r,state),parentUnavailable:state==='pending'&&Boolean(r.parent)&&!one('SELECT 1 FROM comment WHERE id=? AND path=? AND parent IS NULL AND hidden=0 AND published IS NOT NULL',r.parent,r.path)}));
   },
   apply:d=>tx(()=>{
    adminGuard(d.adminId);const r=row(d.path,d.id);

@@ -25,7 +25,7 @@ const capture=(t,configure={})=>{
     if(configure.error)return {error:configure.error};
     if(!isAdmin||name.endsWith('apply')&&configure.revokeOnApply)return {error:{code:'42501'}};
     try{
-     if(name.endsWith('list'))return {data:sqlite.list({adminId,state:a.p_state,limit:a.p_limit}).map(row=>({...row,author:'never-expose-me'}))};
+     if(name.endsWith('list'))return {data:sqlite.list({adminId,state:a.p_state,limit:a.p_limit,after:a.p_after}).map(row=>({...row,author:'never-expose-me'}))};
      if(name.endsWith('apply')){
       sqlite.apply({adminId,path:a.p_path,id:a.p_id,action:a.p_action,rev:a.p_rev,body:a.p_body,nickname:a.p_nickname});
       return {data:true};

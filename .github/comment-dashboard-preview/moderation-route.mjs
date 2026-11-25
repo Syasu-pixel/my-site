@@ -19,7 +19,7 @@ function present(r){
  if(!r || !article.test(r.path) || typeof r.id!=='string' || !key.test(r.id) || typeof r.body!=='string' || typeof r.nickname!=='string' || !['pending','published'].includes(r.state) ||
  (!Number.isSafeInteger(r.rev)||r.rev<1))throw 503;
  return {id:r.id,path:r.path,state:r.state,body:r.body,nickname:r.nickname,
-  rev:r.rev, hasPendingEdit:r.state==='published'&&r.hasPendingEdit===true, isReply:Boolean(r.parent), editedByOperator:r.editor==='運営',
+  rev:r.rev, hasPendingEdit:r.state==='published'&&r.hasPendingEdit===true, isReply:Boolean(r.parent), parentUnavailable:r.state==='pending'&&Boolean(r.parent)&&r.parentUnavailable===true, editedByOperator:r.editor==='運営',
   mayFeature:r.state==='published'&&r.mayFeature===true};
 }
 export function createModerationRoute({origin,identity,moderators,store}={}){
@@ -37,9 +37,12 @@ export function createModerationRoute({origin,identity,moderators,store}={}){
    if(request.method==='GET'){
     const state=u.searchParams.get('state')??'pending';
     if(!['pending','published'].includes(state))throw 400;
-    const rows=await store.list({adminId:actor.id,state,limit:50});
-    if(!Array.isArray(rows)||rows.length>50||rows.some(r=>r.state!==state))throw 503;
-    return reply(200,{rows:rows.map(present)});
+    const after=u.searchParams.get('after');
+    if(u.searchParams.getAll('after').length>1||after!==null&&!key.test(after))throw 400;
+    const batch=await store.list({adminId:actor.id,state,limit:51,after});
+    if(!Array.isArray(batch)||batch.length>51||batch.some(r=>r.state!==state||r.id===after)||new Set(batch.map(r=>r.id)).size!==batch.length)throw 503;
+    const rows=batch.slice(0,50).map(present);
+    return reply(200,{rows,next:batch.length>50?rows.at(-1).id:null});
    }
    const d=await parseJSON(request);
    if(!d||typeof d.path!=='string'||!article.test(d.path)||typeof d.id!=='string'||!key.test(d.id)||!['approve','decline','hide','edit'].includes(d.action))throw 400;

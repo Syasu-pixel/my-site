@@ -29,12 +29,23 @@ export function mountArticleComments({root,client,doc=document}){
  const mode=form.querySelector('[data-mode]'),cancel=form.querySelector('[data-cancel]');
  let requestId, draftMode=null, busy=false, composing=false;
  const el=(tag,value)=>{const n=doc.createElement(tag);if(value)n.textContent=value;return n;};
- function setMode(next){
+ const targetKey=m=>m?.edit?'edit:'+m.id:m?.parent?'reply:'+m.parent:'new';
+ const fields=()=>[text.value,nick.value,consent.checked];
+ let baseline=fields();
+ const dirty=()=>fields().some((value,index)=>value!==baseline[index]);
+ function setMode(next,{discard=false}={}){
   if(busy)return;
-  draftMode=next;requestId=undefined;
+  if(!discard&&targetKey(next)===targetKey(draftMode)){text.focus();return;}
+  if(!discard&&dirty()){
+   cancel.hidden=false;
+   status.textContent='入力中の内容は元のコメントに残しています。別のコメントへ移るには、先に投稿するか、キャンセルしてください。';
+   text.focus();return;
+  }
+  draftMode=next;requestId=undefined;form.reset();
   cancel.hidden=!next;mode.textContent=next?.edit?'コメントを修正する':next?'返信を書く':'コメントを書く';
-  if(next?.edit){text.value=next.body;nick.value=next.nickname==='匿名'?'':next.nickname;consent.checked=false;}
-  text.focus();
+  if(next?.edit){text.value=next.body;nick.value=next.nickname==='匿名'?'':next.nickname;}
+  consent.checked=false; baseline=fields();
+  status.textContent='';text.focus();
  }
  function render(where,rows,isPending){
   where.replaceChildren();
@@ -58,10 +69,10 @@ export function mountArticleComments({root,client,doc=document}){
   client.publicRows().then(rows=>render(publicList,rows,false)).catch(()=>publicList.replaceChildren(el('p','コメントを読み込めませんでした。'))),
   client.pendingRows().then(rows=>render(pending,rows,true)).catch(()=>pending.replaceChildren(el('p','自分の承認待ちを読み込めませんでした。')))
  ]);
- form.addEventListener('input',()=>{requestId=undefined;});
+ form.addEventListener('input',()=>{requestId=undefined;cancel.hidden=!draftMode&&!dirty();});
  form.addEventListener('compositionstart',()=>{composing=true;});
  form.addEventListener('compositionend',()=>{composing=false;});
- cancel.addEventListener('click',()=>{form.reset();setMode(null);});
+ cancel.addEventListener('click',()=>setMode(null,{discard:true}));
  form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(busy||composing||e.isComposing||!form.reportValidity())return;
@@ -71,7 +82,7 @@ export function mountArticleComments({root,client,doc=document}){
   const edit=draftMode?.edit;
   try{
    const rows=await client.submit(edit?{...data,action:'edit',id:draftMode.id}:{...data,action:'post',requestId:requestId??=client.nextId(),parent:draftMode?.parent});
-   render(pending,rows,true);form.reset();requestId=undefined;draftMode=null;cancel.hidden=true;mode.textContent='コメントを書く';
+   render(pending,rows,true);form.reset();baseline=fields();requestId=undefined;draftMode=null;cancel.hidden=true;mode.textContent='コメントを書く';
    status.textContent='受け付けました。運営の承認後に公開されます。';
   }catch(e){status.textContent=e.message;}
   finally{[text,nick,consent,cancel,send].forEach(input=>{input.disabled=false;});busy=false;}

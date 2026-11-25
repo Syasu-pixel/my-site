@@ -17,9 +17,9 @@ export async function parseJSON(request){
 }
 function present(r){
  if(!r || !article.test(r.path) || typeof r.id!=='string' || !key.test(r.id) || typeof r.body!=='string' || typeof r.nickname!=='string' || !['pending','published'].includes(r.state) ||
- (r.state==='pending'&&(!Number.isSafeInteger(r.rev)||r.rev<1)))throw 503;
+ (!Number.isSafeInteger(r.rev)||r.rev<1))throw 503;
  return {id:r.id,path:r.path,state:r.state,body:r.body,nickname:r.nickname,
-  rev:r.state==='pending'?r.rev:null, isReply:Boolean(r.parent), editedByOperator:r.editor==='運営',
+  rev:r.rev, hasPendingEdit:r.state==='published'&&r.hasPendingEdit===true, isReply:Boolean(r.parent), editedByOperator:r.editor==='運営',
   mayFeature:r.state==='published'&&r.mayFeature===true};
 }
 export function createModerationRoute({origin,identity,moderators,store}={}){
@@ -44,9 +44,7 @@ export function createModerationRoute({origin,identity,moderators,store}={}){
    const d=await parseJSON(request);
    if(!d||typeof d.path!=='string'||!article.test(d.path)||typeof d.id!=='string'||!key.test(d.id)||!['approve','decline','hide','edit'].includes(d.action))throw 400;
    const action={path:d.path,id:d.id,action:d.action,adminId:actor.id};
-   if(d.action==='approve'||d.action==='decline'){
-    if(!Number.isSafeInteger(d.rev)||d.rev<1)throw 400;action.rev=d.rev;
-   }
+   if(!Number.isSafeInteger(d.rev)||d.rev<1)throw 400;action.rev=d.rev;
    if(d.action==='edit'){
     if(typeof d.body!=='string'||![...d.body.trim()].length||[...d.body.trim()].length>500||typeof d.nickname!=='string'||[...d.nickname.trim()].length>24)throw 400;
     action.body=d.body.trim();action.nickname=d.nickname.trim();

@@ -38,7 +38,7 @@ test('isolated HTTP: author and unrelated browser, moderation, approval, and hid
   return id?{data:{user:{id,is_anonymous:id==='anonymous'}}}:{error:'not valid'};
  }}};
  route=createModerationRoute({origin:base,identity:makeVerifiedIdentity({supabase}),moderators:{has:async id=>id==='operator'},store:{
-  list:async({state})=>model.read(path,'operator').filter(r=>r.pending===(state==='pending')||!r.pending&&state==='published').map(r=>({...r,path,state})),
+  list:async({state})=>model.read(path,'operator').filter(r=>r.pending===(state==='pending')||!r.pending&&state==='published').map(r=>({...r,path,state,rev:r.rev??1})),
   apply:async a=>{
    if(a.action==='hide')return model.hide(a.path,a.id,a.adminId);
    if(a.action==='edit')return model.edit(a.path,a.id,a.adminId,a);
@@ -68,11 +68,11 @@ test('isolated HTTP: author and unrelated browser, moderation, approval, and hid
   const after=await pub('reader');assert.equal(after[0].body,first.body);
   assert.deepEqual(await pub('author'),after);
   assert.deepEqual(await operator.list('pending'),[]);
-  await operator.apply({action:'edit',path,id:r.id,nickname:'合成A',body:'運営による修正案'});
+  await operator.apply({action:'edit',path,id:r.id,rev:(await operator.list('published'))[0].rev,nickname:'合成A',body:'運営による修正案'});
   assert.equal((await pub('reader'))[0].body,first.body);
   const [edit]=await operator.list('pending');assert.equal(edit.editedByOperator,true);
   await operator.apply({action:'decline',path,id:edit.id,rev:edit.rev});
-  await operator.apply({action:'hide',path,id:r.id});
+  await operator.apply({action:'hide',path,id:r.id,rev:(await operator.list('published'))[0].rev});
   assert.deepEqual(await pub('reader'),[]);assert.deepEqual(await operator.list('published'),[]);
  }finally{const closed=once(s,'close');s.close();await closed;}
 });

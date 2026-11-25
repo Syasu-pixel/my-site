@@ -34,7 +34,7 @@ test('store persists across connections, keeps pending out of public data, and r
  const [current]=(await (await call(b,'admin')).json()).rows;
  assert.equal((await call(a,'admin',{...approval,rev:current.rev})).status,200);
  assert.deepEqual(open().publicFor(path).map(r=>r.body),['確認する新しい版']);
- assert.equal((await call(b,'admin',{id,path,action:'hide'})).status,200);
+ assert.equal((await call(b,'admin',{id,path,action:'hide',rev:current.rev+1})).status,200);
  assert.deepEqual(first.publicFor(path),[]);
 });
 test('parent approval and hide also control reply visibility and remove article consent on moderator edit',t=>{
@@ -52,11 +52,11 @@ test('parent approval and hide also control reply visibility and remove article 
  assert.throws(()=>db.post('/en/articles/ratchet-wrench.html','author',{body:'test'}),{status:404});
  assert.throws(()=>db.editOwn(path,id,'other',{nickname:'',body:'no'}),{status:403});
  assert.equal(db.list({adminId:'admin',state:'published',limit:50}).find(r=>r.id===id).mayFeature,true);
- mod({id,action:'edit',nickname:'運営編集',body:'修正案',consent:true});
+ mod({id,action:'edit',rev:db.list({adminId:'admin',state:'published',limit:50}).find(r=>r.id===id).rev,nickname:'運営編集',body:'修正案',consent:true});
  assert.equal(db.publicFor(path)[0].body,'架空の本文');
  assert.equal(db.list({adminId:'admin',state:'published',limit:50}).find(r=>r.id===id).mayFeature,false);
  approve(id);assert.equal(db.list({adminId:'admin',state:'published',limit:50}).find(r=>r.id===id).mayFeature,false);
- mod({id,action:'hide'});assert.deepEqual(db.publicFor(path),[]);
+ mod({id,action:'hide',rev:db.list({adminId:'admin',state:'published',limit:50}).find(r=>r.id===id).rev});assert.deepEqual(db.publicFor(path),[]);
 });
 test('article route and dashboard use the same SQL rows with identity-independent public responses',async t=>{
  const {createArticleRoute}=await import('./article-route.mjs');
@@ -84,6 +84,6 @@ test('article route and dashboard use the same SQL rows with identity-independen
  assert.equal(todo.nickname,name);
  assert.equal((await call(m,'admin',{id:todo.id,path,action:'approve',rev:todo.rev})).status,200);
  assert.equal((await published())[0].body,body);
- assert.equal((await call(m,'admin',{id:todo.id,path,action:'hide'})).status,200);
+ assert.equal((await call(m,'admin',{id:todo.id,path,action:'hide',rev:todo.rev+1})).status,200);
  assert.deepEqual(await published(),[]);
 });

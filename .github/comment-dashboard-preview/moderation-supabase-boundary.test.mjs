@@ -78,3 +78,20 @@ test('unavailable connector and database errors fail closed without details',asy
  const response=await handle(req('admin'));assert.equal(response.status,503);
  assert(!JSON.stringify(await response.json()).includes('private-details'));
 });
+
+test('stale operator edit and hide cannot discard a newer reader change',async t=>{
+ const {handle,sqlite,id}=capture(t);
+ assert.equal((await handle(req('admin',{payload:{path,id,rev:1,action:'approve'}}))).status,200);
+ const q=new Request(url+'?state=published',{headers:{Authorization:'Bearer admin'}});
+ const [before]=(await (await handle(q)).json()).rows;
+ sqlite.editOwn(path,id,'synthetic_reader',{body:'投稿者の新しい修正版',nickname:'合成読者'});
+ for(const op of [{action:'edit',body:'運営の古い修正版',nickname:'運営'},{action:'hide'}]){
+  const r=await handle(req('admin',{payload:{...op,path,id,rev:before.rev}}));
+  assert.equal(r.status,409);
+ }
+ assert.equal(sqlite.publicFor(path)[0].body,'合成の確認待ち本文');
+ assert.equal(sqlite.ownFor(path,'synthetic_reader')[0].body,'投稿者の新しい修正版');
+ const [latest]=(await (await handle(q)).json()).rows;
+ assert.equal(latest.hasPendingEdit,true);
+ assert(latest.rev>before.rev);
+});

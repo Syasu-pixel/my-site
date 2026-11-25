@@ -34,7 +34,7 @@ export function openPreviewStore({file,eligible,operatorIds}){
  const row=(path,id)=>{pathGuard(path);const r=one('SELECT * FROM comment WHERE path=? AND id=?',path,id);if(!r||r.hidden)fail(404);return r;};
  const visible=r=>!!r.published&&!r.hidden&&(!r.parent||!!one('SELECT 1 FROM comment WHERE id=? AND path=? AND hidden=0 AND published IS NOT NULL',r.parent,r.path));
  const change=(r,sql,...args)=>{if(run(sql,...args,r.id,r.version).changes!==1)fail(409);};
- const output=(r,state)=>{const draft=JSON.parse(r[state]);return {id:r.id,path:r.path,parent:r.parent,state,body:draft.body,nickname:draft.nickname,editor:draft.editor,rev:state==='pending'?r.version:null,mayFeature:state==='published'&&draft.consent&&!r.pending};};
+ const output=(r,state)=>{const draft=JSON.parse(r[state]);return {id:r.id,path:r.path,parent:r.parent,state,body:draft.body,nickname:draft.nickname,editor:draft.editor,rev:r.version,hasPendingEdit:state==='published'&&Boolean(r.pending),mayFeature:state==='published'&&draft.consent&&!r.pending};};
  return {
   close:()=>db.close(),
   isEligible:path=>allow.has(path),
@@ -57,7 +57,7 @@ export function openPreviewStore({file,eligible,operatorIds}){
   publicFor:path=>{
    pathGuard(path);
    const rows=all('SELECT c.* FROM comment c LEFT JOIN comment p ON p.id=c.parent AND p.path=c.path WHERE c.path=? AND c.hidden=0 AND c.published IS NOT NULL AND (c.parent IS NULL OR (p.hidden=0 AND p.published IS NOT NULL)) ORDER BY c.rowid',path);
-   return rows.map(r=>{const {state,rev,mayFeature,...safe}=output(r,'published');return safe;});
+   return rows.map(r=>{const {state,rev,mayFeature,hasPendingEdit,...safe}=output(r,'published');return safe;});
   },
   ownFor:(path,actor)=>{
    pathGuard(path);actorGuard(actor);
@@ -70,6 +70,7 @@ export function openPreviewStore({file,eligible,operatorIds}){
   },
   apply:d=>tx(()=>{
    adminGuard(d.adminId);const r=row(d.path,d.id);
+   if(r.version!==d.rev)fail(409);
    if(d.action==='approve'||d.action==='decline'){
     if(r.version!==d.rev||!r.pending)fail(409);
     if(d.action==='approve'&&r.parent&&!visible(row(d.path,r.parent)))fail(409);

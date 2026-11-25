@@ -51,7 +51,7 @@ export function mountDashboard({root,client,doc=document,articleTitle=()=>null})
    const reviewButton=(label,question,fn)=>{
     const trigger=button(label,()=>confirmAction(trigger,label,question,fn));return trigger;
    };
-   const op=(action,data={})=>operate({action,path:row.path,id:row.id,...data});
+   const op=(action,data={})=>operate({action,path:row.path,id:row.id,rev:row.rev,...data});
    if(row.state==='pending'){
     const approve=reviewButton('承認して公開','このコメントが記事ページで全読者に表示されます。個人情報や危険な作業の案内が含まれていないか確認してください。',()=>op('approve',{rev:row.rev}));
     approve.className='comment-primary';
@@ -70,7 +70,8 @@ export function mountDashboard({root,client,doc=document,articleTitle=()=>null})
     form.addEventListener('compositionend',()=>{composing=false;});
     form.addEventListener('submit',e=>{e.preventDefault();if(!composing&&!e.isComposing&&form.reportValidity())op('edit',{body:body.value,nickname:name.value});});
     openPanel(card,form,name);
-   });group.append(edit);
+   });if(!row.hasPendingEdit)group.append(edit);
+   else card.append(el('p','修正版があります。編集する場合は承認待ち一覧で内容を確認してください。'));
    list.append(card);
   }
   const summary=matching.length?'表示 '+matching.length+'件'+(rows.length===50?'（取得上限50件）':''):q?'表示中の投稿に一致するものがありません。':stateLabel()+'のコメントはありません。';

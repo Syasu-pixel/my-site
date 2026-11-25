@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import {readFile,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {randomUUID} from 'node:crypto';
+import {createArticleRoute} from './article-route.mjs';
+import {makeArticlePostgresStore} from './article-postgres-store.mjs';
 import {createBoundModeration} from './moderation-supabase-boundary.mjs';
 
 const {PGlite}=await import(process.env.PGLITE_ENTRY??'@electric-sql/pglite');
@@ -49,7 +52,7 @@ const act=(action,id,rev,fields={})=>handler()(request('admin',{path,id,action,r
 const list=async(token,state)=>{const r=await handler()(request(token,null,state));assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'private, no-store');return (await r.json()).rows;};
 
 try {
- await db.exec(`create role anon nologin; create role authenticated nologin;
+ await db.exec(`create role anon nologin; create role authenticated nologin; create role dc_comment_gateway nologin;
  create schema auth;
  create function auth.jwt() returns jsonb language sql stable as $$
   select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb
@@ -58,6 +61,7 @@ try {
  create table public.ai_editorial_admins (user_id uuid primary key);`);
  await db.exec(await readFile(new URL('./moderation-postgres.review.sql',import.meta.url),'utf8'));
  await db.exec(await readFile(new URL('./public-comments-postgres.review.sql',import.meta.url),'utf8'));
+ await db.exec(await readFile(new URL('./article-write-postgres.review.sql',import.meta.url),'utf8'));
  await db.query('insert into public.ai_editorial_admins values($1),($2)',[actors.admin,actors.anonymous]);
  await db.query('insert into dc_comment_private.article(path,enabled) values($1,true),($2,false)',[path,otherPath]);
  for(const [id,p,parent,body] of [[ids.post,path,null,'合成の親'],[ids.reply,path,ids.post,'合成の返信'],[ids.disabled,otherPath,null,'非表示記事']]){
@@ -127,6 +131,57 @@ try {
  assert.equal(last.next,null);
  assert.equal((await handler()(request('reader',null,'pending',first.next))).status,403);
  ok('同時刻の51件を安定順でページ送り、最後の表示行が見送り後も移動可・非管理者は拒否');
+
+ const queryAs=role=>(sql,args)=>db.transaction(async tx=>{
+  if(role==='dc_comment_gateway')await tx.exec('set local role dc_comment_gateway');
+  else await claims(tx,undefined,'anon');
+  return tx.query(sql,args);
+ });
+ const store=makeArticlePostgresStore({gatewayQuery:queryAs('dc_comment_gateway'),publicQuery:queryAs('anon')});
+ const syntheticSessions=new Map([['fixture-author','50000004-aaaa-4311-8222-000000000004'],['fixture-other',actors.anonymous]]);
+ const readSession=request=>syntheticSessions.get(request.headers.get('cookie'))??null;
+ const articleRoute=createArticleRoute({origin,store,sessions:{read:readSession,ensure:async request=>({actor:readSession(request)})}});
+ const invoke=(action,cookie=null,body=null,url=path)=>articleRoute(new Request(origin+'/api/article-comments/'+action+'?article='+encodeURIComponent(url),{
+  method:body?'POST':'GET',body:body?JSON.stringify(body):undefined,
+  headers:{...(cookie?{cookie}:{}),...(body?{origin,'content-type':'application/json'}:{})}
+ }));
+ await assert.rejects(queryAs('anon')('select public.dc_comment_gateway_own($1,$2)',[path,actors.reader]),{code:'42501'});
+ await assert.rejects(queryAs('dc_comment_gateway')('select * from dc_comment_private.entry',[]),{code:'42501'});
+ const d={action:'post',body:'合成フォームからの初回投稿',nickname:'',consent:false,requestId:randomUUID()};
+ assert.equal((await invoke('post',null,d)).status,401);
+ assert.equal((await invoke('session','fixture-author',{},otherPath)).status,404);
+ assert.equal((await invoke('session','fixture-author',{})).status,200);
+ const firstPost=await invoke('post','fixture-author',d);assert.equal(firstPost.status,200);
+ assert.equal(firstPost.headers.get('cache-control'),'private, no-store');
+ const [own]=(await firstPost.json()).rows;
+ assert.equal(own.nickname,'匿名');assert.equal(own.body,d.body);assert.equal(own.state,'pending');
+ const duplicate=await invoke('post','fixture-author',d);
+ assert.deepEqual((await duplicate.json()).rows,[own]);
+ assert.equal((await invoke('post','fixture-author',{...d,body:'送信IDを使い回す別の本文'})).status,409);
+ assert.deepEqual((await (await invoke('own','fixture-other')).json()).rows,[]);
+ assert.deepEqual((await (await invoke('public')).json()).rows,[]);
+ const queued=(await list('admin','pending')).find(x=>x.id===own.id);assert.equal(queued.body,d.body);
+ assert.equal((await act('approve',own.id,queued.rev)).status,200);
+ assert.equal((await (await invoke('public','fixture-other')).json()).rows[0].body,d.body);
+ const edit={action:'edit',id:own.id,rev:queued.rev+1,requestId:randomUUID(),body:'合成フォームの修正版',nickname:'',consent:false};
+ assert.equal((await invoke('post','fixture-other',edit)).status,404);
+ assert.equal((await invoke('post','fixture-author',edit)).status,200);
+ assert.equal((await invoke('post','fixture-author',edit)).status,200);
+ assert.equal((await invoke('post','fixture-author',{...edit,requestId:randomUUID()})).status,409);
+ assert.equal((await (await invoke('public')).json()).rows[0].body,d.body);
+ assert.equal((await (await invoke('own','fixture-author')).json()).rows[0].body,edit.body);
+ const reply={action:'post',parent:own.id,body:'合成返信',nickname:'',requestId:randomUUID()};
+ const replySent=await invoke('post','fixture-other',reply);assert.equal(replySent.status,200);
+ const [ownReply]=(await replySent.json()).rows;assert.equal(ownReply.parent,own.id);
+ assert.equal((await invoke('post','fixture-other',{...reply,parent:ownReply.id,requestId:randomUUID()})).status,409);
+ assert.equal((await act('approve',ownReply.id,ownReply.rev)).status,200);
+ assert.deepEqual((await (await invoke('public')).json()).rows.map(x=>x.body),[d.body,reply.body]);
+ assert.equal((await act('hide',own.id,edit.rev+1)).status,200);
+ assert.deepEqual((await (await invoke('public')).json()).rows,[]);
+ for(let k=0;k<8;k++)assert.equal((await invoke('post','fixture-author',{...d,requestId:randomUUID()})).status,200);
+ assert.equal((await invoke('post','fixture-author',{...d,requestId:randomUUID()})).status,429);
+ assert.equal((await invoke('post','fixture-author',d)).status,200);
+ ok('同じPostgreSQLで記事フォーム→承認待ち→運営承認→読者公開→返信／非表示、編集の再送・所有権・投稿制限を確認');
 
  await db.query('delete from public.ai_editorial_admins where user_id=$1',[actors.admin]);
  assert.equal((await handler()(request('admin',null,'pending'))).status,403);

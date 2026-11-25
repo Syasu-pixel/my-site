@@ -6,7 +6,7 @@ export function makeArticleClient({path,fetcher=fetch,newId=()=>crypto.randomUUI
   let response;
   try {response=await fetcher(url(name),{credentials:'same-origin',cache:'no-store',redirect:'error',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});}
   catch {throw new Error('通信できませんでした。入力は残っています。');}
-  if(!response.ok)throw Object.assign(new Error(response.status===409?'内容が変わりました。入力を確認してください。':'コメントを処理できませんでした。入力は残っています。'),{status:response.status});
+  if(!response.ok)throw Object.assign(new Error(response.status===409?'内容が変わりました。入力を確認してください。':response.status===429?'続けて投稿できません。少し時間をおいてお試しください。入力は残っています。':'コメントを処理できませんでした。入力は残っています。'),{status:response.status});
   return response.json();
  }
  let bootstrap;
@@ -81,7 +81,7 @@ export function mountArticleComments({root,client,doc=document}){
   const data={body:text.value,nickname:nick.value,consent:consent.checked};
   const edit=draftMode?.edit;
   try{
-   const rows=await client.submit(edit?{...data,action:'edit',id:draftMode.id}:{...data,action:'post',requestId:requestId??=client.nextId(),parent:draftMode?.parent});
+   const rows=await client.submit(edit?{...data,action:'edit',id:draftMode.id,rev:draftMode.rev,requestId:requestId??=client.nextId()}:{...data,action:'post',requestId:requestId??=client.nextId(),parent:draftMode?.parent});
    render(pending,rows,true);form.reset();baseline=fields();requestId=undefined;draftMode=null;cancel.hidden=true;mode.textContent='コメントを書く';
    status.textContent='受け付けました。運営の承認後に公開されます。';
   }catch(e){status.textContent=e.message;}

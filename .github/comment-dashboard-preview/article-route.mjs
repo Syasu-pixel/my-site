@@ -43,7 +43,7 @@ export function createArticleRoute({origin,sessions,store}={}){
    else await store.editOwn(path,d.id,actor,d);
    return output(200,{rows:await store.ownFor(path,actor)});
   }catch(e){
-   const code=[400,401,403,404,405,409,413].includes(e?.status??e)?e?.status??e:503;
+   const code=[400,401,403,404,405,409,413,429].includes(e?.status??e)?e?.status??e:503;
    return output(code,{error:code===409?'内容が変わりました。もう一度確認してください。':'コメントを処理できませんでした。'});
   }
  };

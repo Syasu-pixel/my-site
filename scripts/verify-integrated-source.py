@@ -4,6 +4,21 @@ ROOT=Path(__file__).resolve().parent.parent;PKG=ROOT/'.github/article-components
 sys.path.insert(0,str(PKG/'sidebar'));from html_spans import Parser,text
 def read(p):return p.read_bytes().decode('utf-8')
 def digest(s):return hashlib.sha256(s.encode()).hexdigest()
+def verify_admin_mobile_navigation(page, source, prior_blob):
+ # Accept only the adopted five-tab mobile navigation. Restore the old
+ # markup and require the rest of the management page to remain identical.
+ pages={'admin/index.html':'./','admin/cases.html':'./cases.html'}
+ active=pages[page]
+ links=(('./','記事評価'),('./cases.html','案件管理'),('./search.html','検索分析'),('./articles.html','記事管理'),('./health.html','サイト異常'))
+ def nav(entries,current_attrs):
+  return ('<nav class="mobile-admin-nav" aria-label="スマホ管理メニュー">'+
+          ''.join('<a'+(current_attrs if href==active else '')+' href="'+href+'">'+label+'</a>' for href,label in entries)+'</nav>').encode('utf-8')
+ current=nav(links,' class="active" aria-current="page"')
+ prior=nav(links[:3],' class="active"')
+ if source.count(current)!=1:raise ValueError('Approved admin mobile nav missing or repeated: '+page)
+ original=source.replace(current,prior,1)
+ restored=hashlib.sha1(b'blob '+str(len(original)).encode()+b'\0'+original).hexdigest()
+ if restored!=prior_blob:raise ValueError('Unapproved non-navigation admin change: '+page)
 def raw(s,n):return s[n.start:n.end]
 def inner(s,n):return s[n.open_end:s.rfind('</'+n.tag,n.start,n.end)]
 def end_grid(n):return (n.has('related-grid') or n.has('internal-grid') and n.ancestor(lambda a:a.attrs.get('id') in ['related','related-career'])) and not n.ancestor(lambda a:a.tag=='aside')
@@ -59,7 +74,9 @@ for item in inventory:
   # Keep the historical inventory immutable. For articles only, verify that
   # removing one exact footer-only profile link restores the recorded Git blob.
   if not article:
-   if page=='contact/index.html':
+   if page in ('admin/index.html','admin/cases.html'):
+    verify_admin_mobile_navigation(page,source_bytes,item['gitBlob'])
+   elif page=='contact/index.html':
     html=source_bytes.decode('utf-8')
     if 'id="generalConsultationForm"' not in html or 'contact-confidentiality-notice' not in html or 'id="zip-input"' in html or 'id="consultation-paused-title"' in html:
      raise ValueError('Ordinary contact contract invalid: '+page)

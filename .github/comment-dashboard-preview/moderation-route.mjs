@@ -4,7 +4,7 @@ const H={'Cache-Control':'private, no-store','Content-Type':'application/json; c
 const reply=(status,value)=>new Response(JSON.stringify(value),{status,headers:H});
 const article=/^\/articles\/[a-z0-9-]+\.html$/;
 const key=/^[a-zA-Z0-9_-]{1,80}$/;
-async function body(request){
+export async function parseJSON(request){
  const rd=request.body?.getReader(); if(!rd)throw 400;
  let size=0, content='';
  const decoder=new TextDecoder('utf-8',{fatal:true});
@@ -41,7 +41,7 @@ export function createModerationRoute({origin,identity,moderators,store}={}){
     if(!Array.isArray(rows)||rows.length>50||rows.some(r=>r.state!==state))throw 503;
     return reply(200,{rows:rows.map(present)});
    }
-   const d=await body(request);
+   const d=await parseJSON(request);
    if(!d||typeof d.path!=='string'||!article.test(d.path)||typeof d.id!=='string'||!key.test(d.id)||!['approve','decline','hide','edit'].includes(d.action))throw 400;
    const action={path:d.path,id:d.id,action:d.action,adminId:actor.id};
    if(d.action==='approve'||d.action==='decline'){

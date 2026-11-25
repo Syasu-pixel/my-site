@@ -5,11 +5,11 @@ sys.path.insert(0,str(PKG/'sidebar'));from html_spans import Parser,text
 def read(p):return p.read_bytes().decode('utf-8')
 def digest(s):return hashlib.sha256(s.encode()).hexdigest()
 def verify_admin_mobile_navigation(page, source, prior_blob):
- # Accept only the adopted five-tab mobile navigation. Restore the old
- # markup and require the rest of the management page to remain identical.
+ # Restore only the exact adopted admin links for the immutable page check.
+ # The sixth tab appears on both desktop and mobile.
  pages={'admin/index.html':'./','admin/cases.html':'./cases.html'}
  active=pages[page]
- links=(('./','記事評価'),('./cases.html','案件管理'),('./search.html','検索分析'),('./articles.html','記事管理'),('./health.html','サイト異常'))
+ links=(('./','記事評価'),('./cases.html','案件管理'),('./search.html','検索分析'),('./articles.html','記事管理'),('./health.html','サイト異常'),('./comments.html','コメント管理'))
  def nav(entries,current_attrs):
   return ('<nav class="mobile-admin-nav" aria-label="スマホ管理メニュー">'+
           ''.join('<a'+(current_attrs if href==active else '')+' href="'+href+'">'+label+'</a>' for href,label in entries)+'</nav>').encode('utf-8')
@@ -17,6 +17,9 @@ def verify_admin_mobile_navigation(page, source, prior_blob):
  prior=nav(links[:3],' class="active"')
  if source.count(current)!=1:raise ValueError('Approved admin mobile nav missing or repeated: '+page)
  original=source.replace(current,prior,1)
+ desktop=('        <a href="./health.html">サイト異常</a><a href="./comments.html">コメント管理</a>').encode('utf-8')
+ if original.count(desktop)!=1:raise ValueError('Approved desktop comments link missing or repeated: '+page)
+ original=original.replace(desktop,('        <a href="./health.html">サイト異常</a>').encode('utf-8'),1)
  restored=hashlib.sha1(b'blob '+str(len(original)).encode()+b'\0'+original).hexdigest()
  if restored!=prior_blob:raise ValueError('Unapproved non-navigation admin change: '+page)
 def raw(s,n):return s[n.start:n.end]

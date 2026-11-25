@@ -61,6 +61,15 @@ for path,original in before['files'].items():
  normal=original.replace('\r\n','\n').replace('\r','\n');converted=rewrite(normal);expected=converted if converted!=normal else original
  actual=p.read_bytes().decode('utf-8');after[path]=actual
  if actual!=expected:errors.append('Change beyond permitted image mapping: '+path)
+# Keep the paused series out of the homepage, including client-side markup.
+# The article files are checked/removed separately by the Pages build.
+homepage=after.get('index.html','')
+if homepage:
+ home_scripts={p for p in refs('index.html',homepage) if p.endswith('.js')}
+ home_parts=[('index.html',homepage),*((p,after.get(p,'')) for p in sorted(home_scripts))]
+ for path,text in home_parts:
+  if re.search(r'plc-drilling-line-design-project-0[123]\.html|\bproject-series-entry\b',text):
+   errors.append('Paused PLC series entry found in homepage source: '+path)
 old_missing={(p,rewrite(t)) for p,t in before['existingMissingResources']};new_missing=set(missing(after))-old_missing
 errors += ['Missing standalone resource: '+p+' -> '+t for p,t in sorted(new_missing)]
 feedback_unchanged=sha((site/'assets/js/article-feedback.js').read_bytes())==before['feedbackSha256']

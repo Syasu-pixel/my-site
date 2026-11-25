@@ -67,8 +67,13 @@ homepage=after.get('index.html','')
 if homepage:
  home_scripts={p for p in refs('index.html',homepage) if p.endswith('.js')}
  home_parts=[('index.html',homepage),*((p,after.get(p,'')) for p in sorted(home_scripts))]
+ paused_link=re.compile(r'plc-drilling-line-design-project-0[123]\.html')
+ home_doc=html.fromstring(homepage)
+ if home_doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," project-series-entry ")]'):
+  errors.append('Paused PLC series card found in homepage markup: index.html')
  for path,text in home_parts:
-  if re.search(r'plc-drilling-line-design-project-0[123]\.html|\bproject-series-entry\b',text):
+  # Existing selectors may remain in CSS without creating a card.
+  if paused_link.search(text):
    errors.append('Paused PLC series entry found in homepage source: '+path)
 old_missing={(p,rewrite(t)) for p,t in before['existingMissingResources']};new_missing=set(missing(after))-old_missing
 errors += ['Missing standalone resource: '+p+' -> '+t for p,t in sorted(new_missing)]

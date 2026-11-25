@@ -143,6 +143,14 @@ jobs:
           echo 'Before image optimization:'
           du -sh _site _site/assets/images
 
+      # Only build an inert sidecar from the Pages staging copy. Never deploy it.
+      - name: Rehearse Japanese article comment placement
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f .github/comment-dashboard-preview/build-comment-article-candidate.mjs ]; then
+            node .github/comment-dashboard-preview/build-comment-article-candidate.mjs _site .github/site-shells/manifest.json "${RUNNER_TEMP}/comment-article-review"
+          fi
+
       - name: Optimize published images to WebP
         run: |
           sudo apt-get update -qq

@@ -1,12 +1,19 @@
 // Plug in only after deployment/authorization review. This module does not start or expose anything.
 import {makeClient,mountDashboard} from './dashboard-client.mjs';
-export function mountWithDashboardAuth({root,supabase}){
+export function mountWithDashboardAuth({root,supabase,articleTitle,doc=document,fetcher=fetch}){
  // getSession is used only to transport a short-lived token, never as proof of administrator access.
- const panel=mountDashboard({root,client:makeClient({getToken:async()=>{
+ const panel=mountDashboard({root,doc,articleTitle,client:makeClient({fetcher,getToken:async()=>{
   const {data,error}=await supabase.auth.getSession();
   return error?null:data?.session?.access_token??null;
  }})});
- const {data:{subscription}}=supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')panel.clear();});
+ let activeUser;
+ const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
+  const nextUser=event==='SIGNED_OUT'?null:session?.user?.id??null;
+  // Clear the DOM synchronously; an earlier request may still be in flight.
+  // Same-user token refresh does not discard a moderator's open draft.
+  if(event==='SIGNED_OUT'||(activeUser!==undefined&&activeUser!==nextUser))panel.clear();
+  activeUser=nextUser;
+ });
  return {...panel,dispose:()=>{subscription.unsubscribe();panel.clear();}};
 }
 export function makeVerifiedIdentity({supabase}){

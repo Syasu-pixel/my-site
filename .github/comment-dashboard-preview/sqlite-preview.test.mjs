@@ -21,8 +21,8 @@ test('store persists across connections, keeps pending out of public data, and r
  const id=post(first);
  assert.equal(post(second),id);
  assert.throws(()=>post(second,{body:'変更して同じキー'}),{status:409});
- assert.deepEqual(second.publicFor(path),[]);assert.deepEqual(second.pendingFor(path,'other'),[]);
- assert.equal(second.pendingFor(path,'author')[0].body,'架空の本文');
+ assert.deepEqual(second.publicFor(path),[]);assert.deepEqual(second.ownFor(path,'other'),[]);
+ assert.equal(second.ownFor(path,'author')[0].body,'架空の本文');
  const a=routeFor(first),b=routeFor(second);
  assert.equal((await call(a,'another-reader')).status,403);
  const rr=await call(a,'admin');const [r]=(await rr.json()).rows;

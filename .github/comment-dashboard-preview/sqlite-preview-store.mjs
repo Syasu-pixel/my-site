@@ -59,9 +59,9 @@ export function openPreviewStore({file,eligible,operatorIds}){
    const rows=all('SELECT c.* FROM comment c LEFT JOIN comment p ON p.id=c.parent AND p.path=c.path WHERE c.path=? AND c.hidden=0 AND c.published IS NOT NULL AND (c.parent IS NULL OR (p.hidden=0 AND p.published IS NOT NULL)) ORDER BY c.rowid',path);
    return rows.map(r=>{const {state,rev,mayFeature,...safe}=output(r,'published');return safe;});
   },
-  pendingFor:(path,actor)=>{
+  ownFor:(path,actor)=>{
    pathGuard(path);actorGuard(actor);
-   return all('SELECT * FROM comment WHERE path=? AND author=? AND hidden=0 AND pending IS NOT NULL ORDER BY rowid',path,actor).map(r=>output(r,'pending'));
+   return all('SELECT * FROM comment WHERE path=? AND author=? AND hidden=0 ORDER BY rowid',path,actor).flatMap(r=>r.pending?[output(r,'pending')]:visible(r)?[output(r,'published')]:[]);
   },
   list:({adminId,state,limit})=>{
    adminGuard(adminId);if(!['pending','published'].includes(state)||!Number.isInteger(limit)||limit<1||limit>50)fail(400);

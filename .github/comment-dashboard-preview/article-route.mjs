@@ -11,7 +11,7 @@ function output(status,data,privateData=true,cookie=null){
 export function createArticleRoute({origin,sessions,store}={}){
  return async request=>{
   try{
-   if(!origin||!sessions?.read||!sessions?.ensure||!store?.publicFor||!store?.pendingFor||!store?.post||!store?.editOwn||!store?.isEligible)throw 503;
+   if(!origin||!sessions?.read||!sessions?.ensure||!store?.publicFor||!store?.ownFor||!store?.post||!store?.editOwn||!store?.isEligible)throw 503;
    const u=new URL(request.url),path=u.searchParams.get('article');
    if(u.origin!==origin||!routes.has(u.pathname)||typeof path!=='string'||!guard.test(path))throw 404;
    if(u.pathname==='/api/article-comments/public'){
@@ -21,7 +21,7 @@ export function createArticleRoute({origin,sessions,store}={}){
    if(u.pathname==='/api/article-comments/own'){
     if(request.method!=='GET')throw 405;
     const actor=await sessions.read(request);
-    return output(200,{rows:actor?await store.pendingFor(path,actor):[]});
+    return output(200,{rows:actor?await store.ownFor(path,actor):[]});
    }
    if(request.method!=='POST')throw 405;
    if(request.headers.get('origin')!==origin||!/^application\/json(?:;|$)/i.test(request.headers.get('content-type')??''))throw 403;
@@ -41,7 +41,7 @@ export function createArticleRoute({origin,sessions,store}={}){
    if(!actor)throw 401;
    if(d.action==='post')await store.post(path,actor,d);
    else await store.editOwn(path,d.id,actor,d);
-   return output(200,{rows:await store.pendingFor(path,actor)});
+   return output(200,{rows:await store.ownFor(path,actor)});
   }catch(e){
    const code=[400,401,403,404,405,409,413].includes(e?.status??e)?e?.status??e:503;
    return output(code,{error:code===409?'内容が変わりました。もう一度確認してください。':'コメントを処理できませんでした。'});

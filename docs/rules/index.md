@@ -247,6 +247,7 @@
 | [docs/reference-notes/field-knowledge-round17-2026-11-08.md](../reference-notes/field-knowledge-round17-2026-11-08.md) — 現場知識調査 第17回 — 世界の故障事例・暗黙知・旧Bの再検証 | 第17回の原典本文・故障経緯・工具適合・A/B/CとJP判定・旧Bの追補・記事別採否を参照する。掲載承認や実機実証ではない。 |
 | [docs/reference-notes/field-knowledge-round18-2026-11-08.md](../reference-notes/field-knowledge-round18-2026-11-08.md) — 現場知識調査 第18回 — 空圧・油圧・搬送同期・低速軸受と再発防止 | 第18回の原典本文・診断過程・測定条件・A/B/CとJP判定・旧B再検証・記事別採否を参照する。掲載承認・実機実証・監視設定ではない。 |
 | [docs/reference-notes/field-knowledge-round19-2026-11-08.md](../reference-notes/field-knowledge-round19-2026-11-08.md) — 第19回：B判定再検証・国内メーカー型式別条件 | FK10〜FK18の現行B集計・優先度・型式別条件・再検証履歴を参照する。原典原因の実証や掲載承認とは区別する。 |
+| [docs/reference-notes/field-knowledge-weekly-2026-11-11.md](../reference-notes/field-knowledge-weekly-2026-11-11.md) — 週次現場知識・B判定追補（2026-11-11） | FK10-001/004・FK14-014の第1週再検証と、FK12-002・FK17-006・現場呼称「ワゴ／ワゴウ」の第2週追補を参照する。旧B判定維持、適用条件・未確認事項を区別し、記事掲載は未承認。 第3週のFK17-008・FK18-004、H8PS・F1Jの照合と未処理候補も参照する。 |
 | [docs/reference-notes/interlock-basic.md](../reference-notes/interlock-basic.md) — インターロック回路 記事刷新の根拠ノート | インターロック回路記事の技術根拠・画像・安全機能との区別を確認する。 |
 | [docs/reference-notes/mega.md](../reference-notes/mega.md) — mega 公式参照メモ | メガー記事の根拠・安全条件・機種差・画像の採否を確認する。 |
 | [docs/reference-notes/alternate-operation-circuit-basic.md](../reference-notes/alternate-operation-circuit-basic.md) — 交互運転回路の技術参照メモ | 交互運転回路の記事更新・技術根拠・画像説明を確認する。 |

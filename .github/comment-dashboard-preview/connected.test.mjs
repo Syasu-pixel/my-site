@@ -96,3 +96,29 @@ test('responsive shell has 6 matching destinations and a single selected tab in 
  assert.match(css,/\.main>\.mobile-admin-nav a\{[^}]*min-height:44px/);
  assert.match(css,/@media\(max-width:400px\)\s*{\s*\.comment-actions,\.comment-controls\{display:grid;grid-template-columns:minmax\(0,1fr\)/);
 });
+test('the dashboard clears old queues even if a pending fetch resolves after sign-out',async()=>{
+ const {mountDashboard}=await import('./dashboard-client.mjs');
+ function makeElement(tag){
+  return {tag,textContent:'',children:[],events:{},append(...args){this.children.push(...args);},replaceChildren(...args){this.children=args;},addEventListener(name,fn){this.events[name]=fn;},querySelectorAll(q){return this.children.flatMap(e=>[...(e.tag===q?[e]:[]),...e.querySelectorAll(q)]);},setAttribute(){}};
+ }
+ const list=makeElement('div'),status=makeElement('p'),select=makeElement('select'),refresh=makeElement('button');
+ const slots={'[data-comments-list]':list,'[data-comments-status]':status,'select':select,'[data-comments-refresh]':refresh};
+ let finish;
+ const dashboard=mountDashboard({root:{querySelector:key=>slots[key]},doc:{createElement:makeElement},client:{list:()=>new Promise(res=>{finish=res;})}});
+ const inflight=dashboard.refresh();dashboard.clear();
+ finish([{nickname:'合成A',body:'ログアウト後に表示しない',path,state:'pending',id:'1',rev:1}]);
+ await inflight;
+ assert.deepEqual(list.children,[]);
+ assert.equal(status.textContent,'ログインしてください。');
+});
+test('operator registry takes only the verified identity and refuses unknown entries and backend errors',async()=>{
+ const {makeEditorialModeratorRegistry}=await import('./deployment-boundary.mjs');
+ const id='711874f9-cc35-471d-b3a2-47badecfcab5';
+ let rows, calls=0;
+ const registryClient={from(name){calls++;assert.equal(name,'ai_editorial_admins');return {select(cols){assert.equal(cols,'user_id');return {eq(k,v){assert.equal(k,'user_id');assert.equal(v,id);return {maybeSingle:async()=>rows};}};}};}};
+ const registry=makeEditorialModeratorRegistry({registryClient});
+ assert.equal(await registry.has('operator'),false);assert.equal(calls,0);
+ rows={data:null};assert.equal(await registry.has(id),false);
+ rows={data:{user_id:id}};assert.equal(await registry.has(id),true);
+ rows={error:'unavailable'};await assert.rejects(registry.has(id),/registry-unavailable/);
+});

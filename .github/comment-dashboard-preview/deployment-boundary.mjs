@@ -16,3 +16,14 @@ export function makeVerifiedIdentity({supabase}){
   return !error&&user&&typeof user.id==='string'&&user.is_anonymous===false?{id:user.id,anonymous:false}:null;
  }};
 }
+
+// A restricted server client with read access to the existing operator registry is required.
+// Do not pass this client or its credential to the browser. A failed registry lookup fails closed.
+export function makeEditorialModeratorRegistry({registryClient}){
+ return {has:async id=>{
+  if(!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id))return false;
+  const {data,error}=await registryClient.from('ai_editorial_admins').select('user_id').eq('user_id',id).maybeSingle();
+  if(error)throw new Error('registry-unavailable');
+  return data?.user_id===id;
+ }};
+}

@@ -25,6 +25,12 @@
 
 ## 改善進捗
 
+- [x] `articles/ladder-reading.html` — ラダー図の読み方。[PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)、2026-11-25本番確認済み。完成・凍結。最終内容更新2026-11-24、公式資料確認2026-11-24、90日基準の最短再評価2027-02-22。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/ratchet-wrench.html` — ラチェットレンチ。[PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)、2026-11-25本番確認済み。完成・凍結。最終内容更新2026-11-25、公式資料確認2026-11-24、90日基準の最短再評価2027-02-23。詳細は[統合更新台帳](article-refresh-log.md)。
+
+- [x] `articles/safety-door-switch-interlock-basic.html` — 安全ドアスイッチ。[PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)、2026-11-25本番確認済み。完成・凍結。最終内容更新2026-11-25、公式資料確認2026-11-24、90日基準の最短再評価2027-02-23。詳細は[統合更新台帳](article-refresh-log.md)。
+
 - [x] `articles/air-filter-regulator-lubricator-basic.html` — FRLユニット。[PR #2032](https://github.com/Syasu-pixel/my-site/pull/2032)、2026-11-22本番確認済み。完成・凍結。最終内容更新2026-11-22、公式資料確認2026-11-22、90日基準の最短再評価2027-02-20。詳細は[統合更新台帳](article-refresh-log.md)。
 
 - [x] `articles/air-valve-basic.html` — エアバルブ。[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)、2026-11-23本番確認済み。完成・凍結。最終内容更新2026-11-23、公式資料確認2026-11-23、90日基準の最短再評価2027-02-21。詳細は[統合更新台帳](article-refresh-log.md)。

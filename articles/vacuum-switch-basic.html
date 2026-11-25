@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>真空スイッチとは？吸着確認の見方を初心者向けに整理</title>
-  <meta name="description" content="真空スイッチとは何かを初心者向けにやさしく整理。吸着パッドでワークを吸えているか確認する考え方、負圧の見方、ON/OFF出力、PLC入力とのつながり、吸着不良時の確認ポイントまで現場目線で解説します。">
+  <title>真空スイッチとは？吸着確認・負圧とON/OFFの見方</title>
+  <meta name="description" content="真空スイッチとは。負圧の読み方、ONとOFFの境目がずれる理由、吸着できない場合と吸着していてもPLCに信号が入らない場合の見分け方を図で解説します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/vacuum-switch-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/vacuum-switch-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/vacuum-switch-basic.html">
@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://denkicontrol.com/articles/vacuum-switch-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/vacuum-switch-basic/vacuum-switch-basic-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="真空スイッチとは？吸着確認の見方を初心者向けに整理">
+  <meta name="twitter:title" content="真空スイッチとは？吸着確認・負圧とON/OFFの見方">
   <meta name="twitter:description" content="吸着パッドでワークを吸えているか確認する考え方、負圧の見方、PLC入力とのつながりを整理します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/vacuum-switch-basic/vacuum-switch-basic-ogp.png">
   <meta name="theme-color" content="#f8fbff">
@@ -1549,14 +1549,16 @@
       <section class="article-hero" id="top">
         <div class="article-hero-copy">
           <span class="hero-label">制御の基礎</span>
-          <h1>真空スイッチとは？吸着確認の見方を初心者向けに整理</h1>
-          <p class="hero-lead">真空スイッチは、吸着パッドでワークを吸えているか確認するために使う機器です。負圧の見方、設定値でON/OFFする考え方、吸着不良時の確認ポイントを整理します。</p>
+          <h1>真空スイッチとは？吸着確認・負圧とON/OFFの見方</h1>
+          <p class="hero-lead">真空スイッチは、吸着回路の負圧を測り、決められた条件で信号を出す機器です。「吸着できない」と「吸着しているように見えても信号がない」を分けて、表示値の読み方を整理します。</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#overview">全体像を見る</a>
-            <a class="btn btn-secondary" href="#flow">動作の流れを見る</a>
+            <a class="btn btn-secondary" href="#flow">ON・OFFの図を見る</a>
           </div>
         </div>
       </section>
+
+      <p class="article-updated">最終内容更新：<time datetime="2026-11-20">2026年11月20日</time></p>
 
       <section class="top-summary" aria-label="この記事の要約">
         <article class="summary-card summary-card--fit">
@@ -1580,9 +1582,9 @@
         <article class="summary-card summary-card--conclusion">
           <h2>先に結論</h2>
           <ul>
-            <li>真空スイッチは負圧を見て吸着状態を判断する機器</li>
-            <li>設定値に達するとON/OFF出力でPLCへ信号を送れる</li>
-            <li>パッド摩耗・エア漏れ・ワーク表面・設定値を分けて見る</li>
+            <li>負圧の表示は、−60 kPaのほうが−40 kPaより真空が強い状態です。</li>
+            <li>ヒステリシスは、ONになる点とOFFに戻る点の差です。</li>
+            <li>原因を探すときは、負圧 → スイッチ出力 → PLC入力の順に分けます。</li>
           </ul>
         </article>
       </section>
@@ -1591,10 +1593,11 @@
         <h2>この記事で分かること</h2>
         <div class="mini-toc">
           <a href="#overview">真空スイッチの全体像</a>
-          <a href="#basic">基本の考え方</a>
-          <a href="#flow">動作の流れ</a>
+          <a href="#basic">負圧の読み方</a>
+          <a href="#flow">ON・OFFと応差</a>
           <a href="#usecase">よく使う場面</a>
           <a href="#checkpoints">確認ポイント</a>
+          <a href="#official-sources">メーカー公式資料</a>
           <a href="#related">あわせて読みたい記事</a>
         </div>
       </section>
@@ -1603,9 +1606,9 @@
         <article class="main-column">
           <section class="section-card" id="overview">
             <h2>真空スイッチの全体像</h2>
-            <p>真空スイッチは、吸着パッドや真空回路で発生している<span class="mark">負圧を監視して、ワークを吸着できているか確認する</span>ための機器です。</p>
-            <p>吸着搬送では、パッドがワークに当たっているだけでは十分ではありません。実際に負圧が立ち上がり、設定値に達しているかを見ることで、吸着できたかどうかを判断しやすくなります。</p>
-            <p>PLCでは、真空スイッチのON/OFF出力を入力として受け取り、吸着完了、搬送許可、吸着不良アラームなどの条件に使います。</p>
+            <p>真空スイッチは、吸着回路の測定点で負圧を読み、設定条件に応じてON／OFF信号を出します。<span class="mark">真空を作るのは真空発生器、真空を検出して判断信号を出すのは真空スイッチ</span>です。一体型でも、役割は分けて考えます。</p>
+            <p>吸着搬送では、パッドがワークに当たっているだけでは十分ではありません。測定点の負圧がどう変わり、判定条件を満たしたかを見ます。表示値だけで、ワークの保持力や搬送の安全を保証することはできません。</p>
+            <p>PLCは真空スイッチの出力を入力として受け取り、通常制御の吸着確認や異常判定に使います。負圧の表示・スイッチの出力・PLCの入力は、同じタイミングの別々の情報です。</p>
 
             <figure class="article-figure">
               <img src="../assets/images/vacuum-switch-basic/vacuum-switch-basic-overview.png" alt="真空スイッチの全体像。真空発生器、吸着パッド、ワーク、真空スイッチ、PLC入力までの流れ">
@@ -1634,158 +1637,51 @@
           </section>
 
           <section class="section-card" id="basic">
-            <h2>真空スイッチの基本の考え方</h2>
-            <p>真空スイッチで見るポイントは、<span class="mark">負圧・設定値・出力信号</span>です。</p>
-            <p>真空発生器が動くと、配管内の空気が吸引され、吸着パッド側に負圧が発生します。その負圧が設定値に達すると、真空スイッチの出力がONになります。</p>
-            <p>設備側では、このON信号を「吸着できた」と判断する条件に使います。反対に、設定値に達しない場合は、吸着不良やワークなし、エア漏れなどを疑います。</p>
-
-            <div class="key-highlight">
-              <h3>真空スイッチは「吸着確認」のために見る</h3>
-              <p>真空スイッチは、単に負圧の数値を見るだけではなく、ワークを持ち上げてもよい状態かを判断するために使います。搬送前の確認信号として考えると分かりやすいです。</p>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>見るもの</th>
-                    <th>考え方</th>
-                    <th>現場での確認</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="cell-blue">真空発生器</td>
-                    <td>圧縮エアで負圧を作る</td>
-                    <td>供給エア、フィルタ、エジェクタの状態を見る</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-green">吸着パッド</td>
-                    <td>ワークに当たって吸着する</td>
-                    <td>摩耗、硬化、ひび割れ、位置ズレを見る</td>
-                  </tr>
-                  <tr>
-                    <td>真空スイッチ</td>
-                    <td>負圧が設定値に達したかを見る</td>
-                    <td>設定値、表示値、ON/OFF出力を確認する</td>
-                  </tr>
-                  <tr>
-                    <td class="cell-orange">PLC入力</td>
-                    <td>吸着確認信号として使う</td>
-                    <td>入力ランプやデバイス状態を確認する</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <h2>負圧の読み方：−60 kPaは−40 kPaより真空が強い</h2>
+            <p>この記事では、大気圧を0 kPaとするゲージ圧で説明します。大気圧より低くなると表示はマイナスになります。<span class="mark">−60 kPaは−40 kPaより数値として小さく、真空としては強い</span>状態です。0 kPaに近づくほど真空は弱くなります。単位や表示方式が異なる場合は、符号だけで比べません。</p>
+            <div class="key-highlight"><h3>型式例：SMC ZSE20（真空圧用）</h3><p>SMCのZSE20の定格圧力範囲は0.0～−101.0 kPaです。ZSE20F（連成圧）やISE20（正圧）は別仕様です。ZSE20ではOUT1の出力モード・正転／反転・応差を取扱説明書で確認できます。出力表示や配線方式は型式や設定を照合してください。</p></div>
           </section>
 
           <section class="section-card" id="flow">
-            <h2>真空スイッチの動作の流れ</h2>
-            <p>真空スイッチは、真空発生器が吸引し、吸着パッドがワークに当たり、負圧が設定値に達した時に出力がONになる流れで考えると分かりやすいです。</p>
-
+            <h2>ONとOFFは同じ点ではない：ヒステリシス（応差）</h2>
+            <p>真空が強くなる側でONになり、弱くなる側でOFFになるように考えた説明例です。吸着へ向かって表示が−60 kPaに達するとON。いったんONになった後は−55 kPaに戻ってもONを保ち、−50 kPaに戻るところでOFFとします。</p>
             <figure class="article-figure">
-              <img src="../assets/images/vacuum-switch-basic/vacuum-switch-basic-operation-flow.png" alt="真空スイッチの動作の流れ。真空発生器が吸引し、パッドがワークに当たり、負圧が設定値に達し、PLCへ信号を送る流れ">
-              <figcaption>吸着が進んで負圧が設定値に達すると、真空スイッチの出力がONになり、PLCへ吸着確認信号を送ります。</figcaption>
+              <img src="../assets/images/vacuum-switch-basic/vacuum-switch-basic-hysteresis-20261120.webp" width="1200" height="835" alt="時間に対する負圧の波形。0から負圧が強くなり−60 kPaでOUT1がON、弱くなって−50 kPaでOFF。2点の差は10 kPa">
+              <figcaption>−60 kPaと−50 kPaの差、10 kPaが応差です。設定値・応差ともに説明用であり、メーカー既定値や実機の推奨値ではありません。</figcaption>
             </figure>
-
-            <p>たとえば、ワークを吸着してから搬送する装置では、真空スイッチのONを確認してから次の動作へ進むようにします。</p>
-            <p>もしワークがない、パッドがズレている、エア漏れしている、ワーク表面が粗いといった状態では、負圧が設定値まで上がらず、出力がONにならないことがあります。</p>
-
-            <div class="note-box">
-              <div class="caution-character-box">
-                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-guide.png" alt="先輩のちびキャラ">
-                <div>
-                  <h3>吸着確認は「動作許可」の前に見る</h3>
-                  <p>吸着できていないまま搬送すると、ワーク落下や位置ズレにつながります。真空スイッチの信号は、次工程へ進めるための確認条件として見ると分かりやすいです。</p>
-                </div>
-              </div>
-            </div>
+            <p>同じ−55 kPaでも、真空を作り始めた途中ではOFF、すでにONになった後に弱くなった途中ではONです。<strong>表示値だけでは出力を決められない範囲がある</strong>のがポイントです。測定値が境目付近でわずかに変動しても出力が頻繁に切り替わりにくくなります。</p>
+            <div class="note-box"><h3>出力が逆に見える場合</h3><p>反転出力や設定範囲内を判定するウィンドウコンパレータでは、この例とON／OFF条件が異なります。遅れ時間がある場合は表示と出力の時刻もずれます。型式・モード・前後の変化をひと組で確認します。</p></div>
           </section>
 
           <section class="section-card" id="usecase">
-            <h2>現場でよく使う場面</h2>
-            <p>真空スイッチは、吸着パッドでワークを持つ装置や、負圧を使ってワークの有無を確認する場面でよく使います。</p>
-            <p>特に、軽いワーク、板材、箱、樹脂部品、金属プレートなどを吸着して搬送する設備では、吸着確認が重要になります。</p>
-
-            <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>吸着搬送の確認</h3>
-                <p>ワークを持ち上げる前に、真空圧が設定値に達しているか確認します。</p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>ワーク有無の確認</h3>
-                <p>パッドがワークに当たり、負圧が立ち上がることでワーク有無を判断することがあります。</p>
-              </div>
-
-              <div class="check-item">
-                <h3>吸着不良アラーム</h3>
-                <p>負圧が設定値に達しない場合、吸着不良として設備を止めたり、警報を出したりします。</p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>搬送前のインターロック</h3>
-                <p>吸着確認が入ってからシリンダやロボットを動かす条件として使います。</p>
-              </div>
-            </div>
-
-            <div class="field-highlight">
-              <h3>ワーク条件によって安定性が変わる</h3>
-              <p>同じ真空スイッチでも、ワーク表面の粗さ、反り、穴あき、多孔質、汚れなどで吸着の安定性は変わります。電気側だけでなく、パッドとワークの状態も一緒に見るのが大切です。</p>
-            </div>
+            <h2>吸着確認で分かること・分からないこと</h2>
+            <p>吸着搬送では、負圧を吸着確認や吸着不良アラームの条件に使います。ただし、パッドがワークに触れているだけでも、スイッチがONしただけでも、安定して保持できるとは限りません。真空を測る位置が吸着点と異なる場合もあり、測定点の値をそのまま保持力とは見なしません。</p>
+            <p>供給エアから負圧を作る仕組みや機器側の役割は、<a href="vacuum-ejector-basic.html">真空発生器（エジェクタ）の基本</a>で別に解説しています。この記事の焦点は、作った真空をどう検出し、信号としてどこまで来ているかです。</p>
           </section>
 
           <section class="section-card" id="checkpoints">
-            <h2>真空スイッチがうまく入らない時の確認ポイント</h2>
-            <p>真空スイッチが思った通りにONしない時は、スイッチ本体だけでなく、吸着パッド、エア漏れ、ワーク表面、設定値、供給エアを分けて確認します。</p>
-            <p>「表示値が上がらない」「吸っているように見えるのに信号が入らない」「時々落ちる」といった場合は、原因を一つずつ切り分けると追いやすいです。</p>
-
+            <h2>吸着しない／吸着していても信号がない場合の切り分け</h2>
+            <p>まず、同じタイミングの<strong>負圧表示・スイッチ出力・PLC入力</strong>を分けます。異常時の画面や既存の記録・図面から、どの段階で期待した状態と違うかを確認します。</p>
             <figure class="article-figure">
-              <img src="../assets/images/vacuum-switch-basic/vacuum-switch-basic-checkpoints.png" alt="真空スイッチの確認ポイント。パッド摩耗、エア漏れ、ワーク形状、設定値と配線、供給エアを整理">
-              <figcaption>吸着不良は、パッド摩耗・エア漏れ・ワーク形状・設定値・供給エアを分けて確認すると原因を追いやすくなります。</figcaption>
+              <img src="../assets/images/vacuum-switch-basic/vacuum-switch-basic-signal-check-20261120.webp" width="1200" height="835" alt="負圧が弱い、負圧は十分だがOUT1がOFF、OUT1はONだがPLC入力がOFF、の3段階と確認する項目">
+              <figcaption>圧力を作る側・スイッチの判定・PLC側への伝達を順番に分ける図です。点検や設定変更の作業手順ではありません。</figcaption>
             </figure>
-
             <div class="check-grid">
-              <div class="check-item check-item--important">
-                <h3>パッドは摩耗していないか</h3>
-                <p>パッドの摩耗、硬化、ひび割れ、変形があると吸着力が落ちることがあります。</p>
-              </div>
-
-              <div class="check-item check-item--field">
-                <h3>エア漏れはないか</h3>
-                <p>配管、継手、パッド取付部から漏れていると、負圧が設定値まで上がりにくくなります。</p>
-              </div>
-
-              <div class="check-item">
-                <h3>ワーク表面は合っているか</h3>
-                <p>粗い面、穴あき、多孔質、反り、汚れがあると吸着が安定しないことがあります。</p>
-              </div>
-
-              <div class="check-item check-item--warning">
-                <h3>設定値や配線は正しいか</h3>
-                <p>しきい値、ヒステリシス、NPN/PNP、PLC入力側の取り方を確認します。</p>
-              </div>
+              <div class="check-item check-item--important"><h3>吸着しない：負圧が十分に立ち上がらない</h3><p>パッドの摩耗や位置ずれ、ワーク表面の反り・穴・多孔質、配管や継手の漏れ、供給条件が候補です。負圧が足りない段階で、信号が入るように設定値を緩めるのは切り分けになりません。</p></div>
+              <div class="check-item check-item--field"><h3>負圧は十分でも、OUT1がOFFのまま</h3><p>その表示値ならONする条件か、モード・反転・応差・遅れ時間を資料や記録と照合します。表示が一瞬だけ境目を越えた場合、持続時間も見ます。</p></div>
+              <div class="check-item"><h3>OUT1はONなのに、PLC入力がOFF</h3><p>スイッチ本体の出力状態とPLCの対象入力は別です。型式の出力方式（NPN／PNP）、PLCユニットとの組み合わせ、入力割付・図面上の接続経路を担当者が照合します。</p></div>
+              <div class="check-item check-item--warning"><h3>PLC入力がONでも、設備の吸着確認が成立しない</h3><p>PLCの生の入力とプログラム上の吸着完了は別です。吸着確認時間や他の成立条件があるか、設備仕様を確認します。</p></div>
             </div>
+            <div class="danger-box"><h3>搬送の安全は真空スイッチ単体で判断しない</h3><p>ワークの落下や予期しない動作のおそれがあるときは、診断を続けず設備の安全手順に従います。この記事は設備の運転・設定変更・活線確認の手順ではありません。</p></div>
+          </section>
 
-            <div class="danger-box">
-              <div class="caution-character-box">
-                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-pointing.png" alt="先輩のちびキャラ">
-                <div>
-                  <h3>吸着できたと思い込まない</h3>
-                  <p>パッドがワークに当たっていても、負圧が足りない場合があります。搬送前には真空スイッチの信号と、実際の保持状態を分けて確認します。</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="note-box">
-              <div class="caution-character-box">
-                <img class="caution-character" src="../assets/images/guide-characters/senpai-chibi-idea.png" alt="先輩のちびキャラ">
-                <div>
-                  <h3>まずは漏れとパッドから見る</h3>
-                  <p>吸着不良では、設定値を触る前に、パッド摩耗・配管漏れ・ワーク表面を確認すると原因を絞りやすいです。</p>
-                </div>
-              </div>
-            </div>
+          <section class="section-card" id="official-sources">
+            <h2>メーカー公式資料・技術参照元</h2>
+            <p class="source-checked-date">公式資料確認日：2026-11-20</p>
+            <ul class="simple-list">
+              <li>SMC：<a href="https://www.smcworld.com/upfiles/manual/ja-jp/files/PSxx-OMS0006.pdf">ZSE20(F)/ISE20シリーズ 取扱説明書（No. PS※※-OMS0006-J）</a> p.25の圧力設定・応差、p.33–35のOUT1と出力モード、仕様表の型式別定格圧力を参照。</li>
+              <li>SMC：<a href="https://www.smcworld.com/webcatalog/ja-jp/seriesList/?id=ZSE20%28F%29-ISE20">ZSE20□(F)/ISE20□ WEBカタログ</a>。真空圧用と連成圧用・正圧用の区別を参照。</li>
+            </ul>
           </section>
 
           <section class="section-card" id="related">
@@ -1836,20 +1732,19 @@
             <h3>目次</h3>
             <ul>
               <li><a href="#overview">真空スイッチの全体像</a></li>
-              <li><a href="#basic">基本の考え方</a></li>
-              <li><a href="#flow">動作の流れ</a></li>
+              <li><a href="#basic">負圧の読み方</a></li>
+              <li><a href="#flow">ON・OFFと応差</a></li>
               <li><a href="#usecase">よく使う場面</a></li>
               <li><a href="#checkpoints">確認ポイント</a></li>
             </ul>
           </section>
 
           <section class="side-card">
-            <h3>この記事の要点</h3>
+            <h3>見るポイント</h3>
             <ul>
-              <li>真空スイッチは負圧を見て吸着状態を判断する</li>
-              <li>設定値に達するとON/OFF出力でPLCへ送れる</li>
-              <li>パッドが当たっていても吸着できているとは限らない</li>
-              <li>パッド・漏れ・ワーク表面・設定値を分けて見る</li>
+              <li>0 kPaからマイナス側へ進んでいる？</li>
+              <li>ONになる点とOFFに戻る点はどこ？</li>
+              <li>信号はスイッチとPLCのどちらまで来ている？</li>
             </ul>
           </section>
 

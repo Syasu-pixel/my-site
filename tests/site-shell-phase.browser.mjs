@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chromium} from 'playwright';
+import {launchShellCaptureBrowser} from '../scripts/site-shell-raster.mjs';
 import {PNG} from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {capturePhaseStableFooter} from '../scripts/site-shell-phase.mjs';
-const browser=await chromium.launch({headless:true});
+const browser=await launchShellCaptureBrowser();
 const html=(height,extra='')=>`<!doctype html><style>body{margin:0}main{height:${height}px}footer{padding:30px 20px;background:#f4f4f4;color:#333;font:17px/1.3 Arial;border-top:1px solid #ddd}p{margin:0 0 12px}a{color:#247} ${extra}</style><main></main><footer class="site-footer"><p>Footer contract 日本語の確認</p><a href="/profile/">About this site</a><p>Affiliate disclosure and policy</p></footer>`;
 function pixels(a,b){a=PNG.sync.read(a);b=PNG.sync.read(b);if(a.width!==b.width||a.height!==b.height)return Infinity;return pixelmatch(a.data,b.data,null,a.width,a.height,{threshold:0.1,includeAA:false});}
 for(const width of [390,1440]) test(`phase stabilization ${width}px keeps page-length-only changes and rejects real defects`,async()=>{
@@ -100,9 +100,24 @@ test('complete visual audit rejects defects and preserves the positive control',
    return result;
  };
  const initial=run('baseline',base);assert.equal(initial.status,0,initial.stderr+initial.stdout);
- const receipts=[];
+ const manifest=JSON.parse(readFileSync(join(out,'baseline.json'),'utf8'));
+ assert.equal(manifest.environment.captureVersion,6);
+ assert.equal(manifest.environment.textRasterization,'grayscale-lcd-disabled');
+ assert.equal(manifest.environment.pixelThreshold,0.1);
+ assert.equal(manifest.environment.includeAntialiasing,false);
+ const wrongMode=join(dir,'wrong-mode');
+ await cp(out,wrongMode,{recursive:true});
+ // A genuine baseline from a previous/different browser mode is not reusable.
+ await writeFile(join(wrongMode,'baseline.json'),JSON.stringify({...manifest,environment:{...manifest.environment,textRasterization:'default'}}));
+ await writeFile(join(head,'articles/fixture.html'),fixture(6809.5));
+ const stale=run('compare',head,wrongMode);
+ assert.equal(stale.status,1,stale.stderr+stale.stdout);
+ assert.match(stale.stderr,/Baseline\/candidate environments differ/);
+ assert.equal(stale.audit,undefined,'a rejected baseline must not produce comparison evidence');
+ const receipts=[{name:'mixed raster mode baseline rejected',status:stale.status,stderr:stale.stderr}];
  for(const [name,css,replace] of [
-  ['positive',''],['color','footer{color:red}'],['position','footer p{position:relative;left:1px}'],
+  ['positive',''],['font-size','footer{font-size:21px}'],['font-weight','footer{font-weight:900}'],
+  ['color','footer{color:red}'],['position','footer p{position:relative;left:1px}'],
   ['overflow','footer p{width:2000px}'],['clip','footer{height:25px;overflow:hidden}'],
   ['text','',s=>s.replace('Footer contract','Wrong contract')],['link','',s=>s.replace('href="/profile/"','href="/wrong/"')],
   ['outside spacing','main{margin-bottom:1px}'],['ancestor clip','body{clip-path:inset(0 0 50px)}'],

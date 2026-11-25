@@ -13,7 +13,8 @@
   <meta property="og:title" content="タイマーリレーとは？ハード回路で使うONディレー・OFFディレーの違いをやさしく解説">
   <meta property="og:description" content="制御盤に取り付けるハードタイマーリレーの基本、ONディレー・OFFディレーの違い、現場での確認ポイントを初心者向けに整理します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/timer-relay-basic.html">
-  <meta property="og:image" content="https://denkicontrol.com/assets/images/timer-relay-basic/timer-relay-overview.png">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/timer-relay-basic/timer-relay-ogp-20261121.png">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/timer-relay-basic/timer-relay-ogp-20261121.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f8fbff">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
@@ -92,7 +93,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background:url("../assets/images/timer-relay-basic/timer-relay-overview.png") right center / auto 100% no-repeat;
+      background:url("../assets/images/timer-relay-basic/timer-relay-hero-20261121.png") right center / auto 100% no-repeat;
       opacity:.32;
       pointer-events:none;
       z-index:0;
@@ -629,7 +630,7 @@
           #f8fbff;
       }
       .article-hero::before{
-        background:url("../assets/images/timer-relay-basic/timer-relay-overview.png") right -28px bottom -14px / 162% auto no-repeat;
+        background:url("../assets/images/timer-relay-basic/timer-relay-hero-20261121.png") right -28px bottom -14px / 162% auto no-repeat;
         opacity:.2;
       }
       .article-hero::after{
@@ -713,7 +714,7 @@
           #f8fbff;
       }
       .article-hero::before{
-        background:url("../assets/images/timer-relay-basic/timer-relay-overview.png") right center / auto 92% no-repeat;
+        background:url("../assets/images/timer-relay-basic/timer-relay-hero-20261121.png") right center / auto 92% no-repeat;
         opacity:.24;
       }
       .article-hero::after{
@@ -1464,477 +1465,59 @@ body{
     <div class="page-layout">
       <div class="main-column">
         <section class="section-card" id="summary">
-          <h2>先に結論：タイマーリレーは「時間で接点を切り替えるハード部品」</h2>
-          <p>
-            タイマーリレーは、制御盤の中で使う時間制御用のリレーです。
-            入力が入ってから一定時間後に接点を切り替えたり、入力が切れてから一定時間だけ状態を保ったりできます。
-          </p>
-          <p>
-            普通のリレーは、コイルに電気が入るとすぐ接点が切り替わります。
-            それに対してタイマーリレーは、コイルや入力条件が入ってから設定時間を数え、その後で接点を切り替えるのが特徴です。
-          </p>
-
-          <div class="key-highlight">
-            <h3>今回の記事はPLC内のソフトタイマーではなく、ハード回路のタイマーリレーです</h3>
-            <p>
-              GX Works3上で使うタイマー命令ではなく、制御盤に取り付ける実物のタイマーリレーとして説明します。
-              本体の電源端子、設定時間ダイヤル、出力接点、端子番号を見ながら追う内容です。
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row talk-row--left">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>タイマーリレーは、ざっくり言うと「時間を待ってから接点を切り替えるリレー」だよ。</p>
-              </div>
-            </div>
-
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>PLCの中のタイマーではなく、盤の中に実物として付いている部品なんですね。</p>
-              </div>
-            </div>
-
-            <div class="talk-row talk-row--left">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>そう。だから「入力が来ているか」「時間を数えているか」「接点が切り替わったか」を分けて見るのが大事だね。</p>
-              </div>
-            </div>
-          </div>
+          <h2>先に結論：いつ待ち始め、いつ接点が変わるか</h2>
+          <p>タイマーリレーは、時間条件で接点を切り替える盤内の部品です。まず <strong>何をきっかけに計時するか</strong> と <strong>いつ接点が切り替わるか</strong> を分けて見ます。</p><div class="key-highlight"><h3>同じ「数秒」でも意味が違う</h3><p>ONディレーは出力が入る前に待つ、インターバルはすぐに入って設定時間だけ続く、OFFディレーは戻る前に待つ方式です。</p></div>
         </section>
 
         <section class="section-card" id="basic">
           <h2>タイマーリレーとは？</h2>
-          <p>
-            タイマーリレーとは、時間を条件にして接点を切り替える部品です。
-            制御盤の中では、すぐに動かしたくない回路や、少し遅らせて停止させたい回路で使われます。
-          </p>
-          <p>
-            たとえば、スタート信号が入ってから5秒後にランプを点灯させたい。
-            停止信号が切れても、しばらくファンを回し続けたい。
-            こうした「少し待ってから動かす」「少し遅らせて戻す」場面で使います。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/timer-relay-basic/timer-relay-overview.png" alt="タイマーリレーとは何かを示す制御盤内の図解" loading="lazy" decoding="async">
-            <figcaption>
-              タイマーリレーは、電源端子・入力・設定時間ダイヤル・出力接点を持ち、設定した時間を条件に接点を切り替えるハード回路用の部品です。
-            </figcaption>
-          </figure>
-
-          <h3>普通のリレーとの違い</h3>
-          <p>
-            普通のリレーは、コイルに電気が入るとすぐ接点が切り替わります。
-            タイマーリレーは、その間に「設定時間」が入ります。
-          </p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>部品</th>
-                  <th>基本の動き</th>
-                  <th>現場での見方</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>リレー</th>
-                  <td>コイルONで、すぐ接点が切り替わる</td>
-                  <td>コイルが入っているか、接点が返っているかを見る</td>
-                </tr>
-                <tr>
-                  <th>タイマーリレー</th>
-                  <td class="cell-blue">入力後、設定時間を待ってから接点が切り替わる</td>
-                  <td>入力、カウント、接点切替を分けて見る</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="field-highlight">
-            <h3>現場では「本体が動いた」と「接点が使えている」を分けて見る</h3>
-            <p>
-              タイマー本体のランプが点いていても、出力接点側の電源や配線に問題があれば負荷は動きません。
-              本体側と接点側を分けて確認するのが、トラブル対応ではかなり大事です。
-            </p>
-          </div>
+          <p>盤内に取り付け、設定時間を条件に出力接点を切り替えます。普通のリレーにも応答時間はありますが、タイマーリレーと違い通常は秒単位の意図的な待ち時間を設定しません。</p><p>すべての機種が同じ端子や仕組みではありません。電源を入れると計時する機種と、電源が入った状態から別の信号で計時する機種を、型式の結線図とタイムチャートで区別します。</p>
         </section>
 
         <section class="section-card" id="operation">
-          <h2>タイマーリレーの基本の動き</h2>
-          <p>
-            基本の流れは、入力が入る、タイマーが時間を数える、設定時間に到達する、接点が切り替わる、という順番です。
-            いきなり端子番号を追うより、この流れで考えると理解しやすいです。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/timer-relay-basic/timer-relay-operation-flow.png" alt="タイマーリレーの入力ONから接点切替までの動作イメージ" loading="lazy" decoding="async">
-            <figcaption>
-              入力が入ってから設定時間をカウントし、時間に到達すると出力接点が切り替わります。ランプ、リレー、ソレノイド、ファンなどを遅らせて動かす考え方につながります。
-            </figcaption>
-          </figure>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>1. 入力ON</h3>
-              <p>押しボタン、センサー、リレー接点、PLC出力などから条件が入り、タイマーリレーに電源や入力信号が入ります。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>2. タイマーがカウント</h3>
-              <p>前面ダイヤルやレンジ設定に合わせて、設定時間を数えます。この間はまだ出力接点が切り替わっていない場合があります。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>3. 設定時間に到達</h3>
-              <p>設定した時間に到達すると、タイマーリレー内部の動作が完了します。表示ランプ付きの機種では状態を見られます。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>4. 接点が切り替わる</h3>
-              <p>a接点側が閉じる、b接点側が開くなど、接点の状態が変わります。負荷が動くかは接点側の電源や配線も関係します。</p>
-            </div>
-          </div>
-
-          <div class="note-box">
-            <h3>タイマー本体が動いていても、負荷が動くとは限りません</h3>
-            <p>
-              タイマーの表示ランプが点いていても、接点側の配線ミス、負荷側電源なし、端子ゆるみがあると出力は動きません。
-              本体側と接点側を分けて確認します。
-            </p>
-          </div>
+          <h2>タイムチャートの読み方</h2>
+          <ol><li><strong>上の段：</strong>電源またはスタート信号。立ち上がりと立ち下がりのどちらが計時の起点か見ます。</li><li><strong>下の段：</strong>限時NO接点。高い段は「閉」、低い段は「開」。下の段は負荷へ給電できたかを表すものではありません。</li><li><strong>T：</strong>設定時間。段の切替と矢印の始点・終点を見ます。瞬時接点や限時NC接点の場合は、同じ見方をそのまま当てはめません。</li></ol>
         </section>
 
         <section class="section-card" id="delay">
-          <h2>ONディレーとOFFディレーの違い</h2>
-          <p>
-            タイマーリレーで最初に混ざりやすいのが、ONディレーとOFFディレーです。
-            名前だけで覚えるよりも、「入ってから遅れる」のか「切れてから遅れる」のかで見ると整理しやすいです。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/timer-relay-basic/on-delay-vs-off-delay.png" alt="ONディレーとOFFディレーの違いを比較する図解" loading="lazy" decoding="async">
-            <figcaption>
-              ONディレーは入力が入ってから設定時間後に接点が切り替わります。OFFディレーは入力が切れてから設定時間後に接点が戻ります。
-            </figcaption>
-          </figure>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>種類</th>
-                  <th>動き方</th>
-                  <th>現場での言い方</th>
-                  <th>使い方の例</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>ONディレー</th>
-                  <td class="cell-blue">入力が入ってから、設定時間後に接点が切り替わる</td>
-                  <td>入ってから遅れる</td>
-                  <td>遅延起動、順番制御、一定時間後のランプ点灯</td>
-                </tr>
-                <tr>
-                  <th>OFFディレー</th>
-                  <td class="cell-green">入力が切れてから、設定時間後に接点が戻る</td>
-                  <td>切れてから遅れる</td>
-                  <td>遅延停止、ファンの残運転、警報保持</td>
-                </tr>
-                <tr>
-                  <th>その他の動作</th>
-                  <td class="cell-orange">フリッカ、ワンショット、インターバルなど</td>
-                  <td>機種のモード設定で確認する</td>
-                  <td>点滅、一定時間だけON、繰り返し動作</td>
-                </tr>
-              </tbody>
-            </table>
+          <h2>ONディレー・インターバル・OFFディレーの違い</h2>
+          <div class="talk-thread" aria-label="先輩と後輩の会話">
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="" width="76" loading="lazy" decoding="async"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>同じ3秒に合わせても、動き方は違うんですか？</p></div></div>
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="" width="76" loading="lazy" decoding="async"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>違うよ。ONディレーは3秒待ってから、インターバルはすぐに始まって3秒で終わる。図では下の段に注目してみよう。</p></div></div>
           </div>
-
-          <div class="key-highlight">
-            <h3>ONディレーは「入ってから待つ」、OFFディレーは「切れてから待つ」</h3>
-            <p>
-              図面や現物を見たときは、タイマーの種類名だけで判断せず、
-              入力がONした瞬間から遅れているのか、入力がOFFした瞬間から遅れているのかを確認すると間違えにくいです。
-            </p>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>ONディレーとOFFディレー、名前だけ見るとよく混ざります。</p>
-              </div>
-            </div>
-
-            <div class="talk-row talk-row--left">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>最初は「入ってから遅れる」「切れてから遅れる」で覚えるといいよ。現場ではこの見方の方が追いやすいことが多いね。</p>
-              </div>
-            </div>
-          </div>
+          <figure class="article-figure"><img src="../assets/images/timer-relay-basic/timer-relay-on-delay-interval-v2.png" alt="Aは電源ONから設定時間後にNO接点が閉じ、Eは電源ONと同時に閉じて設定時間後に開く。" width="1200" height="675" loading="lazy" decoding="async"><figcaption>オムロン 形H3CR-A8-301の電源スタート例。電源を設定時間より長く入れ、途中で再投入しない条件です。</figcaption></figure>
+          <p><strong>OFFディレーは、戻るまで待つ</strong>方式です。形H3CR-A-301のDモードは電源を入れたままスタート信号がOFFになると計時を始めます。下図の形H3CR-H8Lは別機種で、電源断が起点です。</p>
+          <figure class="article-figure"><img src="../assets/images/timer-relay-basic/timer-relay-power-off-delay-v2.png" alt="H3CR-H8Lは電源を切ると計時が始まり、設定時間後にNO接点が開く。" width="1200" height="675" loading="lazy" decoding="async"><figcaption>電源オフディレー専用の形H3CR-H8L。切る前に規定以上の電源投入時間が必要で、計時中は再投入しない例です。</figcaption></figure>
         </section>
 
         <section class="section-card" id="software">
           <h2>PLCのソフトタイマーとの違い</h2>
-          <p>
-            PLCのラダー内で使うタイマー命令も、一定時間を数えて接点を使うという意味では似ています。
-            ただし、今回のタイマーリレーは盤内に実物として付くハード部品です。
-          </p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>比較</th>
-                  <th>ハードタイマーリレー</th>
-                  <th>PLCのソフトタイマー</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>存在する場所</th>
-                  <td class="cell-blue">制御盤内の実物部品</td>
-                  <td>PLCプログラム内のタイマー命令</td>
-                </tr>
-                <tr>
-                  <th>設定方法</th>
-                  <td>本体ダイヤル、レンジ切替、モード設定など</td>
-                  <td class="cell-green">GX Works3などで設定値を入力</td>
-                </tr>
-                <tr>
-                  <th>確認方法</th>
-                  <td>端子電圧、表示ランプ、接点導通、配線</td>
-                  <td>モニタ画面、デバイス値、ラダー状態</td>
-                </tr>
-                <tr>
-                  <th>注意点</th>
-                  <td class="cell-orange">型式、電圧、接点容量、動作モードを確認</td>
-                  <td>設定値、単位、完了接点、リセット条件を確認</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="field-highlight">
-            <h3>図面で実物の端子番号が出てくるなら、ハード側として見る</h3>
-            <p>
-              A1/A2、15/16/18、COM/NO/NCのような端子番号が出てくる場合は、盤内の実物タイマーリレーを追う場面が多いです。
-              一方、T0やT10などのデバイス番号を追う場合は、PLC内のソフトタイマーとして見ることが多いです。
-            </p>
-          </div>
+          <p>PLC内のタイマーはプログラムの条件やビットを追います。実物品では型式、起点、接点の役割、負荷の回路を図面で追います。機械の停止条件をどちらで作っているかは、機器名だけでは分かりません。</p>
         </section>
 
         <section class="section-card" id="use-case">
-          <h2>現場でよくある使い方</h2>
-          <p>
-            タイマーリレーは、古い設備やシンプルな制御盤、PLCを使わない小さな制御回路で今でも見かけます。
-            PLCがある設備でも、盤内の補助回路として使われていることがあります。
-          </p>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>遅延起動</h3>
-              <p>電源投入後、すぐに負荷を動かさず、数秒待ってから動かしたいときに使います。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>遅延停止</h3>
-              <p>停止信号後もしばらくファンやポンプを動かしたいときに使います。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>順番制御</h3>
-              <p>1つ目の機器が動いてから、少し遅れて2つ目を動かすような回路に使います。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>警報保持</h3>
-              <p>一瞬の異常信号をすぐ消さず、一定時間だけ表示やブザーを残したいときに使うことがあります。</p>
-            </div>
-          </div>
-
-          <div class="key-highlight">
-            <h3>タイマーリレーは「動作の順番」を作るために使われることが多い</h3>
-            <p>
-              モーター、ファン、ランプ、ブザー、電磁弁などを、すぐON/OFFさせずに少し時間をずらしたいときに使います。
-              設備の流れを整える部品として見ると分かりやすいです。
-            </p>
-          </div>
+          <h2>現場でよくある使い分け</h2>
+          <ul><li>動き始めるまで待つ制御ではONディレー。</li><li>一定時間だけ動作させる制御ではインターバル。</li><li>停止条件が入った後、一般制御の出力を短く保持する場合はOFFディレーが検討対象。</li></ul><p>非常停止や人の安全を守る停止回路に、この一般制御用の説明を当てはめないでください。</p>
         </section>
 
         <section class="section-card" id="panel">
-          <h2>制御盤の中でタイマーリレーをどう見るか</h2>
-          <p>
-            制御盤の中でタイマーリレーを見るときは、タイマー本体だけを見ても全体は分かりません。
-            何の条件で時間を数え始め、どの接点で何を動かしているかを順番に追います。
-          </p>
-
-          <h3>1. 電源仕様を見る</h3>
-          <p>
-            まずはタイマーリレー本体の電源電圧を確認します。
-            AC100V、AC200V、DC24Vなど、見た目が似ていても仕様が違うことがあります。
-          </p>
-
-          <h3>2. 何の信号で動くかを見る</h3>
-          <p>
-            押しボタン、センサー、リレー接点、PLC出力など、何がタイマー開始条件になっているかを確認します。
-            入力条件が来ていなければ、タイマーは当然カウントしません。
-          </p>
-
-          <h3>3. 設定時間を見る</h3>
-          <p>
-            ダイヤルの位置だけでなく、秒・分・時間などのレンジも確認します。
-            レンジ切替スイッチがある場合、ダイヤルの数字だけ見て判断すると間違えることがあります。
-          </p>
-
-          <h3>4. 出力接点を見る</h3>
-          <p>
-            NO接点を使っているのか、NC接点を使っているのかを確認します。
-            図面上の接点番号と実物の端子番号を合わせて見ると、どの回路を切り替えているか追いやすくなります。
-          </p>
-
-          <div class="field-highlight">
-            <h3>入力 → カウント → 接点 → 負荷、の順番で追う</h3>
-            <p>
-              「タイマーが悪い」と決めつける前に、入力条件が来ているか、設定時間を数えているか、接点が切り替わっているか、負荷側に電源があるかを順番に見ると原因を絞りやすいです。
-            </p>
-          </div>
+          <h2>図面で先に照らし合わせる項目</h2>
+          <ol><li>本体の型式・電源定格と、電源スタートか信号スタートか。</li><li>動作モード・時間単位・時間レンジ・目盛。ダイヤルの数字だけでは秒数は分かりません。</li><li>接点が瞬時か限時か、NOかNCか。交換品はソケットとの互換、負荷の種類や接点定格まで資料で照合。</li></ol>
         </section>
 
         <section class="section-card" id="trouble">
-          <h2>トラブル時の確認ポイント</h2>
-          <p>
-            タイマーリレーまわりのトラブルでは、「時間後に動かない」「遅れて止まらない」「すぐ動いてしまう」「設定時間と違う」といった症状が出ます。
-            そのときは、タイマー本体だけでなく、入力条件・接点側・負荷側を分けて確認します。
-          </p>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>電源が来ているか</h3>
-              <p>A1/A2などに指定電圧が入っているか確認します。電圧仕様違いにも注意します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>入力条件が成立しているか</h3>
-              <p>押しボタン、センサー、前段リレー接点などがON/OFFしているか見ます。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>設定時間が合っているか</h3>
-              <p>ダイヤル位置、レンジ切替、秒・分の単位を確認します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>接点が切り替わっているか</h3>
-              <p>タイマー完了後にNO/NC接点が想定どおり変わるか確認します。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>接点容量を超えていないか</h3>
-              <p>大きな負荷を直接入れていると接点不良や溶着につながることがあります。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>端子ゆるみ・配線抜けがないか</h3>
-              <p>タイマー本体が正常でも、端子のゆるみで不安定になることがあります。</p>
-            </div>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>タイマーが悪いと思って交換したけど直らない、みたいなこともありますか？</p>
-              </div>
-            </div>
-
-            <div class="talk-row talk-row--left">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>あるよ。実際は入力条件が来ていない、接点側の電源がない、負荷側の配線が抜けている、ということもある。だから分けて見るのが大事だね。</p>
-              </div>
-            </div>
-          </div>
+          <h2>動作しないときの切り分け</h2>
+          <ul><li><strong>設定の確認：</strong>モード・単位・レンジが図面と一致するか。H3CR-H8Lのような電源断型では、所定の最小電源投入時間も確認対象です。</li><li><strong>入力と出力を分ける：</strong>表示灯の意味は型式によって違います。表示灯が点灯していても負荷が駆動できるとは限りません。記録済みの電源・開始条件、図面の接点と負荷側を順に照合します。</li></ul>
         </section>
 
         <section class="section-card" id="caution">
           <h2>交換・設定変更するときの注意点</h2>
-          <p>
-            タイマーリレーは見た目が似ていても、電源電圧、接点構成、動作モード、時間レンジ、端子配列が違うことがあります。
-            交換するときは、同じメーカー・同じ形に見えるだけで判断しない方が安全です。
-          </p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>確認項目</th>
-                  <th>見る理由</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>電源電圧</th>
-                  <td class="cell-blue">AC100V、AC200V、DC24Vなどが違うと動作しない、または故障につながります。</td>
-                </tr>
-                <tr>
-                  <th>動作モード</th>
-                  <td class="cell-green">ONディレー用なのか、OFFディレー用なのか、マルチタイマーなのかを確認します。</td>
-                </tr>
-                <tr>
-                  <th>時間レンジ</th>
-                  <td class="cell-orange">0.1〜60秒、1〜10分など、同じダイヤル数字でも単位が違うことがあります。</td>
-                </tr>
-                <tr>
-                  <th>接点構成</th>
-                  <td>1c、2c、NOのみ、NCありなど、使える接点が違う場合があります。</td>
-                </tr>
-                <tr>
-                  <th>端子配列</th>
-                  <td>古い機種と新しい機種で端子位置が違うと、差し替えだけでは使えないことがあります。</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="danger-box">
-            <h3>設定変更は、設備の動作順序に影響します</h3>
-            <p>
-              タイマー時間を少し変えるだけでも、搬送、エアシリンダ、モーター、警報、停止動作などに影響することがあります。
-              現場で変更する場合は、元の値を控え、設備の動き全体を確認してから調整します。
-            </p>
-          </div>
+          <p>設定の変更は機械の動作順序や保持時間に影響します。担当者が設備の手順に従い、停止、電源の遮断と再投入防止、残留エネルギーがないことを確認したうえで作業します。通電状態での測定や安全回路の無効化をこの記事では案内しません。</p>
         </section>
 
         <section class="section-card" id="wrap-up">
-          <h2>まとめ：タイマーリレーは「時間」と「接点」を分けて見る</h2>
-          <p>
-            タイマーリレーは、制御盤の中で時間を条件に接点を切り替えるハード回路用の部品です。
-            PLCのソフトタイマーとは違い、実物の端子、設定ダイヤル、出力接点、電源仕様を見ながら確認します。
-          </p>
-          <p>
-            ONディレーは「入力が入ってから遅れる」、OFFディレーは「入力が切れてから遅れる」と考えると整理しやすいです。
-            トラブル時は、入力が来ているか、タイマーがカウントしているか、接点が切り替わっているか、負荷側が正常かを分けて見ます。
-          </p>
-          <p>
-            タイマーリレーは小さな部品ですが、設備の起動順序、停止タイミング、警報保持などに関わることがあります。
-            交換や設定変更をするときは、電圧・モード・時間レンジ・接点構成を確認し、元の状態を控えてから進めると安心です。
-          </p>
-
-          <div class="article-footer-nav">
-            <a class="btn btn-primary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
-            <a class="btn btn-secondary" href="../index.html">トップページへ戻る</a>
-          </div>
+          <h2>まとめ：計時の起点・T・接点状態を見る</h2>
+          <p>型式のタイムチャートを開き、何から待つか、Tの間にNO接点は開か閉か、Tの最後にどうなるかを確認します。タイマーが動いたことと、負荷が動いたことは分けて考えます。</p><h3>メーカー公式資料・技術参照元</h3><ul><li><a href="https://www.fa.omron.co.jp/product/item/H3CR-A8-301_AC100-240_DC100-125/ja/pdf/">オムロン H3CR-A8-301 型式別資料</a>：A／Eモードの電源と限時接点のタイムチャート。</li><li><a href="https://www.fa.omron.co.jp/product/item/H3CR-H8L_AC100-120_S/ja/pdf/">オムロン H3CR-H8L 型式別資料</a>：電源オフディレーと最小電源投入時間。</li><li><a href="https://www.fa.omron.co.jp/guide/technicalguide/19/89/index.html">オムロンのタイマ技術解説</a>：電源スタートと信号スタートの違い。</li><li><a href="https://www.fa.omron.co.jp/product/item/H3CR-A-301_AC24-48_DC12-48/ja/pdf/">オムロン H3CR-A-301 型式別資料</a>：Dモードの信号オフディレー。</li></ul><p>公式資料確認日：2026年11月21日。端子・使用条件は実際の型式の最新版資料を優先してください。</p>
         </section>
 
         <section class="section-card" id="related">
@@ -1971,10 +1554,10 @@ body{
         <section class="side-card">
           <h3>この記事の要点</h3>
           <ul>
-            <li>今回はハード回路側のタイマーリレー</li>
-            <li>ONディレーは入ってから遅れる</li>
-            <li>OFFディレーは切れてから遅れる</li>
-            <li>入力・カウント・接点を分けて確認する</li>
+            <li>タイムチャートは起点→T→接点の順に</li>
+            <li>ONディレーとインターバルはTの位置が違う</li>
+            <li>OFFディレーは電源断型か信号型かを確認</li>
+            <li>機器の型式・時間単位・接点を照合</li>
           </ul>
         </section>
 

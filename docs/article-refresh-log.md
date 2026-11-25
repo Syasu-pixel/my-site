@@ -39,6 +39,91 @@
 - モーターブレーカの既存記事刷新1件を追加し、下表は51 slug（重複0）。過去50件の状態は変更しない。直前のIAI追補にあるモーターブレーカ未公開は当時の状態であり、現在は本追補と個別公開履歴を参照。
 - 当初174件の既存記事集合では174−51＝123件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−51＝124件には新規公開済みシールド線1件を含む。
 
+### 2026-11-18 集計追補（LANチェッカーの公開記録）
+
+- 照合基点: main `ccb372c40dccfa8b73f4699e53f451a961833a87`。本番とmainの日本語記事サイトマップ175 URL・重複0、対象URL1件を確認。
+- LANチェッカーの既存記事刷新1件を追加し、下表は52 slug（重複0）。過去51件の状態は変更しない。
+- 当初174件の既存記事集合では174−52＝122件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−52＝123件には新規公開済みシールド線1件を含む。
+
+### 2026-11-18 集計追補（正転・逆転／サーマル／フリッカ／メガーの公開記録）
+
+- 照合基点: main `b72c9a6e3e8174cd184c521bc7e59f84b42ef278`。本番とmainの日本語記事サイトマップ175 URL・重複0、対象4 URLが各1件で一致することを確認。
+- 既存記事刷新4件を追加し、下表は56 slug（重複0）。過去52件の状態と履歴は保持する。正転・逆転回路の過去OGP更新履歴を別記事として二重加算しない。
+- 当初174件の既存記事集合では174−56＝118件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−56＝119件には新規公開済みシールド線1件を含む。
+- 4記事とも内容更新日・公式資料確認日は採用本文の2026-11-18表記を採録。完成・凍結、最短再評価は2027-02-16。日数経過だけで再編集しない。Google登録リクエストは4記事とも受付確認済み。検索反映完了は未確認として公開完了と分離する。
+
+### 2026-11-19 集計追補（腰袋・テスターの公開記録）
+
+- 照合基点: main `589b2c8799a787b31414b4c3532a4fc4e686f4c8`。本番とmainの日本語記事サイトマップ175 URL・重複0、対象2 URL各1件で一致。
+- 既存記事刷新2件を追加し、下表は58 slug（重複0）。過去56件の状態・履歴は保持し、圧着・カウンタ・原点復帰は加算しない。
+- 当初174件の既存記事集合では174−58＝116件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−58＝117件には新規公開済みシールド線1件を含む。
+- 最終内容更新日の独立表示は未確認。公式資料確認日2026-11-18と公開確認日2026-11-19を区別し、公開日を内容更新日へ転用しない。保守的に公開確認日を起点に90日間凍結し、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+### 2026-11-19 集計追補（カウンタ回路の公開記録）
+
+- 照合基点: main `e8957fd47c7611e89ea63938ff0ab5a6214fa9bb`。本番とmainの日本語記事サイトマップ175 URL・重複0、対象1 URLは1件で一致。
+- 既存記事刷新1件を追加し、下表は59 slug（重複0）。従来の58件・Googleリクエスト受付記録を保持し、圧着・原点復帰は加算しない。
+- 当初174件の既存記事集合では174−59＝115件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−59＝116件には新規公開済みシールド線1件を含む。
+- 最終内容更新日のHTML独立表示は未確認。制作・出典確認2026-11-18と本番確認2026-11-19を区別し、90日の再評価ガードは保守的に2026-11-19起点。最短再評価2027-02-17。期間経過だけで再編集しない。
+
+### 2026-11-19 集計追補（圧着の公開記録）
+
+- 照合基点: main `ae4e7e45dcfdfe0369a02e3e5e297c826d4faf0a`。本番とmainの日本語記事サイトマップは175 URL・重複0、対象URLは1件。
+- 既存記事刷新1件を追加し、下表は60 slug（重複0）。従来の59件の履歴は保持し、原点復帰はこの追補に含めない。
+- 当初174件の既存記事集合では174−60＝114件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−60＝115件には新規公開済みシールド線1件を含む。
+
+### 2026-11-19 集計追補（アナログ出力・リミットスイッチトラブルシューティングの公開記録）
+
+- 照合基点: main `89163d1c1784da7000dd3ec3268b3749650526d7`。本番日本語記事サイトマップ175 URL・重複0、対象2 URL各1件と検索索引の各1件を確認。
+- 既存記事刷新2件を追加し、下表は62 slug（重複0）。従来の60件の状態と履歴は保持し、リレー・原点復帰は加算しない。
+- 当初174件の既存記事集合では174−62＝112件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−62＝113件には新規公開済みシールド線1件を含む。
+
+### 2026-11-19 集計追補（原点復帰回路の公開記録）
+
+- 照合基点: main `a2134ae5cf7d6c50767d758116dd86c4d49a679e`。本番サイトマップと検索索引で対象URLの掲載を確認。
+- 既存記事刷新1件を追加し、下表は63 slug（重複0）。従来の62件の記録は維持し、リレーは加算しない。
+- 当初174件の既存記事集合では174−63＝111件が本台帳で完了を確認できていない残り。未更新確定数ではない。現在の175−63＝112件には新規公開済みシールド線1件を含む。
+
+### 2026-11-19 集計追補（リレー基礎の公開記録）
+
+- 照合基点: main `3e7d7906a2c7fdffaaf0c6cecdc7d7598651cd9e`。本番サイトマップ・サイト内検索索引にリレー基礎の対象URLを各1件確認。
+- 既存記事刷新1件を追加し、下表は64 slug（重複0）。従来の63件の状態と履歴は保持する。
+- 当初174件の既存記事集合では174−64＝110件が本台帳で完了を確認できていない残り。未更新確定数ではない。
+
+### 2026-11-19 集計追補（タイマー回路・ジョグ運転回路の公開記録）
+
+- 照合基点: main `30137ed65400a8587626f808b7839cc6f74349e0`。本番サイトマップ・サイト内検索索引に2記事の対象URLを各1件確認。
+- 既存記事刷新2件を追加し、下表は66 slug（重複0）。従来の64件の状態と履歴は保持する。
+- 当初174件の既存記事集合では174−66＝108件が本台帳で完了を確認できていない残り。未更新確定数ではない。
+
+### 2026-11-23 集計追補（公開確認済みの追加10件）
+
+- PR #2032、#2033、#2035 の日本語既存記事10本を追加。この表の記録は76 slug（重複なし）。旧行・集計根拠を保存。サイトマップは302 URL（変更前後の集合・順番は同一）。全履歴を網羅した実数とは扱わない。
+
+### 2026-11-23 集計追補（圧力計の公開記録）
+
+- PR #2037の既存日本語記事1本を追記。この表は77 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
+### 2026-11-23 集計追補（圧力スイッチと圧力計の公開記録）
+
+- PR #2039の既存日本語記事1本を追記。この表は78 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
+### 2026-11-24 集計追補（採用済み日本語3記事の公開記録）
+
+- PR #2041の既存日本語3記事を追記。この表は81 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
+### 2026-11-24 集計追補（採用済み日本語3記事の公開記録）
+
+- PR #2044の既存日本語3記事を追記。この表は84 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
+### 2026-11-24 集計追補（採用済み日本語3記事の公開記録）
+
+- PR #2046の既存日本語3記事を追記。この表は87 slug（重複なし）。旧行と旧集計は保持。サイトマップは302 URL（集合・順序不変）。
+
+### 2026-11-25 集計追補（ラダー図・ラチェットレンチ・安全ドアスイッチ）
+
+- PR #2048における既存日本語3記事を追記し、表は90 slug（重複なし）。サイトマップの302 URLは集合・順序を変えず、対象3件の `lastmod` のみ追加。
+
 ### 既存文書との分担
 
 - [既存記事改善バックログ](existing-article-improvement-backlog.md): 検索候補と機械評価用の完成・凍結チェック欄を維持する。本表の派生ビューであり、件数の正本ではない。既存の週次処理はこの欄を読むため、完了反映時は同じPRで同期する。自動処理は完了状態を変更しない。
@@ -60,28 +145,53 @@
 | `a-contact-b-contact-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `air-cylinder-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `air-cylinder-troubleshooting-basic` | 刷新main反映済み | 2026-09-22（公開記録日） | 未確認 | 2026-09-16 | [PR #1488](https://github.com/Syasu-pixel/my-site/pull/1488)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `air-filter-regulator-lubricator-basic` | 刷新main反映・本番確認済み | 2026-11-22（JST） | 2026-11-22（本文） | 2026-11-22（本文・出典） | [PR #2032](https://github.com/Syasu-pixel/my-site/pull/2032)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-20。IndexNow：未確認。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
+| `air-pneumatic-troubleshooting-guide` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2046](https://github.com/Syasu-pixel/my-site/pull/2046)・[Pages run 45403195352](https://github.com/Syasu-pixel/my-site/actions/runs/45403195352)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。本公開作業でのGoogle登録リクエスト未送信、検索反映未確認。 |
 | `air-regulator-basic` | 刷新main反映済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1867](https://github.com/Syasu-pixel/my-site/pull/1867)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `air-valve-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45094514045](https://github.com/Syasu-pixel/my-site/actions/runs/45094514045) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
+| `analog-output-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（本文表記） | 2026-11-19（本文・参照記録） | [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。 |
 | `area-sensor-basic` | 刷新main反映済み | 未確認 | 2026-10-06 | 2026-10-06 | [PR #1693](https://github.com/Syasu-pixel/my-site/pull/1693) | 本文表示から採録。未確認は推測補完しない。 |
+| `buzzer-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45094514045](https://github.com/Syasu-pixel/my-site/actions/runs/45094514045) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `control-panel-cooling-fan-basic` | 刷新main反映・本番確認済み | 2026-11-17 | 2026-11-15 | 2026-11-15（本文表記、11-17再照合） | [PR #1949](https://github.com/Syasu-pixel/my-site/pull/1949)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-13。IndexNow HTTP200受理、Google登録リクエストは11-17に本人実施申告。検索反映完了は未確認。 |
 | `control-panel-grounding-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `control-panel-label-basic` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2046](https://github.com/Syasu-pixel/my-site/pull/2046)・[Pages run 45403195352](https://github.com/Syasu-pixel/my-site/actions/runs/45403195352)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。本公開作業でのGoogle登録リクエスト未送信、検索反映未確認。 |
+| `control-panel-light-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45115890700](https://github.com/Syasu-pixel/my-site/actions/runs/45115890700) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
+| `control-panel-outlet-basic` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2044](https://github.com/Syasu-pixel/my-site/pull/2044)・[Pages run 45381340032](https://github.com/Syasu-pixel/my-site/actions/runs/45381340032)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。今回のGoogle登録リクエストは未送信、検索反映未確認。 |
 | `control-panel-wire-color-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `control-transformer-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1858](https://github.com/Syasu-pixel/my-site/pull/1858)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `counter-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（本文・参照記録） | [PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付済み。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
+| `crimping-tips` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照記録） | [PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付、Google登録リクエスト受付済み。更新版の検索反映は未確認。 |
+| `current-transformer-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-22（本文・出典） | [PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45094514045](https://github.com/Syasu-pixel/my-site/actions/runs/45094514045) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `dc24v-common-basic` | 改善完了・凍結記録あり | 2026-11-09（本番反映確認記録） | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 統合前台帳は本番反映確認日。内容更新日・公式確認日に転用しない。 |
 | `dc24v-power-supply-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1843](https://github.com/Syasu-pixel/my-site/pull/1843)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `delayed-start-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45115890700](https://github.com/Syasu-pixel/my-site/actions/runs/45115890700) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `din-rail-basic` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-12 | 2026-11-12 | [PR #1841](https://github.com/Syasu-pixel/my-site/pull/1841)・本書の個別履歴 | 本書の個別公開履歴の最終内容更新日・公式資料確認日を採録。 |
 | `earth-leakage-breaker-basic` | 刷新main反映済み | 未確認 | 未確認 | 2026-10-06 | [PR #1677](https://github.com/Syasu-pixel/my-site/pull/1677) | 本文表示から採録。未確認は推測補完しない。 |
+| `electrician-knife` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)・[Pages run 45358218865](https://github.com/Syasu-pixel/my-site/actions/runs/45358218865)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow受付、今回の公開作業ではGoogle登録リクエスト未送信。検索反映未確認。 |
 | `electromagnetic-contactor-vs-switch` | 刷新main反映済み | 2026-11-12（公開記録日） | 2026-11-11 | 2026-11-11 | [PR #1832](https://github.com/Syasu-pixel/my-site/pull/1832)・本書の個別履歴 | 本書の公開記録を根拠。 |
 | `emergency-stop-switch-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1848](https://github.com/Syasu-pixel/my-site/pull/1848)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `encoder-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1892](https://github.com/Syasu-pixel/my-site/pull/1892)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。IndexNow HTTP200受理。Google登録リクエストは2026-11-14に本人実施の申告あり、インデックス完了未確認。 |
+| `flicker-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1967](https://github.com/Syasu-pixel/my-site/pull/1967)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
+| `forward-reverse-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1969](https://github.com/Syasu-pixel/my-site/pull/1969)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは受付確認済み、検索反映完了は未確認。 |
+| `got-touch-panel-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45115890700](https://github.com/Syasu-pixel/my-site/actions/runs/45115890700) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
+| `gx-works3-cross-reference-basic` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)・[Pages run 45358218865](https://github.com/Syasu-pixel/my-site/actions/runs/45358218865)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow受付、今回の公開作業ではGoogle登録リクエスト未送信。検索反映未確認。 |
+| `gxw3-one-shot-rise-fall-detection` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2044](https://github.com/Syasu-pixel/my-site/pull/2044)・[Pages run 45381340032](https://github.com/Syasu-pixel/my-site/actions/runs/45381340032)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。今回のGoogle登録リクエストは未送信、検索反映未確認。 |
+| `gxw3-timer-ton-toff-retentive` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2046](https://github.com/Syasu-pixel/my-site/pull/2046)・[Pages run 45403195352](https://github.com/Syasu-pixel/my-site/actions/runs/45403195352)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。本公開作業でのGoogle登録リクエスト未送信、検索反映未確認。 |
+| `home-return-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | HTML独立表示未確認 | 2026-11-18（本文表記） | [PR #1994](https://github.com/Syasu-pixel/my-site/pull/1994)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Googleの登録リクエストは2026-11-19の初回と18:55 JSTの再試行とも送信時にエラーとなり、受付未確認。次回は2026-11-20 10:30 JSTに同一URLの状態を確認し、未受付で送信可能なら1回のみ再試行する。更新版の再クロール・検索反映は未確認。 |
 | `iai-robocylinder-basic` | 刷新main反映・本番確認済み | 2026-11-18 | HTML表示なし（採用・公開日と区別） | 2026-11-17 | [PR #1954](https://github.com/Syasu-pixel/my-site/pull/1954)・本書の個別履歴 | 完成・凍結。保守的に公開11-18から90日未満は除外、最短再評価2027-02-16。IndexNow HTTP200、Google登録リクエストは11-18に本人実施申告・検索反映未確認。 |
 | `input-output-basic` | 刷新main反映・本番確認済み | 2026-11-17 | HTML表示なし（2026-11-15修正版採用） | 2026-11-15（本文表記） | [PR #1942](https://github.com/Syasu-pixel/my-site/pull/1942)・本書の個別履歴 | 完成・凍結。内容更新日を公開日から推測しない。保守的に公開11-17から90日未満は除外、最短再評価2027-02-15。Googleは本人実施申告、検索反映は未確認。 |
 | `interlock-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1862](https://github.com/Syasu-pixel/my-site/pull/1862)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `jog-operation-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回を約21:47 JSTに優先クロール待ちとして受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。 |
+| `lan-checker` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。footer CI FAILは個別判定のまま保持。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人提供画面で実施済みを確認・検索反映未確認。 |
 | `light-curtain-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1659](https://github.com/Syasu-pixel/my-site/pull/1659) | 本文表示から採録。未確認は推測補完しない。 |
+| `limit-switch-troubleshooting-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（本文表記） | 2026-11-19（本文・参照記録） | [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。今回更新版の再クロール・検索反映完了は未確認。 |
 | `load-cell-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 2026-10-01 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `magnetic-switch-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 2026-09-28 | 2026-09-28 | [PR #1606](https://github.com/Syasu-pixel/my-site/pull/1606)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `mega` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1966](https://github.com/Syasu-pixel/my-site/pull/1966)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNowの個別受付結果は本記録では未確認。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
 | `motor-breaker-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-17（制作メモ記録、HTML独立表示なし） | 2026-11-17 | [PR #1956](https://github.com/Syasu-pixel/my-site/pull/1956)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-15。footer CIは文字輪郭差を個別REVIEW、PASS扱いにしない。IndexNow HTTP200受理、Google登録リクエストは2026-11-18に本人実施申告・検索反映未確認。 |
 | `no-fuse-breaker-basic` | 改善完了・凍結記録あり | 未確認 | 要照合（本文11-06／台帳11-08） | 2026-11-06 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 日付不一致を保留。安全側で11-08から90日未満は除外し、本文・台帳を勝手に変更しない。 |
 | `no-nc-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1568](https://github.com/Syasu-pixel/my-site/pull/1568)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `noise-filter-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45094514045](https://github.com/Syasu-pixel/my-site/actions/runs/45094514045) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `npn-pnp-basic` | 刷新main反映済み | 2026-09-26（公開記録日） | 未確認 | 2026-09-25 | [PR #1586](https://github.com/Syasu-pixel/my-site/pull/1586)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `one-shot-circuit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1852](https://github.com/Syasu-pixel/my-site/pull/1852)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `pilot-lamp-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
@@ -89,9 +199,13 @@
 | `plc-io-unit-basic` | 刷新main反映済み | 2026-11-13（公開記録日） | 2026-11-13 | 2026-11-13 | [PR #1855](https://github.com/Syasu-pixel/my-site/pull/1855)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
 | `plc-xymd-device-basic` | 刷新main反映・本番確認済み | 2026-11-14（公開記録日） | 2026-11-14 | 2026-11-14 | [PR #1878](https://github.com/Syasu-pixel/my-site/pull/1878)・本書の個別履歴 | 90日ガード対象。最短再評価2027-02-12。完成・凍結。Googleリクエスト受理済み、再インデックス完了は未確認。 |
 | `power-signal-wiring-separation-basic` | 刷新main反映・本番確認済み | 2026-11-14（本番確認記録） | 2026-11-14 | 2026-11-14 | [PR #1871](https://github.com/Syasu-pixel/my-site/pull/1871)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-12。Google登録リクエストは2026-11-14に本人実施の申告あり。インデックス完了は未確認。 |
+| `pressure-gauge-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：19:01:36 JST受付（配信前）。Google登録リクエストは配信時点で未送信、検索反映未確認。 |
 | `pressure-switch-basic` | 刷新main反映済み | 2026-11-14（JST公開確認） | 2026-11-13 | 2026-11-13 | [PR #1864](https://github.com/Syasu-pixel/my-site/pull/1864) | 公開後コメントを根拠。記録PR #1866は統合時未マージ。 |
+| `pressure-switch-vs-gauge-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2039](https://github.com/Syasu-pixel/my-site/pull/2039)・[Pages run 45190376965](https://github.com/Syasu-pixel/my-site/actions/runs/45190376965)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `push-button-switch-basic` | 刷新main反映済み | 未確認 | 2026-11-12 | 2026-11-12 | [PR #1837](https://github.com/Syasu-pixel/my-site/pull/1837) | 本文表示から採録。未確認は推測補完しない。 |
 | `reed-switch-basic` | 刷新main反映済み | 2026-09-23（公開記録日） | 2026-09-23 | 2026-09-23 | [PR #1554](https://github.com/Syasu-pixel/my-site/pull/1554)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `relay-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #1998](https://github.com/Syasu-pixel/my-site/pull/1998)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回、約19:40 JSTに受付を確認（GOOGLE_REQUESTED）。更新版の再クロール・検索反映完了は未確認。 |
+| `reset-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45094514045](https://github.com/Syasu-pixel/my-site/actions/runs/45094514045) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `safety-control-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1661](https://github.com/Syasu-pixel/my-site/pull/1661) | 本文表示から採録。未確認は推測補完しない。 |
 | `selector-switch-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `self-hold-circuit` | 刷新main反映済み | 未確認 | 2026-10-04 | 2026-09-30 | [PR #1664](https://github.com/Syasu-pixel/my-site/pull/1664) | 本文表示から採録。未確認は推測補完しない。 |
@@ -105,9 +219,19 @@
 | `star-delta-start-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `start-stop-circuit-basic` | 刷新main反映済み | 未確認 | 2026-09-29 | 2026-09-29 | [PR #1630](https://github.com/Syasu-pixel/my-site/pull/1630) | 本文表示から採録。未確認は推測補完しない。 |
 | `sto-basic` | 刷新main反映済み | 2026-09-28（公開記録日） | 未確認 | 2026-09-25 | [PR #1599](https://github.com/Syasu-pixel/my-site/pull/1599)・本書の個別履歴 | 本文表示から採録。未確認は推測補完しない。 |
+| `temperature-sensor-basic` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)・[Pages run 45358218865](https://github.com/Syasu-pixel/my-site/actions/runs/45358218865)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow受付、今回の公開作業ではGoogle登録リクエスト未送信。検索反映未確認。 |
 | `terminal-block-basic` | 改善完了・凍結記録あり | 未確認 | 2026-11-11 | 2026-11-11 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
 | `terminal-block-jumper-basic` | 改善完了・凍結記録あり | 未確認 | 未確認 | 未確認 | [統合前の完了台帳](https://github.com/Syasu-pixel/my-site/blob/d474f1241545a779488adb92aa42605b1299b117/docs/existing-article-improvement-backlog.md) | 本文表示から採録。未確認は推測補完しない。 |
+| `tester` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
+| `thermal-relay-basic` | 刷新main反映・本番確認済み | 2026-11-18 | 2026-11-18 | 2026-11-18 | [PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-16。IndexNow HTTP200受理。Google登録リクエストは2026-11-18に受付確認済み、検索反映完了は未確認。 |
+| `timer-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-19 | 2026-11-19（公開・更新記録） | 2026-11-19（本文表記） | [PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000)・本書の個別履歴 | 完成・凍結。最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエスト1回を約21:46 JSTに受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。 |
+| `tool-belt` | 刷新main反映・本番確認済み | 2026-11-19 | 未確認（HTML独立表示なし） | 2026-11-18（参照・制作記録） | [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985)・本書の個別履歴 | 完成・凍結。公開確認日起点の最短再評価2027-02-17。IndexNow HTTP200受付。Google登録リクエストは2026-11-19 JSTに受付確認済み。今回更新版の再クロール・検索反映完了は未確認。 |
+| `upper-lower-limit-circuit-basic` | 刷新main反映・本番確認済み | 2026-11-23（JST） | 2026-11-23（本文） | 2026-11-23（本文・出典） | [PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-21。IndexNow：[自動通知 run 45115890700](https://github.com/Syasu-pixel/my-site/actions/runs/45115890700) HTTP200受付。Google登録リクエスト・今回版の検索反映はこの記録では未確認。 |
 | `while-pressed-circuit-basic` | 刷新main反映済み | 未確認 | 未確認 | 未確認 | [PR #1645](https://github.com/Syasu-pixel/my-site/pull/1645) | 本文表示から採録。未確認は推測補完しない。 |
+| `wire-number-marker-basic` | 刷新main反映・本番確認済み | 2026-11-24（JST） | 2026-11-24（本文） | 2026-11-24（本文・出典） | [PR #2044](https://github.com/Syasu-pixel/my-site/pull/2044)・[Pages run 45381340032](https://github.com/Syasu-pixel/my-site/actions/runs/45381340032)・本書の個別履歴 | 完成・凍結、最短再評価2027-02-22。自動IndexNow受付。今回のGoogle登録リクエストは未送信、検索反映未確認。 |
+| `ladder-reading` | 刷新main反映・本番確認済み | 2026-11-25（JST） | 2026-11-24（採用原稿・最終差分） | 2026-11-24（一次資料） | [PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)・[Pages run 45514045385](https://github.com/Syasu-pixel/my-site/actions/runs/45514045385)・本書の個別履歴 | 完成・凍結。最短再評価 2027-02-22。 |
+| `ratchet-wrench` | 刷新main反映・本番確認済み | 2026-11-25（JST） | 2026-11-25（採用原稿・最終差分） | 2026-11-24（一次資料） | [PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)・[Pages run 45514045385](https://github.com/Syasu-pixel/my-site/actions/runs/45514045385)・本書の個別履歴 | 完成・凍結。最短再評価 2027-02-23。 |
+| `safety-door-switch-interlock-basic` | 刷新main反映・本番確認済み | 2026-11-25（JST） | 2026-11-25（採用原稿・最終差分） | 2026-11-24（一次資料） | [PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)・[Pages run 45514045385](https://github.com/Syasu-pixel/my-site/actions/runs/45514045385)・本書の個別履歴 | 完成・凍結。最短再評価 2027-02-23。 |
 
 ### 圧力スイッチの記録不一致を解消（2026-11-14）
 
@@ -809,3 +933,196 @@
 - 導線: 既存URLを維持。本番とmainの日本語sitemap175 URL・重複0・対象1件を記録担当が照合。
 - 通知: [IndexNow run 44126469623](https://github.com/Syasu-pixel/my-site/actions/runs/44126469623)で対象1URLをHTTP200受理。公開時点ではGoogle登録リクエスト未報告（公開担当記録は `GOOGLE_REQUEST_PENDING_MANUAL`）。その後2026-11-18 JSTに本人が「りくえすとした」と実施を申告。助手による操作ではない。検索インデックス完了は未確認。
 - 状態: 完成・凍結。制作メモの内容更新2026-11-17を0日目として90日未満は通常改善候補から除外、最短再評価2027-02-15。期間経過だけでは再編集しない。
+
+## 2026-11-18 — lan-checker 刷新・本番公開完了
+
+- 対象: `articles/lan-checker.html`。機器・PoEから外す手順、機種別LED判定、T568B、スプリットペアと通信性能の区別を公式資料で整理。既存Amazonリンク・商品画像・動画・関連記事順・収益開示を維持。
+- 公開: 管理者の明示公開承認後、[PR #1961](https://github.com/Syasu-pixel/my-site/pull/1961)をmain `ccb372c40dccfa8b73f4699e53f451a961833a87`へ通常merge。[Pages run 44215774707](https://github.com/Syasu-pixel/my-site/actions/runs/44215774707)成功、deploy完了2026-11-18T01:35:37Z。本番確認2026-11-18T01:39:02Z（同日JST）。
+- 本番HTML SHA-256 `6acdd0a5ae94082735a91d32fad6fcee92a93a9b7f2555402db752b4d40dd412` は承認済みpublicationと一致。公開担当がHTMLを含む配信ファイル30/30点の一致を確認。採用画像はHero・専用OGP・手順・検査限界の4枚、1536×1024 WebP。採用原本hash・公式資料の確認範囲は[参照・制作記録](reference-notes/lan-checker.md)。
+- 検証範囲: 公開前publicationのPC1440/スマホ390×明暗および境界幅を含む14条件、限定package4条件、本文2図の拡大/背景・Esc・閉ボタンを確認。公開後cloud-browserではPCのHero・商品表示と2図開閉を確認。本番4条件の追加検査はローカルブラウザのERR_EMPTY_RESPONSEで未完了であり、公開前検査と本番bytes一致を実本番4条件目視完了とは呼ばない。
+- footer比較 [run 44201116270](https://github.com/Syasu-pixel/my-site/actions/runs/44201116270)はFAILのまま。LAN desktop footerの撮影位相差によるPNG寸法差について、正式原画の独立目視・寸法/DOM/styles/操作の照合により既存規則の個別判定を記録。ほか正式CI6件成功。閾値・必須チェック・保護を変更せず通常merge。旧headの目次期待数FAILも履歴保持。全CI成功とは記さない。
+- 既存課題の分離: mobileの固定上戻りボタンと開示末尾の重なり、共通Amazon自動追加リンクとストアカードのrel属性不足は変更前にも存在し、今回の削除・新規回帰とは区別して別課題とする。静的Amazonリンク7個・収益開示とfooter全文は変更前と一致。
+- 日付: 最終内容更新日・公式資料確認日はHTMLに2026-11-18と別々に表示。公開確認日と同日だが意味を区別する。参照メモやPR本文に残る公開前状態は制作時点の履歴であり、現在の公開状態は本記録を参照。
+- 導線: 既存URLを維持。本番/mainの日本語sitemap175 URL・重複0・対象1件を記録担当が照合。記事刷新を新規公開として重複加算しない。
+- 通知: [IndexNow run 44215774776](https://github.com/Syasu-pixel/my-site/actions/runs/44215774776)で対象1URLを2026-11-18T01:26:48ZにHTTP200受理。公開確認時点ではGoogle登録リクエスト未実施。その後2026-11-18 JSTに本人提供スクリーンショットで登録リクエスト済みを確認。助手による操作ではなく、検索インデックス完了は未確認。
+- 状態: 完成・凍結。最終内容更新2026-11-18を0日目として90日未満は通常改善候補から除外、最短再評価2027-02-16。期間経過だけでは再編集しない。
+
+
+## 2026-11-18 正転・逆転回路／サーマルリレー／フリッカ回路／メガーの刷新公開
+
+4記事とも採用版をmainへ反映し、Pages成功後の本番配信を確認。以下は公開担当の検証記録を照合した記録であり、この台帳追記で全画面を再検査した意味ではない。本文・画像・公開方式は変更しない。制作メモに残る「未公開」「承認前」は制作時点の履歴として保持し、現在の公開状態は本節を参照する。
+
+### 正転・逆転回路（forward-reverse-circuit-basic）
+
+- 対象: `articles/forward-reverse-circuit-basic.html`。[PR #1969](https://github.com/Syasu-pixel/my-site/pull/1969)、採用head `eb5a1d4fdb9928c3f23bb61a79809e62b0f64dba`、merge `d7c2f74fe1f48bfdee9f1717c77c34ae0e1fa3fc`。
+- 三相誘導モーター・接触器方式の範囲、任意2相交換、停止指令と回転停止、切替許可、電気的／機械的インターロック、PLC表示と実接点、安全な点検前提を整理。Hero・OGP・本文3図を採用、本文図は拡大可能。
+- [Pages run 44251173929](https://github.com/Syasu-pixel/my-site/actions/runs/44251173929)成功後、本番取得42ファイル中41ファイルが採用配信物と一致（HTML・5画像を含む）。残るsite-health.jsonは定期更新による差で、最新mainと一致。公開切替中の旧HTML・画像404はPages成功後の再取得で解消した。
+- 採用PreviewでPC／スマホ明暗・境界幅を検証。修正後の動作順序図はPC・390pxで表示／拡大／閉じるを確認。本番ではPC lightのHero・本文・同図の開閉を確認し、本番スマホ／darkの再操作とは区別する。
+- [IndexNow run 44251164603](https://github.com/Syasu-pixel/my-site/actions/runs/44251164603)は対象1 URLをHTTP200受理。検索反映完了の証明ではない。英語同slugは今回更新せず、旧PR #1962は未採用・未マージの履歴として保持。
+
+### サーマルリレー（thermal-relay-basic）
+
+- 対象: `articles/thermal-relay-basic.html`。[PR #1968](https://github.com/Syasu-pixel/my-site/pull/1968)、採用head `36b428159d8fba8795d3eecaae7ce37958c14138`、merge `421928c7d6fa1707a23772c04575d45a7ba3c9e4`。
+- 過負荷検知と接触器による遮断、b接点、電磁接触器／電磁開閉器／ブレーカの役割、電流設定、トリップ後の安全確認と復帰を整理。Hero・OGP・本文2図を採用。
+- [Pages run 44254076460](https://github.com/Syasu-pixel/my-site/actions/runs/44254076460)成功後、2026-11-18T06:56:03Zに本番HTMLと採用4 WebPのHTTP200・承認済みPreviewとのSHA256一致を確認。採用PreviewでPC／スマホ明暗・拡大操作を検証済み。本番ハッシュ照合と本番全画面再操作は同義にしない。
+- [IndexNow run 44254076449](https://github.com/Syasu-pixel/my-site/actions/runs/44254076449)はHTTP200受理。検索反映完了は未確認。旧PR #1484の履歴は保持し、採用クリーン版と区別する。
+
+### フリッカ回路（flicker-circuit-basic）
+
+- 対象: `articles/flicker-circuit-basic.html`。[PR #1967](https://github.com/Syasu-pixel/my-site/pull/1967)、採用head `ca7baf7db614e7aff3b14e1f151e0ce538d13cf8`、merge `feaa2a3a7cad6cfc02640949e4502abf196b0933`。
+- 採用本文・Hero／OGP／本文2図を反映し、既存URL・関連導線・他記事を維持。日本語検索indexの対象記事title／descriptionを同期。
+- 正式CI 8件成功。[Pages run 44265575338](https://github.com/Syasu-pixel/my-site/actions/runs/44265575338)成功後、2026-11-18T08:23:03Zに本文・4 WebP・依存資産を含む27リソースのHTTP200と正式配信物とのSHA256一致を確認。本番H1・Hero・本文2図の拡大、閉じる／Escapeを確認。全条件の本番再検査とは区別する。
+- [IndexNow run 44265575322](https://github.com/Syasu-pixel/my-site/actions/runs/44265575322)は対象1 URLをHTTP200受理。検索反映完了は未確認。旧PR #1964は不採用の履歴として保持し、採用クリーン版の祖先へ含めていない。
+
+### メガー（mega）
+
+- 対象: `articles/mega.html`。[PR #1966](https://github.com/Syasu-pixel/my-site/pull/1966)、採用head `06186a1aa89381cc145904c4e5b58499ee14ebab`、merge `b72c9a6e3e8174cd184c521bc7e59f84b42ef278`。
+- テスターとの測定目的の違い、機種別試験電圧、切離し・無電圧確認・放電などの安全条件、PDM5219SとPDM1529Sの区別を整理。Hero・OGP・比較図・安全図を採用。既存URL・H1・canonical・商品リンクを保持。
+- 正式CI 8件成功。[Pages run 44273216354](https://github.com/Syasu-pixel/my-site/actions/runs/44273216354)のbuild／deploy成功後、2026-11-18T09:16:10Zに本番HTMLが採用配信物と一致、採用4 WebPも原本と一致することを確認。本番Hero・本文・2図の拡大／閉じる、画像欠落0・横溢れなしを確認。全幅・全テーマの本番再検査とは区別する。
+- IndexNowの個別受付結果は本記録では未確認。自動workflowの存在だけで通知完了としない。旧PR #1963は不採用・未マージの履歴として保持。
+
+### 4記事共通の残件と凍結
+
+- 最終内容更新日・公式資料確認日はともに2026-11-18（採用本文表記）。台帳記入日を新たな本文更新日に転用しない。
+- 完成・凍結。通常の再改善候補は90日未満除外、最短再評価2027-02-16。期間経過だけで再編集せず、日付ガードの例外・再評価条件を維持する。
+- Google登録リクエストの初回記録時点: 正転・逆転回路は受付確認済み。サーマルリレーは操作開始後に接続が切れ、受付結果は不明。フリッカ回路・メガーは未申請だった。以下の追補を現在状態とし、この初回記録は履歴として保持する。IndexNow受付とは同一視しない。
+- 本台帳と既存記事改善バックログの派生チェック欄だけを同期。検索実績の生数値・個別検索クエリ・非公開分析原票は転記しない。
+
+### 2026-11-18 Google登録リクエスト受付の追補
+
+- 正転・逆転回路に加え、サーマルリレー・メガー・フリッカ回路もGoogle登録リクエストの受付成功を確認。フリッカ回路は同日21時ごろ（JST）の再試行で受付成功。サーマルの接続断による結果不明、フリッカ・メガーの未申請という前回状態を更新する。
+- 4記事とも登録リクエスト受付済みであり、検索インデックスへの反映・再クロール完了を確認した意味ではない。記事内容更新日・公式資料確認日・90日ガード・刷新件数は変更しない。
+
+## 2026-11-18（UTC）腰袋・テスターの公開準備記録（未公開）
+
+- 管理者の工具3記事の公開承認のうち、今回の公開準備は `tool-belt` と `tester` の2記事のみ。圧着は検査課題の切り分け中のため、この公開準備から除外する。
+- 採用元: 腰袋 [PR #1978](https://github.com/Syasu-pixel/my-site/pull/1978) head `c2c44435a05c4c20eed6ef2ec27f5d814200b6db`、テスター [PR #1982](https://github.com/Syasu-pixel/my-site/pull/1982) head `c416b4d8c9511b8d39a1605413d4c891a662d1ff`。確認用PRをそのまま本番へマージせず、最新main基点の公開用ブランチ `publish/tools-approved-20261119` へ採用差分を移す。
+- 検索indexの対象2件のtitle／descriptionを採用HTMLと同期。既存URLの刷新であり、サイトマップへの重複追加、新規記事扱いの棚追加、本文・画像の再編集は行わない。
+- 状態は**公開承認済み・公開用差分の検証中**。本番マージ、Pages配信、本番表示、IndexNow受付、Google登録リクエストは本記録時点で未確認。刷新完了件数・公開済み表・バックログ完了チェックは加算しない。公開後に確認根拠を追補する。
+
+## 2026-11-19 腰袋・テスターの公開完了追補
+
+- 上記「公開準備記録（未公開）」は当時の履歴として保持する。現在状態は本追補と統合更新台帳を正本とする。
+- 管理者承認済みの腰袋・テスターのみを [PR #1985](https://github.com/Syasu-pixel/my-site/pull/1985) head `e4f406d5afb09115317c9f7aec193722822f97bf` から通常マージ。main merge `589b2c8799a787b31414b4c3532a4fc4e686f4c8`。圧着・カウンタ・原点復帰は今回の公開対象外。
+- 同一headの正式8ワークフロー成功。統合検査は検索index同期を共通変更として全289記事を対象とし、最終報告failures0。対象2記事の390/768/1440px、dark390/1440pxと隔離投票検査を通過。実投票送信0。検査条件の緩和や省略なし。
+- [本番Pages run44425964940](https://github.com/Syasu-pixel/my-site/actions/runs/44425964940) のbuild/deploy成功。最終publication検査は351テキストファイル比較、画像URL置換のみ、missing0、errors0、sourceFallbackUsed=false。公開manifestのsourceCommitも上記merge SHAと一致。
+- 2026-11-19 00:10:51 UTC（09:10:51 JST）に本番2 HTML、採用画像8 WebP、検索index、sitemapの計12ファイルをHTTP200で取得し、HTMLは正式画像URLマッピング後の期待生成物、それ以外は採用mainファイルとバイト一致を確認。本番2ページのPC実ブラウザで新本文・ヒーロー表示を確認。スマホ・darkの全面検査はCIおよび公開前の統合候補検査であり、本番全条件を再操作したとは扱わない。
+- 中間shell単体の390pxフッター画像では固定ボタンが広告文末尾に重なったが、最終統合候補には既存の下余白82pxが入り、実390px幅で最下部の全文可読を確認。2記事ともAmazonアソシエイト明示文を別途保持。中間成果物の状態と最終配信状態を混同しない。アフィリエイトURL集合・canonicalを保持。
+- [IndexNow run44425964894](https://github.com/Syasu-pixel/my-site/actions/runs/44425964894) は対象2 URLを自動送信し、2026-11-19 00:04:44 UTCにHTTP200受付を確認。この公開記録時点ではGoogle登録リクエスト未確認・未送信。後続の受付は下記追補を参照。受付と検索インデックス反映完了は別。
+- 公式資料確認日は両記事の参照・制作記録にある2026-11-18。テスターの制作案日も2026-11-18だが、両記事の最終内容更新日のHTML独立表示は未確認のまま保持。完成・凍結、保守的に公開確認日2026-11-19から90日、最短再評価2027-02-17。既存の日付ガードの例外・再評価条件を維持する。
+
+
+### 2026-11-19 Google登録リクエスト受付の追補
+
+- 2026-11-19 JSTにGoogle Search Consoleの対象URL検査で、[腰袋](https://denkicontrol.com/articles/tool-belt.html)と[テスター](https://denkicontrol.com/articles/tester.html)のインデックス登録を各1回リクエスト。いずれも「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」の受付表示を確認（`GOOGLE_REQUESTED`）。
+- URL自体はリクエスト前の検査で登録済みだったが、今回の更新版の再クロール・検索反映完了は未確認。IndexNow受付、公開日、記事内容更新日、公式資料確認日、90日ガード、刷新件数は変更しない。
+
+### カウンタ回路の公開確認（2026-11-19）
+
+- 対象: [カウンタ回路](https://denkicontrol.com/articles/counter-circuit-basic.html)。採用元 [確認用PR #1977](https://github.com/Syasu-pixel/my-site/pull/1977) の `c1b9d4072d14258bd8874f9bef4256478ee7919b`。管理者が採用後、カウンタ1本に限り本番公開を承認。確認用PRは本番に直接マージしていない。
+- 本番用 [PR #1989](https://github.com/Syasu-pixel/my-site/pull/1989) は `b3a684f6ebe3717eb00ba1bdece27c2c3a1e4101` で本文編集元・画像5点・参照メモが採用版と一致。共有台帳は対象記事と既存関連記事4件のカウンタOGP参照だけを同期。サイト内検索の対象1行の説明を更新し、既存URL・canonical・日本語サイトマップ、圧着・原点復帰を変更していない。
+- FX3G学習用ラダーは設定値3、立ち上がりとリセットの読み分けを説明する。設備への書込み用ではない。公式資料確認日2026-11-18は公開本文に記載。独立した最終内容更新日のHTML表示は未確認、制作記録は2026-11-18。根拠は[参照メモ](reference-notes/counter-circuit-basic.md)。
+- 正式CI 8/8成功後に通常マージし、main `e8957fd47c7611e89ea63938ff0ab5a6214fa9bb` に反映。統合CIの対象289件・失敗0、対象記事の390/768/1440pxとダーク390/1440pxを検証。これは公開前の候補検査であり、本番ブラウザ全条件の再操作とは分ける。
+- [本番Pages run44446985058](https://github.com/Syasu-pixel/my-site/actions/runs/44446985058) のbuild/deploy成功。2026-11-19 11:55:42 JSTに本番manifestのsourceCommit一致、本文・採用画像5点・検索索引・サイトマップの計8ファイルがHTTP200で期待値と一致を確認。本文は公開工程の公式画像URL置換と、当該置換に伴う標準の改行正規化の後で一致。採用ラダーは本番ファイルが採用WebPとバイト一致。
+- [IndexNow run44446985162](https://github.com/Syasu-pixel/my-site/actions/runs/44446985162) が対象本番URLを自動送信し、11:49:30 JSTにHTTP200受付確認。この公開記録時点でGoogle登録リクエストは未実施。後続の受付は下記を参照。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。日数経過だけで再編集しない。
+- Google: 2026-11-19 JSTに対象本番URLのGoogle Search Console URL検査からインデックス登録を1回リクエストし、「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」の受付表示を確認（`GOOGLE_REQUESTED`）。送信前の検査では既存URLは登録済み。今回更新版の再クロール・検索反映完了は未確認。
+
+## 2026-11-19 圧着の公開準備記録（未公開）
+
+- 承認済み工具3記事のうち残る圧着 `crimping-tips` のみ。[採用元 PR #1980](https://github.com/Syasu-pixel/my-site/pull/1980) head `5818be924cadfe0e64d4e6d4e4546393f507e386` の本文と採用済み画像4枚を変更せず、腰袋・テスター・カウンタ回路の公開記録を保持したまま必要な対象メタデータのみ同期した。
+- 旧確認用PRのスマホフッター比較は [比較撮影の修正 #1990](https://github.com/Syasu-pixel/my-site/pull/1990) の取り込み後に再検査する。正式検査・マージ・本番配信・検索サービス受付は未確認。公開完了件数やバックログ完了チェックは加算しない。
+
+### 圧着の公開確認（2026-11-19）
+
+- 対象: [圧着のコツ](https://denkicontrol.com/articles/crimping-tips.html)。管理者が工具3記事の本番公開を承認。圧着の採用元は [確認用PR #1980](https://github.com/Syasu-pixel/my-site/pull/1980) の `5818be924cadfe0e64d4e6d4e4546393f507e386`。本番用 [PR #1993](https://github.com/Syasu-pixel/my-site/pull/1993) head `561375f7975bc30f1d0c85b37685d7e81adef672` は採用本文・画像4点と一致。正式CI 8/8成功後、main `ae4e7e45dcfdfe0369a02e3e5e297c826d4faf0a` に反映。
+- 改稿では、電線・端子・工具の適合、製品資料に基づく加工条件、圧着後の外観確認を整理。公式資料確認は2026-11-18（[参照記録](reference-notes/crimping-tips.md)）、独立した最終内容更新日のHTML表示は未確認。公開確認日と区別する。
+- [本番Pages run44478432291](https://github.com/Syasu-pixel/my-site/actions/runs/44478432291) のbuild/deploy成功。16:23:50 JSTに本番manifestのsourceCommit一致を確認。公開工程の画像URL変換後の本番HTML SHA256は `2f9d7ed2b75717a17a14498425290b6f9d6a58bdedd24b02c6a8c01a3141b24d`。採用WebP4点はバイト一致。検索索引289件と日本語記事サイトマップ175 URLで対象の反映を確認。
+- [IndexNow run44478432285](https://github.com/Syasu-pixel/my-site/actions/runs/44478432285) の対象1 URL自動送信は16:18:13 JSTにHTTP200受付。Google Search ConsoleのURL検査から助手が対象URLに1回リクエストし、16:26 JSTに「インデックス登録をリクエスト済み」「URL を優先クロール キューに追加しました」を確認（`GOOGLE_REQUESTED`）。既存URLはリクエスト前から登録済み。今回更新版の再クロール・検索反映完了は未確認。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 アナログ出力・リミットスイッチトラブルシューティングの公開確認
+
+- 対象: [アナログ出力](https://denkicontrol.com/articles/analog-output-basic.html)と[リミットスイッチトラブルシューティング](https://denkicontrol.com/articles/limit-switch-troubleshooting-basic.html)の既存日本語2記事のみ。リレーと原点復帰は含めない。採用版 `93cfa30ea7371435c8fa1df7ad885079877f61d1` と [PR #1995](https://github.com/Syasu-pixel/my-site/pull/1995) head `fe2d1b84b6b8f7a921bda568089f540505f1c0ae` の編集元HTML2点、画像6点、参照メモ2点が一致。正式CI 8/8成功後、main `89163d1c1784da7000dd3ec3268b3749650526d7` に反映。
+- アナログ出力では4–20mA／0–10Vの仕様照合、負荷条件と指令換算、値不一致時の確認手順を整理し、仕様合わせ図1点を追加。[公式資料の参照記録](reference-notes/analog-output-basic.md)。
+- リミットスイッチでは機械の当たり・接点／配線・PLC入力の切り分けと安全上の区別を整理し、採用画像5点を反映。[公式資料の参照記録](reference-notes/limit-switch-troubleshooting-basic.md)。
+- 正式成果物にてPC・タブレット・スマホとダーク表示を確認。[本番Pages run44488240137](https://github.com/Syasu-pixel/my-site/actions/runs/44488240137) のbuild/deploy成功（17:36:42 JST）。17:40:19 JSTに同一本番manifestと2記事のHTML、画像6点の実配信を確認。アナログ出力のWebP1点は採用版とバイト一致し、リミットスイッチの5点は公開工程でのWebP変換後も画像内容・寸法が対応。サイト内検索索引と日本語記事サイトマップで各対象は1件。今回の本番HTML SHA-256: アナログ出力 `31104cb19291790214abdb797184f67ca03f1c67cd4dbf3ec4ccc2e75a76facf`、リミットスイッチ `1381d3b1218f519ac52dc34f551f4705ee6462dfde4260c06ee5b93939f9ff20`。
+- [IndexNow run44488240033](https://github.com/Syasu-pixel/my-site/actions/runs/44488240033) の対象2 URL自動送信は17:31:39 JSTにHTTP200受付。
+- Google Search Console URL検査: アナログ出力: 助手によるGoogle登録リクエスト1回、17:40 JSTに受付確認済み（GOOGLE_REQUESTED）。リミットスイッチ: 助手によるGoogle登録リクエスト1回、17:41 JSTに受付確認済み（GOOGLE_REQUESTED）。 リクエスト受付は、今回更新版の再クロール・検索反映完了とは区別する。
+- 最終内容更新日・公式資料確認日は、それぞれ公開本文で2026-11-19と独立表示。本番確認日と別に記録。完成・凍結、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 原点復帰回路の公開確認
+
+- 対象は[原点復帰回路](https://denkicontrol.com/articles/home-return-circuit-basic.html)の既存日本語1記事のみ。[PR #1994](https://github.com/Syasu-pixel/my-site/pull/1994) head `aa89d4d2e2970d7e43a11271bd91fe78e9ced473` で正式検査8件に合格。採用版の本文編集元・画像5点・参照メモの7ファイルを変更せず、main `a2134ae5cf7d6c50767d758116dd86c4d49a679e` に反映した。
+- 基準位置への復帰、近接・原点・移動端の役割、完了条件を整理。採用図のラダー例はX1が主段、X3が下の並列分岐。図は基礎を説明する教材で、実機適用は機器仕様と安全設計を優先する。[参照記録](reference-notes/home-return-circuit-basic.md)。
+- [GitHub Pages run44496079251](https://github.com/Syasu-pixel/my-site/actions/runs/44496079251) で18:30:19 JSTに配信成功。18:32 JSTに本番manifest、公式配信検証成果物14514619589、HTML、採用WebP5点のバイト一致、サイト内検索索引289件への掲載、サイトマップを照合。公開HTML SHA-256は `f7a729825dd274bf878e97c400bd0d1608cd5c3f8c65bfb62f352bf70fc6aeac`。
+- [IndexNow run44496079059](https://github.com/Syasu-pixel/my-site/actions/runs/44496079059) の対象1 URL自動送信は18:25:00 JSTにHTTP200受付。Google Search Console: Googleの登録リクエストは2026-11-19の初回と18:55 JSTの再試行とも送信時にエラーとなり、受付未確認。次回は2026-11-20 10:30 JSTに同一URLの状態を確認し、未受付で送信可能なら1回のみ再試行する。更新版の再クロール・検索反映は未確認。
+- 公式資料確認日は本文表記の2026-11-18。最終内容更新日の独立表示は未確認なので、公開確認日2026-11-19と区別。完成・凍結、公開確認日起点90日で最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 リレー基礎の公開確認
+
+- 対象: [リレー基礎](https://denkicontrol.com/articles/relay-basic.html)の既存日本語1記事のみ。[PR #1998](https://github.com/Syasu-pixel/my-site/pull/1998) の正式CI 8件合格、最終head `4526b91822fcb32c6c80cecdb5cb23fb47e4f3c9`、merge `3e7d7906a2c7fdffaaf0c6cecdc7d7598651cd9e`。旧PR #1482 は変更していない。
+- 単安定リレーの動作前後のa・b・c接点と、コイル定格／接点定格の違い、交換時の型式照合、点検の安全上の前提を整理。採用済みの動作図と定格図を反映。根拠のメーカー公式資料と2026-11-19確認日は本文に記載。
+- 正式成果物はPC・タブレット・スマホとダーク表示に合格。[本番Pages run44506112004](https://github.com/Syasu-pixel/my-site/actions/runs/44506112004) build/deploy成功（19:36:25 JST）。19:38:46 JSTに同一本番manifest、配信HTML SHA-256 `852ec0710999737dea3c7ff14823a0f45419c5bffb35b2d8aeddde13c34218c5`、画像2点のバイト一致、対象のサイトマップ／検索索引各1件を検証。
+- [IndexNow run44506112158](https://github.com/Syasu-pixel/my-site/actions/runs/44506112158) の対象1 URL自動送信は19:30:05 JSTにHTTP200受付。Google Search ConsoleのURL検査では、既存URLの登録済み表示に加え、Google登録リクエスト1回、約19:40 JSTに受付を確認（GOOGLE_REQUESTED）。更新版の再クロール・検索反映完了は未確認。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-19 タイマー回路・ジョグ運転回路の公開確認
+
+- 対象: 既存日本語2記事のみ。[PR #2000](https://github.com/Syasu-pixel/my-site/pull/2000) の正式CI 8件合格、最終head `8b8b9911bbefe46192c7fc93bfdea0e8ad86cf9c`、merge `30137ed65400a8587626f808b7839cc6f74349e0`。リレーソケット・英語版は変更なし。
+- 正式成果物はPC・タブレット・スマホとダーク表示に合格。[本番Pages run44525650210](https://github.com/Syasu-pixel/my-site/actions/runs/44525650210) build/deploy成功。21:45:16 JSTに本番manifest一致、画像バイト一致、canonicalとサイトマップ／検索索引各1件を検証。
+- [IndexNow run44525650244](https://github.com/Syasu-pixel/my-site/actions/runs/44525650244) が対象2 URLを21:38:32 JSTにHTTP200受付。クロール／登録完了を意味しない。
+- [ジョグ運転回路](https://denkicontrol.com/articles/jog-operation-circuit-basic.html): 通常のジョグ指令と実機停止・安全機能を区別し、表示灯の練習ラダーと、指令OFF・通常制御の許可を明記した右欄を反映。配信HTML SHA-256 `57326fb835da6b281c2b88eafa8acf13e640199609eccfb3540a72fe7d8ad0fb`、採用ラダーWebP SHA-256 `bc9b9b83451c63d3dfbbcfb81489cf13bc5cb7c1e1519cc882698bfe028aa3ff`。Google登録リクエスト1回を約21:47 JSTに優先クロール待ちとして受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。
+- [タイマー回路](https://denkicontrol.com/articles/timer-circuit-basic.html): 三菱電機MELSEC iQ-F FX5の通常オンディレイを、通常タイマーと表示灯の練習ラダーで解説。設定値の時間単位と積算との違いを明記。配信HTML SHA-256 `732ee80a32e16305f4251bc0a0737a54c7d07f297ebd346fcaade0c32e205290`、採用ラダーWebP SHA-256 `e4afa59ce1ebf49158f93d95d4219a3de71e28be1bc7bfc39feebac353890b71`。Google登録リクエスト1回を約21:46 JSTに受付確認（GOOGLE_REQUESTED）。既存URLは登録済み表示、更新版の再クロール・検索反映は未確認。
+- 完成・凍結。公開確認日起点90日、最短再評価2027-02-17。期間経過だけで再編集しない。
+
+## 2026-11-23 — 公開済み既存記事の確認追記
+
+- [FRLユニット](../articles/air-filter-regulator-lubricator-basic.html)（[PR #2032](https://github.com/Syasu-pixel/my-site/pull/2032)、本番確認 2026-11-22 23:56 JST、main `f64fcd105c50ebb608c12a2b90b8b9abdd493d99`）：供給側と負荷側の圧力差、排水、実機の設定限界を症状から切り分け。内容更新2026-11-22／公式資料確認2026-11-22。本番HTMLと採用画像5点の一致を確認。配信画像：[frl-drain-media-20261122.webp](https://denkicontrol.com/assets/images/air-filter-regulator-lubricator-basic/frl-drain-media-20261122.webp)（Git原本 `assets/images/air-filter-regulator-lubricator-basic/frl-drain-media-20261122.png`）、[frl-hero-20261122.webp](https://denkicontrol.com/assets/images/air-filter-regulator-lubricator-basic/frl-hero-20261122.webp)（Git原本 `assets/images/air-filter-regulator-lubricator-basic/frl-hero-20261122.png`）、[frl-ogp-20261122.webp](https://denkicontrol.com/assets/images/air-filter-regulator-lubricator-basic/frl-ogp-20261122.webp)（Git原本 `assets/images/air-filter-regulator-lubricator-basic/frl-ogp-20261122.png`）、[frl-roles-20261122.webp](https://denkicontrol.com/assets/images/air-filter-regulator-lubricator-basic/frl-roles-20261122.webp)（Git原本 `assets/images/air-filter-regulator-lubricator-basic/frl-roles-20261122.png`）、[frl-slow-case-20261122.webp](https://denkicontrol.com/assets/images/air-filter-regulator-lubricator-basic/frl-slow-case-20261122.webp)（Git原本 `assets/images/air-filter-regulator-lubricator-basic/frl-slow-case-20261122.png`）。
+- [エアバルブ](../articles/air-valve-basic.html)（[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)、本番確認 2026-11-23 10:30:59 JST、main `f338c51a0c47b828f5269114d208802b3ec4113f`）：既存の指令・弁の表示・位置を区別し、型式限定のポート経路例を追加。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[air-valve-hero-20261123.webp](https://denkicontrol.com/assets/images/air-valve-basic/air-valve-hero-20261123.webp)（Git原本 `assets/images/air-valve-basic/air-valve-hero-20261123.png`）、[air-valve-observe-20261123.webp](https://denkicontrol.com/assets/images/air-valve-basic/air-valve-observe-20261123.webp)（Git原本 `assets/images/air-valve-basic/air-valve-observe-20261123.png`）、[air-valve-ogp-20261123.webp](https://denkicontrol.com/assets/images/air-valve-basic/air-valve-ogp-20261123.webp)（Git原本 `assets/images/air-valve-basic/air-valve-ogp-20261123.png`）、[air-valve-ports-20261123.webp](https://denkicontrol.com/assets/images/air-valve-basic/air-valve-ports-20261123.webp)（Git原本 `assets/images/air-valve-basic/air-valve-ports-20261123.png`）、[air-valve-sy-paths-20261123.webp](https://denkicontrol.com/assets/images/air-valve-basic/air-valve-sy-paths-20261123.webp)（Git原本 `assets/images/air-valve-basic/air-valve-sy-paths-20261123.png`）。
+- [ブザー回路](../articles/buzzer-circuit-basic.html)（[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)、本番確認 2026-11-23 10:30:59 JST、main `f338c51a0c47b828f5269114d208802b3ec4113f`）：異常、確認、復帰、再発の状態とコメント付きラダーを整理。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[buzzer-circuit-basic-hero-20261123.webp](https://denkicontrol.com/assets/images/buzzer-circuit-basic/buzzer-circuit-basic-hero-20261123.webp)（Git原本 `assets/images/buzzer-circuit-basic/buzzer-circuit-basic-hero-20261123.png`）、[buzzer-circuit-basic-ladder-model-20261123.webp](https://denkicontrol.com/assets/images/buzzer-circuit-basic/buzzer-circuit-basic-ladder-model-20261123.webp)（Git原本 `assets/images/buzzer-circuit-basic/buzzer-circuit-basic-ladder-model-20261123.png`）、[buzzer-circuit-basic-ogp-20261123.webp](https://denkicontrol.com/assets/images/buzzer-circuit-basic/buzzer-circuit-basic-ogp-20261123.webp)（Git原本 `assets/images/buzzer-circuit-basic/buzzer-circuit-basic-ogp-20261123.png`）、[buzzer-circuit-basic-review-20261123.webp](https://denkicontrol.com/assets/images/buzzer-circuit-basic/buzzer-circuit-basic-review-20261123.webp)（Git原本 `assets/images/buzzer-circuit-basic/buzzer-circuit-basic-review-20261123.png`）、[buzzer-circuit-basic-states-20261123.webp](https://denkicontrol.com/assets/images/buzzer-circuit-basic/buzzer-circuit-basic-states-20261123.webp)（Git原本 `assets/images/buzzer-circuit-basic/buzzer-circuit-basic-states-20261123.png`）。
+- [盤内照明・作業灯](../articles/control-panel-light-basic.html)（[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)、本番確認 2026-11-23 14:14:06 JST、main `0ca6af82b9fb8665e505ee4004831cd1c02c741a`）：点灯と盤内情報の読取りを分け、扉連動の例と無電圧確認の違いを説明。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像4点の一致を確認。配信画像：[panel-light-hero-20261123.webp](https://denkicontrol.com/assets/images/control-panel-light-basic/panel-light-hero-20261123.webp)（Git原本 `assets/images/control-panel-light-basic/panel-light-hero-20261123.png`）、[panel-light-ogp-20261123.webp](https://denkicontrol.com/assets/images/control-panel-light-basic/panel-light-ogp-20261123.webp)（Git原本 `assets/images/control-panel-light-basic/panel-light-ogp-20261123.png`）、[panel-light-reading-20261123.webp](https://denkicontrol.com/assets/images/control-panel-light-basic/panel-light-reading-20261123.webp)（Git原本 `assets/images/control-panel-light-basic/panel-light-reading-20261123.png`）、[panel-light-switching-20261123.webp](https://denkicontrol.com/assets/images/control-panel-light-basic/panel-light-switching-20261123.webp)（Git原本 `assets/images/control-panel-light-basic/panel-light-switching-20261123.png`）。
+- [変流器（CT）](../articles/current-transformer-basic.html)（[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)、本番確認 2026-11-23 10:30:59 JST、main `f338c51a0c47b828f5269114d208802b3ec4113f`）：100/5 Aの比、一次・二次と換算、二次開放の注意を図解。内容更新2026-11-23／公式資料確認2026-11-22。本番HTMLと採用画像5点の一致を確認。配信画像：[ct-hero-20261123.webp](https://denkicontrol.com/assets/images/current-transformer-basic/ct-hero-20261123.webp)（Git原本 `assets/images/current-transformer-basic/ct-hero-20261123.png`）、[ct-input-types-20261123.webp](https://denkicontrol.com/assets/images/current-transformer-basic/ct-input-types-20261123.webp)（Git原本 `assets/images/current-transformer-basic/ct-input-types-20261123.png`）、[ct-observe-20261123.webp](https://denkicontrol.com/assets/images/current-transformer-basic/ct-observe-20261123.webp)（Git原本 `assets/images/current-transformer-basic/ct-observe-20261123.png`）、[ct-ogp-20261123.webp](https://denkicontrol.com/assets/images/current-transformer-basic/ct-ogp-20261123.webp)（Git原本 `assets/images/current-transformer-basic/ct-ogp-20261123.png`）、[ct-ratio-20261123.webp](https://denkicontrol.com/assets/images/current-transformer-basic/ct-ratio-20261123.webp)（Git原本 `assets/images/current-transformer-basic/ct-ratio-20261123.png`）。
+- [遅延起動回路](../articles/delayed-start-circuit-basic.html)（[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)、本番確認 2026-11-23 14:14:06 JST、main `0ca6af82b9fb8665e505ee4004831cd1c02c741a`）：オンディレイのタイミング、入力OFF時の動きとラダーの対応を整理。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[ondelay-concept-20261123.webp](https://denkicontrol.com/assets/images/delayed-start-circuit-basic/ondelay-concept-20261123.webp)（Git原本 `assets/images/delayed-start-circuit-basic/ondelay-concept-20261123.png`）、[ondelay-hero-20261123.webp](https://denkicontrol.com/assets/images/delayed-start-circuit-basic/ondelay-hero-20261123.webp)（Git原本 `assets/images/delayed-start-circuit-basic/ondelay-hero-20261123.png`）、[ondelay-ladder-y0-20261123.webp](https://denkicontrol.com/assets/images/delayed-start-circuit-basic/ondelay-ladder-y0-20261123.webp)（Git原本 `assets/images/delayed-start-circuit-basic/ondelay-ladder-y0-20261123.png`）、[ondelay-ogp-20261123.webp](https://denkicontrol.com/assets/images/delayed-start-circuit-basic/ondelay-ogp-20261123.webp)（Git原本 `assets/images/delayed-start-circuit-basic/ondelay-ogp-20261123.png`）、[ondelay-timing-y0-20261123.webp](https://denkicontrol.com/assets/images/delayed-start-circuit-basic/ondelay-timing-y0-20261123.webp)（Git原本 `assets/images/delayed-start-circuit-basic/ondelay-timing-y0-20261123.png`）。
+- [GOT・タッチパネル](../articles/got-touch-panel-basic.html)（[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)、本番確認 2026-11-23 14:14:06 JST、main `0ca6af82b9fb8665e505ee4004831cd1c02c741a`）：表示とPLC値の照合、操作要求と設備許可を分ける確認例を追加。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[got-touch-panel-compare-20261123.webp](https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-compare-20261123.webp)（Git原本 `assets/images/got-touch-panel-basic/got-touch-panel-compare-20261123.png`）、[got-touch-panel-directions-20261123.webp](https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-directions-20261123.webp)（Git原本 `assets/images/got-touch-panel-basic/got-touch-panel-directions-20261123.png`）、[got-touch-panel-hero-20261123.webp](https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-hero-20261123.webp)（Git原本 `assets/images/got-touch-panel-basic/got-touch-panel-hero-20261123.png`）、[got-touch-panel-ogp-20261123.webp](https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-ogp-20261123.webp)（Git原本 `assets/images/got-touch-panel-basic/got-touch-panel-ogp-20261123.png`）、[got-touch-panel-request-20261123.webp](https://denkicontrol.com/assets/images/got-touch-panel-basic/got-touch-panel-request-20261123.webp)（Git原本 `assets/images/got-touch-panel-basic/got-touch-panel-request-20261123.png`）。
+- [ノイズフィルタ](../articles/noise-filter-basic.html)（[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)、本番確認 2026-11-23 10:30:59 JST、main `f338c51a0c47b828f5269114d208802b3ec4113f`）：症状とノイズの回り道、型式・試験値と実機効果の違いを整理。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[noise-hero-20261123.webp](https://denkicontrol.com/assets/images/noise-filter-basic/noise-hero-20261123.webp)（Git原本 `assets/images/noise-filter-basic/noise-hero-20261123.png`）、[noise-ogp-20261123.webp](https://denkicontrol.com/assets/images/noise-filter-basic/noise-ogp-20261123.webp)（Git原本 `assets/images/noise-filter-basic/noise-ogp-20261123.png`）、[noise-rating-20261123.webp](https://denkicontrol.com/assets/images/noise-filter-basic/noise-rating-20261123.webp)（Git原本 `assets/images/noise-filter-basic/noise-rating-20261123.png`）、[noise-routes-20261123.webp](https://denkicontrol.com/assets/images/noise-filter-basic/noise-routes-20261123.webp)（Git原本 `assets/images/noise-filter-basic/noise-routes-20261123.png`）、[noise-scope-20261123.webp](https://denkicontrol.com/assets/images/noise-filter-basic/noise-scope-20261123.webp)（Git原本 `assets/images/noise-filter-basic/noise-scope-20261123.png`）。
+- [リセット回路](../articles/reset-circuit-basic.html)（[PR #2033](https://github.com/Syasu-pixel/my-site/pull/2033)・[Pages run 45094513979](https://github.com/Syasu-pixel/my-site/actions/runs/45094513979)、本番確認 2026-11-23 10:30:59 JST、main `f338c51a0c47b828f5269114d208802b3ec4113f`）：異常原因、記憶、許可、起動を分け、異常優先をラダーで整理。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[reset-circuit-basic-checks-20261123.webp](https://denkicontrol.com/assets/images/reset-circuit-basic/reset-circuit-basic-checks-20261123.webp)（Git原本 `assets/images/reset-circuit-basic/reset-circuit-basic-checks-20261123.png`）、[reset-circuit-basic-hero-20261123.webp](https://denkicontrol.com/assets/images/reset-circuit-basic/reset-circuit-basic-hero-20261123.webp)（Git原本 `assets/images/reset-circuit-basic/reset-circuit-basic-hero-20261123.png`）、[reset-circuit-basic-ladder-model-20261123.webp](https://denkicontrol.com/assets/images/reset-circuit-basic/reset-circuit-basic-ladder-model-20261123.webp)（Git原本 `assets/images/reset-circuit-basic/reset-circuit-basic-ladder-model-20261123.png`）、[reset-circuit-basic-ogp-20261123.webp](https://denkicontrol.com/assets/images/reset-circuit-basic/reset-circuit-basic-ogp-20261123.webp)（Git原本 `assets/images/reset-circuit-basic/reset-circuit-basic-ogp-20261123.png`）、[reset-circuit-basic-states-20261123.webp](https://denkicontrol.com/assets/images/reset-circuit-basic/reset-circuit-basic-states-20261123.webp)（Git原本 `assets/images/reset-circuit-basic/reset-circuit-basic-states-20261123.png`）。
+- [上限・下限リミット回路](../articles/upper-lower-limit-circuit-basic.html)（[PR #2035](https://github.com/Syasu-pixel/my-site/pull/2035)・[Pages run 45115890706](https://github.com/Syasu-pixel/my-site/actions/runs/45115890706)、本番確認 2026-11-23 14:14:06 JST、main `0ca6af82b9fb8665e505ee4004831cd1c02c741a`）：方向別制限と安全機能を区別し、コメント付きラダー例を掲載。内容更新2026-11-23／公式資料確認2026-11-23。本番HTMLと採用画像5点の一致を確認。配信画像：[upper-lower-limit-circuit-basic-directions-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-directions-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-directions-20261123.png`）、[upper-lower-limit-circuit-basic-hero-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-hero-20261123.png`）、[upper-lower-limit-circuit-basic-ladder-comments-y-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ladder-comments-y-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ladder-comments-y-20261123.png`）、[upper-lower-limit-circuit-basic-ogp-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-ogp-20261123.png`）、[upper-lower-limit-circuit-basic-records-20261123.webp](https://denkicontrol.com/assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-records-20261123.webp)（Git原本 `assets/images/upper-lower-limit-circuit-basic/upper-lower-limit-circuit-basic-records-20261123.png`）。
+
+- 公開本体ではルートの sitemap 日付を変更していない。後追いの今回案は公開を確認した日本語の対象locだけに lastmod を記録する。Googleは本記録から新規操作しない。
+
+## 2026-11-23 — 圧力計の公開確認
+
+- [圧力計](../articles/pressure-gauge-basic.html)（[PR #2037](https://github.com/Syasu-pixel/my-site/pull/2037)・[Pages run 45152140638](https://github.com/Syasu-pixel/my-site/actions/runs/45152140638)、公式配信 2026-11-23 19:06:27 JST、main `1fe62a8f680f9eb06cff7a7031e57f648373559d`）：取出し位置、負荷時の圧力、読み違いの切り分けを図解。内容更新2026-11-23／公式資料確認2026-11-23。公開正規URLのHTTP 200、本番HTMLと配信画像5点、関連記事カード4箇所を確認。配信画像：[hero](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-hero-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-ogp-20261123.png`）、[reading-check](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-reading-check-20261123.png`）、[tap-points](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-tap-points-20261123.png`）、[under-load](https://denkicontrol.com/assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.webp)（Git原本 `assets/images/pressure-gauge-basic/pressure-gauge-basic-under-load-20261123.png`）。
+
+## 2026-11-23 — 圧力スイッチと圧力計の公開確認
+
+- [圧力スイッチと圧力計](../articles/pressure-switch-vs-gauge-basic.html)（[PR #2039](https://github.com/Syasu-pixel/my-site/pull/2039)・[Pages run 45190376965](https://github.com/Syasu-pixel/my-site/actions/runs/45190376965)、公式配信 2026-11-23 23:09:21 JST、main `5ad5730b84f4f1cafea1de02405fe53ce3a9590b`）：4つの観察点、0.45 MPaの応差例、スイッチ出力とPLC入力の切り分けを整理し、スマホに本文内目次を追加。内容更新2026-11-23／公式資料確認2026-11-23。公開正規URLの本番HTMLと配信画像5点を照合。配信画像：[hero](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hero-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hero-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-ogp-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-ogp-20261123.png`）、[decision-check](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-decision-check-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-decision-check-20261123.png`）、[four-readings](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-four-readings-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-four-readings-20261123.png`）、[hysteresis](https://denkicontrol.com/assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hysteresis-20261123.webp)（Git原本 `assets/images/pressure-switch-vs-gauge-basic/pressure-switch-vs-gauge-basic-hysteresis-20261123.png`）。
+
+## 2026-11-24 — 電工ナイフ・GX Works3 クロスリファレンス・温度センサーの公開確認
+
+- [PR #2041](https://github.com/Syasu-pixel/my-site/pull/2041)・[Pages run 45358218865](https://github.com/Syasu-pixel/my-site/actions/runs/45358218865)、公式配信 2026-11-24 17:46:27 JST、本番コミット `114d6e3ebe131b495f63857d4ca6ef2b6b961e73`。既存日本語3記事の公開正規URL（HTTP 200）と、本番HTML3本・配信用画像12点の採用済みSHA-256一致を確認。[IndexNow run 45358218981](https://github.com/Syasu-pixel/my-site/actions/runs/45358218981) は配信前の17:42:00 JSTに3URLをHTTP 200で受付。今回の公開作業ではGoogle登録リクエスト未送信、検索反映は未確認。
+- [電工ナイフ](../articles/electrician-knife.html)：ケーブル外装・芯線の絶縁・電線の切断を分け、適合する工具を選ぶ整理とメーカー資料を追加。 内容更新2026-11-23／公式資料確認2026-11-23。配信画像：[hero](https://denkicontrol.com/assets/images/electrician-knife/electrician-knife-hero-20261123.webp)（採用配信用WebPを保全 `assets/images/electrician-knife/electrician-knife-hero-20261123.webp`）、[layers](https://denkicontrol.com/assets/images/electrician-knife/electrician-knife-layers-20261123.webp)（採用配信用WebPを保全 `assets/images/electrician-knife/electrician-knife-layers-20261123.webp`）、[ogp](https://denkicontrol.com/assets/images/electrician-knife/electrician-knife-ogp-20261123.webp)（採用配信用WebPを保全 `assets/images/electrician-knife/electrician-knife-ogp-20261123.webp`）、[tool-choice](https://denkicontrol.com/assets/images/electrician-knife/electrician-knife-tool-choice-20261123.webp)（採用配信用WebPを保全 `assets/images/electrician-knife/electrician-knife-tool-choice-20261123.webp`）。
+- [GX Works3 クロスリファレンス](../articles/gx-works3-cross-reference-basic.html)：オフライン学習ラダーでM10の書込みと参照、検索範囲と絞り込みを整理。 内容更新2026-11-23／公式資料確認2026-11-23。配信画像：[hero](https://denkicontrol.com/assets/images/gx-works3-cross-reference-basic/crossref-hero-20261123.webp)（採用配信用WebPを保全 `assets/images/gx-works3-cross-reference-basic/crossref-hero-20261123.webp`）、[ladder](https://denkicontrol.com/assets/images/gx-works3-cross-reference-basic/crossref-ladder-20261123.webp)（回収原PNG `assets/images/gx-works3-cross-reference-basic/crossref-ladder-20261123.png`）、[map](https://denkicontrol.com/assets/images/gx-works3-cross-reference-basic/crossref-map-20261123.webp)（回収原PNG `assets/images/gx-works3-cross-reference-basic/crossref-map-20261123.png`）、[ogp](https://denkicontrol.com/assets/images/gx-works3-cross-reference-basic/crossref-ogp-20261123.webp)（採用配信用WebPを保全 `assets/images/gx-works3-cross-reference-basic/crossref-ogp-20261123.webp`）。
+- [温度センサー](../articles/temperature-sensor-basic.html)：熱電対と測温抵抗体の信号、入力種別、表示差の照合順を整理。 内容更新2026-11-23／公式資料確認2026-11-23。配信画像：[check](https://denkicontrol.com/assets/images/temperature-sensor-basic/temperature-sensor-basic-check-20261123.webp)（採用配信用WebPを保全 `assets/images/temperature-sensor-basic/temperature-sensor-basic-check-20261123.webp`）、[compare](https://denkicontrol.com/assets/images/temperature-sensor-basic/temperature-sensor-basic-compare-20261123.webp)（採用配信用WebPを保全 `assets/images/temperature-sensor-basic/temperature-sensor-basic-compare-20261123.webp`）、[hero](https://denkicontrol.com/assets/images/temperature-sensor-basic/temperature-sensor-basic-hero-20261123.webp)（採用配信用WebPを保全 `assets/images/temperature-sensor-basic/temperature-sensor-basic-hero-20261123.webp`）、[ogp](https://denkicontrol.com/assets/images/temperature-sensor-basic/temperature-sensor-basic-ogp-20261123.webp)（採用配信用WebPを保全 `assets/images/temperature-sensor-basic/temperature-sensor-basic-ogp-20261123.webp`）。
+
+## 2026-11-24 — 制御盤コンセント・GX Works3 ワンショット・線番マーカーの公開確認
+
+- [PR #2044](https://github.com/Syasu-pixel/my-site/pull/2044)・[Pages run 45381340032](https://github.com/Syasu-pixel/my-site/actions/runs/45381340032)、公式配信 2026-11-24 20:14:13 JST、本番コミット `ea17d0355694db03fe08fd262991951075671338`。採用済み日本語3記事の正規URL（HTTP 200）と、本番HTML3本・配信用画像13点の採用SHA-256完全一致を確認。[IndexNow run 45381339988](https://github.com/Syasu-pixel/my-site/actions/runs/45381339988) は20:09:14 JSTに対象3 URLをHTTP 200で受付。今回の公開作業ではGoogle登録リクエスト未送信、検索反映は未確認。
+- [制御盤コンセント](../articles/control-panel-outlet-basic.html)：主電源との分離、機器銘板と負荷条件、保守時の電源範囲確認を整理。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[control-panel-outlet-basic-hero-v2-20261124](https://denkicontrol.com/assets/images/control-panel-outlet-basic/control-panel-outlet-basic-hero-v2-20261124.webp)（Git原本 `assets/images/control-panel-outlet-basic/control-panel-outlet-basic-hero-v2-20261124.png`）、[control-panel-outlet-basic-ogp-v2-20261124](https://denkicontrol.com/assets/images/control-panel-outlet-basic/control-panel-outlet-basic-ogp-v2-20261124.webp)（Git原本 `assets/images/control-panel-outlet-basic/control-panel-outlet-basic-ogp-v2-20261124.png`）、[control-panel-outlet-basic-rating-check-20261124](https://denkicontrol.com/assets/images/control-panel-outlet-basic/control-panel-outlet-basic-rating-check-20261124.webp)（Git原本 `assets/images/control-panel-outlet-basic/control-panel-outlet-basic-rating-check-20261124.png`）、[control-panel-outlet-basic-supply-scope-20261124](https://denkicontrol.com/assets/images/control-panel-outlet-basic/control-panel-outlet-basic-supply-scope-20261124.webp)（Git原本 `assets/images/control-panel-outlet-basic/control-panel-outlet-basic-supply-scope-20261124.png`）。
+- [GX Works3 ワンショット・立上り／立下り検出](../articles/gxw3-one-shot-rise-fall-detection.html)：オフラインの学習ラダーと時間図で、立上り／立下りと1スキャンの読み方を整理。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[edge-hero-20261124](https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection/edge-hero-20261124.webp)（Git原本 `assets/images/gxw3-one-shot-rise-fall-detection/edge-hero-20261124.png`）、[edge-ladder-20261124](https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection/edge-ladder-20261124.webp)（Git原本 `assets/images/gxw3-one-shot-rise-fall-detection/edge-ladder-20261124.png`）、[edge-observation-20261124](https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection/edge-observation-20261124.webp)（Git原本 `assets/images/gxw3-one-shot-rise-fall-detection/edge-observation-20261124.png`）、[edge-ogp-20261124](https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection/edge-ogp-20261124.webp)（Git原本 `assets/images/gxw3-one-shot-rise-fall-detection/edge-ogp-20261124.png`）、[edge-timing-20261124](https://denkicontrol.com/assets/images/gxw3-one-shot-rise-fall-detection/edge-timing-20261124.webp)（Git原本 `assets/images/gxw3-one-shot-rise-fall-detection/edge-timing-20261124.png`）。
+- [線番マーカー](../articles/wire-number-marker-basic.html)：線番、端子番号、部品記号の照合と、同じ線番を見かけたときの確認を図解。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[wire-number-marker-basic-hero-20261124](https://denkicontrol.com/assets/images/wire-number-marker-basic/wire-number-marker-basic-hero-20261124.webp)（Git原本 `assets/images/wire-number-marker-basic/wire-number-marker-basic-hero-20261124.png`）、[wire-number-marker-basic-identifiers-v3-20261124](https://denkicontrol.com/assets/images/wire-number-marker-basic/wire-number-marker-basic-identifiers-v3-20261124.webp)（Git原本 `assets/images/wire-number-marker-basic/wire-number-marker-basic-identifiers-v3-20261124.png`）、[wire-number-marker-basic-ogp-20261124](https://denkicontrol.com/assets/images/wire-number-marker-basic/wire-number-marker-basic-ogp-20261124.webp)（Git原本 `assets/images/wire-number-marker-basic/wire-number-marker-basic-ogp-20261124.png`）、[wire-number-marker-basic-same-label-20261124](https://denkicontrol.com/assets/images/wire-number-marker-basic/wire-number-marker-basic-same-label-20261124.webp)（Git原本 `assets/images/wire-number-marker-basic/wire-number-marker-basic-same-label-20261124.png`）。
+
+## 2026-11-24 — 空気圧トラブルガイド・制御盤ラベル・GX Works3 タイマの公開確認
+
+- [PR #2046](https://github.com/Syasu-pixel/my-site/pull/2046)・[Pages run 45403195352](https://github.com/Syasu-pixel/my-site/actions/runs/45403195352)、公式配信 2026-11-24 22:31:26 JST、本番コミット `30a1918615ffbda759ea5336f1734f0900ce0bbf`。対象日本語3記事の正規URLで、同日22:33–22:34 JSTに実ブラウザーで更新後の本文・canonicalを確認。空圧ガイドの新規WebP3点は本番URLからデコードを確認。残る配信WebP10点は本番HTTP 200と採用版SHA-256の完全一致を確認。HTML3本と空圧WebP3点の厳密なバイト照合は未確認。[IndexNow run 45403195455](https://github.com/Syasu-pixel/my-site/actions/runs/45403195455) は22:25:51 JSTに対象3 URLをHTTP 200で受付。今回の公開作業でGoogle登録リクエストは未送信、検索反映は未確認。
+- [空気圧トラブルガイド](../articles/air-pneumatic-troubleshooting-guide.html)：症状から個別解説に進む確認順と、待機・圧力・流路の切り分けを整理。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[pneumatic-guide-hero-20261124](https://denkicontrol.com/assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-hero-20261124.webp)（Git原本 `assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-hero-20261124.png`）、[pneumatic-guide-hub-20261124-v2](https://denkicontrol.com/assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-hub-20261124-v2.webp)（Git原本 `assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-hub-20261124-v2.png`）、[pneumatic-guide-ogp-20261124](https://denkicontrol.com/assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-ogp-20261124.webp)（Git原本 `assets/images/air-pneumatic-troubleshooting-guide/pneumatic-guide-ogp-20261124.png`）。
+- [制御盤ラベル](../articles/control-panel-label-basic.html)：設備・機器・端子などの識別と図面照合、表示位置・引継ぎを整理。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[control-panel-label-basic-drawing-handoff-20261124](https://denkicontrol.com/assets/images/control-panel-label-basic/control-panel-label-basic-drawing-handoff-20261124.webp)（Git原本 `assets/images/control-panel-label-basic/control-panel-label-basic-drawing-handoff-20261124.png`）、[control-panel-label-basic-hero-20261124](https://denkicontrol.com/assets/images/control-panel-label-basic/control-panel-label-basic-hero-20261124.webp)（Git原本 `assets/images/control-panel-label-basic/control-panel-label-basic-hero-20261124.png`）、[control-panel-label-basic-identifiers-20261124](https://denkicontrol.com/assets/images/control-panel-label-basic/control-panel-label-basic-identifiers-20261124.webp)（Git原本 `assets/images/control-panel-label-basic/control-panel-label-basic-identifiers-20261124.png`）、[control-panel-label-basic-label-position-20261124](https://denkicontrol.com/assets/images/control-panel-label-basic/control-panel-label-basic-label-position-20261124.webp)（Git原本 `assets/images/control-panel-label-basic/control-panel-label-basic-label-position-20261124.png`）、[control-panel-label-basic-ogp-20261124](https://denkicontrol.com/assets/images/control-panel-label-basic/control-panel-label-basic-ogp-20261124.webp)（Git原本 `assets/images/control-panel-label-basic/control-panel-label-basic-ogp-20261124.png`）。
+- [GX Works3 タイマ](../articles/gxw3-timer-ton-toff-retentive.html)：オンディレイ・オフディレイ・積算の違いと、FX5のオフライン学習用ラダー表記を整理。 内容更新2026-11-24／公式資料確認2026-11-24。配信画像：[timerfx5-delay-20261124](https://denkicontrol.com/assets/images/gxw3-timer-ton-toff-retentive/timerfx5-delay-20261124.webp)（Git原本 `assets/images/gxw3-timer-ton-toff-retentive/timerfx5-delay-20261124.png`）、[timerfx5-hero-20261124](https://denkicontrol.com/assets/images/gxw3-timer-ton-toff-retentive/timerfx5-hero-20261124.webp)（Git原本 `assets/images/gxw3-timer-ton-toff-retentive/timerfx5-hero-20261124.png`）、[timerfx5-ladder-notation-v2-20261124](https://denkicontrol.com/assets/images/gxw3-timer-ton-toff-retentive/timerfx5-ladder-notation-v2-20261124.webp)（Git原本 `assets/images/gxw3-timer-ton-toff-retentive/timerfx5-ladder-notation-v2-20261124.png`）、[timerfx5-ogp-20261124](https://denkicontrol.com/assets/images/gxw3-timer-ton-toff-retentive/timerfx5-ogp-20261124.webp)（Git原本 `assets/images/gxw3-timer-ton-toff-retentive/timerfx5-ogp-20261124.png`）、[timerfx5-retentive-20261124](https://denkicontrol.com/assets/images/gxw3-timer-ton-toff-retentive/timerfx5-retentive-20261124.webp)（Git原本 `assets/images/gxw3-timer-ton-toff-retentive/timerfx5-retentive-20261124.png`）。
+
+## 2026-11-25 — ラダー図・ラチェットレンチ・安全ドアスイッチの公開確認
+
+- [PR #2048](https://github.com/Syasu-pixel/my-site/pull/2048)・[Pages run 45514045385](https://github.com/Syasu-pixel/my-site/actions/runs/45514045385)、本番コミット `b61c4d2d3b19d95e0109684dab079daf6a6ed4ff`。各正規URLを実ブラウザで開き、採用版の画像構成、専用OGPとcanonicalを確認。Google再クロールはこの公開作業では未実施。[IndexNow run 45514045376](https://github.com/Syasu-pixel/my-site/actions/runs/45514045376) は対象URLの通知をHTTP 200で受理（検索結果への反映確認とは別）。
+- [ラダー図の読み方](https://denkicontrol.com/articles/ladder-reading.html)：入力と内部ビット、並列枝・自己保持を読む2枚の図。
+- [ラチェットレンチ](https://denkicontrol.com/articles/ratchet-wrench.html)：二面幅と柄の可動域、先端の違いを図解。TONE公式動画の直リンク（既存埋め込みは維持）。
+- [安全ドアスイッチ](https://denkicontrol.com/articles/safety-door-switch-interlock-basic.html)：扉の検出・安全出力・機械の実際の停止を分ける補足図を含む4枚。

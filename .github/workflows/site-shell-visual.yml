@@ -9,13 +9,16 @@ on:
       - 'scripts/*site-shell*'
       - 'scripts/report-article-impact.mjs'
       - 'scripts/select-shell-visual-targets.mjs'
+      - 'scripts/select-ui-proposal-targets.mjs'
       - 'tests/article-impact.test.mjs'
       - 'tests/site-shells.test.mjs'
       - 'assets/images/**'
       - 'assets/css/**'
       - 'assets/js/**'
       - 'tests/site-shell-phase.browser.mjs'
+      - 'tests/site-shell-fixed-overlay.browser.mjs'
       - 'tests/select-shell-visual-targets.test.mjs'
+      - 'tests/select-ui-proposal-targets.test.mjs'
       - 'articles/**'
       - 'en/articles/**'
       - 'package.json'
@@ -51,8 +54,8 @@ jobs:
           git archive "$BASE" | tar -x -C .visual-base
       - name: Test visual audit routing
         run: |
-          node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs
-          node --test tests/site-shell-phase.browser.mjs
+          node --test tests/select-shell-visual-targets.test.mjs tests/article-impact.test.mjs tests/select-ui-proposal-targets.test.mjs
+          node --test tests/site-shell-phase.browser.mjs tests/site-shell-fixed-overlay.browser.mjs
       - name: Select visual audit scope
         run: node scripts/select-shell-visual-targets.mjs "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" .visual-targets.json
       - name: Save baseline before generation
@@ -121,14 +124,17 @@ jobs:
       - name: Render separate header UI proposal
         if: success() && hashFiles('scripts/preview-site-shell-ui.mjs') != ''
         run: |
-          node scripts/preview-site-shell-ui.mjs .ui-proposal
+          node scripts/select-ui-proposal-targets.mjs .visual-targets.json .visual-evidence/baseline.json .ui-proposal-targets.json
+          node scripts/preview-site-shell-ui.mjs .ui-proposal .ui-proposal-targets.json
           node scripts/capture-site-shell-ui.mjs .ui-proposal .ui-evidence .visual-evidence
       - name: Upload intentional UI proposal separately
         if: always() && hashFiles('.ui-evidence/report.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: shell-ui-proposal-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .ui-evidence/
+          path: |
+            .ui-evidence/
+            .ui-proposal-targets.json
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error

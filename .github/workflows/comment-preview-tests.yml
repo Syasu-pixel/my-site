@@ -1,0 +1,22 @@
+name: Comment preview tests
+on:
+  pull_request:
+    paths:
+      - '.github/comment-dashboard-preview/**'
+      - '.github/workflows/comment-preview-tests.yml'
+permissions:
+  contents: read
+jobs:
+  comment-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run isolated comment tests
+        working-directory: .github/comment-dashboard-preview
+        run: node --test *.test.mjs

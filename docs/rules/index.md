@@ -22,6 +22,7 @@
 |---|---|
 | [.github/article-components/end/INTEGRATION.md](../../.github/article-components/end/INTEGRATION.md) — 関連記事カード・コンパクト版の採用記録 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [.github/article-components/sidebar/INTEGRATION.md](../../.github/article-components/sidebar/INTEGRATION.md) — sidebar-toc-v2 — 採用済み部品の統合手順 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
+| [.github/comment-dashboard-preview/CONNECTION-CHECK.md](../../.github/comment-dashboard-preview/CONNECTION-CHECK.md) — コメント管理の本番接続前検証 | 日本語個別記事のコメント欄と運営画面を検証・接続する場合。確認用の記録であり、本番稼働の証明ではない。 |
 | [docs/additional-page-shells.md](../additional-page-shells.md) — トップ・相談・キャリア入口の共通枠 | トップ・相談・キャリア入口の共通枠、生成・比較・公開・採用基準を扱う。 |
 | [docs/adopted-image-github-placement-rule.md](../adopted-image-github-placement-rule.md) — 採用済み画像のGitHub配置ルール | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/agents/article-candidate-agent.md](../agents/article-candidate-agent.md) — 記事候補提案エージェント手順 | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |
@@ -286,6 +287,7 @@
 | [.github/article-components/hero/manifest.json](../../.github/article-components/hero/manifest.json) | 記事ヒーローひな形の対象・抽出・生成・保全・再生成・隔離プレビューを変更または検査する場合。 明示288件のヒーロー制御。CSSプロフィールの個別参照はcss-bindings.jsonを正本とする。 |
 | [.github/article-components/integration.json](../../.github/article-components/integration.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
 | [.github/article-components/sidebar/adoption.json](../../.github/article-components/sidebar/adoption.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/comment-dashboard-preview/comment-postgres-check.mjs](../../.github/comment-dashboard-preview/comment-postgres-check.mjs) | コメント受付と運営承認を隔離した保存先で検証する場合。 合成記録を使うPostgreSQL接続試験。 |
 | [.github/site-shells/additional/footer.njk](../../.github/site-shells/additional/footer.njk) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/additional/frame.css](../../.github/site-shells/additional/frame.css) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/additional/manifest.json](../../.github/site-shells/additional/manifest.json) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
@@ -293,6 +295,7 @@
 | [.github/site-shells/components/affiliate-disclosure.njk](../../.github/site-shells/components/affiliate-disclosure.njk) | 共通フッターの広告表記を編集・生成する場合。 全記事37variantと追加4ページが共有する文面・配置の正本。 |
 | [.github/site-shells/eleventy.config.cjs](../../.github/site-shells/eleventy.config.cjs) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/site-shells/manifest.json](../../.github/site-shells/manifest.json) | 記事部品の生成・統合・公開・その検査を変更する場合。 承認済み構成・適用対象・生成/検査/配信境界の制御。本文読了の証明とはしない。 |
+| [.github/workflows/comment-preview-tests.yml](../../.github/workflows/comment-preview-tests.yml) | コメント機能の確認用PRを検証する場合。 配信・外部接続・本番データなしで合成テストを実行する。 |
 | [.github/workflows/donation-main-diff.yml](../../.github/workflows/donation-main-diff.yml) | 追加ページ・寄付非表示・承認済み公開導線の生成差分を検証する場合。 寄付CSSと共通枠の継続保全。変更はピン留めした審査済み導線遷移または既存GX連絡先遷移のみ、他は拒否。目視承認を代替しない。 |
 | [.github/workflows/additional-shells.yml](../../.github/workflows/additional-shells.yml) | 追加ページの共通ヘッダー/フッターを生成・検査・公開・変更する場合。 適用範囲、採用した共通枠、生成・検査の正本。 |
 | [.github/workflows/ai-artifact-writer.yml](../../.github/workflows/ai-artifact-writer.yml) | この実装・自動検査・公開経路・運用条件を扱う場合。文書と実装の一致を確認する。 実装参照。コードの存在は稼働・適合・再開許可の証拠ではない。 |

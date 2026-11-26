@@ -158,7 +158,7 @@ test('Pages adapters separate public lookup, existing moderator token and restri
   fetcher:async(url,init)=>{
    const u=new URL(url);
    assert.equal(u.origin,'https://pavitnsnmoaiospswiys.supabase.co');
-   assert.equal(init.redirect,'error');assert.equal(init.credentials,'omit');assert.equal(init.cache,'no-store');
+   assert.equal(init.redirect,'manual');assert.equal(init.credentials,'omit');assert.equal(init.cache,'no-store');
    assert.equal(init.headers.apikey,bindings.COMMENTS_SUPABASE_PUBLISHABLE_KEY);
    network.push([u.pathname,init.headers.Authorization,init.body]);
    if(u.pathname==='/auth/v1/user')return Response.json({id:'449c2ebb-06b1-4d39-b793-4f01ebb43ecb',is_anonymous:false});
@@ -238,7 +238,7 @@ test('staging requires distinct bindings; public, auth and operator APIs only re
  await adapter.createActorClient({accessToken:'fixture-only'}).rpc('dc_comment_moderation_list');
  assert.deepEqual(urls,['/rest/v1/rpc/dc_comment_public_list','/auth/v1/user','/rest/v1/rpc/dc_comment_moderation_list']);
  redirect=true;
- await assert.rejects(adapter.authClient.auth.getUser('fixture-only'),/Staging API redirect rejected/);
+ await assert.rejects(adapter.authClient.auth.getUser('fixture-only'),/Comments API redirect rejected/);
  assert.equal(urls.at(-1),'/auth/v1/user');
  assert.equal(urls.length,4);
  const sql='select public.dc_comment_gateway_eligible($1) as data';
@@ -247,3 +247,4 @@ test('staging requires distinct bindings; public, auth and operator APIs only re
  await assert.rejects(adapter.gatewayQuery(sql,['/articles/example.html']),/Wrong staging gateway role/);
  assert.deepEqual(queries,['select current_user as role',sql,'close','select current_user as role','close']);
 });
+

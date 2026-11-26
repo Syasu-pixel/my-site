@@ -121,3 +121,24 @@ test('dedicated host: reader posts, separate reader cannot see it, existing oper
  assert.equal((await stranger.publicRows())[0].body,'合成コメント');
 });
 
+
+test('Pages event boundary keeps production host exact, defaults to off and never passes unknown paths through',async()=>{
+ const {buildPagesCommentsOnRequest}=await import('./comments-worker-entry.mjs');
+ let opened=0;
+ const onRequest=buildPagesCommentsOnRequest({openAdapters:env=>{
+  opened++;assert.equal(env.COMMENTS_ENABLED,'true');
+  return {keyBytes:new Uint8Array(32).fill(14),gatewayQuery:async()=>response(false),publicQuery:async()=>response([])};
+ }});
+ const part='public?article=/articles/example.html';
+ assert.equal((await onRequest()).status,503);
+ assert.equal((await onRequest({request:direct(part)})).status,503);
+ const preview=new Request('https://fixture.pages.dev/api/article-comments/'+part,{headers:{Origin:site}});
+ assert.equal((await onRequest({request:preview,env:enabled})).status,404);
+ assert.equal((await onRequest({request:direct('unrelated'),env:enabled})).status,404);
+ assert.equal(opened,0);
+ const r=await onRequest({request:direct(part),env:enabled});assert.equal(r.status,200);
+ assert.equal(r.headers.get('access-control-allow-origin'),site);
+ assert.equal(r.headers.get('set-cookie'),null);
+ assert.equal(opened,1);
+ assert.equal((await buildPagesCommentsOnRequest()({request:direct(part),env:enabled})).status,503);
+});

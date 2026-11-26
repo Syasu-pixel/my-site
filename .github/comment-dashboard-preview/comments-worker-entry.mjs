@@ -62,3 +62,13 @@ export function buildCommentsEntrypoint({origin,apiOrigin=origin,openAdapters}={
   }catch { return respond(error(503)); }
  };
 }
+
+// Pages Functions adapter: wire up onRequest in a separate project only after
+// supplying reviewed server bindings. There is deliberately no auto-mounted
+// export, test mode switch or fallback to a fixture database.
+export function buildPagesCommentsOnRequest({openAdapters}={}) {
+ const handle=buildCommentsEntrypoint({
+  origin:'https://denkicontrol.com',apiOrigin:COMMENT_API_ORIGIN,openAdapters
+ });
+ return ({request,env}={})=>request instanceof Request?handle(request,env):error(503);
+}

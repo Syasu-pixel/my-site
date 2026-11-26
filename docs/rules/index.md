@@ -23,6 +23,7 @@
 | [.github/article-components/end/INTEGRATION.md](../../.github/article-components/end/INTEGRATION.md) — 関連記事カード・コンパクト版の採用記録 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [.github/article-components/sidebar/INTEGRATION.md](../../.github/article-components/sidebar/INTEGRATION.md) — sidebar-toc-v2 — 採用済み部品の統合手順 | 採用済み記事部品の編集・統合・検査・公開経路を扱う。初版採用記録と現在の移行状態を区別する。 |
 | [.github/comment-dashboard-preview/CONNECTION-CHECK.md](../../.github/comment-dashboard-preview/CONNECTION-CHECK.md) — コメント管理の本番接続前検証 | 日本語個別記事のコメント欄と運営画面を検証・接続する場合。確認用の記録であり、本番稼働の証明ではない。 |
+| [.github/comment-dashboard-preview/pages-smoke/README.md](../../.github/comment-dashboard-preview/pages-smoke/README.md) — コメント専用 Pages 検証用パッケージ | コメント機能を本番とは別の Pages 環境で検証する場合。配備や本番稼働の証明ではない。 |
 | [docs/additional-page-shells.md](../additional-page-shells.md) — トップ・相談・キャリア入口の共通枠 | トップ・相談・キャリア入口の共通枠、生成・比較・公開・採用基準を扱う。 |
 | [docs/adopted-image-github-placement-rule.md](../adopted-image-github-placement-rule.md) — 採用済み画像のGitHub配置ルール | 画像の制作・採用・配置・品質審査・キャラクター利用を扱う。 |
 | [docs/agents/article-candidate-agent.md](../agents/article-candidate-agent.md) — 記事候補提案エージェント手順 | 記事の企画・制作・更新・導線整備。個別依頼に該当する工程を判定し、本文の優先順位・限定例外を適用する。 |

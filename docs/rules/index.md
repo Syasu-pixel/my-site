@@ -207,6 +207,7 @@
 | [docs/reference-notes/ladder-reading.md](../reference-notes/ladder-reading.md) — ラダー図の読み方 公式参照メモ | 既存記事「ラダー図の読み方 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/ratchet-wrench.md](../reference-notes/ratchet-wrench.md) — ラチェットレンチの選び方：公式資料確認メモ | 既存記事「ラチェットレンチの選び方：公式資料確認メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/safety-door-switch-interlock-basic.md](../reference-notes/safety-door-switch-interlock-basic.md) — 安全ドアスイッチ：確認した一次資料 | 既存記事「安全ドアスイッチ：確認した一次資料」のメーカー資料と技術判断を確認するとき。 |
+| [.github/comment-dashboard-preview/pages-production/ROLLOUT-CANDIDATE.md](../../.github/comment-dashboard-preview/pages-production/ROLLOUT-CANDIDATE.md) — コメント機能の本番候補と停止手順 | 運営ダッシュボードと公開済み日本語個別記事のコメント機能を配備・復旧する場合。本番稼働の証明ではない。 |
 
 ## 履歴・参考
 
@@ -379,6 +380,11 @@
 | [.github/workflows/search-privacy.yml](../../.github/workflows/search-privacy.yml) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
 | [scripts/check-search-privacy.py](../../scripts/check-search-privacy.py) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
 | [scripts/test-search-privacy.py](../../scripts/test-search-privacy.py) | 検索生データの公開前検査・PR差分・配信成果物検査を扱う場合。 値を出力しないオフライン検査と架空回帰試験。完全な情報漏えい防止の保証ではない。 |
+| [.github/comment-dashboard-preview/dashboard-production-candidate/check.cjs](../../.github/comment-dashboard-preview/dashboard-production-candidate/check.cjs) | コメント機能の安全な本番反映を検証する場合。 合成ブラウザで運営権限と画面動作を検証する。 |
+| [.github/comment-dashboard-preview/pages-production/gateway-role.check.mjs](../../.github/comment-dashboard-preview/pages-production/gateway-role.check.mjs) | コメント機能の安全な本番反映を検証する場合。 隔離 PostgreSQL で専用ロールの権限と初期停止を検証する。 |
+| [.github/comment-dashboard-preview/pages-production/gateway-role.review.sql](../../.github/comment-dashboard-preview/pages-production/gateway-role.review.sql) | コメント機能の安全な本番反映を検証する場合。 認証情報を含まない最小権限の本番候補ロール定義。 |
+| [.github/comment-dashboard-preview/pages-smoke/local-production-redirect-check.mjs](../../.github/comment-dashboard-preview/pages-smoke/local-production-redirect-check.mjs) | コメント機能の安全な本番反映を検証する場合。 隔離 workerd で本番形の転送拒否を検証する。 |
+| [.github/comment-dashboard-preview/pages-smoke/staging-connection-check.test.mjs](../../.github/comment-dashboard-preview/pages-smoke/staging-connection-check.test.mjs) | コメント機能の安全な本番反映を検証する場合。 検証専用の接続チェックの非公開・読み取り専用条件を検証する。 |
 
 ## 省略表記の参照先
 

@@ -6,7 +6,7 @@
 
 - 本番の Supabase を読み取りのみで照合済み：既存の運営者台帳あり、コメント専用スキーマなし、対象 RPC 0、専用接続ロールなし。検証の実投稿や運営ユーザーを移さない。既存運営者台帳への登録作業は不要と仮定せず、実ログインで照合する。
 - 隔離 Pages と staging DB の資格情報・ロールは本番では使わない。本番専用プロジェクトへの配信、本番 DB への移行、DNS は未実施。
-- [Cloudflare Pages の外部 DNS 手順](https://developers.cloudflare.com/pages/configuration/custom-domains/)に従い、運用する場合は新しいコメント API 専用 Pages にサブドメインを関連づけてから、お名前.com にそのサブドメインの CNAME のみを設定する。既存の Web／メール／ネームサーバーを動かさない。DNS を先に作らない。
+- [Cloudflare Pages の外部 DNS 手順](https://developers.cloudflare.com/pages/configuration/custom-domains/)に従い、運用する場合は新しいコメント API 専用 Pages にサブドメインを関連づけてから、お名前.com にそのサブドメインの CNAME のみを設定する。既存の Web／メール／ネームサーバーを動かさない。DNS を先に作らない。[外部 DNS では Pages の本番ブランチに接続される](https://developers.cloudflare.com/pages/how-to/custom-branch-aliases/)ため、検証用の `smoke` を CNAME の参照先にしない。本番専用プロジェクトで受付 OFF の配信を確認した後、Cloudflare が示すルート `pages.dev` ホスト名を使う。お名前.com の [DNS レコード設定](https://www.onamae.com/guide/p/70)ではホスト名 `comments`・種類 `CNAME` の 1 行だけ。接続先を確認するまでは値を記入しない。「DNSレコード設定用ネームサーバー変更確認」はチェックしない。既存行に競合があれば上書きせず止める。
 - [WebKit の追跡防止](https://webkit.org/tracking-prevention/#cname-and-third-party-ip-address-cloaking-defense)により、別接続先の Cookie は条件次第で有効期限を制限される。Chrome の隔離プレビューは、本番 iPhone での再訪編集の証拠ではない。「いつでも投稿者が編集できる」と表示しない。
 
 ## 本番候補の受け口と検査

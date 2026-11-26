@@ -142,3 +142,60 @@ test('Pages event boundary keeps production host exact, defaults to off and neve
  assert.equal(opened,1);
  assert.equal((await buildPagesCommentsOnRequest()({request:direct(part),env:enabled})).status,503);
 });
+
+test('Pages adapters separate public lookup, existing moderator token and restricted private SQL',async()=>{
+ const {buildPagesCommentAdapters,buildPagesCommentsOnRequest}=await import('./comments-worker-entry.mjs');
+ const network=[], db=[];
+ const bindings={...enabled,COMMENTS_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic_only',
+  COMMENTS_SIGNING_KEY:Buffer.alloc(32,17).toString('base64url'),
+  COMMENTS_GATEWAY_DB:{connectionString:'synthetic-database-binding'}};
+ const openAdapters=buildPagesCommentAdapters({
+  openDatabase:async binding=>{
+   db.push(['open',binding]);return {query:async(sql,params)=>{
+    db.push([sql,params]);return response(true);
+   },close:()=>{db.push(['close']);}};
+  },
+  fetcher:async(url,init)=>{
+   const u=new URL(url);
+   assert.equal(u.origin,'https://pavitnsnmoaiospswiys.supabase.co');
+   assert.equal(init.redirect,'error');assert.equal(init.credentials,'omit');assert.equal(init.cache,'no-store');
+   assert.equal(init.headers.apikey,bindings.COMMENTS_SUPABASE_PUBLISHABLE_KEY);
+   network.push([u.pathname,init.headers.Authorization,init.body]);
+   if(u.pathname==='/auth/v1/user')return Response.json({id:'449c2ebb-06b1-4d39-b793-4f01ebb43ecb',is_anonymous:false});
+   if(u.pathname.endsWith('_self'))return Response.json(true);
+   return Response.json([]);
+  }
+ });
+ const onRequest=buildPagesCommentsOnRequest({openAdapters});
+ const article='?article=/articles/example.html';
+ const request=(part,opts,env=bindings)=>onRequest({request:direct(part,opts),env});
+ assert.equal((await request('public'+article,{}, {...bindings,COMMENTS_SIGNING_KEY:'invalid'})).status,503);
+ assert.equal((await request('public'+article,{}, {...bindings,COMMENTS_SUPABASE_PUBLISHABLE_KEY:'sb_secret_never_use_this'})).status,503);
+ assert.equal(network.length,0);assert.equal(db.length,0);
+ assert.equal((await request('public'+article,{headers:{Cookie:'ignored-fixture'}})).status,200);
+ assert.deepEqual(network[0],['/rest/v1/rpc/dc_comment_public_list',undefined,'{"p_path":"/articles/example.html"}']);
+ assert.equal(db.length,0);
+ const session=await request('session'+article,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+ assert.equal(session.status,200);assert(session.headers.has('set-cookie'));
+ assert.deepEqual(db.map(x=>x[0]),['open','select public.dc_comment_gateway_eligible($1) as data','close']);
+ assert.equal((await request('moderation',{headers:{Authorization:'Bearer fixture-operator'}})).status,200);
+ assert.deepEqual(network.slice(1).map(v=>v.slice(0,2)),[
+  ['/auth/v1/user','Bearer fixture-operator'],
+  ['/rest/v1/rpc/dc_comment_moderator_self','Bearer fixture-operator'],
+  ['/rest/v1/rpc/dc_comment_moderation_list','Bearer fixture-operator']
+ ]);
+ const a=await openAdapters(bindings);
+ await assert.rejects(a.gatewayQuery('select 1',[]),/Unregistered/);
+ assert.throws(()=>a.createActorClient({accessToken:'fixture-operator'}).rpc('other'),/Unregistered/);
+ assert.equal(network.length,4);assert.equal(db.length,3);
+});
+
+test('restricted database is closed even if its operation fails',async()=>{
+ const {buildPagesCommentAdapters}=await import('./comments-worker-entry.mjs');
+ let closed=0;
+ const open=buildPagesCommentAdapters({openDatabase:async()=>({query:async()=>{throw Error('fixture unavailable');},close:async()=>{closed++;}})});
+ const a=await open({COMMENTS_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic_only',
+  COMMENTS_SIGNING_KEY:Buffer.alloc(32,17).toString('base64url'),COMMENTS_GATEWAY_DB:{connectionString:'synthetic'}});
+ await assert.rejects(a.gatewayQuery('select public.dc_comment_gateway_eligible($1) as data',['/articles/example.html']),/fixture unavailable/);
+ assert.equal(closed,1);
+});

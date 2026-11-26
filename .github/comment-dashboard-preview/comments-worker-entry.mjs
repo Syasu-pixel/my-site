@@ -72,3 +72,68 @@ export function buildPagesCommentsOnRequest({openAdapters}={}) {
  });
  return ({request,env}={})=>request instanceof Request?handle(request,env):error(503);
 }
+
+// Production-shaped wiring, not activated by this module. Keep Hyperdrive
+// caching disabled on the dedicated gateway binding. The DB login must have
+// EXECUTE on the three reader-owned gateway functions, never table/admin grants.
+const supabaseOrigin='https://pavitnsnmoaiospswiys.supabase.co';
+const publicSql='select public.dc_comment_public_list($1) as data';
+const gatewaySql=new Set([
+ 'select public.dc_comment_gateway_eligible($1) as data',
+ 'select public.dc_comment_gateway_own($1,$2) as data',
+ 'select public.dc_comment_gateway_write($1,$2,$3,$4,$5,$6,$7,$8,$9) as data'
+]);
+const moderatorRpc=new Set(['dc_comment_moderator_self','dc_comment_moderation_list','dc_comment_moderation_apply']);
+function sessionKey(value){
+ if(typeof value!=='string'||!/^[a-zA-Z0-9_-]{43}$/.test(value))throw Error('Invalid signing key');
+ const bytes=Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')+'='),c=>c.charCodeAt(0));
+ if(bytes.length!==32)throw Error('Invalid signing key');
+ return bytes;
+}
+export function buildPagesCommentAdapters({openDatabase,fetcher=fetch}={}) {
+ return async env=>{
+  const publishable=env?.COMMENTS_SUPABASE_PUBLISHABLE_KEY;
+  const db=env?.COMMENTS_GATEWAY_DB;
+  if(typeof publishable!=='string'||!/^sb_publishable_[a-zA-Z0-9_-]{12,128}$/.test(publishable)
+    ||typeof openDatabase!=='function'||typeof db?.connectionString!=='string'||!db.connectionString)
+   throw Error('Missing restricted bindings');
+  const keyBytes=sessionKey(env.COMMENTS_SIGNING_KEY);
+  const previousKeyBytes=env.COMMENTS_PREVIOUS_SIGNING_KEY?sessionKey(env.COMMENTS_PREVIOUS_SIGNING_KEY):undefined;
+  async function api(path,{token,args}={}){
+   const headers={apikey:publishable,Accept:'application/json'};
+   if(token)headers.Authorization='Bearer '+token;
+   if(args!==undefined)headers['Content-Type']='application/json';
+   const response=await fetcher(supabaseOrigin+path,{
+    method:args===undefined?'GET':'POST',headers,
+    ...(args===undefined?{}:{body:JSON.stringify(args)}),
+    credentials:'omit',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(5000)
+   });
+   const result=await response.json().catch(()=>null);
+   if(!response.ok)return {error:{code:typeof result?.code==='string'?result.code:'unavailable'}};
+   if(result===null&&path==='/auth/v1/user')throw Error('Missing verified identity');
+   return {data:result};
+  }
+  return {
+   keyBytes,previousKeyBytes,
+   authClient:{auth:{getUser:async token=>{
+    const r=await api('/auth/v1/user',{token});
+    return r.error?r:{data:{user:r.data}};
+   }}},
+   createActorClient:({accessToken})=>({rpc:(name,args={})=>{
+    if(!moderatorRpc.has(name))throw Error('Unregistered moderator operation');
+    return api('/rest/v1/rpc/'+name,{token:accessToken,args});
+   }}),
+   publicQuery:async(sql,[article])=>{
+    if(sql!==publicSql)throw Error('Unregistered public operation');
+    const r=await api('/rest/v1/rpc/dc_comment_public_list',{args:{p_path:article}});
+    if(r.error||!Array.isArray(r.data))throw Error('Public query unavailable');
+    return {rows:[{data:r.data}]};
+   },
+   gatewayQuery:async(sql,params)=>{
+    if(!gatewaySql.has(sql))throw Error('Unregistered private operation');
+    const client=await openDatabase(db.connectionString);
+    try{return await client.query(sql,params);}finally{await client.close();}
+   }
+  };
+ };
+}

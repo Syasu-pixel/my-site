@@ -199,3 +199,44 @@ test('restricted database is closed even if its operation fails',async()=>{
  await assert.rejects(a.gatewayQuery('select public.dc_comment_gateway_eligible($1) as data',['/articles/example.html']),/fixture unavailable/);
  assert.equal(closed,1);
 });
+
+test('staging requires distinct bindings; public, auth and operator APIs only reach the staging project',async()=>{
+ const {buildPagesStagingCommentAdapters}=await import('./comments-worker-entry.mjs');
+ const ref='abcdefghijklmnopqrst';
+ const env={COMMENTS_STAGING_SUPABASE_PROJECT_REF:ref,
+  COMMENTS_STAGING_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_staging_fixture',
+  COMMENTS_STAGING_SIGNING_KEY:Buffer.alloc(32,19).toString('base64url'),
+  COMMENTS_STAGING_GATEWAY_DB:{connectionString:'staging-only'}};
+ const urls=[],queries=[];
+ let role='dc_comment_staging_'+ref;
+ const open=buildPagesStagingCommentAdapters({
+  fetcher:async(url,opts)=>{
+   assert.equal(new URL(url).origin,'https://'+ref+'.supabase.co');
+   assert.equal(opts.headers.apikey,env.COMMENTS_STAGING_SUPABASE_PUBLISHABLE_KEY);
+   urls.push(new URL(url).pathname);
+   return Response.json(url.endsWith('/user')?{id:'449c2ebb-06b1-4d39-b793-4f01ebb43ecb'}:[]);
+  },
+  openDatabase:async connection=>{
+   assert.equal(connection,'staging-only');
+   return {query:async(sql,args)=>{
+    queries.push(sql);
+    return sql==='select current_user as role'?{rows:[{role}]}:response(true);
+   },close:async()=>queries.push('close')};
+  }
+ });
+ await assert.rejects(open({...env,COMMENTS_STAGING_SUPABASE_PROJECT_REF:'pavitnsnmoaiospswiys'}),/isolated staging project/);
+ await assert.rejects(open({...env,COMMENTS_STAGING_SUPABASE_PROJECT_REF:'url.invalid'}),/isolated staging project/);
+ await assert.rejects(open({...env,COMMENTS_STAGING_GATEWAY_DB:null,COMMENTS_GATEWAY_DB:{connectionString:'production'}}),/restricted bindings/);
+ await assert.rejects(open({...env,COMMENTS_STAGING_SUPABASE_PUBLISHABLE_KEY:null,COMMENTS_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_production_fixture'}),/restricted bindings/);
+ assert.deepEqual(urls,[]);assert.deepEqual(queries,[]);
+ const adapter=await open(env);
+ await adapter.publicQuery('select public.dc_comment_public_list($1) as data',['/articles/example.html']);
+ await adapter.authClient.auth.getUser('fixture-only');
+ await adapter.createActorClient({accessToken:'fixture-only'}).rpc('dc_comment_moderation_list');
+ assert.deepEqual(urls,['/rest/v1/rpc/dc_comment_public_list','/auth/v1/user','/rest/v1/rpc/dc_comment_moderation_list']);
+ const sql='select public.dc_comment_gateway_eligible($1) as data';
+ await adapter.gatewayQuery(sql,['/articles/example.html']);
+ role='dc_comment_production';
+ await assert.rejects(adapter.gatewayQuery(sql,['/articles/example.html']),/Wrong staging gateway role/);
+ assert.deepEqual(queries,['select current_user as role',sql,'close','select current_user as role','close']);
+});

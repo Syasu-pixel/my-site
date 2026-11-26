@@ -208,12 +208,15 @@ test('staging requires distinct bindings; public, auth and operator APIs only re
   COMMENTS_STAGING_SIGNING_KEY:Buffer.alloc(32,19).toString('base64url'),
   COMMENTS_STAGING_GATEWAY_DB:{connectionString:'staging-only'}};
  const urls=[],queries=[];
+ let redirect=false;
  let role='dc_comment_staging_'+ref;
  const open=buildPagesStagingCommentAdapters({
   fetcher:async(url,opts)=>{
    assert.equal(new URL(url).origin,'https://'+ref+'.supabase.co');
    assert.equal(opts.headers.apikey,env.COMMENTS_STAGING_SUPABASE_PUBLISHABLE_KEY);
+   assert.equal(opts.redirect,'manual');
    urls.push(new URL(url).pathname);
+   if(redirect)return new Response(null,{status:302,headers:{Location:'https://fixture.invalid/elsewhere'}});
    return Response.json(url.endsWith('/user')?{id:'449c2ebb-06b1-4d39-b793-4f01ebb43ecb'}:[]);
   },
   openDatabase:async connection=>{
@@ -234,6 +237,10 @@ test('staging requires distinct bindings; public, auth and operator APIs only re
  await adapter.authClient.auth.getUser('fixture-only');
  await adapter.createActorClient({accessToken:'fixture-only'}).rpc('dc_comment_moderation_list');
  assert.deepEqual(urls,['/rest/v1/rpc/dc_comment_public_list','/auth/v1/user','/rest/v1/rpc/dc_comment_moderation_list']);
+ redirect=true;
+ await assert.rejects(adapter.authClient.auth.getUser('fixture-only'),/Staging API redirect rejected/);
+ assert.equal(urls.at(-1),'/auth/v1/user');
+ assert.equal(urls.length,4);
  const sql='select public.dc_comment_gateway_eligible($1) as data';
  await adapter.gatewayQuery(sql,['/articles/example.html']);
  role='dc_comment_production';

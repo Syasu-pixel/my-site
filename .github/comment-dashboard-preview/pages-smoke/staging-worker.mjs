@@ -3,7 +3,7 @@ import pg from 'pg';
 import {buildPagesStagingCommentAdapters} from '../comments-worker-entry.mjs';
 import {buildPagesStagingOnRequest} from '../pages-staging-smoke.mjs';
 
-export function makePreviewAccessVerifier({fetcher=fetch}={}) {
+export function makePreviewAccessVerifier({fetcher=(...args)=>globalThis.fetch(...args)}={}) {
  let remote, priorIssuer;
  return async (request,env)=>{
   const team=env.COMMENTS_STAGING_ACCESS_TEAM;
@@ -14,7 +14,11 @@ export function makePreviewAccessVerifier({fetcher=fetch}={}) {
   const issuer='https://'+team+'.cloudflareaccess.com';
   if(!remote||priorIssuer!==issuer){
    remote=createRemoteJWKSet(new URL(issuer+'/cdn-cgi/access/certs'),{
-    timeoutDuration:3000,[customFetch]:(url,opts)=>fetcher(url,{...opts,redirect:'error'})
+    timeoutDuration:3000,[customFetch]:async (url,opts)=>{
+     const result=await fetcher(url,{...opts,redirect:'manual'});
+     if(result.status>=300&&result.status<400)throw Error('Access signing key redirect rejected');
+     return result;
+    }
    });
    priorIssuer=issuer;
   }

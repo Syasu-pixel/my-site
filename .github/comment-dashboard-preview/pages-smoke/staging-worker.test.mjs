@@ -10,7 +10,7 @@ test('preview requires a signed, current token for the specified Access app',asy
  const keys=[{...await exportJWK(pair.publicKey),kid:'k',use:'sig',alg:'RS256'}];
  let calls=0;
  const verify=makePreviewAccessVerifier({fetcher:async(url,opts)=>{
-  calls++;assert.equal(String(url),issuer+'/cdn-cgi/access/certs');assert.equal(opts.redirect,'error');
+  calls++;assert.equal(String(url),issuer+'/cdn-cgi/access/certs');assert.equal(opts.redirect,'manual');
   return Response.json({keys});
  }});
  const signed=({aud=audience,iss=issuer,exp='5m',key=pair.privateKey}={})=>new SignJWT({})
@@ -23,5 +23,20 @@ test('preview requires a signed, current token for the specified Access app',asy
  for(const options of [{aud:'b'.repeat(64)},{iss:'https://other.cloudflareaccess.com'},{exp:'-1m'},{key:wrong.privateKey}]){
   const token=await signed(options);await assert.rejects(verify(request(token),env));
  }
+ assert.equal(calls,1);
+});
+
+test('preview never follows a redirect while retrieving signing keys',async()=>{
+ const issuer='https://synthetic.cloudflareaccess.com',audience='a'.repeat(64);
+ const {privateKey}=await generateKeyPair('RS256');
+ const token=await new SignJWT({}).setProtectedHeader({alg:'RS256',kid:'fixture'})
+  .setIssuer(issuer).setSubject('fixture').setAudience(audience).setExpirationTime('1m').sign(privateKey);
+ let calls=0;
+ const verify=makePreviewAccessVerifier({fetcher:async(url,options)=>{
+  calls++;assert.equal(String(url),issuer+'/cdn-cgi/access/certs');assert.equal(options.redirect,'manual');
+  return new Response(null,{status:302,headers:{Location:'https://fixture.invalid/certs'}});
+ }});
+ await assert.rejects(verify(new Request('https://fixture.invalid/',{headers:{'Cf-Access-Jwt-Assertion':token}}),
+  {COMMENTS_STAGING_ACCESS_TEAM:'synthetic',COMMENTS_STAGING_ACCESS_AUDIENCE:audience}),/signing key redirect rejected/);
  assert.equal(calls,1);
 });

@@ -120,8 +120,9 @@ function makePagesCommentAdapters({openDatabase,fetcher=fetch},staging) {
    const response=await fetcher(apiOrigin+path,{
     method:args===undefined?'GET':'POST',headers,
     ...(args===undefined?{}:{body:JSON.stringify(args)}),
-    credentials:'omit',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(5000)
+    credentials:'omit',redirect:staging?'manual':'error',cache:'no-store',signal:AbortSignal.timeout(5000)
    });
+   if(staging&&response.status>=300&&response.status<400)throw Error('Staging API redirect rejected');
    const result=await response.json().catch(()=>null);
    if(!response.ok)return {error:{code:typeof result?.code==='string'?result.code:'unavailable'}};
    if(result===null&&path==='/auth/v1/user')throw Error('Missing verified identity');

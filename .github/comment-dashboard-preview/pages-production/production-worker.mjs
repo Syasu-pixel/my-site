@@ -6,7 +6,7 @@ const eligible='select public.dc_comment_gateway_eligible($1) as data';
 const list='select public.dc_comment_public_list($1) as data';
 export const expectedRole='dc_comment_production_gateway';
 const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','X-Content-Type-Options':'nosniff'};
-const articlePattern=/^\/articles\/[a-z0-9-]{1,200}\.html$/;
+const articlePattern=/^\/articles\/[a-z0-9-]{1,120}\.html$/;
 const deny=(status)=>new Response(null,{status,headers});
 
 export function makeProductionWorker({connect, fetcher}={}){

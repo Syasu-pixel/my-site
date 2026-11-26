@@ -12,6 +12,7 @@ async function testScenario(browser, scenario) {
  const ctx = await browser.newContext({ viewport: { width: scenario.width || 320, height: 900 } });
  const page = await ctx.newPage();
  const calls = [];
+ let locked = false;
  const html = await readFile(resolve(output, '.'+active),'utf8');
  await ctx.route('**/*', async route => {
   const req = route.request(), url = new URL(req.url());
@@ -21,6 +22,7 @@ async function testScenario(browser, scenario) {
    const headers = {'access-control-allow-origin':canonical,'access-control-allow-credentials':'true',
     'access-control-allow-methods':'GET,POST,OPTIONS','access-control-allow-headers':'content-type'};
    if(req.method()==='OPTIONS') return route.fulfill({status:204,headers});
+   if (locked) return route.fulfill({status:503,headers,json:{error:'受付を停止しています。'}});
    if (part==='readiness') {
     assert.equal(req.method(),'GET');assert.equal(url.searchParams.get('article'),active);
     assert.equal(await req.headerValue('origin'),canonical);
@@ -60,6 +62,17 @@ async function testScenario(browser, scenario) {
     assert.equal(await page.locator('[data-public]').innerText(),'まだコメントはありません。');
     const dimensions=await slot.evaluate(el=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,button:el.querySelector('button[type=submit]').getBoundingClientRect().height}));
     assert.ok(dimensions.left>=0&&dimensions.right<=(scenario.width||320)&&dimensions.button>=44);
+    if(scenario.stopWhileOpen){
+     const draft=page.locator('[data-article-comments-slot] textarea');
+     await draft.fill('停止前に入力した合成コメント');
+     locked=true;
+     await page.locator('[data-article-comments-slot] button[type=submit]').click();
+     await page.getByText('コメントを処理できませんでした。入力は残っています。',{exact:true}).waitFor();
+     assert.equal(await draft.inputValue(),'停止前に入力した合成コメント');
+     assert.equal(calls.filter(([part])=>part==='post').length,0);
+     await Promise.all([page.waitForResponse(x=>x.url().includes('/readiness')&&x.status()===503),page.reload({waitUntil:'domcontentloaded'})]);
+     assert.equal(await slot.locator('form').count(),0);
+    }
     if(scenario.submit){
      await page.locator('[data-article-comments-slot] textarea').fill('合成の接続試験');
      await page.locator('[data-article-comments-slot] button[type=submit]').click();
@@ -84,6 +97,7 @@ async function testScenario(browser, scenario) {
   for (const scenario of [
    {name:'eligible mobile, no reload post, author-only pending',visible:true,submit:true},
    {name:'eligible desktop',visible:true,width:1280},
+   {name:'live stop preserves open draft, rejects submit, and hides fresh form',visible:true,stopWhileOpen:true},
    {name:'eligible dark mobile',visible:true,width:390,mutate:x=>x.replace('<html lang="ja"','<html lang="ja" data-dc-theme="dark"')},
    {name:'wrong host',origin:'https://preview.invalid'},
    {name:'top',path:'/'},{name:'category',path:'/categories/tools-guide.html'},

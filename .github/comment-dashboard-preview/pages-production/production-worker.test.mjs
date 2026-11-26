@@ -46,3 +46,16 @@ test('strict role first, then DB eligibility, then public read for marked pages'
  assert.equal(r.headers.get('Access-Control-Allow-Origin'),site);
  assert.equal(r.headers.get('Access-Control-Allow-Credentials'),null);assert.equal(closed,4);assert.equal(reads,2);
 });
+
+test('full stop blocks public, session, write and moderation without a backend call',async()=>{
+ let invoked=0;
+ const h=makeProductionWorker({connect:async()=>{invoked++;},fetcher:async()=>{invoked++;}});
+ const query='?article='+encodeURIComponent(valid);
+ for(const [route,method] of [['public'+query,'GET'],['own'+query,'GET'],['session'+query,'POST'],
+  ['post'+query,'POST'],['moderation','GET'],['moderation','POST'],['moderation','OPTIONS']]){
+   const req=new Request(url(route),{method,headers:{Origin:site,'Content-Type':'application/json'}});
+   const r=await h(req,{...settings,COMMENTS_ENABLED:'false'});
+   assert.equal(r.status,503);assert.match(r.headers.get('Cache-Control'),/no-store/);
+ }
+ assert.equal(invoked,0);
+});

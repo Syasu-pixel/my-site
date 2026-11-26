@@ -30,7 +30,8 @@ async function openDatabase(connectionString){
  catch(error){await client.end().catch(()=>{});throw error;}
  return {query:(sql,params)=>client.query(sql,params),close:()=>client.end()};
 }
+export const verifyPreviewAccess=makePreviewAccessVerifier();
 export const onRequest=buildPagesStagingOnRequest({
- verifyPreviewAccess:makePreviewAccessVerifier(),
+ verifyPreviewAccess,
  openAdapters:buildPagesStagingCommentAdapters({openDatabase})
 });

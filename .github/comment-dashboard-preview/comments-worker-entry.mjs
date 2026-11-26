@@ -112,7 +112,7 @@ function makePagesCommentAdapters({openDatabase,fetcher=fetch},staging) {
     ||typeof openDatabase!=='function'||typeof db?.connectionString!=='string'||!db.connectionString)
    throw Error('Missing restricted bindings');
   const keyBytes=sessionKey(env[prefix+'SIGNING_KEY']);
-  const previousKeyBytes=env[prefix+'PREVIOUS_SIGNING_KEY']?sessionKey(env[prefix+'PREVIOUS_SIGNING_KEY']):undefined;
+  const previousKeyBytes=env[prefix+'PREVIOUS_SIGNING_KEY']?[sessionKey(env[prefix+'PREVIOUS_SIGNING_KEY'])]:[];
   async function api(path,{token,args}={}){
    const headers={apikey:publishable,Accept:'application/json'};
    if(token)headers.Authorization='Bearer '+token;

@@ -59,3 +59,40 @@ test('full stop blocks public, session, write and moderation without a backend c
  }
  assert.equal(invoked,0);
 });
+
+
+test('rotation keeps an existing anonymous author and renews its cookie',async()=>{
+ const nextKey=Buffer.alloc(32,9).toString('base64url');
+ const query='?article='+encodeURIComponent(valid);
+ const actors=[];
+ const h=makeProductionWorker({connect:async()=>({
+  query:async(sql,args)=>{
+   if(sql.includes('current_user'))return {rows:[{role:expectedRole}]};
+   assert.equal(args[0],valid);
+   if(sql.includes('gateway_eligible'))return {rows:[{data:true}]};
+   assert.match(sql,/gateway_own/);actors.push(args[1]);return {rows:[{data:[]}]};
+  },close:async()=>{}
+ }),fetcher:async()=>assert.fail('session should not need external fetch')});
+ const call=(part,env,cookie)=>h(new Request(url(part+query),{
+  method:part==='session'?'POST':'GET',
+  headers:{Origin:site,...(part==='session'?{'Content-Type':'application/json'}:{}),...(cookie?{Cookie:cookie}:{})},
+  ...(part==='session'?{body:'{}'}:{})
+ }),env);
+ const issued=await call('session',settings);
+ assert.equal(issued.status,200);
+ const old=issued.headers.get('Set-Cookie').split(';')[0];
+ const actor=old.split('.')[1];
+ const rotated={...settings,COMMENTS_SIGNING_KEY:nextKey,COMMENTS_PREVIOUS_SIGNING_KEY:settings.COMMENTS_SIGNING_KEY};
+ assert.equal((await call('own',rotated,old)).status,200);
+ assert.deepEqual(actors,[actor]);
+ const renewed=await call('session',rotated,old);
+ assert.equal(renewed.status,200);
+ const fresh=renewed.headers.get('Set-Cookie').split(';')[0];
+ assert.notEqual(fresh,old);
+ assert.equal(fresh.split('.')[1],actor);
+ const retired={...settings,COMMENTS_SIGNING_KEY:nextKey};
+ assert.equal((await call('own',retired,old)).status,200);
+ assert.deepEqual(actors,[actor]);
+ assert.equal((await call('own',retired,fresh)).status,200);
+ assert.deepEqual(actors,[actor,actor]);
+});

@@ -90,20 +90,34 @@ function sessionKey(value){
  if(bytes.length!==32)throw Error('Invalid signing key');
  return bytes;
 }
-export function buildPagesCommentAdapters({openDatabase,fetcher=fetch}={}) {
+// The two profiles have disjoint bindings. The staging database role is
+// named for the staging project ref and checked on every database connection.
+// No production bindings or URL are used as a fallback.
+export function buildPagesStagingCommentAdapters(options={}) {
+ return makePagesCommentAdapters(options,true);
+}
+export function buildPagesCommentAdapters(options={}) {
+ return makePagesCommentAdapters(options,false);
+}
+function makePagesCommentAdapters({openDatabase,fetcher=fetch},staging) {
  return async env=>{
-  const publishable=env?.COMMENTS_SUPABASE_PUBLISHABLE_KEY;
-  const db=env?.COMMENTS_GATEWAY_DB;
+  const prefix=staging?'COMMENTS_STAGING_':'COMMENTS_';
+  const ref=env?.COMMENTS_STAGING_SUPABASE_PROJECT_REF;
+  if(staging&&(typeof ref!=='string'||!/^[a-z0-9]{20}$/.test(ref)||'https://'+ref+'.supabase.co'===supabaseOrigin))
+   throw Error('Missing isolated staging project');
+  const apiOrigin=staging?'https://'+ref+'.supabase.co':supabaseOrigin;
+  const publishable=env?.[prefix+'SUPABASE_PUBLISHABLE_KEY'];
+  const db=env?.[prefix+'GATEWAY_DB'];
   if(typeof publishable!=='string'||!/^sb_publishable_[a-zA-Z0-9_-]{12,128}$/.test(publishable)
     ||typeof openDatabase!=='function'||typeof db?.connectionString!=='string'||!db.connectionString)
    throw Error('Missing restricted bindings');
-  const keyBytes=sessionKey(env.COMMENTS_SIGNING_KEY);
-  const previousKeyBytes=env.COMMENTS_PREVIOUS_SIGNING_KEY?sessionKey(env.COMMENTS_PREVIOUS_SIGNING_KEY):undefined;
+  const keyBytes=sessionKey(env[prefix+'SIGNING_KEY']);
+  const previousKeyBytes=env[prefix+'PREVIOUS_SIGNING_KEY']?sessionKey(env[prefix+'PREVIOUS_SIGNING_KEY']):undefined;
   async function api(path,{token,args}={}){
    const headers={apikey:publishable,Accept:'application/json'};
    if(token)headers.Authorization='Bearer '+token;
    if(args!==undefined)headers['Content-Type']='application/json';
-   const response=await fetcher(supabaseOrigin+path,{
+   const response=await fetcher(apiOrigin+path,{
     method:args===undefined?'GET':'POST',headers,
     ...(args===undefined?{}:{body:JSON.stringify(args)}),
     credentials:'omit',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(5000)
@@ -132,7 +146,13 @@ export function buildPagesCommentAdapters({openDatabase,fetcher=fetch}={}) {
    gatewayQuery:async(sql,params)=>{
     if(!gatewaySql.has(sql))throw Error('Unregistered private operation');
     const client=await openDatabase(db.connectionString);
-    try{return await client.query(sql,params);}finally{await client.close();}
+    try{
+     if(staging){
+      const identity=await client.query('select current_user as role',[]);
+      if(identity?.rows?.[0]?.role!=='dc_comment_staging_'+ref)throw Error('Wrong staging gateway role');
+     }
+     return await client.query(sql,params);
+    }finally{await client.close();}
    }
   };
  };

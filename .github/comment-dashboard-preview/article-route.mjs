@@ -8,12 +8,12 @@ function output(status,data,privateData=true,cookie=null){
  if(cookie)headers['Set-Cookie']=cookie;
  return new Response(JSON.stringify(data),{status,headers});
 }
-export function createArticleRoute({origin,sessions,store}={}){
+export function createArticleRoute({origin,requestOrigin=origin,sessions,store}={}){
  return async request=>{
   try{
    if(!origin||!sessions?.read||!sessions?.ensure||!store?.publicFor||!store?.ownFor||!store?.post||!store?.editOwn||!store?.isEligible)throw 503;
    const u=new URL(request.url),path=u.searchParams.get('article');
-   if(u.origin!==origin||!routes.has(u.pathname)||typeof path!=='string'||!guard.test(path))throw 404;
+   if(u.origin!==requestOrigin||!routes.has(u.pathname)||typeof path!=='string'||!guard.test(path))throw 404;
    if(u.pathname==='/api/article-comments/public'){
     if(request.method!=='GET')throw 405;
     return output(200,{rows:await store.publicFor(path)},false); // Never resolve cookie.

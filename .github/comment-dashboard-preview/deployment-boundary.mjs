@@ -1,8 +1,8 @@
 // Plug in only after deployment/authorization review. This module does not start or expose anything.
 import {makeClient,mountDashboard} from './dashboard-client.mjs';
-export function mountWithDashboardAuth({root,supabase,articleTitle,doc=document,fetcher=fetch}){
+export function mountWithDashboardAuth({root,supabase,articleTitle,doc=document,fetcher=fetch,apiOrigin}){
  // getSession is used only to transport a short-lived token, never as proof of administrator access.
- const panel=mountDashboard({root,doc,articleTitle,client:makeClient({fetcher,getToken:async()=>{
+ const panel=mountDashboard({root,doc,articleTitle,client:makeClient({fetcher,apiOrigin,getToken:async()=>{
   const {data,error}=await supabase.auth.getSession();
   return error?null:data?.session?.access_token??null;
  }})});

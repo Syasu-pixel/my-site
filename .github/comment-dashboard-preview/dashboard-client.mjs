@@ -1,9 +1,10 @@
-const endpoint='/api/article-comments/moderation';
-export function makeClient({getToken,fetcher=fetch}){
+import {commentApiBase} from './article-client.mjs';
+export function makeClient({getToken,fetcher=fetch,apiOrigin=''}){
+ const endpoint=commentApiBase(apiOrigin)+'moderation';
  async function run(url,request={}){
   const token=await getToken();
   if(!token)throw Object.assign(new Error('ログインしてください。'),{status:401});
-  const r=await fetcher(url,{...request,redirect:'error',cache:'no-store',credentials:'same-origin',headers:{...request.headers,Authorization:'Bearer '+token}});
+  const r=await fetcher(url,{...request,redirect:'error',cache:'no-store',credentials:'omit',headers:{...request.headers,Authorization:'Bearer '+token}});
   if(!r.ok){
    const copy={401:'管理者アカウントでログインしてください。',403:'コメント管理の権限がありません。',409:'投稿が変更されました。一覧を更新してから確認してください。'};
    throw Object.assign(new Error(copy[r.status]??'コメント管理に接続できません。'),{status:r.status});

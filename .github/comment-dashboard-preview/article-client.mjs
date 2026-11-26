@@ -1,10 +1,16 @@
+export const COMMENT_API_ORIGIN='https://comments.denkicontrol.com';
+export function commentApiBase(apiOrigin='') {
+ if(apiOrigin!==''&&apiOrigin!==COMMENT_API_ORIGIN)throw new Error('コメントの接続先を確認できません。');
+ return apiOrigin+'/api/article-comments/';
+}
 // Reader transport, mounted only on a registered Japanese article page.
-export function makeArticleClient({path,fetcher=fetch,newId=()=>crypto.randomUUID()}){
+export function makeArticleClient({path,apiOrigin='',fetcher=fetch,newId=()=>crypto.randomUUID()}){
  if(!/^\/articles\/[a-z0-9-]+\.html$/.test(path))throw new Error('対象外の記事です。');
- const url=name=>'/api/article-comments/'+name+'?article='+encodeURIComponent(path);
+ const base=commentApiBase(apiOrigin);
+ const url=name=>base+name+'?article='+encodeURIComponent(path);
  async function request(name,body){
   let response;
-  try {response=await fetcher(url(name),{credentials:'same-origin',cache:'no-store',redirect:'error',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});}
+  try {response=await fetcher(url(name),{credentials:name==='public'?'omit':apiOrigin?'include':'same-origin',cache:'no-store',redirect:'error',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});}
   catch {throw new Error('通信できませんでした。入力は残っています。');}
   if(!response.ok)throw Object.assign(new Error(response.status===409?'内容が変わりました。入力を確認してください。':response.status===429?'続けて投稿できません。少し時間をおいてお試しください。入力は残っています。':'コメントを処理できませんでした。入力は残っています。'),{status:response.status});
   return response.json();

@@ -22,12 +22,12 @@ function present(r){
   rev:r.rev, hasPendingEdit:r.state==='published'&&r.hasPendingEdit===true, isReply:Boolean(r.parent), parentUnavailable:r.state==='pending'&&Boolean(r.parent)&&r.parentUnavailable===true, editedByOperator:r.editor==='運営',
   mayFeature:r.state==='published'&&r.mayFeature===true};
 }
-export function createModerationRoute({origin,identity,moderators,store}={}){
+export function createModerationRoute({origin,requestOrigin=origin,identity,moderators,store}={}){
  return async request=>{
   try {
    if(!origin||!identity?.authenticate||!moderators?.has||!store?.list||!store?.apply)return reply(503,{error:'コメント管理は現在利用できません。'});
    const u=new URL(request.url);
-   if(u.origin!==origin||u.pathname!=='/api/article-comments/moderation')return reply(404,{error:'見つかりません。'});
+   if(u.origin!==requestOrigin||u.pathname!=='/api/article-comments/moderation')return reply(404,{error:'見つかりません。'});
    if(!['GET','POST'].includes(request.method))return reply(405,{error:'利用できない操作です。'});
    if(request.method==='POST'&&(request.headers.get('origin')!==origin||!/^application\/json(?:;|$)/i.test(request.headers.get('content-type')??'')))return reply(403,{error:'操作を確認できません。'});
    const token=/^Bearer ([A-Za-z0-9._~-]{1,8192})$/.exec(request.headers.get('authorization')??'')?.[1];

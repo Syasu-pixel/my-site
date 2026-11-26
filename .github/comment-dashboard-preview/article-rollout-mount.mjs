@@ -10,7 +10,7 @@ export function eligibleCommentPaths({manifestPaths,sitemapPaths,unpublishedPath
 }
 
 export async function attachArticleComments({
- enabled=false, location, allowedPaths, doc,
+ enabled=false, location, allowedPaths, doc, apiOrigin,
  fetcher=fetch, makeClient=makeArticleClient, mount=mountArticleComments
 }={}){
  const path=location?.pathname;
@@ -26,7 +26,7 @@ export async function attachArticleComments({
  // Probe with a safe read. No session creation or post is part of readiness.
  // An unavailable endpoint leaves the slot hidden instead of presenting a dead form.
  try{
-  const client=makeClient({path,fetcher});
+  const client=makeClient({path,fetcher,apiOrigin});
   let first=await client.publicRows();
   if(!Array.isArray(first)||!slot.isConnected||slot.querySelector('[data-comments]'))return null;
   const reused={...client,publicRows:()=>{if(first===null)return client.publicRows();const rows=first;first=null;return Promise.resolve(rows);}};

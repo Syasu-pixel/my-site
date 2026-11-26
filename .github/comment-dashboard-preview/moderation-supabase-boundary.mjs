@@ -17,7 +17,7 @@ async function rpc(client,name,args={}){
  }
  return result.data;
 }
-export function createBoundModeration({origin,authClient,createActorClient}={}){
+export function createBoundModeration({origin,requestOrigin=origin,authClient,createActorClient}={}){
  return async request=>{
   if(!origin||!authClient?.auth?.getUser||typeof createActorClient!=='function')return unavailable();
   const auth=makeVerifiedIdentity({supabase:authClient});
@@ -46,6 +46,6 @@ export function createBoundModeration({origin,authClient,createActorClient}={}){
     if(await rpc(bound(d.adminId),'dc_comment_moderation_apply',args)!==true)throw failure(503);
    }
   };
-  return createModerationRoute({origin,identity,moderators,store})(request);
+  return createModerationRoute({origin,requestOrigin,identity,moderators,store})(request);
  };
 }

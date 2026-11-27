@@ -44,12 +44,22 @@ const stub=(kind)=>`window.supabase={createClient:()=>({auth:{
  else if(item.kind==='bad'){await page.getByText('一覧を確認できませんでした。').waitFor();assert.equal(calls,1);assert.equal(await page.getByText('確認テスト',{exact:true}).count(),0);}
  else{
   await page.getByText('確認テスト',{exact:true}).waitFor();
+  const filter=page.getByRole('searchbox');await filter.fill('見つからない文字');
+  await page.getByText('0件表示 / 1件読み込み済み').waitFor();
+  await page.getByRole('button',{name:'絞り込みを解除'}).click();await page.getByText('確認テスト',{exact:true}).waitFor();
+  assert.equal(await filter.evaluate(el=>document.activeElement===el),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  if(item.w<=620){const nav=page.locator('.mobile-admin-nav');assert.equal(await nav.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),3);assert.equal(await nav.getByRole('link').count(),6);}
+  await page.getByRole('button',{name:'承認して公開',exact:true}).click();
+  await page.keyboard.press('Escape');assert.equal(mut,0);
+  assert.equal(await page.getByRole('button',{name:'承認して公開',exact:true}).evaluate(el=>document.activeElement===el),true);
   await page.getByRole('button',{name:'承認して公開',exact:true}).click();
   await page.getByRole('button',{name:'承認して公開',exact:true}).last().click();
   await page.getByText('承認しました。',{exact:false}).waitFor();
+  assert.equal(await page.getByRole('heading',{name:'承認待ち',exact:true}).evaluate(el=>document.activeElement===el),true);
   await page.getByLabel('状態').selectOption('published');await page.getByText('確認テスト',{exact:true}).waitFor();
   await page.getByRole('button',{name:'非表示にする',exact:true}).click();
+  assert.match(await page.locator('.comment-confirm p').textContent(),/投稿の削除ではありません。/);
   await page.getByRole('button',{name:'非表示にする',exact:true}).last().click();
   await page.getByText('非表示にしました。',{exact:false}).waitFor();
   assert.equal(await page.getByText('確認テスト',{exact:true}).count(),0);assert.equal(mut,2);

@@ -86,7 +86,7 @@ for(const path of scope){
  const dest=resolve(site,path), source=pending.find(p=>p.path===path)?.bytes;
  assert(source&&(await realpath(dest))===dest,'Missing or unsafe comments destination: '+path);
  const original=source.toString('utf8');
- const canonical=[...original.matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["'][^>]*>/gi)];
+ const canonical=[...original.matchAll(/<link\b(?=[^>]*\srel=["']canonical["'])(?=[^>]*\shref=["']([^"']+)["'])[^>]*>/gi)];
  assert(canonical.length===1&&canonical[0][1]===commentOrigin+'/'+path&&/<html\b[^>]*\blang=["']ja["']/i.test(original),'Invalid comment article language or canonical: '+path);
  assert(!original.includes(commentMarker)&&!original.includes('data-article-comments-slot')&&!original.includes('dc-comments-off-title')&&!original.includes('dc-comments-off-status')&&!original.includes('data-dc-comments-off-style'),'Existing comment component: '+path);
  const footer=[...original.matchAll(/<footer\b[^>]*\bclass=["'][^"']*\bsite-footer\b[^"']*["'][^>]*>/gi)];

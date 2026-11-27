@@ -1,6 +1,6 @@
 import {readdir,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,relative,dirname} from 'node:path';
-import {unpublishedPaths} from './site-health-publication-scope.mjs';
+import {unpublishedPaths,isOwnershipVerificationAsset} from './site-health-publication-scope.mjs';
 
 const root=resolve(process.argv[2]||'.');
 const out=resolve(process.argv[3]||'site-ogp-health.json');
@@ -11,7 +11,7 @@ async function walk(d){for(const e of await readdir(d,{withFileTypes:true})){if(
 await walk(root);
 
 function pagePath(file){return relative(root,file).replaceAll('\\','/')}
-function publicPage(path){return !unpublished.has(path)&&path!=='404.html'&&!path.startsWith('admin/')&&!path.startsWith('ai-editorial-dashboard/')&&!path.startsWith('preview/')&&path!=='common-article-header.html'}
+function publicPage(path){return !isOwnershipVerificationAsset(path)&&!unpublished.has(path)&&path!=='404.html'&&!path.startsWith('admin/')&&!path.startsWith('ai-editorial-dashboard/')&&!path.startsWith('preview/')&&path!=='common-article-header.html'}
 function meta(html,property){
   const tags=html.match(/<meta\b[^>]*>/gi)||[];
   for(const tag of tags){

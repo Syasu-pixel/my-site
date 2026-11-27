@@ -42,7 +42,7 @@ for(const path of [...targets,...additionalPaths,...assets]){
 }
 // Preflight all target data before altering the publish copy. Root sources remain untouched.
 const inventory=JSON.parse(await readFile(resolve(build,'coverage-ledger.json'),'utf8')).pages;
-assert(inventory.length===314&&targets.length===291&&new Set(targets).size===291,'Incomplete approved inventory');
+assert(inventory.length===315&&targets.length===292&&new Set(targets).size===292,'Incomplete approved inventory');
 for(const p of inventory.filter(p=>!targets.includes(p.path)))assert((await readFile(resolve(site,p.path))).equals(await readFile(resolve(root,p.path))),'Non-article page changed before overlay: '+p.path);
 for(const {path,bytes} of pending){await mkdir(dirname(resolve(site,path)),{recursive:true});await writeFile(resolve(site,path),bytes);assert((await readFile(resolve(site,path))).equals(bytes),'Publication copy differs from candidate');}
 assert((await readFile(resolve(site,'assets/js/article-feedback.js'))).equals(await readFile(resolve(root,'assets/js/article-feedback.js'))),'Original vote script changed');

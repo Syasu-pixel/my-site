@@ -50,3 +50,24 @@ test('OGP skips expected missing paused pages but still reports a public image d
 test('production inventory remains restricted to the three paused PLC articles',async()=>{
  assert.deepEqual([...await unpublishedPaths(repo)].sort(),paused);
 });
+
+test('only the deployed Yandex proof skips SEO; real HTML defects and erroneous listings still surface',async t=>{
+ const root=await fixture(t),proof='yandex_ce5820074d5849dc.html',other='yandex_other.html';
+ for(const p of [proof,other,'articles/public.html'])await put(root,p,'<html><head></head></html>');
+ await put(root,'sitemap.xml','<urlset></urlset>');
+ let r=await run(root,'check-canonical-integrity');
+ assert.equal(r.pagesChecked,2);assert.deepEqual(r.issues.map(x=>x.path).sort(),['articles/public.html',other]);
+ r=await run(root,'check-sitemap-integrity');
+ assert.equal(r.eligiblePages,2);assert.deepEqual(r.issues.map(x=>x.path).sort(),['articles/public.html',other]);
+ const requests=[];
+ const origin=await server(t,(req,res)=>{requests.push(req.url);res.writeHead(req.url==='/'+proof||paused.includes(req.url.slice(1))?404:200,{'content-type':'text/html'}).end('<html></html>');});
+ r=await run(root,'check-ogp-images',{SITE_HEALTH_ORIGIN:origin});
+ assert.deepEqual(requests.sort(),['/articles/public.html','/'+other]);
+ assert.deepEqual(r.issues.map(x=>x.path).sort(),['articles/public.html',other]);
+ r=await run(root,'check-production-http',{SITE_HEALTH_ORIGIN:origin});
+ assert.ok(r.issues.some(x=>x.type==='http-unreachable'&&x.path==='/'+proof&&x.status===404));
+ assert.ok(requests.includes('/'+proof));
+ await put(root,'sitemap.xml',`<urlset><url><loc>https://denkicontrol.com/${proof}</loc></url></urlset>`);
+ r=await run(root,'check-sitemap-integrity');
+ assert.ok(r.issues.some(x=>x.type==='sitemap-orphan'&&x.source==='https://denkicontrol.com/'+proof));
+});

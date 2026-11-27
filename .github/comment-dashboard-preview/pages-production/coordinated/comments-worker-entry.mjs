@@ -79,6 +79,7 @@ export function buildPagesCommentsOnRequest({openAdapters}={}) {
 const supabaseOrigin='https://pavitnsnmoaiospswiys.supabase.co';
 const publicSql='select public.dc_comment_public_list($1) as data';
 const gatewaySql=new Set([
+ `select public.dc_comment_gateway_eligible($1) as data, coalesce(has_function_privilege(current_user,to_regprocedure('public.dc_comment_gateway_write(text,uuid,uuid,uuid,uuid,integer,text,text,boolean)'),'EXECUTE'),false) and coalesce(has_function_privilege(current_user,to_regprocedure('dc_comment_private.dc_comment_gateway_write(text,uuid,uuid,uuid,uuid,integer,text,text,boolean)'),'EXECUTE'),false) as can_write`,
  'select public.dc_comment_gateway_eligible($1) as data',
  'select public.dc_comment_gateway_own($1,$2) as data',
  'select public.dc_comment_gateway_write($1,$2,$3,$4,$5,$6,$7,$8,$9) as data'

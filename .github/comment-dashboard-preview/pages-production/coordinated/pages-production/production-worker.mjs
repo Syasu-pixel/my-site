@@ -2,7 +2,7 @@
 // flag are deliberate. Do not deploy on the existing site or on staging.
 import {buildPagesCommentAdapters,buildPagesCommentsOnRequest} from '../comments-worker-entry.mjs';
 const site='https://denkicontrol.com', origin='https://comments.denkicontrol.com';
-const eligible='select public.dc_comment_gateway_eligible($1) as data';
+const eligible=`select public.dc_comment_gateway_eligible($1) as data, coalesce(has_function_privilege(current_user,to_regprocedure('public.dc_comment_gateway_write(text,uuid,uuid,uuid,uuid,integer,text,text,boolean)'),'EXECUTE'),false) and coalesce(has_function_privilege(current_user,to_regprocedure('dc_comment_private.dc_comment_gateway_write(text,uuid,uuid,uuid,uuid,integer,text,text,boolean)'),'EXECUTE'),false) as can_write`;
 const list='select public.dc_comment_public_list($1) as data';
 export const expectedRole='dc_comment_production_gateway';
 const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','X-Content-Type-Options':'nosniff'};
@@ -50,6 +50,7 @@ export function makeProductionWorker({connect, fetcher, releasePaths}={}){
        const a=await openAdapters(env);
        const gate=await a.gatewayQuery(eligible,[article]);
        if(gate.rows?.[0]?.data!==true)return reply({ready:false},404);
+       if(gate.rows[0].can_write!==true)return reply({ready:false},503);
        const result=await a.publicQuery(list,[article]);
        if(!Array.isArray(result.rows?.[0]?.data))return reply({ready:false},503);
        return reply({ready:true,release:activeDigest},200);

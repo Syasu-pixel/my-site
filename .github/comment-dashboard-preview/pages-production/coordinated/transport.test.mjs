@@ -24,3 +24,20 @@ assert.equal((await send('moderation','POST',{Origin:'https://unrelated.invalid'
 assert.equal((await send('readiness','GET')).status,405);
 assert.equal(calls,0);
 console.log('12 transport and stop checks passed against the actual 178-article assembled API; zero backend calls.');
+
+// Readiness must not expose a form if the write lane is unavailable, even if
+// the gateway is present, the article is eligible and the database is up.
+const configured={...env,COMMENTS_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic_value',COMMENTS_GATEWAY_DB:{connectionString:'isolated-fixture'},COMMENTS_SIGNING_KEY:Buffer.alloc(32,2).toString('base64url')};
+const readReq=()=>new Request(base+'readiness?article='+encodeURIComponent(releasePaths[0])+'&release='+releaseSha,{headers:{Origin:site}});
+for(const flag of [false,undefined,true]){
+ let reads=0, queried=0;
+ const handler=makeProductionWorker({releasePaths,connect:async()=>({
+  query:async sql=>{if(sql==='select current_user as role')return {rows:[{role:'dc_comment_production_gateway'}]}; queried++;assert.match(sql,/has_function_privilege/);return {rows:[{data:true,can_write:flag}]}},
+  close:async()=>{}
+ }),fetcher:async()=>{reads++;return Response.json([])}});
+ const response=await handler(readReq(),configured);
+ assert.equal(response.status,flag===true?200:503);
+ assert.equal((await response.json()).ready,flag===true);
+ assert.equal(queried,1);assert.equal(reads,flag===true?1:0);
+}
+console.log('3 additional readiness cases: missing write grant, missing proof, valid configuration.');

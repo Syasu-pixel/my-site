@@ -12,3 +12,5 @@ export async function unpublishedPaths(root){
  return paths;
 }
 
+// Public site ownership proof is not an editorial/SEO page. Keep HTTP probing it.
+export const isOwnershipVerificationAsset=path=>path==='yandex_ce5820074d5849dc.html';

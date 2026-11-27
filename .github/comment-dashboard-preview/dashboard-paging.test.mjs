@@ -37,3 +37,36 @@ test('51 pending rows: only previous page matches; cursor works after boundary d
   assert.equal(bad.status,400);
  }finally{db.close();}
 });
+
+test('production candidate queue supports safe keyboard cancellation, filter reset, and focus after approval',async()=>{
+ const {mountDashboard:mountCandidate}=await import('./dashboard-production-candidate/candidate/admin/comments-dashboard-client.mjs');
+ let active, calls=0, approved=false;
+ function node(tag){
+  const e=el(tag);
+  e.append=(...items)=>{for(const child of items){child.parent=e;e.children.push(child);}};
+  e.replaceChildren=(...items)=>{e.children=[];e.append(...items);};
+  e.remove=()=>{e.parent.children=e.parent.children.filter(x=>x!==e);};
+  e.focus=()=>{active=e;};
+  e.contains=x=>x===e||e.children.some(y=>y.contains(x));
+  return e;
+ }
+ const slots=Object.fromEntries(['list','status','filter','heading','refresh','reset','count'].map(key=>['[data-comments-'+key+']',node(key)]));
+ slots.select=node('select');
+ const get=key=>slots['[data-comments-'+key+']'];
+ const ui=mountCandidate({root:{querySelector:key=>slots[key]},doc:{createElement:node},client:{
+  async listPage(state){return {rows:state==='pending'&&!approved?[{id:'a',path:'/articles/example.html',rev:1,body:'ポンプの確認',nickname:'合成',state}]:[],next:null};},
+  async apply(op){calls++;assert.deepEqual(op,{action:'approve',path:'/articles/example.html',id:'a',rev:1});approved=true;}
+ }});
+ await ui.refresh();
+ assert.equal(get('count').textContent,'1件読み込み済み');
+ get('filter').value='一致なし';get('filter').events.input();
+ assert.equal(get('count').textContent,'0件表示 / 1件読み込み済み');assert.equal(get('list').children.length,0);
+ get('reset').events.click();assert.equal(active,get('filter'));assert.equal(get('list').children.length,1);
+ const find=label=>get('list').querySelectorAll('button').filter(x=>x.textContent===label);
+ const trigger=find('承認して公開')[0];trigger.events.click();
+ const panel=active.parent;panel.events.keydown({key:'Escape',preventDefault(){}});
+ assert.equal(active,trigger);assert.equal(calls,0);assert.equal(find('承認して公開').length,1);
+ trigger.events.click();await find('承認して公開')[1].events.click();
+ assert.equal(calls,1);assert.equal(active,get('heading'));assert.equal(get('count').textContent,'0件読み込み済み');
+ ui.clear();assert.equal(get('count').hidden,true);assert.equal(get('reset').hidden,true);
+});

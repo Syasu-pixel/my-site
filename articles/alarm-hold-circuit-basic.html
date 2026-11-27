@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説</title>
-  <meta name="description" content="異常保持回路とは何かを初心者向けにやさしく整理。異常入力を一度受けたらリセットまで状態を残す考え方、表示灯・ブザーとの関係、自己保持回路との違い、簡略ラダー例、現場での確認ポイントまで解説します。">
+  <meta name="description" content="異常保持回路はPLCが受け付けた異常をリセットまで残す回路です。今の異常、保持、確認・消音、解除を分け、消えないときにどこを見るかをラダーと時系列で解説します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/alarm-hold-circuit-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/alarm-hold-circuit-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/alarm-hold-circuit-basic.html">
@@ -12,12 +12,12 @@
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説">
-  <meta property="og:description" content="異常入力を一度受けたらリセットまで状態を残す、異常保持回路の基本をやさしく整理します。">
+  <meta property="og:description" content="異常保持回路はPLCが受け付けた異常をリセットまで残す回路です。今の異常、保持、確認・消音、解除を分け、消えないときにどこを見るかをラダーと時系列で解説します。">
   <meta property="og:url" content="https://denkicontrol.com/articles/alarm-hold-circuit-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-ogp.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="異常保持回路とは？一度出た異常をリセットまで残す基本をやさしく解説">
-  <meta name="twitter:description" content="異常入力・保持フラグ・リセット・表示灯・ブザーの関係を、初心者向けに整理します。">
+  <meta name="twitter:description" content="異常保持回路はPLCが受け付けた異常をリセットまで残す回路です。今の異常、保持、確認・消音、解除を分け、消えないときにどこを見るかをラダーと時系列で解説します。">
   <meta name="twitter:image" content="https://denkicontrol.com/assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-ogp.png">
   <meta name="theme-color" content="#f8fbff">
 
@@ -1369,10 +1369,7 @@
       <div class="article-hero-copy">
         <span class="hero-label">回路の基礎</span>
         <h1 id="page-title">異常保持回路とは？<br>一度出た異常をリセットまで残す基本をやさしく解説</h1>
-        <p class="hero-lead">
-          異常保持回路は、<span class="mark">一度出た異常をリセットまで残す</span>ための基本回路です。
-          一瞬だけ異常入力が入った場合でも、作業者が確認してリセットするまで異常状態を残せます。
-        </p>
+        <p class="hero-lead">PLCが一度検出した異常を残す基本回路。音を止める確認と、保持を解除するリセットの違いを、GX Works3の学習ラダーで見分けます。</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#overview">先に結論から読む</a>
           <a class="btn btn-secondary" href="#ladder">簡略ラダーを見る</a>
@@ -1385,7 +1382,7 @@
         <h2>向いている人</h2>
         <ul>
           <li>異常入力を見逃さない回路を知りたい人</li>
-          <li>異常表示灯やブザーをリセットまで残したい人</li>
+          <li>警報表示が残る理由を整理したい人</li>
           <li>GX Works3で異常フラグの保持を追いたい人</li>
         </ul>
       </section>
@@ -1403,8 +1400,8 @@
         <h2>先に結論</h2>
         <ul>
           <li>異常保持回路は、<span class="mark">一度出た異常をリセットまで残す回路</span>です。</li>
-          <li>異常入力が一瞬だけでも、保持フラグで状態を残せます。</li>
-          <li>表示灯・ブザー・リセット回路と組み合わせて、原因確認に使います。</li>
+          <li><span class="mark">PLCが受け付けた短い異常</span>も、保持フラグに残せます。</li>
+          <li><span class="mark">確認・消音と保持の解除を分けて</span>、発生した異常を追えます。</li>
         </ul>
       </section>
     </section>
@@ -1424,251 +1421,82 @@
     <div class="page-layout">
       <article class="main-column">
         <section class="section-card" id="overview">
-          <h2>異常保持回路の全体像</h2>
-          <p>
-            異常保持回路は、異常入力が一度ONしたら、その入力がOFFに戻っても
-            <span class="mark">異常状態を保持して残す</span>ための回路です。
-          </p>
-          <p>
-            たとえば、センサー異常やサーマル異常が一瞬だけ入った場合、その瞬間を見逃すと原因が分からなくなることがあります。
-            異常保持回路を使うと、異常入力が消えても内部の異常保持フラグが残るため、作業者が後から確認できます。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-overview.png" alt="異常入力を保持フラグで残し、表示灯やブザーへつなぐ全体構成図" loading="lazy" decoding="async">
-            <figcaption>異常入力を一度受けたら、保持フラグで状態を残し、表示灯やブザーで作業者へ知らせます。</figcaption>
-          </figure>
-
-          <div class="key-highlight">
-            <h3>異常保持は「一瞬の異常を見逃さない」ための考え方</h3>
-            <p>
-              入力が一瞬だけONしてすぐ戻ると、通常の表示だけでは気づけないことがあります。
-              異常保持を入れておくと、リセットするまで異常状態が残るので、原因確認に入りやすくなります。
-            </p>
-          </div>
-
+          <h2>異常が消えたのに、警報が残るのはなぜ？</h2>
+          <p class="article-updated">最終内容更新：<time datetime="2026-11-28">2026年11月28日</time></p>
+          <p><strong>異常保持回路は、PLCが検出した異常を、元の信号が戻ったあとも残す回路</strong>です。「今も異常か」と「異常が一度あったか」を別に記録するので、短く出た異常も後から追いやすくなります。逆に、保持がONであることだけでは、異常が今も続くかどうかは分かりません。</p>
           <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩の案内キャラクター">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>異常保持は、異常を「出た瞬間だけ」で終わらせず、確認できる状態で残しておくための回路だよ。</p>
-              </div>
-            </div>
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩の案内キャラクター">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">後輩</span>異常入力が消えても、異常があったことをフラグで残すんですね。</p>
-              </div>
-            </div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span> ブザーは止まったのに、画面に異常が残っています。まだ故障中ですか？</p></div></div>
+            <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span> 音が止まったことと、異常原因がなくなったことは別だよ。今の信号と、残してある記録を見比べよう。</p></div></div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span> 静かになっても、記録まで寝かせないんですね。</p></div></div>
           </div>
+          <figure class="article-figure">
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-state-20261128.webp" alt="ブザーが鳴っているときも、消音後も、発生した異常の記録は残る概念図。異常原因の復旧や設備の運転可否は示さない。" width="1672" height="941" loading="lazy" decoding="async">
+            <figcaption>この例では、確認・消音で音を止めても異常保持は消しません。</figcaption>
+          </figure>
         </section>
-
         <section class="section-card" id="hold">
-          <h2>異常入力・保持フラグ・リセットの関係</h2>
-          <p>
-            異常保持回路では、異常入力、異常保持フラグ、リセットPB、表示灯・ブザーの関係を分けて考えると分かりやすいです。
-            異常入力がONすると保持フラグがONし、その後に異常入力がOFFに戻っても、保持フラグはリセットされるまで残ります。
-          </p>
-          <p>
-            重要なのは、リセット操作を「原因確認後」に行うことです。
-            原因を見ないままリセットできてしまうと、どの異常で止まったのかが分からなくなります。
-          </p>
-
+          <h2>検出・保持・確認・リセットを分ける</h2>
+          <p>たとえば搬送の受け渡しで、監視側が「所定の区間でワーク到着を確認できなかった」と判定したとします。これは架空の通常警報で、挟まれ防止や非常停止ではありません。遅れて到着信号が戻っても、「時間内に確認できなかった」という情報は引き継ぎに使えます。ただし、その判定だけでワーク詰まり、センサー故障、搬送遅れのどれかに決まるわけではありません。</p>
+          <figure class="article-figure">
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-timeline-20261128.png" alt="異常条件ONで保持がON。確認・消音の要求があっても保持はONのまま。異常条件がOFFになってから別のリセット要求が成立し、保持がOFFになる学習用の時系列。" width="1672" height="941" loading="lazy" decoding="async">
+            <figcaption>手動解除型の一例です。確認は保持を消さず、異常条件がOFFになった後の解除要求で保持だけを消します。時間や信号の長さは実測値ではありません。</figcaption>
+          </figure>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>異常入力</h3>
-              <p>センサー異常、サーマル異常、圧力異常など、保持したい異常信号です。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>異常保持フラグ</h3>
-              <p>異常入力を受けた後、リセットまでON状態を残す内部リレーです。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>リセットPB</h3>
-              <p>原因確認後に、異常保持フラグを解除するための操作です。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>表示灯・ブザー</h3>
-              <p>異常保持フラグを使って、異常表示やブザー出力へつなげます。</p>
-            </div>
+            <div class="check-item check-item--important"><h3>異常条件</h3><p>いま監視側が異常と判定しているか。圧力や過負荷などの警報でも、元の検出とPLC側の判定結果を区別します。</p></div>
+            <div class="check-item check-item--important"><h3>保持フラグ</h3><p>その異常をPLCが一度受け付けたことを示す状態。ONは発生の痕跡であって、発生時刻や回数までは残しません。</p></div>
+            <div class="check-item check-item--field"><h3>確認・消音</h3><p>確認は人が見たこと、消音は音を止めたこと。確認と消音を一つの操作にする設備もありますが、どちらも原因復旧・保持解除とは別です。</p></div>
+            <div class="check-item check-item--warning"><h3>リセット</h3><p>この記事では、定められた条件がそろったときに保持だけを解除すること。原因が直ったという証明や、履歴の消去、設備を動かす指令ではありません。</p></div>
           </div>
-
-          <div class="field-highlight">
-            <h3>保持フラグを中心に見ると追いやすい</h3>
-            <p>
-              GX Works3で確認する時は、まず異常保持フラグがONしているかを見ます。
-              その左側に異常入力やリセット条件が入っているため、どこで保持され、どこで解除されるかを追いやすくなります。
-            </p>
-          </div>
+          <p>履歴を備える設備では、発生・復旧・確認の時刻の意味を確認します。三菱電機のGOT2000にも、これらを分けて表示する例があります。「復旧」がどの信号や設定に対応するかは画面ごとに確認し、表示から現物の復旧を断定しません。</p>
         </section>
-
         <section class="section-card" id="comparison">
-          <h2>自己保持回路との違い</h2>
-          <p>
-            異常保持回路は、形だけ見ると自己保持回路に似ています。
-            どちらも「一度ONした状態を条件が変わっても残す」という点では近い考え方です。
-          </p>
-          <p>
-            ただし、目的が違います。
-            自己保持回路は運転状態を継続するために使うことが多く、異常保持回路は異常状態を確認できるまで残すために使います。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-comparison.png" alt="自己保持回路と異常保持回路の目的の違いを比較した図" loading="lazy" decoding="async">
-            <figcaption>自己保持は運転を続けるため、異常保持は異常を見逃さないために使います。</figcaption>
-          </figure>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>項目</th>
-                  <th>自己保持回路</th>
-                  <th>異常保持回路</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>主な目的</th>
-                  <td class="cell-blue">運転状態を継続する</td>
-                  <td class="cell-orange">異常状態を確認まで残す</td>
-                </tr>
-                <tr>
-                  <th>よく使う場面</th>
-                  <td>起動ボタンを押した後、運転を継続する</td>
-                  <td>異常入力が一瞬でも、異常表示を残す</td>
-                </tr>
-                <tr>
-                  <th>解除条件</th>
-                  <td>停止PB、停止条件、安全条件など</td>
-                  <td>原因確認後のリセットPBなど</td>
-                </tr>
-                <tr>
-                  <th>見方のポイント</th>
-                  <td>なぜ運転が保持されているかを見る</td>
-                  <td>どの異常で保持されたかを見る</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="note-box">
-            <h3>「保持」という形だけで判断しない</h3>
-            <p>
-              同じ保持回路でも、運転を続けるためなのか、異常を残すためなのかで設計の見方が変わります。
-              異常保持では、原因確認前に簡単に消えないことが大切です。
-            </p>
-          </div>
+          <h2>自己保持との違いは、何を残すか</h2>
+          <p>自己保持にも異常保持にも、「条件が変わっても状態を残す」という共通点があります。運転用の自己保持なら残すのは運転要求、ここでの異常保持なら残すのは発生の記憶です。SET／RSTか自己接点の分岐かという形だけで、目的は決まりません。</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th scope="col">見る点</th><th scope="col">運転要求を残す例</th><th scope="col">異常の発生を残す例</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">何で保持を始めるか</th><td>起動要求</td><td>PLCが受け付けた異常条件</td></tr>
+              <tr><th scope="row">元の信号が戻っても残すもの</th><td>運転要求</td><td>異常があったという記憶</td></tr>
+              <tr><th scope="row">解除を判断する条件</th><td>停止要求など、設計で定めた条件</td><td>その設備の条件を満たした保持解除要求。この例では異常条件OFFが必要</td></tr>
+              <tr><th scope="row">残ったONから分からないこと</th><td>実際に機械が動いたか</td><td>異常の現在状態、最初の原因、件数や時刻</td></tr>
+            </tbody>
+          </table></div>
         </section>
-
         <section class="section-card" id="ladder">
-          <h2>簡略ラダー例</h2>
-          <p>
-            異常保持回路を簡略化すると、異常入力と異常保持フラグをORでつなぎ、リセット条件で保持を解除する形になります。
-            その保持フラグを使って、異常表示灯やブザー出力をONします。
-          </p>
-
-          <div class="ladder-box" role="img" aria-label="異常保持回路の簡略ラダー例">
-            <div class="ladder-row">
-              <div class="ladder-label">保持</div>
-              <div class="ladder-line">[ X10 異常入力 ] OR [ M100 異常保持 ] [ /X20 リセット ] ---- ( M100 異常保持 )</div>
-            </div>
-            <div class="ladder-row">
-              <div class="ladder-label">表示</div>
-              <div class="ladder-line">[ M100 異常保持 ] ------------------------------------------ ( Y10 異常表示灯 )</div>
-            </div>
-            <div class="ladder-row">
-              <div class="ladder-label">ブザー</div>
-              <div class="ladder-line">[ M100 異常保持 ] ------------------------------------------ ( Y11 ブザー )</div>
-            </div>
-          </div>
-
-          <p>
-            この例では、X10が一度ONするとM100がONします。
-            X10がOFFに戻ってもM100自身の接点で保持され、X20リセットが入るまでM100は残ります。
-          </p>
-
-          <div class="key-highlight">
-            <h3>実際のGX Works3では設備仕様に合わせて作る</h3>
-            <p>
-              ここでは考え方を追いやすくするために簡略化しています。
-              実機では、異常入力の種類、リセット条件、非常停止、安全回路、タッチパネル表示などに合わせて設計します。
-            </p>
-          </div>
-        </section>
-
-        <section class="section-card" id="checks">
-          <h2>現場での確認ポイント</h2>
-          <p>
-            異常保持回路の確認では、異常入力だけでなく、保持フラグ、リセット条件、表示灯・ブザー出力を順番に見ます。
-            「異常が出たのに残らない」「リセットしても消えない」「表示灯だけ点かない」など、症状によって見る場所が変わります。
-          </p>
-
+          <h2>簡略ラダー例：異常中は保持を消さない</h2>
+          <p>三菱電機MELSEC iQ-Fの内部デバイスだけを使う教材です。<code>M20</code>は監視側で作った異常条件、<code>M21</code>は別途受け付けた保持解除の<strong>1回分の要求</strong>、<code>M100</code>は異常保持です。<code>M21</code>を押しっぱなしのスイッチ状態として扱わず、要求の生成や受理処理は図に含めません。</p>
           <figure class="article-figure">
-            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-circuit-basic-check-flow.png" alt="異常保持回路で確認するポイントをSTEP形式で整理した図" loading="lazy" decoding="async">
-            <figcaption>異常入力、保持フラグ、リセット条件、表示灯・ブザーの順で確認すると原因を追いやすくなります。</figcaption>
+            <img src="../assets/images/alarm-hold-circuit-basic/alarm-hold-ladder-20261128.png" alt="2段の学習ラダー。1段目、M20のa接点でSET M100。2段目、M21のa接点とM20のb接点を直列にしてRST M100。端子配線や物理出力はない。" width="1672" height="941" loading="lazy" decoding="async">
+            <figcaption>同じスキャンでM20・M21の状態がこの2段の間で変わらない教材。異常条件がONのときはSET段だけが成立し、解除段は成立しません。</figcaption>
           </figure>
-
-          <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>異常入力が入ったか</h3>
-              <p>対象の異常入力が一瞬でもONしたか、入力モニタで確認します。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>保持フラグがONしているか</h3>
-              <p>異常入力後に、異常保持フラグが残っているか確認します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>リセット条件が正しいか</h3>
-              <p>リセットPB、原因復帰条件、異常解除条件の組み方を確認します。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>表示灯・ブザーがONしているか</h3>
-              <p>保持フラグから表示灯やブザー出力へつながっているかを見ます。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>原因確認前にリセットしていないか</h3>
-              <p>すぐリセットできる設計だと、原因を見逃すことがあります。</p>
-            </div>
-            <div class="check-item check-item--warning">
-              <h3>安全回路と混同していないか</h3>
-              <p>非常停止や安全リレーは別扱いです。異常保持だけで安全を担保しないようにします。</p>
-            </div>
-          </div>
-
-          <div class="danger-box">
-            <h3>異常保持は安全回路そのものではない</h3>
-            <p>
-              異常保持回路は、異常を確認しやすくするための回路です。
-              非常停止や安全扉などの安全機能は、専用の安全回路・安全リレー・安全PLCの考え方に従って設計します。
-            </p>
-          </div>
+          <ol class="number-list">
+            <li><strong>M20がON：</strong>a接点で<code>SET M100</code>。同時に解除要求があっても、2段目のM20のb接点は成立しません。</li>
+            <li><strong>M20がOFF、M21もOFF：</strong>どちらの命令も成立せず、M100は前の状態を保持します。異常条件がOFFに戻っただけでは記憶は消えません。</li>
+            <li><strong>M20がOFF、M21がON：</strong><code>RST M100</code>で保持を解除します。異常中に成立しなかった要求は、教材では後に繰り越しません。</li>
+          </ol>
+          <p>毎スキャン実行する通常の<code>OUT</code>は、その段の条件が切れると指定したビットもOFFになります。<code>SET</code>と<code>RST</code>はONにする条件とOFFにする条件を別に書きます。実設備で読むときは、GX Works3のクロスリファレンス等でM100への書込み箇所を確認し、同じビットを変更する別の段や処理がないか見ます。</p>
+          <p><strong>一瞬の信号でも必ず残る、という意味ではありません。</strong>入力機器のフィルタや更新周期、プログラムの処理でPLCが受け付けなければ、SET段は成立しません。また、条件OFF後の保持と電源断後のラッチ保持は別で、後者は使用CPUの仕様とデバイス設定に依存します。</p>
         </section>
-
+        <section class="section-card" id="checks">
+          <h2>表示・履歴を照合し、どこで止まったかを読む</h2>
+          <p>許可された範囲で既存の表示・運転履歴を見ます。時計や記録周期が違えば、同じ秒の表示でも順序は決めきれません。異常表示を消す前に、画面名、異常名、時刻、前後で変わった状態を引き継げる形にします。</p>
+          <div class="check-grid">
+            <div class="check-item"><h3>異常が出たのに保持が残らない</h3><p>発生時の判定信号の記録とM100の記録を比べます。「実際は短くONしたはず」と決めつけず、記録にない変化は未確認として扱います。判定ONの記録があれば、SETの実行条件と別のRST／書込みが次の確認先です。</p></div>
+            <div class="check-item"><h3>異常条件がOFFでも警報表示が残る</h3><p>M100がONなら、保持型では想定内のことがあります。現状態の表示と履歴の表示を区別し、解除要求とそのときの条件を記録で照合します。異常が再発していれば、それを先に引き継ぎます。</p></div>
+            <div class="check-item"><h3>M100は残るが、音や表示だけが違う</h3><p>ランプ・ブザー・画面には別の通知条件がある場合があります。例えば音だけ止まったなら、消音・確認状態と、通知側が参照するビットを確認します。新たな異常を再通知するかどうかは仕様で別に決める必要があります。</p></div>
+            <div class="check-item"><h3>複数の異常が同時に残る</h3><p>搬送の例なら「到着遅れ」のあとに「次工程の待ち時間超過」が出ることがあります。異常ごとの発生・復旧時刻を見比べ、最初に記録された異常を調査の起点にします。ただし最初の記録が根本原因とは限りません。一括フラグだけでは順序を特定できません。</p></div>
+          </div>
+          <div class="danger-box"><h3>通常警報の保持を、安全機能の代わりにしない</h3><p>非常停止、安全扉、意図しない再始動を防ぐ機能は設備に応じて別に設計・検証します。本例は安全回路、出力配線、停止解除、実機の書込みや強制操作を案内するものではありません。</p></div>
+        </section>
         <section class="section-card" id="summary">
-          <h2>まとめ</h2>
-          <p>
-            異常保持回路は、一度出た異常をリセットまで残すための基本回路です。
-            異常入力が一瞬だけでも、保持フラグで状態を残し、表示灯やブザーへつなげることで、作業者が原因を確認しやすくなります。
-          </p>
-          <p>
-            自己保持回路と形は似ていますが、目的は違います。
-            自己保持は運転を続けるため、異常保持は異常を見逃さないために使います。
-            リセットは、原因確認後に行う流れにしておくと、現場での切り分けがしやすくなります。
-          </p>
-
+          <h2>まとめ：今の異常と、残した異常を別々に読む</h2>
+          <p>異常条件がOFFに戻っても、異常を受け付けた記憶は残せます。音が止まっても、原因がなくなったとは限りません。現在の判定、保持、確認、解除、履歴を別の情報として扱うと、表示の違いから次に読む箇所を決められます。</p>
+          <h3>メーカー公式資料</h3>
+          <p>公式資料確認：<time datetime="2026-11-28">2026年11月28日</time>。版・機器・対象の設定によって異なる部分は、設備の資料を優先してください。</p>
           <ul class="simple-list">
-            <li>異常保持回路は、一度出た異常をリセットまで残す回路</li>
-            <li>異常入力がOFFに戻っても、保持フラグで異常状態を残せる</li>
-            <li>表示灯・ブザー・リセット回路と組み合わせて使うことが多い</li>
-            <li>自己保持回路と似ているが、目的は運転継続ではなく異常確認</li>
-            <li>非常停止や安全回路とは分けて考える</li>
+            <li><a href="https://www.mitsubishielectric.co.jp/fa/products/faspec/download.page?formNm=FX5-_M-D-_FX5UJ%2FDS_3440&amp;kisyu=%2Fplcf&amp;popup=1">三菱電機：FX5プログラミングマニュアル（命令／汎用FUN／汎用FB編）の公式配布一覧</a>、<a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d69701/jy997d69701a.pdf">GX Works3用 MELSEC iQ-F 基礎コース（英語版）</a> §4.3.2、p.4-11。OUTとSET／RSTの違い。<a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf">FX5命令編（英語版 JY997D55801-AC）</a> §6.3、pp.145–148で内部ビットに対するSET／RSTの適用を確認。</li>
+            <li><a href="https://dl.mitsubishielectric.co.jp/dl/fa/document/catalog/got/l08391/l08391b.pdf">三菱電機：GOT2000シリーズ オープンフレームモデル</a>、「アラーム表示」例。発生・復旧・確認を別に表示する例を確認。</li>
           </ul>
-
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎一覧へ戻る</a>
             <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎を見る</a>

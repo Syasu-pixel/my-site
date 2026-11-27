@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>三菱 FX3GCからFX5UCへ：置き換え前の確認と引き継ぎシート</title>
+  <meta name="description" content="三菱PLCのFX3GCからFX5UCへの置き換えで、入出力ケーブルの流用とGX Works3変換後の確認を整理。停電保持や設定値を新旧で記録できるA4確認シート付き。">
+  <link rel="canonical" href="https://denkicontrol.com/articles/fx3gc-fx5uc-replacement-basic.html">
+  <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/fx3gc-fx5uc-replacement-basic.html">
+  <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/fx3gc-fx5uc-replacement-basic.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="三菱 FX3GCからFX5UCへ：置き換え前の確認と引き継ぎシート">
+  <meta property="og:description" content="三菱PLCのFX3GCからFX5UCへの置き換えで、入出力ケーブルの流用とGX Works3変換後の確認を整理。停電保持や設定値を新旧で記録できるA4確認シート付き。">
+  <meta property="og:url" content="https://denkicontrol.com/articles/fx3gc-fx5uc-replacement-basic.html">
+  <meta property="og:image" content="https://denkicontrol.com/assets/images/fx3gc-fx5uc-replacement-basic/ogp.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="三菱 FX3GCからFX5UCへ：置き換え前の確認と引き継ぎシート">
+  <meta name="twitter:description" content="三菱PLCのFX3GCからFX5UCへの置き換えで、入出力ケーブルの流用とGX Works3変換後の確認を整理。停電保持や設定値を新旧で記録できるA4確認シート付き。">
+  <meta name="twitter:image" content="https://denkicontrol.com/assets/images/fx3gc-fx5uc-replacement-basic/ogp.webp">
+  <meta name="theme-color" content="#f8fbff">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/common/site-logo-dcl-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/common/site-logo-dcl-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/common/site-logo-dcl-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/common/site-logo-dcl-180.png">
+  <style>
+    :root{
+      --bg:#f5f8fc;
+      --card:#ffffff;
+      --line:#d8e3f0;
+      --line-strong:#c4d5e8;
+      --text:#1e293b;
+      --muted:#5f7288;
+      --blue:#2563eb;
+      --blue-deep:#1d4ed8;
+      --blue-soft:#eef4ff;
+      --green:#16a34a;
+      --green-soft:#ecfdf3;
+      --orange:#f59e0b;
+      --orange-soft:#fff7e8;
+      --red:#dc2626;
+      --red-soft:#fff1f2;
+      --purple:#7c3aed;
+      --purple-soft:#f5f0ff;
+      --yellow:#facc15;
+      --yellow-soft:#fffbeb;
+      --shadow:0 12px 30px rgba(15, 23, 42, .06);
+      --radius:24px;
+      --container:1180px;
+      --header-h:76px;
+      --muted-2:#64748b;
+      --line-header:#dbe7f3;
+      --shadow-soft:0 8px 20px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:100px}
+    body{
+      margin:0;
+      font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+      line-height:1.8;
+      padding-top:var(--header-h);
+    }
+    button,input{font:inherit}
+    img{max-width:100%;display:block}
+    a{color:var(--blue-deep);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{width:min(1180px,calc(100% - 28px));margin:0 auto}
+
+    .site-header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:999;
+      padding:10px 12px;
+      background:#fff !important;
+      border-bottom:1px solid rgba(203,219,235,.9);
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+    }
+    .site-header-inner{
+      width:min(100%,var(--container));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      color:inherit;
+      text-decoration:none;
+    }
+    .brand:hover{text-decoration:none}
+    .brand-logo{width:auto;height:46px;flex:0 0 auto}
+    .brand-copy{min-width:0;
+      display:block;
+    }
+    .brand-title{
+      margin:0;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:900;
+      color:#0f172a;
+      letter-spacing:.01em;
+      display:block;
+    }
+    .brand-sub{
+      margin:2px 0 0;
+      font-size:11px;
+      line-height:1.4;
+      color:#475569;
+      font-weight:700;
+      display:block;
+    }
+    .header-nav{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+      flex:1 1 auto;
+      margin-left:auto;
+      margin-right:4px;
+    }
+    .header-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#334155;
+      background:#fff;
+      border:1px solid transparent;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .header-link:hover{
+      color:#1d4ed8;
+      background:#f8fbff;
+      border-color:#dbeafe;
+      text-decoration:none;
+    }
+        .language-menu{
+      position:relative;
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      margin-left:auto;
+}
+
+    .language-menu-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:6px 11px;
+      border-radius:999px;
+      border:1px solid #dbe7f3;
+      background:#fff;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+      cursor:pointer;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      white-space:nowrap;
+    }
+
+    .language-menu-button:hover,
+    .language-menu-button:focus{
+      color:#1d4ed8;
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .language-menu-icon{
+      font-size:15px;
+      line-height:1;
+    }
+
+    .language-menu-current{
+      max-width:88px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .language-menu-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:220px;
+      padding:8px;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      z-index:1300;
+    }
+
+    .language-menu-panel[hidden]{
+      display:none;
+    }
+
+    .language-menu-item{
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:9px 10px;
+      border-radius:12px;
+      color:#334155;
+      text-decoration:none;
+    }
+
+    .language-menu-item:hover{
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-item.is-active{
+      background:#e6f0ff;
+      color:#1d4ed8;
+    }
+
+    .language-menu-flag{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .language-menu-item strong{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:900;
+    }
+
+    .language-menu-item small{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      line-height:1.3;
+      color:#64748b;
+      font-weight:700;
+    }
+
+
+    @media (max-width:1100px){
+      .language-menu-current{
+        display:none;
+      }
+
+      .language-menu-button{
+        width:38px;
+        min-width:38px;
+        padding:0;
+      }
+
+      .language-menu-panel{
+        right:0;
+        width:210px;
+      }
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    .header-search{
+      position:relative;
+      flex:0 0 220px;
+      min-height:42px;
+      border-radius:999px;
+      border:1px solid var(--line-header);
+      background:#fff;
+      color:var(--muted-2);
+      box-shadow:var(--shadow-soft);
+    }
+    .search-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+    }
+    .search-box-input{
+      width:100%;
+      min-width:0;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+    .search-box-input::placeholder{color:#94a3b8}
+    .search-box-button{
+      border:none;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .header-search-icon{
+      width:16px;
+      height:16px;
+      border:2px solid #1f2937;
+      border-radius:50%;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .header-search-icon::after{
+      content:"";
+      position:absolute;
+      width:7px;
+      height:2px;
+      background:#1f2937;
+      border-radius:999px;
+      right:-5px;
+      bottom:-2px;
+      transform:rotate(45deg);
+    }
+    .search-box-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:min(420px,92vw);
+      max-height:min(72vh,640px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      background:#fff;
+      border:1px solid #dbe7f3;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(15,23,42,.12);
+      padding:8px 8px 10px;
+      z-index:1200;
+    }
+    .search-box-results{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:6px;
+    }
+    .search-box-empty{
+      margin:0;
+      padding:14px 10px;
+      text-align:center;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .breadcrumb{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:6px;
+      margin:18px 0 14px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+    .article-hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 36%, rgba(255,255,255,.82) 54%, rgba(255,255,255,.45) 72%, rgba(255,255,255,.12) 100%),
+        #f8fbff;
+      box-shadow:var(--shadow);
+      min-height:400px;
+      isolation:isolate;
+    }
+    .article-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("../assets/images/fx3gc-fx5uc-replacement-basic/hero.webp") right center / auto 100% no-repeat;
+      opacity:.34;
+      pointer-events:none;
+      z-index:0;
+    }
+    .article-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.56) 38%, rgba(255,255,255,.24) 64%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .article-hero-copy{
+      width:min(100%,620px);
+      min-height:400px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+      padding:46px 40px;
+      position:relative;
+      z-index:2;
+    }
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 14px;
+      font-size:40px;
+      line-height:1.22;
+      letter-spacing:.01em;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:38ch;
+      font-size:15px;
+      color:#334155;
+    }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:26px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.4;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+    .btn:hover{text-decoration:none}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(37,99,235,.18);
+    }
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border-color:#d3dfec;
+    }
+
+    .top-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin:18px 0 22px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .summary-card h2{
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.4;
+    }
+    .summary-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .summary-card li{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .summary-card--fit h2{color:#0f766e}
+    .summary-card--notyet h2{color:#b45309}
+    .summary-card--conclusion h2{color:var(--blue-deep)}
+
+    .mini-toc-card{
+      margin:0 0 22px;
+      padding:22px 20px 16px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+    .mini-toc-card h2{
+      margin:0 0 14px;
+      font-size:17px;
+      line-height:1.5;
+    }
+    .mini-toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .mini-toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:38px;
+      padding:0 14px;
+      border-radius:999px;
+      background:#f8fbff;
+      border:1px solid #cfdded;
+      color:var(--blue-deep);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .mini-toc a:hover{
+      background:#eef4ff;
+      border-color:#b8cde7;
+    }
+
+    .page-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 310px;
+      gap:24px;
+      align-items:start;
+      margin-bottom:48px;
+    }
+    .main-column{min-width:0}
+    .side-rail{
+      position:sticky;
+      top:98px;
+      display:grid;
+      gap:16px;
+    }
+    .section-card,
+    .side-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .section-card{
+      padding:28px;
+      margin-bottom:20px;
+    }
+    .side-card{padding:20px}
+    .section-card h2{
+      margin:0 0 16px;
+      font-size:22px;
+      line-height:1.4;
+    }
+    .section-card p{
+      margin:0 0 14px;
+      font-size:15px;
+    }
+    .section-card p:last-child{margin-bottom:0}
+    .mark{
+      background:linear-gradient(transparent 58%, rgba(250,204,21,.45) 58%);
+      font-weight:900;
+    }
+    .term{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      margin:0 2px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .key-highlight,
+    .field-highlight,
+    .note-box,
+    .danger-box{
+      padding:18px;
+      border-radius:20px;
+      margin:18px 0;
+      border:1px solid transparent;
+    }
+    .key-highlight{
+      border-color:#bfdbfe;
+      background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);
+    }
+    .field-highlight{
+      border-color:#bbf7d0;
+      background:linear-gradient(180deg,#ecfdf3 0%,#f8fffb 100%);
+    }
+    .note-box{
+      background:#fff8ea;
+      border-color:#f7dba2;
+    }
+    .danger-box{
+      background:var(--red-soft);
+      border-color:#fecaca;
+    }
+    .key-highlight h3,
+    .field-highlight h3,
+    .note-box h3,
+    .danger-box h3{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .key-highlight p,
+    .field-highlight p,
+    .note-box p,
+    .danger-box p{
+      margin:0;
+      font-size:14px;
+      color:#334155;
+    }
+
+    .icon-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0;
+    }
+    .icon-point{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid #d7e4f3;
+      background:#f8fbff;
+    }
+    .icon-point .icon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      margin-bottom:10px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:23px;
+      font-weight:900;
+    }
+    .icon-point h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.45;
+    }
+    .icon-point p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .icon-point--orange{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    .icon-point--orange .icon{
+      background:#ffedd5;
+      color:#c2410c;
+    }
+    .icon-point--green{
+      border-color:#bbf7d0;
+      background:#ecfdf3;
+    }
+    .icon-point--green .icon{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .simple-list{
+      margin:0;
+      padding-left:20px;
+    }
+    .simple-list li{
+      margin:10px 0 0;
+      font-size:15px;
+    }
+    .article-figure{
+      margin:20px 0;
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#f8fbff;
+    }
+    .article-figure img{
+      width:100%;
+      height:auto;
+    }
+    .article-figure figcaption{
+      padding:12px 16px 14px;
+      border-top:1px solid #dbe6f1;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      background:#fff;
+    }
+
+    .talk-thread{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      max-width:980px;
+    }
+    .talk-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .talk-row--right{
+      flex-direction:row-reverse;
+    }
+    .talk-avatar{
+      flex:0 0 80px;
+      width:80px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding-top:2px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-avatar img{
+      width:76px;
+      height:auto;
+      display:block;
+      object-fit:contain;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      outline:none;
+    }
+    .talk-bubble{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:min(76%,680px);
+      background:#f8fbff;
+      border:1px solid #d7e3f2;
+      border-radius:22px;
+      padding:14px 18px;
+    }
+    .talk-row--right .talk-bubble{
+      background:#fcfbff;
+      border-color:#e1d6fb;
+    }
+    .talk-name{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 9px;
+      margin-right:8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+    .talk-name--senpai{
+      background:#eaf2ff;
+      color:var(--blue-deep);
+      border:1px solid #bfd5ff;
+    }
+    .talk-name--kouhai{
+      background:#f3ebff;
+      color:var(--purple);
+      border:1px solid #ddc9ff;
+    }
+    .talk-bubble p{
+      margin:0;
+      font-size:15px;
+      line-height:1.72;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+    }
+    .check-item h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .check-item p{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .check-item--blue{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .check-item--green{
+      background:#ecfdf3;
+      border-color:#bbf7d0;
+    }
+    .check-item--orange{
+      background:#fff7e8;
+      border-color:#f7dba2;
+    }
+    .check-item--red{
+      background:#fff1f2;
+      border-color:#fecaca;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin:18px 0 6px;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      background:#fff;
+    }
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #dfe8f2;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.7;
+    }
+    th{
+      background:#eaf2ff;
+      color:#0f172a;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    tr:last-child td{border-bottom:none}
+    td.cell-blue{
+      background:#eff6ff;
+      font-weight:800;
+      color:#1e3a8a;
+    }
+    td.cell-orange{
+      background:#fff7e8;
+      font-weight:800;
+      color:#92400e;
+    }
+    td.cell-green{
+      background:#ecfdf3;
+      font-weight:800;
+      color:#166534;
+    }
+    td.cell-red{
+      background:#fff1f2;
+      font-weight:800;
+      color:#991b1b;
+    }
+
+    .side-card h3{
+      margin:0 0 12px;
+      padding-bottom:12px;
+      border-bottom:1px solid #dbe6f1;
+      font-size:16px;
+      line-height:1.5;
+    }
+    .side-card ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-card li{
+      margin:9px 0 0;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .related-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .related-card{
+      display:block;
+      background:#f8fbff;
+      border:1px solid #d7e4f3;
+      border-radius:20px;
+      padding:16px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .related-card:hover{
+      text-decoration:none;
+      border-color:#bfd4ec;
+      background:#fbfdff;
+    }
+    .related-card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--blue-deep);
+    }
+    .related-card p{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+    .article-footer-nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .site-footer{
+      padding:26px 0 36px;
+      border-top:1px solid #dbe7f3;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:1100px){
+      .page-layout{grid-template-columns:minmax(0,1fr)}
+      .side-rail{
+        position:static;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+    @media (max-width:980px){
+      .brand-sub{display:none !important}
+      .header-nav{display:none !important}
+      .brand-title{white-space:nowrap}
+      .header-search{flex:0 0 180px}
+    }
+    @media (max-width:900px){
+      :root{--header-h:74px}
+      html{scroll-padding-top:92px}
+      .article-hero{
+        min-height:auto;
+        border-radius:24px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 52%, rgba(255,255,255,.72) 100%),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/fx3gc-fx5uc-replacement-basic/hero.webp") right -28px bottom -14px / 162% auto no-repeat;
+        opacity:.2;
+      }
+      .article-hero::after{
+        background:linear-gradient(170deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.58) 42%, rgba(255,255,255,.22) 72%, rgba(255,255,255,0) 100%);
+      }
+      .article-hero-copy{
+        min-height:360px;
+        padding:34px 22px;
+        justify-content:flex-start;
+      }
+      h1{font-size:30px}
+      .hero-lead{font-size:14px;max-width:32ch}
+      .top-summary{grid-template-columns:1fr}
+      .side-rail{grid-template-columns:1fr}
+      .related-grid{grid-template-columns:1fr}
+      .check-grid{grid-template-columns:1fr}
+      .icon-points{grid-template-columns:1fr}
+      .section-card{padding:22px}
+      .talk-avatar{flex-basis:72px;width:72px}
+      .talk-avatar img{width:66px}
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero{
+        min-height:360px;
+        border-radius:28px;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.98) 0%,
+            rgba(255,255,255,.96) 42%,
+            rgba(255,255,255,.78) 64%,
+            rgba(255,255,255,.42) 82%,
+            rgba(255,255,255,.16) 100%
+          ),
+          #f8fbff;
+      }
+      .article-hero::before{
+        background:url("../assets/images/fx3gc-fx5uc-replacement-basic/hero.webp") right center / auto 92% no-repeat;
+        opacity:.24;
+      }
+      .article-hero::after{
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,.72) 0%,
+          rgba(255,255,255,.48) 44%,
+          rgba(255,255,255,.18) 72%,
+          rgba(255,255,255,0) 100%
+        );
+      }
+      .article-hero-copy{
+        width:min(100%,600px);
+        min-height:360px;
+        padding:40px 34px;
+        justify-content:center;
+      }
+      h1{font-size:34px}
+      .hero-lead{
+        max-width:36ch;
+        font-size:14px;
+        color:#334155;
+      }
+      .top-summary{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:14px;
+      }
+      .summary-card{padding:20px 18px}
+      .summary-card h2{font-size:17px}
+      .summary-card li{
+        font-size:13px;
+        line-height:1.65;
+      }
+      .side-rail{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:768px){
+      .site-header{padding:8px 10px}
+      .site-header-inner{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .brand{min-width:0;gap:8px}
+      .brand-logo{height:40px}
+      .brand-title{
+        font-size:15px;
+        line-height:1.2;
+        white-space:nowrap;
+      }
+      .header-search{
+        flex:0 0 132px;
+        min-height:38px;
+      }
+      .search-box{padding:0 10px}
+      .search-box-input{font-size:12px}
+      .search-box-panel{
+        width:min(360px,92vw);
+        max-height:min(68vh,520px);
+      }
+      .talk-thread{max-width:none}
+      .talk-bubble{max-width:none}
+    }
+    @media (max-width:640px){
+      .article-hero::before{
+        background:url("../assets/images/fx3gc-fx5uc-replacement-basic/hero.webp") right -40px bottom -20px / 178% auto no-repeat;
+        opacity:.14;
+      }
+      .article-hero::after{
+        background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(255,255,255,.68) 50%, rgba(255,255,255,.3) 100%);
+      }
+      .container{width:min(100%,calc(100% - 20px))}
+      .breadcrumb{margin-top:14px}
+      .mini-toc{gap:8px}
+      .mini-toc a{min-height:36px;font-size:12px;padding:0 12px}
+      .section-card,
+      .side-card,
+      .mini-toc-card,
+      .summary-card{border-radius:22px}
+      .section-card h2{font-size:20px}
+      .section-card p,
+      .talk-bubble p,
+      .simple-list li{font-size:14px}
+      .talk-row,
+      .talk-row--right{
+        flex-direction:column;
+        gap:8px;
+      }
+      .talk-avatar{
+        width:64px;
+        flex-basis:auto;
+        padding-left:4px;
+      }
+      .talk-row--right .talk-avatar{
+        align-self:flex-end;
+        padding-right:4px;
+      }
+      .talk-avatar img{width:60px}
+    }
+
+    .support-card{
+      border-color:#dbeafe;
+    }
+
+    .support-card-title{
+      margin:0 0 8px;
+      padding-bottom:8px;
+      border-bottom:1px solid #dbeafe;
+      font-size:15px;
+      line-height:1.5;
+      font-weight:900;
+      color:#1e3a8a;
+    }
+
+    .support-card-text{
+      margin:0;
+      font-size:13px;
+      line-height:1.75;
+      color:#334155;
+    }
+
+    .support-card-actions{
+      margin-top:12px;
+      display:grid;
+      gap:8px;
+    }
+
+    .support-link{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:38px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid #cbdcf2;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.4;
+      text-align:center;
+      text-decoration:none;
+      white-space:normal;
+    }
+
+    .support-link:hover{
+      text-decoration:none;
+    }
+
+    .support-link--coffee{
+      border-color:#facc15;
+      color:#854d0e;
+      background:#fff3bf;
+    }
+
+    .support-link--coffee:hover{
+      border-color:#eab308;
+      background:#fde68a;
+    }
+
+    .support-link--paypal{
+      border-color:#93c5fd;
+      color:#0b5cad;
+      background:#eaf3ff;
+    }
+
+    .support-link--paypal:hover{
+      border-color:#60a5fa;
+      background:#dbeafe;
+    }
+
+
+    @media (max-width:640px){
+      :root{--header-h:66px;}
+      html{scroll-padding-top:82px;}
+      .site-header{padding:7px 8px;}
+      .site-header-inner{gap:6px;}
+      .brand{gap:7px;}
+      .brand-logo{height:36px;}
+      .brand-title{font-size:13px;letter-spacing:0;}
+      .brand-sub{display:none;}
+      .language-menu-button{width:34px;min-width:34px;min-height:34px;}
+      .header-search{flex:0 1 138px;min-height:36px;}
+      .search-box{padding:0 9px;gap:6px;}
+      .search-box-input{font-size:11px;}
+      .header-search-icon{width:14px;height:14px;}
+      .search-box-panel{right:-48px;width:min(340px,94vw);}
+    }
+</style>
+  <style>
+    /* DC LOCAL ARTICLE HERO LAYOUT */
+    @media (max-width:743px){
+      .article-hero::before{display:none}
+      .article-hero-copy{min-height:0;padding-inline:18px;padding-bottom:0}
+      .article-hero-copy::after{content:"";display:block;flex:none;order:3;align-self:stretch;aspect-ratio:1440/810;margin:18px -18px 0;background:url("../assets/images/fx3gc-fx5uc-replacement-basic/hero.webp") center / 100% auto no-repeat}
+    }
+    @media (min-width:744px){
+      .article-hero::before{
+        inset:0 0 0 auto;
+        height:100%;
+        width:auto;
+        aspect-ratio:1440/810;
+        max-width:58%;
+        background-position:right center;
+        background-size:auto 100%;
+        opacity:.78;
+        mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,.15) 10%, #000 35%);
+        mask-repeat:no-repeat;
+      }
+    }
+    @media (min-width:744px) and (max-width:1100px){
+      .article-hero-copy{width:min(54%,600px);padding-inline:30px}
+      .article-hero::before{max-width:49%;background-size:contain}
+    }
+  </style>
+<style>
+.replacement-grid,.signal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.signal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.replacement-card,.signal-grid>div,.replacement-note{padding:1rem;border:1px solid #afcbe2;border-radius:.8rem;background:#f2f8fd;color:#173653;overflow-wrap:anywhere}
+.signal-grid>div:last-child{background:#fff6e7;border-color:#e5ba6d}
+.replacement-card p,.signal-grid p{margin:.3rem 0!important}
+.replacement-label,.signal-grid span{color:#315777;font-size:.9rem;font-weight:700}
+.signal-grid strong{display:block}
+.replacement-figure{margin:1.2rem 0}
+.replacement-figure figcaption{font-size:.94rem;margin-top:.6rem;line-height:1.65}
+.bubble-art{position:relative;container-type:inline-size}
+.bubble-art img{display:block;width:100%;height:auto;border-radius:.65rem}
+.bubble-art span{position:absolute;font-weight:900;font-size:clamp(10px,3.05cqi,24px);line-height:1.17;text-align:center;color:#173653;top:10%;width:16%;pointer-events:none}
+.bubble-a{left:2.4%}.bubble-b{right:1.5%;top:10.4%!important}
+html[data-dc-theme=dark] .bubble-art :is(.bubble-a,.bubble-b){background:#173653;color:#f2f8fd;border-radius:.45em;padding-block:.12em}
+html[data-dc-theme=dark] :is(.replacement-card,.signal-grid>div,.replacement-note,.replacement-preview){color:#e6f1ff;background:#1a2c40;border-color:#587492}
+html[data-dc-theme=dark] :is(.replacement-label,.signal-grid span,.replacement-preview a){color:#a7d3ff}
+html[data-dc-theme=dark] .signal-grid>div:last-child{background:#382d24;border-color:#ab8457}
+@media(max-width:560px){.replacement-grid,.signal-grid{grid-template-columns:minmax(0,1fr)}.section-card{scroll-margin-top:92px}}
+</style>
+<style>
+/* FX3GC/FX5UC desktop: reserve a separate lane for the floating contents button. */
+@media (min-width:1101px){
+  main.container{width:auto;max-width:1180px;margin-inline-start:max(14px,calc((100% - 1180px)/2));margin-inline-end:max(120px,calc((100% - 1180px)/2))}
+  html:not(.dc-toc-compact) .dc-toc-button{right:14px}
+  .dc-toc-destination:focus:not(:focus-visible){outline:none}
+}
+</style>
+<style>
+.fx-table{max-width:100%;overflow:auto}.fx-table table{width:100%;border-collapse:collapse;table-layout:fixed}.fx-table td,.fx-table th{padding:.6em;border:1px solid var(--line);text-align:left;overflow-wrap:anywhere}
+.fx-compare .sequence{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.fx-compare .sequence span:not([aria-hidden]){padding:.5em .7em;border:1px solid var(--line);border-radius:8px}
+.fx-article-image{display:block!important;width:100%;max-width:720px;height:auto!important;object-fit:contain;margin-inline:auto;border-radius:12px}
+.section-card details img{width:100%;height:auto!important}
+.fx-compare figcaption{font-weight:700}.fx-compare .transfer{font-weight:700}.section-card summary{cursor:pointer}
+@media(max-width:520px){.fx-compare .sequence{display:grid}.fx-compare .sequence span[aria-hidden]{justify-self:center;transform:rotate(90deg)}}
+</style></head>
+<body>
+  <header class="site-header">
+  <div class="site-header-inner">
+    <a href="../" class="brand" aria-label="トップページへ移動">
+      <img src="../assets/images/common/site-logo-dcl.png" alt="電気と制御の実務メモ ロゴ" class="brand-logo">
+      <div class="brand-copy">
+        <p class="brand-title">電気と制御の実務メモ</p>
+        <p class="brand-sub">現場で使える考え方と制御の基礎をわかりやすく解説</p>
+      </div>
+    </a>
+
+    <div class="language-menu" aria-label="言語と地域の切り替え">
+      <button type="button" class="language-menu-button" id="languageMenuButton" aria-expanded="false" aria-controls="languageMenuPanel" aria-label="言語と地域を切り替える">
+        <span class="language-menu-icon" aria-hidden="true">🌐</span>
+        <span class="language-menu-current">Japan</span>
+      </button>
+
+      <div class="language-menu-panel" id="languageMenuPanel" hidden>
+        <a href="./fx3gc-fx5uc-replacement-basic.html" class="language-menu-item is-active" lang="ja" aria-current="page">
+          <span class="language-menu-flag" aria-hidden="true">🇯🇵</span>
+          <span>
+            <strong>Japan</strong>
+            <small>日本語トップ</small>
+          </span>
+        </a>
+
+        <a href="../en/" class="language-menu-item" lang="en">
+          <span class="language-menu-flag" aria-hidden="true">🇺🇸</span>
+          <span>
+            <strong>United States</strong>
+            <small>English top</small>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <form class="header-search search-box" id="siteSearch" aria-label="サイト内検索" role="search">
+      <label class="sr-only" for="site-search-input">サイト内検索</label>
+      <input id="site-search-input" class="search-box-input" type="search" placeholder="キーワードで検索" autocomplete="off" enterkeyhint="search">
+      <button class="search-box-button" type="submit" aria-label="検索">
+        <span class="header-search-icon" aria-hidden="true"></span>
+      </button>
+      <div class="search-box-panel" id="site-search-panel" hidden>
+        <ul class="search-box-results" id="site-search-results"></ul>
+        <p class="search-box-empty" id="site-search-empty" hidden>該当する記事がありません</p>
+      </div>
+    </form>
+  </div>
+</header>
+
+  <main class="container">
+<nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">ホーム</a><span>›</span><a href="../categories/control-basics.html">制御の基礎</a><span>›</span><span>FX3GCからFX5UCへ</span></nav>
+<section class="article-hero" id="top"><div class="article-hero-copy"><span class="hero-label">現場の置き換え</span><h1>三菱 FX3GCからFX5UCへ：置き換え前の確認と引き継ぎシート</h1><p class="hero-lead">入出力ケーブルが挿さっても、設定とプログラムまで同じとは限りません。新旧のつなぎ先と設定を一枚に整理できます。</p><div class="hero-actions"><a class="btn btn-primary" href="#s1">型式と配線を比べる</a><a class="btn btn-secondary" href="#s4">引き継ぎシートを見る</a></div></div></section>
+<section class="top-summary" aria-label="この記事の要点"><div class="summary-card summary-card--fit"><h2>向いている人</h2><ul><li>FX3GCの交換前に確認項目を整理したい人</li><li>配線と設定の違いを担当者へ引き継ぎたい人</li></ul></div><div class="summary-card summary-card--notyet"><h2>この記事の範囲</h2><ul><li>FX3GC-32MT/D・/DSSから同じ末尾のFX5UC</li><li>結線・通電・試運転の手順は扱いません</li></ul></div><div class="summary-card summary-card--conclusion"><h2>先に結論</h2><ul><li>銘板は末尾まで記録</li><li>CPU入出力ケーブルの流用と設定確認を分ける</li><li>高速カウンタと復電後の値を確認</li></ul></div></section>
+<section class="mini-toc-card" aria-label="記事内メニュー"><h2>この記事でわかること</h2><div class="mini-toc"><a href="#s1">銘板・ケーブル</a><a href="#s2">プログラムの変換</a><a href="#s3">入力は見えるのに数えない</a><a href="#s4">引き継ぎシート</a></div></section>
+
+    <div class="page-layout">
+      <article class="main-column"><section class="section-card" id="basic"><h2>交換前に見る3つのポイント</h2><p><strong>先に結論：CPUの入出力ケーブルを流用できることと、そのまま設備が動くことは別です。</strong> まず銘板の末尾まで確認。次に、既存の入出力がどの機器・中継端子につながっているかを控えます。そのあと、旧プロジェクトと変換後の設定・プログラムを照らし合わせます。</p><p>対象は三菱電機の <strong>FX3GC-32MT/D・FX3GC-32MT/DSS</strong> を、同じ末尾の <strong>FX5UC-32MT/D・FX5UC-32MT/DSS</strong> に替える場合です。似た名前の FX3UC とは別です。この記事は停止前の事前調査と引き継ぎ用で、設備の配線図や安全確認の代わりにはなりません。</p><div class="talk-thread" aria-label="先輩と後輩の会話"><div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="" loading="lazy"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>同じコネクタが使えるなら、プログラムもそのままですか？</p></div></div><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="" loading="lazy"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>そこは別々に確認しよう。配線がつながることと、PLCが同じように数えたり通信したりすることは別だよ。</p></div></div></div><p>停止時間を見積もるときは、機器を取り替える時間だけでなく、設定・初期値を照合する時間も分けて考えます。旧機を外してからでは調べ直せないことがあるので、今の資料で分かることと、設備担当者の確認が必要なことを先に分けておくのがこのシートの狙いです。</p></section><section class="section-card" id="s1"><h2>1. 銘板とケーブルを見比べる</h2><figure class="replacement-figure fx-compare"><img class="fx-article-image" src="../assets/images/fx3gc-fx5uc-replacement-basic/cable-and-settings.webp" alt="先輩と後輩が既設の入出力ケーブルと新機の設定は別に確認すると話している" width="1672" height="941" loading="lazy"><figcaption>配線とプログラムは、別々に確認</figcaption><div class="replacement-grid"><div class="replacement-card"><b>① 配線</b><p>旧：FX3GC のCPU入出力</p><p class="transfer">↓　入出力ケーブルは流用候補</p><p>新：FX5UC のCPU入出力</p></div><div class="replacement-card"><b>② プログラム</b><p>旧：GX Works2 の元データ</p><p class="transfer">↓　変換後に設定と参照先を確認</p><p>新：GX Works3 の作業データ</p></div></div></figure><div class="fx-table"><table><thead><tr><th scope="col">いま使っている型式</th><th scope="col">三菱電機の推奨代替型式</th></tr></thead><tbody><tr><td>FX3GC-32MT/D</td><td>FX5UC-32MT/D</td></tr><tr><td>FX3GC-32MT/DSS</td><td>FX5UC-32MT/DSS</td></tr></tbody></table></div><p>メーカーの対象型式一覧では、生産終了は2026年12月。三菱電機のFAQ 44307は、FX3GC基本ユニットで使用した入出力ケーブルを、コネクタ型のFX5UC CPUユニットへ流用できると案内しています。これは <strong>CPU側の入出力ケーブル</strong> の話です。電源ケーブル、増設機器、通信アダプタ、盤内の取付寸法まで一緒に流用できるという意味ではありません。</p><p>交換前に、盤図と現物の札から「機器 → 中継端子・リレー → 線番 → CPU側の位置／X・Y」を控えます。交換後も同じ経路なら「流用」と記入し、変わるところだけ新側の列に書くと、別の担当者が図面を開いたときに探しやすくなります。</p><h3>見積もり前に揃える4点</h3><div class="fx-table"><table><thead><tr><th scope="col">先にそろえる資料</th><th scope="col">この情報があると決められること</th></tr></thead><tbody><tr><td>旧CPU・増設機器の銘板</td><td>代替型式と、ケーブル以外に必要な部材</td></tr><tr><td>盤図・I/O表・中継端子の記録</td><td>旧のつなぎ先を残せるか、図面の読み替えが要るか</td></tr><tr><td>現行のプロジェクトと設備側の版</td><td>保管の古いコピーを誤って変換していないか</td></tr><tr><td>現在使っている品種・設定値の控え</td><td>変換後の設定と、復電後に設備が期待する値を比較できるか</td></tr></tbody></table></div><p>たとえば盤図に「搬送端検出 → X6」としかない場合、X6の文字だけを新側に書いても、実際にどの端子を経由しているかは伝わりません。説明用の記入例なら「搬送端検出／中継TB-06／線番116／旧X6」と経路まで残し、新側は図面と現物が一致してから欄を埋めます。線番や端子名は仮の例で、FX5UC共通の結線例ではありません。</p></section><section class="section-card" id="s2"><h2>2. 変換後のプロジェクトを点検する</h2><p>元のGX Works2プロジェクトは上書きせずに残し、変換後のGX Works3プロジェクトとは別名で保管します。変換が終わっただけでは合格ではありません。変換結果を保存し、警告や未対応箇所を記録したうえで、実際に使っている機能から当たりをつけます。</p><div class="fx-table"><table><thead><tr><th scope="col">旧側で使っていたもの</th><th scope="col">新側で先に確認するもの</th></tr></thead><tbody><tr><td>高速カウンタ C235～C255</td><td>対応する高速カウンタ設定と、それを使うプログラム</td></tr><tr><td>ルーチンタイマ T192～T199</td><td>ルーチンタイマの使用設定と先頭デバイス</td></tr><tr><td>停電後も残したい品種設定・設定値</td><td>旧機で使っている番地と値、新側の番地・保持設定・復電後に期待する値</td></tr><tr><td>RS-485／RS-232C</td><td>相手機器、アダプタ、通信チャンネル、設定と命令内のチャンネル指定</td></tr><tr><td>増設I/Oや特殊機器</td><td>実際の型式、接続可否、割付、置き換えた場合のプログラム側の参照</td></tr></tbody></table></div><p>FX3GC では、電池なしで停電時に保持されるデータレジスタは D128～D1099 です。FX5UC では GX Works3 の CPU パラメータでラッチ範囲を確認します。たとえば旧機で D200 に品種番号を残していたとしても、新機で同じ番地や値が残るとは限りません。変換後のプログラムとは別に、旧機で使われていた値、新側の書き込み先、復電直後に期待する値を記録します。D200 は説明用の例です。</p><h3>プログラム・設定・今の値を分ける</h3><figure class="replacement-figure fx-illustration"><img class="fx-article-image" src="../assets/images/fx3gc-fx5uc-replacement-basic/restart-value.webp" alt="先輩と後輩が新旧の資料を見比べ、プロジェクトの版だけでなく復電後に残したい値も確認している" width="1774" height="887" loading="lazy"><figcaption>変換したファイルの版と、復電後に期待する値は別々に記録します。</figcaption></figure><p>ラダーは「何を条件に、どの処理をするか」、パラメータは「その機能をどう使うか」、現場の設定値は「この設備でいま何を選んでいるか」です。たとえば品種が切り替わらないとき、ラダー上のデバイス番号が合っていても、初期値や画面側の参照が違うことがあります。旧プロジェクトと変換結果だけでなく、旧設備で確認した値や表示も記録に残します。</p><p>GX Works3のクロスリファレンスは、番地がどこで読まれ、どこで書き換えられるかを調べるのに向いています。ただし、ラダー内で検索して見つからない場合でも、タッチパネルなどPLCの外部から書き込まれていないとは言えません。必要なら表示器側のプロジェクトや通信表も照合し、最後まで分からないものは未確認に残します。</p><p>使っていない機能は「未使用」、確認できないものは「未確認」と書き分けます。「記入欄が空いているから問題なし」とは判断しません。</p></section><section class="section-card" id="s3"><h2>3. 失敗例（説明用）：入力は見えるのにカウントが増えない</h2><figure class="replacement-figure fx-compare"><figcaption>入力が見えるのに数えない？</figcaption><div class="sequence"><span>① 入力の変化</span><span aria-hidden="true">→</span><span>② カウンタの設定</span><span aria-hidden="true">→</span><span>③ 値を読むプログラム</span></div><p>①だけ通っても、②と③が合っているとは限りません。</p></figure><p>仮に、旧FX3GCでエンコーダを高速カウンタに入れていた設備を考えます。置き換え後に入力の動きが見えても、表示カウントが増えません。この時点で「エンコーダが壊れた」とも「プログラムだけ直せばいい」とも断定できません。入力の確認は、高速カウンタが意図した条件で数えていることまで保証しないからです。</p><ol><li>旧プロジェクトで、使っていたカウンタ番号と、その値を見にいく箇所を見つける。</li><li>新プロジェクトで、対応する入力割付・カウンタ設定と、変換後の参照先がそろっているかを別々に確認する。</li><li>不明点は、旧・新の値が比較できる形で担当者へ引き継ぐ。設備を動かして試す前に、承認された検証手順で確認する。</li></ol><div class="talk-thread" aria-label="先輩と後輩の会話"><div class="talk-row talk-row--right"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="" loading="lazy"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>入力が見えたからって、カウントまで通ったわけじゃないんですね。</p></div></div><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="" loading="lazy"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>そう。『どこまで確認できたか』を書いとけば、次の人が同じところを測り直さずに済むよ。</p></div></div></div><h3>もう一例：通信できないとき、ケーブルだけを疑わない</h3><p>置き換え直後に表示器の数値だけ更新されない場面を想定します。まず「PLC内部の値も更新されない」のか、「内部の値は動いているが、表示器だけが追っていない」のかを分けます。後者なら、配線の記録に加えて、通信アダプタやチャンネル、表示器が読むデバイスの対応が、旧と新でそろっているかが確認の手がかりになります。</p><div class="fx-table"><table><thead><tr><th scope="col">見えたこと</th><th scope="col">次に照合するもの</th></tr></thead><tbody><tr><td>入力は見えるがカウントが変わらない</td><td>高速入力の割付、カウンタ設定、ラダーで読んでいる先</td></tr><tr><td>PLC内部の値は動くが、表示が更新されない</td><td>相手機器・通信チャンネル・表示器側の参照</td></tr><tr><td>復電後だけ品種が違う</td><td>旧の実値、新の保持範囲、起動時に値を書く処理</td></tr></tbody></table></div><p>症状は確認順を決める手がかりで、原因の確定ではありません。現場での検証や試運転は設備ごとの安全手順に従い、必要な隔離と立会いを取って担当者が行います。</p></section><section class="section-card" id="s4"><h2>4. 記録を一枚にまとめる</h2><p><a class="btn btn-primary" href="/assets/downloads/fx3gc-fx5uc-handover-v2.pdf" download>A4横の引き継ぎシートをダウンロード（PDF）</a></p><details><summary>シートの見本を見る</summary><img src="/assets/downloads/fx3gc-fx5uc-handover-v2.png" alt="型式、入出力の経路、設定を新旧で記録するA4シート" width="1287" height="910"></details><p>確認シートは、上段で新旧の型式・プロジェクトを、真ん中で入出力の実際の経路を、下段で機能と設定値を対にして記録します。標準にない値を書ける空欄も用意。設備全点は既存のI/O表で管理し、このシートには変更点・要確認点と別紙の図番を残します。</p><h3>引き継ぎ前に「ここまでは確認済み」をそろえる</h3><p>シートを渡すときは、旧プロジェクトと変換後のファイル名、参照した図面の版、未確認の項目を一緒に伝えます。とくに「配線は照合済み、表示器の参照先は未確認」のように範囲を分けると、次の担当者が同じ箇所を一から調べ直さずに済みます。旧機のデータやファイルは変換版で上書きせず、社内ルールに沿って保管します。</p><p>記入したシートは設備資料として社内で扱ってください。このページから送信する機能はありません。</p></section><section class="section-card" id="sources"><h2>三菱電機の公式資料</h2><p><strong>参考資料（確認日：2026年11月27日）</strong></p><ul><li><a href="https://www.mitsubishielectric.co.jp/fa/products/cnt/plc_fx/ex/renew/close/">三菱電機 生産終了・代替機種</a></li><li><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/44307?site_domain=default">三菱電機 CPUユニットのコネクタ流用 FAQ 44307</a></li><li><a href="https://www.mitsubishielectric.co.jp/fa/document/techlib/plc_fx/jy997d66101/jy997d66101t.pdf">三菱電機 MELSEC FX3シリーズからMELSEC iQ-Fシリーズへの置換えの手引き JY997D66101T、第4章</a></li><li><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/17129">三菱電機 FAQ 17129：FX3GC の停電保持範囲</a></li><li><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/24213">三菱電機 FAQ 24213：FX5UC のラッチ設定</a></li></ul></section><section class="section-card" id="related"><h2>あわせて読みたい記事</h2><div class="related-grid"><a class="related-card" href="plc-io-allocation-basic.html"><h3>PLCのI/O割付</h3><p>回路図の信号とPLCの番地を対応付けるときに。</p></a><a class="related-card" href="gx-works3-cross-reference-basic.html"><h3>GX Works3のクロスリファレンス</h3><p>置き換え前の番地を、ラダーのどこで読み書きしているかを探すときに。</p></a><a class="related-card" href="fr-d700-fr-d800-replacement-basic.html"><h3>FR-D700からFR-D800への置き換え</h3><p>インバーターの置き換えと配線・設定の引き継ぎはこちら。</p></a></div></section></article>
+
+      <aside class="side-rail" aria-label="補足情報"><section class="side-card"><h3>この記事の要点</h3><ul><li><a href="#s1">銘板・ケーブル</a></li><li><a href="#s2">プログラムの変換</a></li><li><a href="#s3">入力は見えるのに数えない</a></li><li><a href="#s4">引き継ぎシート</a></li></ul></section><section class="side-card"><h3>先に読むと分かりやすい記事</h3><ul><li><a href="plc-io-allocation-basic.html">PLCのI/O割付</a></li></ul></section><section class="side-card"><h3>現場での覚え方</h3><ul><li>型式・配線・設定を分けて照合</li><li>未使用と未確認は書き分ける</li></ul></section></aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+  <div class="container">
+    <p>
+      現場で使う工具と、制御の基本を、迷いにくく整理してまとめています。<br>
+      <a href="../privacy-policy/">プライバシーポリシー</a> | <a href="../contact/">お問い合わせ</a>
+    </p>
+  </div>
+<nav class="dc-footer-profile-link" aria-label="サイト運営情報"><a href="/profile/">運営者・編集方針</a></nav><p class="dc-affiliate-disclosure" style="display:block;box-sizing:border-box;width:100%;max-width:72rem;margin:12px auto 0;padding:0 16px;color:inherit;font-size:13px;font-weight:400;line-height:1.7;text-align:center;white-space:normal;overflow-wrap:anywhere">当サイトはアフィリエイト広告を利用しています。</p></footer>
+
+  <script>
+  (function(){
+    const button = document.getElementById("languageMenuButton");
+    const panel = document.getElementById("languageMenuPanel");
+
+    if(!button || !panel){
+      return;
+    }
+
+    button.addEventListener("click", function(){
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!isOpen));
+      panel.hidden = isOpen;
+    });
+
+    document.addEventListener("click", function(event){
+      if(!button.contains(event.target) && !panel.contains(event.target)){
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+      }
+    });
+
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape"){
+        button.setAttribute("aria-expanded", "false");
+        panel.hidden = true;
+        button.focus();
+      }
+    });
+  })();
+</script>
+  <script src="../assets/js/site-search.js" defer></script>
+</body>
+</html>

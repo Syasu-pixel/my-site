@@ -46,64 +46,7 @@ assert(inventory.length===315&&targets.length===292&&new Set(targets).size===292
 for(const p of inventory.filter(p=>!targets.includes(p.path)))assert((await readFile(resolve(site,p.path))).equals(await readFile(resolve(root,p.path))),'Non-article page changed before overlay: '+p.path);
 for(const {path,bytes} of pending){await mkdir(dirname(resolve(site,path)),{recursive:true});await writeFile(resolve(site,path),bytes);assert((await readFile(resolve(site,path))).equals(bytes),'Publication copy differs from candidate');}
 assert((await readFile(resolve(site,'assets/js/article-feedback.js'))).equals(await readFile(resolve(root,'assets/js/article-feedback.js'))),'Original vote script changed');
-// Japanese individual articles only. A dormant placeholder has no form action,
-// submission script, API link, cookie handling, or live-activation flag.
-const commentOrigin='https://denkicontrol.com';
-const commentPath=/^articles\/[a-z0-9-]+\.html$/;
-const commentMarker='data-dc-article-comments-off';
-const sitemap=await readFile(resolve(root,'sitemap.xml'),'utf8');
-const sitemapPaths=[...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(([,loc])=>{
- const url=new URL(loc);
- assert(url.origin===commentOrigin&&url.href===loc&&!url.username&&!url.password&&!url.search&&!url.hash,'Invalid sitemap canonical: '+loc);
- return url.pathname.slice(1);
-});
-assert(sitemapPaths.length>0&&new Set(sitemapPaths).size===sitemapPaths.length,'Missing or ambiguous sitemap paths');
-const registered=JSON.parse(await readFile(resolve(root,'.github/site-shells/manifest.json'),'utf8')).pages;
-const offline=JSON.parse(await readFile(resolve(root,'assets/data/site-health-unpublished.json'),'utf8')).unpublished;
-assert(Array.isArray(registered)&&registered.every(p=>typeof p?.output==='string')&&new Set(registered.map(p=>p.output)).size===registered.length,'Invalid article registry');
-assert(Array.isArray(offline)&&offline.every(p=>commentPath.test(p?.path??''))&&new Set(offline.map(p=>p.path)).size===offline.length,'Invalid unpublished registry');
-const registeredPaths=new Set(registered.map(p=>p.output)),offlinePaths=new Set(offline.map(p=>p.path));
-const scope=sitemapPaths.filter(path=>commentPath.test(path)).sort();
-assert(scope.length>0&&scope.every(path=>registeredPaths.has(path)&&targets.includes(path)&&!offlinePaths.has(path)),'Comment scope disagrees with publication registries');
-
-const commentMarkup=`<template data-article-comments-template><section class="dc-article-comments-off" data-dc-article-comments-off aria-labelledby="dc-comments-off-title">
-  <h2 id="dc-comments-off-title">コメント</h2>
-  <p>現場で役立ったコツや失敗談をお寄せいただく欄です。現在は投稿を受け付けていません。</p>
-  <details>
-    <summary>準備中のコメント入力欄を見る</summary>
-    <fieldset disabled aria-describedby="dc-comments-off-status">
-      <legend>コメントを書く</legend>
-      <label>ニックネーム（任意）<input type="text" maxlength="24"></label>
-      <label>コメント<textarea maxlength="500" rows="3"></textarea></label>
-      <button type="button">コメントを投稿</button>
-    </fieldset>
-    <p id="dc-comments-off-status">受付準備中のため、入力・送信はできません。</p>
-  </details>
-</section></template>
-`;
-const commentsPending=[];
-for(const path of scope){
- const dest=resolve(site,path), source=pending.find(p=>p.path===path)?.bytes;
- assert(source&&(await realpath(dest))===dest,'Missing or unsafe comments destination: '+path);
- const original=source.toString('utf8');
- const canonical=[...original.matchAll(/<link\b(?=[^>]*\srel=["']canonical["'])(?=[^>]*\shref=["']([^"']+)["'])[^>]*>/gi)];
- assert(canonical.length===1&&canonical[0][1]===commentOrigin+'/'+path&&/<html\b[^>]*\blang=["']ja["']/i.test(original),'Invalid comment article language or canonical: '+path);
- assert(!original.includes(commentMarker)&&!original.includes('data-article-comments-slot')&&!original.includes('dc-comments-off-title')&&!original.includes('dc-comments-off-status')&&!original.includes('data-dc-comments-off-style'),'Existing comment component: '+path);
- const footer=[...original.matchAll(/<footer\b[^>]*\bclass=["'][^"']*\bsite-footer\b[^"']*["'][^>]*>/gi)];
- const head=[...original.matchAll(/<\/head\s*>/gi)];
- assert(footer.length===1&&head.length===1&&head[0].index<footer[0].index,'Missing or ambiguous comment placement: '+path);
- const markupAt=footer[0].index;
- const updated=original.slice(0,markupAt)+commentMarkup+original.slice(markupAt);
- assert(Buffer.from(updated.replace(commentMarkup,'')).equals(source)
-  &&(updated.match(/data-dc-article-comments-off/g)||[]).length===1,'Non-comment bytes changed: '+path);
- commentsPending.push({path,dest,bytes:Buffer.from(updated),before:sha(source)});
-}
-for(const {dest,bytes,path} of commentsPending){
- await writeFile(dest,bytes);
- assert((await readFile(dest)).equals(bytes),'Comment artifact verification failed: '+path);
-}
-const articleCommentsOff={intake:'disabled',rendered:false,networkRequests:0,articles:commentsPending.length,pages:commentsPending.map(p=>({path:p.path,preOverlaySha256:p.before,sha256:sha(p.bytes)}))};
-const report={articleCommentsOff,sourceCommit:process.env.GITHUB_SHA||null,articles:targets.length,additionalShellPages:additionalPaths,serviceNonShellBytesPreserved:true,nonArticlePagesPreserved:inventory.length-targets.length-additionalPaths.length,reviewIsolationPublished:false,stage:'before-existing-image-optimization',pages:pending.filter(p=>p.path.endsWith('.html')).map(p=>({path:p.path,sha256:sha(commentsPending.find(c=>c.path===p.path)?.bytes??p.bytes),sourceComponent:additionalPaths.includes(p.path)?'additional-shells':'article-components'})),assets:assets.map(path=>({path,sha256:sha(pending.find(p=>p.path===path).bytes)}))};
+const report={sourceCommit:process.env.GITHUB_SHA||null,articles:targets.length,additionalShellPages:additionalPaths,serviceNonShellBytesPreserved:true,nonArticlePagesPreserved:inventory.length-targets.length-additionalPaths.length,reviewIsolationPublished:false,stage:'before-existing-image-optimization',pages:pending.filter(p=>p.path.endsWith('.html')).map(p=>({path:p.path,sha256:sha(p.bytes),sourceComponent:additionalPaths.includes(p.path)?'additional-shells':'article-components'})),assets:assets.map(path=>({path,sha256:sha(pending.find(p=>p.path===path).bytes)}))};
 await writeFile(resolve(build,'publication-checks.json'),JSON.stringify(report,null,2));
 await copyFile(resolve(build,'publication-checks.json'),resolve(site,'site-build-manifest.json'));
-console.log(JSON.stringify({articleCommentsOff:articleCommentsOff.articles,articles:report.articles,additionalShellPages:additionalPaths.length,serviceNonShellBytesPreserved:true,nonArticlePagesPreserved:report.nonArticlePagesPreserved,reviewIsolationPublished:false}));
+console.log(JSON.stringify({articles:report.articles,additionalShellPages:additionalPaths.length,serviceNonShellBytesPreserved:true,nonArticlePagesPreserved:report.nonArticlePagesPreserved,reviewIsolationPublished:false}));

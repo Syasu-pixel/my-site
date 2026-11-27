@@ -68,7 +68,9 @@ for(const result of rendered){
   html=html.replace('</head>','<link rel="stylesheet" href="/assets/css/article-end-related.css">'+(!path.startsWith('en/')?'<link rel="stylesheet" href="/assets/css/article-end-feedback.css">':'')+'<link rel="stylesheet" href="/assets/css/article-integration-compat.css"></head>').replace('</body>','<script src="/assets/js/article-integration-compat.js" defer></script></body>');
   if(!path.startsWith('en/')&&(html.match(/id="articleFeedbackCard"/g)||[]).length!==1)throw Error('Japanese feedback count invalid');
   if(path.startsWith('en/')&&html.includes('id="articleFeedbackCard"'))throw Error('English feedback forbidden');
-  before.set(path,html);
+  // The paired evidence isolates only the hero renderer; apply the same independent
+  // non-hero transformation to both inputs, while retaining the original hero on the left.
+  before.set(path,addInertComments(path,html));
   pending.push([path,addInertComments(path,heroes.apply(html,path))]);
 }
 const isolation=await readFile(resolve(pkg,'review-isolation.js'),'utf8');

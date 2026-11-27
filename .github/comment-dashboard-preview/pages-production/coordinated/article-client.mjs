@@ -72,10 +72,15 @@ export function mountArticleComments({root,client,doc=document}){
    where.append(card);
   }
  }
- const refresh=()=>Promise.all([
-  client.publicRows().then(rows=>render(publicList,rows,false)).catch(()=>publicList.replaceChildren(el('p','コメントを読み込めませんでした。'))),
-  client.pendingRows().then(rows=>render(pending,rows,true)).catch(()=>pending.replaceChildren(el('p','自分の承認待ちを読み込めませんでした。')))
- ]);
+ const refresh=({allow=()=>true,source=client}={})=>Promise.all([
+  source.publicRows().then(rows=>{if(allow())render(publicList,rows,false);return Array.isArray(rows);}).catch(()=>{
+   if(allow())publicList.replaceChildren(el('p','コメントを読み込めませんでした。'));
+   return false;
+  }),
+  source.pendingRows().then(rows=>{if(allow())render(pending,rows,true);}).catch(()=>{
+   if(allow())pending.replaceChildren(el('p','自分の承認待ちを読み込めませんでした。'));
+  })
+ ]).then(([publicReady])=>publicReady);
  form.addEventListener('input',()=>{requestId=undefined;cancel.hidden=!draftMode&&!dirty();});
  form.addEventListener('compositionstart',()=>{composing=true;});
  form.addEventListener('compositionend',()=>{composing=false;});

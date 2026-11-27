@@ -2,6 +2,7 @@
 import {readFile,writeFile,mkdir,copyFile,access} from 'node:fs/promises';
 import {resolve,dirname,sep} from 'node:path';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import Eleventy from '@11ty/eleventy';
 import {root,buildShells} from './build-site-shells.mjs';
 import {loadHeroRenderer} from './build-article-heroes.mjs';
@@ -40,6 +41,15 @@ assert(Array.isArray(offline)&&offline.every(p=>commentPath.test(p?.path??''))&&
 const registeredPaths=new Set(registered.map(p=>p.output)),offlinePaths=new Set(offline.map(p=>p.path));
 const scope=sitemapPaths.filter(path=>commentPath.test(path)).sort();
 assert(scope.length>0&&scope.every(path=>registeredPaths.has(path)&&targets.includes(path)&&!offlinePaths.has(path)),'Comment scope disagrees with publication registries');
+
+function makeCommentRelease(scope){
+ const paths=scope.map(path=>'/'+path);
+ assert(paths.length>0&&paths.length<=5000&&paths.every((path,i)=>/^\/articles\/[a-z0-9-]{1,120}\.html$/.test(path)&&(i===0||paths[i-1]<path)),'Invalid comment release scope');
+ const protocol='denkicontrol-comments/v1';
+ const digest=createHash('sha256').update(protocol+'\n'+paths.join('\n')+'\n','utf8').digest('hex');
+ return {protocol,digest,paths};
+}
+const commentRelease=makeCommentRelease(scope);
 
 const commentMarkup=await readFile(resolve(pkg,'end/comments-intake-off.html'),'utf8');
 const scopeSet=new Set(scope);
@@ -96,5 +106,10 @@ const missing=[];
 for(const path of assets){try{await access(resolve(root,path));if(process.env.REVIEW_COPY_ASSETS!=='0')for(const folder of [candidate,review]){await mkdir(dirname(resolve(folder,path)),{recursive:true});await copyFile(resolve(root,path),resolve(folder,path));}}catch{missing.push(path);}}
 await writeFile(resolve(out,'required-assets.json'),JSON.stringify([...assets].sort(),null,2));
 await writeFile(resolve(out,'missing-assets.json'),JSON.stringify(missing,null,2));
-await writeFile(resolve(out,'build.json'),JSON.stringify({version:config.version,sourceCommit:config.sourceCommit,mainCommit:config.mainCommit,representatives:config.representatives,targets,assetMode:process.env.REVIEW_COPY_ASSETS==='0'?'source-fallback':'copied',sourceModified:false,productionPublished:false,articleComments:{intake:'disabled',rendered:false,paths:scope},missingAssets:missing},null,2));
+// Behavior remains off. A shared manifest is emitted beside, not inside, either web tree.
+await writeFile(resolve(out,'article-comment-release.json'),JSON.stringify({...commentRelease,intake:'disabled'},null,2)+'\n');
+await writeFile(resolve(out,'article-comment-release.mjs'),'export const releaseProtocol='+JSON.stringify(commentRelease.protocol)+';\n'+
+ 'export const releaseSha='+JSON.stringify(commentRelease.digest)+';\n'+
+ 'export const releasePaths=Object.freeze('+JSON.stringify(commentRelease.paths)+');\n');
+await writeFile(resolve(out,'build.json'),JSON.stringify({version:config.version,sourceCommit:config.sourceCommit,mainCommit:config.mainCommit,representatives:config.representatives,targets,assetMode:process.env.REVIEW_COPY_ASSETS==='0'?'source-fallback':'copied',sourceModified:false,productionPublished:false,articleComments:{intake:'disabled',rendered:false,paths:scope,digest:commentRelease.digest},missingAssets:missing},null,2));
 console.log(JSON.stringify({pages:pending.length,candidate,review,missingAssets:missing.length}));

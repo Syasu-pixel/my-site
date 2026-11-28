@@ -206,6 +206,11 @@
 | [docs/reference-notes/ladder-reading.md](../reference-notes/ladder-reading.md) — ラダー図の読み方 公式参照メモ | 既存記事「ラダー図の読み方 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/ratchet-wrench.md](../reference-notes/ratchet-wrench.md) — ラチェットレンチの選び方：公式資料確認メモ | 既存記事「ラチェットレンチの選び方：公式資料確認メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/safety-door-switch-interlock-basic.md](../reference-notes/safety-door-switch-interlock-basic.md) — 安全ドアスイッチ：確認した一次資料 | 既存記事「安全ドアスイッチ：確認した一次資料」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gx-works3-monitor-basic.md](../reference-notes/gx-works3-monitor-basic.md) — gx-works3-monitor-basic 公式参照メモ | 既存記事「gx-works3-monitor-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gxw3-comparison-instruction-basic.md](../reference-notes/gxw3-comparison-instruction-basic.md) — gxw3-comparison-instruction-basic 公式参照メモ | 既存記事「gxw3-comparison-instruction-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/driver.md](../reference-notes/driver.md) — 電気工事のドライバー：一次資料確認 | 既存記事「電気工事のドライバー：一次資料確認」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/crimping-hydraulic-vs-electric.md](../reference-notes/crimping-hydraulic-vs-electric.md) — 充電式・手動油圧圧着機比較：一次資料確認 | 既存記事「充電式・手動油圧圧着機比較：一次資料確認」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/solenoid-valve-manual-override-basic.md](../reference-notes/solenoid-valve-manual-override-basic.md) — 電磁弁の手動操作：一次資料 | 既存記事「電磁弁の手動操作：一次資料」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

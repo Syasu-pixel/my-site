@@ -210,3 +210,16 @@
 - 本人採用「出力なのに、入力？」を正式PR1918通常マージ、21作品。本番21作品・採用画像・正しい記事リンク、Hero/カテゴリ保全を独立確認済み。
 - Instagram 2026-11-23 10:00 JST予約 post428500781、PENDING再取得確認。実投稿とは区別。
 - [採用記録](comic-scripts/plc-io-unit-basic-yonkoma-01.md)。記事本文・更新日・90日ガードは変更しない。
+
+## 2026-11-28 日本語10記事の公開確認
+
+- [x] `articles/alarm-hold-circuit-basic.html` — 異常保持回路。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/bandsaw.html` — バンドソー。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/cable-cutter.html` — ケーブルカッター。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/crimping-hydraulic-vs-electric.html` — 油圧・電動圧着工具。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/driver.html` — 電工ドライバー。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/gx-works3-monitor-basic.html` — GX Works3 ラダーモニター。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/gxw3-comparison-instruction-basic.html` — GX Works3 比較命令。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/gxw3-mul-div-instruction-basic.html` — GX Works3 乗算・除算。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/safety-relay-control-basic.html` — 安全リレー。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。
+- [x] `articles/solenoid-valve-manual-override-basic.html` — 電磁弁の手動操作。[PR #2067](https://github.com/Syasu-pixel/my-site/pull/2067)、2026-11-28本番確認。最短再評価2027-02-26。[統合更新台帳](article-refresh-log.md)。

@@ -95,6 +95,7 @@
 | [docs/preview-environment.md](../preview-environment.md) — Denkicontrol Preview Environment v0.1 | Preview環境・生成・公開・公開通知を扱う。サービスの現行接続を別途実証し、旧サービス固定記述を実装済みと扱わない。 |
 | [docs/reference-notes/README.md](../reference-notes/README.md) — Reference Notes | 技術記事の用語またはメーカー公式一次資料を調査・更新する。記事別資料も展開する。 |
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/alarm-hold-circuit-basic.md](../reference-notes/alarm-hold-circuit-basic.md) — 異常保持回路：メーカー公式資料照合 | 既存記事「alarm-hold-circuit-basic」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/dc-motor-control-basic.md](../reference-notes/dc-motor-control-basic.md) — DCモーター制御 公式参照メモ | DCモーター制御記事の駆動方式・停止方法・回生の説明を更新または確認する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
@@ -105,6 +106,8 @@
 | [docs/reference-notes/electromagnetic-contactor-vs-switch.md](../reference-notes/electromagnetic-contactor-vs-switch.md) — electromagnetic-contactor-vs-switch 公式参照メモ | articles/electromagnetic-contactor-vs-switch.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |
 | [docs/reference-notes/flow-switch-basic.md](../reference-notes/flow-switch-basic.md) — フロースイッチ 公式参照メモ | フロースイッチ記事の流量表示・設定条件・スイッチ出力・PLC入力や適用型式を更新または確認する。 |
+| [docs/reference-notes/gx-works3-monitor-basic.md](../reference-notes/gx-works3-monitor-basic.md) — gx-works3-monitor-basic 公式参照メモ | 既存記事「gx-works3-monitor-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gxw3-comparison-instruction-basic.md](../reference-notes/gxw3-comparison-instruction-basic.md) — gxw3-comparison-instruction-basic 公式参照メモ | 既存記事「gxw3-comparison-instruction-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/nipper.md](../reference-notes/nipper.md) — nipper 公式参照メモ | ニッパー記事の型式別切断能力・対象線材・公式資料を更新または確認する。 |
@@ -115,9 +118,11 @@
 | [docs/reference-notes/plc-io-allocation-basic.md](../reference-notes/plc-io-allocation-basic.md) — PLCのI/O割付 公式参照メモ | articles/plc-io-allocation-basic.html の技術内容・割付例・図・公式資料を更新または監査する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/safety-relay-control-basic.md](../reference-notes/safety-relay-control-basic.md) — 安全リレー：一次資料確認記録 | 既存記事「safety-relay-control-basic」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/self-hold-circuit.md](../reference-notes/self-hold-circuit.md) — self-hold-circuit 公式参照メモ | articles/self-hold-circuit.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sensor-basic.md](../reference-notes/sensor-basic.md) — sensor-basic 公式参照メモ | articles/sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/servo-motor-basic.md](../reference-notes/servo-motor-basic.md) — servo-motor-basic 公式参照メモ | articles/servo-motor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/solenoid-valve-manual-override-basic.md](../reference-notes/solenoid-valve-manual-override-basic.md) — 電磁弁の手動操作：一次資料 | 既存記事「電磁弁の手動操作：一次資料」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |

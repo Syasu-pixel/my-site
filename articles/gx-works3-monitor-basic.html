@@ -174,6 +174,8 @@
       <div class="main-column">
         <section class="section-card" id="conclusion">
           <h2>1. 先に結論</h2>
+          <p class="article-updated">最終内容更新：<time datetime="2026-11-28">2026年11月28日</time></p>
+          <p><strong>回路のどこで条件が止まったかならラダーモニタ、特定のX・M・YやDの値ならデバイスモニタ。</strong> 同じPLCの同じ番号を見ていても、画面のYがONなのはPLC内部の状態です。機械が実際に動いた証拠ではありません。画面が更新されているか不明なら、まず表示の根拠を確かめます。</p>
           <p>
             GX Works3のモニタ表示は、ラダーを「今どの条件がONしているか」という目線で見るための機能です。
             ラダー図だけを見るより、実際の入力、内部リレー、タイマ、カウンタ、出力の状態を合わせて確認できます。
@@ -230,6 +232,14 @@
             <li><strong>出力を見る：</strong>YやコイルがONしているか確認します。</li>
             <li><strong>数値を見る：</strong>Dなどのデータ値が期待どおりか確認します。</li>
           </ol>
+          <div class="note-box">
+            <h3>ラダーモニタとデバイスモニタ、どちらを見る？</h3>
+            <ul class="simple-list">
+              <li><strong>ラダーモニタ：</strong>どの接点で条件が途切れたか、前後のつながりを読む。例：同じ段のX10、M20、Y0を見る。</li>
+              <li><strong>デバイス/バッファメモリー一括モニタ：</strong>番号が分かっているビットや数値を確かめる。例：D100の現在値を表示し、回路が参照している番号と突き合わせる。</li>
+            </ul>
+            <p>表示できないときは、接続先・CPU、対象番号とモニタの実行状態、通信エラーや更新時刻を先に確認します。値が止まっているだけでは、表示が止まったとは限りません。ラダー画面のバッファメモリ表示は別の話で、三菱電機はFX5U・FX5UC・FX5UJについて公式FAQで表示条件を案内しています。</p>
+          </div>
         </section>
 
         <section class="section-card" id="on-off">
@@ -263,7 +273,7 @@
             </div>
             <div class="check-item check-item--purple">
               <h3>接点の向き</h3>
-              <p>a接点・b接点で、ON表示の意味が変わることに注意します。</p>
+              <p>a接点は参照するビットがONの時に成立し、b接点はそのビットがOFFの時に成立します。「条件成立」と「デバイスの値がON」は分けて読みます。</p>
             </div>
           </div>
         </section>
@@ -275,7 +285,7 @@
             例えば、タッチパネルから入った設定値、センサーから取り込んだ数値、演算結果、工程番号などを確認する時に使います。
           </p>
           <p>
-            数値を見る時は、10進数なのか、16進数なのか、BCDなのか、符号付きなのかを意識します。
+            数値を見る時は、10進・16進の表示形式と、符号あり・なし、BCD（10進1桁ずつを符号化したデータ）などのデータの読み方を分けて確認します。
             表示形式が違うだけで、値の見え方が変わることがあります。
           </p>
 
@@ -319,9 +329,10 @@
 
         <section class="section-card" id="troubleshooting">
           <h2>6. どこで条件が止まっているかを見る</h2>
+          <p>たとえば、動かない搬送機の画面で「ON」が見えたとします。何のONかを確認してから、同じ設備・同じPLC・同じ時点の記録を照らし合わせます。見るだけで情報が足りなければ、動かして確かめず「未確認」として引き継ぎます。</p>
           <p>
             モニタ表示で一番使う場面は、設備が動かない時に「どの条件が成立していないか」を見る時です。
-            出力がONしないなら、出力コイルから左側へ戻っていくのではなく、左から右へ条件の流れを順番に見ます。
+            動いていない機器に対応する出力番号を先に特定し、その出力を駆動する段で条件を左から右へ追います。
           </p>
           <p>
             入力が入っていないのか、モード条件が違うのか、インターロックで止まっているのか、タイマ待ちなのかを切り分けると、確認する現物も絞りやすくなります。
@@ -345,7 +356,7 @@
                 <tr>
                   <td class="cell-blue">入力XがONしない</td>
                   <td>センサー、押しボタン、配線、入力ユニット側で止まっている可能性</td>
-                  <td>現物センサー、入力LED、端子台、DC24V</td>
+                  <td>外から確認できるセンサー・入力LEDの表示、図面上の端子台と電源系統</td>
                 </tr>
                 <tr>
                   <td class="cell-green">M条件がONしない</td>
@@ -359,11 +370,22 @@
                 </tr>
                 <tr>
                   <td class="cell-orange">YはONしている</td>
-                  <td>PLC内部では出力しているが、負荷側で止まっている可能性</td>
-                  <td>出力LED、リレー、電磁弁、ランプ、負荷側電源</td>
+                  <td>PLC内部のYがON。負荷への通電や動作は別に確認が必要</td>
+                  <td>同時刻の表示・動作記録、図面上の負荷・電源</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div class="note-box">
+            <h3>同じ一段で見分ける：途中で止まった？ 出力の先？</h3>
+            <figure class="article-figure"><img src="../assets/images/gx-works3-monitor-basic/monitor-ladder-or-device-20261128.webp" width="1672" height="941" style="display:block;max-width:100%;height:auto" alt="ラダーモニタは条件のつながり、デバイスモニタはデバイスの現在値を調べる。" loading="lazy" decoding="async"><figcaption>左：条件のつながりを見る。右：指定した番地の値を確認する。図の数値は説明用です。</figcaption></figure>
+            <p>教材例は <code>X10</code>（運転要求の入力）と <code>M20</code>（運転許可の内部条件）のa接点を直列につなぎ、通常コイル <code>Y0</code> に渡す一段です。ほかの段からの上書き・強制がなく、その段が実行される例とします。</p>
+            <ul class="simple-list">
+              <li><strong>X10 ON / M20 OFF / Y0 OFF：</strong>要求は来ていますが、この段ではM20で止まっています。まずM20を作るモードや許可の条件を、既存ラダーと記録で確認します。</li>
+              <li><strong>X10 ON / M20 ON / Y0 ON、機械は停止：</strong>この段の条件は成立しています。出力表示、図面上の負荷側の系統、設備の動作記録へ確認先を移します。ただし、これだけで断線や部品故障とは判断しません。</li>
+              <li><strong>更新状態が分からない：</strong>古い記録のONかもしれません。同じCPU・時点・番号を照合できるまで、条件不成立とも負荷側異常とも言えません。</li>
+            </ul>
+            <figure class="article-figure"><img src="../assets/images/gx-works3-monitor-basic/monitor-one-rung-20261128.png" width="1672" height="941" style="display:block;max-width:100%;height:auto" alt="左のX10とM20のa接点を直列に通し、右端のY0通常コイルへ渡す仮想一段。" loading="lazy" decoding="async"><figcaption>学習用。モニタのONは実機の動作を保証しません。</figcaption></figure>
           </div>
         </section>
 
@@ -382,7 +404,7 @@
             <h3>モニタ表示と操作を混同しない</h3>
             <p>
               モニタ表示は状態を見るためのものです。
-              強制ON/OFFやデバイス値変更は設備を動かす可能性があるため、社内ルール、権限、安全確認、設備停止状態を必ず確認してください。
+              現在値を読むのと、変更欄で値を書き換えるのは別の操作です。値変更で狙った出力が出るとは限らず、別の条件や動作に影響することもあります。この切り分けでは強制ON/OFF、値変更、書込み、試運転は行いません。実機を見る必要がある場合は、許可された観察範囲を守り、盤内・機構部の点検は担当者に引き継ぎます。
             </p>
           </div>
         </section>
@@ -408,6 +430,12 @@
           </div>
         </section>
 
+        <section class="section-card" id="maker-sources">
+          <h2>メーカー公式資料</h2>
+          <p class="source-checked-date">公式資料確認日：2026-11-28</p>
+          <ul class="simple-list"><li><a href="https://www.mitsubishielectric.co.jp/fa/document/techlib/plcr/l0810008/l0810008a.pdf">三菱電機「PID制御テクニックガイド」</a>：第2.10節、ラダーとデバイス/バッファメモリー一括モニタの表示例。</li><li><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/38727?site_domain=default">三菱電機 FAQ No.38727</a>：FX5U・FX5UC・FX5UJで一括モニタとラダー表示の条件が異なる事例。</li></ul>
+          <p>GX Works3の表示名や対応機能は対象CPU・バージョンの最新資料を優先してください。本文の回路は観察の考え方を示す教材例で、実機の配線・安全回路・操作手順ではありません。</p>
+        </section>
         <section class="section-card" aria-labelledby="related-title">
           <h2 id="related-title">あわせて読みたい記事</h2>
           <div class="related-grid">

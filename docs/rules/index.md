@@ -206,6 +206,10 @@
 | [docs/reference-notes/ladder-reading.md](../reference-notes/ladder-reading.md) — ラダー図の読み方 公式参照メモ | 既存記事「ラダー図の読み方 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/ratchet-wrench.md](../reference-notes/ratchet-wrench.md) — ラチェットレンチの選び方：公式資料確認メモ | 既存記事「ラチェットレンチの選び方：公式資料確認メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/safety-door-switch-interlock-basic.md](../reference-notes/safety-door-switch-interlock-basic.md) — 安全ドアスイッチ：確認した一次資料 | 既存記事「安全ドアスイッチ：確認した一次資料」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/alarm-hold-circuit-basic.md](../reference-notes/alarm-hold-circuit-basic.md) — 異常保持回路：メーカー公式資料照合 | 既存記事「alarm-hold-circuit-basic」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/bandsaw.md](../reference-notes/bandsaw.md) — バンドソーの選び方 公式参照メモ | 既存記事「bandsaw」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/cable-cutter.md](../reference-notes/cable-cutter.md) — cable-cutter 公式参照メモ | 既存記事「cable-cutter」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/safety-relay-control-basic.md](../reference-notes/safety-relay-control-basic.md) — 安全リレー：一次資料確認記録 | 既存記事「safety-relay-control-basic」のメーカー資料と技術判断を確認するとき。 |
 
 ## 履歴・参考
 

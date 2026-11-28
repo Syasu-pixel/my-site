@@ -97,11 +97,15 @@
 | [docs/reference-notes/air-cylinder-troubleshooting-basic.md](../reference-notes/air-cylinder-troubleshooting-basic.md) — air-cylinder-troubleshooting-basic 公式参照メモ | articles/air-cylinder-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/alarm-hold-circuit-basic.md](../reference-notes/alarm-hold-circuit-basic.md) — 異常保持回路：メーカー公式資料照合 | 既存記事「alarm-hold-circuit-basic」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/bandsaw.md](../reference-notes/bandsaw.md) — バンドソーの選び方 公式参照メモ | 既存記事「bandsaw」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/cable-cutter.md](../reference-notes/cable-cutter.md) — cable-cutter 公式参照メモ | 既存記事「cable-cutter」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/crimping-hydraulic-vs-electric.md](../reference-notes/crimping-hydraulic-vs-electric.md) — 充電式・手動油圧圧着機比較：一次資料確認 | 既存記事「充電式・手動油圧圧着機比較：一次資料確認」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/dc-motor-control-basic.md](../reference-notes/dc-motor-control-basic.md) — DCモーター制御 公式参照メモ | DCモーター制御記事の駆動方式・停止方法・回生の説明を更新または確認する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
 | [docs/reference-notes/dc24v-power-supply-basic.md](../reference-notes/dc24v-power-supply-basic.md) — DC24V電源（パワーサプライ）公式参照・刷新記録 | DC24V電源装置記事の作成・更新・画像・検査を扱う。一次資料、適用条件、検索根拠、採否記録を確認する。 |
 | [docs/reference-notes/dc24v-power-troubleshooting-basic.md](../reference-notes/dc24v-power-troubleshooting-basic.md) — dc24v-power-troubleshooting-basic 公式参照メモ | articles/dc24v-power-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/din-rail-basic.md](../reference-notes/din-rail-basic.md) — din-rail-basic 公式参照メモ | DINレール記事の技術内容・画像・公式資料・用語を更新または監査する場合。 |
+| [docs/reference-notes/driver.md](../reference-notes/driver.md) — 電気工事のドライバー：一次資料確認 | 既存記事「電気工事のドライバー：一次資料確認」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/earth-leakage-breaker-basic.md](../reference-notes/earth-leakage-breaker-basic.md) — earth-leakage-breaker-basic 公式参照メモ | articles/earth-leakage-breaker-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/electromagnetic-contactor-vs-switch.md](../reference-notes/electromagnetic-contactor-vs-switch.md) — electromagnetic-contactor-vs-switch 公式参照メモ | articles/electromagnetic-contactor-vs-switch.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/emergency-stop-switch-basic.md](../reference-notes/emergency-stop-switch-basic.md) — 非常停止スイッチ記事の公式参照メモ | 非常停止スイッチ記事の制作・更新・技術監査・画像監査を行う。 |

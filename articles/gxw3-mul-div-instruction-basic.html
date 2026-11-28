@@ -360,6 +360,27 @@
       .search-box-panel{right:-48px;width:min(340px,94vw);}
     }
 </style>
+  <style>
+    .gx-math-figure{margin:18px 0;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);min-width:0}
+    .gx-math-figure figcaption{margin-top:9px;font-size:.88rem;color:var(--muted)}
+    .gx-math-figure-title{display:block;margin-bottom:10px}
+    .gx-math-rungs{border-inline:2px solid currentColor;padding:7px 0}
+    .gx-math-rung{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px;margin:7px 0}
+    .gx-math-rung>i{grid-column:1/-1;grid-row:1;box-sizing:border-box;height:2px;border-top:2px solid currentColor}
+    .gx-math-rung>span,.gx-math-rung>code{grid-row:1;z-index:1;background:var(--card);color:var(--text);font:700 clamp(11px,2.7vw,15px)/1.35 ui-monospace,monospace;padding:2px 3px}
+    .gx-math-rung>span{grid-column:1;justify-self:start;max-width:100%}
+    .gx-math-rung>code{grid-column:2;border:1px solid var(--line);border-radius:5px}
+    .gx-math-words{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0}
+    .gx-math-words>div{border:1px solid var(--line);border-radius:8px;padding:7px;min-width:0}
+    .gx-math-words dt{font-weight:800}.gx-math-words dd{margin:2px 0 0;overflow-wrap:anywhere}
+    .gx-math-dates{font-size:.82rem;color:var(--muted)}
+    @media (max-width:380px){.gx-math-rung--compare{grid-template-columns:minmax(0,1fr)}.gx-math-rung--compare>code{grid-column:1;grid-row:2;justify-self:end}.gx-math-rung--compare>i{grid-row:2}.gx-math-rung--compare>span{grid-row:1}}
+    @media (min-width:1101px){
+      main.container > .page-layout{margin-inline-end:max(0px,calc(8rem - (100vw - 100%) / 2))}
+      html:not(.dc-toc-compact) .dc-toc-button{right:14px}
+    }
+  </style>
+
 </head>
 <body>
 <header class="site-header">
@@ -432,56 +453,100 @@
     <article class="main-column">
       <section class="section-card" id="intro">
         <h2>1. GX Works3のMUL・DIV命令とは？</h2>
-        <p>MUL・DIVは、GX Works3で数値の掛け算や割り算を行う基本命令です。ただし初心者が止まりやすいのは、計算式そのものより<span class="mark">結果をどこで見るか</span>の部分です。</p>
-        <p>FX5系の整理では、MULは計算結果を <span class="mark">[(d)+1, (d)]</span> で扱い、DIVは <span class="mark">商を(d)、余りを(d+1)</span> で扱います。ここを先に押さえると、ラダーの読み方がかなり安定します。</p>
-        <figure class="article-figure"><img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-instruction-basic-overview.png" alt="GX Works3のMUL・DIV命令の全体像" loading="lazy" decoding="async"><figcaption>MULは結果の並び、DIVは商と余りの分離を見るのが最初のポイントです。</figcaption></figure>
+        <p class="gx-math-dates">最終内容更新：<time datetime="2026-11-28">2026年11月28日</time></p>
+        <p>箱数は合っているのに合計個数がマイナスに見える。満杯トレーの枚数は合っているのに、端数が消えたように見える。どちらも、式より先に<strong>結果が何ワードに分かれているか</strong>を確かめると切り分けやすくなります。</p>
+        <p>この記事は三菱電機MELSEC iQ-Fの<strong>FX5 CPU・GX Works3のラダー</strong>で、符号付きBIN演算をDレジスタへ格納する場合が対象です。機種やデータ型の違うプログラムに、この番地の読み方をそのまま当てはめないでください。</p>
       </section>
       <section class="section-card" id="conclusion">
         <h2>2. 先に結論：MULは2ワード、DIVは商と余りで見る</h2>
-        <p>MUL・DIVは、ADD・SUBよりも「結果の置き場所」を意識する命令です。特にMULはdだけではなくd+1側まで、DIVは商だけではなく余り側まで見る必要があります。</p>
-        <div class="key-highlight"><h3>基本の考え方</h3><p>まずは「実行条件がONしているか」「s1とs2に何が入っているか」「結果がdやd+1のどこへ出るか」を切り分けて読むと、式を丸暗記しなくても追いやすくなります。</p></div>
+        <ul class="simple-list">
+          <li><strong>MUL：</strong>16ビット×16ビット。32ビットの積を連続する2ワードへ保存。先頭 <code>d</code> が下位、次の <code>d+1</code> が上位。</li>
+          <li><strong>DIV：</strong>16ビット÷16ビット。先頭 <code>d</code> が商、次の <code>d+1</code> が余り。積と違い、2ワードを一つの整数として読まない。</li>
+          <li><strong>現場の確認順：</strong>実行条件 → 2つの入力と符号 → 出力番地の範囲 → 他の回路や表示のデータ型。</li>
+        </ul>
       </section>
       <section class="section-card" id="mul">
         <h2>3. MUL命令の基本の読み方</h2>
-        <p><span class="mark">MUL K10 K20 D0</span> は、10と20を掛けた結果をD0側へ入れるイメージで読みます。ただし結果は1点だけで完結ではなく、<span class="mark">[(d)+1, (d)]</span> の並びで見ることが前提です。</p>
-        <div class="field-highlight"><h3>現場での読み方</h3><p>最初は「何と何を掛けるか」より、「結果をどこで見るか」を優先して追うと整理しやすいです。ADD・SUBよりも、結果の幅が一段増える命令として読むのが近道です。</p></div>
-        <div class="talk-thread"><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>D0だけ見ていれば十分じゃないんですか？</p></div></div><div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>MULは結果が2ワード側まで関係するから、dだけで読み切ると見落としやすいよ。</p></div></div></div>
+        <p><code>MUL D10 D11 D20</code> で、たとえば箱数が250、1箱あたりが200個なら、積は<strong>50,000個</strong>です。<code>D20</code>が下位、<code>D21</code>が上位です。GX Works3のモニタや表示側で、<strong>D20を先頭に符号付き32ビット</strong>として読みます。</p>
+        <figure class="gx-math-figure">
+          <strong class="gx-math-figure-title">MUL：1つの積を2ワードに格納</strong>
+          <dl class="gx-math-words"><div><dt>D20・下位</dt><dd><code>C350H</code></dd></div><div><dt>D21・上位</dt><dd><code>0000H</code></dd></div></dl>
+          <figcaption>組にすると <code>0000C350H</code>（50,000）。D20だけを符号付き16ビットで見ると−15,536になるため、計算自体が誤ったとは限りません。</figcaption>
+        </figure>
+        <div class="talk-thread">
+          <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>箱は増えたのに、合計がマイナスになりました。</p></div></div>
+          <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>D20だけだと答えの半分だよ。D20とD21を組にして読んでごらん。</p></div></div>
+          <div class="talk-row"><div class="talk-avatar"><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>減ったのは箱じゃなくて、私が見ていたワードの数でした。</p></div></div>
+        </div>
       </section>
       <section class="section-card" id="div">
         <h2>4. DIV命令の基本の読み方</h2>
-        <p><span class="mark">DIV D10 K3 D20</span> は、D10を3で割って、商をD20、余りをD21で見るイメージです。ここで余り側を見落とすと、割り切れないケースの判断を誤りやすくなります。</p>
-        <div class="field-highlight"><h3>現場での読み方</h3><p>DIVは「答えが1つ」と思い込みやすいですが、ラダーでは<span class="mark">商と余りを分けて扱う</span>命令として読む方が実務では安全です。</p></div>
+        <p><code>DIV D12 D13 D30</code> で125個を12個ずつに分けると、<strong>D30は商の10、D31は余りの5</strong>です。10.416…という小数を返す命令ではありません。元の個数が「10×12＋5＝125」になることでも確認できます。</p>
+        <figure class="article-figure" data-no-amazon-link>
+          <img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-remainder-20261128.webp" width="1672" height="941" style="max-width:100%;height:auto" alt="125÷12の商10をD30、余り5をD31に分けて格納する説明図" loading="lazy" decoding="async">
+          <figcaption>商と余りに別の番地を使います。</figcaption>
+        </figure>
+        <figure class="gx-math-figure">
+          <strong class="gx-math-figure-title">DIV：商と余りは別々の16ビット値</strong>
+          <dl class="gx-math-words"><div><dt>D30・商</dt><dd>10トレー</dd></div><div><dt>D31・余り</dt><dd>5個</dd></div></dl>
+          <figcaption>この例でD30とD31は1つの32ビット値ではありません。それぞれ別の値として読みます。</figcaption>
+        </figure>
+        <p>負数の例では <code>−125 ÷ 12</code> は商−10、余り−5です。0でない余りの符号は<strong>割られる数（s1）</strong>に従います。また、<code>−32768 ÷ −1</code> は商32,768が符号付き16ビットに収まらず、演算エラー（3403H）です。</p>
       </section>
       <section class="section-card" id="usecase">
         <h2>5. MUL・DIVはどんな場面で使う？</h2>
-        <ul class="simple-list"><li>倍率計算や換算処理で内部値を作る</li><li>個数・長さ・設定値の簡単な演算を行う</li><li>商と余りを分けて順番や区切りを判断する</li></ul>
-        <div class="note-box"><h3>既存記事とのつながり</h3><p>MOVで値を入れ、ADD・SUBで値を増減し、その先でMUL・DIVで数値加工をする流れにすると、GX Works3の命令同士のつながりがかなり見えやすくなります。</p></div>
+        <p>梱包数を表示するだけの<strong>オフライン学習例</strong>です。上段は箱数×入数、下段は未梱包個数÷トレー定数を計算します。D10=250、D11=200、D12=125、D13=12という仮の値を使います。M10は説明用の集計条件で、実機の出力・安全回路には接続しません。</p>
+        <figure class="gx-math-figure">
+          <strong class="gx-math-figure-title">ラダー例：M10がONの間に集計</strong>
+          <div class="gx-math-rungs" aria-hidden="true">
+            <div class="gx-math-rung"><i aria-hidden="true"></i><span>─| M10 |─</span><code>MUL D10 D11 D20</code></div>
+            <div class="gx-math-rung gx-math-rung--compare"><i aria-hidden="true"></i><span>─| M10 |─[&lt;&gt; D13 K0]─</span><code>DIV D12 D13 D30</code></div>
+          </div>
+          <figcaption>上段：M10のa接点でMULを実行。下段：M10のa接点と「D13≠0」の比較が直列。両方が成立したときだけDIVを実行します。</figcaption>
+        </figure>
+        <p>D13が0なら、この回路ではDIVを実行しません。<strong>実行しないだけでは、先に入っていた商・余りは消えません。</strong>表示や後続の処理では、M10がONか、割る数が有効かを結果と併せて扱い、古い結果を今回の計算値にしないようにします。トレー入数として負数を許さない実用途では、非ゼロだけでなく正の有効範囲を設計してください。</p>
+        <div class="note-box"><h3>倍率・単位換算にも使える</h3><p>MOVで元の値を用意し、ADD・SUBで補正し、MUL・DIVで換算します。たとえば整数の <code>(25 × 100) ÷ 6</code> と <code>(25 ÷ 6) × 100</code> は、それぞれ416と400です。割る順番で端数が失われる一方、先に掛けると中間値が大きくなるので、式とデータ幅を一緒に決めます。</p></div>
       </section>
       <section class="section-card" id="difference">
         <h2>6. ADD・SUB命令との違い</h2>
-        <p>ADD・SUBは結果格納先を比較的シンプルに追いやすい命令です。一方でMULは結果の幅、DIVは商と余りの分離が入るため、同じ算術命令でも見るポイントが変わります。</p>
-        <figure class="article-figure"><img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-instruction-basic-comparison.png" alt="ADD・SUBとMUL・DIVの違いを比較した図" loading="lazy" decoding="async"><figcaption>MULはdとd+1、DIVは商と余りを見るところが、ADD・SUBとの大きな違いです。</figcaption></figure>
+        <p>16ビット版のADD・SUBは結果の先頭ワードを見るのが基本です。MULは2ワードを一組、DIVは隣り合う2ワードを別の値として見ます。どれもDレジスタへ書くため、同じ番地を別用途に割り当てないことが大切です。</p>
+        <p>たとえばMULのD21に別回路で表示用の値を書けば、積の上位が上書きされます。DIVのD31に別回路で書けば、商が正しく見えても余りだけが変わります。先頭に書かれた番地だけでなく、占有する隣の番地も確認してください。</p>
       </section>
       <section class="section-card" id="mistakes">
         <h2>7. 初心者が間違えやすいポイント</h2>
-        <div class="check-grid"><div class="check-item"><h3>dだけ見ている</h3><p>MULでd+1側を見ずに判断すると、結果の読み違いにつながります。</p></div><div class="check-item"><h3>余りを忘れている</h3><p>DIVで商だけを見ると、割り切れないケースの整理が崩れます。</p></div><div class="check-item"><h3>計算元を追っていない</h3><p>s1やs2に入っている値が違えば、結果も当然変わります。</p></div><div class="check-item"><h3>毎スキャン実行を見落とす</h3><p>条件が続くと、想定以上に演算が繰り返されることがあります。</p></div></div>
-        <div class="danger-box"><h3>よくある失敗例</h3><p>「結果がおかしい」と思ってdだけ確認し、実はd+1側や余り側を見ていなかった、という止まり方はかなり多いです。</p></div>
+        <div class="check-grid">
+          <div class="check-item"><h3>積を16ビット表示した</h3><p>MULの格納先を下位だけで見ない。読出し側も符号付き32ビットに合わせます。</p></div>
+          <div class="check-item"><h3>余りを取り違えた</h3><p>DIVの商・余りは2つの値。両方をセットの32ビット値として表示しません。</p></div>
+          <div class="check-item"><h3>割る数が0になった</h3><p>DIV/DDIVで0除算を実行すると3400H。入力が無効なら計算させず、結果を有効扱いしません。</p></div>
+          <div class="check-item"><h3>隣のDが別用途だった</h3><p>結果に使う全ワードを同じ用途で確保。GX Works3のクロスリファレンスで書き込み元と表示側を見ます。</p></div>
+        </div>
       </section>
       <section class="section-card" id="related-commands">
         <h2>8. 関連命令はどう考える？</h2>
-        <p>MULP・DIVPのようなパルス実行系や、32ビット系、_U付き命令まで入ると一気に情報量が増えます。入門段階では、まず基本のMUL・DIVを読めることを優先する方が分かりやすいです。</p>
-        <div class="key-highlight"><h3>広げすぎない方針</h3><p>今回は「掛け算・割り算の結果をどう見るか」に集中し、派生命令の細かな仕様は次の段階へ分ける構成にしています。</p></div>
+        <p><strong>DMUL：</strong>32ビット×32ビットの積は64ビット。先頭がD40なら、下位から <code>D40、D41、D42、D43</code> を使います。<strong>DDIV：</strong>32ビット÷32ビットで同じ4ワードを使いますが、<code>D40・D41</code> が商、<code>D42・D43</code> が余りです。それぞれの組は若い番地が下位です。入力がDレジスタなら、そちらも各2ワードです。</p>
+        <p>MUL/DIVは実行条件がONのスキャンで繰り返し演算します。MULP/DIVPは条件がOFFからONへ変わったときだけ演算する例です。分母の非ゼロ条件をパルス命令に直列にすると、条件全体が再成立したときも実行され得ます。「集計ボタンを押したときだけ」などの要件とは区別します。<code>_U</code> は符号なしなので、符号付きの上限や表示設定を流用しません。</p>
       </section>
       <section class="section-card" id="checkpoints">
         <h2>9. MUL・DIV命令がうまく動かない時の確認手順</h2>
-        <ol class="number-list"><li>実行条件がONしているか</li><li>s1とs2に期待した値が入っているか</li><li>MULならd+1側まで、DIVなら余り側まで見ているか</li><li>dやd+1が別回路で上書きされていないか</li><li>毎スキャン実行になっていないか</li></ol>
-        <figure class="article-figure"><img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-instruction-basic-check-flow.png" alt="MUL・DIV命令の確認フロー" loading="lazy" decoding="async"><figcaption>条件、計算元、結果格納先の順に追うと、切り分けがかなり速くなります。</figcaption></figure>
+        <ol class="number-list">
+          <li>実行条件が成立しているか。パルス命令ならどの条件の立上りか。</li>
+          <li>入力値の単位・符号・ワード幅は合うか。分母は0でないか。</li>
+          <li>積は組として、商と余りは別々に読んでいるか。表示側と演算側で型がそろっているか。</li>
+          <li>隣接する格納先に別の命令が書いていないか。GX Works3のクロスリファレンスでたどる。</li>
+          <li>停止原因の調査では、装置の安全手順を守り、値や信号を安易に書き換えない。エラー記録と該当命令を先に照合する。</li>
+        </ol>
       </section>
       <section class="section-card" id="summary">
         <h2>10. まとめ</h2>
-        <p>MUL・DIVは、掛け算や割り算を行うだけでなく、結果をどこで読むかが重要な命令です。MULは結果を2ワードで、DIVは商と余りで読むことを押さえると、GX Works3のラダー理解がかなり安定します。</p>
-        <p>順番としては、MOVで値の転送、ADD・SUBで値の増減、その次にMUL・DIVで数値加工と追うと、命令同士のつながりが見えやすくなります。</p>
-        <figure class="article-figure"><img src="../assets/images/gxw3-mul-div-instruction-basic/gxw3-mul-div-instruction-basic-ogp.png" alt="GX Works3のMUL・DIV命令記事まとめ" loading="lazy" decoding="async"></figure>
+        <p>FX5の符号付きDレジスタ演算では、<strong>MULの2ワードは1つの積、DIVの2ワードは商と余り</strong>です。DMUL/DDIVなら4ワードに広がります。計算式だけでなく、番地の予約、表示データ型、分母が無効なときの古い値まで確認すると、ミスを切り分けられます。</p>
+        <div class="note-box" id="maker-sources"><h3>メーカー公式資料</h3><p class="gx-math-dates">資料確認日：<time datetime="2026-11-28">2026年11月28日</time></p>
+          <ul class="simple-list">
+            <li><a href="https://www.mitsubishielectric.co.jp/fa/download/search.page?kisyu=%2Fplcf&amp;mode=manual">三菱電機FA：MELSEC iQ-F公式マニュアル一覧（日本語版 JY997D54701-AC）</a></li>
+            <li><a href="https://dl.mitsubishielectric.co.jp/dl/fa/members/document/manual/school_text/jy997d68101/jy997d68101e.pdf">三菱電機：FX5／GX Works3の日本語教材 JY997D68101-E</a>。第9章9.1、印刷 pp.9-1～9-3（整数演算の格納先と符号ビット）。</li>
+            <li><a href="https://fa-faq.mitsubishielectric.co.jp/faq/show/44591?site_domain=default">三菱電機FA FAQ 44591</a>。FX5各CPUでの除数0・H3400の確認。エラーを実機で起こすための手順としては扱いません。</li>
+            <li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf#page=240">三菱電機：FX5命令マニュアル 英語版 JY997D55801-AC</a>。第7章7.1（比較接点 pp.193–195）、7.2（算術演算）：MUL pp.238–239、DIV pp.242–243、DMUL pp.246–247、DDIV pp.250–251（本文の印刷ページ）。</li>
+          </ul><p>CPU・デバイス種別とソフトの版に合う一次資料を参照してください。この記事はDレジスタの場合に限定しています。</p>
+        </div>
       </section>
       <section class="section-card" aria-labelledby="related-title">
         <h2 id="related-title">あわせて読みたい記事</h2>

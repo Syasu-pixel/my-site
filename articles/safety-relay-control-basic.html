@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>安全リレーとは？非常停止や安全回路で使う部品の見方をやさしく解説</title>
-  <meta name="description" content="安全リレーとは、非常停止スイッチや安全ドアスイッチ、ライトカーテンなどの安全入力を監視し、異常時に安全出力をOFFにする安全制御用の部品です。CH1/CH2、リセット、EDM、コンタクタ、STOとの関係を初心者向けにやさしく解説します。">
+  <meta name="description" content="安全リレーの入力が戻ったのに動かない理由を、CH1/CH2、外部機器の戻り信号（EDM）、リセット、安全出力、起動指令の違いから整理します。">
   <link rel="canonical" href="https://denkicontrol.com/articles/safety-relay-control-basic.html">
   <link rel="alternate" hreflang="ja" href="https://denkicontrol.com/articles/safety-relay-control-basic.html">
   <link rel="alternate" hreflang="en" href="https://denkicontrol.com/en/articles/safety-relay-control-basic.html">
   <link rel="alternate" hreflang="x-default" href="https://denkicontrol.com/articles/safety-relay-control-basic.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="安全リレーとは？非常停止や安全回路で使う部品の見方をやさしく解説">
-  <meta property="og:description" content="安全リレーの役割、安全入力の監視、リセットとEDM、コンタクタやSTOとのつながりをやさしく整理します。">
+  <meta property="og:description" content="安全入力がそろっても出力が戻るとは限りません。手動リセットの例で、入力・安全出力・起動指令を分けて読みます。">
   <meta property="og:url" content="https://denkicontrol.com/articles/safety-relay-control-basic.html">
   <meta property="og:image" content="https://denkicontrol.com/assets/images/safety-relay-basic/safety-relay-hero.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -1397,7 +1397,7 @@ body{
         <h1 id="page-title">安全リレーとは？<br>非常停止や安全回路で使う部品の見方をやさしく解説</h1>
         <p class="hero-lead">
           安全リレーは、非常停止や安全ドアスイッチなどの安全入力を監視し、
-          条件が崩れたときに安全出力をOFFへ落とすための部品です。
+          安全出力を制御する部品です。入力が戻ったこと、安全出力が戻ったこと、起動したことを分けて読みます。
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#conclusion">先に結論から読む</a>
@@ -1429,8 +1429,8 @@ body{
         <h2>先に結論</h2>
         <ul>
           <li>安全リレーは<span class="mark">安全入力を監視する部品</span>です。</li>
-          <li>条件が崩れると<span class="mark">安全出力をOFF</span>にします。</li>
-          <li>非常停止解除後も、<span class="mark">確認とリセット</span>の考え方が大事です。</li>
+          <li>停止要求があると、設計された仕方で<span class="mark">停止側</span>へ導きます。</li>
+          <li>非常停止の解除・復帰・<span class="mark">起動指令</span>は別です。</li>
         </ul>
       </section>
     </section>
@@ -1453,234 +1453,117 @@ body{
       <div class="main-column">
         <section class="section-card" id="conclusion">
           <h2>1. 先に結論</h2>
-          <p>
-            安全リレーは、非常停止や安全ドアスイッチなどの安全入力を監視し、機械を安全に止めるための制御部品です。
-            通常のリレーのように信号を切り替えるだけでなく、運転してよい安全条件が成立しているかを見ます。
-          </p>
-          <ul class="simple-list">
-            <li>安全リレーは安全入力を監視する部品</li>
-            <li>条件が崩れると安全出力をOFFにする</li>
-            <li>非常停止解除後も、確認とリセットの考え方が大事</li>
-          </ul>
-
-          <div class="key-highlight">
-            <h3>安全リレーは「安全条件が成立しているか」を見る</h3>
-            <p>
-              非常停止が押されていない、ガード扉が閉まっている、ライトカーテンが遮られていないなど、
-              安全入力の条件が成立している時だけ、安全出力を許可するイメージです。
-            </p>
-          </div>
-
+          <p class="article-updated">最終内容更新：<time datetime="2026-11-28">2026年11月28日</time></p>
+          <p>安全リレーは、非常停止などの入力と、設計で定めた復帰条件を見て、安全出力を制御する部品です。<strong>入力が戻った・安全出力が戻った・機械が起動した</strong>は、別々の状態です。</p>
           <div class="talk-thread">
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>安全リレーは、非常停止や安全スイッチの状態を見て、運転していいかを判断する部品だね。</p>
-              </div>
-            </div>
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>普通のリレーと同じようにON/OFFするだけではないんですね。</p>
-              </div>
-            </div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar" data-no-amazon-link><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩" loading="lazy" decoding="async"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>入力表示が二つ点いたのに、安全出力は戻っていません。もう故障ですか？</p></div></div>
+            <div class="talk-row"><div class="talk-avatar" data-no-amazon-link><img src="../assets/images/guide-characters/friendly_worker_with_helmet_and_smile.png" alt="先輩" loading="lazy" decoding="async"></div><div class="talk-bubble"><p><span class="talk-name talk-name--senpai">先輩</span>それだけでは決まらないよ。外部機器の戻り信号と、リセットの成立を別々に見よう。</p></div></div>
+            <div class="talk-row talk-row--right"><div class="talk-avatar" data-no-amazon-link><img src="../assets/images/guide-characters/curious_worker_with_a_cheerful_expression.png" alt="後輩" loading="lazy" decoding="async"></div><div class="talk-bubble"><p><span class="talk-name talk-name--kouhai">後輩</span>なるほど。出力が戻っても「起動した」とは書かないんですね。</p></div></div>
           </div>
         </section>
 
         <section class="section-card" id="overview">
           <h2>2. 安全リレーとは</h2>
-          <p>
-            安全リレーは、非常停止スイッチ、安全ドアスイッチ、ライトカーテンなどの安全入力を監視します。
-            条件が正常なら安全出力をONし、異常があれば安全出力をOFFにします。
-          </p>
-          <p>
-            普通のリレーは信号の切り替えが主な役割ですが、安全リレーは安全状態を監視して、
-            危険時に停止側へ導く役割があります。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/safety-relay-basic/safety-relay-overview.png" alt="安全リレーが安全入力を監視して安全出力を制御する概要図" loading="lazy" decoding="async">
-            <figcaption>安全リレーは安全入力を見て、運転許可を出すか停止させるかを判断します。</figcaption>
+          <p>安全リレーユニットは、機械を停止側に導く仕組みの一部です。安全入力を監視し、入力が停止を要求したとき、設計された停止の仕方に従って安全出力を切ります。</p>
+          <figure class="article-figure" data-no-amazon-link data-art-slot="overview">
+            <img src="../assets/images/safety-relay-basic/safety-relay-control-basic-overview-20261128.png" width="1500" height="920" alt="非常停止などの入力を安全リレーが受け、安全出力の先にコンタクタなどの停止を担う機器がある。戻り信号は外部機器から安全リレーに返る。" loading="lazy" decoding="async">
+            <figcaption>信号の役割を示す概念図です。戻り信号は外部機器から安全リレーへ、安全出力はその逆向き。結線図ではありません。</figcaption>
           </figure>
-
+          <figure class="article-figure" data-no-amazon-link>
+            <img src="../assets/images/safety-relay-basic/safety-relay-control-basic-ready-vs-start-20261128.webp" width="1672" height="941" alt="扉などの安全入力がそろう、復帰条件を確認する、起動指令は別という三つの概念を並べた図" style="max-width:100%;height:auto" loading="lazy" decoding="async">
+            <figcaption>安全出力の復帰と別の起動指令を分ける設備の概念例です。表示だけでは機械の停止や安全を判断できません。</figcaption>
+          </figure>
           <div class="field-highlight">
             <h3>普通のリレーとの違い</h3>
-            <p>
-              普通のリレーはコイルと接点で信号を切り替えます。
-              安全リレーは、複数の安全入力やリセット、出力側の戻り確認を見ながら、安全出力を出すかどうかを判断します。
-            </p>
+            <p>普通のリレーは、コイルで接点を切り替える部品です。ここで扱う安全リレーユニットは、2系統の入力や復帰条件を監視する機能を持ちます。普通のリレーと置き換えれば同じ機能になる、という関係ではありません。</p>
           </div>
         </section>
 
         <section class="section-card" id="watch">
           <h2>3. 安全リレーが見るもの</h2>
-          <p>
-            安全リレーの入力側には、非常停止スイッチ、安全ドアスイッチ、ライトカーテン、リセットスイッチなどが入ります。
-            それぞれの入力が成立しているかを見て、運転許可を出せる状態かを判断します。
-          </p>
-
+          <p>非常停止、扉、ライトカーテンは停止を要求する側。リセットは、決められた復帰条件のもとで安全機能を復帰させるための入力です。機器の名前が似ていても役割は同じではありません。</p>
           <div class="check-grid">
-            <div class="check-item check-item--important">
-              <h3>非常停止スイッチ</h3>
-              <p>押されたら即座に安全出力をOFFへ落とす入力です。</p>
-            </div>
-            <div class="check-item check-item--important">
-              <h3>安全ドアスイッチ</h3>
-              <p>ガード扉が開いた状態では運転を許可しないための入力です。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>ライトカーテン</h3>
-              <p>危険エリアへの侵入検知時に停止側へ遷移させる入力です。</p>
-            </div>
-            <div class="check-item check-item--field">
-              <h3>リセットスイッチ</h3>
-              <p>安全条件の復帰確認後に、再起動準備を許可する入力です。</p>
-            </div>
+            <div class="check-item check-item--important"><h3>非常停止スイッチ</h3><p>操作すると停止を要求します。解除しても、解除そのものを起動指令にはしません。</p></div>
+            <div class="check-item check-item--important"><h3>安全ドアスイッチ</h3><p>ガードの状態を安全機能へ伝えます。扉が閉まった表示は、人が危険区域にいない証明ではありません。</p></div>
+            <div class="check-item check-item--field"><h3>ライトカーテン</h3><p>検出面を遮ったことを、安全機能に伝える機器の例です。</p></div>
+            <div class="check-item check-item--field"><h3>リセットスイッチ</h3><p>手動リセット方式の例。設備の手順に従って安全を確認したうえで行う復帰操作を、起動とは分けます。</p></div>
           </div>
         </section>
 
         <section class="section-card" id="flow">
-          <h2>4. 安全リレーの入力と出力の流れ</h2>
-          <p>
-            安全リレーでは、CH1 / CH2 の2系統入力、リセット入力、EDM、そして安全出力の流れを分けて見ると理解しやすくなります。
-            安全入力が成立し、リセットや外部機器の戻り確認がOKになって、はじめて安全出力がONになります。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/safety-relay-basic/safety-relay-input-output-flow.png" alt="CH1 CH2 リセット EDM を含む安全リレーの入出力フロー" loading="lazy" decoding="async">
-            <figcaption>安全入力が成立し、リセットとEDM条件を満たした時だけ安全出力がONになります。</figcaption>
-          </figure>
-
+          <h2>4. 安全入力・戻り信号・安全出力を分けて読む</h2>
           <ul class="simple-list">
-            <li><strong>CH1 / CH2：</strong>二重化された安全入力チャンネルを監視</li>
-            <li><strong>リセット入力：</strong>解除後の再始動前確認に使う</li>
-            <li><strong>安全出力：</strong>異常時はOFFに落ちる停止側出力</li>
-            <li><strong>EDM / フィードバック：</strong>外部機器が確実に戻ったかの確認</li>
-            <li><strong>コンタクタ / STO / 運転許可回路：</strong>安全出力の先で実際の駆動停止を実現</li>
+            <li><strong>CH1 / CH2：</strong>2系統を監視する例です。どちらも成立していても、それだけで出力がONするとは限りません。</li>
+            <li><strong>EDM（外部機器監視）：</strong>外部コンタクタなどの戻り信号を見て、設計上の期待状態か確認します。人の有無や停止完了を検知する機能ではありません。</li>
+            <li><strong>安全出力：</strong>設計に応じてコンタクタやSTOなどへ停止要求を伝えます。出力の表示だけでは、機械の停止完了や無電圧は確認できません。</li>
           </ul>
+          <p>例えば、コンタクタが停止側に戻っていない場合や、戻り信号が届いていない場合は、復帰条件が成立しないことがあります。<strong>戻り信号が確認できないだけで、接点の溶着とは断定できません。</strong></p>
         </section>
 
         <section class="section-card" id="reset-edm">
-          <h2>5. リセットとEDMの考え方</h2>
-          <p>
-            非常停止を解除しただけで機械が再起動すると危険です。
-            そのため、安全入力が戻った後に、周囲の安全を確認してからリセットする考え方が大切です。
-          </p>
-          <p>
-            EDMは、外部コンタクタなどの出力側機器が正しく戻っているかを確認するための考え方です。
-            コンタクタの戻りが悪い、接点が溶着している、戻り接点が成立していない場合、安全リレーが復帰しない原因になります。
-          </p>
-
-          <figure class="article-figure">
-            <img src="../assets/images/safety-relay-basic/safety-relay-reset-checkpoints.png" alt="安全リレーのリセットとEDM確認ポイント" loading="lazy" decoding="async">
-            <figcaption>非常停止解除だけでは再起動せず、安全確認と戻り確認の後にリセットします。</figcaption>
+          <h2>5. リセットとEDM：三つの状態を比べる</h2>
+          <p>非常停止で止まった小型搬送機の、<strong>手動リセットと別の起動操作を備える仮想例</strong>です。設備の操作手順ではなく、表示や記録の違いを読むための例です。</p>
+          <figure class="article-figure" data-no-amazon-link data-art-slot="sequence">
+            <img src="../assets/images/safety-relay-basic/safety-relay-control-basic-sequence-20261128.png" width="1500" height="920" alt="入力が成立しても外部機器の戻り確認が取れない例と、戻りが確認できてもリセット待ちの例は、どちらも安全出力OFF。復帰条件がそろって安全出力がONしても、起動指令はまだ出ていない。" loading="lazy" decoding="async">
+            <figcaption>①戻り信号を確認できない、②戻りは確認できたが手動リセット待ち、③安全出力は復帰したが起動は未指令。すべて同じ手動リセット方式の学習例です。</figcaption>
           </figure>
-
-          <div class="danger-box">
-            <h3>非常停止解除だけで再起動させない</h3>
-            <p>
-              非常停止や安全ドアの復帰は、あくまで安全条件の一部が戻った状態です。
-              そこから安全確認、リセット、起動操作を分けて考えることが大事です。
-            </p>
+          <ol class="simple-list">
+            <li><strong>入力成立・戻り未確認：</strong>CH1 / CH2の条件は戻っていても、EDMの条件がそろっておらず、安全出力はOFFです。</li>
+            <li><strong>戻り確認済み・リセット待ち：</strong>この例では戻り信号も成立していますが、手動リセット条件がまだ成立しておらず、安全出力はOFFです。</li>
+            <li><strong>出力ON・起動は未指令：</strong>設計で定めた復帰条件を満たして安全出力は復帰しましたが、別の起動指令は出ていません。電力や圧力が隔離されたことも意味しません。</li>
+          </ol>
+          <div class="note-box">
+            <h3>オムロン G9SE-201 で読むなら</h3>
+            <p>公式資料では安全入力1・2がともにONであることは必要条件で、それだけでは足りません。手動とオートでフィードバック・リセット入力の判定が異なります。オートで安全出力が自動で復帰する構成でも、機械をそれだけで再起動させない設計は別の話です。上の仮想例はメーカー配線例の再現ではありません。</p>
           </div>
         </section>
 
         <section class="section-card" id="trouble">
-          <h2>6. 復帰しない時の確認ポイント</h2>
-          <p>
-            安全リレーが復帰しない時は、いきなり本体故障と決めつけず、入力側から順番に確認します。
-            電源、CH1 / CH2、非常停止、リセット回路、EDM、安全出力側を一つずつ見ていくと原因を追いやすいです。
-          </p>
-
-          <div class="check-grid">
-            <div class="check-item">
-              <h3>電源</h3>
-              <p>安全リレー本体と関連回路に所定電圧があるか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>CH1 / CH2</h3>
-              <p>どちらか片側不成立や配線不良がないか確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>非常停止</h3>
-              <p>接点復帰状態と機械側の解除手順を確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>リセット回路</h3>
-              <p>手動リセット信号の入力条件を確認します。</p>
-            </div>
-            <div class="check-item">
-              <h3>EDM</h3>
-              <p>外部コンタクタの戻り接点が正しく返っているか見ます。</p>
-            </div>
-            <div class="check-item">
-              <h3>安全出力側</h3>
-              <p>出力先の配線、STO入力、運転許可回路を追います。</p>
-            </div>
-          </div>
-
-          <div class="talk-thread">
-            <div class="talk-row talk-row--right">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/cheerful_medic_ready_for_action.png" alt="新人">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--kouhai">新人</span>安全リレーが復帰しない時って、本体が壊れていると思いがちです。</p>
-              </div>
-            </div>
-            <div class="talk-row">
-              <div class="talk-avatar">
-                <img src="../assets/images/guide-characters/friendly_advice_with_a_raised_finger.png" alt="先輩">
-              </div>
-              <div class="talk-bubble">
-                <p><span class="talk-name talk-name--senpai">先輩</span>本体より先に、電源・CH1/CH2・リセット・EDMを順番に見る方がいいね。どこかの条件が成立していないことも多いよ。</p>
-              </div>
-            </div>
-          </div>
+          <h2>6. 復帰しない時、既存の記録をどこから読む？</h2>
+          <p>図面と承認済みの点検記録、通常の操作場所から読める表示を照らし合わせます。<strong>盤を開けて活線を測る、動作を再現する、リセットを繰り返す</strong>ための手順ではありません。</p>
+          <figure class="article-figure" data-no-amazon-link data-art-slot="diagnose">
+            <img src="../assets/images/safety-relay-basic/safety-relay-control-basic-diagnose-20261128.png" width="1500" height="920" alt="入力片側が不成立なら安全入力の記録、入力成立で安全出力がOFFなら戻り信号とリセット記録、安全出力ONで動かないなら起動指令と駆動側の記録を照合する。表示から故障や機械の安全は断定しない。" loading="lazy" decoding="async">
+            <figcaption>同じ「動かない」でも、記録のどこまで確認できたかで見直す資料が変わります。表示だけで原因は断定しません。</figcaption>
+          </figure>
+          <ol class="simple-list">
+            <li><strong>電源や入力の成立を確認できない：</strong>電源表示・エラー履歴・CH1 / CH2の記録をまず確認します。片側だけなら、どの入力の記録かを図面で照合します。LEDの点滅は正常な点灯と区別し、対象型式の資料で読みます。</li>
+            <li><strong>入力成立、出力はOFF：</strong>外部機器の戻り信号と、手動リセット条件を分けて既存の記録で確認します。記録なしは「未確認」で、「成立」でも「故障」でもありません。</li>
+            <li><strong>安全出力はON、機械は動かない：</strong>安全出力表示と、起動指令や駆動側の状態を分けて引き継ぎます。コンタクタ・STOだけでなく、運転条件や駆動側のエラーも設備固有の資料で確認します。</li>
+          </ol>
         </section>
 
         <section class="section-card" id="caution">
-          <h2>7. 注意点</h2>
-          <p>
-            安全リレーまわりは安全に関わる回路なので、通常の制御回路より慎重に扱う必要があります。
-            復帰しないからといって、入力を短絡したり、出力をジャンパーしたりすると危険です。
-          </p>
-
-          <ul class="simple-list">
-            <li>安全回路を不用意にバイパスしない</li>
-            <li>入力短絡や出力ジャンパーは危険</li>
-            <li>設備仕様、図面、メーカー資料、社内手順に従う</li>
-          </ul>
-
-          <div class="note-box">
-            <h3>この記事は基本の見方です</h3>
-            <p>
-              実際の設計、改造、復旧判断、安全カテゴリやPL/SILの判断は、設備仕様・リスクアセスメント・メーカー資料・社内ルールに従ってください。
-            </p>
+          <h2>7. 表示の確認と、機械が安全かの確認は別</h2>
+          <p>安全出力OFFでも、慣性で動きが続いたり、保持された圧力や重力による危険が残ったりします。STOも、電源を電気的に隔離したという意味ではありません。</p>
+          <div class="danger-box">
+            <h3>危険区域への立入り・保守の判断に使わない</h3>
+            <p>入力や戻り信号を強制したり、安全機能を無効にしたりしません。不明な状態では復旧を進めず、設備の責任者に記録を引き継ぎます。立入り・保守に必要な危険源の隔離や残留エネルギーの確認は、設備のリスク評価と承認済みの手順に従います。安全カテゴリ、PL、SILは機器単体の表示から判定しません。</p>
           </div>
         </section>
 
         <section class="section-card" id="summary">
           <h2>8. まとめ</h2>
-          <p>
-            安全リレーは、安全入力の状態を監視して、運転してよい条件が成立しているかを判断する部品です。
-            条件が崩れた時は安全出力をOFFにして、コンタクタやSTO、運転許可回路を停止側へ倒します。
-          </p>
-
           <ul class="simple-list">
-            <li>安全リレーは、安全条件を見て運転許可を出す部品</li>
-            <li>条件が崩れた時に安全出力をOFFにする</li>
-            <li>復帰しない時は順番に確認する</li>
+            <li>安全入力の成立は、安全出力復帰の条件の一部です。</li>
+            <li>EDMの戻り信号・リセット・別の起動指令は、役割を分けて読みます。</li>
+            <li>出力やLEDの状態を、機械の停止完了や立入りの安全確認に使いません。</li>
           </ul>
 
           <div class="article-footer-nav">
             <a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a>
             <a class="btn btn-secondary" href="../categories/circuit-basics.html">回路の基礎を見る</a>
           </div>
+        </section>
+
+        <section class="section-card" id="official-sources">
+          <h2>確認した公式資料</h2>
+          <p class="source-checked-date">公式資料確認：<time datetime="2026-11-28">2026年11月28日</time></p>
+          <ul class="simple-list">
+            <li><a href="https://www.fa.omron.co.jp/data_pdf/cat/g9se_sgfm-066_4_10.pdf?id=3419">オムロン：G9SE セーフティリレーユニット カタログ</a>（「入出力の配線について」「使用用途例」の動作説明）</li>
+            <li><a href="https://www.fa.omron.co.jp/products/family/3419/trubleshooting/">オムロン：G9SE トラブルシューティング</a>（型式別の表示）</li>
+            <li><a href="https://www.mhlw.go.jp/web/t_doc?dataId=00tb3488&amp;dataType=1&amp;pageNo=1">厚生労働省：機械の包括的な安全基準に関する指針</a>（別表第2・別表第4）</li>
+            <li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/inv/bcn-a211508-000e/bcna211508000ek.pdf">三菱電機：FREQROL-D700 セーフティストップ機能</a>（STOによるトルク遮断）</li>
+          </ul>
         </section>
 
         <section class="section-card" aria-labelledby="related-title">
@@ -1731,6 +1614,7 @@ body{
 
         <section class="side-card">
           <h3>先に読むと分かりやすい記事</h3>
+          <p>「解除したのに動かない」ときは、本文で入力・復帰・起動を分けてみよう。</p>
           <ul>
             <li><a href="emergency-stop-switch-basic.html">非常停止スイッチの基本</a></li>
             <li><a href="push-button-switch-basic.html">押しボタンスイッチの基本</a></li>

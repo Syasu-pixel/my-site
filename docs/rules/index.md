@@ -99,6 +99,7 @@
 | [docs/reference-notes/area-sensor-basic.md](../reference-notes/area-sensor-basic.md) — area-sensor-basic 公式参照メモ | articles/area-sensor-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/bandsaw.md](../reference-notes/bandsaw.md) — バンドソーの選び方 公式参照メモ | 既存記事「bandsaw」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/cable-cutter.md](../reference-notes/cable-cutter.md) — cable-cutter 公式参照メモ | 既存記事「cable-cutter」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/charging-tools-accessories.md](../reference-notes/charging-tools-accessories.md) — 充電工具アクセサリの参照資料 | 該当する既存日本語記事の技術説明・メーカー資料・適用範囲を確認する。 |
 | [docs/reference-notes/crimping-hydraulic-vs-electric.md](../reference-notes/crimping-hydraulic-vs-electric.md) — 充電式・手動油圧圧着機比較：一次資料確認 | 既存記事「充電式・手動油圧圧着機比較：一次資料確認」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/dc-motor-control-basic.md](../reference-notes/dc-motor-control-basic.md) — DCモーター制御 公式参照メモ | DCモーター制御記事の駆動方式・停止方法・回生の説明を更新または確認する。 |
 | [docs/reference-notes/dc24v-common-basic.md](../reference-notes/dc24v-common-basic.md) — DC24V COM 四コマ技術参照メモ | DC24V COMの記事・四コマ内容を確認するとき。 |
@@ -112,6 +113,8 @@
 | [docs/reference-notes/flow-switch-basic.md](../reference-notes/flow-switch-basic.md) — フロースイッチ 公式参照メモ | フロースイッチ記事の流量表示・設定条件・スイッチ出力・PLC入力や適用型式を更新または確認する。 |
 | [docs/reference-notes/gx-works3-monitor-basic.md](../reference-notes/gx-works3-monitor-basic.md) — gx-works3-monitor-basic 公式参照メモ | 既存記事「gx-works3-monitor-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/gxw3-comparison-instruction-basic.md](../reference-notes/gxw3-comparison-instruction-basic.md) — gxw3-comparison-instruction-basic 公式参照メモ | 既存記事「gxw3-comparison-instruction-basic 公式参照メモ」のメーカー資料と技術判断を確認するとき。 |
+| [docs/reference-notes/gxw3-mov-instruction-basic.md](../reference-notes/gxw3-mov-instruction-basic.md) — GX Works3のMOVの参照資料 | 該当する既存日本語記事の技術説明・メーカー資料・適用範囲を確認する。 |
+| [docs/reference-notes/ladder-work-platform.md](../reference-notes/ladder-work-platform.md) — 脚立・はしごの参照資料 | 該当する既存日本語記事の技術説明・メーカー資料・適用範囲を確認する。 |
 | [docs/reference-notes/load-cell-basic.md](../reference-notes/load-cell-basic.md) — load-cell-basic 公式参照メモ | articles/load-cell-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/magnetic-switch-basic.md](../reference-notes/magnetic-switch-basic.md) — magnetic-switch-basic 公式参照メモ | articles/magnetic-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/nipper.md](../reference-notes/nipper.md) — nipper 公式参照メモ | ニッパー記事の型式別切断能力・対象線材・公式資料を更新または確認する。 |
@@ -120,6 +123,7 @@
 | [docs/reference-notes/npn-pnp-basic.md](../reference-notes/npn-pnp-basic.md) — npn-pnp-basic 公式参照メモ | articles/npn-pnp-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/plc-basic.md](../reference-notes/plc-basic.md) — plc-basic 公式参照メモ | articles/plc-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/plc-io-allocation-basic.md](../reference-notes/plc-io-allocation-basic.md) — PLCのI/O割付 公式参照メモ | articles/plc-io-allocation-basic.html の技術内容・割付例・図・公式資料を更新または監査する。 |
+| [docs/reference-notes/plc-tc-device-basic.md](../reference-notes/plc-tc-device-basic.md) — PLCのT・Cの参照資料 | 該当する既存日本語記事の技術説明・メーカー資料・適用範囲を確認する。 |
 | [docs/reference-notes/reed-switch-basic.md](../reference-notes/reed-switch-basic.md) — reed-switch-basic 公式参照メモ | articles/reed-switch-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-control-basic.md](../reference-notes/safety-control-basic.md) — safety-control-basic 公式参照メモ | articles/safety-control-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/safety-relay-control-basic.md](../reference-notes/safety-relay-control-basic.md) — 安全リレー：一次資料確認記録 | 既存記事「safety-relay-control-basic」のメーカー資料と技術判断を確認するとき。 |
@@ -129,6 +133,7 @@
 | [docs/reference-notes/solenoid-valve-manual-override-basic.md](../reference-notes/solenoid-valve-manual-override-basic.md) — 電磁弁の手動操作：一次資料 | 既存記事「電磁弁の手動操作：一次資料」のメーカー資料と技術判断を確認するとき。 |
 | [docs/reference-notes/solenoid-valve-troubleshooting-basic.md](../reference-notes/solenoid-valve-troubleshooting-basic.md) — solenoid-valve-troubleshooting-basic 公式参照メモ | articles/solenoid-valve-troubleshooting-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/start-stop-circuit-basic.md](../reference-notes/start-stop-circuit-basic.md) — start-stop-circuit-basic 公式参照メモ | articles/start-stop-circuit-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
+| [docs/reference-notes/steel-wire.md](../reference-notes/steel-wire.md) — 通線ワイヤーの参照資料 | 該当する既存日本語記事の技術説明・メーカー資料・適用範囲を確認する。 |
 | [docs/reference-notes/sto-basic.md](../reference-notes/sto-basic.md) — sto-basic 公式参照メモ | articles/sto-basic.html の技術内容・画像・公式資料・用語を更新または監査する。 |
 | [docs/reference-notes/stripper.md](../reference-notes/stripper.md) — stripper 公式参照メモ | ストリッパー記事の被覆区分・型式別適用電線・公式資料を更新または確認する。 |
 | [docs/reference-notes/terminal-block-basic.md](../reference-notes/terminal-block-basic.md) — terminal-block-basic 公式参照メモ | 端子台記事の技術説明・識別例・安全表現・画像を編集または確認する。未完了事項と公開承認を区別する。 |

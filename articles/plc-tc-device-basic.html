@@ -102,6 +102,7 @@
       <div class="main-column">
         <section class="section-card" id="conclusion">
           <h2>1. 先に結論：Tは時間、Cは回数を見るデバイス</h2>
+          <p class="article-updated">最終内容更新：<time datetime="2026-11-28">2026年11月28日</time></p>
           <p>PLCのラダーで出てくる<strong>T</strong>はタイマ、<strong>C</strong>はカウンタとして使われることが多いデバイスです。T0、T1、C0、C1のように、アルファベットと番号を組み合わせて扱います。</p>
           <p>タイマは「一定時間たったらONする」、カウンタは「一定回数数えたらONする」と考えると入口は分かりやすいです。ただし実際のラダーでは、<span class="mark">現在値、設定値、リセット条件、接点としての使われ方</span>を分けて見る必要があります。</p>
           <div class="key-highlight"><h3>この記事で扱う範囲</h3><p>この記事では、TとCの基本的な役割、デバイス番号の見方、現在値・設定値の考え方、ラダーで追う時の注意点を整理します。機種ごとの詳細範囲や命令仕様は、公式マニュアルと実プロジェクトで確認してください。</p></div>
@@ -121,17 +122,21 @@
 
         <section class="section-card" id="timer">
           <h2>3. タイマTの見方</h2>
-          <p>タイマTは、条件が成立してから一定時間を数えるために使います。たとえば「センサーがONしてから2秒後に次の動作へ進む」「ランプを一定時間だけ点灯する」といった場面です。</p>
+          <p>タイマTは、条件が成立してからの経過時間を数えるために使います。たとえば、センサーの検出が一定時間続いたことを完了接点で判定します。</p>
           <p>ラダーを見る時は、Tの番号だけでなく、タイマを動かしている条件、設定値、タイマ接点がどこで使われているかを確認します。</p>
           <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-timer-flow.png" alt="タイマTの条件、現在値、設定値、接点の流れを示す図" loading="lazy" decoding="async"><figcaption>タイマは、条件成立、時間経過、タイマ接点ONという流れで見ると整理しやすいです。</figcaption></figure>
+          <h3>FX5では同じ「K20」でも命令によって時間が違う</h3>
+          <p>GX Works3で三菱電機MELSEC iQ-F FX5のラダーを読む例です。<code>T0</code>はデバイス番号、<code>K20</code>は10進定数の20。たとえば<code>OUT T0 K20</code>なら100 ms × 20で<strong>2秒相当</strong>です。<code>OUTH T0 K20</code>なら10 ms × 20で0.2秒相当、<code>OUTHS T0 K20</code>なら1 ms × 20で0.02秒相当。これは設定値の換算であり、接点が実際に切り替わる瞬間は命令の実行周期にも左右されます。</p>
+          <p>通常のTはコイル条件がOFFになると現在値が0に戻り、完了接点もOFFになります。FX5の積算タイマ<code>ST</code>は、コイルがOFFになると測定を止め、それまでの現在値と完了接点の状態を保持します。プログラム上のリセットは<code>RST ST0</code>のように同じデバイスを対象にします。<strong>条件OFFで保持することと、電源断後も残ることは別</strong>です。後者は対応CPU・ラッチ範囲・設定を確認してください。</p>
           <div class="check-grid"><div class="check-item check-item--important"><h3>起動条件</h3><p>どの接点や条件でタイマが数え始めるかを見ます。</p></div><div class="check-item check-item--field"><h3>設定値</h3><p>何秒相当でタイムアップする設定かを確認します。</p></div><div class="check-item check-item--warning"><h3>現在値</h3><p>今どこまで時間が進んでいるかを見ます。</p></div><div class="check-item check-item--purple"><h3>タイマ接点</h3><p>タイムアップ後にどの動作へつながるかを追います。</p></div></div>
         </section>
 
         <section class="section-card" id="counter">
           <h2>4. カウンタCの見方</h2>
           <p>カウンタCは、信号が入った回数を数えるために使います。たとえば「ワークを10個数えたら停止する」「ボタンを押した回数を数える」「センサー通過回数で次工程へ進む」といった場面です。</p>
-          <p>Cを見る時は、カウント入力だけでなく、リセット条件が重要です。カウントは進んでいるのに動作が変わらない場合、設定値に達していないのか、リセットされているのか、C接点の使い方が違うのかを分けて確認します。</p>
+          <p>FX5の通常カウンタの例では、<code>OUT C0 K3</code>の手前の条件がOFFからONへ変わるたびに1増えます。ONが続いても、同じONを毎スキャン数えるわけではありません。3回目でC0の完了を使え、条件がOFFになっただけでは現在値は0に戻りません。<code>RST C0</code>が実行されると現在値と完了状態をクリアします。電源断後の保持はラッチ設定などを別途確認します。</p>
           <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-counter-flow.png" alt="カウンタCの入力、現在値、設定値、リセット条件を整理した図" loading="lazy" decoding="async"><figcaption>カウンタは、何を数えているか、何回でONするか、どこでリセットされるかを分けて見ます。</figcaption></figure>
+          <figure class="article-figure"><img src="../assets/images/plc-tc-device-basic/plc-tc-device-basic-t-c-monitor-20261128.svg" width="960" height="574" alt="FX5の読み取り例。通常タイマT0は途中で条件がオフになると現在値が0。通常カウンタC0は条件の立ち上がりで1増え、条件オフだけでは保持し、RST C0で0に戻る。" loading="lazy" decoding="async"><figcaption>同じ「条件OFF」でも、通常タイマTと通常カウンタCでは現在値の動きが違います。画像をクリック／タップすると拡大表示できます。</figcaption></figure>
           <ol class="number-list"><li><strong>カウント入力を見る：</strong>どの信号を数えているか確認します。</li><li><strong>現在値を見る：</strong>今何回まで数えているか確認します。</li><li><strong>設定値を見る：</strong>何回で完了する条件か確認します。</li><li><strong>リセット条件を見る：</strong>どの条件で0に戻るか確認します。</li><li><strong>C接点の使われ方を見る：</strong>完了後にどの回路へつながるか追います。</li></ol>
         </section>
 
@@ -139,6 +144,7 @@
           <h2>5. 現在値・設定値・接点を分けて見る</h2>
           <p>TやCで迷いやすいのは、同じ番号でも「現在値を見る」「設定値を見る」「接点として使う」という見方が混ざることです。T0やC0という番号だけを見て判断せず、それが何の意味で表示されているかを確認します。</p>
           <div class="table-wrap"><table><thead><tr><th>見るもの</th><th>意味</th><th>確認ポイント</th></tr></thead><tbody><tr><td class="cell-blue">現在値</td><td>時間や回数が今どこまで進んでいるか</td><td>増えているか、途中で戻っていないかを見る</td></tr><tr><td class="cell-green">設定値</td><td>何秒・何回で完了とするか</td><td>仕様書や画面設定と合っているか確認する</td></tr><tr><td class="cell-purple">T接点 / C接点</td><td>完了後にONする条件</td><td>次工程や出力条件にどう使われるかを見る</td></tr><tr><td class="cell-orange">リセット条件</td><td>現在値を戻す条件</td><td>意図せず戻っていないか、戻し忘れがないか見る</td></tr></tbody></table></div>
+          <div class="note-box"><h3>「進まない」「進んだのに動かない」を分ける</h3><p>読み取り例：T0が12から0へ戻るなら、まず同時刻の起動条件が途中で切れていないかを確認します。C0が1のままなら、入力がONのままで次の立ち上がりがない場合と、別の箇所でリセットされる場合を区別します。T0/C0の完了接点がONなのに次へ進まない場合は、完了接点を使う側の別条件を追います。現場では記録・承認された読み取り手順に従い、実機出力を強制したり稼働中の設定値を書き換えたりしないでください。</p></div>
           <div class="note-box"><h3>表示形式や単位も確認する</h3><p>タイマの単位やカウンタの扱いは、PLC機種や命令の種類によって違う場合があります。秒、0.1秒、ms相当などを思い込みで判断せず、公式マニュアル・コメント・画面表示・既存仕様を合わせて確認します。</p></div>
         </section>
 
@@ -160,6 +166,11 @@
           <h2>8. まとめ</h2>
           <p>PLCのTはタイマ、Cはカウンタとして、時間や回数を扱うために使われることが多いデバイスです。ラダーを見る時は、番号だけでなく、現在値、設定値、接点、リセット条件を分けて確認すると理解しやすくなります。</p>
           <ul class="simple-list"><li>Tは時間を数えるタイマとして見る</li><li>Cは回数を数えるカウンタとして見る</li><li>現在値と設定値を分けて確認する</li><li>T接点・C接点がどこで使われているかを見る</li><li>リセット条件や単位を思い込みで判断しない</li></ul>
+          <div class="note-box" id="maker-sources"><h3>メーカー公式資料</h3>
+            <p class="source-checked-date">公式資料確認日：<time datetime="2026-11-28">2026年11月28日</time></p>
+            <ul><li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55401/jy997d55401ah.pdf">三菱電機 MELSEC iQ-F FX5 User’s Manual (Application)</a>：4.2 User DevicesのタイマT/ST・カウンタC、測定周期、ラッチ設定。</li><li><a href="https://dl.mitsubishielectric.com/dl/fa/document/manual/plcf/jy997d55801/jy997d55801ac.pdf">三菱電機 MELSEC iQ-F FX5 Programming Manual (Instructions, Standard Functions/Function Blocks)</a>：OUT T系、OUT C、RSTの命令仕様。</li></ul>
+            <p>上の数値・記号はFX5のオフライン学習例です。異なるCPUや別シリーズに当てはめず、実機では対象型式とプロジェクトの設定・メーカー資料を照合してください。実機配線・試運転手順ではありません。</p>
+          </div>
           <div class="article-footer-nav"><a class="btn btn-secondary" href="../categories/control-basics.html">制御の基礎一覧へ戻る</a><a class="btn btn-secondary" href="plc-xymd-device-basic.html">X・Y・M・Dを見る</a></div>
         </section>
 
